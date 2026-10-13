@@ -87,6 +87,7 @@ package policy.
 | LN-GOV-043 | `AGENTS.md` MUST require sibling `lapis-plugin-*` Storybooks to follow the same WorkspaceShell and six-placement panel contract as bundled plugins. It MUST forbid isolated pane stories and shell fallbacks, name Tasks Column Canvas as a Tasks-only exception, and point agents at the shared panel helpers plus History panel stories.                                                                                                                                                                                                                                               |
 | LN-GOV-044 | The spec-first map MUST route CI images, dependency-context helpers, signed Turbo cache configuration, local container runners, workflow orchestration, release packing, and environment examples to Architecture, Packages, and Specification Governance. Environment examples MUST document only public Nostr registry transport and trust configuration, never signer secrets. Storybook runtime-warning guards MUST remain mapped to Storybook Catalog.                                                                                                                              |
 | LN-GOV-045 | The spec-first map MUST route Deno host-service kernels to Deno Server Host, Desktop Host, Packages, and Architecture. Server package and server-mode Web changes MUST additionally route through Deno Server Host.                                                                                                                                                                                                                                                                                                                                                                      |
+| LN-GOV-046 | Dependency-image pin automation MUST update the verified digest, lockfile tag, and lockfile hash in Architecture, Packages, and Specification Governance alongside the manifest. The generated PR MUST include those chapters and retain the normal spec-first gate. |
 
 The Storybook structure audit treats AI, Bases, and History as required
 plugin Shell families and maps both Graph panel families through the shared
@@ -266,3 +267,18 @@ the host. Generated versioned entries and browser import maps share that module
 graph without exposing original private host specifiers. API and host Svelte
 peers retain the exact qualified compiler version; dependency drift fails the
 host-catalogue build before archives can be installed.
+
+CI image pin updates carry a generated snapshot of the verified build inputs in
+all three mapped chapters (LN-GOV-046). The image updater validates chapter
+availability and snapshot markers before writing; the automation stages those
+chapters together with the image manifest. No spec-first exemption applies.
+
+<!-- ci-dependency-image:start -->
+
+## Current CI dependency image
+
+- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:e5455b97a9720b7077ff39e7063142acce4ea9ba43b6e0fea7bbf1b41604969c`
+- Lockfile tag: `lock-94d5f9a010fea20a`
+- pnpm-lock.yaml SHA-256: `94d5f9a010fea20a6b11e2a53f8fc5f63af04048872daea3d993cb48f74e6031`
+
+<!-- ci-dependency-image:end -->

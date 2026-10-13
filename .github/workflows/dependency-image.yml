@@ -84,7 +84,13 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/update-ci-image-manifest.mjs "$IMAGE_DIGEST"
-          if git diff --quiet -- .ci/images.json; then
+          pin_paths=(
+            .ci/images.json
+            spec/src/architecture.md
+            spec/src/packages.md
+            spec/src/spec-governance.md
+          )
+          if git diff --quiet -- "${pin_paths[@]}"; then
             echo "The checked-in dependency image digest is current." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
@@ -92,12 +98,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "$branch"
-          git add .ci/images.json
+          git add -- "${pin_paths[@]}"
           git commit -m "chore(ci): pin ${IMAGE_TAG} dependency image"
           git push --force origin "HEAD:refs/heads/$branch"
           if gh pr view "$branch" --json url >/dev/null 2>&1; then
-            gh pr edit "$branch" --title "chore(ci): pin ${IMAGE_TAG} dependency image" --body "Pins the verified multi-architecture dependency image built from the current lockfile."
+            gh pr edit "$branch" --title "chore(ci): pin ${IMAGE_TAG} dependency image" --body "Pins the verified multi-architecture dependency image built from the current lockfile and records its digest, tag, and lockfile hash in every mapped canonical chapter."
           else
-            gh pr create --head "$branch" --base main --title "chore(ci): pin ${IMAGE_TAG} dependency image" --body "Pins the verified multi-architecture dependency image built from the current lockfile."
+            gh pr create --head "$branch" --base main --title "chore(ci): pin ${IMAGE_TAG} dependency image" --body "Pins the verified multi-architecture dependency image built from the current lockfile and records its digest, tag, and lockfile hash in every mapped canonical chapter."
           fi
           echo "Published ${IMAGE_TAG} at ${IMAGE_DIGEST}." >> "$GITHUB_STEP_SUMMARY"

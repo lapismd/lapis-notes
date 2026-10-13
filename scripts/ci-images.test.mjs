@@ -76,6 +76,106 @@ test("verified digest pin refreshes the current lockfile hash and tag", async (t
   assert.equal(manifest.base.digest, `sha256:${digest}`);
 });
 
+test("verified pin updates every mapped chapter and is idempotent", async (t) => {
+  const root = await fixtureRepository();
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const publishedDigest = `sha256:${"b".repeat(64)}`;
+  const first = await runImageUpdater(root, publishedDigest);
+  assert.equal(first.status, 0, first.stderr);
+  const manifest = await validateCiImageManifest(root);
+  const snapshots = new Map();
+  for (const chapter of ["architecture", "packages", "spec-governance"]) {
+    const file = path.join(root, `spec/src/${chapter}.md`);
+    const source = await readFile(file, "utf8");
+    assert.ok(source.startsWith(`# ${chapter}\n\nExisting policy.\n`));
+    assert.ok(
+      source.includes(`ghcr.io/lapismd/lapis-notes-ci@${publishedDigest}`),
+    );
+    assert.ok(source.includes(manifest.dependencies.tag));
+    assert.ok(source.includes(manifest.dependencies.lockfileSha256));
+    snapshots.set(file, source);
+  }
+  const repeated = await runImageUpdater(root, publishedDigest);
+  assert.equal(repeated.status, 0, repeated.stderr);
+  for (const [file, source] of snapshots) {
+    assert.equal(await readFile(file, "utf8"), source);
+  }
+  const nextDigest = `sha256:${"c".repeat(64)}`;
+  const refreshed = await runImageUpdater(root, nextDigest);
+  assert.equal(refreshed.status, 0, refreshed.stderr);
+  for (const file of snapshots.keys()) {
+    const source = await readFile(file, "utf8");
+    assert.ok(source.includes(nextDigest));
+    assert.ok(!source.includes(publishedDigest));
+    assert.equal(source.split("<!-- ci-dependency-image:start -->").length, 2);
+  }
+});
+
+test("missing mapped chapter prevents a partial manifest update", async (t) => {
+  const root = await fixtureRepository();
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const manifestPath = path.join(root, ".ci/images.json");
+  const chapterPath = path.join(root, "spec/src/architecture.md");
+  const manifestBefore = await readFile(manifestPath, "utf8");
+  const chapterBefore = await readFile(chapterPath, "utf8");
+  await rm(path.join(root, "spec/src/spec-governance.md"));
+  const result = await runImageUpdater(root, `sha256:${"b".repeat(64)}`);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /spec-governance/);
+  assert.equal(await readFile(manifestPath, "utf8"), manifestBefore);
+  assert.equal(await readFile(chapterPath, "utf8"), chapterBefore);
+});
+
+test("malformed snapshot markers prevent any pin or chapter rewrite", async (t) => {
+  const root = await fixtureRepository();
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const chapterPath = path.join(root, "spec/src/packages.md");
+  await writeFile(
+    chapterPath,
+    "# Packages\n<!-- ci-dependency-image:start -->\n",
+  );
+  const paths = [
+    ".ci/images.json",
+    "spec/src/architecture.md",
+    "spec/src/packages.md",
+    "spec/src/spec-governance.md",
+  ];
+  const before = await Promise.all(
+    paths.map((file) => readFile(path.join(root, file), "utf8")),
+  );
+  const result = await runImageUpdater(root, `sha256:${"b".repeat(64)}`);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /Invalid CI dependency-image markers/);
+  assert.deepEqual(
+    await Promise.all(
+      paths.map((file) => readFile(path.join(root, file), "utf8")),
+    ),
+    before,
+  );
+});
+
+test("automation stages all mapped pin outputs and checks them for changes", async () => {
+  const workflow = await readFile(
+    new URL("../.github/workflows/dependency-image.yml", import.meta.url),
+    "utf8",
+  );
+  const paths = workflow
+    .match(/pin_paths=\(([\s\S]*?)\)/)?.[1]
+    .trim()
+    .split(/\s+/);
+  assert.ok(paths, "The automation must declare its complete pin output set.");
+  for (const output of [
+    ".ci/images.json",
+    "spec/src/architecture.md",
+    "spec/src/packages.md",
+    "spec/src/spec-governance.md",
+  ]) {
+    assert.ok(paths.includes(output), `Automation omits ${output}`);
+  }
+  assert.ok(workflow.includes('git diff --quiet -- "${pin_paths[@]}"'));
+  assert.ok(workflow.includes('git add -- "${pin_paths[@]}"'));
+});
+
 test("invalid digest does not rewrite the image manifest", async (t) => {
   const root = await fixtureRepository();
   t.after(() => rm(root, { recursive: true, force: true }));
@@ -127,6 +227,13 @@ async function runImageUpdater(root, publishedDigest) {
 async function fixtureRepository() {
   const root = await mkdtemp(path.join(tmpdir(), "lapis-notes-ci-images-"));
   await mkdir(path.join(root, ".ci"), { recursive: true });
+  await mkdir(path.join(root, "spec/src"), { recursive: true });
+  for (const chapter of ["architecture", "packages", "spec-governance"]) {
+    await writeFile(
+      path.join(root, `spec/src/${chapter}.md`),
+      `# ${chapter}\n\nExisting policy.\n`,
+    );
+  }
   await mkdir(path.join(root, "packages/api/src"), { recursive: true });
   await mkdir(path.join(root, "patches"), { recursive: true });
   const lockfile = "lockfileVersion: '9.0'\n";
