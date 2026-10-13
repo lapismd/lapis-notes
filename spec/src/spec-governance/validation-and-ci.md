@@ -36,3 +36,5 @@ ephemeral keys and exact source provenance; it cannot authorize a release or
 replace the production signing gate.
 Workflow-shell regressions execute checkout and provenance handling against a
 different host SHA and reject a mismatched checkout.
+CI runners declare the external controller and Docker prerequisites needed to
+execute the complete acceptance graph; prerequisite absence remains a failure.

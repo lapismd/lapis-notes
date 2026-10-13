@@ -29,3 +29,6 @@ registry fixtures before V2 production cutover. Public package ranges stay
 portable; full Web and native packaged results remain blocking under LN-PKG-142.
 Fixture builds verify the checked-out Plugins commit before setting source
 provenance inside the executing shell, independently of the host workflow SHA.
+Native acceptance provisions the separately installed controller CLI from its
+exact public release source. Complete Web acceptance uses a native runner with
+Docker and builds the server image from the checked-out Notes candidate.

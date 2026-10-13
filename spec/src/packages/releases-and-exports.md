@@ -299,12 +299,19 @@ Registry-consumer toolchain and build-policy acceptance is recorded in
 
 Fixture builds verify their checkout and export source provenance in the executing
 shell so the host workflow SHA cannot label another repository's artifacts.
+The full suite includes server-host Docker acceptance, so the runner provisions
+Docker and builds the candidate server image before browser execution.
 
 ## LN-PKG-162 — Native packaged acceptance in CI
 
 <a id="ln-pkg-162"></a>
 
 **Requirement.** Pull-request and reusable CI MUST build validation-only packages on native macOS and Linux runners and execute cold packaged acceptance for first launch, URL handoff, controller, tools, services and clean close. Both platforms MUST complete independently and retain candidate artifacts. This lane MUST NOT publish, use production signing credentials or notarize.
+
+The separately installed controller CLI is provisioned from exact released source
+through its owning build and installer, in an isolated candidate area. Its npm SDK
+does not substitute for that executable. Acceptance passes the explicit CLI path
+and retains its runtime manifest alongside native package candidates.
 
 ## LN-PKG-163 — Portable terminal dependency during desktop packaging
 

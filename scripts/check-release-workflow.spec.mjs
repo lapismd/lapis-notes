@@ -228,6 +228,45 @@ test("Web fixtures come from an immutable Plugins candidate", () => {
   assert.ok(workflow.jobs["web-acceptance"].needs.includes("registry-fixture"));
 });
 
+test("native acceptance provisions the released standalone controller CLI", () => {
+  const native = workflow.jobs["desktop-packaged"];
+  assert.match(
+    workflow.env.LAPIS_CONTROLLER_CANDIDATE_COMMIT,
+    /^[a-f0-9]{40}$/,
+  );
+  const checkout = native.steps.find(
+    (step) => step.with?.repository === "lapismd/ai-controller",
+  );
+  assert.equal(
+    checkout.with.ref,
+    "${{ env.LAPIS_CONTROLLER_CANDIDATE_COMMIT }}",
+  );
+  const install = native.steps.find(
+    (step) => step.name === "Provision the released controller CLI",
+  );
+  assert.match(install.run, /git rev-parse HEAD/);
+  assert.match(install.run, /pnpm install --frozen-lockfile/);
+  assert.match(install.run, /pnpm build:cli/);
+  assert.match(install.run, /node scripts\/install-cli\.mjs/);
+  assert.match(install.run, /LAPIS_AI_CONTROLLER_BIN=/);
+  assert.match(install.run, /GITHUB_ENV/);
+});
+
+test("Web acceptance provisions Docker and builds the server candidate", () => {
+  const web = workflow.jobs["web-acceptance"];
+  assert.equal(web.container, undefined);
+  const server = web.steps.findIndex((step) =>
+    step.run?.includes("docker build -f packages/server-deno/Dockerfile"),
+  );
+  const suite = web.steps.findIndex((step) => step.run === "pnpm test:web:e2e");
+  assert.ok(server >= 0 && suite > server);
+  assert.ok(
+    web.steps.some((step) =>
+      step.run?.includes("playwright install --with-deps chromium"),
+    ),
+  );
+});
+
 test("fixture build uses the checked-out Plugins source instead of the host workflow SHA", () => {
   const build = workflow.jobs["registry-fixture"].steps.find(
     (step) => step.name === "Build test-signed registry candidate",

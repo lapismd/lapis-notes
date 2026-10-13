@@ -77,6 +77,25 @@ qualification must execute on GitHub; local macOS evidence is not Linux evidence
   packaged smoke reports include the failed phase, and failed native jobs retain
   their archives. The message-preservation regression changes from one failure
   to one pass. Linux startup qualification remains required.
+- The second Notes run verifies the correct Plugins source provenance and the
+  macOS bundle name. Both native runners then report the missing separately
+  installed controller executable. The npm package supplies the SDK, not that
+  CLI. CI now provisions the CLI from public release source
+  `0082a1151ad2da20d0288384636b25bec0778482` using the owning build and verified
+  installer, passes its isolated path explicitly, and retains its manifest.
+  That source passes 194 Node tests, seven runtime-install tests, specification,
+  architecture, types and boundaries; Notes' local cold smoke passes with this
+  exact released CLI instead of the developer's installed service snapshot.
+- Complete Web execution on the second run records nine passes and one failure:
+  the server-host test requires Docker, absent from the job container. The Web
+  job now uses native Ubuntu with Docker and Chromium, builds the server image
+  from the candidate, and preserves all ten tests. Candidate areas are excluded
+  from the server Docker context. Its prerequisite regression changes from one
+  failure to one pass; the controller prerequisite regression does the same.
+  A fresh local server image passes the exact server-host test (1/1), followed
+  by the complete signed-fixture Web suite (10/10). The prerequisite slice also
+  passes 70 release-tool tests, 23 workflow/transport tests, specification gates
+  and actionlint; clean GitHub execution remains required.
 - The repaired Notes candidate passes root check 18/18 tasks, root unit 18/18
   tasks, build 10/10 tasks, desktop 219 tests plus one existing skip, 68 release
   tests, specification/App-ownership/metadata gates, actionlint and formatting.
