@@ -1,5 +1,10 @@
 # Packages
 
+Pages publication restores or builds workspace `dist` outputs through the
+existing Turbo wrapper before starting Storybook (LN-PKG-152). This satisfies
+the API build-tool imports on a fresh checkout and reuses signed cache entries
+when available; cache absence still builds the required outputs.
+
 The generated `changeset-release/main` PR skips repeated source-change and
 release-intent gates under LN-GOV-047. Its version and changelog mutations come
 from source commits that already passed those gates. Every validation lane in
@@ -245,6 +250,11 @@ entrypoints.
 
 | LN-PKG-150 | `@lapis-notes/api/registry/schema` MUST expose transport-neutral V2 catalog schemas, types, verified-input V1 normalization, authored media fallback, and validated Changesets notes without importing Community, application boot, UI, or relay implementations. |
 | LN-PKG-151 | `@lapis-notes/api/build/vite` MUST own the reusable Turso browser-bundle transform used by Notes hosts and plugin Storybook. It MUST preserve runtime data URLs and worker construction, leave unrelated modules unchanged, and emit portable declarations without a Vite peer dependency. Build tooling MUST NOT be advertised as a renderer host module. |
+| LN-PKG-152 | Storybook Pages publication MUST restore or build workspace package outputs through the existing Turbo wrapper before loading Storybook configuration. The workflow MUST report cache restoration and retain output verification before upload and deployment. |
+| LN-PKG-153 | CI and Pages static Storybook builds MUST use a cacheable root Turbo task that depends on workspace builds and restores both `storybook-static` and Visual Delta build statistics. Output verification MUST still run before Pages upload. |
+| LN-PKG-154 | CI Storybook interaction and accessibility tests MUST use a cacheable root Turbo task that depends on workspace builds and executes the complete existing shard sequence on a miss. Only successful results MAY be reused; failures MUST remain blocking and execute again. |
+| LN-PKG-155 | Storybook cache keys MUST include tracked root inputs, workspace source and build configuration, dependencies and patches, CI image/setup inputs, Node version, platform, architecture, CI mode, Node options, and Playwright browser path. Cache-service credentials MUST NOT determine functional result identity. |
+| LN-PKG-156 | The API Turbo build task MUST cache its generated source host-module catalogue alongside `dist`. Restoring a successful build on a fresh checkout MUST reproduce the same catalogue consumed by source-aliased Storybook and host validation as executing the build. |
 
 The native filesystem adapter restores binding error codes under LN-DENO-077.
 The API owns startup fingerprint deletion recovery under LN-DB-054. Missing
@@ -848,3 +858,12 @@ normal specification gate (LN-GOV-046).
 - pnpm-lock.yaml SHA-256: `2f660c227301649f86cc72851fb8ae0c6556f17e78cfcc2d7256f84e42664df3`
 
 <!-- ci-dependency-image:end -->
+
+CI and the local `ci:release` parity script run `ci:storybook-static` and
+`ci:storybook-interaction` through the bounded
+signed Turbo wrapper (LN-PKG-153 through LN-PKG-155). Their raw root scripts
+retain the existing static build/index audit and complete four-shard Vitest
+sequence. Manual `build-storybook` and `test:storybook` stay direct execution
+paths for development and live-host acceptance. Cached CI tasks receive only
+isolated CI/toolchain options, not live controller or terminal credentials.
+Cache misses and unavailable remote caching execute the existing commands.

@@ -284,9 +284,25 @@ chapters together with the image manifest. No spec-first exemption applies.
 
 <!-- ci-dependency-image:end -->
 
-
 The generated Changesets release PR follows LN-GOV-047, matching Mira's release
 policy. Specification validation and build still run, alongside the required
 package, unit, browser, artifact, and aggregate lanes. Only the exact generated
 branch receives the diff-gate exception; dependency-image automation and other
 ordinary PRs retain their mapped chapter and release-intent requirements.
+
+The release workflow audit enforces the Pages package build preflight and its
+ordering before Storybook (LN-PKG-152). Regression coverage parses the real
+workflow to check setup, package outputs, and Storybook startup order; missing
+or misplaced preflights remain blocking release-policy failures.
+
+Storybook Turbo acceptance covers artifact restoration, source and toolchain
+invalidation, and repeated execution after failures (LN-PKG-153 through
+LN-PKG-155). CI and Pages use the same signed organization cache configuration
+and report result reuse separately from package build restoration. The full
+interaction and accessibility lane still runs on a miss and remains required
+by `validate`.
+
+LN-PKG-156 acceptance resets an API catalogue to its tracked pre-build state
+and removes `dist` before restoring the cache. The restored catalogue must
+match the generated one without another Storybook execution; tracked generated
+source churn from local verification remains outside the infrastructure PR.

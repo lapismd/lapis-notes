@@ -60,7 +60,7 @@
     "packages:check": "pnpm packages:policy && pnpm test:local-plugin-consumer && pnpm release:check && pnpm release:test",
     "packages:pack": "node --env-file-if-exists=.env scripts/pack-packages.mjs",
     "ci:packages": "node --env-file-if-exists=.env scripts/run-turbo.mjs build check test",
-    "ci:release": "pnpm packages:check && pnpm spec:check && pnpm check:no-tailwind && pnpm ci:packages && pnpm packages:pack -- --already-built && pnpm build-storybook && pnpm test:storybook",
+    "ci:release": "pnpm packages:check && pnpm spec:check && pnpm check:no-tailwind && pnpm ci:packages && pnpm packages:pack -- --already-built && node scripts/run-turbo.mjs ci:storybook-static --summarize && node scripts/run-turbo.mjs ci:storybook-interaction --summarize",
     "ci:container": "node --env-file-if-exists=.env scripts/run-ci-container.mjs",
     "release:check": "node ./scripts/check-release-config.mjs && node ./scripts/check-release-workflow.mjs",
     "release:intent": "node ./scripts/check-release-intent.mjs",
@@ -68,7 +68,7 @@
     "release:plan": "node ./scripts/release-plan.mjs",
     "release:prepare": "node ./scripts/prepare-release.mjs",
     "release:publish": "node ./scripts/publish-release.mjs",
-    "release:test": "node --test ./scripts/ci-images.test.mjs ./scripts/ci-container.test.mjs ./scripts/check-release-intent.spec.mjs ./scripts/check-release-workflow.spec.mjs ./scripts/create-github-releases.spec.mjs ./scripts/publish-release.spec.mjs ./scripts/release-manifest.spec.mjs ./scripts/release-plan.spec.mjs",
+    "release:test": "node --test ./scripts/storybook-turbo-cache.test.mjs ./scripts/ci-images.test.mjs ./scripts/ci-container.test.mjs ./scripts/check-release-intent.spec.mjs ./scripts/check-release-workflow.spec.mjs ./scripts/create-github-releases.spec.mjs ./scripts/publish-release.spec.mjs ./scripts/release-manifest.spec.mjs ./scripts/release-plan.spec.mjs",
     "release:verify": "node ./scripts/verify-release.mjs",
     "release:version": "changeset version && pnpm install --lockfile-only",
     "package:desktop": "pnpm --filter @lapis-notes/desktop-deno package:app",
@@ -84,7 +84,9 @@
     "performance:metadata:wasm": "tsx scripts/metadata-performance-wasm.ts",
     "performance:metadata:stress:native": "pnpm --filter @lapis-notes/api performance:metadata:native -- --notes 100000 --runs 1 --no-enforce",
     "performance:metadata:stress:wasm": "tsx scripts/metadata-performance-wasm.ts --notes 100000 --runs 1 --no-enforce",
-    "ai-controller": "lapis-ai-controller"
+    "ai-controller": "lapis-ai-controller",
+    "ci:storybook-static": "pnpm build-storybook",
+    "ci:storybook-interaction": "pnpm test:storybook"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.7.0",

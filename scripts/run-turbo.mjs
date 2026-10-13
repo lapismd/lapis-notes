@@ -9,6 +9,8 @@ if (args.length === 0) {
   throw new Error("Usage: run-turbo.mjs <task> [task ...] [Turbo options]");
 }
 
+// Browser/static results must never cross Node ABI, OS, or CPU boundaries.
+process.env.LAPIS_TURBO_TOOLCHAIN = `node-${process.versions.node}:${process.platform}:${process.arch}`;
 const concurrency = resolveTurboConcurrency();
 console.log(`Turbo concurrency: ${concurrency}`);
 console.log(

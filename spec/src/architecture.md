@@ -1,5 +1,10 @@
 # Architecture
 
+Storybook's host configuration imports the API's public build tooling through
+its `dist` exports. Pages publication must prepare the workspace package build
+graph before loading that configuration (LN-PKG-152), using the same Turbo
+restore-or-build path as static Storybook CI rather than source aliases.
+
 Changesets version PRs inherit source-change governance from their constituent
 commits under LN-GOV-047. Only the generated release PR skips those two diff
 gates; all package, specification, browser, and artifact validation remains in
@@ -833,3 +838,15 @@ host or package ownership.
 - pnpm-lock.yaml SHA-256: `2f660c227301649f86cc72851fb8ae0c6556f17e78cfcc2d7256f84e42664df3`
 
 <!-- ci-dependency-image:end -->
+
+Static Storybook output and successful interaction/a11y results are CI-owned
+Turbo tasks (LN-PKG-153 through LN-PKG-155). They depend on the workspace build
+graph so cached results cannot conceal missing API build-tool exports. The
+wrapper partitions result identity by the actual Node runtime, OS and CPU;
+root task inputs include directly aliased workspace sources and toolchain
+configuration. Application and plugin ownership remain unchanged.
+
+API build-cache outputs include the generated source host-module catalogue as
+well as `dist` (LN-PKG-156). Source-aliased hosts therefore see the same
+regenerated catalogue after a cache restore as after a fresh package build.
+The generator and its product contract remain API-owned.

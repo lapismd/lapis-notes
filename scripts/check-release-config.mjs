@@ -132,8 +132,12 @@ export function validateReleaseConfig(repoRoot = DEFAULT_REPO_ROOT) {
   if (!pagesWorkflow.includes("actions/deploy-pages@v5")) {
     fail("Storybook Pages workflow must deploy with GitHub Pages");
   }
-  if (!pagesWorkflow.includes("pnpm build-storybook")) {
-    fail("Storybook Pages workflow must build Storybook");
+  if (
+    !pagesWorkflow.includes(
+      "node scripts/run-turbo.mjs ci:storybook-static --summarize",
+    )
+  ) {
+    fail("Storybook Pages workflow must build Storybook through Turbo");
   }
 
   const readme = readFileSync(path.join(repoRoot, "README.md"), "utf8");
