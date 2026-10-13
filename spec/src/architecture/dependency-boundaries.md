@@ -1,5 +1,9 @@
 # Architecture / Dependency boundaries
 
+Local package tests already use Turbo. Repository-level test commands follow
+[the local test task contract](../packages/vault-and-storage.md#ln-pkg-159),
+with fresh execution for tests of external state.
+
 ## LN-ARCH-001 — Repository: a pnpm workspace orchestrated by Turbo. Targeted
 
 <a id="ln-arch-001"></a>

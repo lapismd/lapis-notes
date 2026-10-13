@@ -11,27 +11,33 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**"],
+      "outputLogs": "new-only"
     },
     "check": {
       "dependsOn": ["^build"],
-      "outputs": []
+      "outputs": [],
+      "outputLogs": "new-only"
     },
     "check:types": {
       "dependsOn": ["^build"],
-      "outputs": []
+      "outputs": [],
+      "outputLogs": "new-only"
     },
     "check:svelte": {
       "dependsOn": ["^build"],
-      "outputs": []
+      "outputs": [],
+      "outputLogs": "new-only"
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "envMode": "loose"
     },
     "test": {
       "dependsOn": ["^build"],
-      "outputs": []
+      "outputs": [],
+      "outputLogs": "new-only"
     },
     "//#ci:storybook-static": {
       "dependsOn": ["^build"],
@@ -46,15 +52,26 @@
         ".github/actions/ci-setup/action.yml",
         ".ci/images.json",
         ".ci/dependency-image.Dockerfile",
-        "!**/.DS_Store"
+        "!**/.DS_Store",
+        ".pnpmfile.cjs",
+        ".local-plugin-install.json"
       ],
       "env": [
         "CI",
         "LAPIS_TURBO_TOOLCHAIN",
         "NODE_OPTIONS",
-        "PLAYWRIGHT_BROWSERS_PATH"
+        "PLAYWRIGHT_BROWSERS_PATH",
+        "STORYBOOK_PORT",
+        "VISUAL_SERVER_PORT",
+        "STORYBOOK_EXTRA_PORTS",
+        "SPECIFICATION_PORT",
+        "SPECIFICATION_BASE_URL",
+        "WORKSPACE_STORYBOOK_PORT",
+        "WORKSPACE_VISUAL_SERVER_PORT",
+        "WATCHPACK_POLLING"
       ],
-      "outputs": ["storybook-static/**", ".visual-delta/cache/**"]
+      "outputs": ["storybook-static/**", ".visual-delta/cache/**"],
+      "outputLogs": "new-only"
     },
     "//#ci:storybook-interaction": {
       "dependsOn": ["^build"],
@@ -69,22 +86,436 @@
         ".github/actions/ci-setup/action.yml",
         ".ci/images.json",
         ".ci/dependency-image.Dockerfile",
-        "!**/.DS_Store"
+        "!**/.DS_Store",
+        ".pnpmfile.cjs",
+        ".local-plugin-install.json"
       ],
       "env": [
         "CI",
         "LAPIS_TURBO_TOOLCHAIN",
         "NODE_OPTIONS",
-        "PLAYWRIGHT_BROWSERS_PATH"
+        "PLAYWRIGHT_BROWSERS_PATH",
+        "STORYBOOK_PORT",
+        "VISUAL_SERVER_PORT",
+        "STORYBOOK_EXTRA_PORTS",
+        "SPECIFICATION_PORT",
+        "SPECIFICATION_BASE_URL",
+        "WORKSPACE_STORYBOOK_PORT",
+        "WORKSPACE_VISUAL_SERVER_PORT",
+        "WATCHPACK_POLLING"
       ],
-      "outputs": []
+      "outputs": [],
+      "outputLogs": "new-only"
     },
     "@lapis-notes/api#build": {
       "dependsOn": ["^build"],
       "outputs": [
         "dist/**",
         "src/lib/generated/plugin-host-modules.schema.generated.ts"
-      ]
+      ],
+      "outputLogs": "new-only"
+    },
+    "//#test:ai:smoke-harness:run": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/*/src/**",
+        "packages/*/scripts/**",
+        "packages/*/package.json",
+        "packages/*/tsconfig*.json",
+        "packages/*/svelte.config.*",
+        "packages/*/vite.config.*",
+        ".github/actions/ci-setup/action.yml",
+        ".ci/images.json",
+        ".ci/dependency-image.Dockerfile",
+        "!**/.DS_Store",
+        ".pnpmfile.cjs",
+        ".local-plugin-install.json"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#test:storybook:run": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/*/src/**",
+        "packages/*/scripts/**",
+        "packages/*/package.json",
+        "packages/*/tsconfig*.json",
+        "packages/*/svelte.config.*",
+        "packages/*/vite.config.*",
+        ".github/actions/ci-setup/action.yml",
+        ".ci/images.json",
+        ".ci/dependency-image.Dockerfile",
+        "!**/.DS_Store",
+        ".pnpmfile.cjs",
+        ".local-plugin-install.json"
+      ],
+      "outputs": [],
+      "dependsOn": ["^build"],
+      "env": [
+        "CI",
+        "LAPIS_TURBO_TOOLCHAIN",
+        "NODE_OPTIONS",
+        "PLAYWRIGHT_BROWSERS_PATH",
+        "STORYBOOK_PORT",
+        "VISUAL_SERVER_PORT",
+        "STORYBOOK_EXTRA_PORTS",
+        "SPECIFICATION_PORT",
+        "SPECIFICATION_BASE_URL",
+        "WORKSPACE_STORYBOOK_PORT",
+        "WORKSPACE_VISUAL_SERVER_PORT",
+        "WATCHPACK_POLLING"
+      ],
+      "outputLogs": "new-only"
+    },
+    "//#test:workspace:pointer:run": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/*/src/**",
+        "packages/*/scripts/**",
+        "packages/*/package.json",
+        "packages/*/tsconfig*.json",
+        "packages/*/svelte.config.*",
+        "packages/*/vite.config.*",
+        ".github/actions/ci-setup/action.yml",
+        ".ci/images.json",
+        ".ci/dependency-image.Dockerfile",
+        "!**/.DS_Store",
+        ".pnpmfile.cjs",
+        ".local-plugin-install.json"
+      ],
+      "outputs": [],
+      "dependsOn": ["^build"],
+      "env": [
+        "CI",
+        "LAPIS_TURBO_TOOLCHAIN",
+        "NODE_OPTIONS",
+        "PLAYWRIGHT_BROWSERS_PATH",
+        "STORYBOOK_PORT",
+        "VISUAL_SERVER_PORT",
+        "STORYBOOK_EXTRA_PORTS",
+        "SPECIFICATION_PORT",
+        "SPECIFICATION_BASE_URL",
+        "WORKSPACE_STORYBOOK_PORT",
+        "WORKSPACE_VISUAL_SERVER_PORT",
+        "WATCHPACK_POLLING"
+      ],
+      "cache": false,
+      "envMode": "loose"
+    },
+    "//#test:visual:run": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/*/src/**",
+        "packages/*/scripts/**",
+        "packages/*/package.json",
+        "packages/*/tsconfig*.json",
+        "packages/*/svelte.config.*",
+        "packages/*/vite.config.*",
+        ".github/actions/ci-setup/action.yml",
+        ".ci/images.json",
+        ".ci/dependency-image.Dockerfile",
+        "!**/.DS_Store",
+        ".pnpmfile.cjs",
+        ".local-plugin-install.json"
+      ],
+      "outputs": [],
+      "cache": false,
+      "envMode": "loose"
+    },
+    "//#test:visual:update:run": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/*/src/**",
+        "packages/*/scripts/**",
+        "packages/*/package.json",
+        "packages/*/tsconfig*.json",
+        "packages/*/svelte.config.*",
+        "packages/*/vite.config.*",
+        ".github/actions/ci-setup/action.yml",
+        ".ci/images.json",
+        ".ci/dependency-image.Dockerfile",
+        "!**/.DS_Store",
+        ".pnpmfile.cjs",
+        ".local-plugin-install.json"
+      ],
+      "outputs": [],
+      "cache": false,
+      "envMode": "loose"
+    },
+    "//#test:spec-validation:run": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/*/src/**",
+        "packages/*/scripts/**",
+        "packages/*/package.json",
+        "packages/*/tsconfig*.json",
+        "packages/*/svelte.config.*",
+        "packages/*/vite.config.*",
+        ".github/actions/ci-setup/action.yml",
+        ".ci/images.json",
+        ".ci/dependency-image.Dockerfile",
+        "!**/.DS_Store",
+        ".pnpmfile.cjs",
+        ".local-plugin-install.json"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#release:test:run": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/*/src/**",
+        "packages/*/scripts/**",
+        "packages/*/package.json",
+        "packages/*/tsconfig*.json",
+        "packages/*/svelte.config.*",
+        "packages/*/vite.config.*",
+        ".github/actions/ci-setup/action.yml",
+        ".ci/images.json",
+        ".ci/dependency-image.Dockerfile",
+        "!**/.DS_Store",
+        ".pnpmfile.cjs",
+        ".local-plugin-install.json"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#test:desktop:packaged:run": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/*/src/**",
+        "packages/*/scripts/**",
+        "packages/*/package.json",
+        "packages/*/tsconfig*.json",
+        "packages/*/svelte.config.*",
+        "packages/*/vite.config.*",
+        ".github/actions/ci-setup/action.yml",
+        ".ci/images.json",
+        ".ci/dependency-image.Dockerfile",
+        "!**/.DS_Store",
+        ".pnpmfile.cjs",
+        ".local-plugin-install.json"
+      ],
+      "outputs": [],
+      "cache": false,
+      "envMode": "loose"
+    },
+    "//#test:local-plugin-consumer:run": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/*/src/**",
+        "packages/*/scripts/**",
+        "packages/*/package.json",
+        "packages/*/tsconfig*.json",
+        "packages/*/svelte.config.*",
+        "packages/*/vite.config.*",
+        ".github/actions/ci-setup/action.yml",
+        ".ci/images.json",
+        ".ci/dependency-image.Dockerfile",
+        "!**/.DS_Store",
+        ".pnpmfile.cjs",
+        ".local-plugin-install.json"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#test:web:e2e:run": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/*/src/**",
+        "packages/*/scripts/**",
+        "packages/*/package.json",
+        "packages/*/tsconfig*.json",
+        "packages/*/svelte.config.*",
+        "packages/*/vite.config.*",
+        ".github/actions/ci-setup/action.yml",
+        ".ci/images.json",
+        ".ci/dependency-image.Dockerfile",
+        "!**/.DS_Store",
+        ".pnpmfile.cjs",
+        ".local-plugin-install.json"
+      ],
+      "outputs": [],
+      "cache": false,
+      "envMode": "loose"
+    },
+    "//#test:specification:dev:run": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/*/src/**",
+        "packages/*/scripts/**",
+        "packages/*/package.json",
+        "packages/*/tsconfig*.json",
+        "packages/*/svelte.config.*",
+        "packages/*/vite.config.*",
+        ".github/actions/ci-setup/action.yml",
+        ".ci/images.json",
+        ".ci/dependency-image.Dockerfile",
+        "!**/.DS_Store",
+        ".pnpmfile.cjs",
+        ".local-plugin-install.json"
+      ],
+      "outputs": [],
+      "dependsOn": ["^build"],
+      "env": [
+        "CI",
+        "LAPIS_TURBO_TOOLCHAIN",
+        "NODE_OPTIONS",
+        "PLAYWRIGHT_BROWSERS_PATH",
+        "STORYBOOK_PORT",
+        "VISUAL_SERVER_PORT",
+        "STORYBOOK_EXTRA_PORTS",
+        "SPECIFICATION_PORT",
+        "SPECIFICATION_BASE_URL",
+        "WORKSPACE_STORYBOOK_PORT",
+        "WORKSPACE_VISUAL_SERVER_PORT",
+        "WATCHPACK_POLLING"
+      ],
+      "outputLogs": "new-only"
+    },
+    "//#test:specification:static:run": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/*/src/**",
+        "packages/*/scripts/**",
+        "packages/*/package.json",
+        "packages/*/tsconfig*.json",
+        "packages/*/svelte.config.*",
+        "packages/*/vite.config.*",
+        ".github/actions/ci-setup/action.yml",
+        ".ci/images.json",
+        ".ci/dependency-image.Dockerfile",
+        "!**/.DS_Store",
+        ".pnpmfile.cjs",
+        ".local-plugin-install.json"
+      ],
+      "outputs": [],
+      "dependsOn": ["//#build-storybook:run"],
+      "env": [
+        "CI",
+        "LAPIS_TURBO_TOOLCHAIN",
+        "NODE_OPTIONS",
+        "PLAYWRIGHT_BROWSERS_PATH",
+        "STORYBOOK_PORT",
+        "VISUAL_SERVER_PORT",
+        "STORYBOOK_EXTRA_PORTS",
+        "SPECIFICATION_PORT",
+        "SPECIFICATION_BASE_URL",
+        "WORKSPACE_STORYBOOK_PORT",
+        "WORKSPACE_VISUAL_SERVER_PORT",
+        "WATCHPACK_POLLING"
+      ],
+      "outputLogs": "new-only"
+    },
+    "//#build-storybook:run": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/*/src/**",
+        "packages/*/scripts/**",
+        "packages/*/package.json",
+        "packages/*/tsconfig*.json",
+        "packages/*/svelte.config.*",
+        "packages/*/vite.config.*",
+        ".github/actions/ci-setup/action.yml",
+        ".ci/images.json",
+        ".ci/dependency-image.Dockerfile",
+        "!**/.DS_Store",
+        ".pnpmfile.cjs",
+        ".local-plugin-install.json"
+      ],
+      "outputs": ["storybook-static/**", ".visual-delta/cache/**"],
+      "dependsOn": ["^build"],
+      "env": [
+        "CI",
+        "LAPIS_TURBO_TOOLCHAIN",
+        "NODE_OPTIONS",
+        "PLAYWRIGHT_BROWSERS_PATH",
+        "STORYBOOK_PORT",
+        "VISUAL_SERVER_PORT",
+        "STORYBOOK_EXTRA_PORTS",
+        "SPECIFICATION_PORT",
+        "SPECIFICATION_BASE_URL",
+        "WORKSPACE_STORYBOOK_PORT",
+        "WORKSPACE_VISUAL_SERVER_PORT",
+        "WATCHPACK_POLLING"
+      ],
+      "outputLogs": "new-only"
+    },
+    "//#test:spec-validation:view-commands:run": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/*/src/**",
+        "packages/*/scripts/**",
+        "packages/*/package.json",
+        "packages/*/tsconfig*.json",
+        "packages/*/svelte.config.*",
+        "packages/*/vite.config.*",
+        ".github/actions/ci-setup/action.yml",
+        ".ci/images.json",
+        ".ci/dependency-image.Dockerfile",
+        "!**/.DS_Store",
+        ".pnpmfile.cjs",
+        ".local-plugin-install.json"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#test:spec-validation:storybook-structure:run": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/*/src/**",
+        "packages/*/scripts/**",
+        "packages/*/package.json",
+        "packages/*/tsconfig*.json",
+        "packages/*/svelte.config.*",
+        "packages/*/vite.config.*",
+        ".github/actions/ci-setup/action.yml",
+        ".ci/images.json",
+        ".ci/dependency-image.Dockerfile",
+        "!**/.DS_Store",
+        ".pnpmfile.cjs",
+        ".local-plugin-install.json"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#test:package-boundaries:run": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/*/src/**",
+        "packages/*/scripts/**",
+        "packages/*/package.json",
+        "packages/*/tsconfig*.json",
+        "packages/*/svelte.config.*",
+        "packages/*/vite.config.*",
+        ".github/actions/ci-setup/action.yml",
+        ".ci/images.json",
+        ".ci/dependency-image.Dockerfile",
+        "!**/.DS_Store",
+        ".pnpmfile.cjs",
+        ".local-plugin-install.json"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
     }
-  }
+  },
+  "globalEnv": [
+    "LAPIS_TURBO_TOOLCHAIN",
+    "CI",
+    "NODE_OPTIONS",
+    "PLAYWRIGHT_BROWSERS_PATH",
+    "DENO_BIN",
+    "TZ",
+    "LANG",
+    "LC_ALL"
+  ],
+  "globalPassThroughEnv": [
+    "LAPIS_AGENT_RUNTIME_URL",
+    "LAPIS_AGENT_RUNTIME_TOKEN",
+    "LAPIS_TERMINAL_HOST_URL",
+    "LAPIS_TERMINAL_HOST_TOKEN",
+    "LAPIS_DENO_PACKAGED_EXECUTABLE",
+    "LAPIS_WEB_REGISTRY_ACCEPTANCE"
+  ]
 }

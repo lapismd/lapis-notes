@@ -3,8 +3,15 @@
 import { spawn } from "node:child_process";
 
 import { resolveTurboConcurrency } from "./lib/concurrency.mjs";
+import {
+  isStorybookTask,
+  resolveTurboArguments,
+} from "./lib/turbo-invocation.mjs";
+import { loadStorybookLocalEnv } from "./storybook-local-env.mjs";
 
-const args = process.argv.slice(2).filter((arg) => arg !== "--");
+const requested = process.argv.slice(2);
+if (isStorybookTask(requested)) loadStorybookLocalEnv();
+const { args, live } = resolveTurboArguments(requested);
 if (args.length === 0) {
   throw new Error("Usage: run-turbo.mjs <task> [task ...] [Turbo options]");
 }
@@ -16,15 +23,24 @@ console.log(`Turbo concurrency: ${concurrency}`);
 console.log(
   process.env.TURBO_TOKEN?.trim()
     ? `Turbo remote cache: ${process.env.TURBO_API || "configured"}`
-    : "Turbo remote cache: unavailable; using normal local execution",
+    : "Turbo remote cache: unavailable; using local disk cache",
+);
+
+if (live) console.log("Turbo cache disabled for live Storybook acceptance.");
+
+// Turbo options belong before its command-argument separator.
+const boundary = args.indexOf("--");
+args.splice(
+  boundary < 0 ? args.length : boundary,
+  0,
+  `--concurrency=${concurrency}`,
 );
 
 process.exitCode = await new Promise((resolve, reject) => {
-  const child = spawn(
-    "pnpm",
-    ["exec", "turbo", "run", ...args, `--concurrency=${concurrency}`],
-    { env: process.env, stdio: "inherit" },
-  );
+  const child = spawn("pnpm", ["exec", "turbo", "run", ...args], {
+    env: process.env,
+    stdio: "inherit",
+  });
   child.on("error", reject);
   child.on("exit", (code, signal) => {
     if (signal) {

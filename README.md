@@ -86,9 +86,9 @@ release, update this repository to the published registry version.
 | `pnpm packages:check`                        | Validate public package boundaries and release configuration  |
 | `pnpm packages:pack`                         | Build and pack reviewed npm release tarballs                  |
 | `pnpm release:plan`                          | Compare package versions with the npm registry                |
-| `pnpm ci:packages`                           | Run the bounded Turbo build, check, and test graph             |
-| `pnpm ci:release`                            | Run release, package, Storybook, and policy validation         |
-| `pnpm ci:container`                          | Run release validation in the pinned Linux CI image            |
+| `pnpm ci:packages`                           | Run the bounded Turbo build, check, and test graph            |
+| `pnpm ci:release`                            | Run release, package, Storybook, and policy validation        |
+| `pnpm ci:container`                          | Run release validation in the pinned Linux CI image           |
 
 ## CI and local parity
 
@@ -123,3 +123,38 @@ for image refresh and local-container details.
 - Canonical requirements: [`spec/src/`](./spec/src/)
 - Supporting records: [`spec/records/`](./spec/records/)
 - Completed plans: [`spec/archive/`](./spec/archive/)
+
+## Local test caching
+
+Package unit tests already run through Turbo, as in `lapis-plugins`. Repository
+Storybook, release-tooling, specification, and browser test commands now use the
+same bounded runner. Successful deterministic results are reused from the local
+disk cache; configured signed remote caching is optional. Source, configuration,
+dependency, runtime, and test-argument changes invalidate those results. Failed
+tests run again. Cache hits suppress replayed suite logs so they are visibly
+different from new execution.
+
+```sh
+pnpm test --filter=@lapis-notes/workspace
+pnpm test:storybook
+pnpm test:spec-validation
+pnpm release:test
+pnpm test:specification:static
+```
+
+To prove a cold run or repeat a previously successful suite, use `--force`:
+
+```sh
+pnpm test --force
+pnpm test:storybook --force
+pnpm test:specification:dev --force
+```
+
+Live-server pointer checks, packaged desktop smoke checks, Web end-to-end
+checks, and visual staging or baseline updates run through Turbo with caching
+disabled. They depend on state outside the tracked task inputs. Storybook runs
+with an external base URL or live controller/terminal configuration also disable
+cache reads and writes. Visual baseline updates still require approval.
+The `:run` scripts are internal raw runners; use the public commands above for
+local caching. Direct `pnpm exec vitest` or `pnpm --filter <package> test` invokes
+the underlying runner directly; use the root Turbo commands for cached runs.

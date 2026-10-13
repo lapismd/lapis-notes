@@ -161,3 +161,15 @@
 <a id="ln-pkg-077"></a>
 
 **Requirement.** `@lapis-notes/ai` MUST own asynchronous chat preparation and conversation-location tab reuse. `@lapis-notes/api` MUST remain limited to generic main-tab creation, sidebar-leaf registration, activation, and reveal contracts; workspace packages MUST NOT acquire AI-specific navigation policy. AI MUST project folder scope breadcrumbs through the public View chrome hooks.
+
+## LN-PKG-159 — Local test task routing
+
+<a id="ln-pkg-159"></a>
+
+**Requirement.** Public local test commands MUST use the bounded Turbo runner. Deterministic repository-owned tests MUST reuse only successful results through registered tasks with explicit source, configuration, dependency, and runtime inputs. Internal raw runners MUST avoid recursion, and command arguments MUST participate in result identity. An explicit forced run MUST bypass successful result reuse.
+
+## LN-PKG-160 — Tests of external state
+
+<a id="ln-pkg-160"></a>
+
+**Requirement.** Tests of live servers, installed native executables, external dependency staging, or baseline mutation MUST remain uncached while running through Turbo. Supplying live controller, terminal, or external Storybook configuration MUST disable result reuse and writes. Cold acceptance MUST use a forced run; cache-service credentials MUST NOT affect functional result identity.

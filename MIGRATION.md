@@ -17,6 +17,16 @@ intake or UI swap status changes.
       The [acceptance record](spec/records/2026-10-13-specification-navigation.md)
       distinguishes earlier full passes from final local navigation timeouts.
 
+## Local test caching (2026-10-13)
+
+- [x] Route repository-level test commands and Storybook builds through the bounded
+      Turbo runner; package unit tests already use that graph.
+- [x] Cover successful cache reuse, source/argument invalidation, failed-result
+      reruns, forced execution, and live-configuration cache bypass with small
+      fixtures. Keep external-state and mutation tasks uncached.
+- [ ] Complete the full suites in PR CI; see the
+      [focused acceptance record](spec/records/2026-10-13-local-test-caching.md).
+
 ## Application ownership intake and integration (2026-08-16)
 
 - [x] Review the latest Lapis API, Workspace, Electron, web/PWA, Bases, AI,

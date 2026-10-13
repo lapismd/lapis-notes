@@ -52,7 +52,8 @@ CI and the local `ci:release` parity script run `ci:storybook-static` and
 `ci:storybook-interaction` through the bounded
 signed Turbo wrapper (LN-PKG-153 through LN-PKG-155). Their raw root scripts
 run the static build/index audit and deployment-subpath navigation, plus the
-complete four-shard Vitest sequence and cold development navigation. Manual `build-storybook` and `test:storybook` stay direct execution
-paths for development and live-host acceptance. Cached CI tasks receive only
+complete four-shard Vitest sequence and cold development navigation. Local `build-storybook` and test commands use registered Turbo tasks under
+LN-PKG-159. Forced runs and uncached external-state tasks preserve fresh
+acceptance under LN-PKG-160. Cached CI tasks receive only
 isolated CI/toolchain options, not live controller or terminal credentials.
 Cache misses and unavailable remote caching execute the existing commands.

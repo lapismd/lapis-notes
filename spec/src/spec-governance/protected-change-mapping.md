@@ -1,5 +1,9 @@
 # Specification Governance / Protected change mapping
 
+Configured specification-regression lanes use the registered
+[local Turbo test tasks](../packages/vault-and-storage.md#ln-pkg-159).
+Their canonical inputs remain part of result identity.
+
 ## LN-GOV-003 — Specification updates for protected changes
 
 <a id="ln-gov-003"></a>
