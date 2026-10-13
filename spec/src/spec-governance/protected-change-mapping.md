@@ -112,8 +112,8 @@ portable test-server startup contract.
 
 ## Current CI dependency image
 
-- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:5ef79cba3c761db0cacb95aacf87ab3c4d70c4b24aba8d8272449a75737c2fe6`
-- Lockfile tag: `lock-2f660c227301649f`
-- pnpm-lock.yaml SHA-256: `2f660c227301649f86cc72851fb8ae0c6556f17e78cfcc2d7256f84e42664df3`
+- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:5f613141805c539dbdf5f5f460d8eb31231ad522d24e01e22888fb906bb11992`
+- Lockfile tag: `lock-654683e1966e6631`
+- pnpm-lock.yaml SHA-256: `654683e1966e6631f48f3bbbcc1b4764a98c0f986a048649be41623dfdf79c51`
 
 <!-- ci-dependency-image:end -->
