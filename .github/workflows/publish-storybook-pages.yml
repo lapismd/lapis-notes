@@ -16,6 +16,12 @@ concurrency:
   group: lapis-storybook-pages
   cancel-in-progress: true
 
+env:
+  TURBO_API: ${{ vars.TURBO_API }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_REMOTE_CACHE_SIGNATURE_KEY: ${{ secrets.TURBO_REMOTE_CACHE_SIGNATURE_KEY }}
+
 jobs:
   build:
     name: Build Storybook
@@ -28,7 +34,13 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/ci-setup
-      - run: pnpm build-storybook
+      - name: Restore package builds
+        run: node scripts/run-turbo.mjs build --summarize
+      - name: Report cache restoration
+        run: node scripts/report-turbo-cache.mjs --github-summary
+      - run: node scripts/run-turbo.mjs ci:storybook-static --summarize
+      - name: Report Storybook cache result
+        run: node scripts/report-turbo-cache.mjs --github-summary
       - name: Verify Storybook output
         run: |
           test -f storybook-static/index.html
