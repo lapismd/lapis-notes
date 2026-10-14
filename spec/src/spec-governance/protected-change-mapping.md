@@ -1,5 +1,10 @@
 # Specification Governance / Protected change mapping
 
+The approved `2026.10.14.1` shared-image refresh maps direct workflow pins,
+the dependency-only Docker base and its regenerated immutable digest to
+Architecture, Packages and this chapter. All existing CI and release gates
+remain required.
+
 Release version preparation validates formatter availability and current-version
 changelog notes under [LN-PKG-164](../packages/releases-and-exports.md#ln-pkg-164).
 Its cached regression inputs include package changelogs and formatter configs.
@@ -116,11 +121,17 @@ overlay teardown fix; test-signed fixtures never authorize public assets.
 
 **Requirement.** The generated `changeset-release/main` PR MAY skip CI spec-first and release-intent checks already satisfied by its constituent source commits. Ordinary PRs MUST retain both gates.
 
+## LN-GOV-050 — Dependency-image PR selection: reuse only an open review
+
+<a id="ln-gov-050"></a>
+
+**Requirement.** Dependency-image publication MUST reuse only an open pull request for its exact automation head and main base. A previously closed or merged pull request MUST result in a new review PR for the fresh digest.
+
 <!-- ci-dependency-image:start -->
 
 ## Current CI dependency image
 
-- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:5f613141805c539dbdf5f5f460d8eb31231ad522d24e01e22888fb906bb11992`
+- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:8a8d7c3e21443a54e0b836f28742483722c050087d382c5194a19d52eba4407d`
 - Lockfile tag: `lock-654683e1966e6631`
 - pnpm-lock.yaml SHA-256: `654683e1966e6631f48f3bbbcc1b4764a98c0f986a048649be41623dfdf79c51`
 

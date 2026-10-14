@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "base": {
     "image": "ghcr.io/lapismd/lapis-ci",
-    "tag": "2026.08.1",
-    "digest": "sha256:8fb0ecf5e978c9b44acd8394d78f689d93404f30f8014861a10a7eb2b90b96b8"
+    "tag": "2026.10.14.1",
+    "digest": "sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503"
   },
   "dependencies": {
     "image": "ghcr.io/lapismd/lapis-notes-ci",
     "tag": "lock-654683e1966e6631",
     "lockfileSha256": "654683e1966e6631f48f3bbbcc1b4764a98c0f986a048649be41623dfdf79c51",
-    "digest": "sha256:5f613141805c539dbdf5f5f460d8eb31231ad522d24e01e22888fb906bb11992"
+    "digest": "sha256:8a8d7c3e21443a54e0b836f28742483722c050087d382c5194a19d52eba4407d"
   }
 }

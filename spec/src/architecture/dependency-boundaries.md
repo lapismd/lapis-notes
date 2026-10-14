@@ -1,5 +1,13 @@
 # Architecture / Dependency boundaries
 
+Dependency-image refreshes follow LN-GOV-050 when proposing the new digest:
+merged and closed reviews produce a fresh PR rather than absorb a later pin.
+
+The shared base is the approved multi-architecture `lapis-ci:2026.10.14.1`,
+pinned by digest. It provides checksum-verified GitHub CLI 2.102.0 for release
+records. Direct workflow pins and the dependency-only Docker base must agree;
+the dependency image is rebuilt before its immutable digest is consumed.
+
 Release version preparation validates formatter availability and current-version
 changelog notes under [LN-PKG-164](../packages/releases-and-exports.md#ln-pkg-164).
 Its cached regression inputs include package changelogs and formatter configs.
@@ -201,7 +209,7 @@ so standalone CI needs no sibling release directory.
 
 ## Current CI dependency image
 
-- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:5f613141805c539dbdf5f5f460d8eb31231ad522d24e01e22888fb906bb11992`
+- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:8a8d7c3e21443a54e0b836f28742483722c050087d382c5194a19d52eba4407d`
 - Lockfile tag: `lock-654683e1966e6631`
 - pnpm-lock.yaml SHA-256: `654683e1966e6631f48f3bbbcc1b4764a98c0f986a048649be41623dfdf79c51`
 

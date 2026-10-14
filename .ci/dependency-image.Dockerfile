@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 
-ARG LAPIS_CI_IMAGE=ghcr.io/lapismd/lapis-ci@sha256:8fb0ecf5e978c9b44acd8394d78f689d93404f30f8014861a10a7eb2b90b96b8
+ARG LAPIS_CI_IMAGE=ghcr.io/lapismd/lapis-ci@sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503
 
 FROM ${LAPIS_CI_IMAGE} AS fetch
 WORKDIR /dependency-context
