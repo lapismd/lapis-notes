@@ -209,7 +209,7 @@ so standalone CI needs no sibling release directory.
 
 ## Current CI dependency image
 
-- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:8a8d7c3e21443a54e0b836f28742483722c050087d382c5194a19d52eba4407d`
+- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:22e375c5a6d598690758602441862e76ff990027e8d341598521c2007a3c6bb1`
 - Lockfile tag: `lock-654683e1966e6631`
 - pnpm-lock.yaml SHA-256: `654683e1966e6631f48f3bbbcc1b4764a98c0f986a048649be41623dfdf79c51`
 
