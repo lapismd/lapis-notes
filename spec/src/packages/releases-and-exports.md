@@ -345,7 +345,7 @@ on top of released 0.1.0 controller source; npm SDK ranges remain unchanged.
 
 Desktop application releases use the separate `desktop-v<version>` tag namespace
 and the private desktop package version. The source-owned packaging pipeline
-produces four native candidates, qualifies their actual Homebrew installations,
+produces three native candidates (macOS ARM64 and Linux ARM64/x86-64), qualifies their actual Homebrew installations,
 and publishes immutable archives with a source-bound manifest. Manual dispatch
 remains validation-only; native jobs select and verify the pinned Node and Deno
 toolchain after Homebrew setup modifies PATH. The Homebrew tap

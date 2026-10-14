@@ -11,6 +11,9 @@ Homebrew tap owns installation paths and desktop integration while consuming
 the released source-bound archive contract. Core installation acceptance uses
 an explicit native/renderer test scope; normal startup and full controller
 acceptance retain their existing ownership and lifecycle boundaries.
+The first release qualifies macOS ARM64 and Linux ARM64/x86-64. Intel macOS
+remains deferred because the pinned Turso database lacks a published native
+addon for that platform; the tap rejects that unsupported architecture.
 
 ## LN-ARCH-009 — Api compatibility projection: preserve every persisted design-core V3 workspace region
 

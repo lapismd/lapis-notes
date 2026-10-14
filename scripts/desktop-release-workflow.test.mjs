@@ -20,7 +20,7 @@ test("desktop workflow rejects cross-host and missing-architecture qualification
     /native target/,
   );
   workflow.jobs.native.strategy.matrix.include.pop();
-  assert.throws(() => validateDesktopReleaseWorkflow(workflow), /four/);
+  assert.throws(() => validateDesktopReleaseWorkflow(workflow), /three/);
 });
 test("desktop workflow rejects publication without complete native acceptance", () => {
   const workflow = read();

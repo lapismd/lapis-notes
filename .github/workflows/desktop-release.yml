@@ -19,7 +19,7 @@ defaults:
   run:
     shell: bash
 env:
-  LAPIS_HOMEBREW_TAP_COMMIT: "f0565bfc33a595d45e17d6b2ef312f5d386ecdd1"
+  LAPIS_HOMEBREW_TAP_COMMIT: "41a4f6f89fb5d3abe0a5d36886d03f68d02514a4"
   LAPIS_CONTROLLER_CANDIDATE_COMMIT: "ac0adf67ea80ead3526fa6ff20b13a8fa2523dec"
 jobs:
   contract:
@@ -52,12 +52,6 @@ jobs:
               os: macos-15,
               arch: arm64,
               target: aarch64-apple-darwin,
-            }
-          - {
-              label: macos-x64,
-              os: macos-15-intel,
-              arch: x64,
-              target: x86_64-apple-darwin,
             }
           - {
               label: linux-arm64,

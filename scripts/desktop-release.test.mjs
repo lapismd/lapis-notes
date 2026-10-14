@@ -14,7 +14,6 @@ const version = "2026.31.5";
 const sourceCommit = "a".repeat(40);
 const targets = [
   "aarch64-apple-darwin",
-  "x86_64-apple-darwin",
   "aarch64-unknown-linux-gnu",
   "x86_64-unknown-linux-gnu",
 ];
@@ -59,10 +58,10 @@ test("desktop tags must exactly match the private application version", () => {
   );
 });
 
-test("assembles four source-bound targets and verifies actual artifact bytes", async () =>
+test("assembles three source-bound targets and verifies actual artifact bytes", async () =>
   fixture(async ({ directory, manifests }) => {
     const manifest = assembleDesktopManifest(manifests);
-    assert.equal(manifest.artifacts.length, 4);
+    assert.equal(manifest.artifacts.length, 3);
     assert.equal(manifest.sourceCommit, sourceCommit);
     assert.equal(manifest.tag, `desktop-v${version}`);
     assert.match(
@@ -76,13 +75,34 @@ test("rejects missing and duplicate target qualification", async () =>
   fixture(async ({ manifests }) => {
     assert.throws(
       () => assembleDesktopManifest(manifests.slice(1)),
-      /four targets/,
+      /three targets/,
     );
     assert.throws(
       () => assembleDesktopManifest([...manifests.slice(1), manifests[1]]),
       /duplicate/,
     );
   }));
+
+test("rejects deferred Intel macOS packaging and qualification", async () => {
+  await assert.rejects(
+    createTargetManifest({
+      directory: ".",
+      version,
+      sourceCommit,
+      target: "x86_64-apple-darwin",
+    }),
+    /Unsupported desktop target/,
+  );
+  await fixture(async ({ manifests }) => {
+    const changed = structuredClone(manifests);
+    changed[0].artifacts[0].target = "x86_64-apple-darwin";
+    assert.throws(() => assembleDesktopManifest(changed), /Unsupported/);
+    assert.throws(
+      () => assembleDesktopManifest([...manifests, changed[0]]),
+      /three targets/,
+    );
+  });
+});
 
 test("rejects mixing source commits or application versions", async () =>
   fixture(async ({ manifests }) => {

@@ -8,7 +8,6 @@ import { createDistributionPlan } from "../packages/desktop-deno/scripts/distrib
 
 export const DESKTOP_TARGETS = [
   "aarch64-apple-darwin",
-  "x86_64-apple-darwin",
   "aarch64-unknown-linux-gnu",
   "x86_64-unknown-linux-gnu",
 ];
@@ -74,8 +73,8 @@ export async function createTargetManifest({
 }
 
 export function assembleDesktopManifest(manifests) {
-  if (manifests.length !== 4)
-    throw new Error("Desktop release requires all four targets");
+  if (manifests.length !== DESKTOP_TARGETS.length)
+    throw new Error("Desktop release requires all three targets");
   const first = manifests[0];
   const root = metadata(first.version, first.sourceCommit);
   const artifacts = [];
@@ -181,7 +180,7 @@ async function publishDesktopRelease(manifest, directory) {
       target_commitish: manifest.sourceCommit,
       name: `Lapis Notes ${manifest.version}`,
       draft: true,
-      body: "Lapis Notes desktop for macOS and Linux on ARM64 and x86-64. macOS builds are ad-hoc signed, without Developer ID signing or notarization. See the Homebrew tap installation guide.",
+      body: "Lapis Notes desktop for Apple Silicon macOS 15+ and ARM64/x86-64 Linux (Ubuntu 24.04). Intel macOS is deferred because the pinned Turso database has no published native addon for that platform. macOS builds are ad-hoc signed, without Developer ID signing or notarization. [Homebrew installation guide](https://github.com/lapismd/homebrew-tap#readme).",
       make_latest: "false",
     }),
   });

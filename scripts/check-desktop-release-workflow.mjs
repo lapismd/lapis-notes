@@ -7,16 +7,16 @@ import { DESKTOP_TARGETS } from "./desktop-release.mjs";
 export function validateDesktopReleaseWorkflow(workflow) {
   const matrix = workflow.jobs.native.strategy.matrix.include;
   if (
-    matrix.length !== 4 ||
-    new Set(matrix.map((item) => item.target)).size !== 4 ||
+    matrix.length !== DESKTOP_TARGETS.length ||
+    new Set(matrix.map((item) => item.target)).size !==
+      DESKTOP_TARGETS.length ||
     !DESKTOP_TARGETS.every((target) =>
       matrix.some((item) => item.target === target),
     )
   )
-    throw new Error("Desktop CI must qualify all four native targets");
+    throw new Error("Desktop CI must qualify all three native targets");
   const platforms = {
     "aarch64-apple-darwin": "macos-15",
-    "x86_64-apple-darwin": "macos-15-intel",
     "aarch64-unknown-linux-gnu": "ubuntu-24.04-arm",
     "x86_64-unknown-linux-gnu": "ubuntu-24.04",
   };
