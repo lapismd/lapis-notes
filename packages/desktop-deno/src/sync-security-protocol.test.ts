@@ -7,9 +7,10 @@ it("preserves exact canonical byte frames with native base64 or the portable fal
   const expected = encodeSyncValue(bytes);
   const encoder = Object.getOwnPropertyDescriptor(
       Uint8Array.prototype,
-      "toBase64",
+      "toBase64"
     ),
-    decoder = Object.getOwnPropertyDescriptor(Uint8Array, "fromBase64");
+    decoder = Object.getOwnPropertyDescriptor(Uint8Array, "fromBase64"),
+    buffer = Object.getOwnPropertyDescriptor(globalThis, "Buffer");
   try {
     Object.defineProperty(Uint8Array.prototype, "toBase64", {
       configurable: true,
@@ -22,9 +23,26 @@ it("preserves exact canonical byte frames with native base64 or the portable fal
     expect(encodeSyncValue(bytes)).toBe(expected);
     expect(decodeSyncValue(expected)).toEqual(bytes);
     expect(() => decodeSyncValue('["bytes","AQ"]')).toThrow(
-      "Invalid native Sync payload",
+      "Invalid native Sync payload"
+    );
+    const decoded = decodeSyncValue(
+      encodeSyncValue(bytes.subarray(3, 7))
+    ) as Uint8Array;
+    expect(decoded).toEqual(bytes.subarray(3, 7));
+    expect(decoded.byteOffset).toBe(0);
+    expect(decoded.buffer.byteLength).toBe(decoded.byteLength);
+    Object.defineProperty(globalThis, "Buffer", {
+      configurable: true,
+      value: undefined,
+    });
+    expect(encodeSyncValue(bytes)).toBe(expected);
+    expect(decodeSyncValue(expected)).toEqual(bytes);
+    expect(() => decodeSyncValue('["bytes","AQ"]')).toThrow(
+      "Invalid native Sync payload"
     );
   } finally {
+    if (buffer) Object.defineProperty(globalThis, "Buffer", buffer);
+    else Reflect.deleteProperty(globalThis, "Buffer");
     if (encoder)
       Object.defineProperty(Uint8Array.prototype, "toBase64", encoder);
     else Reflect.deleteProperty(Uint8Array.prototype, "toBase64");
@@ -46,13 +64,13 @@ it.each([
     classifyDesktopTelemetryOperation(command, {
       passphrase: "private recovery phrase",
       args: "private content",
-    }),
+    })
   ).toBeNull();
 });
 
 it("round-trips binary security results and prototype-shaped metadata through JSON", () => {
   const metadata = JSON.parse(
-    '{"__proto__":{"safe":true},"constructor":"note.md","tag":["bytes","aGVsbG8="],"objectTag":{"$syncBytes":"aGVsbG8="}}',
+    '{"__proto__":{"safe":true},"constructor":"note.md","tag":["bytes","aGVsbG8="],"objectTag":{"$syncBytes":"aGVsbG8="}}'
   );
   const value = {
     bytes: new Uint8Array([0, 127, 255]),
@@ -61,7 +79,7 @@ it("round-trips binary security results and prototype-shaped metadata through JS
     empty: null,
   };
   const decoded = decodeSyncValue(
-    JSON.parse(JSON.stringify(encodeSyncValue(value))),
+    JSON.parse(JSON.stringify(encodeSyncValue(value)))
   ) as typeof value;
   expect(decoded).toEqual(value);
   expect(Object.getPrototypeOf(decoded.metadata)).toBe(Object.prototype);
@@ -72,7 +90,7 @@ it.each([NaN, Infinity, 1n, () => 1, new Date(0)])(
   "rejects nonportable values without exposing them (%s)",
   (value) => {
     expect(() => encodeSyncValue(value)).toThrow("Invalid native Sync payload");
-  },
+  }
 );
 
 it.each([

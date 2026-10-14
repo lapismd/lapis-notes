@@ -1,5 +1,9 @@
 # Architecture / Host boundaries
 
+Desktop RPC codec acceleration retains the bounded, canonical frames under
+LN-DENO-088. Node-decoded byte views own their payload storage; private codec
+selection does not change host authority, wire formats or plugin access.
+
 Static registry archive transport follows the API-owned signed delivery and
 origin-fallback contract in [LN-PLUG-110 and LN-PLUG-111](../plugin-model/distribution-and-registry-01.md#ln-plug-110).
 Web, server and native hosts share archive verification; a registry delivery

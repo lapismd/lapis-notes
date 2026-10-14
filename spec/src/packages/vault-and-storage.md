@@ -1,5 +1,10 @@
 # Packages / Vault and storage
 
+The desktop's native RPC codec remains host-owned and preserves the same
+bounded JSON frames across Node and portable hosts under LN-DENO-088. The
+[Sync release record](../../records/2026-10-14-sync-host-release.md) retains
+cross-runtime codec and payload-isolation evidence; public exports are unchanged.
+
 Development Docs acceptance uses installed package exports after its Turbo
 build prerequisites; the [portable startup contract](../storybook-catalog/build-and-process.md#ln-cat-117)
 keeps sibling release preparation outside standalone CI.

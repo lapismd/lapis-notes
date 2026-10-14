@@ -1,7 +1,7 @@
 # Sync host release reconciliation — 14 October 2026
 
-Status: source candidate reconciled in the default workspace; PR/release
-qualification remains pending. This is the Notes public-package checkpoint
+Status: [source PR #28](https://github.com/lapismd/lapis-notes/pull/28) is draft;
+CI repair verification and publication remain pending. This is the Notes public-package checkpoint
 under the Plugins incremental delivery plan's stage 0B. Sync landing and
 activation remain later checkpoints.
 
@@ -75,9 +75,57 @@ node --test scripts/dependency-security.spec.mjs \
   scripts/desktop-release.test.mjs scripts/desktop-release-workflow.test.mjs
 ```
 
-Full cold catalog, packed consumers and required PR/release gates remain
-pending. Existing prior qualification is supporting evidence; it does not
-replace current release checks.
+The complete cold catalog passes 249 interaction/accessibility stories across
+four fresh shards (90, 65, 40, 54). Static Storybook renders all 172 chapters.
+The API and Workspace versions in source are already published, so the package
+planner selects no tarballs at this source-PR stage. Actual packed-consumer and
+npm verification follow the Changesets version PR; this no-work result is not
+packed-artifact acceptance.
+
+## CI findings and bounded repair
+
+The [initial source CI](https://github.com/lapismd/lapis-notes/actions/runs/38640300007)
+passes ten required jobs, including governance, quality, full catalog, Web
+acceptance and both packaged desktop lanes. Unit and its aggregate job fail:
+the 20 MiB native bridge case exceeds its unchanged five-second budget on
+Node 24.15.0. It passes locally on Node 26, and takes 2.47 seconds when isolated
+locally on Node 24.15.0. The Linux x64 desktop-release lane fails the same case.
+
+Optimize the existing codec rather than changing size, assertions, timeouts or
+wire format. Node uses its native Buffer conversion when Uint8Array base64
+methods are unavailable; other hosts retain the portable path. Portable decode
+preallocates its output, and Node decoding copies only payload bytes into an
+independent buffer. The existing native/fallback case now also proves Node
+equivalence and isolation from pooled backing bytes.
+
+The exact Node 24 20 MiB target passes in 512 ms afterward. Its complete
+codec/bridge family passes 36 cases, and all 296 desktop cases pass on Node 24
+with the existing one integration skip. Desktop check has zero errors/warnings
+and its build passes. Frozen Deno checks pass. Root check/test/build then pass
+again (18/18/10 tasks), and explicit spec-first covers the two changed runtime/
+test paths plus all three mapped canonical chapters. CI revalidation is
+required before calling the timeout resolved on hosted runners.
+
+The separate Linux ARM desktop-release lane fails the unchanged compiled
+AI-controller integration target: no completed event appears within its
+20-second polling budget. This is separate from the passing classic packaged
+desktop lanes and the default local integration skip. Root cause remains open;
+no controller workaround or assertion change is added.
+
+The candidate's aggregate second catalog shard logs five caught AI Catalog
+line-range errors while passing all 65 cases. Its exact six-story Catalog
+family passes cleanly in isolation. The same second shard on refreshed main
+plus the audit commits passes 65 cases without those diagnostics. This
+candidate-dependent lifecycle diagnostic remains open for a focused follow-up;
+zero assertion/accessibility failures do not imply diagnostic-free operation.
+
+No assertion, timeout, test size, audit policy or visual baseline is weakened.
+The default workspace is back on the source candidate after the temporary
+baseline comparison; no new implementation workspace was created.
+
+Existing prior qualification is supporting evidence; it does not replace
+current release checks. Keep the PR draft and withhold publication while the
+remaining CI and lifecycle findings are unresolved.
 
 ## Completion boundary
 

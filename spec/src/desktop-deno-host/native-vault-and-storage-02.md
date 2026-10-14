@@ -181,6 +181,10 @@ Native About-window acceptance verifies:
 
 **Requirement.** The renderer MUST delegate new Sync crypto, identity, pairing, membership and recovery through the admitted native session using an explicit operation allowlist. Bounded, validated JSON encoding MUST preserve binary values and prototype-shaped metadata without key collisions. Recovery passphrases MUST originate from host interaction and remain absent from plugin capabilities. Security payloads and backend error content MUST NOT enter telemetry or RPC error messages; cancelled runtimes MUST reject late results.
 
+The bounded JSON bridge retains byte-identical native, Node and portable binary
+frames. Decoded byte views own only their payload bytes. Runtime-specific codec
+acceleration does not change validation, framing bounds or content-free errors.
+
 ## LN-DENO-089 — Recoverable native session open
 
 <a id="ln-deno-089"></a>

@@ -46,6 +46,11 @@ function encodeBase64(bytes: Uint8Array): string {
     Uint8Array.prototype as Uint8Array & { toBase64?: () => string }
   ).toBase64;
   if (typeof native === "function") return native.call(bytes);
+  const nodeBuffer = globalThis.Buffer;
+  if (typeof nodeBuffer?.from === "function")
+    return nodeBuffer
+      .from(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+      .toString("base64");
   const chunks: string[] = [];
   for (let start = 0; start < bytes.length; start += 16_384)
     chunks.push(String.fromCharCode(...bytes.subarray(start, start + 16_384)));
@@ -58,10 +63,16 @@ function decodeBase64(value: string): Uint8Array {
       fromBase64?: (value: string) => Uint8Array;
     }
   ).fromBase64;
-  const bytes =
-    typeof native === "function"
-      ? native.call(Uint8Array, value)
-      : Uint8Array.from(atob(value), (character) => character.charCodeAt(0));
+  let bytes: Uint8Array;
+  if (typeof native === "function") bytes = native.call(Uint8Array, value);
+  else if (typeof globalThis.Buffer?.from === "function")
+    bytes = new Uint8Array(globalThis.Buffer.from(value, "base64"));
+  else {
+    const decoded = atob(value);
+    bytes = new Uint8Array(decoded.length);
+    for (let index = 0; index < decoded.length; index++)
+      bytes[index] = decoded.charCodeAt(index);
+  }
   if (bytes.length > MAX_BYTES || encodeBase64(bytes) !== value)
     throw invalid();
   return bytes;
@@ -163,7 +174,7 @@ export function decodeSyncValue(wire: unknown): unknown {
 
 export function isSyncSecurityOperation(
   group: unknown,
-  method: unknown,
+  method: unknown
 ): group is SyncSecurityGroup {
   return (
     typeof group === "string" &&
