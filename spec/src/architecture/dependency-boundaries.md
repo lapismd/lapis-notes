@@ -219,9 +219,9 @@ temporary acceptance of the unpatched QMD development advisory.
 
 ## Current CI dependency image
 
-- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:1586e7d135ad0b02729c2e372cad44aa8233a59d8dff85a3fa125b3c14e4c1b6`
-- Lockfile tag: `lock-3ee3de3f2b63851b`
-- pnpm-lock.yaml SHA-256: `3ee3de3f2b63851b468823bcd2b86595aa740b1d28caa6bfec3f088df1b4b82c`
+- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:fe28e5a789f6266bd48b3a7922d3bfe8f823af7d892c07b252f43dbb252ba96e`
+- Lockfile tag: `lock-f2f65624a7eaf81d`
+- pnpm-lock.yaml SHA-256: `f2f65624a7eaf81dea6ab27ff21633c999972677224d7558b001d6b160dea915`
 
 <!-- ci-dependency-image:end -->
 
