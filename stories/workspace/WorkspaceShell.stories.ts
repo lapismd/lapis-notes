@@ -384,12 +384,20 @@ export const PersistedDesktop: Story = {
     await userEvent.click(
       page.getByRole("menuitem", { name: "Manage Vaults" }),
     );
-    await expect(
-      canvas.getByTestId("workspace-navigation-status"),
-    ).toHaveTextContent("Manage Vaults selected");
-    await waitFor(() =>
-      expect(getComputedStyle(workspaceTrigger).pointerEvents).toBe("auto"),
-    );
+    // Design Core dispatches navigation when the menu finishes closing.
+    // The click promise alone does not establish that completion boundary.
+    await waitFor(() => {
+      expect(
+        canvas.getByTestId("workspace-navigation-status"),
+      ).toHaveTextContent("Manage Vaults selected");
+      expect(workspaceTrigger).toHaveAttribute("aria-expanded", "false");
+      expect(
+        canvasElement.ownerDocument.querySelector(
+          '[data-ui-component="workspace-navigation"][data-ui-part="content"]',
+        ),
+      ).toBeNull();
+      expect(getComputedStyle(workspaceTrigger).pointerEvents).toBe("auto");
+    });
 
     await waitFor(
       () => {

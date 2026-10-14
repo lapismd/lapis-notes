@@ -86,3 +86,16 @@ source entry. An isolated exact `pnpm release:version` produces API 0.1.3 and
 its signed-delivery notes, preserves older notes, and passes both gates. No
 published package is modified. PR 18 must be regenerated after the source repair
 and qualify at its resulting exact head before merge or publication.
+
+## Workspace navigation acceptance
+
+PR 19 run 38540407674 passes eleven jobs but fails one Persisted Desktop
+assertion: Manage Vaults has not run immediately after the menu click. GitHub
+protection leaves the PR blocked. Design Core correctly defers that host action
+to `onOpenChangeComplete`; the play now waits for the selected-action status,
+closed trigger, removed portal and restored pointer ownership. The original
+cold local target passes 1/1 before the change despite the CI failure; the
+repaired target passes 1/1, all six Shell stories and the affected 40-story
+shard pass. Root checks pass 18/18; specification, ownership and 38 specification
+regressions pass. Runtime source, package versions and visual baselines are
+unchanged. Complete GitHub CI at the updated head remains required.

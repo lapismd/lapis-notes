@@ -15,7 +15,7 @@
 | LN-WS-006 | [workspace-shell](../workspace-shell/view-lifecycle.md#ln-ws-006) | Implemented | imperative view registration, utility-independent full-height roots, stale-root removal, and shared `ItemView` content reattachment |
 | LN-WS-007 | [workspace-shell](../workspace-shell/plugin-management.md#ln-ws-007) | Implemented | default Design Core surface; the workspace package does not register an application PluginProfile or invoke plugin loaders; notifications remain the only required shell plugin and F-Mode is optional |
 | LN-WS-008 | [workspace-shell](../workspace-shell/layout-and-persistence.md#ln-ws-008) | Implemented | `WorkspaceShell.svelte` public props + real-App mount test |
-| LN-WS-009 | [workspace-shell](../workspace-shell/layout-and-persistence.md#ln-ws-009) | Implemented | persisted desktop/mobile stories |
+| LN-WS-009 | [workspace-shell](../workspace-shell/layout-and-persistence.md#ln-ws-009) | Implemented | Persisted desktop/mobile stories verify the real App, persisted layout and navigation callback after menu-close completion, portal removal and restored pointer ownership. |
 | LN-WS-010 | [workspace-shell](../workspace-shell/catalog-acceptance.md#ln-ws-010) | Implemented | interaction/a11y plays, panel/floating action hover + `visual-pending` baselines |
 | LN-WS-011 | [workspace-shell](../workspace-shell/layout-and-persistence.md#ln-ws-011) | Implemented | api-owned Lapis application metadata, logo, and About surface |
 | LN-WS-012 | [workspace-shell](../workspace-shell/view-lifecycle.md#ln-ws-012) | Implemented | design-core stacked-pane preferred-width regression test |
