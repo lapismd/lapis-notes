@@ -268,6 +268,8 @@
         "packages/*/src/**",
         "packages/*/scripts/**",
         "packages/*/package.json",
+        "packages/*/CHANGELOG.md",
+        "packages/*/prettier.config.*",
         "packages/*/tsconfig*.json",
         "packages/*/svelte.config.*",
         "packages/*/vite.config.*",

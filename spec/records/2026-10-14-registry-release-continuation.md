@@ -33,7 +33,9 @@ interaction/accessibility stories pass. Rebuilt server-host and full signed-fixt
 Web acceptance pass 12/12. The exact production Plugins/Word Count installation
 case changes from one failed Fetch install to one pass after registry deployment.
 Specification and ownership checks pass. The API patch Changeset records the fix;
-its follow-up source CI remains required before merging.
+[PR 17](https://github.com/lapismd/lapis-notes/pull/17) passes all 12 jobs on
+[38535445346](https://github.com/lapismd/lapis-notes/actions/runs/38535445346)
+and merges as `57106f40e2696164c9d7503e601ffd22983d3036`.
 
 ## Plugin CI
 
@@ -47,8 +49,9 @@ fully dismisses the focused menu and parent, and observes restored pointer owner
 The first explicit readiness repair reproduced two local failures; complete
 dismissal passes both exact cases, 23 Chat stories and all 177 catalog stories.
 The earlier isolated File Properties `derived_inert` warning does not recur in
-this repaired local full lane. Its fatal guard remains enabled. Full GitHub CI
-must pass at the reviewed head before this follow-up merges.
+this repaired local full lane. Its fatal guard remains enabled. PR 8 run 38538436172 still reports two failures: a closed model submenu and
+next-story pointer lock. It merged prematurely as `14c4cf39`; that merge is not
+release qualification. A source follow-up and complete green CI remain required.
 
 ## Publication state
 
@@ -68,3 +71,31 @@ then the exact qualified plugin source through its protected static workflow.
 Review generated registry release PRs, retain older versions and archive hashes,
 and deploy after checks. Existing installed clients need the updated app build
 to use the new app-link and browser delivery behavior.
+
+## Version-note preparation repair
+
+Generated API 0.1.3 PR 18 omitted its notes. Release run 38537431130 logs a
+missing `prettier-plugin-jsdoc` while Changesets still succeeds. The API config
+now gives Markdown its built-in formatter independently of optional code tools.
+A Prettier 3 regression changes from one failure to a pass; all four focused
+cases and 74 complete release-tool tests pass. Root check passes 18/18, and
+specification, ownership, 38 spec regressions and release intent pass. Release checks require non-empty
+notes for each current public package version before and after versioning.
+The original API 0.1.2 Changesets consumed in `e2a0b8e6` restore its omitted
+source entry. An isolated exact `pnpm release:version` produces API 0.1.3 and
+its signed-delivery notes, preserves older notes, and passes both gates. No
+published package is modified. PR 18 must be regenerated after the source repair
+and qualify at its resulting exact head before merge or publication.
+
+## Workspace navigation acceptance
+
+PR 19 run 38540407674 passes eleven jobs but fails one Persisted Desktop
+assertion: Manage Vaults has not run immediately after the menu click. GitHub
+protection leaves the PR blocked. Design Core correctly defers that host action
+to `onOpenChangeComplete`; the play now waits for the selected-action status,
+closed trigger, removed portal and restored pointer ownership. The original
+cold local target passes 1/1 before the change despite the CI failure; the
+repaired target passes 1/1, all six Shell stories and the affected 40-story
+shard pass. Root checks pass 18/18; specification, ownership and 38 specification
+regressions pass. Runtime source, package versions and visual baselines are
+unchanged. Complete GitHub CI at the updated head remains required.

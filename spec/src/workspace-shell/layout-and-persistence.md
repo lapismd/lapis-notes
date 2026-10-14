@@ -58,7 +58,7 @@
 
 <a id="ln-ws-009"></a>
 
-**Requirement.** Storybook MUST provide persisted desktop and mobile shell stories backed by an actual api `App` and a story-only in-memory data adapter seeded at `/.obsidian/workspace.json`.
+**Requirement.** Storybook MUST provide persisted desktop and mobile shell stories backed by an actual api `App` and a story-only in-memory data adapter seeded at `/.obsidian/workspace.json`. Navigation acceptance MUST wait for menu close completion, the host callback outcome and restored pointer ownership before continuing.
 
 ## LN-WS-011 — Application metadata in shell chrome
 
