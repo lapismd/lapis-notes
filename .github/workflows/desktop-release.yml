@@ -114,13 +114,13 @@ jobs:
           pnpm build:cli
           node scripts/install-cli.mjs --home "$GITHUB_WORKSPACE/.ci-candidates/controller-home" --install-path "$GITHUB_WORKSPACE/.ci-candidates/bin/lapis-ai-controller"
           printf 'LAPIS_AI_CONTROLLER_BIN=%s\n' "$GITHUB_WORKSPACE/.ci-candidates/bin/lapis-ai-controller" >> "$GITHUB_ENV"
-      - run: pnpm --filter @lapis-notes/desktop-deno check && pnpm --filter @lapis-notes/desktop-deno test
       - name: Build the native candidate
         run: |
           mkdir -p .release/candidate
           pnpm --filter @lapis-notes/desktop-deno package:app -- --target '${{ matrix.target }}'
           node scripts/desktop-release.mjs target --target '${{ matrix.target }}' --output '.release/candidate/desktop-target-${{ matrix.target }}.json'
           node --input-type=module -e 'import {readFileSync,copyFileSync} from "node:fs"; const m=JSON.parse(readFileSync(".release/candidate/desktop-target-${{ matrix.target }}.json","utf8")); for(const a of m.artifacts)copyFileSync("packages/desktop-deno/release/"+a.file,".release/candidate/"+a.file);'
+      - run: pnpm --filter @lapis-notes/desktop-deno check && pnpm --filter @lapis-notes/desktop-deno test
       - name: Full cold packaged acceptance on macOS
         if: runner.os == 'macOS'
         run: pnpm test:desktop:packaged

@@ -30,6 +30,14 @@ export function validateDesktopReleaseWorkflow(workflow) {
       "Homebrew acceptance source must be pinned to an exact commit",
     );
   const steps = workflow.jobs.native.steps;
+  const candidateBuild = steps.findIndex((step) =>
+    step.run?.includes("desktop-deno package:app"),
+  );
+  const hostCheck = steps.findIndex((step) =>
+    step.run?.includes("desktop-deno check"),
+  );
+  if (candidateBuild < 0 || hostCheck < 0 || candidateBuild >= hostCheck)
+    throw new Error("Build workspace exports before checking the desktop host");
   for (const platform of ["macOS", "Linux"]) {
     if (
       !steps.some(

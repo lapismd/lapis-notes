@@ -44,3 +44,16 @@ test("desktop workflow provisions Homebrew before checking the tap update", () =
     /Homebrew tooling/,
   );
 });
+test("desktop workflow builds workspace exports before checking the host", () => {
+  const workflow = read();
+  const steps = workflow.jobs.native.steps;
+  const checks = steps.find((step) => step.run?.includes("desktop-deno check"));
+  workflow.jobs.native.steps = [
+    checks,
+    ...steps.filter((step) => step !== checks),
+  ];
+  assert.throws(
+    () => validateDesktopReleaseWorkflow(workflow),
+    /workspace exports/,
+  );
+});
