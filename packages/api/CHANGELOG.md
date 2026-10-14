@@ -1,5 +1,18 @@
 # @lapis-notes/api
 
+## 0.1.3
+
+### Patch Changes
+
+- [#19](https://github.com/lapismd/lapis-notes/pull/19) [`a85055b`](https://github.com/lapismd/lapis-notes/commit/a85055b6570244d5dde2ea1145be3609260d91ca) Thanks [@stevejuma](https://github.com/stevejuma)! - Restore the omitted API 0.1.2 release notes and keep changelog generation
+  independent of optional code formatter plugins. Verify current-version notes
+  before and after preparing a release so incomplete changelogs stop publication.
+
+- [#17](https://github.com/lapismd/lapis-notes/pull/17) [`0c8cbd0`](https://github.com/lapismd/lapis-notes/commit/0c8cbd0811663a9c63590d4d730445c80df91e6c) Thanks [@stevejuma](https://github.com/stevejuma)! - Download selected plugin releases through the catalog's signed delivery endpoint
+  so browser hosts can install archives from the registry. Retain verified archive
+  integrity and signatures, allow origin fallback for transport failures, and stop
+  fallback after cancellation or revocation.
+
 ## 0.1.2
 
 ### Patch Changes
