@@ -347,6 +347,7 @@ Server-host browser qualification uses the client built from these public
 package boundaries. Its restart test retains the test network namespace while
 recreating the serving container and verifying persisted data; it does not
 substitute a warm browser-only check for server shutdown and startup.
+The server case launches its own browser worker after preparing that namespace.
 
 The private application profile and root catalog consume the approved plugin
 batch through npm ranges: AI 0.1.5; Bases, Bookmarks, Graph, Search and Spellcheck

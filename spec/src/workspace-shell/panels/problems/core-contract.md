@@ -167,6 +167,11 @@ children between asynchronous checks.
 
 **Requirement.** The owning Problems leaf MUST show the live total as a shared workspace badge with visible non-hover paint. The persisted title MUST remain `Problems`, and the panel toolbar MUST NOT duplicate the total.
 
+The Markdown Problems fixture enables Markdownlint and Harper. Its acceptance
+verifies both required Markdownlint codes independently, rejects workspace-wide
+provider failures, and compares the painted badge with the complete App-owned
+diagnostic snapshot rather than one provider's count.
+
 ## LN-WS-047 — Problems severity toggles: compact checkbox items in an untitled filter
 
 <a id="ln-ws-047"></a>

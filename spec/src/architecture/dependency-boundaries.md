@@ -221,3 +221,5 @@ Web server-restart acceptance owns its disposable Docker network holder and
 serving container. The holder retains one loopback-published namespace while
 the server is stopped and recreated; production host networking and remote
 vault adapters remain governed by their existing contracts.
+Its dedicated browser worker starts after network preparation, so preceding
+PWA cases cannot carry delayed Docker interface events into initial navigation.

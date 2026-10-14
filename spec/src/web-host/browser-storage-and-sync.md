@@ -154,6 +154,8 @@ after clean container shutdown and recreation. Its test-owned network namespace
 remains alive across that restart under
 [LN-SRV-013](../server-deno-host/core-contract.md#ln-srv-013), while the serving
 process and startup module graph are recreated normally.
+The server case's dedicated browser worker starts after this network is ready,
+isolating initial navigation from preceding PWA acceptance cases.
 
 ## LN-WEB-050 — Deno-server Web build: authenticate before vault selection, use only server-managed
 

@@ -15,6 +15,8 @@ Markdown Problems acceptance verifies the refreshed providers through their
 App-owned diagnostics and current connected gutter markers. Marker glyph and
 alignment assertions resolve the same DOM snapshot under
 [LN-WS-038](../workspace-shell/panels/problems/core-contract.md#ln-ws-038).
+The Problems badge reflects all active diagnostic providers under LN-WS-046;
+the two required Markdownlint codes remain independently verified.
 
 ## LN-PLUG-007 — Disabling a plugin with open owned views: replace those leaves with persisted missing-view placeholders
 

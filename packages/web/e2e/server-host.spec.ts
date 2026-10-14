@@ -6,7 +6,24 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { expect, test, type Page } from "@playwright/test";
+import { chromium, expect, test as base, type Page } from "@playwright/test";
+
+// This file's browser starts after beforeAll prepares the Docker network.
+// Reusing the preceding PWA worker can deliver delayed Linux network changes
+// into the server client's first module downloads.
+const test = base.extend({
+  browser: [
+    async ({ headless, launchOptions }, use) => {
+      const browser = await chromium.launch({ ...launchOptions, headless });
+      try {
+        await use(browser);
+      } finally {
+        await browser.close();
+      }
+    },
+    { scope: "worker" },
+  ],
+});
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const image = process.env.LAPIS_SERVER_E2E_IMAGE ?? "lapis-server:e2e";

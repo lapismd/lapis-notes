@@ -93,6 +93,8 @@ retained data volumes and requires clean shutdown. A separate test-owned
 container retains the loopback-published network namespace across recreation,
 so Linux browser network-change notifications cannot abort the startup module
 graph. Both containers are removed during test teardown.
+The case owns a dedicated browser worker launched after network preparation;
+initial navigation and server recreation retain the same startup assertions.
 
 ## LN-SRV-014 — Health: report process liveness without authentication or secrets
 
