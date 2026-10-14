@@ -97,7 +97,7 @@
     "test:visual:run": "node ./scripts/test-visual.mjs",
     "test:visual:update:run": "node ./scripts/update-visual-baselines.mjs",
     "test:spec-validation:run": "node --test scripts/spec-validation/*.test.mjs",
-    "release:test:run": "node --test ./scripts/web-registry-acceptance.test.mjs ./scripts/storybook-turbo-cache.test.mjs ./scripts/ci-images.test.mjs ./scripts/ci-container.test.mjs ./scripts/check-release-intent.spec.mjs ./scripts/check-release-workflow.spec.mjs ./scripts/create-github-releases.spec.mjs ./scripts/publish-release.spec.mjs ./scripts/release-manifest.spec.mjs ./scripts/verify-release.spec.mjs ./scripts/release-plan.spec.mjs ./scripts/release-changelog.spec.mjs",
+    "release:test:run": "node --test ./scripts/web-registry-acceptance.test.mjs ./scripts/storybook-turbo-cache.test.mjs ./scripts/ci-images.test.mjs ./scripts/dependency-image-pr.test.mjs ./scripts/ci-container.test.mjs ./scripts/check-release-intent.spec.mjs ./scripts/check-release-workflow.spec.mjs ./scripts/create-github-releases.spec.mjs ./scripts/publish-release.spec.mjs ./scripts/release-manifest.spec.mjs ./scripts/verify-release.spec.mjs ./scripts/release-plan.spec.mjs ./scripts/release-changelog.spec.mjs",
     "test:desktop:packaged:run": "pnpm --filter @lapis-notes/desktop-deno test:packaged",
     "test:local-plugin-consumer:run": "node --test scripts/local-plugin-pnpmfile.test.mjs scripts/lib/local-plugin-consumer.test.mjs",
     "test:web:e2e:run": "node scripts/run-web-registry-acceptance.mjs",

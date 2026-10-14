@@ -101,8 +101,9 @@ jobs:
           git add -- "${pin_paths[@]}"
           git commit -m "chore(ci): pin ${IMAGE_TAG} dependency image"
           git push --force origin "HEAD:refs/heads/$branch"
-          if gh pr view "$branch" --json url >/dev/null 2>&1; then
-            gh pr edit "$branch" --title "chore(ci): pin ${IMAGE_TAG} dependency image" --body "Pins the verified multi-architecture dependency image built from the current lockfile and records its digest, tag, and lockfile hash in every mapped canonical chapter."
+          open_pr_number="$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number // empty')"
+          if [[ -n "$open_pr_number" ]]; then
+            gh pr edit "$open_pr_number" --title "chore(ci): pin ${IMAGE_TAG} dependency image" --body "Pins the verified multi-architecture dependency image built from the current lockfile and records its digest, tag, and lockfile hash in every mapped canonical chapter."
           else
             gh pr create --head "$branch" --base main --title "chore(ci): pin ${IMAGE_TAG} dependency image" --body "Pins the verified multi-architecture dependency image built from the current lockfile and records its digest, tag, and lockfile hash in every mapped canonical chapter."
           fi

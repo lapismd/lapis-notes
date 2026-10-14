@@ -121,6 +121,12 @@ overlay teardown fix; test-signed fixtures never authorize public assets.
 
 **Requirement.** The generated `changeset-release/main` PR MAY skip CI spec-first and release-intent checks already satisfied by its constituent source commits. Ordinary PRs MUST retain both gates.
 
+## LN-GOV-050 — Dependency-image PR selection: reuse only an open review
+
+<a id="ln-gov-050"></a>
+
+**Requirement.** Dependency-image publication MUST reuse only an open pull request for its exact automation head and main base. A previously closed or merged pull request MUST result in a new review PR for the fresh digest.
+
 <!-- ci-dependency-image:start -->
 
 ## Current CI dependency image

@@ -1,5 +1,8 @@
 # Architecture / Dependency boundaries
 
+Dependency-image refreshes follow LN-GOV-050 when proposing the new digest:
+merged and closed reviews produce a fresh PR rather than absorb a later pin.
+
 The shared base is the approved multi-architecture `lapis-ci:2026.10.14.1`,
 pinned by digest. It provides checksum-verified GitHub CLI 2.102.0 for release
 records. Direct workflow pins and the dependency-only Docker base must agree;
