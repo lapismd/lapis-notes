@@ -1,5 +1,124 @@
 # Registry release continuation — 2026-10-14
 
+## Final plugin publication and catalog deployment
+
+The user approved the exact twelve-plugin production batch, protected signing,
+npm publication, Slides bootstrap and trusted-publisher setup, GitHub release
+assets, registry dispatch, and deployment. No new release approval is pending.
+
+[Production run 38570118242](https://github.com/lapismd/lapis-plugins/actions/runs/38570118242)
+published the batch from `48141a6e4571338c137ac8d44095704199a59083`:
+
+| Package (`@lapis-notes/`) | Version |
+| ------------------------- | ------- |
+| ai                        | 0.1.5   |
+| bases                     | 0.1.3   |
+| bookmarks                 | 0.1.3   |
+| graph                     | 0.1.3   |
+| history                   | 0.1.4   |
+| markdown                  | 0.1.6   |
+| markdown-lint             | 0.1.2   |
+| search                    | 0.1.3   |
+| slides                    | 0.1.0   |
+| source-editor             | 0.1.2   |
+| spellcheck                | 0.1.3   |
+| wordcount                 | 0.1.2   |
+
+All twelve public npm tarballs match the reviewed bytes. All twelve public
+plugin archives match the reviewed runtime files and verify with the existing
+app-pinned `lapis-plugin-release-2026-06` key. Eleven npm provenance records
+bind this source and production run. Slides' approved initial publication used
+the authenticated local session and browser MFA; that bootstrap has no npm
+provenance. Its GitHub trusted publisher is configured for subsequent releases.
+
+The production artifact uploader skipped the hidden `.release` directory, so
+the verification plan was reconstructed from public production assets and
+labelled with its verification origin. Plugins PR 15 fixes retention, explicitly
+enumerates all 50 required public files, and fails if no files match. Its actual
+upload-action glob replay changes from zero to 50 retained files; 108 release
+tests and all nine CI jobs pass. The fix merged as
+`defa3d061ae7b985c8d19b8de794540b4e146842`.
+
+Registry dispatch generated ten overlapping import PRs. AI and Slides imports
+exposed a site test tied to the old AI version and absent Slides entry. The
+consolidated [Registry PR 31](https://github.com/lapismd/plugin-registry/pull/31)
+imports all twelve verified releases and derives expected pages from curated
+inputs while preserving parked-plugin exclusions and immutable historical
+install coordinates. The individual PRs 21–30 are closed as superseded.
+
+[Protected signing 38583067310](https://github.com/lapismd/plugin-registry/actions/runs/38583067310)
+created generated-only PR 32. Its full checks pass and it merges into the source
+branch. Integrated [CI 38583648010](https://github.com/lapismd/plugin-registry/actions/runs/38583648010)
+passes before PR 31 merges as `08ef1947473539bc9f08aacf9523ec9b5209786c`.
+[Main CI 38584064216](https://github.com/lapismd/plugin-registry/actions/runs/38584064216)
+and [deployment 38584064382](https://github.com/lapismd/plugin-registry/actions/runs/38584064382)
+pass at that merged source.
+
+The deployed site includes the UTC snapshot timestamp below the copyright,
+full-page highlighted manifest with raw JSON access, styled native version
+selector, and optional compact author download count. Missing, malformed or
+stale statistics hide both the count and detail section. The timestamp comes
+from the published source commit independently of reproducible metadata dates.
+The existing local preview remains running on port 4323 with the same UI.
+
+Final qualification passes 88 scripts, 25 cold local browser cases, strict
+remote validation of twelve entries, Astro check, and formatting. Production
+verification passes fourteen metadata signatures, 25 version pages and archive
+endpoints, all 168 media hashes/sizes, thirteen retained release contracts and
+all 49 unchanged V1 files. Streamed Word Count 0.1.2, Graph 2026.6.6 and Slides
+0.1.0 archives match their signed sizes and hashes. Nine applicable production
+browser cases pass. Two extra live probes expected synthetic local fixture
+media; their exact local cases pass, and the real production screenshot viewer
+and version picker were verified directly without weakening assertions.
+
+## CI and consumer refresh
+
+All eleven active repositories covered by the protection update require strict
+passing checks and enforce them for administrators. Notes requires all twelve
+jobs, Plugins all nine, and Registry its complete checks job. Merges use
+completed-check inspection and matching-head guards.
+
+The approved shared CI image `2026.10.14.1` includes checksum-pinned GitHub CLI
+2.102.0 and has digest
+`sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503`.
+Plugins PR 14 and Notes PR 22 refresh their consumer images after complete CI.
+Mira 0.0.4 is published under `latest`; API 0.1.3 and Workspace 0.2.1 are
+published under `next`, with verified integrity and release records.
+
+Notes PR 23 refreshes eleven root plugin ranges and three private profile
+ranges through public npm, plus portable pnpm/Deno locks and the rebuilt
+dependency image. Slides remains an installed plugin. Fresh root build passes
+10/10 tasks, profile check has zero diagnostics, profile tests pass 14/14 and
+38 specification regressions pass. The initial profile check ran before internal
+dist builds and reported 79 missing-module diagnostics and one failed suite;
+the same targets pass after the required build order.
+
+The exact PR governance gate initially reports three missing host/profile
+chapters. Its mapped canonical documentation repair changes that count to zero;
+specification checks and mirrors pass. Incidental API version-inventory output
+is excluded from the overall PR: this private dependency refresh does not add
+a public API release. Complete CI and merge evidence are recorded below when
+the final consumer run finishes.
+
+The next CI head reports one Markdown Problems failure from a detached gutter
+child lookup and one server-host restart failure from Chromium
+`ERR_NETWORK_CHANGED` during Docker bridge recreation. Both exact local targets
+pass before and after the repairs. The gutter play now resolves connected
+markers and their existing style assertions in one retry; server acceptance
+retains a test-owned network namespace while still requiring clean serving
+container shutdown, recreation and data persistence. Root check passes 18/18,
+the editor-demo family 14/14, the cold full Storybook lane 245/245, and the
+complete signed-fixture Web lane 12/12 against a freshly rebuilt server image.
+Specification checks, 38 regressions and formatting pass. The final candidate
+`75d046319469b323202dbf762c4e9a3134416d68` is qualifying on
+[CI 38588198443](https://github.com/lapismd/lapis-notes/actions/runs/38588198443).
+
+Private packaged-app publication, notarization, Community and private Sync are
+outside this plugin/catalog release. Existing clients need the updated app build
+to receive the new app-link and verified browser delivery behavior.
+
+## Earlier qualification history
+
 ## Archive delivery
 
 The registry's signed `bundle.downloadUrl` redirected browsers to GitHub, whose

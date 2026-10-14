@@ -1,13 +1,17 @@
 # Static registry integration and GitHub CI plan
 
 The user resumed this plan on 2026-10-13 after the Lapis Notes framework release.
-This continuation prepares source-review PRs and blocking GitHub CI qualification.
-Production registry metadata signing was separately approved and completed.
-The user also approved publishing the signed registry once CI prerequisites pass.
-Plugin publication and registry release dispatch remain separate release gates.
+The approved twelve-plugin production batch is now published to npm with signed
+GitHub release assets and deployed at `https://registry.lapis.md/`. The catalog
+retains all thirteen older releases and the signed V1 archive, and includes the
+requested screenshots, changelogs, version pages, app links and UI refinements.
+Protected signing, source CI, main CI and production deployment have passed.
+The final Notes consumer refresh is completing its twelve required CI jobs.
 
 The [2026-10-14 continuation](2026-10-14-registry-release-continuation.md)
-records archive delivery, resumed CI qualification and the remaining publications.
+records publication provenance, final signing/deployment, live verification and
+consumer refresh evidence. The dated sections below preserve qualification
+history rather than describing current publication blockers.
 
 ## Resumed qualification — 2026-10-13
 
