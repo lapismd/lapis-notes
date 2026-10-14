@@ -19,8 +19,8 @@ defaults:
   run:
     shell: bash
 env:
-  LAPIS_HOMEBREW_TAP_COMMIT: "bbdd1323fba0f4c7308fe195c298d4c13f0c3547"
-  LAPIS_CONTROLLER_CANDIDATE_COMMIT: "11c70f4390190b8f9e1bc0d06ed349df5c142754"
+  LAPIS_HOMEBREW_TAP_COMMIT: "e376c54b52147187200eb02c23445503a05a8111"
+  LAPIS_CONTROLLER_CANDIDATE_COMMIT: "ac0adf67ea80ead3526fa6ff20b13a8fa2523dec"
 jobs:
   contract:
     name: Desktop release contract
@@ -89,6 +89,7 @@ jobs:
           repository: lapismd/ai-controller
           ref: ${{ env.LAPIS_CONTROLLER_CANDIDATE_COMMIT }}
           path: .ci-candidates/controller
+      - uses: Homebrew/actions/setup-homebrew@f9676f1ffe2e1a720f81b2c54c51cfb99915ec14
       - uses: pnpm/action-setup@v6
         with:
           version: "10.34.5"
@@ -98,11 +99,12 @@ jobs:
       - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed
         with:
           deno-version: v2.9.7
-      - uses: Homebrew/actions/setup-homebrew@f9676f1ffe2e1a720f81b2c54c51cfb99915ec14
       - name: Verify the native runner architecture
         env:
           EXPECTED_ARCH: ${{ matrix.arch }}
-        run: node -e 'if(process.arch!==process.env.EXPECTED_ARCH)throw new Error("Native architecture mismatch");'
+        run: |
+          node -e 'if(process.arch!==process.env.EXPECTED_ARCH || process.version!=="v24.15.0")throw new Error("Native Node toolchain mismatch");'
+          node --input-type=module -e 'import {execFileSync} from "node:child_process"; if(execFileSync("deno",["--version"],{encoding:"utf8"}).split(/\s+/)[1]!=="2.9.7")throw new Error("Native Deno toolchain mismatch");'
       - name: Install Linux GUI acceptance dependencies
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-0 libgtk-3-0t64 libayatana-appindicator3-1 xvfb dbus-x11 desktop-file-utils
@@ -148,16 +150,16 @@ jobs:
   publish:
     name: Publish desktop archives
     needs: [contract, native]
-    if: startsWith(github.ref, 'refs/tags/desktop-v')
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/desktop-v')
     runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v7
+      - uses: Homebrew/actions/setup-homebrew@f9676f1ffe2e1a720f81b2c54c51cfb99915ec14
       - uses: actions/setup-node@v7
         with:
           node-version: "24.15.0"
-      - uses: Homebrew/actions/setup-homebrew@f9676f1ffe2e1a720f81b2c54c51cfb99915ec14
       - uses: actions/download-artifact@v8
         with:
           pattern: desktop-release-*

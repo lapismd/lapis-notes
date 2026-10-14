@@ -57,3 +57,17 @@ test("desktop workflow builds workspace exports before checking the host", () =>
     /workspace exports/,
   );
 });
+test("desktop workflow keeps manual dispatch validation-only", () => {
+  const workflow = read();
+  workflow.jobs.publish.if = "startsWith(github.ref, 'refs/tags/desktop-v')";
+  assert.throws(() => validateDesktopReleaseWorkflow(workflow), /publication/);
+});
+test("desktop workflow selects Node and Deno after Homebrew modifies PATH", () => {
+  const workflow = read();
+  const steps = workflow.jobs.native.steps;
+  const brew = steps.find((step) =>
+    step.uses?.startsWith("Homebrew/actions/setup-homebrew@"),
+  );
+  workflow.jobs.native.steps = [...steps.filter((step) => step !== brew), brew];
+  assert.throws(() => validateDesktopReleaseWorkflow(workflow), /toolchain/);
+});

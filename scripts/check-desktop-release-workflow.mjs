@@ -30,6 +30,18 @@ export function validateDesktopReleaseWorkflow(workflow) {
       "Homebrew acceptance source must be pinned to an exact commit",
     );
   const steps = workflow.jobs.native.steps;
+  const brewSetup = steps.findIndex((step) =>
+    step.uses?.startsWith("Homebrew/actions/setup-homebrew@"),
+  );
+  for (const action of ["actions/setup-node@", "denoland/setup-deno@"]) {
+    if (
+      brewSetup < 0 ||
+      steps.findIndex((step) => step.uses?.startsWith(action)) <= brewSetup
+    )
+      throw new Error(
+        "Select the pinned native toolchain after Homebrew setup",
+      );
+  }
   const candidateBuild = steps.findIndex((step) =>
     step.run?.includes("desktop-deno package:app"),
   );
@@ -61,7 +73,7 @@ export function validateDesktopReleaseWorkflow(workflow) {
   }
   if (
     workflow.jobs.publish.if !==
-      "startsWith(github.ref, 'refs/tags/desktop-v')" ||
+      "github.event_name == 'push' && startsWith(github.ref, 'refs/tags/desktop-v')" ||
     !workflow.jobs.publish.needs.includes("native")
   )
     throw new Error(

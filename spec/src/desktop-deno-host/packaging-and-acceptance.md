@@ -43,7 +43,7 @@ Desktop renderer-engine selection verifies:
 
 <a id="ln-deno-081"></a>
 
-**Requirement.** Desktop release tags MUST match the private desktop package version. Publication MUST require native packaged and Homebrew installation acceptance for macOS and Linux on ARM64 and x86-64. Releases MUST retain source revision, target, version, sizes and SHA-256 checksums in a machine-readable manifest. Published assets MUST NOT be silently replaced.
+**Requirement.** Publication MUST occur only on tag pushes matching the private desktop package version. Publication MUST require native packaged and Homebrew installation acceptance for macOS and Linux on ARM64 and x86-64. Releases MUST retain source revision, target, version, sizes and SHA-256 checksums in a machine-readable manifest. Published assets MUST NOT be silently replaced.
 
 ## LN-DENO-082 — Homebrew distribution
 
