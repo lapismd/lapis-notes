@@ -44,3 +44,6 @@ once only after an observed same-origin Chromium document or script
 assertions and the later editing, sharing and restart sequence remain unchanged.
 Web diagnostic artifacts upload after successful recovery as well as failures,
 so a passing retry retains its observed transport errors.
+The retry diagnostic is file-backed JSON attached by path, and both Web
+Playwright configurations preserve output from passing tests. This keeps
+recovery evidence available to the artifact uploader with the line reporter.

@@ -119,13 +119,14 @@ mounted read-only, avoiding a dependency on the host runner's UID.
 Browser acceptance stops and recreates the serving container against its
 retained data volumes and requires clean shutdown. A separate test-owned
 container retains the loopback-published network namespace across recreation,
-so Linux browser network-change notifications cannot abort the startup module
-graph. Both containers are removed during test teardown.
+so server recreation does not replace the network used by the browser's startup
+module graph. Both containers are removed during test teardown.
 The case owns a dedicated browser worker launched after network preparation;
 initial navigation and server recreation retain the same startup assertions.
 The bootstrap secret-file container has no network. Initial navigation retries
 once only after an observed Chromium `ERR_NETWORK_CHANGED` abort of a same-origin
-document or script. The retry records a diagnostic attachment; a second failure,
+document or script. The retry writes JSON into the test output directory and
+attaches that file; output remains available after successful recovery. A second failure,
 other network errors and application readiness failures still fail acceptance.
 
 ## LN-SRV-014 — Health: report process liveness without authentication or secrets
