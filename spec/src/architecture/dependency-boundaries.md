@@ -1,5 +1,10 @@
 # Architecture / Dependency boundaries
 
+The shared base is the approved multi-architecture `lapis-ci:2026.10.14.1`,
+pinned by digest. It provides checksum-verified GitHub CLI 2.102.0 for release
+records. Direct workflow pins and the dependency-only Docker base must agree;
+the dependency image is rebuilt before its immutable digest is consumed.
+
 Release version preparation validates formatter availability and current-version
 changelog notes under [LN-PKG-164](../packages/releases-and-exports.md#ln-pkg-164).
 Its cached regression inputs include package changelogs and formatter configs.

@@ -1,5 +1,9 @@
 # Packages / Releases and exports
 
+Release and validation containers consume shared image `2026.10.14.1` by
+digest. GitHub CLI 2.102.0 is supplied upstream so approved npm publication can
+create its GitHub release records without a consumer tool-install workaround.
+
 Registry-consumer toolchain and build-policy acceptance is recorded in
 [the release verification record](../../records/2026-10-13-registry-consumer-toolchain.md).
 

@@ -1,5 +1,10 @@
 # Specification Governance / Protected change mapping
 
+The approved `2026.10.14.1` shared-image refresh maps direct workflow pins,
+the dependency-only Docker base and its regenerated immutable digest to
+Architecture, Packages and this chapter. All existing CI and release gates
+remain required.
+
 Release version preparation validates formatter availability and current-version
 changelog notes under [LN-PKG-164](../packages/releases-and-exports.md#ln-pkg-164).
 Its cached regression inputs include package changelogs and formatter configs.
