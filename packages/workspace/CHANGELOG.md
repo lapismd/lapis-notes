@@ -1,5 +1,13 @@
 # @lapis-notes/workspace
 
+## 0.2.1
+
+### Patch Changes
+
+- [#15](https://github.com/lapismd/lapis-notes/pull/15) [`57996c6`](https://github.com/lapismd/lapis-notes/commit/57996c6d26c1e7ed723df1291b415ee94d3a58e5) Thanks [@stevejuma](https://github.com/stevejuma)! - Retain selected plugin releases in navigation and persisted Plugins views so
+  application links can open a specific version. Fail closed for unavailable
+  versions and keep historical installation bound to the selected release.
+
 ## 0.2.0
 
 ### Minor Changes
