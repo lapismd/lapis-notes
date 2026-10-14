@@ -4,6 +4,8 @@ Server browser qualification retains the verified registry fixture and normal
 plugin lifecycle assertions. Its one initial navigation retry for an observed
 Chromium module transport abort does not replay plugin installation or later
 editing, sharing and restart operations; see LN-PKG-161.
+The file-backed recovery diagnostic survives successful acceptance without
+replaying those plugin lifecycle operations.
 
 ## LN-PLUG-001 — Extracted first-party plugins: use package directories named by plugin slug
 

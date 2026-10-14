@@ -75,3 +75,26 @@ passes 7/7, Web unit tests pass 55/55, full Web acceptance passes 12/12 with the
 signed CI fixture, and the cold server case passes once plus three additional
 cold repetitions. Root check/test pass 18 tasks each, build passes 10 tasks,
 and the complete release suite passes 97 tests.
+
+The Linux run [38643240894](https://github.com/lapismd/lapis-notes/actions/runs/38643240894)
+exercised the recovery on a real `ERR_NETWORK_CHANGED` abort and passed all 12
+browser cases. PR #27 merged as `79bbd0c6a08cb3753263139266bcc2859a28bce8`.
+That run exposed a reporting defect: the line reporter kept the body attachment
+in memory, leaving no file for `web-acceptance-diagnostics` to upload.
+
+The follow-up writes `server-navigation-network-change.json` in the test's
+output directory, attaches it by path and explicitly preserves passing output
+in both Web Playwright configurations. Its focused persistence regression
+changed from one `ENOENT` failure to one pass. Seven recovery/persistence tests
+pass locally and under Linux Node 24.15.0; the combined registry-fixture suite
+passes 8/8. Separate passing Playwright runs with each configuration's line
+reporter on macOS and inside the Linux CI image confirm that the diagnostic file
+remains on disk after runner exit. The cold server case passes again, Web unit
+tests pass 55/55, release regressions pass 98/98, root check/test pass 18 tasks
+each, build passes 10 tasks, and specification regressions pass 38/38. An initial
+root API declaration test exceeded its five-second timeout under concurrent
+validation load; its unchanged focused rerun passed in three seconds, and the
+root test rerun passed all tasks.
+The complete Web acceptance rerun against freshly rebuilt signed-fixture output
+passes all 12 browser cases, including the final editing, sharing and clean
+server restart journey.

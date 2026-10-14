@@ -366,6 +366,9 @@ Chromium document or script `ERR_NETWORK_CHANGED` abort. It records that retry
 and retains every readiness and later application assertion; other failures and
 a repeated transport failure remain failed acceptance.
 The server case launches its own browser worker after preparing that namespace.
+Recovery reports persist as JSON files in the test output directory and attach
+by path. Both Web Playwright configurations preserve passing test output so the
+always-run CI artifact upload can retain successful recovery evidence.
 
 The private application profile and root catalog consume the approved plugin
 batch through npm ranges: AI 0.1.5; Bases, Bookmarks, Graph, Search and Spellcheck

@@ -7,7 +7,10 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { chromium, expect, test as base, type Page } from "@playwright/test";
-import { navigateServerPage } from "./server-navigation";
+import {
+  navigateServerPage,
+  recordServerNavigationRetry,
+} from "./server-navigation";
 
 // This file's browser starts after beforeAll prepares the Docker network.
 // Reusing the preceding PWA worker can deliver delayed Linux network changes
@@ -349,20 +352,7 @@ test("server-hosted vault survives editing, sharing events, and restart", async 
         page.getByRole("heading", { name: "Sign in" }),
       ).toBeVisible();
     },
-    async (retry) => {
-      console.warn(
-        "Retrying initial server navigation once after Chromium ERR_NETWORK_CHANGED",
-      );
-      testInfo.annotations.push({
-        type: "network-change-retry",
-        description:
-          "One initial navigation retry after Chromium aborted a document or script request",
-      });
-      await testInfo.attach("server-navigation-network-change", {
-        body: JSON.stringify(retry, null, 2),
-        contentType: "application/json",
-      });
-    },
+    (retry) => recordServerNavigationRetry(testInfo, retry),
   );
   await expect(page.locator("[data-server-login-logo]")).toBeVisible();
   await expect(page.locator("[data-server-login-logo]")).toHaveAttribute(
