@@ -95,6 +95,10 @@ so Linux browser network-change notifications cannot abort the startup module
 graph. Both containers are removed during test teardown.
 The case owns a dedicated browser worker launched after network preparation;
 initial navigation and server recreation retain the same startup assertions.
+The bootstrap secret-file container has no network. Initial navigation retries
+once only after an observed Chromium `ERR_NETWORK_CHANGED` abort of a same-origin
+document or script. The retry records a diagnostic attachment; a second failure,
+other network errors and application readiness failures still fail acceptance.
 
 ## LN-SRV-014 — Health: report process liveness without authentication or secrets
 

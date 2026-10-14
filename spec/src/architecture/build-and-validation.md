@@ -38,3 +38,9 @@ exact validation source based on the public release. Complete Web acceptance use
 Docker and builds the server image from the checked-out Notes candidate.
 The server fixture seeds its private bootstrap secret into a Docker volume owned
 by the image's service user, so host UID differences cannot prevent startup.
+That file-seeding container has no network. Initial server navigation retries
+once only after an observed same-origin Chromium document or script
+`ERR_NETWORK_CHANGED` failure and retains a diagnostic attachment. Application
+assertions and the later editing, sharing and restart sequence remain unchanged.
+Web diagnostic artifacts upload after successful recovery as well as failures,
+so a passing retry retains its observed transport errors.

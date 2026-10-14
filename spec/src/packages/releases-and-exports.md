@@ -353,11 +353,18 @@ executes Linux runtime preflight from the absolute staged bundle and
 consumes that contract rather than rebuilding the application or substituting
 local npm dependencies; see LN-DENO-079 through LN-DENO-083. npm Changesets and
 desktop releases retain independent version and publication flows.
+The first tagged desktop release is `2026.31.5`; its three verified archives and
+manifest bind source commit `9fed4f1577a6beb27168d0b83b9ea42408d4f1b1`.
+See the [release record](../../records/2026-10-14-homebrew-desktop-release.md).
 
 Server-host browser qualification uses the client built from these public
 package boundaries. Its restart test retains the test network namespace while
 recreating the serving container and verifying persisted data; it does not
 substitute a warm browser-only check for server shutdown and startup.
+The initial browser navigation may repeat once for an observed same-origin
+Chromium document or script `ERR_NETWORK_CHANGED` abort. It records that retry
+and retains every readiness and later application assertion; other failures and
+a repeated transport failure remain failed acceptance.
 The server case launches its own browser worker after preparing that namespace.
 
 The private application profile and root catalog consume the approved plugin
