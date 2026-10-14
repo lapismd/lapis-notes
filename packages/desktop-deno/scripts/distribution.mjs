@@ -91,10 +91,48 @@ export function createLinuxDesktopEntry() {
 export function createLinuxLauncher() {
   return [
     "#!/bin/sh",
-    'application_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)',
+    "set -eu",
+    "launcher=$0",
+    "links=0",
+    'while [ -L "$launcher" ]; do',
+    "  links=$((links + 1))",
+    '  [ "$links" -le 40 ] || { echo "Lapis Notes launcher contains a symbolic-link cycle" >&2; exit 1; }',
+    '  directory=$(CDPATH= cd -- "$(dirname -- "$launcher")" && pwd)',
+    '  link=$(readlink "$launcher")',
+    '  case "$link" in /*) launcher=$link ;; *) launcher=$directory/$link ;; esac',
+    "done",
+    'application_dir=$(CDPATH= cd -- "$(dirname -- "$launcher")" && pwd)',
+    "if command -v ldconfig >/dev/null 2>&1; then",
+    "  library_cache=$(ldconfig -p)",
+    "elif [ -x /sbin/ldconfig ]; then",
+    "  library_cache=$(/sbin/ldconfig -p)",
+    "else",
+    '  echo "Lapis Notes requires ldconfig to check its Linux system libraries" >&2',
+    "  exit 1",
+    "fi",
+    "missing=",
+    "for library in libwebkit2gtk-4.1.so.0 libgtk-3.so.0 libayatana-appindicator3.so.1; do",
+    '  case "$library_cache" in *"$library ("*) ;; *) missing="$missing $library" ;; esac',
+    "done",
+    'if [ -n "$missing" ]; then',
+    '  echo "Lapis Notes is missing Linux system libraries:$missing" >&2',
+    '  echo "On Ubuntu 24.04 run: sudo apt-get install libwebkit2gtk-4.1-0 libgtk-3-0t64 libayatana-appindicator3-1" >&2',
+    "  exit 1",
+    "fi",
+    '[ "${1:-}" != --check-runtime ] || exit 0',
     'exec "$application_dir/lib/lapis-notes/lapis-notes" "$@"',
     "",
   ].join("\n");
+}
+
+export function createMacApplicationMetadata(version) {
+  return {
+    CFBundleIdentifier: "notes.lapis.desktop",
+    CFBundleName: "Lapis Notes",
+    CFBundleShortVersionString: version,
+    CFBundleVersion: version,
+    LSMinimumSystemVersion: "15.0",
+  };
 }
 
 export function createMacSigningArguments({

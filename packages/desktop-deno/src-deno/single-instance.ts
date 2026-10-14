@@ -182,7 +182,7 @@ export async function acquireDenoSingleInstance(
   const token = `${crypto.randomUUID()}${crypto.randomUUID()}`;
   await Deno.writeTextFile(
     paths.temporaryEndpoint,
-    `${JSON.stringify({ port, token })}\n`,
+    `${JSON.stringify({ port, token, pid: Deno.pid })}\n`,
     { mode: 0o600 },
   );
   await Deno.rename(paths.temporaryEndpoint, paths.endpoint);

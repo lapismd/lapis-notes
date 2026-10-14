@@ -63,6 +63,7 @@ export type DenoDesktopPlatformInfo = NativeDesktopPlatformInfo & {
   suggestedVaultPath?: string;
   overlayWindowControls?: boolean;
   acceptance?: boolean;
+  acceptanceMode?: "core" | "full";
   rendererEngine?: "webkit" | "blink";
 };
 

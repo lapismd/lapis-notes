@@ -1,5 +1,6 @@
 import { handleBootstrapKv } from "./bootstrap-kv.ts";
 import { writeAcceptanceReport } from "./acceptance-report.ts";
+import { resolveDesktopAcceptanceMode } from "./acceptance-mode.ts";
 import { DESKTOP_APPLICATION_INFO } from "./application-info.ts";
 import type { DenoAppDatabaseHost } from "./app-database.ts";
 import {
@@ -141,6 +142,11 @@ export function createPlatformInfo() {
     acceptance:
       Deno.env.get("LAPIS_DENO_ACCEPTANCE") === "1" &&
       Boolean(Deno.env.get("LAPIS_DENO_ACCEPTANCE_REPORT")?.trim()),
+    acceptanceMode: resolveDesktopAcceptanceMode(
+      Deno.env.get("LAPIS_DENO_ACCEPTANCE"),
+      Deno.env.get("LAPIS_DENO_ACCEPTANCE_REPORT"),
+      Deno.env.get("LAPIS_DENO_ACCEPTANCE_MODE"),
+    ),
   };
 }
 

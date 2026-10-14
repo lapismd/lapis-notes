@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  TURSO_WASM_BUNDLE_ESM,
-  rendererDistRoot,
-} from "./production-build";
+import { TURSO_WASM_BUNDLE_ESM, rendererDistRoot } from "./production-build";
 
 describe("Deno desktop production build", () => {
   it("identifies Turso's published ESM bundle on supported path formats", () => {
@@ -32,15 +29,12 @@ describe("Deno desktop production build", () => {
     ).toBe(false);
   });
 
-  it("serves production assets from the launch directory", () => {
-    expect(rendererDistRoot("/workspace/packages/desktop-deno")).toBe(
-      "/workspace/packages/desktop-deno/dist",
-    );
-    expect(rendererDistRoot("/workspace/packages/desktop-deno/")).toBe(
-      "/workspace/packages/desktop-deno/dist",
-    );
-    expect(rendererDistRoot("C:\\workspace\\desktop-deno\\")).toBe(
-      "C:\\workspace\\desktop-deno\\dist",
-    );
+  it("serves packaged assets relative to the embedded native module", () => {
+    expect(
+      rendererDistRoot("file:///embedded/Lapis%20Notes/src-deno/main.ts"),
+    ).toBe("/embedded/Lapis Notes/dist/");
+    expect(
+      rendererDistRoot("file:///embedded/desktop-deno/src-deno/main.ts"),
+    ).toBe("/embedded/desktop-deno/dist/");
   });
 });

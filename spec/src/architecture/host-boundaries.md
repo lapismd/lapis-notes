@@ -5,6 +5,16 @@ origin-fallback contract in [LN-PLUG-110 and LN-PLUG-111](../plugin-model/distri
 Web, server and native hosts share archive verification; a registry delivery
 endpoint cannot change the selected release or grant additional plugin trust.
 
+Desktop distribution follows LN-DENO-079 through LN-DENO-083. Lapis Notes owns
+bundle construction, permissions, native launchers and runtime acceptance. The
+Homebrew tap owns installation paths and desktop integration while consuming
+the released source-bound archive contract. Core installation acceptance uses
+an explicit native/renderer test scope; normal startup and full controller
+acceptance retain their existing ownership and lifecycle boundaries.
+The first release qualifies macOS ARM64 and Linux ARM64/x86-64. Intel macOS
+remains deferred because the pinned Turso database lacks a published native
+addon for that platform; the tap rejects that unsupported architecture.
+
 ## LN-ARCH-009 — Api compatibility projection: preserve every persisted design-core V3 workspace region
 
 <a id="ln-arch-009"></a>

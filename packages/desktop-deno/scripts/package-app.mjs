@@ -22,6 +22,7 @@ import {
   createLinuxLauncher,
   createLinuxSigningArguments,
   createMacSigningArguments,
+  createMacApplicationMetadata,
   readRequestedTarget,
 } from "./distribution.mjs";
 import { createDenoDesktopDynamicIncludeArgs } from "./dev-command.mjs";
@@ -87,7 +88,7 @@ async function buildDesktopOutput(plan, output) {
     "build/icon-dark.png",
     "--exclude",
     "node_modules",
-    "--exclude",
+    "--include",
     "dist",
     "--exclude",
     "src",
@@ -128,10 +129,9 @@ async function declareMacApplicationMetadata(appBundle) {
       CFBundleURLSchemes: ["lapis", "lapis-notes"],
     },
   ]);
-  for (const [key, value] of [
-    ["CFBundleIdentifier", "notes.lapis.desktop"],
-    ["CFBundleName", "Lapis Notes"],
-  ]) {
+  for (const [key, value] of Object.entries(
+    createMacApplicationMetadata(packageMetadata.version),
+  )) {
     try {
       await execFileAsync("plutil", ["-replace", key, "-string", value, plist]);
     } catch {
@@ -230,6 +230,7 @@ async function packageMac(plan) {
   );
   await signMacApplication(plan.appBundle);
   await notarizeMacApplication(plan.appBundle);
+  await run("codesign", ["--verify", "--deep", "--strict", plan.appBundle]);
   await rm(plan.archive, { force: true });
   await run("ditto", [
     "-c",

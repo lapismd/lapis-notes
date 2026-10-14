@@ -1,5 +1,14 @@
 import path from "node:path";
-import { readFileSync } from "node:fs";
+import {
+  readFileSync,
+  mkdtempSync,
+  mkdirSync,
+  writeFileSync,
+  symlinkSync,
+  rmSync,
+} from "node:fs";
+import os from "node:os";
+import { spawnSync } from "node:child_process";
 import { describe, expect, it } from "vitest";
 import {
   createDistributionPlan,
@@ -7,12 +16,98 @@ import {
   createLinuxLauncher,
   createLinuxSigningArguments,
   createMacSigningArguments,
+  createMacApplicationMetadata,
   readRequestedTarget,
   resolveCurrentDenoTarget,
 } from "./distribution.mjs";
 import { desktopDenoDynamicIncludes } from "./dev-command.mjs";
 
 describe("Deno desktop distribution", () => {
+  it("stamps the release version and stable identity into the macOS bundle", () => {
+    expect(createMacApplicationMetadata("2026.31.5")).toMatchObject({
+      CFBundleIdentifier: "notes.lapis.desktop",
+      CFBundleName: "Lapis Notes",
+      CFBundleShortVersionString: "2026.31.5",
+      CFBundleVersion: "2026.31.5",
+      LSMinimumSystemVersion: "15.0",
+    });
+  });
+
+  function withLinuxBundle(run) {
+    const root = mkdtempSync(path.join(os.tmpdir(), "lapis-distribution-"));
+    try {
+      const bundle = path.join(root, "bundle with spaces");
+      const bin = path.join(root, "bin");
+      mkdirSync(path.join(bundle, "lib/lapis-notes"), { recursive: true });
+      mkdirSync(bin);
+      writeFileSync(path.join(bundle, "lapis-notes"), createLinuxLauncher(), {
+        mode: 0o755,
+      });
+      writeFileSync(
+        path.join(bundle, "lib/lapis-notes/lapis-notes"),
+        '#!/bin/sh\nprintf "%s\\n" "$@"\n',
+        { mode: 0o755 },
+      );
+      writeFileSync(
+        path.join(bin, "ldconfig"),
+        '#!/bin/sh\nprintf "%s\\n" "libwebkit2gtk-4.1.so.0 (libc6)" "libgtk-3.so.0 (libc6)" "libayatana-appindicator3.so.1 (libc6)"\n',
+        { mode: 0o755 },
+      );
+      symlinkSync(
+        "../bundle with spaces/lapis-notes",
+        path.join(bin, "lapis-notes"),
+      );
+      run({
+        root,
+        bundle,
+        bin,
+        env: { ...process.env, PATH: `${bin}:/usr/bin:/bin` },
+      });
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  it("launches through a relative Homebrew symlink from another directory", () => {
+    withLinuxBundle(({ root, bin, env }) => {
+      const result = spawnSync(
+        path.join(bin, "lapis-notes"),
+        ["lapis://vault?a=one two", "--literal"],
+        { cwd: root, env, encoding: "utf8" },
+      );
+      expect(result.status, result.stderr).toBe(0);
+      expect(result.stdout).toBe("lapis://vault?a=one two\n--literal\n");
+    });
+  });
+
+  it("checks native prerequisites without launching the application", () => {
+    withLinuxBundle(({ bin, env }) => {
+      const result = spawnSync(
+        path.join(bin, "lapis-notes"),
+        ["--check-runtime"],
+        { env, encoding: "utf8" },
+      );
+      expect(result.status, result.stderr).toBe(0);
+      expect(result.stdout).toBe("");
+    });
+  });
+
+  it("reports missing WebKit libraries with an actionable installation command", () => {
+    withLinuxBundle(({ bin, env }) => {
+      writeFileSync(path.join(bin, "ldconfig"), "#!/bin/sh\nexit 0\n", {
+        mode: 0o755,
+      });
+      const result = spawnSync(
+        path.join(bin, "lapis-notes"),
+        ["--check-runtime"],
+        { env, encoding: "utf8" },
+      );
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain("libwebkit2gtk-4.1.so.0");
+      expect(result.stderr).toContain("sudo apt-get install");
+      expect(result.stdout).toBe("");
+    });
+  });
   it("maps supported build hosts to explicit Deno targets", () => {
     expect(resolveCurrentDenoTarget("darwin", "arm64")).toBe(
       "aarch64-apple-darwin",
@@ -95,6 +190,8 @@ describe("Deno desktop distribution", () => {
       'import.meta.resolve("@lapismd/terminal-host/native-artifacts.json")',
     );
     expect(source).not.toContain("../../../terminal-host");
+    expect(source).toMatch(/"--include",\s*"dist"/u);
+    expect(source).not.toMatch(/"--exclude",\s*"dist"/u);
     expect(source).toContain('"--include"');
     expect(source).toContain('"native"');
     expect(source).toContain('"build/icon-light.png"');
