@@ -14,6 +14,8 @@ acceptance retain their existing ownership and lifecycle boundaries.
 The first release qualifies macOS ARM64 and Linux ARM64/x86-64. Intel macOS
 remains deferred because the pinned Turso database lacks a published native
 addon for that platform; the tap rejects that unsupported architecture.
+Release `2026.31.5` verifies those host boundaries through tagged native
+qualification; evidence is retained in the [release record](../../records/2026-10-14-homebrew-desktop-release.md).
 
 ## LN-ARCH-009 — Api compatibility projection: preserve every persisted design-core V3 workspace region
 

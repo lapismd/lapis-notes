@@ -7,6 +7,10 @@ macOS packaging passes an extension-free output name to Deno, which adds `.app`.
 Packaging selects `DENO_BIN` when configured and otherwise uses the runtime on
 `PATH`, matching the pinned CI toolchain instead of a separate user installation.
 
+Desktop release `2026.31.5` qualifies macOS ARM64 and Linux ARM64/x86-64.
+See the [Homebrew release record](../../records/2026-10-14-homebrew-desktop-release.md)
+for source provenance, native qualification and platform limitations.
+
 ## LN-DENO-038 — Before mounting application UI, the desktop renderer: mark the document engine from the native
 
 <a id="ln-deno-038"></a>
