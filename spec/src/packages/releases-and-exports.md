@@ -341,12 +341,27 @@ on top of released 0.1.0 controller source; npm SDK ranges remain unchanged.
 
 **Requirement.** Version preparation MUST preflight each public changelog formatter and reject a package whose current version has no non-empty changelog section before and after Changesets runs. Markdown formatting MUST NOT require optional code-only formatter plugins.
 
+## Approved registry consumer snapshot — 2026-10-14
+
+Server-host browser qualification uses the client built from these public
+package boundaries. Its restart test retains the test network namespace while
+recreating the serving container and verifying persisted data; it does not
+substitute a warm browser-only check for server shutdown and startup.
+The server case launches its own browser worker after preparing that namespace.
+
+The private application profile and root catalog consume the approved plugin
+batch through npm ranges: AI 0.1.5; Bases, Bookmarks, Graph, Search and Spellcheck
+0.1.3; History 0.1.4; Markdown 0.1.6; Markdown Lint, Source Editor and Word Count
+0.1.2. Slides 0.1.0 remains available through installed-plugin management rather
+than the static profile. The tracked lockfile resolves public npm packages;
+test-signed archive fixtures remain separate acceptance inputs.
+
 <!-- ci-dependency-image:start -->
 
 ## Current CI dependency image
 
-- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:22e375c5a6d598690758602441862e76ff990027e8d341598521c2007a3c6bb1`
-- Lockfile tag: `lock-654683e1966e6631`
-- pnpm-lock.yaml SHA-256: `654683e1966e6631f48f3bbbcc1b4764a98c0f986a048649be41623dfdf79c51`
+- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:19b3b2b86138271ff21afa9c2923f4d6f891abbfd5e73b77c1a60408035c4241`
+- Lockfile tag: `lock-3ee3de3f2b63851b`
+- pnpm-lock.yaml SHA-256: `3ee3de3f2b63851b468823bcd2b86595aa740b1d28caa6bfec3f088df1b4b82c`
 
 <!-- ci-dependency-image:end -->

@@ -6,12 +6,30 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { expect, test, type Page } from "@playwright/test";
+import { chromium, expect, test as base, type Page } from "@playwright/test";
+
+// This file's browser starts after beforeAll prepares the Docker network.
+// Reusing the preceding PWA worker can deliver delayed Linux network changes
+// into the server client's first module downloads.
+const test = base.extend({
+  browser: [
+    async ({ headless, launchOptions }, use) => {
+      const browser = await chromium.launch({ ...launchOptions, headless });
+      try {
+        await use(browser);
+      } finally {
+        await browser.close();
+      }
+    },
+    { scope: "worker" },
+  ],
+});
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const image = process.env.LAPIS_SERVER_E2E_IMAGE ?? "lapis-server:e2e";
 const suffix = `${process.pid}-${Date.now().toString(36)}`;
 const containerName = `lapis-server-e2e-${suffix}`;
+const networkContainerName = `lapis-server-e2e-network-${suffix}`;
 const volumeName = `lapis-server-e2e-data-${suffix}`;
 const secretVolumeName = `lapis-server-e2e-secret-${suffix}`;
 
@@ -20,6 +38,7 @@ let password = "";
 let importArchive = "";
 let temporaryRoot = "";
 let containerCreated = false;
+let networkContainerCreated = false;
 let volumeCreated = false;
 let secretVolumeCreated = false;
 let serverReady = false;
@@ -96,8 +115,8 @@ async function startServer(): Promise<void> {
     "--detach",
     "--name",
     containerName,
-    "--publish",
-    `127.0.0.1:${new URL(baseUrl).port}:8787`,
+    "--network",
+    `container:${networkContainerName}`,
     "--mount",
     `type=volume,source=${volumeName},target=/data`,
     "--mount",
@@ -241,6 +260,22 @@ test.beforeAll(async () => {
     ],
     `${password}\n`,
   );
+  // Keep the host interface alive while the server is stopped and recreated.
+  // Linux Chromium otherwise aborts unrelated module loads when Docker's
+  // bridge changes, even after the replacement server reports readiness.
+  await docker([
+    "run",
+    "--detach",
+    "--name",
+    networkContainerName,
+    "--publish",
+    `127.0.0.1:${new URL(baseUrl).port}:8787`,
+    "--entrypoint",
+    "/bin/sleep",
+    image,
+    "infinity",
+  ]);
+  networkContainerCreated = true;
   await startServer();
 });
 
@@ -253,6 +288,12 @@ test.afterAll(async () => {
   if (containerCreated) {
     await docker(["rm", "--force", containerName]).catch(() => undefined);
     containerCreated = false;
+  }
+  if (networkContainerCreated) {
+    await docker(["rm", "--force", networkContainerName]).catch(
+      () => undefined,
+    );
+    networkContainerCreated = false;
   }
   if (volumeCreated) {
     await docker(["volume", "rm", volumeName]).catch(() => undefined);

@@ -6,6 +6,18 @@
 
 **Requirement.** The Lapis Notes default profile MUST contain exactly Source Editor, Markdown, File Explorer, and Search in that order. All four MUST default enabled and remain user-disableable. Extracted npm plugin constructors MUST resolve the same API peer instance used by the profile. Required host-owned views such as Problems MUST NOT become missing-view placeholders while their host registration remains.
 
+The [approved registry consumer snapshot](../packages/releases-and-exports.md#approved-registry-consumer-snapshot--2026-10-14)
+refreshes the extracted profile packages through public npm ranges. Profile
+acceptance retains the four-plugin order, optional enablement, and shared API
+identity. Slides remains an installed plugin rather than a profile entry.
+
+Markdown Problems acceptance verifies the refreshed providers through their
+App-owned diagnostics and current connected gutter markers. Marker glyph and
+alignment assertions resolve the same DOM snapshot under
+[LN-WS-038](../workspace-shell/panels/problems/core-contract.md#ln-ws-038).
+The Problems badge reflects all active diagnostic providers under LN-WS-046;
+the two required Markdownlint codes remain independently verified.
+
 ## LN-PLUG-007 — Disabling a plugin with open owned views: replace those leaves with persisted missing-view placeholders
 
 <a id="ln-plug-007"></a>

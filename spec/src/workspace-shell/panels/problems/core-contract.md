@@ -108,6 +108,11 @@
 
 **Requirement.** CodeMirror lint gutter markers MUST use the same severity glyphs and semantic colours as the Problems panel. Each marker MUST remain centered within its gutter element alongside Mira-owned gutter controls.
 
+Storybook acceptance resolves the current connected gutter and marker together
+inside one readiness assertion. It verifies the glyph mask and flex centering
+against that same DOM snapshot, since CodeMirror measurement can replace gutter
+children between asynchronous checks.
+
 ## LN-WS-039 — Diagnostic hover card: keep its message, source, and code on
 
 <a id="ln-ws-039"></a>
@@ -161,6 +166,11 @@
 <a id="ln-ws-046"></a>
 
 **Requirement.** The owning Problems leaf MUST show the live total as a shared workspace badge with visible non-hover paint. The persisted title MUST remain `Problems`, and the panel toolbar MUST NOT duplicate the total.
+
+The Markdown Problems fixture enables Markdownlint and Harper. Its acceptance
+verifies both required Markdownlint codes independently, rejects workspace-wide
+provider failures, and compares the painted badge with the complete App-owned
+diagnostic snapshot rather than one provider's count.
 
 ## LN-WS-047 — Problems severity toggles: compact checkbox items in an untitled filter
 

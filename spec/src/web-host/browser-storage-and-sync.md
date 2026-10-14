@@ -12,6 +12,11 @@
 
 **Requirement.** The web session MUST register the shared application-owned `notesPluginProfile` containing exactly Source Editor, Markdown, File Explorer, and Search in that order. All four MUST default enabled and remain user-disableable. The host MUST then load configured vault-installed plugins before metadata and layout restoration and mount the shared `WorkspaceShell`. Local Web development MUST prepare verified packed plugin packages before launch.
 
+The [approved registry consumer snapshot](../packages/releases-and-exports.md#approved-registry-consumer-snapshot--2026-10-14)
+updates the shared profile's published packages. Web acceptance builds their
+public export graph and retains the same API singleton, profile ordering, and
+configured-plugin restoration; a signed fixture does not replace npm resolution.
+
 ## LN-WEB-005 — Retirement of legacy web fixtures
 
 <a id="ln-web-005"></a>
@@ -143,6 +148,14 @@ Launcher copy progress verifies the startup surface:
 <a id="ln-web-049"></a>
 
 **Requirement.** The Web package MUST provide a compile-time `deno-server` mode that uses explicit remote vault and AppDatabase adapters while retaining the existing PWA build unchanged. It MUST NOT emulate or populate `NativeDesktopBridge`.
+
+Server-mode browser acceptance verifies editing, shared events and persistence
+after clean container shutdown and recreation. Its test-owned network namespace
+remains alive across that restart under
+[LN-SRV-013](../server-deno-host/core-contract.md#ln-srv-013), while the serving
+process and startup module graph are recreated normally.
+The server case's dedicated browser worker starts after this network is ready,
+isolating initial navigation from preceding PWA acceptance cases.
 
 ## LN-WEB-050 — Deno-server Web build: authenticate before vault selection, use only server-managed
 

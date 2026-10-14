@@ -209,8 +209,17 @@ so standalone CI needs no sibling release directory.
 
 ## Current CI dependency image
 
-- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:22e375c5a6d598690758602441862e76ff990027e8d341598521c2007a3c6bb1`
-- Lockfile tag: `lock-654683e1966e6631`
-- pnpm-lock.yaml SHA-256: `654683e1966e6631f48f3bbbcc1b4764a98c0f986a048649be41623dfdf79c51`
+- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:19b3b2b86138271ff21afa9c2923f4d6f891abbfd5e73b77c1a60408035c4241`
+- Lockfile tag: `lock-3ee3de3f2b63851b`
+- pnpm-lock.yaml SHA-256: `3ee3de3f2b63851b468823bcd2b86595aa740b1d28caa6bfec3f088df1b4b82c`
 
 <!-- ci-dependency-image:end -->
+
+## Browser acceptance network ownership
+
+Web server-restart acceptance owns its disposable Docker network holder and
+serving container. The holder retains one loopback-published namespace while
+the server is stopped and recreated; production host networking and remote
+vault adapters remain governed by their existing contracts.
+Its dedicated browser worker starts after network preparation, so preceding
+PWA cases cannot carry delayed Docker interface events into initial navigation.
