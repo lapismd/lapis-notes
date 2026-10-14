@@ -97,8 +97,7 @@ The exact PR governance gate initially reports three missing host/profile
 chapters. Its mapped canonical documentation repair changes that count to zero;
 specification checks and mirrors pass. Incidental API version-inventory output
 is excluded from the overall PR: this private dependency refresh does not add
-a public API release. Complete CI and merge evidence are recorded below when
-the final consumer run finishes.
+a public API release. The complete final CI and merge evidence follows below.
 
 The next CI head reports one Markdown Problems failure from a detached gutter
 child lookup and one server-host restart failure from Chromium
@@ -110,8 +109,28 @@ container shutdown, recreation and data persistence. Root check passes 18/18,
 the editor-demo family 14/14, the cold full Storybook lane 245/245, and the
 complete signed-fixture Web lane 12/12 against a freshly rebuilt server image.
 Specification checks, 38 regressions and formatting pass. The final candidate
-`75d046319469b323202dbf762c4e9a3134416d68` is qualifying on
+`75d046319469b323202dbf762c4e9a3134416d68` was checked on
 [CI 38588198443](https://github.com/lapismd/lapis-notes/actions/runs/38588198443).
+
+That run passes both native packages and gets past the original gutter lookup,
+but the story's fixed two-problem badge expectation fails later. The fixture
+enables Harper alongside Markdownlint, whereas LN-WS-046 requires the complete
+diagnostic total. The corrected oracle retains exact MD018/MD025 checks, rejects
+workspace-wide provider failures, and compares the painted badge with the full
+App snapshot. Its exact local target and all fourteen editor-demo cases pass.
+The Web trace also records `ERR_NETWORK_CHANGED` on initial navigation, so the
+server case now launches a dedicated browser worker after Docker setup. Its
+exact local target passes, root check passes 18/18 and specification regressions
+38/38. The complete repeated interaction/Web/native lanes run in CI as the user
+requested; no assertions, timeouts or publication protections are relaxed.
+Candidate `ab90e52a0c31c132082b3eca3bc29cd941faa324` passes all twelve jobs on
+[CI 38592528412](https://github.com/lapismd/lapis-notes/actions/runs/38592528412).
+The complete interaction lane passes 245/245 stories plus 8/8 Specification
+browser cases; Web passes 12/12, and native macOS/Linux packaged acceptance
+both pass. Strict required checks and the matching-head merge guard are verified
+before PR 23 merges as `e1d7de1f8e6a39c16d6906c04e302cd89899c2ac`.
+The approved plugin/catalog release and consumer refresh are complete; no
+publication, signing, dispatch or deployment gate remains in this plan.
 
 Private packaged-app publication, notarization, Community and private Sync are
 outside this plugin/catalog release. Existing clients need the updated app build
