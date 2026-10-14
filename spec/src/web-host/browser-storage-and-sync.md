@@ -156,6 +156,11 @@ remains alive across that restart under
 process and startup module graph are recreated normally.
 The server case's dedicated browser worker starts after this network is ready,
 isolating initial navigation from preceding PWA acceptance cases.
+Delayed Chromium network notifications may still abort initial module downloads.
+That initial navigation retries once only for observed same-origin document or
+script `ERR_NETWORK_CHANGED` failures and retains its original readiness
+assertions. Retry evidence is attached to the result; later application, sharing
+and restart steps are not replayed.
 
 ## LN-WEB-050 — Deno-server Web build: authenticate before vault selection, use only server-managed
 

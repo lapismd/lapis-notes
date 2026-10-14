@@ -40,3 +40,8 @@ CI runners declare the external controller and Docker prerequisites needed to
 execute the complete acceptance graph; prerequisite absence remains a failure.
 Linux qualification includes controller dependency materialization and a private
 server secret readable by the container service user without relaxing assertions.
+Initial server navigation allows one recovery only for observed same-origin
+Chromium document or script `ERR_NETWORK_CHANGED` failures. Retry annotations
+and attachments remain visible in diagnostic artifacts after a successful
+recovery. Readiness, later application steps and a failed second attempt retain
+their original failure behavior.

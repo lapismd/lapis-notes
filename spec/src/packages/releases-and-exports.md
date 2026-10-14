@@ -361,6 +361,10 @@ Server-host browser qualification uses the client built from these public
 package boundaries. Its restart test retains the test network namespace while
 recreating the serving container and verifying persisted data; it does not
 substitute a warm browser-only check for server shutdown and startup.
+The initial browser navigation may repeat once for an observed same-origin
+Chromium document or script `ERR_NETWORK_CHANGED` abort. It records that retry
+and retains every readiness and later application assertion; other failures and
+a repeated transport failure remain failed acceptance.
 The server case launches its own browser worker after preparing that namespace.
 
 The private application profile and root catalog consume the approved plugin

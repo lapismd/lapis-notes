@@ -7,6 +7,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { chromium, expect, test as base, type Page } from "@playwright/test";
+import { navigateServerPage } from "./server-navigation";
 
 // This file's browser starts after beforeAll prepares the Docker network.
 // Reusing the preceding PWA worker can deliver delayed Linux network changes
@@ -248,6 +249,8 @@ test.beforeAll(async () => {
       "run",
       "--rm",
       "--interactive",
+      "--network",
+      "none",
       "--user",
       "root",
       "--entrypoint",
@@ -309,7 +312,7 @@ test.afterAll(async () => {
 test("server-hosted vault survives editing, sharing events, and restart", async ({
   context,
   page,
-}) => {
+}, testInfo) => {
   test.setTimeout(180_000);
   await page.addInitScript(() => {
     const pickedFile = new File(
@@ -334,12 +337,33 @@ test("server-hosted vault survives editing, sharing events, and restart", async 
       value: async () => directoryHandle,
     });
   });
-  await page.goto(baseUrl);
-  await expect(page.locator("html")).toHaveAttribute(
-    "data-runtime",
-    "deno-server",
+  await navigateServerPage(
+    page,
+    baseUrl,
+    async () => {
+      await expect(page.locator("html")).toHaveAttribute(
+        "data-runtime",
+        "deno-server",
+      );
+      await expect(
+        page.getByRole("heading", { name: "Sign in" }),
+      ).toBeVisible();
+    },
+    async (retry) => {
+      console.warn(
+        "Retrying initial server navigation once after Chromium ERR_NETWORK_CHANGED",
+      );
+      testInfo.annotations.push({
+        type: "network-change-retry",
+        description:
+          "One initial navigation retry after Chromium aborted a document or script request",
+      });
+      await testInfo.attach("server-navigation-network-change", {
+        body: JSON.stringify(retry, null, 2),
+        contentType: "application/json",
+      });
+    },
   );
-  await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
   await expect(page.locator("[data-server-login-logo]")).toBeVisible();
   await expect(page.locator("[data-server-login-logo]")).toHaveAttribute(
     "src",

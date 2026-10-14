@@ -223,7 +223,7 @@ jobs:
         env:
           LAPIS_WEB_REGISTRY_FIXTURE: .ci-candidates/registry-fixture
       - uses: actions/upload-artifact@v7
-        if: failure()
+        if: always()
         with:
           name: web-acceptance-diagnostics
           path: packages/web/test-results

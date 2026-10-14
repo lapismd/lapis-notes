@@ -55,3 +55,23 @@ Intel macOS is deferred because the pinned Turso 0.7.2 package has no published
 Darwin x64 native addon. OS-level macOS custom-scheme URL event delivery remains
 [denoland/deno#35465](https://github.com/denoland/deno/issues/35465); executable
 argument handoff passes. AI features require the separate controller.
+
+## CI server startup recovery
+
+Later evidence-only CI again aborted 80 initial module requests with Chromium
+`ERR_NETWORK_CHANGED`, before the Sign in heading could render. Its unchanged
+rerun passed. The server acceptance fixture now isolates its bootstrap secret
+container from networking and allows one fresh initial navigation only for an
+observed same-origin document or script network-change abort.
+
+The recovery retains the original readiness assertions and all later login,
+editing, sharing and restart steps. Other failures and a failed second attempt
+still fail acceptance. A retry emits an annotation, log and JSON attachment;
+Web diagnostics upload after success as well as failure.
+
+Six focused recovery regressions changed from three failures to six passes,
+including the Linux CI Node 24.15.0 runtime. The combined registry-fixture suite
+passes 7/7, Web unit tests pass 55/55, full Web acceptance passes 12/12 with the
+signed CI fixture, and the cold server case passes once plus three additional
+cold repetitions. Root check/test pass 18 tasks each, build passes 10 tasks,
+and the complete release suite passes 97 tests.
