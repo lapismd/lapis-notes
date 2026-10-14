@@ -349,6 +349,7 @@ produces four native candidates, qualifies their actual Homebrew installations,
 and publishes immutable archives with a source-bound manifest. Manual dispatch
 remains validation-only; native jobs select and verify the pinned Node and Deno
 toolchain after Homebrew setup modifies PATH. The Homebrew tap
+executes Linux runtime preflight from the absolute staged bundle and
 consumes that contract rather than rebuilding the application or substituting
 local npm dependencies; see LN-DENO-079 through LN-DENO-083. npm Changesets and
 desktop releases retain independent version and publication flows.
