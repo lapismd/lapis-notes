@@ -1,5 +1,9 @@
 # Packages / Host and plugin integration
 
+The API owns signed archive delivery selection and transport-only origin
+fallback under [LN-PLUG-110 and LN-PLUG-111](../plugin-model/distribution-and-registry-01.md#ln-plug-110).
+Hosts retain the verified installer's hash, signature and selected-release checks.
+
 ## LN-PKG-002 — @lapis-notes/api: depend on @lapis-notes/ui as a peer
 
 <a id="ln-pkg-002"></a>

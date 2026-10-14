@@ -6,6 +6,9 @@ Production registry metadata signing was separately approved and completed.
 The user also approved publishing the signed registry once CI prerequisites pass.
 Plugin publication and registry release dispatch remain separate release gates.
 
+The [2026-10-14 continuation](2026-10-14-registry-release-continuation.md)
+records archive delivery, resumed CI qualification and the remaining publications.
+
 ## Resumed qualification — 2026-10-13
 
 - Design Core 0.3.2 is published. Source PR 17 and version PR 18 are merged;
@@ -349,12 +352,12 @@ are preserved.
 
 ## Current CI coverage and remaining gates
 
-| Repository  | Existing PR checks                                                                                                                                                                                                    | Remaining coverage or prerequisite                                                                                                            |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Design Core | `ci.yml`: governance, quality, units, static catalog, Storybook interactions, Workspace/Shell/Shadcn/AI browser suites, full/production audits and aggregate validation                                               | Completed: all 11 jobs executed successfully on the released source.                                                                          |
-| Notes       | `lapis-ci.yml`: governance/release intent, quality/ownership, units, static catalog, full interactions, complete Web, signed fixture, native macOS/Linux packages, package/artifact planning and aggregate validation | Completed: all 12 jobs pass in CI 38465829736, including native Linux cold smoke; PR 13 is merged.                                            |
-| Plugins     | `ci.yml`: published-framework prerequisite, build cache, audit/package/spec checks, units/release tests, static catalog, full interactions, pack/archive verification and test-signed artifact planning               | Completed: all nine source jobs pass and PR 6 is merged. Production publication and signing remain separate gates.                            |
-| Registry    | `checks.yml`: frozen install, strict remote artifact validation, generation/signatures, statistics, Astro check/build, unit/browser tests, formatting and generated-tree consistency                                  | Completed: approved signing, full CI, media/changelog publication and version pages pass. Production browser archive CORS remains unresolved. |
+| Repository  | Existing PR checks                                                                                                                                                                                                    | Remaining coverage or prerequisite                                                                                                                                       |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Design Core | `ci.yml`: governance, quality, units, static catalog, Storybook interactions, Workspace/Shell/Shadcn/AI browser suites, full/production audits and aggregate validation                                               | Completed: all 11 jobs executed successfully on the released source.                                                                                                     |
+| Notes       | `lapis-ci.yml`: governance/release intent, quality/ownership, units, static catalog, full interactions, complete Web, signed fixture, native macOS/Linux packages, package/artifact planning and aggregate validation | Workspace 0.2.1 version PR 16 is merged after all 12 jobs pass. Signed endpoint installer is locally qualified; follow-up CI and npm publication remain gates.           |
+| Plugins     | `ci.yml`: published-framework prerequisite, build cache, audit/package/spec checks, units/release tests, static catalog, full interactions, pack/archive verification and test-signed artifact planning               | PR 7 is merged after green CI. Its post-merge AI failures are repaired locally with 177 passing stories; follow-up GitHub CI and production publication remain gates.    |
+| Registry    | `checks.yml`: frozen install, strict remote artifact validation, generation/signatures, statistics, Astro check/build, unit/browser tests, formatting and generated-tree consistency                                  | Completed: approved signing, media/changelogs/version pages and streamed archive CORS deployment pass. Updated installer passes the original production Word Count case. |
 
 Clean CI cannot consume ignored checkout-specific hooks or local tarballs.
 The framework prerequisites are now published. Notes' documented validation-only

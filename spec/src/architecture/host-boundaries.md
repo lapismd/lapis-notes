@@ -1,5 +1,10 @@
 # Architecture / Host boundaries
 
+Static registry archive transport follows the API-owned signed delivery and
+origin-fallback contract in [LN-PLUG-110 and LN-PLUG-111](../plugin-model/distribution-and-registry-01.md#ln-plug-110).
+Web, server and native hosts share archive verification; a registry delivery
+endpoint cannot change the selected release or grant additional plugin trust.
+
 ## LN-ARCH-009 — Api compatibility projection: preserve every persisted design-core V3 workspace region
 
 <a id="ln-arch-009"></a>

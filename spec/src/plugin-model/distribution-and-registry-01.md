@@ -1,5 +1,20 @@
 # Plugin Model / Distribution and registry / Part 1
 
+## LN-PLUG-110 — Signed archive delivery endpoint
+
+<a id="ln-plug-110"></a>
+
+**Requirement.** The verified installer MUST prefer a selected release's signed
+`bundle.downloadUrl` when present, resolving it against the catalog detail URL.
+Endpoint delivery MUST retain the selected version, declared archive hash and
+size, embedded signatures, runtime validation, and normal installation policy.
+
+## LN-PLUG-111 — Archive origin fallback
+
+<a id="ln-plug-111"></a>
+
+**Requirement.** The installer MAY retry the same release's signed `bundle.url` when a signed delivery endpoint cannot transport the archive. Cancellation, an endpoint revocation response, and archive integrity or signature failures MUST NOT trigger origin fallback. Catalogs without a delivery endpoint MUST continue to use their signed archive origin.
+
 ## LN-PLUG-002 — Standalone first-party plugins: use repositories named lapis-plugin-\*, version independently,
 
 <a id="ln-plug-002"></a>
