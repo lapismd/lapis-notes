@@ -141,7 +141,24 @@ export class VerifiedPluginInstaller {
       release.bundle.url,
       options.entry.detail,
     ).toString();
-    const bundle = await this.fetchBundle(bundleUrl, release.bundle, options);
+    let bundle: Uint8Array;
+    const downloadUrl = release.bundle.downloadUrl
+      ? new URL(release.bundle.downloadUrl, options.entry.detail).toString()
+      : bundleUrl;
+    try {
+      bundle = await this.fetchBundle(downloadUrl, release.bundle, options);
+    } catch (error) {
+      throwIfAborted(options.signal);
+      if (
+        downloadUrl === bundleUrl ||
+        isAbortError(error) ||
+        (error instanceof PluginDistributionError &&
+          error.details?.status === 410)
+      ) {
+        throw error;
+      }
+      bundle = await this.fetchBundle(bundleUrl, release.bundle, options);
+    }
     const payload = await this.verifyPluginBundle(bundle, {
       ...options,
       expectedBundle: release.bundle,

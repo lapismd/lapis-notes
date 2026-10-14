@@ -19,6 +19,147 @@ import {
 import { InMemoryDataAdapter } from "./data-adapter-conformance";
 
 describe("VerifiedPluginInstaller", () => {
+  it("uses the signed download endpoint for the selected release", async () => {
+    const fixture = await createInstallFixture();
+    fixture.detail.versions["0.1.0"].bundle.downloadUrl =
+      "../../download/lapis-docs/0.1.0";
+    const endpoint = "https://registry.example.test/download/lapis-docs/0.1.0";
+    const requests: string[] = [];
+    const installer = new VerifiedPluginInstaller({
+      adapter: new InMemoryDataAdapter(),
+      trustedKeys: [fixture.trustedKey],
+      fetch: async (url) => {
+        requests.push(url);
+        return fakeBinaryFetch({ [endpoint]: fixture.bundle })(url);
+      },
+    });
+
+    const record = await installer.install({
+      entry: fixture.entry,
+      detail: fixture.detail,
+      version: "0.1.0",
+    });
+    expect(record.installedVersion).toBe("0.1.0");
+    expect(requests).toEqual([endpoint]);
+  });
+
+  it.each(["network", "http", "body"])(
+    "falls back to the signed artifact origin after a download endpoint %s failure",
+    async (failure) => {
+      const fixture = await createInstallFixture();
+      const release = fixture.detail.versions["0.1.0"];
+      release.bundle.downloadUrl = "../../download/lapis-docs/0.1.0";
+      const endpoint =
+        "https://registry.example.test/download/lapis-docs/0.1.0";
+      const origin = new URL(
+        release.bundle.url,
+        fixture.entry.detail,
+      ).toString();
+      const requests: string[] = [];
+      const installer = new VerifiedPluginInstaller({
+        adapter: new InMemoryDataAdapter(),
+        trustedKeys: [fixture.trustedKey],
+        fetch: async (url) => {
+          requests.push(url);
+          if (url !== endpoint) return fakeBinaryFetch(fixture.responses)(url);
+          if (failure === "network") throw new TypeError("Fetch failed");
+          return {
+            ok: failure === "body",
+            status: failure === "body" ? 200 : 502,
+            statusText: "Unavailable",
+            arrayBuffer: async () => {
+              throw new TypeError("Connection interrupted");
+            },
+            text: async () => "",
+          };
+        },
+      });
+
+      const record = await installer.install({
+        entry: fixture.entry,
+        detail: fixture.detail,
+      });
+      expect(record.installedVersion).toBe("0.1.0");
+      expect(requests).toEqual([endpoint, origin]);
+    },
+  );
+
+  it("does not fall back after the signed download endpoint reports revocation", async () => {
+    const fixture = await createInstallFixture();
+    fixture.detail.versions["0.1.0"].bundle.downloadUrl =
+      "../../download/lapis-docs/0.1.0";
+    const endpoint = "https://registry.example.test/download/lapis-docs/0.1.0";
+    const requests: string[] = [];
+    const installer = new VerifiedPluginInstaller({
+      adapter: new InMemoryDataAdapter(),
+      trustedKeys: [fixture.trustedKey],
+      fetch: async (url) => {
+        requests.push(url);
+        if (url !== endpoint) return fakeBinaryFetch(fixture.responses)(url);
+        return new Response("Plugin release revoked", { status: 410 });
+      },
+    });
+
+    await expect(
+      installer.install({ entry: fixture.entry, detail: fixture.detail }),
+    ).rejects.toMatchObject({ code: "metadata-invalid" });
+    expect(requests).toEqual([endpoint]);
+  });
+
+  it("does not fall back after cancellation of a signed endpoint download", async () => {
+    const fixture = await createInstallFixture();
+    fixture.detail.versions["0.1.0"].bundle.downloadUrl =
+      "../../download/lapis-docs/0.1.0";
+    const endpoint = "https://registry.example.test/download/lapis-docs/0.1.0";
+    const controller = new AbortController();
+    const requests: string[] = [];
+    const installer = new VerifiedPluginInstaller({
+      adapter: new InMemoryDataAdapter(),
+      trustedKeys: [fixture.trustedKey],
+      fetch: async (url, init) => {
+        requests.push(url);
+        expect(init?.signal).toBe(controller.signal);
+        controller.abort();
+        throw new DOMException("Aborted", "AbortError");
+      },
+    });
+
+    await expect(
+      installer.install({
+        entry: fixture.entry,
+        detail: fixture.detail,
+        signal: controller.signal,
+      }),
+    ).rejects.toMatchObject({ name: "AbortError" });
+    expect(requests).toEqual([endpoint]);
+  });
+
+  it("rejects altered endpoint bytes without retrying the artifact origin", async () => {
+    const fixture = await createInstallFixture();
+    fixture.detail.versions["0.1.0"].bundle.downloadUrl =
+      "../../download/lapis-docs/0.1.0";
+    const endpoint = "https://registry.example.test/download/lapis-docs/0.1.0";
+    const requests: string[] = [];
+    const adapter = new InMemoryDataAdapter();
+    const installer = new VerifiedPluginInstaller({
+      adapter,
+      trustedKeys: [fixture.trustedKey],
+      fetch: async (url) => {
+        requests.push(url);
+        return fakeBinaryFetch({
+          ...fixture.responses,
+          [endpoint]: "tampered",
+        })(url);
+      },
+    });
+
+    await expect(
+      installer.install({ entry: fixture.entry, detail: fixture.detail }),
+    ).rejects.toMatchObject({ code: "hash-mismatch" });
+    expect(requests).toEqual([endpoint]);
+    expect(await adapter.exists(".obsidian/plugins/lapis-docs")).toBe(false);
+  });
+
   it("installs verified official plugin files and records external provenance", async () => {
     const fixture = await createInstallFixture();
     const adapter = new InMemoryDataAdapter();
