@@ -11,6 +11,11 @@ refreshes the extracted profile packages through public npm ranges. Profile
 acceptance retains the four-plugin order, optional enablement, and shared API
 identity. Slides remains an installed plugin rather than a profile entry.
 
+Markdown Problems acceptance verifies the refreshed providers through their
+App-owned diagnostics and current connected gutter markers. Marker glyph and
+alignment assertions resolve the same DOM snapshot under
+[LN-WS-038](../workspace-shell/panels/problems/core-contract.md#ln-ws-038).
+
 ## LN-PLUG-007 — Disabling a plugin with open owned views: replace those leaves with persisted missing-view placeholders
 
 <a id="ln-plug-007"></a>

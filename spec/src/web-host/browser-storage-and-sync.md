@@ -149,6 +149,12 @@ Launcher copy progress verifies the startup surface:
 
 **Requirement.** The Web package MUST provide a compile-time `deno-server` mode that uses explicit remote vault and AppDatabase adapters while retaining the existing PWA build unchanged. It MUST NOT emulate or populate `NativeDesktopBridge`.
 
+Server-mode browser acceptance verifies editing, shared events and persistence
+after clean container shutdown and recreation. Its test-owned network namespace
+remains alive across that restart under
+[LN-SRV-013](../server-deno-host/core-contract.md#ln-srv-013), while the serving
+process and startup module graph are recreated normally.
+
 ## LN-WEB-050 — Deno-server Web build: authenticate before vault selection, use only server-managed
 
 <a id="ln-web-050"></a>

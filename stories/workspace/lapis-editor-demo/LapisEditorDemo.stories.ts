@@ -600,7 +600,9 @@ export const MarkdownProblems: Story = {
       { timeout: 8_000 },
     );
 
-    const gutterElement = await waitFor(() => {
+    await waitFor(() => {
+      // CodeMirror may replace gutter children during its next measurement.
+      // Read the current marker and all its style assertions in one retry.
       const gutter = Array.from(
         canvasElement.querySelectorAll<HTMLElement>(
           ".cm-gutter-lint .cm-gutterElement",
@@ -611,18 +613,19 @@ export const MarkdownProblems: Story = {
           element.querySelector(".cm-lint-marker-warning"),
       );
       expect(gutter).not.toBeNull();
-      return gutter!;
+      expect(gutter!.isConnected).toBe(true);
+      const lintMarker = gutter!.matches(".cm-lint-marker-warning")
+        ? gutter!
+        : gutter!.querySelector<HTMLElement>(".cm-lint-marker-warning");
+      expect(lintMarker).not.toBeNull();
+      expect(lintMarker!.isConnected).toBe(true);
+      const markerStyle = getComputedStyle(lintMarker!);
+      expect(markerStyle.maskImage || markerStyle.webkitMaskImage).not.toBe(
+        "none",
+      );
+      expect(getComputedStyle(gutter!).display).toContain("flex");
+      expect(getComputedStyle(gutter!).justifyContent).toBe("center");
     });
-    const lintMarker = gutterElement.matches(".cm-lint-marker-warning")
-      ? gutterElement
-      : gutterElement.querySelector<HTMLElement>(".cm-lint-marker-warning");
-    expect(lintMarker).not.toBeNull();
-    const markerStyle = getComputedStyle(lintMarker!);
-    expect(markerStyle.maskImage || markerStyle.webkitMaskImage).not.toBe(
-      "none",
-    );
-    expect(getComputedStyle(gutterElement).display).toContain("flex");
-    expect(getComputedStyle(gutterElement).justifyContent).toBe("center");
 
     await getWorkspaceHostBinding(
       runtimeApp.workspace,

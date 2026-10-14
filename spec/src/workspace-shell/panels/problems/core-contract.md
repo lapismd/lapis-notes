@@ -108,6 +108,11 @@
 
 **Requirement.** CodeMirror lint gutter markers MUST use the same severity glyphs and semantic colours as the Problems panel. Each marker MUST remain centered within its gutter element alongside Mira-owned gutter controls.
 
+Storybook acceptance resolves the current connected gutter and marker together
+inside one readiness assertion. It verifies the glyph mask and flex centering
+against that same DOM snapshot, since CodeMirror measurement can replace gutter
+children between asynchronous checks.
+
 ## LN-WS-039 — Diagnostic hover card: keep its message, source, and code on
 
 <a id="ln-ws-039"></a>

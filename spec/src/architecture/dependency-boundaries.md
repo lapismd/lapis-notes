@@ -214,3 +214,10 @@ so standalone CI needs no sibling release directory.
 - pnpm-lock.yaml SHA-256: `3ee3de3f2b63851b468823bcd2b86595aa740b1d28caa6bfec3f088df1b4b82c`
 
 <!-- ci-dependency-image:end -->
+
+## Browser acceptance network ownership
+
+Web server-restart acceptance owns its disposable Docker network holder and
+serving container. The holder retains one loopback-published namespace while
+the server is stopped and recreated; production host networking and remote
+vault adapters remain governed by their existing contracts.

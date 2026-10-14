@@ -88,6 +88,12 @@ mounted read-only, avoiding a dependency on the host runner's UID.
 
 **Requirement.** The server MUST open vault runtimes lazily, serialize mutations per vault, close idle runtimes, and close databases, watches, subscriptions, and imports during ordered shutdown. Initial operation is one Deno process.
 
+Browser acceptance stops and recreates the serving container against its
+retained data volumes and requires clean shutdown. A separate test-owned
+container retains the loopback-published network namespace across recreation,
+so Linux browser network-change notifications cannot abort the startup module
+graph. Both containers are removed during test teardown.
+
 ## LN-SRV-014 — Health: report process liveness without authentication or secrets
 
 <a id="ln-srv-014"></a>
