@@ -239,6 +239,11 @@ Registry-consumer toolchain and build-policy acceptance is recorded in
 
 ## LN-PKG-142 — CI: populate package build outputs once, then run
 
+The exact final Plugins version candidate is
+`da7d8bb73541eb3421ca8fdfaf1eaaf2baecc850`. The fixture lane builds all active
+archives from that commit for the complete Web installer lane; full application
+interactions and both native packaged lanes remain blocking independently.
+
 <a id="ln-pkg-142"></a>
 
 **Requirement.** CI MUST populate package build outputs once, then run governance, quality, unit, static Storybook, interaction/accessibility, web acceptance, native packaged acceptance and release-artifact jobs concurrently before one stable `validate` aggregation job. Every required job MUST succeed; functional, interaction, and accessibility failures MUST block. Visual comparison MUST remain non-blocking.

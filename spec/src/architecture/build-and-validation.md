@@ -29,6 +29,10 @@ registry fixtures before V2 production cutover. Public package ranges stay
 portable; full Web and native packaged results remain blocking under LN-PKG-142.
 Fixture builds verify the checked-out Plugins commit before setting source
 provenance inside the executing shell, independently of the host workflow SHA.
+Final plugin acceptance pins `da7d8bb73541eb3421ca8fdfaf1eaaf2baecc850`,
+the version candidate containing AI 0.1.5, History 0.1.4, Markdown 0.1.6 and
+released Mira 0.0.4. Ephemeral fixture signatures establish acceptance evidence;
+production signing and publication retain their separate approval gate.
 Native acceptance provisions the separately installed controller CLI from its
 exact validation source based on the public release. Complete Web acceptance uses a native runner with
 Docker and builds the server image from the checked-out Notes candidate.

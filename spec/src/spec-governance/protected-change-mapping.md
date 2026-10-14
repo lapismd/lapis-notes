@@ -90,6 +90,10 @@ portable test-server startup contract.
 
 ## LN-GOV-044 — Spec-first map: route CI images, dependency-context helpers, signed Turbo
 
+Final registry acceptance maps its exact Plugins candidate pin to Architecture,
+Packages and this chapter. The pinned version candidate uses the released Mira
+overlay teardown fix; test-signed fixtures never authorize public assets.
+
 <a id="ln-gov-044"></a>
 
 **Requirement.** The spec-first map MUST route CI images, dependency-context helpers, signed Turbo cache configuration, local container runners, workflow orchestration, release packing, and environment examples to Architecture, Packages, and Specification Governance. Environment examples MUST document only public Nostr registry transport and trust configuration, never signer secrets. Storybook runtime-warning guards MUST remain mapped to Storybook Catalog.
