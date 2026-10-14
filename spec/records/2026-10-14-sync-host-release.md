@@ -1,15 +1,17 @@
 # Sync host release reconciliation — 14 October 2026
 
 Status: [source PR #28](https://github.com/lapismd/lapis-notes/pull/28) is draft;
-CI repair verification and publication remain pending. This is the Notes public-package checkpoint
+fresh CI qualification and publication remain pending. This is the Notes public-package checkpoint
 under the Plugins incremental delivery plan's stage 0B. Sync landing and
 activation remain later checkpoints.
 
 ## Remote refresh and preserved input
 
-Fetched both remotes. Current main is
+Fetched both remotes. Initial reconciliation used main
 `9fed4f1577a6beb27168d0b83b9ea42408d4f1b1`, including Homebrew distribution PR
-#26. The default workspace now contains that main plus the preserved audit
+#26. The later refresh rebases onto
+`79bbd0c6a08cb3753263139266bcc2859a28bce8`, including the server acceptance
+repair in PR #27. The default workspace contains that main plus the preserved audit
 and qualified host/API changes. The original audit stack, generated metadata
 edit and qualified runtime stack remain recoverable through named references.
 Unqualified navigation at `local/sync-navigation-pending-20261014` is excluded.
@@ -103,14 +105,32 @@ codec/bridge family passes 36 cases, and all 296 desktop cases pass on Node 24
 with the existing one integration skip. Desktop check has zero errors/warnings
 and its build passes. Frozen Deno checks pass. Root check/test/build then pass
 again (18/18/10 tasks), and explicit spec-first covers the two changed runtime/
-test paths plus all three mapped canonical chapters. CI revalidation is
-required before calling the timeout resolved on hosted runners.
+test paths plus all three mapped canonical chapters.
 
-The separate Linux ARM desktop-release lane fails the unchanged compiled
-AI-controller integration target: no completed event appears within its
-20-second polling budget. This is separate from the passing classic packaged
-desktop lanes and the default local integration skip. Root cause remains open;
-no controller workaround or assertion change is added.
+The [next hosted source run](https://github.com/lapismd/lapis-notes/actions/runs/38642790140)
+confirms that unit tests now pass. Its companion
+[desktop workflow](https://github.com/lapismd/lapis-notes/actions/runs/38642790099)
+also passes all three native targets, including the previously failing Linux
+ARM controller case. No controller workaround or assertion change was needed.
+The remaining failed Web job has one failing server sign-in readiness case
+and eleven passing cases. Its retained trace shows 57 script loads aborted by
+Chromium `ERR_NETWORK_CHANGED`.
+
+Main's PR #27 repairs that same boundary with one observed transport-abort
+retry, isolates the bootstrap secret container from networking and retains
+diagnostics on successful runs. Rebasing the source stack takes that repair
+unchanged. Resolve only the two canonical documentation conflicts: keep both
+plugin lifecycle paragraphs and preserve completed Homebrew rows 079–085
+alongside Sync rows 086–094. Runtime changes from the prior candidate remain
+unchanged.
+
+At the rebased source checkpoint, all seven navigation/fixture regressions,
+the 17 audit/desktop registration regressions, root check and test (18 tasks
+each), specification checks and 38 specification regressions pass. Explicit
+spec-first covers 80 protected paths and 23 chapters; release intent and all
+172 specification mirrors pass. Fresh production builds and cold Web browser
+acceptance are in progress. The current head's hosted qualification is tracked
+in PR #28; do not substitute the prior run for that gate.
 
 The candidate's aggregate second catalog shard logs five caught AI Catalog
 line-range errors while passing all 65 cases. Its exact six-story Catalog
@@ -125,7 +145,7 @@ baseline comparison; no new implementation workspace was created.
 
 Existing prior qualification is supporting evidence; it does not replace
 current release checks. Keep the PR draft and withhold publication while the
-remaining CI and lifecycle findings are unresolved.
+current-head CI and the recorded lifecycle diagnostic are unresolved.
 
 ## Completion boundary
 
