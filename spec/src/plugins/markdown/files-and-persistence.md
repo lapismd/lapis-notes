@@ -1,5 +1,18 @@
 # Markdown Plugin / Files and persistence
 
+API editor documents now register under LN-ARCH-132 through LN-ARCH-135. Native
+CodeMirror protection covers Markdown transactions in that editor shell.
+Independent Mira writers still require their public adapter registration hook;
+view loading, renaming and application shutdown remain separate integration.
+
+API-backed Markdown editors inherit LN-ARCH-125 through LN-ARCH-128 for save
+ordering, dirty refresh protection and inactive-pane flushing. Mira-owned
+editable previews keep their independent writer and full-file surface controls;
+production apply still requires those sessions to participate in the host guard.
+`App.fileEditingSessions` now supplies the generic registry for that integration
+under LN-ARCH-129 through LN-ARCH-131. The bundled Markdown adapter must consume
+Mira's public registration hook; API must not import Mira session internals.
+
 ## LN-MD-001 — Independent Markdown package ownership
 
 <a id="ln-md-001"></a>

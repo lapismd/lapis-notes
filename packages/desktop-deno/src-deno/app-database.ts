@@ -1,4 +1,5 @@
-import { join } from "node:path";
+import { isAbsolute, join } from "node:path";
+import { inspectNativeSyncRoot } from "@lapis-notes/deno-host-services/sync-vault-root";
 import type { AppDatabaseDescriptor } from "../../api/src/lib/storage/app-database.ts";
 import { isDesktopAppDatabaseMethod } from "../src/desktop-app-database-protocol.ts";
 import type {
@@ -30,6 +31,7 @@ type PendingWorkerRequest = {
 };
 
 type DenoAppDatabaseHostOptions = {
+  onProfilesInvalidated?: () => void;
   createWorker?: () => AppDatabaseWorkerLike;
   workerReadyTimeoutMs?: number;
   resolveDatabasePath?: (
@@ -67,7 +69,17 @@ async function databasePath(
   return join(directory, `lapis-app-${stableVaultHash(vaultId)}.turso`);
 }
 
+interface NativeProfile {
+  vaultId: string;
+  ready: boolean;
+  opening?: Promise<AppDatabaseDescriptor>;
+  rootInput?: string;
+  rootPath?: string;
+  rootBinding?: string;
+}
+
 export class DenoAppDatabaseHost {
+  readonly #profiles = new Map<string, NativeProfile>();
   readonly #pending = new Map<number, PendingWorkerRequest>();
   #worker: AppDatabaseWorkerLike | null = null;
   #requestId = 0;
@@ -84,17 +96,115 @@ export class DenoAppDatabaseHost {
   async open(payload: Record<string, unknown>): Promise<AppDatabaseDescriptor> {
     const databaseId = stringPayload(payload, "databaseId");
     const vaultId = stringPayload(payload, "vaultId");
-    const path = await (this.options.resolveDatabasePath ?? databasePath)(
-      this.userDataDir,
-      vaultId,
+    const rootInput = payload.rootPath;
+    if (
+      rootInput !== undefined &&
+      (typeof rootInput !== "string" ||
+        !isAbsolute(rootInput) ||
+        rootInput.length > 8192 ||
+        rootInput.includes("\0"))
+    )
+      throw new Error("Invalid desktop profile root");
+    const existing = this.#profiles.get(databaseId);
+    if (existing) {
+      if (
+        existing.vaultId !== vaultId ||
+        existing.rootInput !== rootInput ||
+        !existing.opening
+      )
+        throw new Error("Desktop database is already bound to another vault");
+      return existing.opening;
+    }
+    if (
+      [...this.#profiles.values()].some(
+        (profile) =>
+          profile.vaultId === vaultId && profile.rootInput !== rootInput,
+      )
+    )
+      throw new Error("Desktop profile is already bound to another root");
+    const profile: NativeProfile = { vaultId, ready: false, rootInput };
+    this.#profiles.set(databaseId, profile);
+    profile.opening = this.#openProfile(databaseId, profile);
+    return profile.opening;
+  }
+
+  async #openProfile(
+    databaseId: string,
+    profile: NativeProfile,
+  ): Promise<AppDatabaseDescriptor> {
+    const vaultId = profile.vaultId;
+    try {
+      if (profile.rootInput !== undefined) {
+        // Ordinary indexing also supports roots that cannot receive guarded Sync access.
+        const bound = await inspectNativeSyncRoot(profile.rootInput).catch(
+          () => undefined,
+        );
+        if (
+          bound &&
+          [...this.#profiles.values()].some(
+            (other) =>
+              other !== profile &&
+              other.vaultId === vaultId &&
+              other.rootBinding &&
+              other.rootBinding !== bound.binding,
+          )
+        )
+          throw new Error("Desktop profile physical root binding changed");
+        profile.rootPath = bound?.root;
+        profile.rootBinding = bound?.binding;
+      }
+      const path = await (this.options.resolveDatabasePath ?? databasePath)(
+        this.userDataDir,
+        vaultId,
+      );
+      if (this.#profiles.get(databaseId) !== profile)
+        throw new Error("Desktop profile open was superseded");
+      const descriptor = nativeDatabaseDescriptor(
+        await this.#request({ type: "open", databaseId, vaultId, path }),
+      );
+      if (this.#profiles.get(databaseId) !== profile)
+        throw new Error("Desktop profile open was superseded");
+      profile.ready = true;
+      return descriptor;
+    } catch (error) {
+      if (this.#profiles.get(databaseId) === profile)
+        this.#invalidateProfile(databaseId);
+      throw error;
+    }
+  }
+
+  /** Native-only admission lease; object identity changes across close/reopen. */
+  getProfileLease(vaultId: string): object | undefined {
+    return [...this.#profiles.values()].find(
+      (profile) => profile.ready && profile.vaultId === vaultId,
     );
-    return nativeDatabaseDescriptor(
-      await this.#request({ type: "open", databaseId, vaultId, path }),
+  }
+
+  /** Root admission is native-only and only exists after the database opens successfully. */
+  getProfileRoot(
+    vaultId: string,
+  ): { rootPath: string; rootBinding: string } | undefined {
+    const profile = [...this.#profiles.values()].find(
+      (profile) => profile.ready && profile.vaultId === vaultId,
     );
+    return profile?.rootPath && profile.rootBinding
+      ? { rootPath: profile.rootPath, rootBinding: profile.rootBinding }
+      : undefined;
+  }
+
+  #invalidateProfile(databaseId?: string): void {
+    const changed =
+      databaseId === undefined
+        ? this.#profiles.size > 0
+        : this.#profiles.has(databaseId);
+    if (databaseId === undefined) this.#profiles.clear();
+    else this.#profiles.delete(databaseId);
+    if (changed) this.options.onProfilesInvalidated?.();
   }
 
   async close(payload: Record<string, unknown>): Promise<void> {
     const databaseId = stringPayload(payload, "databaseId");
+    this.#invalidateProfile(databaseId);
     await this.#request({ type: "close", databaseId });
   }
 
@@ -119,6 +229,7 @@ export class DenoAppDatabaseHost {
   }
 
   async closeAll(): Promise<void> {
+    this.#invalidateProfile();
     const worker = this.#worker;
     if (!worker) return;
     try {
@@ -194,6 +305,7 @@ export class DenoAppDatabaseHost {
     this.#workerReady = false;
     this.#worker = null;
     this.#queued.clear();
+    this.#invalidateProfile();
     worker.terminate();
     this.#rejectPending(error);
   }

@@ -16,7 +16,8 @@ import {
   type DenoNostrSignerService,
 } from "./nostr-signer.ts";
 import type { DenoPluginAssetService } from "./plugin-assets.ts";
-import { getDesktopSyncWrappingKey } from "./sync-secure-store.ts";
+import { getRendererSyncWrappingKey } from "./sync-secure-store.ts";
+import { DENO_SYNC_SECURITY_COMMANDS, type DenoSyncSecurityHost } from "./sync-security.ts";
 import { resolveDesktopRendererEngine } from "./renderer-engine.ts";
 import {
   DENO_TERMINAL_COMMANDS,
@@ -99,6 +100,7 @@ export const DENO_INVOKE_COMMANDS = new Set([
   ...KV_COMMANDS,
   ...LANGUAGE_SERVICE_COMMANDS,
   ...DENO_NOSTR_SIGNER_COMMANDS,
+  ...DENO_SYNC_SECURITY_COMMANDS,
   ...DENO_AGENT_COMMANDS,
   ...DENO_TERMINAL_COMMANDS,
 ]);
@@ -116,6 +118,7 @@ export type DesktopInvokeContext = {
   acceptanceDetails?: () => Record<string, unknown>;
   telemetryLog?: (payload: Record<string, unknown>) => void;
   nostrSigner?: DenoNostrSignerService;
+  syncSecurity?: DenoSyncSecurityHost;
 };
 
 export function createPlatformInfo() {
@@ -199,7 +202,7 @@ export function handleDesktopInvoke(
     if (!context.appDatabase) {
       throw new Error("Deno app database host is unavailable");
     }
-    return context.appDatabase.close(payload);
+    return context.appDatabase.close(payload).finally(() => context.syncSecurity?.closeInactiveProfiles());
   }
   if (command === "desktop_app_database_invoke") {
     if (!context.appDatabase) {
@@ -224,7 +227,11 @@ export function handleDesktopInvoke(
     return showNativeNotification(payload.notification);
   }
   if (command === "desktop_sync_wrapping_key_get") {
-    return getDesktopSyncWrappingKey(payload);
+    return getRendererSyncWrappingKey(payload);
+  }
+  if (DENO_SYNC_SECURITY_COMMANDS.has(command)) {
+    if (!context.syncSecurity) throw new Error("Native Sync security host is unavailable");
+    return context.syncSecurity.handle(command, payload);
   }
   if (command === "desktop_telemetry_log") {
     if (!context.telemetryLog) {

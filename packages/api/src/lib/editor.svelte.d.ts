@@ -43,6 +43,12 @@ export interface EditorTransaction {
 }
 /** Controls whether an editor persists its own debounced document changes. */
 export type EditorPersistence = "vault" | "external";
+export interface EditorPersistenceRequest {
+    readonly content: string;
+    readonly file: TFile | null;
+    readonly application: App;
+}
+export type EditorPersistenceWriter = (request: EditorPersistenceRequest) => Promise<void>;
 export interface MarkdownFileInfo {
     /** @public */
     app: App;
@@ -70,10 +76,20 @@ export declare class Editor extends EventDispatcher<{
     readonly id: `${string}-${string}-${string}-${string}-${string}`;
     private destroyed;
     private application;
-    private readonly pendingChange;
     constructor(data?: string, extensions?: Extension[], application?: App);
     /** Bind this editor to the application that owns its view. */
     bindApplication(application: App): this;
+    /** Capture an explicit asynchronous owner for external-mode persistence. */
+    setExternalPersistenceWriter(writer?: EditorPersistenceWriter): this;
+    get hasUnsavedChanges(): boolean;
+    get editingProtected(): boolean;
+    get refreshError(): unknown;
+    /** Protect the current document and drain its captured persistence. */
+    protect(): Promise<() => void>;
+    /** Register and protect a target, then publish its file and contents atomically. */
+    loadDocument(file: TFile, read: () => Promise<string>, publish?: (contents: string) => void): Promise<boolean>;
+    /** Cancel a pending publication while observing any late read result. */
+    cancelDocumentLoad(): void;
     /** The owning application, with the global alias retained as fallback. */
     get app(): App;
     readonly save: import("lodash-es").DebouncedFunc<() => Promise<void>>;
@@ -88,6 +104,8 @@ export declare class Editor extends EventDispatcher<{
     getValue(): string;
     refresh(): void;
     destroy(): void;
+    /** Stop editing immediately and await all retained document persistence. */
+    dispose(): Promise<void>;
     trackChanges(callback?: (data: string, editor: Editor) => void): () => void;
     updateExtensions(extensions: Extension[], context?: Record<string, any>): this;
     setValue(content: string): void;

@@ -6,10 +6,13 @@ import {
   startCompletion,
 } from "@codemirror/autocomplete";
 import { insertImageFiles } from "@lapismd/mira/core";
+import { EditorState } from "@codemirror/state";
 import {
   leafFilePath,
+  takeHostSyncService,
   type App,
   type Editor,
+  type TextFileView,
   type MemoryVaultAdapter,
 } from "@lapis-notes/api";
 import { refreshLanguageServiceDiagnostics } from "@lapis-notes/api/editor/language-service";
@@ -31,6 +34,260 @@ const meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+export const SyncDocumentLoadingAndRename: Story = {
+  ...workspaceStoryMeta(
+    "workspace-lapis-editor-demo-sync-document-loading-and-rename",
+    "The real source view protects an asynchronous document load, saves its previous draft, waits before admitting target-file mutation, and preserves a new draft across a managed rename.",
+    "/visual-baselines/stories/workspace/lapis-editor-demo/sync-document-loading-and-rename-chromium.png",
+  ),
+  args: { scenario: "ready" },
+  play: async ({ canvasElement }) => {
+    await waitForReady(within(canvasElement));
+    const app = activeStoryApp(canvasElement);
+    const first = await app.vault.create("sync-loading-first.txt", "first"),
+      second = await app.vault.create("sync-loading-second.txt", "second");
+    const leaf = app.workspace.getLeaf("tab");
+    await leaf.openFile(first);
+    const view = leaf.view as TextFileView,
+      editor = view.editor;
+    editor.view.dispatch({
+      changes: {
+        from: 0,
+        to: editor.view.state.doc.length,
+        insert: "first draft",
+      },
+    });
+    const originalRead = app.vault.read;
+    let finishRead!: (contents: string) => void;
+    const pendingRead = new Promise<string>((resolve) => {
+      finishRead = resolve;
+    });
+    let readStarted = false,
+      admitted = false;
+    app.vault.read = (file) => {
+      if (file.path === second.path) {
+        readStarted = true;
+        return pendingRead;
+      }
+      return originalRead.call(app.vault, file);
+    };
+    const loading = leaf.openFile(second);
+    let guarded: Promise<void> | undefined;
+    try {
+      await waitFor(() => expect(readStarted).toBe(true));
+      expect(await originalRead.call(app.vault, first)).toBe("first draft");
+      expect(editor.editingProtected).toBe(true);
+      expect(editor.view.state.facet(EditorState.readOnly)).toBe(true);
+      editor.view.dispatch({
+        changes: {
+          from: 0,
+          to: editor.view.state.doc.length,
+          insert: "blocked during loading",
+        },
+      });
+      expect(editor.getValue()).toBe("first draft");
+      guarded = app.fileEditingSessions.guard(second.path, async () => {
+        expect(editor.file?.path).toBe(second.path);
+        expect(editor.getValue()).toBe("second");
+        expect(editor.editingProtected).toBe(true);
+        admitted = true;
+      });
+      expect(admitted).toBe(false);
+      finishRead("second");
+      await loading;
+      await guarded;
+      expect(admitted).toBe(true);
+      expect(editor.editingProtected).toBe(false);
+      app.vault.read = originalRead;
+      editor.view.dispatch({
+        changes: {
+          from: 0,
+          to: editor.view.state.doc.length,
+          insert: "draft retained across rename",
+        },
+      });
+      await app.fileManager.renameFile(second, "sync-loading-renamed.txt");
+      const renamed = app.vault.getFileByPath("sync-loading-renamed.txt");
+      if (!renamed) throw new Error("Managed rename did not produce its file");
+      await view.onRename(renamed);
+      await editor.flushChanges();
+      expect(app.vault.getFileByPath(second.path)).toBeNull();
+      expect(await app.vault.read(renamed)).toBe(
+        "draft retained across rename",
+      );
+      expect(editor.file?.path).toBe(renamed.path);
+      expect(editor.editingProtected).toBe(false);
+    } finally {
+      app.vault.read = originalRead;
+      finishRead("second");
+      await Promise.allSettled([loading, ...(guarded ? [guarded] : [])]);
+    }
+  },
+};
+
+export const SyncProtectedEditor: Story = {
+  ...workspaceStoryMeta(
+    "workspace-lapis-editor-demo-sync-protected-editor",
+    "The real source editor saves its draft before guarded incoming content, refuses typing and title edits while protected, refreshes cleanly and resumes editing afterward.",
+    "/visual-baselines/stories/workspace/lapis-editor-demo/sync-protected-editor-chromium.png",
+  ),
+  args: { scenario: "ready" },
+  play: async ({ canvasElement }) => {
+    await waitForReady(within(canvasElement));
+    const app = activeStoryApp(canvasElement);
+    const file = await app.vault.create(
+      "sync-protected-editor.txt",
+      "original",
+    );
+    const leaf = app.workspace.getLeaf("tab");
+    await leaf.openFile(file);
+    const editor = (leaf.view as { editor?: Editor }).editor;
+    if (!editor) throw new Error("The source view has no editor");
+    await waitFor(() =>
+      expect(leaf.containerEl.querySelector(".cm-content")).toBeInTheDocument(),
+    );
+    editor.view.dispatch({
+      changes: {
+        from: 0,
+        to: editor.view.state.doc.length,
+        insert: "local draft",
+      },
+    });
+    await app.fileEditingSessions.guard(file.path, async () => {
+      expect(await app.vault.read(file)).toBe("local draft");
+      expect(editor.editingProtected).toBe(true);
+      expect(editor.view.state.facet(EditorState.readOnly)).toBe(true);
+      expect(editor.view.contentDOM.getAttribute("contenteditable")).toBe(
+        "false",
+      );
+      const title = leaf.containerEl.querySelector(".inline-title");
+      expect(title?.getAttribute("contenteditable")).toBe("false");
+      editor.view.dispatch({
+        changes: {
+          from: 0,
+          to: editor.view.state.doc.length,
+          insert: "blocked",
+        },
+      });
+      expect(editor.getValue()).toBe("local draft");
+      expect(() => editor.setValue("blocked reset")).toThrow(/protected/);
+      editor.updateExtensions([]);
+      expect(editor.view.state.facet(EditorState.readOnly)).toBe(true);
+      await app.vault.modify(file, "incoming content");
+      app.workspace.dispatch("file-change", file, "modify");
+      await waitFor(() => expect(editor.getValue()).toBe("incoming content"));
+      expect(editor.hasUnsavedChanges).toBe(false);
+    });
+    expect(editor.editingProtected).toBe(false);
+    expect(editor.view.state.facet(EditorState.readOnly)).toBe(false);
+    editor.view.dispatch({
+      changes: {
+        from: 0,
+        to: editor.view.state.doc.length,
+        insert: "resumed draft",
+      },
+    });
+    await editor.flushChanges();
+    expect(await app.vault.read(file)).toBe("resumed draft");
+  },
+};
+
+export const SyncIndependentWriterAdmission: Story = {
+  ...workspaceStoryMeta(
+    "workspace-lapis-editor-demo-sync-independent-writer-admission",
+    "The owning App protects an independent writer, saves its draft before guarded mutation, and refuses new writers until the mutation finishes.",
+    "/visual-baselines/stories/workspace/lapis-editor-demo/sync-independent-writer-admission-chromium.png",
+  ),
+  args: { scenario: "ready" },
+  play: async ({ canvasElement }) => {
+    await waitForReady(within(canvasElement));
+    const app = activeStoryApp(canvasElement);
+    const file = await app.vault.create(
+      "sync-independent-writer.txt",
+      "original",
+    );
+    let dirty = true;
+    let protectedWriter = false;
+    const unregister = app.fileEditingSessions.register(file.path, {
+      get dirty() {
+        return dirty;
+      },
+      async flush() {
+        if (!dirty) return;
+        await app.vault.modify(file, "independent draft");
+        dirty = false;
+      },
+      async protect() {
+        protectedWriter = true;
+        return () => {
+          protectedWriter = false;
+        };
+      },
+    });
+    try {
+      await app.fileEditingSessions.guard(file.path, async () => {
+        expect(protectedWriter).toBe(true);
+        expect(await app.vault.read(file)).toBe("independent draft");
+        expect(() =>
+          app.fileEditingSessions.register(file.path, {
+            dirty: false,
+            flush: async () => undefined,
+            protect: async () => () => undefined,
+          }),
+        ).toThrow(/protected/);
+        await app.vault.modify(file, "guarded incoming content");
+        expect(protectedWriter).toBe(true);
+      });
+      expect(protectedWriter).toBe(false);
+      expect(await app.vault.read(file)).toBe("guarded incoming content");
+    } finally {
+      unregister();
+    }
+    await expect(app.fileEditingSessions.flush(file.path)).resolves.toEqual({
+      flushed: false,
+      path: file.path,
+    });
+  },
+};
+
+export const SyncEditorPersistence: Story = {
+  ...workspaceStoryMeta(
+    "workspace-lapis-editor-demo-sync-editor-persistence",
+    "Sync flushes an inactive owned editor, waits for its saved buffer and preserves a newer unsaved draft during file refresh.",
+    "/visual-baselines/stories/workspace/lapis-editor-demo/sync-editor-persistence-chromium.png",
+  ),
+  args: { scenario: "ready" },
+  play: async ({ canvasElement }) => {
+    await waitForReady(within(canvasElement));
+    const app = activeStoryApp(canvasElement);
+    const inactive = await app.vault.create("sync-inactive.txt", "original inactive");
+    const active = await app.vault.create("sync-active.txt", "active contents");
+    const inactiveLeaf = app.workspace.getLeaf("tab");
+    await inactiveLeaf.openFile(inactive);
+    const editor = (inactiveLeaf.view as { editor?: Editor }).editor;
+    if (!editor) throw new Error("The inactive source view has no editor");
+    const activeLeaf = app.workspace.getLeaf("tab");
+    await activeLeaf.openFile(active);
+    app.workspace.activeLeaf = activeLeaf;
+    expect(app.workspace.activeEditor?.editor).not.toBe(editor);
+    editor.view.dispatch({ changes: { from: 0, to: editor.view.state.doc.length, insert: "saved inactive buffer" } });
+    const service = takeHostSyncService(app);
+    const host = service.forPlugin("sync-editor-persistence-story", ["vault:stream"]);
+    try {
+      await expect(host.vault.flushOpenEditor(inactive.path)).resolves.toEqual({ flushed: true, path: inactive.path });
+      expect(await app.vault.read(inactive)).toBe("saved inactive buffer");
+      expect(editor.hasUnsavedChanges).toBe(false);
+      editor.view.dispatch({ changes: { from: 0, to: editor.view.state.doc.length, insert: "new local draft" } });
+      app.workspace.dispatch("file-change", inactive, "modify");
+      await waitForBrowserFrame(canvasElement);
+      expect(editor.getValue()).toBe("new local draft");
+      expect(editor.hasUnsavedChanges).toBe(true);
+      await host.vault.flushOpenEditor();
+      expect(await app.vault.read(inactive)).toBe("new local draft");
+    } finally { await service.revokePlugin("sync-editor-persistence-story"); }
+  },
+};
 
 async function waitForReady(canvas: ReturnType<typeof within>) {
   await waitFor(

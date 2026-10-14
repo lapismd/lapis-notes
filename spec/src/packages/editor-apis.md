@@ -1,5 +1,24 @@
 # Packages / Editor APIs
 
+LN-ARCH-137 and LN-ARCH-138 define guarded atomic `Editor.loadDocument` and
+publication cancellation. Text file views use that boundary while independent
+Mira and host flush/shutdown integration remain required for production Sync.
+
+LN-ARCH-132 through LN-ARCH-135 connect API editor documents to the App-owned
+registry and qualify protection, retained close-time saves and explicit external
+writer barriers. Workspace navigation and application shutdown integration
+remain necessary before production Sync selects the registry as its guard.
+
+LN-ARCH-125 through LN-ARCH-128 define serialized saves, captured destinations,
+guarded file refresh and workspace-wide Sync flushing. These API boundaries
+preserve inactive buffers without transferring Mira persistence into the kernel.
+LN-ARCH-129 through LN-ARCH-131 add `App.fileEditingSessions` for independent
+file writers. The portable session contract has no dependency on Mira; production
+Sync guard selection remains gated on complete writer integration.
+API builds also compile public editing-session usage against emitted declarations
+through `check:pack-types`; source-aliased Storybook alone does not prove the
+handwritten App declaration consumed by installed plugins.
+
 ## LN-PKG-004 — Specification before new package intake
 
 <a id="ln-pkg-004"></a>

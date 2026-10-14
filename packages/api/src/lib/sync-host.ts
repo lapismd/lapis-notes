@@ -8,6 +8,17 @@ import type { Vault } from "./storage/vault.svelte";
 import type { HostedPluginCapability } from "./plugin-capability-facade";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { bytesToHex } from "@noble/hashes/utils.js";
+import { ScopedSyncLocalRuntime } from "./sync-host-local";
+import type {
+  SyncHostLocalProvider,
+  SyncLocalApplyGuard,
+  SyncLocalHostCapabilities,
+} from "./sync-repository";
+export type {
+  SyncHostLocalProvider,
+  SyncLocalApplyGuard,
+  SyncLocalHostCapabilities,
+} from "./sync-repository";
 import {
   SyncHostSecurityService,
   type PluginNetworkCapability,
@@ -19,6 +30,7 @@ import {
   type SyncMembershipCapability,
   type SyncPairingCapability,
   type SyncRecoveryCapability,
+  type SyncSecurityStore,
   type SyncWrappingKeyDescriptor,
 } from "./sync-host-security";
 
@@ -144,6 +156,8 @@ export interface PluginGeneratedState {
 }
 
 export interface SyncHostCapabilities {
+  /** Omitted by hosts without durable guarded local Sync support. */
+  readonly local?: SyncLocalHostCapabilities;
   readonly files: {
     getIdentity(path: string): Promise<HostFileIdentity | null>;
     resolveIdentity(fileId: string): Promise<HostFileIdentity | null>;
@@ -197,7 +211,26 @@ export interface SyncHostCapabilities {
   readonly generatedState: PluginGeneratedState;
 }
 
+export type SyncEndpointSecurityCapabilities = Pick<
+  SyncHostCapabilities,
+  "crypto" | "syncIdentity" | "pairing" | "membership" | "recovery"
+>;
+
+/** Trusted host custody. This controller is never included in plugin facades. */
+export interface SyncHostSecurityProvider {
+  forRuntime(runtimeId: string): SyncEndpointSecurityCapabilities;
+  /** Must stop admission synchronously, then drain and destroy this runtime's keys. */
+  revokeRuntime(runtimeId: string): void | Promise<void>;
+}
+
 export interface SyncHostServiceOptions {
+  localProvider?: (pluginId: string) => SyncHostLocalProvider | undefined;
+  /** Required before local mutations or receipt recovery can enter a provider. */
+  guardLocalApply?: SyncLocalApplyGuard;
+  /** Select custody per plugin; returning undefined explicitly retains legacy custody. */
+  securityProvider?: (pluginId: string) => SyncHostSecurityProvider | undefined;
+  /** Dedicated host custody; omitted only for legacy AppDatabase-backed callers. */
+  securityStore?: SyncSecurityStore;
   flushOpenEditor?: (
     path?: string,
   ) => Promise<{ flushed: boolean; path?: string }>;
@@ -302,19 +335,53 @@ export class SyncHostService {
     { pluginId: string; runtimeId: string }
   >();
   readonly #security: SyncHostSecurityService;
+  readonly #selectSecurityProvider: SyncHostServiceOptions["securityProvider"];
+  readonly #securityProviders = new Map<
+    string,
+    SyncHostSecurityProvider | undefined
+  >();
+  readonly #delegatedRuntimes = new Map<string, SyncHostSecurityProvider>();
+  readonly #localRuntimes = new Map<string, ScopedSyncLocalRuntime>();
+  readonly #selectLocalProvider: SyncHostServiceOptions["localProvider"];
+  readonly #guardLocalApply: SyncLocalApplyGuard | undefined;
+  readonly #securityCleanup = new Set<Promise<void>>();
+  readonly #stopObserving: () => void;
+  #disposed = false;
+  #disposal: Promise<void> | undefined;
+  readonly options: Omit<
+    SyncHostServiceOptions,
+    "securityStore" | "securityProvider" | "localProvider" | "guardLocalApply"
+  >;
 
   constructor(
     readonly database: AppDatabase,
     readonly vault: Vault,
     readonly clock: () => number = Date.now,
-    readonly options: SyncHostServiceOptions = {},
+    options: SyncHostServiceOptions = {},
   ) {
+    const {
+      securityStore,
+      securityProvider,
+      localProvider,
+      guardLocalApply,
+      ...retainedOptions
+    } = options;
+    this.options =
+      securityStore === undefined &&
+      securityProvider === undefined &&
+      localProvider === undefined &&
+      guardLocalApply === undefined
+        ? options
+        : retainedOptions;
+    this.#selectSecurityProvider = securityProvider;
+    this.#selectLocalProvider = localProvider;
+    this.#guardLocalApply = guardLocalApply;
     this.#security = new SyncHostSecurityService(
-      database,
+      securityStore === undefined ? database : securityStore,
       (pluginId, runtimeId) => this.#assertRuntime(pluginId, runtimeId),
       options.security,
     );
-    this.vault.on("all", (event, file, context) => {
+    const eventRef = this.vault.on("all", (event, file, context) => {
       if (!(file instanceof TFile) || !this.#isChangeKind(event)) return;
       const previousPath =
         typeof context.oldPath === "string" ? context.oldPath : undefined;
@@ -328,6 +395,7 @@ export class SyncHostService {
         })
         .catch(() => undefined);
     });
+    this.#stopObserving = () => this.vault.offref(eventRef);
     this.#ready = this.#initialize();
   }
 
@@ -340,6 +408,7 @@ export class SyncHostService {
     pluginId: string,
     grantedCapabilities?: readonly HostedPluginCapability[],
   ): SyncHostCapabilities {
+    if (this.#disposed) throw new Error("Sync host is disposed");
     const normalizedPluginId = requireBoundedString(pluginId, "Plugin ID", 128);
     const runtimeId = randomId();
     const runtimeIds = this.#runtimeIds.get(normalizedPluginId) ?? new Set();
@@ -356,7 +425,7 @@ export class SyncHostService {
         );
       }
     };
-    return {
+    const capabilities: SyncHostCapabilities = {
       files: {
         getIdentity: async (path) => {
           assertGranted("metadata:identity");
@@ -644,22 +713,147 @@ export class SyncHostService {
         assertGranted("plugin:generated-state"),
       ),
     };
+    if (this.#selectLocalProvider) {
+      const local = new ScopedSyncLocalRuntime({
+        runtimeId,
+        assertGranted,
+        selectProvider: () => this.#selectLocalProvider!(normalizedPluginId),
+        guardApply: this.#guardLocalApply,
+      });
+      this.#localRuntimes.set(runtimeId, local);
+      Object.assign(capabilities, { local: local.capabilities });
+    }
+    let delegated: SyncEndpointSecurityCapabilities | undefined;
+    let selected = false;
+    for (const group of [
+      "crypto",
+      "syncIdentity",
+      "pairing",
+      "membership",
+      "recovery",
+    ] as const) {
+      const local = capabilities[group];
+      const guarded: Record<string, (...args: unknown[]) => Promise<unknown>> =
+        {};
+      for (const method of Object.keys(local)) {
+        guarded[method] = async (...args) => {
+          assertGranted("crypto:nostr-sync");
+          if (!selected) {
+            const provider = this.#securityProvider(normalizedPluginId);
+            if (provider) {
+              this.#delegatedRuntimes.set(runtimeId, provider);
+              delegated = provider.forRuntime(runtimeId);
+              if (!delegated || typeof delegated !== "object")
+                throw new Error("Invalid Sync security provider capabilities");
+            }
+            selected = true;
+          }
+          assertGranted("crypto:nostr-sync");
+          const target = delegated ? delegated[group] : local;
+          const operation =
+            target && (target as unknown as Record<string, unknown>)[method];
+          if (typeof operation !== "function")
+            throw new Error(
+              `Invalid Sync security provider operation: ${group}.${method}`,
+            );
+          const result = await operation.apply(target, args);
+          assertGranted("crypto:nostr-sync");
+          return result;
+        };
+      }
+      Object.assign(capabilities, { [group]: guarded });
+    }
+    return capabilities;
   }
 
-  revokePlugin(pluginId: string): void {
+  revokePlugin(pluginId: string): Promise<void> {
+    const runtimes = this.#runtimeIds.get(pluginId);
     this.#runtimeIds.delete(pluginId);
     for (const [token, owner] of this.#origins) {
       if (owner.pluginId === pluginId) this.#origins.delete(token);
     }
     this.#security.revokePlugin(pluginId);
+    const cleanups: Promise<void>[] = [];
+    for (const runtimeId of runtimes ?? []) {
+      const provider = this.#delegatedRuntimes.get(runtimeId);
+      this.#delegatedRuntimes.delete(runtimeId);
+      const local = this.#localRuntimes.get(runtimeId);
+      this.#localRuntimes.delete(runtimeId);
+      if (!provider && !local) continue;
+      let cleanup: Promise<void>;
+      try {
+        // Local streams/operations must finish while native crypto custody still exists.
+        const localCleanup = local?.revoke();
+        cleanup = localCleanup
+          ? (async () => {
+              const result = await Promise.allSettled([localCleanup]);
+              await provider?.revokeRuntime(runtimeId);
+              if (result[0]?.status === "rejected") throw result[0].reason;
+            })()
+          : Promise.resolve(provider!.revokeRuntime(runtimeId));
+      } catch (error) {
+        cleanup = Promise.reject(error);
+      }
+      this.#securityCleanup.add(cleanup);
+      cleanups.push(cleanup);
+    }
+    return this.#drainSecurity(cleanups);
+  }
+
+  /** Invalidate first, then wait for every admitted host cleanup and file event. */
+  dispose(): Promise<void> {
+    if (this.#disposal) return this.#disposal;
+    this.#disposed = true;
+    this.#stopObserving();
+    const revocations = [...this.#runtimeIds.keys()].map((pluginId) =>
+      this.revokePlugin(pluginId),
+    );
+    this.#disposal = this.#drainSecurity([
+      ...revocations,
+      ...this.#securityCleanup,
+      this.ready(),
+    ]);
+    return this.#disposal;
+  }
+
+  async #drainSecurity(cleanups: Promise<void>[]): Promise<void> {
+    const results = await Promise.allSettled(cleanups);
+    for (const cleanup of cleanups) this.#securityCleanup.delete(cleanup);
+    const failed = results.find((result) => result.status === "rejected");
+    if (failed?.status === "rejected") throw failed.reason;
+  }
+
+  #securityProvider(pluginId: string): SyncHostSecurityProvider | undefined {
+    if (!this.#securityProviders.has(pluginId)) {
+      const provider = this.#selectSecurityProvider?.(pluginId);
+      if (
+        provider !== undefined &&
+        (!provider ||
+          typeof provider.forRuntime !== "function" ||
+          typeof provider.revokeRuntime !== "function")
+      )
+        throw new Error("Invalid Sync security provider");
+      this.#securityProviders.set(pluginId, provider);
+    }
+    return this.#securityProviders.get(pluginId);
+  }
+
+  #assertLocalSecurity(pluginId: string): void {
+    requireBoundedString(pluginId, "Plugin ID", 128);
+    if (this.#disposed) throw new Error("Sync host is disposed");
+    if (this.#securityProvider(pluginId))
+      throw new Error(
+        `Sync security for ${pluginId} is delegated to its host provider`,
+      );
   }
 
   /** Host-controlled enrollment; this operation is intentionally absent from plugin facades. */
-  enrollPluginCrypto(
+  async enrollPluginCrypto(
     pluginId: string,
     passphrase: string,
     request?: SyncCryptoEnrollmentRequest,
   ): Promise<SyncCryptoStatus> {
+    this.#assertLocalSecurity(pluginId);
     return this.#security.enroll(
       requireBoundedString(pluginId, "Plugin ID", 128),
       passphrase,
@@ -668,10 +862,11 @@ export class SyncHostService {
   }
 
   /** Host-controlled unlock; plugins can only observe locked state. */
-  unlockPluginCrypto(
+  async unlockPluginCrypto(
     pluginId: string,
     passphrase: string,
   ): Promise<SyncCryptoStatus> {
+    this.#assertLocalSecurity(pluginId);
     return this.#security.unlock(
       requireBoundedString(pluginId, "Plugin ID", 128),
       passphrase,
@@ -679,12 +874,13 @@ export class SyncHostService {
   }
 
   /** Host-controlled passkey or OS-credential enrollment. */
-  enrollPluginCryptoWithWrappingKey(
+  async enrollPluginCryptoWithWrappingKey(
     pluginId: string,
     wrappingKey: Uint8Array,
     descriptor: Extract<SyncWrappingKeyDescriptor, { name: "external" }>,
     request?: SyncCryptoEnrollmentRequest,
   ): Promise<SyncCryptoStatus> {
+    this.#assertLocalSecurity(pluginId);
     return this.#security.enrollWithWrappingKey(
       requireBoundedString(pluginId, "Plugin ID", 128),
       wrappingKey,
@@ -694,10 +890,11 @@ export class SyncHostService {
   }
 
   /** Host-controlled passkey or OS-credential unlock. */
-  unlockPluginCryptoWithWrappingKey(
+  async unlockPluginCryptoWithWrappingKey(
     pluginId: string,
     wrappingKey: Uint8Array,
   ): Promise<SyncCryptoStatus> {
+    this.#assertLocalSecurity(pluginId);
     return this.#security.unlockWithWrappingKey(
       requireBoundedString(pluginId, "Plugin ID", 128),
       wrappingKey,
@@ -705,6 +902,7 @@ export class SyncHostService {
   }
 
   lockPluginCrypto(pluginId: string): void {
+    this.#assertLocalSecurity(pluginId);
     this.#security.lock(requireBoundedString(pluginId, "Plugin ID", 128));
   }
 

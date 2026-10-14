@@ -1,5 +1,30 @@
 # Deno Desktop Host / Native vault and storage / Part 2
 
+LN-ARCH-114 through LN-ARCH-116 define a native security repository separate
+from disposable indexes. Desktop integration retains the OS credential store
+for wrapping material and supplies host-owned persistent metadata separately.
+
+The shared native sync repository follows [LN-ARCH-105](../architecture/host-boundaries.md#ln-arch-105).
+Its encrypted state is independent of rebuildable AppDatabase indexes; desktop
+file/storage RPC now uses the admitted native session under LN-DENO-090 through
+LN-DENO-094; production editor guards and runtime integration remain pending.
+The `test:sync-engine` acceptance covers host membership and identity rotation,
+but does not establish desktop credential custody or native working-file apply.
+The guarded native kernel now supplies streamed capture, guarded mutation and
+encrypted receipts. `test:sync-native-vault` pairs independent devices and covers
+working-file application/reopen. Native credential custody and profile admission
+follow LN-DENO-086 through LN-DENO-089.
+Indexed encrypted receipts under LN-ARCH-109 keep completed native operations
+outside the active journal without weakening idempotent desktop recovery.
+LN-ARCH-110 requires durable journal migration and a format fence before native
+desktop capture/apply access; unknown formats retain their encrypted state.
+LN-ARCH-111/LN-ARCH-112 provide explicit host-delivery pairing and installed epoch
+metadata. LN-ARCH-119 through LN-ARCH-122 add scoped local capabilities and the
+shared native adapter with separate engine/apply stores and an explicit inclusion
+policy. The default native acceptance exercises that adapter; `--direct-kernel`
+retains the original kernel path. Editor guards and legacy/new Sync exclusive
+writer selection remain required before runtime activation.
+
 ## LN-DENO-039 — System WebView and CEF sessions: consume the same Design Core scrollbar visibility
 
 <a id="ln-deno-039"></a>
@@ -137,3 +162,57 @@ Native About-window acceptance verifies:
 <a id="ln-deno-078"></a>
 
 **Requirement.** The desktop database host MUST wait for worker readiness before dispatching requests. Startup MUST fail within a bounded interval if readiness never arrives. Closing or failing a starting worker MUST reject queued requests, cancel readiness work, and ignore late messages from that worker.
+
+## LN-DENO-086 — Admitted native Sync sessions
+
+<a id="ln-deno-086"></a>
+
+**Requirement.** Native Sync sessions MUST bind to a successfully opened profile lease, plugin `sync` and one runtime using opaque tokens. Repeated database opens MUST retain their lease. Close, worker failure or lease replacement MUST invalidate admission before cleanup; operations MUST check the lease and session before and after execution. Shutdown MUST reject new work, drain admitted operations, destroy unlocked keys and close dedicated stores before dependent host teardown.
+
+## LN-DENO-087 — Native Sync credential custody
+
+<a id="ln-deno-087"></a>
+
+**Requirement.** New Sync MUST persist wrapped credentials in dedicated profile storage under host-owned user data, with collision-resistant paths independent of disposable indexes. OS wrapping material and private keys MUST remain native; raw wrapping-key RPC MUST reject `sync` while preserving legacy Nostr custody. Native enrollment and unlock MUST serialize per profile, preserve existing identities, zero temporary wrapping bytes and reject missing credentials without reset or local fallback.
+
+## LN-DENO-088 — Scoped Sync security RPC
+
+<a id="ln-deno-088"></a>
+
+**Requirement.** The renderer MUST delegate new Sync crypto, identity, pairing, membership and recovery through the admitted native session using an explicit operation allowlist. Bounded, validated JSON encoding MUST preserve binary values and prototype-shaped metadata without key collisions. Recovery passphrases MUST originate from host interaction and remain absent from plugin capabilities. Security payloads and backend error content MUST NOT enter telemetry or RPC error messages; cancelled runtimes MUST reject late results.
+
+## LN-DENO-089 — Recoverable native session open
+
+<a id="ln-deno-089"></a>
+
+**Requirement.** Native session open MUST be idempotent for the same admitted profile lease and runtime. Lost or invalid open responses MUST allow retry without creating another session or replacing credentials. Revocation MUST recover a still-admitted uncertain session before closing it and MUST NOT dispatch cancelled content operations.
+
+## LN-DENO-090 — Physical profile root admission
+
+<a id="ln-deno-090"></a>
+
+**Requirement.** Native Sync file access MUST use the physical root admitted with the opened database profile and MUST NOT accept alternative roots in operation payloads. Repeated opens MUST NOT change or remove that binding; conflicting bindings for one profile MUST reject. Close and worker failure MUST invalidate root admission. Unavailable physical admission MUST preserve ordinary database startup while withholding Sync file access.
+
+## LN-DENO-091 — Bounded native Sync data RPC
+
+<a id="ln-deno-091"></a>
+
+**Requirement.** Native Sync capture, file streams, ciphertext blobs and sealed state MUST use the admitted security session and an explicit data-operation allowlist. Wire frames MUST be bounded and file transfer MUST stream without collecting complete attachments. Duplicate transfer creation, chunks and completion MUST be idempotent; parameter substitution and out-of-order data MUST reject. File descriptors MUST preserve identity/generation guards after capture paging ends.
+
+## LN-DENO-092 — Native Sync operation authority fences
+
+<a id="ln-deno-092"></a>
+
+**Requirement.** Native Sync state commits, file mutations and receipt recovery MUST require the caller's expected vault, device, key epoch and membership generation. Missing or stale fences MUST reject before mutation. A multipart state/write upload MUST retain its initial fence and recheck before completion. Security and data operations MUST serialize within one session so authority cannot change during commit.
+
+## LN-DENO-093 — Native Sync transfer teardown
+
+<a id="ln-deno-093"></a>
+
+**Requirement.** Revocation MUST synchronously stop native data admission and cancel active reads before draining transfer, file and storage cleanup, then key custody. Cleanup commands MUST remain available without unlocked keys; failed cleanup MUST remain observable and block another writer. Renderer revocation MUST stop input/output streams and reject late results. Data payloads and private filesystem/backend details MUST NOT enter telemetry or RPC errors.
+
+## LN-DENO-094 — Native upload staging integrity
+
+<a id="ln-deno-094"></a>
+
+**Requirement.** Native uploads MUST use exclusively created file handles in host-owned staging outside the working vault. Completion MUST verify the staged length and incremental upload digest before publishing state, ciphertext objects or working-file bytes. Truncation or altered staged content MUST reject without a successful receipt. Pathname substitution MUST NOT replace the bytes of the owned handle; transfer cleanup MUST remove owned staging.

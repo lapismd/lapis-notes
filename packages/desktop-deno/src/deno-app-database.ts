@@ -39,6 +39,7 @@ class DenoDesktopAppDatabaseProxy {
   constructor(
     private readonly bridge: DenoDesktopAppDatabaseBridge,
     readonly vaultId: string,
+    private readonly rootPath?: string,
   ) {}
 
   get kind(): AppDatabaseKind {
@@ -72,7 +73,9 @@ class DenoDesktopAppDatabaseProxy {
       throw new Error("Deno desktop app database has already been closed");
     }
     if (!this.bridge.onAppDatabaseChange) {
-      throw new Error("Deno desktop bridge does not expose app database events");
+      throw new Error(
+        "Deno desktop bridge does not expose app database events",
+      );
     }
     this.unsubscribeChanges = this.bridge.onAppDatabaseChange((event) => {
       if (event.vaultId !== this.vaultId) return;
@@ -80,14 +83,14 @@ class DenoDesktopAppDatabaseProxy {
         listener(structuredClone(event.change));
       }
     });
-    this.descriptorValue =
-      await this.bridge.invoke<AppDatabaseDescriptor>(
-        "desktop_app_database_open",
-        {
-          databaseId: this.databaseId,
-          vaultId: this.vaultId,
-        },
-      );
+    this.descriptorValue = await this.bridge.invoke<AppDatabaseDescriptor>(
+      "desktop_app_database_open",
+      {
+        databaseId: this.databaseId,
+        vaultId: this.vaultId,
+        ...(this.rootPath !== undefined ? { rootPath: this.rootPath } : {}),
+      },
+    );
     this.opened = true;
   }
 
@@ -110,7 +113,10 @@ class DenoDesktopAppDatabaseProxy {
     };
   }
 
-  async invoke(method: DesktopAppDatabaseMethod, args: unknown[]): Promise<unknown> {
+  async invoke(
+    method: DesktopAppDatabaseMethod,
+    args: unknown[],
+  ): Promise<unknown> {
     if (!this.opened) {
       await this.open();
     }
@@ -125,7 +131,10 @@ class DenoDesktopAppDatabaseProxy {
 export class DenoDesktopAppDatabaseProvider implements AppDatabaseProvider {
   readonly id = "turso-native-desktop";
 
-  constructor(private readonly bridge: DenoDesktopAppDatabaseBridge) {}
+  constructor(
+    private readonly bridge: DenoDesktopAppDatabaseBridge,
+    private readonly rootPath?: string,
+  ) {}
 
   canOpen(context: AppDatabaseOpenContext): boolean {
     return context.runtime === "deno-desktop";
@@ -135,6 +144,7 @@ export class DenoDesktopAppDatabaseProvider implements AppDatabaseProvider {
     const delegate = new DenoDesktopAppDatabaseProxy(
       this.bridge,
       context.vaultId,
+      this.rootPath,
     );
     const database = {
       get kind() {

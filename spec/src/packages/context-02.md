@@ -303,6 +303,8 @@ Confirm-dialog keeps the Design Core `dialog` host identity and only adds
 
 - The external `@lapis-notes/lapis-plugin-nostr-sync` package consumes those public capabilities and continues to own Nostr, Blossom, revision, and UI policy; no sync protocol implementation moves into this package graph.
 
+- Host crypto also provides the purpose-separated local-state envelope in LN-ARCH-104 for durable encrypted checkpoint, outbox and merge metadata.
+
 - The host contract also owns explicit vault enrollment, multi-epoch key custody, owner-authorised membership, bounded encrypted device-pairing sessions, and opaque recovery bundles.
 
 - Pairing confirmation echoes and validates the displayed six-digit SAS before key transfer.
@@ -310,6 +312,8 @@ Confirm-dialog keeps the Design Core `dialog` host identity and only adds
 - A pairing result MAY expose the invitation's public relay URLs and MAY return at most 16 KiB of cloneable plugin metadata only after that metadata has crossed the encrypted transfer; the public invitation MUST NOT contain that metadata.
 
 - The host emits transport-ready artifacts but never connects to a relay or chooses replication, merge, or recovery-rebind policy.
+
+- LN-ARCH-111 adds explicit host-delivered pairing with empty relay metadata while preserving the existing Nostr invitation/message shapes and relay default. LN-ARCH-112 exposes installed epoch numbers only while unlocked for protocol-owned history authorization.
 
 - Each enrolled vault also has one stable Sync Identity in that same wrapped key material.
 

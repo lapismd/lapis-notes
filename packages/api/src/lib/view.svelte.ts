@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { DateTime } from "luxon";
 import type { DataAdapter, TFile } from "./storage/fs";
 import type { WorkspaceLeaf } from "./workspace.svelte";
 import type { Menu } from "./menu.svelte";
@@ -505,31 +504,48 @@ export abstract class TextFileView extends FileView {
   abstract clear(): void;
 
   async onLoadFile(file: TFile): Promise<void> {
-    return this.app.telemetry.measureAsync(
+    const application = this.app;
+    return application.telemetry.measureAsync(
       "view.text_file.on_load_file",
       async (span) => {
         span.setAttribute("view.type", this.getViewType());
         span.setAttribute("file.extension", file.extension);
-        const contents = await this.app.telemetry.measureAsync(
-          "vault.read",
-          async () => this.app.vault.read(file),
-          {
-            attributes: {
-              "file.extension": file.extension,
-              "view.type": this.getViewType(),
-            },
-            slowThresholdMs: 100,
+        const published = await this.editor.loadDocument(
+          file,
+          () =>
+            application.telemetry.measureAsync(
+              "vault.read",
+              async () => application.vault.read(file),
+              {
+                attributes: {
+                  "file.extension": file.extension,
+                  "view.type": this.getViewType(),
+                },
+                slowThresholdMs: 100,
+              },
+            ),
+          (contents) => {
+            if (this.app !== application || this.editor.app !== application)
+              throw new Error("Editor document load authority changed");
+            const previousFile = this.file,
+              previousData = this.data;
+            try {
+              this.file = file.copy();
+              this.editor.extensions = application.editorExtensions(
+                file.extension,
+                { ...this.getState(), file: file.path },
+              );
+              this.data = contents;
+              this.setViewData(contents, true);
+            } catch (error) {
+              this.file = previousFile;
+              this.data = previousData;
+              throw error;
+            }
           },
         );
-        this.file = file.copy();
-        this.editor.file = file;
-        await this.setState({ ...this.getState(), file: file.path });
-        this.editor.extensions = this.app.editorExtensions(
-          this.file.extension,
-          this.getState(),
-        );
-        this.data = contents;
-        this.setViewData(contents, true);
+        if (published && this.editor.file === file)
+          await this.setState({ ...this.getState(), file: file.path });
       },
       {
         attributes: {
@@ -553,19 +569,16 @@ export abstract class TextFileView extends FileView {
   }
 
   onUnloadFile(file: TFile): Promise<void> {
+    this.editor.cancelDocumentLoad();
     this.setState({ ...this.getState(), file: "" });
     return Promise.resolve();
   }
 
-  save(clear?: boolean): Promise<void> {
-    return this.app.vault
-      .modify(this.file!, this.data, {
-        mtime: DateTime.now().toMillis(),
-      })
-      .then(() => {
-        if (clear) {
-          this.clear();
-        }
-      });
+  async save(clear?: boolean): Promise<void> {
+    const target = this.editor.file;
+    this.editor.save();
+    await this.editor.flushChanges();
+    this.data = this.editor.data;
+    if (clear && this.editor.file === target) this.clear();
   }
 }

@@ -1,3 +1,15 @@
+import type {
+  HostMetadataStore,
+  AppDatabaseMetaTransaction,
+  AppDatabaseMetaTransactionResult,
+} from "../metadata-store";
+export type {
+  HostMetadataStore,
+  AppDatabaseMetaCheck,
+  AppDatabaseMetaMutation,
+  AppDatabaseMetaTransaction,
+  AppDatabaseMetaTransactionResult,
+} from "../metadata-store";
 import {
   canCollectSearchQueryPropertyNames,
   canCollectSearchQueryTerms,
@@ -421,27 +433,6 @@ export interface AppDatabaseMetaScanQuery {
 export interface AppDatabaseMetaScanPage<T = unknown> {
   entries: AppDatabaseMetaEntry<T>[];
   nextCursor?: string;
-}
-
-export interface AppDatabaseMetaCheck {
-  key: string;
-  exists?: boolean;
-  value?: unknown;
-}
-
-export interface AppDatabaseMetaMutation {
-  key: string;
-  value?: unknown;
-  delete?: boolean;
-}
-
-export interface AppDatabaseMetaTransaction {
-  checks?: AppDatabaseMetaCheck[];
-  mutations: AppDatabaseMetaMutation[];
-}
-
-export interface AppDatabaseMetaTransactionResult {
-  applied: boolean;
 }
 
 export type AppDatabaseChangeListener = (change: AppDatabaseChangeSet) => void;
@@ -1210,7 +1201,7 @@ export interface AppDatabaseMemoryJobUpdateInput {
     >;
 }
 
-export interface AppDatabase {
+export interface AppDatabase extends HostMetadataStore {
   readonly kind: AppDatabaseKind;
   readonly vaultId: string;
   readonly descriptor: AppDatabaseDescriptor;
@@ -1225,14 +1216,9 @@ export interface AppDatabase {
   getSearchEmbeddingProvider(): Promise<SearchEmbeddingProviderConfig | null>;
   getSearchEmbeddingRuntimeStatus(): Promise<SearchEmbeddingRuntimeStatus | null>;
   getSearchIndexStats(): Promise<AppDatabaseSearchIndexStats>;
-  getMeta<T = unknown>(key: string): Promise<T | undefined>;
-  setMeta(key: string, value: unknown): Promise<void>;
   scanMeta<T = unknown>(
     query: AppDatabaseMetaScanQuery,
   ): Promise<AppDatabaseMetaScanPage<T>>;
-  transactMeta(
-    transaction: AppDatabaseMetaTransaction,
-  ): Promise<AppDatabaseMetaTransactionResult>;
   getNotebookState(
     sourcePath: string,
   ): Promise<AppDatabaseNotebookState | undefined>;

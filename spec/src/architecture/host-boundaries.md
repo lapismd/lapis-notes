@@ -17,6 +17,11 @@ addon for that platform; the tap rejects that unsupported architecture.
 Release `2026.31.5` verifies those host boundaries through tagged native
 qualification; evidence is retained in the [release record](../../records/2026-10-14-homebrew-desktop-release.md).
 
+Desktop routes new Sync security through the per-plugin provider boundary into
+an admitted native profile/runtime session (LN-DENO-086 through LN-DENO-088).
+The native host owns wrapping material, durable key storage and serialized
+operations; renderer/plugin code receives scoped crypto results.
+
 ## LN-ARCH-009 — Api compatibility projection: preserve every persisted design-core V3 workspace region
 
 <a id="ln-arch-009"></a>
@@ -172,3 +177,134 @@ qualification; evidence is retained in the [release record](../../records/2026-1
 <a id="ln-arch-101"></a>
 
 **Requirement.** The public plugin-facing Nostr signer facade MUST terminate at a host-owned broker. On Deno desktop, the broker MUST use a renderer-private native session capability and native signing commands so keychain values never cross into renderer or plugin code. Only the first-party `community` plugin identity may use that native session; additional plugins require an explicit host policy change.
+
+## LN-ARCH-104 — Encrypted local sync state purpose
+
+<a id="ln-arch-104"></a>
+
+**Requirement.** API host crypto MUST provide a distinct `local-state` object purpose with envelope tag 8 and purpose-separated authenticated encryption. Existing object tags and wire formats MUST remain unchanged. Local state MUST require enrolled, unlocked, active-device authority for encryption and MUST reject cross-purpose or wrong-epoch decryption.
+
+## LN-ARCH-105 — Durable opaque sync repositories
+
+<a id="ln-arch-105"></a>
+
+**Requirement.** API MUST define a protocol-neutral repository for immutable ciphertext blobs and version-guarded sealed state. Deno hosts MUST keep that repository in a dedicated durable database, independent of application/search index rebuilds. Writes MUST durably commit before acknowledgement; namespace isolation, ciphertext hash verification and atomic state comparison MUST fail closed.
+
+The portable `test:sync-engine` acceptance loads a supplied packed headless
+engine with real host crypto and membership. It verifies active and retired
+Sync Identity history authorization alongside repository reopen and key
+lock/unlock. It does not qualify native filesystem apply or server routes.
+
+## LN-ARCH-106 — Guarded native file mutations
+
+<a id="ln-arch-106"></a>
+
+**Requirement.** Native guarded file writes/removals MUST require captured identity, generation and absence guards. Streaming preparation MUST NOT mutate working files. Installation MUST NOT overwrite a newly appeared file; displaced preimages MUST remain recoverable when a concurrent edit makes recovery ambiguous.
+
+## LN-ARCH-107 — Durable native apply receipts
+
+<a id="ln-arch-107"></a>
+
+**Requirement.** Native apply MUST persist an encrypted intent before working-file mutation and a durable idempotent receipt before acknowledgement. Restart MUST recover mutation-before-receipt failures without duplicating mutation. Reused operation identifiers with different parameters MUST fail closed; ambiguous targets MUST retain the intent and working content.
+
+## LN-ARCH-108 — Native apply ownership and storage
+
+<a id="ln-arch-108"></a>
+
+**Requirement.** A native apply kernel MUST hold exclusive process-safe ownership of its vault and bind encrypted state to the enrolled vault, device and physical root. Paths MUST reject traversal and symlinks. File identity MUST survive restart and unambiguous physical rename without being inferred from content equality. Working-file staging MUST stay outside synchronization capture and ciphertext repositories.
+
+## LN-ARCH-109 — Indexed encrypted mutation receipts
+
+<a id="ln-arch-109"></a>
+
+**Requirement.** Completed native mutations MUST use independently encrypted immutable receipts indexed by opaque operation keys, isolated by repository namespace and bound to the enrolled vault, device and physical root. Receipt durability MUST precede removal from the active journal. Lost write responses MUST require recovery without repeated mutation. Completed operations MUST NOT accumulate in the active encrypted journal; ambiguous recovery data MUST remain intact.
+
+## LN-ARCH-110 — Native journal format and migration
+
+<a id="ln-arch-110"></a>
+
+**Requirement.** Indexed native journals MUST use a format that earlier non-indexed readers reject. Opening a supported legacy journal MUST durably upgrade its format before compaction or capture/apply access. Upgrade MUST preserve pending intent, paths, counters, receipts and working bytes. Unknown formats MUST fail without rewriting state; interrupted upgrades MUST recover idempotently under current endpoint authority.
+
+## LN-ARCH-111 — Explicit pairing delivery
+
+<a id="ln-arch-111"></a>
+
+**Requirement.** API pairing MUST default to validated relay invitations. Host-delivered pairing MUST require explicit owner and joining selection, advertise no relay addresses, and reject mixed or unknown delivery modes. Both modes MUST retain signed Nostr messages, encrypted transfer, SAS verification, replay/expiry protection and independent device keys. API MUST return artifacts for caller delivery without opening a transport.
+
+## LN-ARCH-112 — Installed encryption epochs
+
+<a id="ln-arch-112"></a>
+
+**Requirement.** API crypto status MUST return a sorted, independent list of installed content-key epoch numbers only while unlocked. Listing MUST expose no key bytes and MUST reflect pairing, key rotation and imported keys. Locked or unenrolled status MUST omit the list; protocol history authorization MUST use actual installed epochs rather than assumed values.
+
+## LN-ARCH-113 — Headless Sync security host entrypoint
+
+<a id="ln-arch-113"></a>
+
+**Requirement.** API MUST expose `@lapis-notes/api/sync-security-host` without importing UI or DOM modules, using the same Sync security implementation as app hosts. Its host-module metadata MUST advertise no plugin runtime platforms; official renderer or sidecar releases declaring it MUST fail validation. Trusted application hosts MUST retain storage, authorization and lifecycle ownership while plugins consume scoped capabilities.
+
+## LN-ARCH-114 — Independent Sync security storage
+
+<a id="ln-arch-114"></a>
+
+**Requirement.** Hosts MUST be able to supply a security store independently of disposable AppDatabase indexes. All Sync key envelopes and network grants MUST use the supplied store without falling back after failure. Existing callers MAY retain AppDatabase storage. Replacing an index MUST preserve enrolled identities and installed keys when a separate store is supplied; plugins MUST NOT receive the store.
+
+## LN-ARCH-115 — Native security repository
+
+<a id="ln-arch-115"></a>
+
+**Requirement.** Native security storage MUST use a dedicated, versioned SQLite database and isolate host namespaces. Conditional metadata transactions MUST atomically check and mutate across connections. Invalid schemas, oversized or corrupt values and operations after close MUST reject without clearing records. Key envelopes MUST remain wrapped by the security service; wrapping secrets MUST NOT enter this repository.
+
+## LN-ARCH-116 — Headless metadata contract
+
+<a id="ln-arch-116"></a>
+
+**Requirement.** The public `@lapis-notes/api/metadata-store` contract MUST share metadata transaction definitions with AppDatabase without loading browser, search, UI or crypto implementations. Existing AppDatabase type exports MUST remain compatible. Its host-module metadata MUST advertise no plugin runtime platforms.
+
+## LN-ARCH-117 — Host-owned Sync security delegation
+
+<a id="ln-arch-117"></a>
+
+**Requirement.** Hosts MUST be able to delegate a plugin's crypto, Sync Identity, pairing, membership and recovery capabilities to host-owned custody while undelegated plugins retain their credential location. Every delegated operation MUST check grants and runtime validity before invocation and after completion. Delegate failures MUST NOT select local custody, and delegated plugins MUST reject local host enrollment and unlock operations. Provider objects MUST remain absent from plugin facades and retained public options.
+
+## LN-ARCH-118 — Drained Sync security revocation
+
+<a id="ln-arch-118"></a>
+
+**Requirement.** Plugin revocation MUST synchronously invalidate its scoped capabilities and await delegated cleanup before disable completes. Host disposal MUST invalidate all runtimes, stop file observation and drain admitted security cleanup, including concurrent revocations. Cleanup failure MUST remain observable after every cleanup attempt finishes. A disposed host MUST reject new runtimes and late asynchronous capability results.
+
+## LN-ARCH-119 — Scoped local Sync storage and file capabilities
+
+<a id="ln-arch-119"></a>
+
+**Requirement.** Hosts MAY delegate local Sync capture, guarded mutation and sealed storage per plugin runtime or omit local capabilities. API MUST check file, identity, generated-state and crypto grants before provider selection and after results. Providers MUST remain host-owned and MUST NOT fall back to disposable indexes or unguarded mutation. Native adapters MUST use separate engine/apply stores and require an explicit inclusion policy.
+
+## LN-ARCH-120 — Local Sync stream and cleanup lifetime
+
+<a id="ln-arch-120"></a>
+
+**Requirement.** Retained file handles and input/output streams MUST obey their originating plugin runtime lifetime. Revocation MUST invalidate handles, cancel admitted streams, reject late results and drain local operations before provider cleanup. Local cleanup MUST finish before delegated key custody is released, including failed cleanup. Host disposal MUST join concurrent revocations and reject new local work.
+
+## LN-ARCH-121 — Host apply guard for local Sync
+
+<a id="ln-arch-121"></a>
+
+**Requirement.** Local Sync mutations and receipt recovery MUST execute inside a host-owned apply guard that covers the complete asynchronous operation. Missing guards MUST reject before provider invocation. Mutation guards MUST receive the captured target path; receipt recovery MUST guard all potentially affected editors because recovery can complete an earlier mutation. Revocation during guard admission MUST prevent subsequent provider mutation.
+
+## LN-ARCH-122 — Local mutation source lifetime
+
+<a id="ln-arch-122"></a>
+
+**Requirement.** Local Sync MUST drain mutation-source completion or cancellation before acknowledging completion or rejection and before releasing the host apply guard. Missing or rejected admission MUST cancel the supplied source without invoking provider mutation. Revocation MUST join admission-time source cleanup before releasing keys. A provider retaining an input reader or rejecting a stale target before consumption MUST cancel that source before the operation ends.
+
+## LN-ARCH-123 — Native captured read descriptors
+
+<a id="ln-arch-123"></a>
+
+**Requirement.** Native guarded reads MUST resolve captured path, protocol/host identity and content generation without retaining an unbounded RPC handle for every file. Changed descriptors, excluded paths, physical root replacement and changed streamed content MUST reject. Read descriptors MUST remain usable after capture paging resources are released, subject to their original generation and runtime lifetime.
+
+## LN-ARCH-124 — Host authority fence forwarding
+
+<a id="ln-arch-124"></a>
+
+**Requirement.** API local state/mutation ports MUST accept and capture expected endpoint authority outside encrypted protocol records. Scoped facades MUST forward supplied fences unchanged through host apply guards, without permitting admission-time retargeting. Native RPC adapters MUST require and validate those fences; legacy low-level ciphertext repositories MAY retain their trusted-host operation contract. Fences MUST NOT alter signed Nostr events or encrypted object formats.

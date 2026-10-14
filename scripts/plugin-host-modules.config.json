@@ -298,6 +298,26 @@
     "specifier": "@lapis-notes/api/workspace-host",
     "version": "0.0.1"
   },
+  "@lapis-notes/api/sync-security-host": {
+    "entry": "@lapis-notes/api/sync-security-host",
+    "moduleId": "lapis-notes-api-sync-security-host",
+    "packageName": "@lapis-notes/api",
+    "platforms": [],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/sync-security-host",
+    "version": "0.1.2"
+  },
+  "@lapis-notes/api/metadata-store": {
+    "entry": "@lapis-notes/api/metadata-store",
+    "moduleId": "lapis-notes-api-metadata-store",
+    "packageName": "@lapis-notes/api",
+    "platforms": [],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/metadata-store",
+    "version": "0.1.2"
+  },
   "@lapis-notes/markdown": {
     "entry": "@lapis-notes/markdown",
     "moduleId": "lapis-notes-markdown",

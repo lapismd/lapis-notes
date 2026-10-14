@@ -9,6 +9,50 @@ import { createEsmWorkspaceRuntimeManifest } from "./lapis-runtime-manifest";
 const esmWorkspaceManifest = createEsmWorkspaceRuntimeManifest();
 
 describe("plugin release runtime validation", () => {
+  it.each([
+    ["workspace", "@lapis-notes/api/sync-security-host"],
+    ["trustedDesktop", "@lapis-notes/api/sync-security-host"],
+    ["workspace", "@lapis-notes/api/metadata-store"],
+    ["trustedDesktop", "@lapis-notes/api/metadata-store"],
+  ] as const)(
+    "excludes %s plugin imports of host-only %s",
+    (host, specifier) => {
+      const manifest = manifestWithRuntime({
+        entries: {
+          workspace: {
+            path: "main.mjs",
+            format: "esm",
+            sharedDependencies: host === "workspace" ? [specifier] : [],
+          },
+          ...(host === "trustedDesktop"
+            ? {
+                trustedDesktop: {
+                  path: "sidecar.mjs",
+                  format: "node-esm" as const,
+                  sharedDependencies: [specifier],
+                },
+              }
+            : {}),
+        },
+      });
+      const code = `import "${specifier}"; export default class FixturePlugin {}`;
+      const result = validatePluginReleaseRuntime({
+        releaseManifest: releaseManifestFor(manifest),
+        pluginManifest: manifest,
+        files: filesFor(manifest, {
+          "main.mjs":
+            host === "workspace"
+              ? code
+              : "export default class FixturePlugin {}",
+          ...(host === "trustedDesktop" ? { "sidecar.mjs": code } : {}),
+        }),
+        provenance: "official",
+      });
+      expect(result.errors.map((error) => error.code)).toEqual([
+        "runtime-dependency-platform-unsupported",
+      ]);
+    },
+  );
   it("admits the public host imports used by all twelve static release bundles", () => {
     const sharedDependencies = [
       "@lapis-notes/api",

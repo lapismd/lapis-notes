@@ -1,5 +1,6 @@
 import {
   Annotation,
+  Compartment,
   EditorState,
   type Text,
   Transaction,
@@ -13,7 +14,11 @@ import { redo as redoCommand, undo as undoCommand } from "@codemirror/commands";
 import type { TFile } from "./storage/fs";
 import { EventDispatcher } from "./events";
 import type { App } from "./context.svelte";
-import debounce from "lodash-es/debounce";
+import { tick } from "svelte";
+import {
+  EditorSaveContext,
+  type EditorSaveSnapshot,
+} from "./editor-save-context";
 import { resolveApplication } from "./application-compatibility";
 
 export type EditorPosition = { line: number; ch: number };
@@ -71,6 +76,24 @@ export interface EditorTransaction {
 
 /** Controls whether an editor persists its own debounced document changes. */
 export type EditorPersistence = "vault" | "external";
+export interface EditorPersistenceRequest {
+  readonly content: string;
+  readonly file: TFile | null;
+  readonly application: App;
+}
+export type EditorPersistenceWriter = (
+  request: EditorPersistenceRequest,
+) => Promise<void>;
+interface EditorDocumentBinding {
+  application: App;
+  file: TFile | null;
+  path?: string;
+  persistence: EditorPersistence;
+  writer?: EditorPersistenceWriter;
+  saves: EditorSaveContext;
+  unregister?: () => void;
+  loading?: Promise<void>;
+}
 export interface MarkdownFileInfo {
   /** @public */
   app: App;
@@ -148,6 +171,14 @@ export function createEditorState(
           return editor.file;
         },
       })),
+      editor.protectionExtensions(),
+      EditorState.transactionFilter.of((transaction) =>
+        transaction.docChanged &&
+        editor.editingProtected &&
+        !transaction.annotation(syncAnnotation)
+          ? []
+          : transaction,
+      ),
       EditorView.updateListener.of((v: ViewUpdate) => {
         if (
           v.docChanged &&
@@ -193,21 +224,352 @@ export class Editor extends EventDispatcher<{
   change: [data: string];
 }> {
   view: EditorView;
-  file: TFile | null = $state(null);
-  persistence: EditorPersistence = "vault";
+  #file: TFile | null = $state.raw(null);
+  #persistence: EditorPersistence = "vault";
+  #externalWriter: EditorPersistenceWriter | undefined;
+  #editingProtected = $state(0);
+  readonly #protection = new Compartment();
+  readonly #documents = new Set<EditorDocumentBinding>();
+  #document: EditorDocumentBinding | undefined;
   readonly id = crypto.randomUUID();
   private destroyed = false;
   private application?: App;
-  private readonly pendingChange = debounce(async (content: string) => {
-    if (this.data === content) {
-      return;
+  #writeTail: Promise<void> = Promise.resolve();
+  #sequence = 0;
+  #completedSequence = 0;
+  #documentGeneration = 0;
+  #fileReadGeneration = 0;
+  #refreshError: unknown;
+  #loading: { cancel(): void } | undefined;
+  #controlledLoad = false;
+
+  get file(): TFile | null {
+    return this.#file;
+  }
+  set file(file: TFile | null) {
+    if (file === this.#file && file?.path === this.#document?.path) return;
+    this.#assertWritable();
+    const next = this.#createDocument(
+      this.app,
+      file,
+      this.#persistence,
+      this.#externalWriter,
+    );
+    this.#retireDocument();
+    this.#file = file;
+    this.#document = next;
+    this.#documentGeneration++;
+  }
+
+  get persistence(): EditorPersistence {
+    return this.#persistence;
+  }
+  set persistence(value: EditorPersistence) {
+    if (value === this.#persistence) return;
+    this.#assertWritable();
+    const next = this.#createDocument(
+      this.app,
+      this.#file,
+      value,
+      this.#externalWriter,
+    );
+    this.#retireDocument();
+    this.#persistence = value;
+    this.#document = next;
+    this.#documentGeneration++;
+  }
+
+  /** Capture an explicit asynchronous owner for external-mode persistence. */
+  setExternalPersistenceWriter(writer?: EditorPersistenceWriter): this {
+    if (writer === this.#externalWriter) return this;
+    this.#assertWritable();
+    const next = this.#createDocument(
+      this.app,
+      this.#file,
+      this.#persistence,
+      writer,
+    );
+    this.#retireDocument();
+    this.#externalWriter = writer;
+    this.#document = next;
+    this.#documentGeneration++;
+    return this;
+  }
+
+  #assertWritable(): void {
+    if (this.destroyed) throw new Error("Editor is destroyed");
+    if (this.editingProtected) throw new Error("Editor editing is protected");
+  }
+
+  #retireDocument(): void {
+    this.#document?.saves.retire();
+  }
+
+  #createDocument(
+    application: App,
+    file: TFile | null,
+    persistence: EditorPersistence,
+    writer?: EditorPersistenceWriter,
+  ): EditorDocumentBinding {
+    const document = {
+      application,
+      file,
+      path: file?.path,
+      persistence,
+      writer,
+    } as EditorDocumentBinding;
+    document.saves = new EditorSaveContext({
+      unownedExternal: persistence === "external" && !writer,
+      serialize: (run) => {
+        const result = this.#writeTail.then(run);
+        this.#writeTail = result.catch(() => undefined);
+        return result;
+      },
+      persist: async (snapshot) => {
+        if (file?.path !== document.path)
+          throw new Error("Editor persistence target changed");
+        if (persistence === "vault" && file)
+          await application.vault.modify(file, snapshot.content);
+        else if (persistence === "external" && writer)
+          await writer({ application, file, content: snapshot.content });
+      },
+      saved: (snapshot) => {
+        this.#completedSequence = Math.max(
+          this.#completedSequence,
+          snapshot.sequence,
+        );
+        if (
+          !this.destroyed &&
+          this.#document === document &&
+          this.app === application &&
+          this.file === file &&
+          snapshot.documentGeneration === this.#documentGeneration
+        ) {
+          this.data = snapshot.content;
+          if (snapshot.content === this.getValue())
+            this.onChange(snapshot.content);
+        }
+      },
+      released: () => {
+        document.unregister?.();
+        this.#documents.delete(document);
+      },
+    });
+    if (file) {
+      if (!application.fileEditingSessions)
+        throw new Error("App has no file editing-session registry");
+      document.unregister = application.fileEditingSessions.register(
+        file.path,
+        {
+          get dirty() {
+            return !!document.loading || document.saves.dirty;
+          },
+          flush: async () => {
+            await document.loading;
+            await document.saves.flush();
+          },
+          protect: () => this.#protectDocument(document),
+        },
+      );
     }
-    if (this.file && this.persistence === "vault") {
-      await this.app.vault.modify(this.file, content);
+    this.#documents.add(document);
+    return document;
+  }
+
+  #currentDocument(): EditorDocumentBinding {
+    return (this.#document ??= this.#createDocument(
+      this.app,
+      this.file,
+      this.persistence,
+      this.#externalWriter,
+    ));
+  }
+
+  private captureChange(content: string): EditorSaveSnapshot {
+    return {
+      content,
+      documentGeneration: this.#documentGeneration,
+      sequence: ++this.#sequence,
+    };
+  }
+
+  get hasUnsavedChanges(): boolean {
+    return (
+      (!this.destroyed && this.getValue() !== this.data) ||
+      [...this.#documents].some((document) => document.saves.dirty)
+    );
+  }
+
+  get editingProtected(): boolean {
+    return this.destroyed || this.#editingProtected > 0;
+  }
+
+  /** Native CodeMirror protection, retained whenever editor state is rebuilt. */
+  protectionExtensions(): Extension {
+    return this.#protection.of([
+      EditorState.readOnly.of(this.editingProtected),
+      EditorView.editable.of(!this.editingProtected),
+    ]);
+  }
+
+  #holdEditing(): () => void {
+    this.#editingProtected++;
+    this.#updateProtection();
+    let held = true;
+    return () => {
+      if (!held) return;
+      held = false;
+      this.#editingProtected--;
+      this.#updateProtection();
+    };
+  }
+
+  #updateProtection(): void {
+    if (!this.destroyed)
+      this.view.dispatch({
+        effects: this.#protection.reconfigure([
+          EditorState.readOnly.of(this.editingProtected),
+          EditorView.editable.of(!this.editingProtected),
+        ]),
+      });
+  }
+
+  async #protectDocument(document: EditorDocumentBinding): Promise<() => void> {
+    if (document.persistence === "external" && !document.writer)
+      throw new Error(
+        "External editor persistence requires an explicit writer for protection",
+      );
+    const release =
+      !this.destroyed && (this.#document === document || !!document.loading)
+        ? this.#holdEditing()
+        : () => undefined;
+    try {
+      await tick();
+      await document.loading;
+      await document.saves.flush();
+      return release;
+    } catch (error) {
+      release();
+      throw error;
     }
-    this.data = content;
-    this.onChange(content);
-  }, 500);
+  }
+
+  /** Protect the current document and drain its captured persistence. */
+  protect(): Promise<() => void> {
+    if (this.destroyed) return Promise.reject(new Error("Editor is destroyed"));
+    return this.#protectDocument(this.#currentDocument());
+  }
+
+  /** Register and protect a target, then publish its file and contents atomically. */
+  async loadDocument(
+    file: TFile,
+    read: () => Promise<string>,
+    publish?: (contents: string) => void,
+  ): Promise<boolean> {
+    if (this.destroyed) throw new Error("Editor is destroyed");
+    if (this.#editingProtected > (this.#loading ? 1 : 0))
+      throw new Error("Editor editing is protected");
+    const application = this.app,
+      path = file.path;
+    // Admission failure leaves any previous load and binding untouched.
+    const document = this.#createDocument(
+      application,
+      file,
+      this.persistence,
+      this.#externalWriter,
+    );
+    const release = this.#holdEditing();
+    let cancelRead!: (value: { canceled: true }) => void;
+    const cancellation = new Promise<{ canceled: true }>((resolve) => {
+      cancelRead = resolve;
+    });
+    let finish!: () => void;
+    document.loading = new Promise<void>((resolve) => {
+      finish = resolve;
+    });
+    let canceled = false,
+      completed = false;
+    const load = {
+      cancel: () => {
+        if (completed || canceled) return;
+        canceled = true;
+        cancelRead({ canceled: true });
+        document.loading = undefined;
+        document.saves.retire();
+        finish();
+        release();
+        if (this.#loading === load) this.#loading = undefined;
+      },
+    };
+    this.#loading?.cancel();
+    this.#loading = load;
+    let published = false;
+    try {
+      const drained = await Promise.race([
+        this.flushChanges().then(() => ({ drained: true as const })),
+        cancellation,
+      ]);
+      if ("canceled" in drained || canceled) return false;
+      const result = await Promise.race([
+        Promise.resolve()
+          .then(read)
+          .then((contents) => ({ contents })),
+        cancellation,
+      ]);
+      if ("canceled" in result || canceled) return false;
+      if (this.destroyed || this.app !== application || file.path !== path)
+        throw new Error("Editor document load authority changed");
+      const previous = {
+        document: this.#document,
+        file: this.#file,
+        data: this.data,
+        state: this.view.state,
+        extensions: this.extensions,
+      };
+      this.#document = document;
+      this.#file = file;
+      try {
+        this.#controlledLoad = true;
+        this.setValue(result.contents);
+        publish?.(result.contents);
+        if (this.destroyed || canceled)
+          throw new Error("Editor document load canceled during publication");
+        if (this.app !== application || file.path !== path)
+          throw new Error("Editor document load authority changed");
+        published = true;
+        previous.document?.saves.retire();
+      } catch (error) {
+        this.#document = previous.document;
+        this.#file = previous.file;
+        this.data = previous.data;
+        this.extensions = previous.extensions;
+        this.#documentGeneration++;
+        if (!this.destroyed) this.view.setState(previous.state);
+        throw error;
+      } finally {
+        this.#controlledLoad = false;
+      }
+      return true;
+    } finally {
+      if (!canceled) {
+        completed = true;
+        document.loading = undefined;
+        if (!published) document.saves.retire();
+        finish();
+        release();
+      }
+      if (this.#loading === load) this.#loading = undefined;
+    }
+  }
+
+  /** Cancel a pending publication while observing any late read result. */
+  cancelDocumentLoad(): void {
+    this.#loading?.cancel();
+  }
+
+  get refreshError(): unknown {
+    return this.#refreshError;
+  }
 
   constructor(
     public data: string = "",
@@ -221,7 +583,18 @@ export class Editor extends EventDispatcher<{
 
   /** Bind this editor to the application that owns its view. */
   bindApplication(application: App): this {
+    if (this.application === application) return this;
+    this.#assertWritable();
+    const next = this.#createDocument(
+      application,
+      this.#file,
+      this.#persistence,
+      this.#externalWriter,
+    );
+    this.#retireDocument();
     this.application = application;
+    this.#document = next;
+    this.#documentGeneration++;
     return this;
   }
 
@@ -230,12 +603,22 @@ export class Editor extends EventDispatcher<{
     return resolveApplication(this.application);
   }
 
-  readonly save = debounce(() => {
-    if (this.file) {
-      return this.app.vault.modify(this.file, this.getValue());
-    }
-    return Promise.resolve();
-  }, 500);
+  readonly save = Object.assign(
+    () => {
+      this.#assertWritable();
+      return this.#currentDocument().saves.queue(
+        this.captureChange(this.getValue()),
+        true,
+      );
+    },
+    {
+      flush: () => this.#document?.saves.flushSave(),
+      cancel: () => {
+        this.#assertWritable();
+        this.#document?.saves.cancelSave();
+      },
+    },
+  );
 
   get cm() {
     return this.view;
@@ -247,17 +630,46 @@ export class Editor extends EventDispatcher<{
 
   /** Queue the latest editor contents for persistence/change notification. */
   queueChange(data: string): void {
-    this.pendingChange(data);
+    this.#assertWritable();
+    this.#currentDocument().saves.queue(this.captureChange(data));
   }
 
-  /** Flush the latest queued change before a view or embedded surface closes. */
-  flushChanges(): Promise<void> {
-    return Promise.resolve(this.pendingChange.flush()).then(() => undefined);
+  /** Drain every captured document, including failed or retired saves. */
+  async flushChanges(): Promise<void> {
+    const errors = new Map<EditorDocumentBinding, unknown>();
+    const visited = new Set<EditorDocumentBinding>();
+    let sequence: number, generation: number;
+    do {
+      sequence = this.#sequence;
+      generation = this.#documentGeneration;
+      const documents = [...this.#documents];
+      const results = await Promise.allSettled(
+        documents.map((document) => {
+          const retry = !visited.has(document);
+          visited.add(document);
+          return document.saves.flush(retry);
+        }),
+      );
+      results.forEach((result, index) => {
+        if (result.status === "rejected")
+          errors.set(documents[index], result.reason);
+      });
+    } while (
+      sequence !== this.#sequence ||
+      generation !== this.#documentGeneration
+    );
+    if (errors.size === 1) throw errors.values().next().value;
+    if (errors.size)
+      throw new AggregateError(
+        [...errors.values()],
+        "Editor persistence failed",
+      );
   }
 
   /** Cancel a queued change when the owning document is intentionally reset. */
   cancelPendingChanges(): void {
-    this.pendingChange.cancel();
+    this.#assertWritable();
+    this.#document?.saves.cancelChange();
   }
 
   getValue() {
@@ -269,20 +681,26 @@ export class Editor extends EventDispatcher<{
   }
 
   destroy(): void {
-    if (this.destroyed) {
-      return;
-    }
-
+    if (this.destroyed) return;
     this.destroyed = true;
-    this.pendingChange.cancel();
-    this.save.cancel();
+    this.cancelDocumentLoad();
+    for (const document of this.#documents) document.saves.retire();
     this.view.destroy();
   }
 
+  /** Stop editing immediately and await all retained document persistence. */
+  async dispose(): Promise<void> {
+    this.destroy();
+    await this.flushChanges();
+  }
+
   trackChanges(callback?: (data: string, editor: Editor) => void) {
-    const editorUpdated = this.app.workspace.on(
+    const owner = this.app;
+    let active = true;
+    const editorUpdated = owner.workspace.on(
       "editor-updated",
       (editor: Editor, transactions: readonly TransactionSpec[]) => {
+        if (!active || this.destroyed || this.app !== owner) return;
         if (editor.id !== this.id && editor.file?.path === this.file?.path) {
           if (this.getValue() !== editor.getValue()) {
             this.view.dispatch(...transactions);
@@ -293,26 +711,73 @@ export class Editor extends EventDispatcher<{
       },
     );
 
-    const fileChanged = this.app.workspace.on(
+    const fileChanged = owner.workspace.on(
       "file-change",
       (file: TFile, event: string) => {
+        if (!active || this.destroyed || this.app !== owner) return;
         if (file.path === this.file?.path) {
           if (event !== "delete" && file) {
-            this.app.vault.read(file).then((contents) => {
-              if (this.getValue() !== contents) {
-                this.replaceContent(contents);
-                this.onChange(this.getValue());
-                callback?.(this.getValue(), this);
-              }
-            });
+            const application = this.app,
+              target = this.file,
+              path = target?.path;
+            const readGeneration = ++this.#fileReadGeneration,
+              documentGeneration = this.#documentGeneration;
+            const sequence = this.#sequence,
+              completed = this.#completedSequence;
+            void application.vault
+              .read(file)
+              .then((contents) => {
+                if (
+                  !active ||
+                  this.destroyed ||
+                  this.app !== application ||
+                  this.file !== target ||
+                  this.file?.path !== path ||
+                  this.#fileReadGeneration !== readGeneration ||
+                  this.#documentGeneration !== documentGeneration ||
+                  this.#sequence !== sequence ||
+                  this.#completedSequence !== completed
+                )
+                  return;
+                this.#refreshError = undefined;
+                if (this.getValue() === contents) {
+                  this.data = contents;
+                  return;
+                }
+                if (
+                  this.getValue() !== this.data ||
+                  this.#document?.saves.dirty
+                )
+                  return;
+                if (this.getValue() !== contents) {
+                  this.#replaceContent(contents);
+                  this.onChange(this.getValue());
+                  callback?.(this.getValue(), this);
+                }
+              })
+              .catch((error: unknown) => {
+                if (
+                  active &&
+                  !this.destroyed &&
+                  this.app === application &&
+                  this.file?.path === path &&
+                  this.#fileReadGeneration === readGeneration &&
+                  this.file === target &&
+                  this.#documentGeneration === documentGeneration &&
+                  this.#sequence === sequence &&
+                  this.#completedSequence === completed
+                )
+                  this.#refreshError = error;
+              });
           }
         }
       },
     );
 
     return () => {
-      this.app.workspace.offref(editorUpdated);
-      this.app.workspace.offref(fileChanged);
+      active = false;
+      owner.workspace.offref(editorUpdated);
+      owner.workspace.offref(fileChanged);
     };
   }
 
@@ -333,7 +798,6 @@ export class Editor extends EventDispatcher<{
         const content = this.getValue();
         const selection = this.view.state.selection;
         this.extensions = editorExtensions;
-        this.data = content;
         this.view.setState(
           createEditorState(this, content, this.extensions, selection),
         );
@@ -347,6 +811,10 @@ export class Editor extends EventDispatcher<{
   }
 
   setValue(content: string) {
+    if (!this.#controlledLoad) this.#assertWritable();
+    else if (this.destroyed) throw new Error("Editor is destroyed");
+    this.#documentGeneration++;
+    this.#refreshError = undefined;
     this.app.telemetry.measure(
       "editor.set_value",
       (span) => {
@@ -363,6 +831,13 @@ export class Editor extends EventDispatcher<{
   }
 
   replaceContent(content: string, options: { userEvent?: string } = {}) {
+    this.#assertWritable();
+    this.#replaceContent(content, options);
+  }
+
+  #replaceContent(content: string, options: { userEvent?: string } = {}) {
+    this.#documentGeneration++;
+    this.#refreshError = undefined;
     this.data = content;
     const annotations = [syncAnnotation.of(true)];
     this.view.dispatch({

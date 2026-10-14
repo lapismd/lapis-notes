@@ -1,5 +1,17 @@
 # Problems / Integration contracts
 
+Diagnostic registrations retain their component-owned disposal. The shared
+Plugin disable boundary additionally drains host security cleanup; unload or
+security cleanup failures propagate through the plugin failure state
+(LN-ARCH-118).
+
+Editor persistence/refresh failures under LN-ARCH-125 and LN-ARCH-127 remain
+observable through the editor boundary. This does not add a diagnostic cache
+or move file, buffer or Sync authority into Problems presentation.
+Independent editing-session admission and cleanup failures remain observable
+through LN-ARCH-129 through LN-ARCH-131. The registry does not create diagnostics
+or alter Problems ownership.
+
 ## LN-WS-025 — Design Core: own the application-independent WorkspaceDiagnostic model and WorkspaceDiagnosticsManager
 
 <a id="ln-ws-025"></a>

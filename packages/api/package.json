@@ -53,12 +53,13 @@
     "check": "pnpm --dir ../.. check:no-tailwind packages/api/src/lib/components && pnpm check:svelte && pnpm check:types",
     "check:svelte": "svelte-check --fail-on-warnings --output human",
     "check:types": "tsc --noEmit -p tsconfig.types.json",
+    "check:pack-types": "tsc -p tsconfig.contracts.json",
     "dev": "pnpm --dir ../.. storybook",
     "storybook": "pnpm --dir ../.. storybook",
     "test": "vitest run",
     "test:run": "vitest run",
     "generate:search-query-parser": "lezer-generator ./src/lib/search-query/search-query.grammar -o ./src/lib/search-query/parser.js",
-    "prepack": "pnpm generate:plugin-host-modules && svelte-package --tsconfig ./tsconfig.pack.json && publint",
+    "prepack": "pnpm generate:plugin-host-modules && svelte-package --tsconfig ./tsconfig.pack.json && publint && pnpm check:pack-types",
     "parity:generate": "node ./scripts/generate-obsidian-parity.mjs",
     "performance:metadata:native": "tsx ./scripts/metadata-performance-native.ts",
     "generate:plugin-host-modules": "node ../../scripts/generate-plugin-host-modules.mjs"
@@ -239,6 +240,21 @@
       "types": "./dist/build-tools/vite.d.ts",
       "import": "./dist/build-tools/vite.js",
       "default": "./dist/build-tools/vite.js"
+    },
+    "./sync-repository": {
+      "types": "./dist/sync-repository.d.ts",
+      "import": "./dist/sync-repository.js",
+      "default": "./dist/sync-repository.js"
+    },
+    "./sync-security-host": {
+      "types": "./dist/sync-host-security.d.ts",
+      "import": "./dist/sync-host-security.js",
+      "default": "./dist/sync-host-security.js"
+    },
+    "./metadata-store": {
+      "types": "./dist/metadata-store.d.ts",
+      "import": "./dist/metadata-store.js",
+      "default": "./dist/metadata-store.js"
     }
   },
   "devDependencies": {

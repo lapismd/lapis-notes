@@ -6,6 +6,34 @@ release coordinates enter the verified Plugins browser; the URL does not grant
 server access or supply an outbound archive source. Hosted installation continues
 through the authenticated artifact route under LN-SRV-017.
 
+LN-ARCH-114 through LN-ARCH-116 define dedicated security persistence and its
+headless metadata contract. Server integration must keep wrapped keys outside
+disposable indexes and supply independently protected wrapping material.
+
+The shared native sync repository follows [LN-ARCH-105](../architecture/host-boundaries.md#ln-arch-105).
+It stores opaque ciphertext independently of server indexes. Authenticated sync
+routes and the enrolled server participant remain pending integration.
+The portable kernel acceptance uses actual host membership and identity
+rotation; it does not exercise server authentication, subscriptions or enrollment.
+The shared guarded native vault adds encrypted mutation journaling and retained
+preimages. Its paired-device engine acceptance runs without a network service;
+it does not establish the Deno destination or server participant lifecycle.
+LN-ARCH-109 bounds completed native journal work through independently encrypted
+receipt records; it does not supply the server's signed-event history store.
+LN-ARCH-110 guards native journal upgrades independently of server event formats
+and prevents earlier non-indexed kernels from reopening compacted state.
+LN-ARCH-111 allows caller-delivered pairing without relay addresses, and
+LN-ARCH-112 supplies actual installed key epochs. Server rendezvous, enrollment
+routes and persistent protected server keys remain separate integration work.
+LN-ARCH-119 through LN-ARCH-122 supply scoped local capabilities and the shared
+native file/storage adapter. A server participant can use this adapter with its
+own admitted vault, inclusion policy, crypto and lifecycle; the adapter does not
+supply server authentication, endpoint key provisioning or event/object routes.
+The same physical-root and read-descriptor ports under LN-ARCH-123 can bind a
+future participant to its managed directory. LN-ARCH-124 preserves expected
+authority outside encrypted protocol objects; server admission/serialization
+must enforce it when the participant is integrated.
+
 ## LN-SRV-001 — Private @lapis-notes/server-deno: run on Deno.serve, serve the dedicated static
 
 <a id="ln-srv-001"></a>

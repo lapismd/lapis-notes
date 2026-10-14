@@ -86,6 +86,7 @@
   });
 
   function renameFile(name: string | null) {
+    if (editor.editingProtected) return;
     if (name && editor.file && name !== editor.file.name) {
       const path = `${dirname(editor.file.path)}/${name}.${editor.file.extension}`;
       app.fileManager.renameFile(editor.file, path);
@@ -125,7 +126,7 @@
               onfocusout={(evt) =>
                 renameFile((evt.target as HTMLDivElement).getText())}
               class="inline-title cm-editor-inline-title"
-              contenteditable="true"
+              contenteditable={!editor.editingProtected}
               {spellcheck}
               autocapitalize="on"
               tabindex="-1"
@@ -144,7 +145,7 @@
               data-mobile-inline-title="true"
               data-mobile-inline-title-input="true"
               aria-label="Active note title"
-              contenteditable="true"
+              contenteditable={!editor.editingProtected}
               {spellcheck}
               autocapitalize="on"
               tabindex="-1"

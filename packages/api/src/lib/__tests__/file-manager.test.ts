@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { CachedMetadata, Pos } from "../cache.svelte";
 import { FileManager } from "../file-manager";
 import { TFile, TFolder } from "../storage/fs";
+import { FileEditingSessionRegistry } from "../file-editing-sessions";
 
 function createFile(path: string, parent: TFolder | null = null): TFile {
   return new TFile(path, { ctime: 0, mtime: 0, size: 1 }, parent);
@@ -112,6 +113,7 @@ describe("FileManager", () => {
         "files.links.omitMarkdownExtension": false,
         "files.links.useShortestUniqueSuffix": false,
       }),
+      fileEditingSessions: new FileEditingSessionRegistry(),
       vault: {
         rename,
         process,
