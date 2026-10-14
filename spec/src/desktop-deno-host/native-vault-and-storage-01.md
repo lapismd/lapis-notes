@@ -38,6 +38,11 @@ The Deno bridge registration verifies:
 
 **Requirement.** Before restoring layout, the host MUST register the shared application-owned `notesPluginProfile` containing exactly Source Editor, Markdown, File Explorer, and Search in that order. All four MUST default enabled and remain user-disableable. The host MUST load configured installed plugins unless Safe Mode disables community plugins and MUST verify this profile and persistence in packaged acceptance. Local desktop development MUST prepare verified packed plugin packages before launch.
 
+The [approved registry consumer snapshot](../packages/releases-and-exports.md#approved-registry-consumer-snapshot--2026-10-14)
+refreshes the profile through public npm ranges and portable lockfiles. Both
+native packaged lanes exercise the updated public exports while retaining
+profile ordering, shared API identity, and installed-plugin persistence.
+
 ### Acceptance details
 
 Plugin registration parity verifies:

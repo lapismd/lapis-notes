@@ -12,6 +12,11 @@
 
 **Requirement.** The web session MUST register the shared application-owned `notesPluginProfile` containing exactly Source Editor, Markdown, File Explorer, and Search in that order. All four MUST default enabled and remain user-disableable. The host MUST then load configured vault-installed plugins before metadata and layout restoration and mount the shared `WorkspaceShell`. Local Web development MUST prepare verified packed plugin packages before launch.
 
+The [approved registry consumer snapshot](../packages/releases-and-exports.md#approved-registry-consumer-snapshot--2026-10-14)
+updates the shared profile's published packages. Web acceptance builds their
+public export graph and retains the same API singleton, profile ordering, and
+configured-plugin restoration; a signed fixture does not replace npm resolution.
+
 ## LN-WEB-005 — Retirement of legacy web fixtures
 
 <a id="ln-web-005"></a>
