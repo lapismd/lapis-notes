@@ -341,6 +341,15 @@ on top of released 0.1.0 controller source; npm SDK ranges remain unchanged.
 
 **Requirement.** Version preparation MUST preflight each public changelog formatter and reject a package whose current version has no non-empty changelog section before and after Changesets runs. Markdown formatting MUST NOT require optional code-only formatter plugins.
 
+## Approved registry consumer snapshot — 2026-10-14
+
+The private application profile and root catalog consume the approved plugin
+batch through npm ranges: AI 0.1.5; Bases, Bookmarks, Graph, Search and Spellcheck
+0.1.3; History 0.1.4; Markdown 0.1.6; Markdown Lint, Source Editor and Word Count
+0.1.2. Slides 0.1.0 remains available through installed-plugin management rather
+than the static profile. The tracked lockfile resolves public npm packages;
+test-signed archive fixtures remain separate acceptance inputs.
+
 <!-- ci-dependency-image:start -->
 
 ## Current CI dependency image
