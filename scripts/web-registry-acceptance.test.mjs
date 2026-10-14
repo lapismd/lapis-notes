@@ -1,11 +1,14 @@
 import assert from "node:assert/strict";
-import { mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { EventEmitter } from "node:events";
 import { startRegistryFixture } from "./run-web-registry-acceptance.mjs";
-import { navigateServerPage } from "../packages/web/e2e/server-navigation.ts";
+import {
+  navigateServerPage,
+  recordServerNavigationRetry,
+} from "../packages/web/e2e/server-navigation.ts";
 
 function navigationFixture() {
   const page = new EventEmitter();
@@ -130,6 +133,52 @@ test("server startup does not retry a successful first navigation", async () => 
   assert.deepEqual(page.calls, [url]);
   assert.equal(readyChecks, 1);
   assert.equal(page.listenerCount("requestfailed"), 0);
+});
+
+test("server retry diagnostics remain on disk after successful recovery", async (t) => {
+  const root = await mkdtemp(
+    path.join(tmpdir(), "lapis-network-retry-evidence-"),
+  );
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const report = path.join(
+    root,
+    "output",
+    "server-navigation-network-change.json",
+  );
+  const attachments = [];
+  const info = {
+    annotations: [],
+    outputPath: () => report,
+    attach: async (name, options) => attachments.push({ name, ...options }),
+  };
+  const { page, url, failRequest } = navigationFixture();
+  let readyChecks = 0;
+  assert.equal(
+    await navigateServerPage(
+      page,
+      url,
+      async () => {
+        if (++readyChecks === 1) {
+          failRequest();
+          throw new Error("transient startup");
+        }
+      },
+      (retry) => recordServerNavigationRetry(info, retry),
+    ),
+    2,
+  );
+  assert.deepEqual(JSON.parse(await readFile(report, "utf8")), {
+    failedRequests: [`${url}/assets/ServerVaultHost.js`],
+    firstFailure: "Error: transient startup",
+  });
+  assert.equal(info.annotations[0].type, "network-change-retry");
+  assert.deepEqual(attachments, [
+    {
+      name: "server-navigation-network-change",
+      path: report,
+      contentType: "application/json",
+    },
+  ]);
 });
 
 test("fixture transport serves only V2 data and closes its listener", async (t) => {

@@ -159,7 +159,8 @@ isolating initial navigation from preceding PWA acceptance cases.
 Delayed Chromium network notifications may still abort initial module downloads.
 That initial navigation retries once only for observed same-origin document or
 script `ERR_NETWORK_CHANGED` failures and retains its original readiness
-assertions. Retry evidence is attached to the result; later application, sharing
+assertions. Retry evidence is written to disk and attached by path, with passing
+test output retained by both Web Playwright configurations; later application, sharing
 and restart steps are not replayed.
 
 ## LN-WEB-050 — Deno-server Web build: authenticate before vault selection, use only server-managed
