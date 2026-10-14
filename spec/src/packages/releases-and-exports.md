@@ -88,6 +88,12 @@ Registry-consumer toolchain and build-policy acceptance is recorded in
 
 **Requirement.** Root local-development configuration MUST keep published external LapisMD packages on portable registry ranges in tracked manifests and lockfiles. External repositories MUST NOT become Lapis workspace packages.
 
+The October 2026 security refresh leaves external LapisMD package ranges and
+versions unchanged and resolves bounded third-party overrides from npm. Root
+release tooling uses Changesets 3 with a Node 22.11 development floor. Its
+compatibility checks and remaining QMD advisory are recorded in the
+[dependency audit evidence](../../records/2026-10-14-notes-dependency-audit.md).
+
 ## LN-PKG-066 — @lapis-notes/bases: ship one private semantic query-popover sizing rule
 
 <a id="ln-pkg-066"></a>
