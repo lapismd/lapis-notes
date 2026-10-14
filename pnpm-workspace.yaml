@@ -7,6 +7,13 @@ patchedDependencies:
 
 linkWorkspacePackages: true
 
+auditConfig:
+  ignoreGhsas:
+    # User-approved on 2026-10-14 for QMD's development-only braces dependency.
+    # Review by 2026-11-13; remove when a patched upstream chain is available.
+    # Evidence: spec/records/2026-10-14-notes-dependency-audit.md
+    - GHSA-vfj7-8cjw-p6xm
+
 overrides:
   adm-zip: ">=0.6.1 <0.7"
   aria-query: "5.3.2"

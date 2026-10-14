@@ -158,7 +158,8 @@ clone API. Changesets 3 removes the obsolete glob/YAML reader chain; root
 development tooling consequently requires Node 22.11 or newer. Public package
 versions and external LapisMD dependency ranges remain unchanged. See the
 [dependency audit record](../../records/2026-10-14-notes-dependency-audit.md)
-for compatibility evidence and the before/after advisory counts.
+for compatibility evidence, the before/after advisory counts, and the user's
+temporary acceptance of the unpatched QMD development advisory.
 
 ## LN-ARCH-052 — API: retain the shared CodeMirror autocomplete extension while
 
