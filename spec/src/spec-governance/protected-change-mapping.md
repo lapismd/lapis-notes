@@ -1,5 +1,9 @@
 # Specification Governance / Protected change mapping
 
+Release version preparation validates formatter availability and current-version
+changelog notes under [LN-PKG-164](../packages/releases-and-exports.md#ln-pkg-164).
+Its cached regression inputs include package changelogs and formatter configs.
+
 Configured specification-regression lanes use the registered
 [local Turbo test tasks](../packages/vault-and-storage.md#ln-pkg-159).
 Their canonical inputs remain part of result identity. The development

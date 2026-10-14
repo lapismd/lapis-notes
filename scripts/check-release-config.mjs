@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
 import {
   DEFAULT_REPO_ROOT,
@@ -31,6 +32,50 @@ function fail(message) {
 function assertFile(repoRoot, relativePath) {
   if (!existsSync(path.join(repoRoot, relativePath))) {
     fail(`Missing release file ${relativePath}`);
+  }
+}
+
+export function validateVersionChangelog(source, version, packageName) {
+  const sections = source.split(/^## /m).slice(1);
+  const section = sections.find(
+    (entry) => entry.split("\n", 1)[0].trim() === version,
+  );
+  if (!section || !section.slice(section.indexOf("\n") + 1).trim()) {
+    fail(`${packageName} is missing changelog notes for ${version}`);
+  }
+}
+
+export async function validateChangelogFormatting(
+  repoRoot = DEFAULT_REPO_ROOT,
+  formatter,
+) {
+  // Use the same formatter installation as Changesets version preparation.
+  const require = createRequire(import.meta.url);
+  const changesetsRequire = createRequire(require.resolve("@changesets/cli"));
+  const releaseRequire = createRequire(
+    changesetsRequire.resolve("@changesets/apply-release-plan"),
+  );
+  let prettier = formatter;
+  if (!prettier) {
+    try {
+      prettier = require(require.resolve("prettier", { paths: [repoRoot] }));
+    } catch (error) {
+      if (error.code !== "MODULE_NOT_FOUND") throw error;
+      prettier = releaseRequire("prettier");
+    }
+  }
+  for (const definition of PUBLIC_PACKAGE_GRAPH) {
+    const filepath = path.join(
+      repoRoot,
+      "packages",
+      definition.directory,
+      "CHANGELOG.md",
+    );
+    await prettier.format("## 0.0.0\n\n- Changelog formatting preflight.\n", {
+      ...(await prettier.resolveConfig(filepath)),
+      filepath,
+      parser: "markdown",
+    });
   }
 }
 
@@ -87,6 +132,14 @@ export function validateReleaseConfig(repoRoot = DEFAULT_REPO_ROOT) {
     if (!manifest.publishConfig || manifest.publishConfig.access !== "public") {
       fail(`${definition.name} must publish publicly`);
     }
+    validateVersionChangelog(
+      readFileSync(
+        path.join(repoRoot, "packages", definition.directory, "CHANGELOG.md"),
+        "utf8",
+      ),
+      manifest.version,
+      definition.name,
+    );
   }
 
   const releaseWorkflow = readFileSync(
@@ -148,5 +201,6 @@ export function validateReleaseConfig(repoRoot = DEFAULT_REPO_ROOT) {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   validateReleaseConfig();
+  await validateChangelogFormatting();
   process.stdout.write("Release configuration checks passed.\n");
 }

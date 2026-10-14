@@ -1,5 +1,9 @@
 # Architecture / Dependency boundaries
 
+Release version preparation validates formatter availability and current-version
+changelog notes under [LN-PKG-164](../packages/releases-and-exports.md#ln-pkg-164).
+Its cached regression inputs include package changelogs and formatter configs.
+
 Local package tests already use Turbo. Repository-level test commands follow
 [the local test task contract](../packages/vault-and-storage.md#ln-pkg-159),
 with fresh execution for tests of external state.

@@ -323,6 +323,12 @@ on top of released 0.1.0 controller source; npm SDK ranges remain unchanged.
 
 **Requirement.** Desktop packaging MUST read native artifact metadata from the public npm Terminal Host export and resolve its Deno runtime through the public npm Deno entry. A clean checkout MUST NOT require a sibling Terminal Host checkout. Native downloads MUST retain checksum verification.
 
+## LN-PKG-164 — Complete version changelogs
+
+<a id="ln-pkg-164"></a>
+
+**Requirement.** Version preparation MUST preflight each public changelog formatter and reject a package whose current version has no non-empty changelog section before and after Changesets runs. Markdown formatting MUST NOT require optional code-only formatter plugins.
+
 <!-- ci-dependency-image:start -->
 
 ## Current CI dependency image
