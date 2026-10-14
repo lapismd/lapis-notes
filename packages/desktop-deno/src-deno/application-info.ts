@@ -1,6 +1,8 @@
+import packageMetadata from "../package.json" with { type: "json" };
+
 export const DESKTOP_APPLICATION_INFO = {
   name: "Lapis Notes",
-  version: "2026.31.5",
+  version: packageMetadata.version,
   buildTime: null,
   copyright: "Copyright © Lapis Notes contributors.",
 } as const;

@@ -1,0 +1,192 @@
+name: Desktop release
+on:
+  push:
+    tags: ["desktop-v*"]
+  pull_request:
+    paths:
+      - "packages/desktop-deno/**"
+      - "scripts/desktop-release*"
+      - "scripts/check-desktop-release-workflow*"
+      - ".github/workflows/desktop-release.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: read
+concurrency:
+  group: desktop-release-${{ github.ref }}
+  cancel-in-progress: false
+defaults:
+  run:
+    shell: bash
+env:
+  LAPIS_HOMEBREW_TAP_COMMIT: "bbdd1323fba0f4c7308fe195c298d4c13f0c3547"
+  LAPIS_CONTROLLER_CANDIDATE_COMMIT: "11c70f4390190b8f9e1bc0d06ed349df5c142754"
+jobs:
+  contract:
+    name: Desktop release contract
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+        with:
+          version: "10.34.5"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24.15.0"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm desktop:release:check && pnpm desktop:release:test
+      - name: Validate the release tag
+        if: startsWith(github.ref, 'refs/tags/desktop-v')
+        run: node scripts/desktop-release.mjs preflight
+  native:
+    name: Desktop native (${{ matrix.label }})
+    needs: contract
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {
+              label: macos-arm64,
+              os: macos-15,
+              arch: arm64,
+              target: aarch64-apple-darwin,
+            }
+          - {
+              label: macos-x64,
+              os: macos-15-intel,
+              arch: x64,
+              target: x86_64-apple-darwin,
+            }
+          - {
+              label: linux-arm64,
+              os: ubuntu-24.04-arm,
+              arch: arm64,
+              target: aarch64-unknown-linux-gnu,
+            }
+          - {
+              label: linux-x64,
+              os: ubuntu-24.04,
+              arch: x64,
+              target: x86_64-unknown-linux-gnu,
+            }
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    env:
+      LAPIS_DENO_MAC_SIGN_IDENTITY: "-"
+      LAPIS_DENO_NOTARY_PROFILE: ""
+      LAPIS_DENO_GPG_KEY_ID: ""
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: lapismd/homebrew-tap
+          ref: ${{ env.LAPIS_HOMEBREW_TAP_COMMIT }}
+          path: .ci-candidates/tap
+      - uses: actions/checkout@v7
+        with:
+          repository: lapismd/ai-controller
+          ref: ${{ env.LAPIS_CONTROLLER_CANDIDATE_COMMIT }}
+          path: .ci-candidates/controller
+      - uses: pnpm/action-setup@v6
+        with:
+          version: "10.34.5"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24.15.0"
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed
+        with:
+          deno-version: v2.9.7
+      - uses: Homebrew/actions/setup-homebrew@f9676f1ffe2e1a720f81b2c54c51cfb99915ec14
+      - name: Verify the native runner architecture
+        env:
+          EXPECTED_ARCH: ${{ matrix.arch }}
+        run: node -e 'if(process.arch!==process.env.EXPECTED_ARCH)throw new Error("Native architecture mismatch");'
+      - name: Install Linux GUI acceptance dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-0 libgtk-3-0t64 libayatana-appindicator3-1 xvfb dbus-x11 desktop-file-utils
+      - run: pnpm install --frozen-lockfile
+      - name: Provision the separate controller for full acceptance
+        working-directory: .ci-candidates/controller
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build:cli
+          node scripts/install-cli.mjs --home "$GITHUB_WORKSPACE/.ci-candidates/controller-home" --install-path "$GITHUB_WORKSPACE/.ci-candidates/bin/lapis-ai-controller"
+          printf 'LAPIS_AI_CONTROLLER_BIN=%s\n' "$GITHUB_WORKSPACE/.ci-candidates/bin/lapis-ai-controller" >> "$GITHUB_ENV"
+      - run: pnpm --filter @lapis-notes/desktop-deno check && pnpm --filter @lapis-notes/desktop-deno test
+      - name: Build the native candidate
+        run: |
+          mkdir -p .release/candidate
+          pnpm --filter @lapis-notes/desktop-deno package:app -- --target '${{ matrix.target }}'
+          node scripts/desktop-release.mjs target --target '${{ matrix.target }}' --output '.release/candidate/desktop-target-${{ matrix.target }}.json'
+          node --input-type=module -e 'import {readFileSync,copyFileSync} from "node:fs"; const m=JSON.parse(readFileSync(".release/candidate/desktop-target-${{ matrix.target }}.json","utf8")); for(const a of m.artifacts)copyFileSync("packages/desktop-deno/release/"+a.file,".release/candidate/"+a.file);'
+      - name: Full cold packaged acceptance on macOS
+        if: runner.os == 'macOS'
+        run: pnpm test:desktop:packaged
+        env:
+          LAPIS_DENO_SMOKE_REPORT: ${{ github.workspace }}/.release/candidate/full-${{ matrix.label }}.json
+      - name: Full cold packaged acceptance on Linux
+        if: runner.os == 'Linux'
+        run: xvfb-run -a dbus-run-session -- pnpm test:desktop:packaged
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: "1"
+          LAPIS_DENO_SMOKE_REPORT: ${{ github.workspace }}/.release/candidate/full-${{ matrix.label }}.json
+      - name: Homebrew installed core acceptance on macOS
+        if: runner.os == 'macOS'
+        run: node .ci-candidates/tap/scripts/test-install.mjs --audit --manifest '.release/candidate/desktop-target-${{ matrix.target }}.json' --archive-directory .release/candidate --source . --output '.release/candidate/${{ matrix.label }}-evidence'
+      - name: Homebrew installed core acceptance on Linux
+        if: runner.os == 'Linux'
+        run: xvfb-run -a dbus-run-session -- node .ci-candidates/tap/scripts/test-install.mjs --audit --manifest '.release/candidate/desktop-target-${{ matrix.target }}.json' --archive-directory .release/candidate --source . --output '.release/candidate/${{ matrix.label }}-evidence'
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: desktop-release-${{ matrix.label }}
+          path: .release/candidate/
+          include-hidden-files: true
+          if-no-files-found: warn
+  publish:
+    name: Publish desktop archives
+    needs: [contract, native]
+    if: startsWith(github.ref, 'refs/tags/desktop-v')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24.15.0"
+      - uses: Homebrew/actions/setup-homebrew@f9676f1ffe2e1a720f81b2c54c51cfb99915ec14
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: desktop-release-*
+          merge-multiple: true
+          path: .release/candidate
+      - uses: actions/create-github-app-token@v2
+        id: tap-token
+        with:
+          app-id: ${{ vars.HOMEBREW_TAP_APP_ID }}
+          private-key: ${{ secrets.HOMEBREW_TAP_APP_PRIVATE_KEY }}
+          owner: lapismd
+          repositories: homebrew-tap
+          permission-contents: write
+          permission-pull-requests: write
+      - run: node scripts/desktop-release.mjs assemble --directory .release/candidate
+      - run: node scripts/desktop-release.mjs publish --directory .release/candidate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v7
+        with:
+          repository: lapismd/homebrew-tap
+          token: ${{ steps.tap-token.outputs.token }}
+          path: .ci-candidates/tap
+      - name: Open the verified tap update PR
+        working-directory: .ci-candidates/tap
+        run: |
+          node scripts/update-cask.mjs --release "$GITHUB_REF_NAME"
+          npm test
+          LAPIS_TAP_BREW_CHECK=1 npm run check
+          node scripts/open-update-pr.mjs
+        env:
+          GH_TOKEN: ${{ steps.tap-token.outputs.token }}

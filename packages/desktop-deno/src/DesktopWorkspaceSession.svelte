@@ -43,6 +43,7 @@
   import { createDesktopSyncUnlockHandler } from "./desktop-sync-security";
   import DesktopWorkspaceStartup from "./DesktopWorkspaceStartup.svelte";
   import type { DenoDesktopBridge, DesktopAppInfo } from "./main";
+  import { collectTerminalAcceptance } from "./terminal-acceptance";
 
   let {
     adapter,
@@ -241,54 +242,60 @@
       );
     }
     const appUrl = await bridge.waitForAcceptanceAppUrl?.();
-    const connection = await bridge.invoke<{
-      url: string;
-      token: string;
-      workspace: string;
-    }>("desktop_ai_controller_connection", { workspace: adapter.rootPath });
-    const controller = new ControllerClient(connection);
+    const terminalOutputSeen = await collectTerminalAcceptance(
+      bridge,
+      adapter.rootPath,
+    );
     let controllerProtocol = "";
     let appToolRegistered = false;
-    try {
-      const status = await controller.request<{ protocol: string }>(
-        "system.status",
-      );
-      controllerProtocol = status.protocol;
-      const providers =
-        await controller.request<Array<{ id: string }>>("providers.list");
-      if (!providers[0])
-        throw new Error("Controller has no configured providers");
-      const unregister = await controller.registerEndpoint({
-        id: "lapis.packaged-acceptance",
-        tools: [
-          {
-            name: "acceptance",
-            description: "Packaged host acceptance",
-            inputSchema: { type: "object" },
-            effect: "read",
-          },
-        ],
-        handle: async () => ({
-          content: [{ type: "text", text: "deno-controller-tool" }],
-        }),
-      });
+    if (bridge.platform.acceptanceMode !== "core") {
+      const connection = await bridge.invoke<{
+        url: string;
+        token: string;
+        workspace: string;
+      }>("desktop_ai_controller_connection", { workspace: adapter.rootPath });
+      const controller = new ControllerClient(connection);
       try {
-        const thread = await controller.createThread({
-          provider: providers[0].id,
-          workspace: connection.workspace,
-          toolEndpoint: "lapis.packaged-acceptance",
+        const status = await controller.request<{ protocol: string }>(
+          "system.status",
+        );
+        controllerProtocol = status.protocol;
+        const providers =
+          await controller.request<Array<{ id: string }>>("providers.list");
+        if (!providers[0])
+          throw new Error("Controller has no configured providers");
+        const unregister = await controller.registerEndpoint({
+          id: "lapis.packaged-acceptance",
+          tools: [
+            {
+              name: "acceptance",
+              description: "Packaged host acceptance",
+              inputSchema: { type: "object" },
+              effect: "read",
+            },
+          ],
+          handle: async () => ({
+            content: [{ type: "text", text: "deno-controller-tool" }],
+          }),
         });
-        const tools = await controller.request<
-          ReturnType<Controller["inspectTools"]>
-        >("tools.list", { threadId: thread.id });
-        appToolRegistered =
-          tools.available &&
-          tools.definitions.some((tool) => tool.name === "acceptance");
+        try {
+          const thread = await controller.createThread({
+            provider: providers[0].id,
+            workspace: connection.workspace,
+            toolEndpoint: "lapis.packaged-acceptance",
+          });
+          const tools = await controller.request<
+            ReturnType<Controller["inspectTools"]>
+          >("tools.list", { threadId: thread.id });
+          appToolRegistered =
+            tools.available &&
+            tools.definitions.some((tool) => tool.name === "acceptance");
+        } finally {
+          await unregister();
+        }
       } finally {
-        await unregister();
+        controller.dispose();
       }
-    } finally {
-      controller.dispose();
     }
     const watchPath = "deno-watch-smoke.tmp";
     let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -323,9 +330,12 @@
           pluginAssetResponse.headers.get("content-type") ?? "",
         controllerProtocol,
         appToolRegistered,
+        terminalOutputSeen,
+        acceptanceMode: bridge.platform.acceptanceMode ?? "full",
         appUrl,
-        pluginNavigation: app.workspace.getLeavesOfType("plugins")
-          .map(leaf => leaf.view.getState().route),
+        pluginNavigation: app.workspace
+          .getLeavesOfType("plugins")
+          .map((leaf) => leaf.view.getState().route),
       };
     } finally {
       if (timeout !== undefined) clearTimeout(timeout);
@@ -531,6 +541,7 @@
       await reportAcceptance({
         ok: true,
         runtime: bridge.runtime,
+        appVersion: appInfo.version,
         vault: app.vault.getName(),
         plugins: [...app.plugins.plugins.keys()].sort(),
         pluginDiagnostics: app.plugins.communityPluginDiagnostics,

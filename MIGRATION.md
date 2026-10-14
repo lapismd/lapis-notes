@@ -185,11 +185,12 @@ production host.
 - [x] Add single-instance app URL registration, authenticated handoff, queued renderer delivery, and later-launch focus
 - [x] Keep real workspace popouts explicitly unsupported
 - [x] Add versioned macOS app/ZIP and Linux arm64/x64 AppImage/tar artifacts, stable icons, verified PTY libraries, and credential-safe signing hooks
+- [ ] Complete four-target native Homebrew qualification and first desktop release (LN-DENO-079–083)
 - [ ] Run Linux packaged acceptance on a Linux builder
 - [x] Focused package checks, production Vite build, macOS app packaging, and full saved-vault/plugin boot smoke
 
 Intentionally out of scope: community plugin sidecars, real workspace popouts,
-Windows distribution, and remote release publication.
+Windows distribution.
 
 ### History plugin intake progress
 

@@ -23,6 +23,18 @@ const expectedPlugins = [
   "markdown",
   "search",
 ];
+const coreAcceptance = process.argv.includes("--core");
+const launchServicesIndex = process.argv.indexOf("--launch-services");
+const launchServicesBundle =
+  launchServicesIndex === -1
+    ? undefined
+    : process.argv[launchServicesIndex + 1];
+if (
+  launchServicesIndex !== -1 &&
+  (!launchServicesBundle || process.platform !== "darwin")
+) {
+  throw new Error("--launch-services requires a macOS application bundle path");
+}
 
 function resolveExecutable() {
   const configured = process.env.LAPIS_DENO_PACKAGED_EXECUTABLE?.trim();
@@ -224,12 +236,39 @@ try {
     LAPIS_DENO_USER_DATA: userDataDir,
     LAPIS_DENO_VAULT: vaultPath,
     LAPIS_DENO_VAULT_AUTO: "1",
+    LAPIS_DENO_ACCEPTANCE_MODE: coreAcceptance ? "core" : "full",
+    ...(coreAcceptance
+      ? {
+          PATH: "/usr/bin:/bin:/usr/sbin:/sbin",
+          LAPIS_AI_CONTROLLER_BIN: "/nonexistent/lapis-ai-controller",
+        }
+      : {}),
   };
-  child = spawn(executable, [], {
-    cwd: packageDir,
-    env: environment,
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+  const nativeLog = path.join(root, "native.log");
+  const launchArguments = launchServicesBundle
+    ? [
+        "-W",
+        "-n",
+        "-a",
+        path.resolve(launchServicesBundle),
+        "--stdout",
+        nativeLog,
+        "--stderr",
+        nativeLog,
+        ...Object.entries(environment)
+          .filter(([key]) => key.startsWith("LAPIS_") || key === "PATH")
+          .flatMap(([key, value]) => ["--env", `${key}=${value}`]),
+      ]
+    : [];
+  child = spawn(
+    launchServicesBundle ? "/usr/bin/open" : executable,
+    launchArguments,
+    {
+      cwd: root,
+      env: environment,
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
   child.stdout.on("data", (chunk) => diagnostics.push(String(chunk)));
   child.stderr.on("data", (chunk) => diagnostics.push(String(chunk)));
 
@@ -239,8 +278,10 @@ try {
     diagnostics,
   );
   const secondaryDiagnostics = [];
+  // Preserve the source-owned argv handoff. Deno 2.9.7 does not yet emit
+  // macOS open-URL Apple Events into JavaScript (denoland/deno#35465).
   secondary = spawn(executable, [appUrl], {
-    cwd: packageDir,
+    cwd: root,
     env: environment,
     stdio: ["ignore", "pipe", "pipe"],
   });
@@ -255,6 +296,7 @@ try {
   const report = await waitForReport(reportPath, child, diagnostics);
   assert.equal(report.ok, true, JSON.stringify(report, null, 2));
   assert.equal(report.runtime, "deno-desktop");
+  assert.equal(report.appVersion, packageMetadata.version);
   assert.equal(report.vault, "vault");
   assert.deepEqual(report.plugins, expectedPlugins);
   assert.equal(report.database?.providerId, "turso-native-desktop");
@@ -269,8 +311,13 @@ try {
   assert.ok(["create", "modify"].includes(report.fileWatchEventType));
   assert.equal(report.pluginAssetText, pluginSource);
   assert.match(report.pluginAssetContentType, /^text\/javascript/u);
-  assert.equal(report.controllerProtocol, "lapis-ai-controller/1");
-  assert.equal(report.appToolRegistered, true);
+  assert.equal(report.acceptanceMode, coreAcceptance ? "core" : "full");
+  assert.equal(
+    report.controllerProtocol,
+    coreAcceptance ? "" : "lapis-ai-controller/1",
+  );
+  assert.equal(report.appToolRegistered, !coreAcceptance);
+  assert.equal(report.terminalOutputSeen, true);
   assert.equal(report.appUrl, appUrl);
   assert.deepEqual(report.pluginNavigation, [
     { page: "plugin", pluginId: "spellcheck", version: "0.1.1" },
@@ -279,17 +326,50 @@ try {
   assert.equal(report.crossOriginIsolated, true);
   assert.equal(report.protocol, "http:");
   await waitForCleanExit(child, diagnostics);
+  if (launchServicesBundle) diagnostics.push(await readFile(nativeLog, "utf8"));
   assert.match(
     diagnostics.join(""),
     /\[desktop-close\] renderer-ready/u,
     "Packaged close exited without renderer teardown acknowledgement",
   );
   assertApplicationSignature(executable);
+  if (process.env.LAPIS_DENO_SMOKE_REPORT) {
+    await writeFile(
+      process.env.LAPIS_DENO_SMOKE_REPORT,
+      `${JSON.stringify({ ...report, shutdown: "clean", executable })}\n`,
+    );
+  }
   console.log(`[deno] packaged smoke passed: ${executable}`);
 } catch (error) {
+  if (launchServicesBundle) {
+    diagnostics.push(
+      await readFile(path.join(root, "native.log"), "utf8").catch(() => ""),
+    );
+  }
   if (diagnostics.length) console.error(diagnostics.join(""));
   throw error;
 } finally {
+  if (launchServicesBundle) {
+    const endpoint = await readFile(
+      path.join(userDataDir, "desktop-instance.json"),
+      "utf8",
+    )
+      .then(JSON.parse)
+      .catch(() => undefined);
+    if (Number.isSafeInteger(endpoint?.pid) && endpoint.pid > 1) {
+      const expectedExecutable = path.join(
+        path.resolve(launchServicesBundle),
+        "Contents/MacOS/laufey_webview",
+      );
+      const actualExecutable = execFileSync(
+        "/bin/ps",
+        ["-p", String(endpoint.pid), "-o", "comm="],
+        { encoding: "utf8" },
+      ).trim();
+      if (actualExecutable === expectedExecutable)
+        process.kill(endpoint.pid, "SIGTERM");
+    }
+  }
   if (secondary && secondary.exitCode === null) secondary.kill("SIGTERM");
   if (child && child.exitCode === null) {
     child.kill("SIGTERM");

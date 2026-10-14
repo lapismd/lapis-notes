@@ -34,7 +34,7 @@ Desktop recovery acceptance verifies:
 ## Non-goals
 
 This native host excludes community plugin sidecars until a public Deno-owned
-execution host exists, Windows distribution, and remote release publication.
+execution host exists and Windows distribution.
 OS webview quirks require documented equivalents when they affect a visible
 application feature.
 

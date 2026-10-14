@@ -343,6 +343,14 @@ on top of released 0.1.0 controller source; npm SDK ranges remain unchanged.
 
 ## Approved registry consumer snapshot — 2026-10-14
 
+Desktop application releases use the separate `desktop-v<version>` tag namespace
+and the private desktop package version. The source-owned packaging pipeline
+produces four native candidates, qualifies their actual Homebrew installations,
+and publishes immutable archives with a source-bound manifest. The Homebrew tap
+consumes that contract rather than rebuilding the application or substituting
+local npm dependencies; see LN-DENO-079 through LN-DENO-083. npm Changesets and
+desktop releases retain independent version and publication flows.
+
 Server-host browser qualification uses the client built from these public
 package boundaries. Its restart test retains the test network namespace while
 recreating the serving container and verifying persisted data; it does not

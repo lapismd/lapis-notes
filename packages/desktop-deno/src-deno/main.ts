@@ -383,7 +383,7 @@ win.addEventListener("menuclick", (event: Event) => {
   }
 });
 
-const distRoot = rendererDistRoot(Deno.cwd());
+const distRoot = rendererDistRoot(import.meta.url);
 const devUrl = Deno.env
   .get("LAPIS_DESKTOP_DEV_SERVER_URL")
   ?.replace(/\/$/u, "");
