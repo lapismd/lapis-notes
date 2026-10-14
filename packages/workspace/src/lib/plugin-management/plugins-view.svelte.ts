@@ -70,10 +70,14 @@ export class PluginsView extends ItemView {
         ? Math.max(0, state.scrollTop)
         : 0;
   }
-  showPlugin(pluginId: string) {
+  showPlugin(pluginId: string, version?: string) {
     if (this.navigation.route.page !== "plugin")
       this.navigation.returnPage = this.navigation.route.page;
-    this.navigation.route = { page: "plugin", pluginId };
+    this.navigation.route = {
+      page: "plugin",
+      pluginId,
+      ...(version !== undefined ? { version } : {}),
+    };
     this.app.workspace.requestSaveLayout();
   }
   home() {

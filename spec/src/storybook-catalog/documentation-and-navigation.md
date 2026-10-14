@@ -1,5 +1,13 @@
 # Storybook Catalog / Documentation and navigation
 
+Plugins app-link stories demonstrate the public App URL registry and Workspace
+navigator under [LN-PLUG-106](../plugin-model/app-ownership.md#ln-plug-106).
+Historical and unavailable release cases retain independent `visual-pending`
+paths under `workspace/plugins/app-link-release-selection` and
+`workspace/plugins/app-link-unavailable-version`; capture remains pending.
+The shared installation fixture retains the requested version and replaces an
+existing record so acceptance verifies the resulting installed state.
+
 ## LN-CAT-001 — Repository Storybook catalog: run on port 7010 as the workspace
 
 <a id="ln-cat-001"></a>

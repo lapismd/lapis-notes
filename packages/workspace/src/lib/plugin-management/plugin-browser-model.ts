@@ -2,7 +2,7 @@ import type { PluginCatalogEntry } from "@lapis-notes/api";
 
 export type PluginBrowserRoute =
   | { page: "landing" | "directory" }
-  | { page: "plugin"; pluginId: string };
+  | { page: "plugin"; pluginId: string; version?: string };
 export interface PluginDirectoryState {
   query: string;
   categories: string[];
@@ -104,8 +104,17 @@ export function restoreBrowserState(value: Record<string, unknown>) {
   const route: PluginBrowserRoute =
     routeValue?.page === "plugin" &&
     typeof routeValue.pluginId === "string" &&
-    routeValue.pluginId.length > 0
-      ? { page: "plugin", pluginId: routeValue.pluginId }
+    routeValue.pluginId.length > 0 &&
+    (routeValue.version === undefined ||
+      (typeof routeValue.version === "string" &&
+        /^[A-Za-z0-9][A-Za-z0-9.+-]{0,127}$/u.test(routeValue.version)))
+      ? {
+          page: "plugin",
+          pluginId: routeValue.pluginId,
+          ...(routeValue.version !== undefined
+            ? { version: routeValue.version as string }
+            : {}),
+        }
       : { page: routeValue?.page === "directory" ? "directory" : "landing" };
   const directory = defaultDirectoryState();
   const input = value.directory as Record<string, unknown> | undefined;

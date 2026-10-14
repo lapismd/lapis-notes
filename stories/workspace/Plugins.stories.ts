@@ -25,6 +25,33 @@ await app.configuration.load();
 await app.workspace.loadLayout();
 <WorkspaceShell {app} />`;
 const example = exampleFor("middle-top-tabs");
+const appLinkExample = example
+  .replace(
+    'from "@lapis-notes/api";',
+    'from "@lapis-notes/api";\nimport { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";',
+  )
+  .replace(
+    "PluginsView, WorkspaceShell",
+    "PluginsView, WorkspaceShell, openPluginBrowser",
+  )
+  .replace(
+    "await app.workspace.loadLayout();",
+    "await app.workspace.loadLayout();\nawait getWorkspaceHostBinding(app.workspace).controller.start();",
+  )
+  .replace(
+    "<WorkspaceShell {app} />",
+    `let active = true;
+const unregisterLink = app.urls.registerProtocolHandler("plugins", async params => {
+  if (!active || !/^[a-z0-9][a-z0-9-]{0,62}$/.test(params.id ?? "")) return;
+  if (params.version !== undefined && !/^[A-Za-z0-9][A-Za-z0-9.+-]{0,127}$/.test(params.version)) return;
+  await openPluginBrowser(app, params.id, () => active, params.version);
+  if (active) getWorkspaceHostBinding(app.workspace).controller.settings.close();
+});
+// Select a version indexed by the configured registry.
+await app.urls.dispatch("lapis://plugins?id=lapis-graph&version=2026.6.6");
+// During App teardown: active = false; unregisterLink();
+<WorkspaceShell {app} />`,
+  );
 const placementParameters = (placement: PluginsPlacement, story: string) => ({
   ...workspaceCatalogParameters(
     `workspace-plugins-${placement === "sidebar-group" ? "sidebar-as-a-group" : placement}`,
@@ -491,6 +518,26 @@ const reviewParameters = (
     },
   },
 });
+const appLinkParameters = (
+  id: string,
+  description: string,
+  version = "2026.6.6",
+) => {
+  const parameters = reviewParameters(id, description, {
+    route: { page: "landing" },
+  });
+  return {
+    ...parameters,
+    docs: {
+      ...parameters.docs,
+      source: {
+        code: appLinkExample.replace("version=2026.6.6", `version=${version}`),
+        language: "svelte",
+        type: "code",
+      },
+    },
+  };
+};
 const directoryReview = {
   route: { page: "directory" },
   directory: { categories: ["ai"] },
@@ -1033,6 +1080,172 @@ export const UpdateDetails: Story = {
     await expect(
       canvas.queryByRole("button", { name: "Install in Lapis", exact: true }),
     ).toBeNull();
+  },
+};
+
+export const AppLinkReleaseSelection: Story = {
+  name: "App Link Release Selection",
+  tags: ["visual-pending"],
+  render: render("middle-top-tabs", "installed"),
+  parameters: appLinkParameters(
+    "app-link-release-selection",
+    "An app URL dismisses the owning Settings dialog, reuses the Plugins leaf, persists the requested historical release and keeps installation bound to that version when a newer update exists.",
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = await ready(canvasElement);
+    await canvas.findByRole("heading", { name: "Make Lapis Notes yours." });
+    const app = (
+      canvasElement.querySelector(
+        '[data-testid="plugin-management-story"]',
+      ) as HTMLElement & { __lapisApp: App }
+    ).__lapisApp;
+    const leaf = app.workspace.getLeavesOfType("plugins")[0];
+    const settings = getWorkspaceHostBinding(app.workspace).controller.settings;
+    settings.open();
+    await within(canvasElement.ownerDocument.body).findByRole("dialog", {
+      name: "Settings",
+    });
+    await app.urls.dispatch("lapis://plugins?id=lapis-graph&version=0.1.0");
+    await waitFor(() => expect(settings.dialogOpen).toBe(false));
+    await waitFor(() =>
+      expect(
+        getComputedStyle(canvasElement.ownerDocument.body).pointerEvents,
+      ).not.toBe("none"),
+    );
+    await canvas.findByRole("heading", { name: "Graph", exact: true });
+    const selector = await canvas.findByRole("combobox", {
+      name: "Select plugin version",
+    });
+    expect(selector).toHaveTextContent("0.1.0");
+    await expect(
+      await canvas.findByRole("button", { name: "Installed", exact: true }),
+    ).toBeDisabled();
+    expect(app.workspace.getLeavesOfType("plugins")).toEqual([leaf]);
+    expect(leaf.view.getState().route).toEqual({
+      page: "plugin",
+      pluginId: "lapis-graph",
+      version: "0.1.0",
+    });
+    const installedRecord =
+      await app.pluginDistribution.getInstalled("lapis-graph");
+    const replacementUpdate = (await app.pluginDistribution.listUpdates()).find(
+      (candidate) => candidate.id === "lapis-graph",
+    );
+    if (!installedRecord || !replacementUpdate)
+      throw new Error("The installed Graph update fixture is missing");
+    installedRecord.installedVersion = "0.0.1";
+    replacementUpdate.currentVersion = "0.0.1";
+    replacementUpdate.targetVersion = "0.1.0";
+    await app.urls.dispatch("web+lapis://plugins?id=lapis-graph&version=0.2.0");
+    await expect(
+      await canvas.findByRole("button", { name: "Update", exact: true }),
+    ).toBeEnabled();
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Update", exact: true }),
+    );
+    await expect(
+      await canvas.findByRole("button", { name: "Installed", exact: true }),
+    ).toBeDisabled();
+    expect(
+      (await app.pluginDistribution.getInstalled("lapis-graph"))
+        ?.installedVersion,
+    ).toBe("0.2.0");
+    await app.urls.dispatch(
+      "lapis-notes://plugins?id=lapis-graph&version=0.1.0",
+    );
+    const installationRequests: { id: string; version?: string }[] = [];
+    const originalInstall = app.pluginDistribution.install.bind(
+      app.pluginDistribution,
+    );
+    app.pluginDistribution.install = async (id, options) => {
+      installationRequests.push({ id, version: options?.version });
+      return originalInstall(id, options);
+    };
+    const install = await canvas.findByRole("button", {
+      name: "Install in Lapis",
+      exact: true,
+    });
+    await userEvent.click(install);
+    const body = within(canvasElement.ownerDocument.body);
+    const confirm = await body.findByRole("alertdialog", {
+      name: "Install historical release?",
+    });
+    expect(confirm).toHaveTextContent("0.1.0");
+    await userEvent.click(
+      within(confirm).getByRole("button", {
+        name: "Install 0.1.0",
+        exact: true,
+      }),
+    );
+    await waitFor(() => {
+      expect(installationRequests).toEqual([
+        { id: "lapis-graph", version: "0.1.0" },
+      ]);
+      expect(body.queryByRole("alertdialog")).toBeNull();
+      expect(
+        getComputedStyle(canvasElement.ownerDocument.body).pointerEvents,
+      ).not.toBe("none");
+      expect(
+        canvas.getByRole("button", { name: "Installed", exact: true }),
+      ).toBeDisabled();
+    });
+    app.pluginDistribution.install = originalInstall;
+  },
+};
+
+export const AppLinkUnavailableVersion: Story = {
+  name: "App Link Unavailable Version",
+  tags: ["visual-pending"],
+  render: render("middle-top-tabs", "catalog-v2"),
+  parameters: appLinkParameters(
+    "app-link-unavailable-version",
+    "An unknown requested version stays unavailable until the user explicitly chooses the latest verified release.",
+    "99.0.0",
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = await ready(canvasElement);
+    await canvas.findByRole("heading", { name: "Make Lapis Notes yours." });
+    const app = (
+      canvasElement.querySelector(
+        '[data-testid="plugin-management-story"]',
+      ) as HTMLElement & { __lapisApp: App }
+    ).__lapisApp;
+    await app.urls.dispatch("lapis://plugins?id=lapis-graph&version=99.0.0");
+    await expect(
+      await canvas.findByRole("heading", {
+        name: "Plugin version unavailable",
+      }),
+    ).toBeVisible();
+    expect(
+      canvas.queryByRole("button", { name: "Install in Lapis", exact: true }),
+    ).toBeNull();
+    expect(
+      canvas.queryByRole("combobox", { name: "Select plugin version" }),
+    ).toBeNull();
+    await userEvent.click(
+      canvas.getByRole("button", { name: "View latest release" }),
+    );
+    await canvas.findByRole("heading", { name: "Graph", exact: true });
+    expect(
+      canvas.getByRole("combobox", { name: "Select plugin version" }),
+    ).toHaveTextContent("0.2.0");
+    for (const version of ["constructor", "toString"]) {
+      await app.urls.dispatch(
+        `lapis://plugins?id=lapis-graph&version=${version}`,
+      );
+      await expect(
+        await canvas.findByRole("heading", {
+          name: "Plugin version unavailable",
+        }),
+      ).toBeVisible();
+      expect(
+        canvas.queryByRole("button", { name: "Install in Lapis", exact: true }),
+      ).toBeNull();
+      await userEvent.click(
+        canvas.getByRole("button", { name: "View latest release" }),
+      );
+      await canvas.findByRole("heading", { name: "Graph", exact: true });
+    }
   },
 };
 

@@ -1,5 +1,13 @@
 # Web Host / Application presentation
 
+Delivered plugin URL navigation reveals the selected page above owning Settings
+under [LN-PLUG-109](../plugin-model/app-ownership.md#ln-plug-109).
+
+The registered `web+lapis` `/open?url=...` launch path dispatches through the
+ready App, including the shared profile's plugin navigation action
+([LN-PLUG-106](../plugin-model/app-ownership.md#ln-plug-106)). The requested
+release is preserved; installation remains an explicit verified app action.
+
 ## LN-WEB-001 — Private @lapis-notes/web version 2026.6.3: retain the legacy PWA identity, manifest, icons
 
 <a id="ln-web-001"></a>

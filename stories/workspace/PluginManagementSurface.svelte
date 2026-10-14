@@ -567,7 +567,7 @@ Released 1 August 2026.
         ),
       });
     },
-    async install(pluginId) {
+    async install(pluginId, options) {
       if (untrack(() => scenario) === "install-failure") {
         throw new Error(
           `Plugin ${pluginId} runtime metadata is invalid: @lapis-notes/api/workspace-host is unavailable.`,
@@ -585,7 +585,16 @@ Released 1 August 2026.
         return new Promise<InstalledPluginRecord>(() => {});
       }
       const record = fixtureInstalledRecord(pluginId, "official");
-      installed.splice(0, installed.length, ...installed, record);
+      record.installedVersion =
+        options?.version ??
+        catalog.find((entry) => entry.id === pluginId)?.latestVersion ??
+        record.installedVersion;
+      installed.splice(
+        0,
+        installed.length,
+        ...installed.filter((candidate) => candidate.pluginId !== pluginId),
+        record,
+      );
       return record;
     },
     async installBundle() {
@@ -901,6 +910,7 @@ Released 1 August 2026.
         await tick();
       }
       await app.workspace.loadLayout();
+      await getWorkspaceHostBinding(app.workspace).controller.start();
       if (!disposed) ready = true;
     })();
     return () => {

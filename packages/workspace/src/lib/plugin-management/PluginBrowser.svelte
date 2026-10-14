@@ -94,7 +94,9 @@
         sidebarMaxWidth: 440,
       }),
   );
-  let selectedVersion = $state<string>();
+  const selectedVersion = $derived(
+    navigation.route.page === "plugin" ? navigation.route.version : undefined,
+  );
   const resolved = $derived(
     selected && session.detail
       ? communityDetail(selected, session.detail)
@@ -128,12 +130,30 @@
       return { state: "rejected", reason: feedback.message };
     if (bundledIds.has(selected.id))
       return { state: "installed", label: "Bundled" };
-    if (update?.canUpdate) return { state: "available", label: "Update" };
-    if (installedIds.has(selected.id)) return { state: "installed" };
+    const installed = registry.installed.find(
+      (record) => record.pluginId === selected.id,
+    );
+    const requestedVersion = selectedVersion ?? selected.latestVersion;
+    if (installed?.installedVersion === requestedVersion)
+      return {
+        state: "installed",
+        installedVersion: installed.installedVersion,
+      };
+    if (update?.canUpdate && requestedVersion === selected.latestVersion)
+      return {
+        state: "available",
+        label: "Update",
+        installedVersion: installed?.installedVersion,
+      };
+    if (installed && requestedVersion === selected.latestVersion)
+      return {
+        state: "installed",
+        installedVersion: installed.installedVersion,
+      };
     const disabled = reason(selected);
     return disabled
       ? { state: "disabled", reason: disabled }
-      : { state: "available" };
+      : { state: "available", installedVersion: installed?.installedVersion };
   });
   const downloads = (id: string) =>
     registry.downloadStats?.periods["30d"].plugins[id]?.total ?? 0;
@@ -171,7 +191,6 @@
   $effect(() => {
     if (selected && previousDetail !== selected.id) {
       previousDetail = selected.id;
-      selectedVersion = undefined;
       void session.select(selected);
     }
     if (navigation.route.page !== "plugin") {
@@ -412,6 +431,19 @@
                       onOpenPlugin={open}
                       onOpenCategory={(category) => go("directory", category)}
                     />
+                   {:else if selected && resolved && selectedVersion !== undefined && !Object.hasOwn(resolved.detail.versions, selectedVersion)}<PluginRegistryContentState
+                      kind="empty"
+                      heading="Plugin version unavailable"
+                      description={`Version ${selectedVersion} is not available from your enabled registry.`}
+                      actionLabel="View latest release"
+                      onaction={() => {
+                        navigation.route = {
+                          page: "plugin",
+                          pluginId: selected.id,
+                        };
+                        persist();
+                      }}
+                    />
                   {:else if selected && resolved}<PluginBrowserDetail
                       {resolved}
                       downloadSummary={registry.downloadStats
@@ -430,14 +462,23 @@
                         ? changelogContent
                         : undefined}
                       onInstall={(request) =>
-                        update?.canUpdate
+                        update?.canUpdate &&
+                        request.version === update.targetVersion &&
+                        request.version === selected.latestVersion
                           ? registry.update(update)
                           : registry.install(selected, request.version)}
                       onOpenPlugin={open}
                       onOpenCategory={(category) => go("directory", category)}
                       onOpenPlatform={(platform) =>
                         go("directory", undefined, platform)}
-                      onSelectVersion={(version) => (selectedVersion = version)}
+                      onSelectVersion={(version) => {
+                        navigation.route = {
+                          page: "plugin",
+                          pluginId: selected.id,
+                          version,
+                        };
+                        persist();
+                      }}
                     />
                   {:else if selected && session.loading}<PluginRegistryContentState
                       kind="loading"

@@ -324,6 +324,8 @@
         controllerProtocol,
         appToolRegistered,
         appUrl,
+        pluginNavigation: app.workspace.getLeavesOfType("plugins")
+          .map(leaf => leaf.view.getState().route),
       };
     } finally {
       if (timeout !== undefined) clearTimeout(timeout);

@@ -32,6 +32,16 @@ function fixture(existing = false) {
   return { app, leaf };
 }
 describe("Plugins browser navigation", () => {
+  it("preserves the requested historical version when revealing a moved Plugins leaf", async () => {
+    const { app, leaf } = fixture(true);
+    await openPluginBrowser(app, "graph", () => true, "0.1.0");
+    expect((leaf.view as PluginsView).showPlugin).toHaveBeenCalledWith(
+      "graph",
+      "0.1.0",
+    );
+    expect(app.workspace.getLeaf).not.toHaveBeenCalled();
+    expect(app.workspace.activateLeaf).toHaveBeenCalledWith(leaf);
+  });
   it("creates, selects, reveals and activates details", async () => {
     const { app, leaf } = fixture();
     await openPluginBrowser(app, "graph");

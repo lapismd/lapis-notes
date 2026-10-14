@@ -95,3 +95,15 @@
 <a id="ln-plug-101"></a>
 
 **Requirement.** Plugins details MUST open inside the owning view with breadcrumbs, metadata, linked author, verified media, overview, changelog, and releases. Back navigation MUST restore the originating homepage or filtered directory and its scroll position.
+
+## LN-PLUG-107 — Requested releases: fail closed when unavailable
+
+<a id="ln-plug-107"></a>
+
+**Requirement.** Plugin details MUST display the requested verified release version from an indexed own entry. An unknown requested version, including an inherited object property name, MUST show an unavailable state with no install action; it MUST NOT silently select the latest release. Returning to the latest release MUST require an explicit user action.
+
+## LN-PLUG-108 — Selected release installation: retain the requested version
+
+<a id="ln-plug-108"></a>
+
+**Requirement.** Plugin installation from details MUST retain the selected verified version, including when a newer update is available. An update MUST NOT substitute a different recovery target for that selection. Historical installation MUST use the existing confirmation and verification flow. Bundled plugins MUST remain non-installable through registry actions.

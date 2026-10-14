@@ -216,7 +216,7 @@ let secondary;
 try {
   const executable = resolveExecutable();
   assertApplicationUrlMetadata(executable);
-  const appUrl = "lapis://open?vault=packaged-smoke";
+  const appUrl = "lapis://plugins?id=spellcheck&version=0.1.1";
   const environment = {
     ...process.env,
     LAPIS_DENO_ACCEPTANCE: "1",
@@ -272,6 +272,9 @@ try {
   assert.equal(report.controllerProtocol, "lapis-ai-controller/1");
   assert.equal(report.appToolRegistered, true);
   assert.equal(report.appUrl, appUrl);
+  assert.deepEqual(report.pluginNavigation, [
+    { page: "plugin", pluginId: "spellcheck", version: "0.1.1" },
+  ]);
   assert.equal(report.laterLaunchFocusCount, 1);
   assert.equal(report.crossOriginIsolated, true);
   assert.equal(report.protocol, "http:");
