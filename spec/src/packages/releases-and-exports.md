@@ -342,7 +342,7 @@ on top of released 0.1.0 controller source; npm SDK ranges remain unchanged.
 
 ## Current CI dependency image
 
-- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:5f613141805c539dbdf5f5f460d8eb31231ad522d24e01e22888fb906bb11992`
+- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:8a8d7c3e21443a54e0b836f28742483722c050087d382c5194a19d52eba4407d`
 - Lockfile tag: `lock-654683e1966e6631`
 - pnpm-lock.yaml SHA-256: `654683e1966e6631f48f3bbbcc1b4764a98c0f986a048649be41623dfdf79c51`
 
