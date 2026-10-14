@@ -4,6 +4,9 @@ import type {
   AppDatabaseWorkerResponse,
 } from "./app-database-worker-protocol";
 import { DenoAppDatabaseHost } from "./app-database";
+import { mkdtemp, mkdir, realpath, rm, symlink } from "node:fs/promises";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 
 const descriptor = {
   providerId: "turso-native-desktop",
@@ -66,6 +69,137 @@ class FakeAppDatabaseWorker {
     this.onmessage?.(new MessageEvent("message", { data: response }));
   }
 }
+
+it("binds admitted profiles to their physical root and rejects rebinding during repeated open", async () => {
+  const directory = await realpath(
+    await mkdtemp(join(tmpdir(), "lapis-profile-root-")),
+  );
+  const rootPath = join(directory, "vault"),
+    other = join(directory, "other");
+  await mkdir(rootPath);
+  await mkdir(other);
+  const host = new DenoAppDatabaseHost(directory, vi.fn(), {
+    createWorker: () => new FakeAppDatabaseWorker(),
+    resolveDatabasePath: async () => join(directory, "index.sqlite"),
+  });
+  try {
+    const payload = { databaseId: "db", vaultId: "profile", rootPath };
+    await host.open(payload);
+    const bound = host.getProfileRoot("profile");
+    expect(bound).toMatchObject({ rootPath });
+    expect(bound?.rootBinding).toMatch(/^[a-f0-9]{64}$/u);
+    await expect(host.open({ ...payload, rootPath: other })).rejects.toThrow(
+      /root|bound/i,
+    );
+    expect(host.getProfileRoot("profile")).toEqual(bound);
+    await host.close({ databaseId: "db" });
+    expect(host.getProfileRoot("profile")).toBeUndefined();
+  } finally {
+    await host.closeAll();
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+it("preserves ordinary database startup while withholding Sync files for a symlink root", async () => {
+  const directory = await realpath(
+    await mkdtemp(join(tmpdir(), "lapis-profile-legacy-")),
+  );
+  const physical = join(directory, "physical"),
+    rootPath = join(directory, "link");
+  await mkdir(physical);
+  await symlink(physical, rootPath, "dir");
+  const host = new DenoAppDatabaseHost(directory, vi.fn(), {
+    createWorker: () => new FakeAppDatabaseWorker(),
+    resolveDatabasePath: async () => join(directory, "index.sqlite"),
+  });
+  try {
+    const payload = { databaseId: "db", vaultId: "profile", rootPath };
+    await expect(host.open(payload)).resolves.toEqual(descriptor);
+    expect(host.getProfileLease("profile")).toBeDefined();
+    expect(host.getProfileRoot("profile")).toBeUndefined();
+    await expect(host.open({ ...payload, rootPath: physical })).rejects.toThrow(
+      /bound|root/i,
+    );
+    await host.close({ databaseId: "db" });
+    await host.open({ ...payload, rootPath: physical });
+    expect(host.getProfileRoot("profile")?.rootPath).toBe(physical);
+  } finally {
+    await host.closeAll();
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+it("admits Sync only after native open and invalidates its lease before close", async () => {
+  const worker = new FakeAppDatabaseWorker(false);
+  const invalidated = vi.fn();
+  const host = new DenoAppDatabaseHost("/user-data", vi.fn(), {
+    createWorker: () => worker,
+    resolveDatabasePath: async () => "/test.turso",
+    onProfilesInvalidated: invalidated,
+  });
+  const opening = host.open({ databaseId: "db", vaultId: "profile" });
+  await Promise.resolve();
+  expect(host.getProfileLease("profile")).toBeUndefined();
+  worker.ready();
+  await opening;
+  const lease = host.getProfileLease("profile");
+  expect(lease).toBeDefined();
+  const closing = host.close({ databaseId: "db" });
+  expect(host.getProfileLease("profile")).toBeUndefined();
+  expect(invalidated).toHaveBeenCalledOnce();
+  await closing;
+  await host.open({ databaseId: "db", vaultId: "profile" });
+  expect(host.getProfileLease("profile")).not.toBe(lease);
+  await host.closeAll();
+});
+
+it("invalidates native profile admission when its database worker fails", async () => {
+  const worker = new FakeAppDatabaseWorker();
+  const invalidated = vi.fn();
+  const host = new DenoAppDatabaseHost("/user-data", vi.fn(), {
+    createWorker: () => worker,
+    resolveDatabasePath: async () => "/test.turso",
+    onProfilesInvalidated: invalidated,
+  });
+  await host.open({ databaseId: "db", vaultId: "profile" });
+  expect(host.getProfileLease("profile")).toBeDefined();
+  worker.onerror?.({
+    message: "worker failed",
+    preventDefault: vi.fn(),
+  } as unknown as ErrorEvent);
+  expect(host.getProfileLease("profile")).toBeUndefined();
+  expect(invalidated).toHaveBeenCalledOnce();
+  await host.closeAll();
+});
+
+it("retains one profile lease across concurrent and repeated opens", async () => {
+  const worker = new FakeAppDatabaseWorker(false);
+  const host = new DenoAppDatabaseHost("/user-data", vi.fn(), {
+    createWorker: () => worker,
+    resolveDatabasePath: async () => "/test.turso",
+  });
+  try {
+    const payload = { databaseId: "db", vaultId: "profile" };
+    const opening = Promise.all([host.open(payload), host.open(payload)]).then(
+      (value) => value,
+      (error: unknown) => error,
+    );
+    await Promise.resolve();
+    worker.ready();
+    expect(await opening).toEqual([descriptor, descriptor]);
+    const lease = host.getProfileLease("profile");
+    expect(await host.open(payload)).toEqual(descriptor);
+    expect(host.getProfileLease("profile")).toBe(lease);
+    await expect(
+      host.open({ ...payload, vaultId: "other-profile" }),
+    ).rejects.toThrow("another vault");
+    expect(
+      worker.requests.filter((request) => request.type === "open"),
+    ).toHaveLength(1);
+  } finally {
+    await host.closeAll();
+  }
+});
 
 describe("DenoAppDatabaseHost worker boundary", () => {
   it("waits for worker readiness before sending the first request", async () => {

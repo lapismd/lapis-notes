@@ -212,7 +212,7 @@
     const session = await createVaultSession(adapter, {
       runtime: "deno-desktop",
       profile,
-      appDatabaseProvider: new DenoDesktopAppDatabaseProvider(bridge),
+      appDatabaseProvider: new DenoDesktopAppDatabaseProvider(bridge, adapter.rootPath),
     });
     try {
       const appInfo = await bridge

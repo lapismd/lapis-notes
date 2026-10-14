@@ -8,6 +8,12 @@ paths under `workspace/plugins/app-link-release-selection` and
 The shared installation fixture retains the requested version and replaces an
 existing record so acceptance verifies the resulting installed state.
 
+The guarded document loading/rename editor-demo scenario maps LN-ARCH-137
+through LN-ARCH-139. Its Show Code includes public App construction, vault seed,
+Source Editor loading, layout restoration and disposal under LN-CAT-024.
+The authored description and independent visual-pending declaration remain
+governed by LN-CAT-016 and LN-CAT-017.
+
 ## LN-CAT-001 — Repository Storybook catalog: run on port 7010 as the workspace
 
 <a id="ln-cat-001"></a>

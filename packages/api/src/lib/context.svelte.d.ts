@@ -30,6 +30,7 @@ import { DailyDocumentProviderRegistry } from "./daily-document-provider";
 import { AppToolRegistry } from "./agent-tools";
 import { MarkdownExtensionRegistry } from "./markdown-extension-registry";
 import { MarkdownFileSurfaceRegistry } from "./markdown-file-surface-registry";
+import { FileEditingSessionRegistry } from "./file-editing-sessions";
 import { NostrSignerHost, type NostrSignerBroker } from "./nostr-signer";
 import { SyncHostService, type SyncHostServiceOptions } from "./sync-host";
 export interface AppWorkspaceShellApplicationProperties {
@@ -190,6 +191,7 @@ export declare class App {
     readonly agentTools: AppToolRegistry;
     readonly markdownExtensions: MarkdownExtensionRegistry;
     readonly markdownFileSurfaces: MarkdownFileSurfaceRegistry;
+    readonly fileEditingSessions: FileEditingSessionRegistry;
     readonly agentSkills: import("./agent-skills").AppSkillRegistry;
     readonly agentSlashCommands: import("./agent-skills").AppSlashCommandRegistry;
     readonly agentResultViews: import("./agent-result-views").AppResultViewRegistry;

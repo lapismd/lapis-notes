@@ -67,20 +67,16 @@ import {
 import { ConfigurationOptionSourceRegistry } from "./configuration-option-source-registry";
 import { resolveMetadataFieldValuesAsync } from "./configuration-option-source-providers";
 import type { Editor } from "./editor.svelte";
+import { flushWorkspaceEditors } from "./sync-editor-flush";
+import { FileEditingSessionRegistry } from "./file-editing-sessions";
 import { SearchDocumentProviderRegistry } from "./search-document-provider";
 import { DailyDocumentProviderRegistry } from "./daily-document-provider";
 import { AppToolRegistry } from "./agent-tools";
-import {
-  AppSkillRegistry,
-  AppSlashCommandRegistry,
-} from "./agent-skills";
+import { AppSkillRegistry, AppSlashCommandRegistry } from "./agent-skills";
 import { AppResultViewRegistry } from "./agent-result-views";
 import { MarkdownExtensionRegistry } from "./markdown-extension-registry";
 import { MarkdownFileSurfaceRegistry } from "./markdown-file-surface-registry";
-import {
-  SyncHostService,
-  type SyncHostServiceOptions,
-} from "./sync-host";
+import { SyncHostService, type SyncHostServiceOptions } from "./sync-host";
 import {
   installApplicationCompatibility,
   resolveApplication,
@@ -323,6 +319,7 @@ export class App {
   readonly agentResultViews = new AppResultViewRegistry();
   readonly markdownExtensions = new MarkdownExtensionRegistry();
   readonly markdownFileSurfaces = new MarkdownFileSurfaceRegistry();
+  readonly fileEditingSessions = new FileEditingSessionRegistry();
   lastEvent: UserEvent | null = $state(null);
   renderContext: RenderContext = new RenderContext();
   secretStorage: SecretStorage = new SecretStorage();
@@ -402,16 +399,15 @@ export class App {
     this.configuration = new Configuration(this, props.configPath);
     this.workspace.bindConfiguration();
     this.vault = new Vault(adapter);
-    this.#syncHost = new SyncHostService(this.appDatabase, this.vault, Date.now, {
-      ...props.syncHost,
-      flushOpenEditor: async (path) => {
-        const active = this.workspace.activeEditor;
-        if (!active?.editor || !active.file) return { flushed: false, path };
-        if (path && active.file.path !== path) return { flushed: false, path };
-        await active.editor.flushChanges();
-        return { flushed: true, path: active.file.path };
+    this.#syncHost = new SyncHostService(
+      this.appDatabase,
+      this.vault,
+      Date.now,
+      {
+        ...props.syncHost,
+        flushOpenEditor: (path) => flushWorkspaceEditors(this.workspace, path),
       },
-    });
+    );
     hostSyncServices.set(this, this.#syncHost);
     this.workspaceTrust = new WorkspaceTrustService(adapter);
     this.metadataCache = new MetadataCache(this);

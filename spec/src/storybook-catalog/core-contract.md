@@ -1,5 +1,21 @@
 # Storybook Catalog / Catalog policy
 
+Sync Protected Editor exercises LN-ARCH-132 through LN-ARCH-134 in the real
+App/source editor. Its independent declared baseline is
+`stories/workspace/lapis-editor-demo/sync-protected-editor-chromium.png`; capture
+and approval remain pending. It proves editor admission and controlled refresh,
+while full writer coverage and production Sync selection remain separate.
+
+Sync Independent Writer Admission exercises LN-ARCH-129 and LN-ARCH-130 through
+the real App's public session registry and vault. Its independent declared
+baseline is `stories/workspace/lapis-editor-demo/sync-independent-writer-admission-chromium.png`;
+capture and approval remain pending. This contract story does not activate the
+production Sync runtime or claim complete editor registration.
+
+The governed Sync Editor Persistence scenario exercises LN-ARCH-125 through
+LN-ARCH-128 in the real source-editor workspace. Its independent baseline path
+remains visual-pending; functional checks do not approve or generate a baseline.
+
 ## LN-CAT-003 — Catalog metadata under stories/catalog/: list API UI verification ids, governing spec
 
 <a id="ln-cat-003"></a>

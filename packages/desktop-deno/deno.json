@@ -7,6 +7,14 @@
     "backend": "webview"
   },
   "imports": {
+    "@lapis-notes/deno-host-services/sync-local-provider": "../deno-host-services/src/sync-local-provider.ts",
+    "@lapis-notes/api/sync-repository": "../api/src/lib/sync-repository.ts",
+    "@lapis-notes/deno-host-services/sync-vault-root": "../deno-host-services/src/sync-vault-root.ts",
+    "@lapis-notes/api/sync-security-host": "../api/src/lib/sync-host-security.ts",
+    "@lapis-notes/api/metadata-store": "../api/src/lib/metadata-store.ts",
+    "@lapis-notes/deno-host-services/sync-security-store": "../deno-host-services/src/sync-security-store.ts",
+    "@noble/ciphers": "npm:@noble/ciphers@2.1.1",
+    "@noble/hashes": "npm:@noble/hashes@2.0.1",
     "@codemirror/language": "npm:@codemirror/language@6.11.3",
     "@lapis-notes/api/language-service": "../api/src/lib/language-service/index.ts",
     "@lapis-notes/deno-host-services/app-database-worker-protocol": "../deno-host-services/src/app-database-worker-protocol.ts",

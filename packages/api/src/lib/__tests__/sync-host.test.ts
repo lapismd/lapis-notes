@@ -40,7 +40,101 @@ function textStream(value: string): ReadableStream<Uint8Array> {
   });
 }
 
+async function createPairingOwnerFixture() {
+  const fixture = await createHarness(
+    {},
+    { security: { argon2: { timeCost: 1, memoryKiB: 32, parallelism: 1 } } },
+  );
+  await fixture.service.enrollPluginCrypto(
+    "pairing-test",
+    "delivery fixture passphrase",
+  );
+  const host = fixture.service.forPlugin("pairing-test", ["crypto:nostr-sync"]);
+  return { ...fixture, host };
+}
+
 describe("SyncHostService", () => {
+  it.each([
+    {
+      name: "host with relay addresses",
+      input: { delivery: "host", relayUrls: ["wss://relay.example"] },
+      error: /host.*relay/i,
+    },
+    {
+      name: "host with an explicit empty relay list",
+      input: { delivery: "host", relayUrls: [] },
+      error: /host.*relay/i,
+    },
+    {
+      name: "unknown delivery mode",
+      input: { delivery: "unknown", relayUrls: ["wss://relay.example"] },
+      error: /unsupported.*delivery/i,
+    },
+    {
+      name: "null delivery mode",
+      input: { delivery: null, relayUrls: ["wss://relay.example"] },
+      error: /unsupported.*delivery/i,
+    },
+    {
+      name: "empty relay mode",
+      input: { relayUrls: [] },
+      error: /one and eight relay/i,
+    },
+  ])("rejects ambiguous pairing delivery: $name", async ({ input, error }) => {
+    const { host } = await createPairingOwnerFixture();
+    await expect(host.pairing.beginOwner(input as never)).rejects.toThrow(
+      error,
+    );
+  });
+
+  it.each(["relay", "host"] as const)(
+    "requires matching explicit delivery for %s invitations",
+    async (delivery) => {
+      const { host: owner } = await createPairingOwnerFixture();
+      const begun = await owner.pairing.beginOwner(
+        delivery === "host"
+          ? { delivery }
+          : { relayUrls: ["wss://relay.example"] },
+      );
+      const memberHarness = await createHarness();
+      const member = memberHarness.service.forPlugin("pairing-test", [
+        "crypto:nostr-sync",
+      ]);
+      await expect(
+        member.pairing.acceptInvite({
+          invitationUri: begun.invitationUri!,
+          deviceAlias: "Member",
+          ...(delivery === "relay" ? { delivery: "host" as const } : {}),
+        }),
+      ).rejects.toThrow(/relay/i);
+      expect((await member.crypto.status()).state).toBe("unenrolled");
+      const accepted = await member.pairing.acceptInvite({
+        invitationUri: begun.invitationUri!,
+        deviceAlias: "Member",
+        ...(delivery === "host" ? { delivery } : {}),
+      });
+      expect(accepted.session.sessionId).toBe(begun.session.sessionId);
+      expect(accepted.session.state).toBe("waiting-for-sas");
+      expect(accepted.delivery).toBe(delivery);
+    },
+  );
+  it("reports independent installed key epochs only while unlocked", async () => {
+    const { service } = await createHarness(
+      {},
+      { security: { argon2: { timeCost: 1, memoryKiB: 32, parallelism: 1 } } },
+    );
+    const host = service.forPlugin("sync-a", ["crypto:nostr-sync"]);
+    expect((await host.crypto.status()).installedEpochs).toBeUndefined();
+    await service.enrollPluginCrypto("sync-a", "epoch listing fixture");
+    const status = await host.crypto.status();
+    expect(status.installedEpochs).toEqual([1]);
+    status.installedEpochs!.push(99);
+    expect((await host.crypto.status()).installedEpochs).toEqual([1]);
+    service.lockPluginCrypto("sync-a");
+    expect((await host.crypto.status()).installedEpochs).toBeUndefined();
+    await service.unlockPluginCrypto("sync-a", "epoch listing fixture");
+    expect((await host.crypto.status()).installedEpochs).toEqual([1]);
+  });
   it("preserves identity across edits and renames but not delete and recreate", async () => {
     const { vault, service } = await createHarness({ "notes/a.md": "one" });
     const host = service.forPlugin("sync-a");
@@ -515,6 +609,47 @@ describe("SyncHostService", () => {
     ).resolves.toMatchObject({ state: "unlocked" });
   });
 
+  it("encrypts durable local sync state with a separate authenticated purpose", async () => {
+    const { service } = await createHarness(
+      {},
+      { security: { argon2: { timeCost: 1, memoryKiB: 32, parallelism: 1 } } },
+    );
+    await service.enrollPluginCrypto("sync-a", "local repository passphrase");
+    const host = service.forPlugin("sync-a");
+    const plaintext = new TextEncoder().encode(
+      '{"private-path.md":"private merge decision"}',
+    );
+    const state = await host.crypto.encryptObject({
+      epoch: 1,
+      type: "local-state",
+      plaintext,
+    });
+    expect(state.bytes[1]).toBe(8);
+    const decrypted = await host.crypto.decryptObject({
+      epoch: 1,
+      type: "local-state",
+      envelope: state.bytes,
+    });
+    expect([...decrypted]).toEqual([...plaintext]);
+    await expect(
+      host.crypto.decryptObject({
+        epoch: 1,
+        type: "revision-archive",
+        envelope: state.bytes,
+      }),
+    ).rejects.toThrow(/invalid/);
+    await expect(
+      host.crypto.decryptObject({
+        epoch: 2,
+        type: "local-state",
+        envelope: state.bytes,
+      }),
+    ).rejects.toThrow();
+    expect(new TextDecoder().decode(state.bytes)).not.toContain(
+      "private-path.md",
+    );
+  });
+
   it("migrates a v1 envelope without re-encrypting existing epoch-one objects", async () => {
     const database = new MemoryAppDatabase("sync-host-v1-migration");
     await database.open();
@@ -830,308 +965,341 @@ describe("SyncHostService", () => {
     ).rejects.toThrow(/NIP-42/i);
   });
 
-  it("pairs a distinct member through encrypted SAS-confirmed host sessions", async () => {
-    let ownerService!: SyncHostService;
-    let memberService!: SyncHostService;
-    const ownerHarness = await createHarness(
-      {},
-      {
-        security: { argon2: { timeCost: 1, memoryKiB: 32, parallelism: 1 } },
-        requestCryptoUnlock: async (pluginId, _status, enrollment) => {
-          await ownerService.enrollPluginCrypto(
-            pluginId,
-            "owner wrapping passphrase",
-            enrollment,
-          );
+  it.each(["relay", "host"] as const)(
+    "pairs a distinct member through encrypted SAS-confirmed sessions (%s)",
+    async (delivery) => {
+      let ownerService!: SyncHostService;
+      let memberService!: SyncHostService;
+      const ownerHarness = await createHarness(
+        {},
+        {
+          security: { argon2: { timeCost: 1, memoryKiB: 32, parallelism: 1 } },
+          requestCryptoUnlock: async (pluginId, _status, enrollment) => {
+            await ownerService.enrollPluginCrypto(
+              pluginId,
+              "owner wrapping passphrase",
+              enrollment,
+            );
+          },
         },
-      },
-    );
-    ownerService = ownerHarness.service;
-    const memberHarness = await createHarness(
-      {},
-      {
-        security: { argon2: { timeCost: 1, memoryKiB: 32, parallelism: 1 } },
-        requestCryptoUnlock: async (pluginId, _status, enrollment) => {
-          await memberService.enrollPluginCrypto(
-            pluginId,
-            "member wrapping passphrase",
-            enrollment,
-          );
+      );
+      ownerService = ownerHarness.service;
+      const memberHarness = await createHarness(
+        {},
+        {
+          security: { argon2: { timeCost: 1, memoryKiB: 32, parallelism: 1 } },
+          requestCryptoUnlock: async (pluginId, _status, enrollment) => {
+            await memberService.enrollPluginCrypto(
+              pluginId,
+              "member wrapping passphrase",
+              enrollment,
+            );
+          },
         },
-      },
-    );
-    memberService = memberHarness.service;
-    const owner = ownerService.forPlugin("nostr-sync", ["crypto:nostr-sync"]);
-    const member = memberService.forPlugin("nostr-sync", ["crypto:nostr-sync"]);
-    await owner.crypto.enrollNewVault({ deviceAlias: "Owner device" });
-    const ownerPublicKey = await owner.crypto.getDevicePublicKey();
-    const ownerSyncIdentity = await owner.syncIdentity.status();
+      );
+      memberService = memberHarness.service;
+      const owner = ownerService.forPlugin("nostr-sync", ["crypto:nostr-sync"]);
+      const member = memberService.forPlugin("nostr-sync", [
+        "crypto:nostr-sync",
+      ]);
+      await owner.crypto.enrollNewVault({ deviceAlias: "Owner device" });
+      const ownerPublicKey = await owner.crypto.getDevicePublicKey();
+      const ownerSyncIdentity = await owner.syncIdentity.status();
 
-    await expect(
-      owner.pairing.beginOwner({
-        relayUrls: ["wss://relay.example"],
-        metadata: { value: "x".repeat(17 * 1024) },
-      }),
-    ).rejects.toThrow(/metadata exceeds/i);
+      await expect(
+        owner.pairing.beginOwner({
+          relayUrls: ["wss://relay.example"],
+          metadata: { value: "x".repeat(17 * 1024) },
+        }),
+      ).rejects.toThrow(/metadata exceeds/i);
 
-    const begun = await owner.pairing.beginOwner({
-      relayUrls: ["wss://relay.example"],
-      cutoffHeads: { [ownerPublicKey]: "head-before-pairing" },
-      metadata: {
-        blossomServers: ["https://blossom.example"],
-        syncEnabled: true,
-      },
-    });
-    expect(begun.invitationUri).not.toContain("blossom.example");
-    const accepted = await member.pairing.acceptInvite({
-      invitationUri: begun.invitationUri!,
-      deviceAlias: "Member phone",
-    });
-    expect(accepted.relayUrls).toEqual(["wss://relay.example"]);
-    const ownerHello = await owner.pairing.ingest({
-      sessionId: begun.session.sessionId,
-      event: accepted.outboundEvents[0]!,
-    });
-    await expect(
-      owner.pairing.ingest({
+      const begun = await owner.pairing.beginOwner({
+        ...(delivery === "host"
+          ? { delivery }
+          : { relayUrls: ["wss://relay.example"] }),
+        cutoffHeads: { [ownerPublicKey]: "head-before-pairing" },
+        metadata: {
+          blossomServers: ["https://blossom.example"],
+          syncEnabled: true,
+        },
+      });
+      expect(begun.invitationUri).not.toContain("blossom.example");
+      const accepted = await member.pairing.acceptInvite({
+        invitationUri: begun.invitationUri!,
+        deviceAlias: "Member phone",
+        ...(delivery === "host" ? { delivery } : {}),
+      });
+      expect(begun.delivery ?? "relay").toBe(delivery);
+      expect(accepted.delivery ?? "relay").toBe(delivery);
+      expect(accepted.relayUrls).toEqual(
+        delivery === "host" ? [] : ["wss://relay.example"],
+      );
+      const invitation = JSON.parse(
+        Buffer.from(
+          new URL(begun.invitationUri!).searchParams.get("data")!,
+          "base64url",
+        ).toString(),
+      );
+      expect(Object.keys(invitation).sort()).toEqual(["e", "p", "r", "s", "v"]);
+      expect(invitation.r).toEqual(accepted.relayUrls);
+      const ownerHello = await owner.pairing.ingest({
         sessionId: begun.session.sessionId,
         event: accepted.outboundEvents[0]!,
-      }),
-    ).rejects.toThrow(/replayed/i);
-    const memberAck = await member.pairing.ingest({
-      sessionId: accepted.session.sessionId,
-      event: ownerHello.outboundEvents[0]!,
-    });
-    expect(ownerHello.session.sas).toMatch(/^\d{6}$/u);
-    expect(memberAck.session.sas).toBe(ownerHello.session.sas);
-    await expect(
-      member.pairing.confirm(accepted.session.sessionId, "000000"),
-    ).rejects.toThrow(/SAS does not match/i);
+      });
+      await expect(
+        owner.pairing.ingest({
+          sessionId: begun.session.sessionId,
+          event: accepted.outboundEvents[0]!,
+        }),
+      ).rejects.toThrow(/replayed/i);
+      const memberAck = await member.pairing.ingest({
+        sessionId: accepted.session.sessionId,
+        event: ownerHello.outboundEvents[0]!,
+      });
+      expect(ownerHello.session.sas).toMatch(/^\d{6}$/u);
+      expect(memberAck.session.sas).toBe(ownerHello.session.sas);
+      await expect(
+        member.pairing.confirm(accepted.session.sessionId, "000000"),
+      ).rejects.toThrow(/SAS does not match/i);
 
-    const memberConfirmed = await member.pairing.confirm(
-      accepted.session.sessionId,
-      memberAck.session.sas,
-    );
-    await owner.pairing.ingest({
-      sessionId: begun.session.sessionId,
-      event: memberConfirmed.outboundEvents[0]!,
-    });
-    const ownerConfirmed = await owner.pairing.confirm(
-      begun.session.sessionId,
-      ownerHello.session.sas,
-    );
-    expect(ownerConfirmed.membershipEvent?.kind).toBe(30_079);
-    expect(ownerConfirmed.outboundEvents).toHaveLength(2);
-    await member.pairing.ingest({
-      sessionId: accepted.session.sessionId,
-      event: ownerConfirmed.outboundEvents[0]!,
-    });
-    const transferred = await member.pairing.ingest({
-      sessionId: accepted.session.sessionId,
-      event: ownerConfirmed.outboundEvents[1]!,
-    });
-    expect(transferred.session.state).toBe("ready-to-enroll");
-    expect(transferred.metadata).toEqual({
-      blossomServers: ["https://blossom.example"],
-      syncEnabled: true,
-    });
-    const completed = await member.pairing.confirm(accepted.session.sessionId);
-    expect(completed.session.state).toBe("complete");
-    expect(completed.metadata).toEqual(transferred.metadata);
-    await owner.pairing.ingest({
-      sessionId: begun.session.sessionId,
-      event: completed.outboundEvents[0]!,
-    });
+      const memberConfirmed = await member.pairing.confirm(
+        accepted.session.sessionId,
+        memberAck.session.sas,
+      );
+      await owner.pairing.ingest({
+        sessionId: begun.session.sessionId,
+        event: memberConfirmed.outboundEvents[0]!,
+      });
+      const ownerConfirmed = await owner.pairing.confirm(
+        begun.session.sessionId,
+        ownerHello.session.sas,
+      );
+      expect(ownerConfirmed.membershipEvent?.kind).toBe(30_079);
+      expect(ownerConfirmed.outboundEvents).toHaveLength(2);
+      await member.pairing.ingest({
+        sessionId: accepted.session.sessionId,
+        event: ownerConfirmed.outboundEvents[0]!,
+      });
+      const transferred = await member.pairing.ingest({
+        sessionId: accepted.session.sessionId,
+        event: ownerConfirmed.outboundEvents[1]!,
+      });
+      expect(transferred.session.state).toBe("ready-to-enroll");
+      expect(transferred.metadata).toEqual({
+        blossomServers: ["https://blossom.example"],
+        syncEnabled: true,
+      });
+      const completed = await member.pairing.confirm(
+        accepted.session.sessionId,
+      );
+      expect(completed.session.state).toBe("complete");
+      expect(completed.metadata).toEqual(transferred.metadata);
+      await owner.pairing.ingest({
+        sessionId: begun.session.sessionId,
+        event: completed.outboundEvents[0]!,
+      });
 
-    const memberStatus = await member.crypto.status();
-    expect(memberStatus).toMatchObject({
-      state: "unlocked",
-      role: "member",
-      deviceAlias: "Member phone",
-      membershipGeneration: 2,
-      syncIdentity: {
-        state: "active",
-        publicKey: ownerSyncIdentity.publicKey,
-        generation: 1,
-      },
-    });
-    expect(memberStatus.publicKey).not.toBe(ownerPublicKey);
-    const createdAt = Math.floor(Date.now() / 1000);
-    const ownerAttestation = await owner.crypto.signDeviceEvent({
-      kind: 78,
-      created_at: createdAt,
-      tags: [["d", "owner-revision"]],
-      content: "owner payload",
-    });
-    const memberAttestation = await member.crypto.signDeviceEvent({
-      kind: 78,
-      created_at: createdAt,
-      tags: [["d", "member-revision"]],
-      content: "member payload",
-    });
-    const ownerTransport = await owner.syncIdentity.signEvent({
-      purpose: "transport",
-      event: {
+      const memberStatus = await member.crypto.status();
+      expect(memberStatus).toMatchObject({
+        state: "unlocked",
+        role: "member",
+        deviceAlias: "Member phone",
+        membershipGeneration: 2,
+        installedEpochs: [1],
+        syncIdentity: {
+          state: "active",
+          publicKey: ownerSyncIdentity.publicKey,
+          generation: 1,
+        },
+      });
+      expect(memberStatus.publicKey).not.toBe(ownerPublicKey);
+      const createdAt = Math.floor(Date.now() / 1000);
+      const ownerAttestation = await owner.crypto.signDeviceEvent({
         kind: 78,
         created_at: createdAt,
         tags: [["d", "owner-revision"]],
-        content: ownerAttestation.id,
-      },
-    });
-    const memberTransport = await member.syncIdentity.signEvent({
-      purpose: "transport",
-      event: {
+        content: "owner payload",
+      });
+      const memberAttestation = await member.crypto.signDeviceEvent({
         kind: 78,
         created_at: createdAt,
         tags: [["d", "member-revision"]],
-        content: memberAttestation.id,
-      },
-    });
-    expect(ownerAttestation.pubkey).toBe(ownerPublicKey);
-    expect(memberAttestation.pubkey).toBe(memberStatus.devicePublicKey);
-    expect(memberAttestation.pubkey).not.toBe(ownerAttestation.pubkey);
-    expect(ownerTransport.pubkey).toBe(ownerSyncIdentity.publicKey);
-    expect(memberTransport.pubkey).toBe(ownerSyncIdentity.publicKey);
-    const ownerMembership = await owner.membership.getSnapshot();
-    expect(ownerMembership).toMatchObject({
-      generation: 2,
-      devices: expect.arrayContaining([
-        expect.objectContaining({ alias: "Member phone", role: "member" }),
-      ]),
-    });
-
-    const pendingRotation = await owner.syncIdentity.beginRotation();
-    expect(pendingRotation).toMatchObject({ state: "rotation-pending" });
-    expect(pendingRotation.pendingPublicKey).not.toBe(
-      ownerSyncIdentity.publicKey,
-    );
-    const pendingProbe = await owner.syncIdentity.signEvent({
-      purpose: "connection-probe",
-      identity: "pending",
-      event: {
-        kind: 78,
-        created_at: Math.floor(Date.now() / 1000),
-        tags: [
-          ["d", "sync-identity-rotation-probe"],
-          ["expiration", String(Math.floor(Date.now() / 1000) + 60)],
-        ],
-        content: "",
-      },
-    });
-    expect(pendingProbe.pubkey).toBe(pendingRotation.pendingPublicKey);
-    const rotated = await owner.syncIdentity.commitRotation({
-      pendingPublicKey: pendingRotation.pendingPublicKey!,
-      cutoffHeads: {
-        [ownerPublicKey]: "owner-before-sync-rotation",
-        [memberStatus.devicePublicKey!]: "member-before-sync-rotation",
-      },
-    });
-    expect(rotated.status).toMatchObject({
-      state: "active",
-      publicKey: pendingRotation.pendingPublicKey,
-      generation: 2,
-    });
-    expect(rotated.status.history).toContainEqual(
-      expect.objectContaining({
-        publicKey: ownerSyncIdentity.publicKey,
-        generation: 1,
-        retiredMembershipGeneration: 3,
-      }),
-    );
-    await member.membership.ingest(rotated.membershipEvent);
-    await expect(member.syncIdentity.status()).resolves.toMatchObject({
-      state: "active",
-      publicKey: pendingRotation.pendingPublicKey,
-      generation: 2,
-    });
-
-    const revoked = await owner.membership.revokeDevice({
-      publicKey: memberStatus.publicKey!,
-      cutoffHeads: {
-        [ownerPublicKey]: "owner-head",
-        [memberStatus.publicKey!]: "member-head",
-      },
-    });
-    expect(revoked).toMatchObject({
-      generation: 4,
-      currentEpoch: 2,
-      syncIdentity: { publicKey: pendingRotation.pendingPublicKey },
-    });
-    expect(revoked.epochEnvelopes).not.toHaveProperty(memberStatus.publicKey!);
-    const memberRevoked = await member.membership.ingest(revoked.event!);
-    expect(memberRevoked.devices).toContainEqual(
-      expect.objectContaining({
-        publicKey: memberStatus.publicKey,
-        state: "revoked",
-        cutoffHead: "member-head",
-      }),
-    );
-    await expect(
-      member.crypto.encryptObject({
-        epoch: 2,
-        type: "file-content",
-        plaintext: new TextEncoder().encode("future data"),
-      }),
-    ).rejects.toThrow(/revoked/i);
-    await expect(
-      member.syncIdentity.signEvent({
+        content: "member payload",
+      });
+      const ownerTransport = await owner.syncIdentity.signEvent({
         purpose: "transport",
         event: {
           kind: 78,
+          created_at: createdAt,
+          tags: [["d", "owner-revision"]],
+          content: ownerAttestation.id,
+        },
+      });
+      const memberTransport = await member.syncIdentity.signEvent({
+        purpose: "transport",
+        event: {
+          kind: 78,
+          created_at: createdAt,
+          tags: [["d", "member-revision"]],
+          content: memberAttestation.id,
+        },
+      });
+      expect(ownerAttestation.pubkey).toBe(ownerPublicKey);
+      expect(memberAttestation.pubkey).toBe(memberStatus.devicePublicKey);
+      expect(memberAttestation.pubkey).not.toBe(ownerAttestation.pubkey);
+      expect(ownerTransport.pubkey).toBe(ownerSyncIdentity.publicKey);
+      expect(memberTransport.pubkey).toBe(ownerSyncIdentity.publicKey);
+      const ownerMembership = await owner.membership.getSnapshot();
+      expect(ownerMembership).toMatchObject({
+        generation: 2,
+        devices: expect.arrayContaining([
+          expect.objectContaining({ alias: "Member phone", role: "member" }),
+        ]),
+      });
+
+      const pendingRotation = await owner.syncIdentity.beginRotation();
+      expect(pendingRotation).toMatchObject({ state: "rotation-pending" });
+      expect(pendingRotation.pendingPublicKey).not.toBe(
+        ownerSyncIdentity.publicKey,
+      );
+      const pendingProbe = await owner.syncIdentity.signEvent({
+        purpose: "connection-probe",
+        identity: "pending",
+        event: {
+          kind: 78,
           created_at: Math.floor(Date.now() / 1000),
-          tags: [["d", "revoked-device-attempt"]],
+          tags: [
+            ["d", "sync-identity-rotation-probe"],
+            ["expiration", String(Math.floor(Date.now() / 1000) + 60)],
+          ],
           content: "",
         },
-      }),
-    ).rejects.toThrow(/revoked/i);
-    await expect(owner.syncIdentity.status()).resolves.toMatchObject({
-      publicKey: pendingRotation.pendingPublicKey,
-      generation: 2,
-    });
-    await expect(member.crypto.status()).resolves.toMatchObject({
-      deviceState: "revoked",
-      currentEpoch: 2,
-    });
-  });
-
-  it("expires pairing invitations after the bounded two-minute window", async () => {
-    let ownerService!: SyncHostService;
-    const ownerHarness = await createHarness(
-      {},
-      {
-        security: { argon2: { timeCost: 1, memoryKiB: 32, parallelism: 1 } },
-        requestCryptoUnlock: async (pluginId, _status, enrollment) => {
-          await ownerService.enrollPluginCrypto(
-            pluginId,
-            "owner wrapping passphrase",
-            enrollment,
-          );
+      });
+      expect(pendingProbe.pubkey).toBe(pendingRotation.pendingPublicKey);
+      const rotated = await owner.syncIdentity.commitRotation({
+        pendingPublicKey: pendingRotation.pendingPublicKey!,
+        cutoffHeads: {
+          [ownerPublicKey]: "owner-before-sync-rotation",
+          [memberStatus.devicePublicKey!]: "member-before-sync-rotation",
         },
-      },
-    );
-    ownerService = ownerHarness.service;
-    const owner = ownerService.forPlugin("nostr-sync", ["crypto:nostr-sync"]);
-    await owner.crypto.enrollNewVault({ deviceAlias: "Owner device" });
-    const begun = await owner.pairing.beginOwner({
-      relayUrls: ["wss://relay.example"],
-    });
-    const memberHarness = await createHarness();
-    const member = memberHarness.service.forPlugin("nostr-sync", [
-      "crypto:nostr-sync",
-    ]);
-    vi.useFakeTimers();
-    try {
-      vi.setSystemTime(begun.session.expiresAt + 1);
-      await expect(
-        member.pairing.acceptInvite({
-          invitationUri: begun.invitationUri!,
-          deviceAlias: "Late device",
+      });
+      expect(rotated.status).toMatchObject({
+        state: "active",
+        publicKey: pendingRotation.pendingPublicKey,
+        generation: 2,
+      });
+      expect(rotated.status.history).toContainEqual(
+        expect.objectContaining({
+          publicKey: ownerSyncIdentity.publicKey,
+          generation: 1,
+          retiredMembershipGeneration: 3,
         }),
-      ).rejects.toThrow(/invitation expired/i);
-    } finally {
-      vi.useRealTimers();
-    }
-  });
+      );
+      await member.membership.ingest(rotated.membershipEvent);
+      await expect(member.syncIdentity.status()).resolves.toMatchObject({
+        state: "active",
+        publicKey: pendingRotation.pendingPublicKey,
+        generation: 2,
+      });
+
+      const revoked = await owner.membership.revokeDevice({
+        publicKey: memberStatus.publicKey!,
+        cutoffHeads: {
+          [ownerPublicKey]: "owner-head",
+          [memberStatus.publicKey!]: "member-head",
+        },
+      });
+      expect(revoked).toMatchObject({
+        generation: 4,
+        currentEpoch: 2,
+        syncIdentity: { publicKey: pendingRotation.pendingPublicKey },
+      });
+      expect(revoked.epochEnvelopes).not.toHaveProperty(
+        memberStatus.publicKey!,
+      );
+      const memberRevoked = await member.membership.ingest(revoked.event!);
+      expect(memberRevoked.devices).toContainEqual(
+        expect.objectContaining({
+          publicKey: memberStatus.publicKey,
+          state: "revoked",
+          cutoffHead: "member-head",
+        }),
+      );
+      await expect(
+        member.crypto.encryptObject({
+          epoch: 2,
+          type: "file-content",
+          plaintext: new TextEncoder().encode("future data"),
+        }),
+      ).rejects.toThrow(/revoked/i);
+      await expect(
+        member.syncIdentity.signEvent({
+          purpose: "transport",
+          event: {
+            kind: 78,
+            created_at: Math.floor(Date.now() / 1000),
+            tags: [["d", "revoked-device-attempt"]],
+            content: "",
+          },
+        }),
+      ).rejects.toThrow(/revoked/i);
+      await expect(owner.syncIdentity.status()).resolves.toMatchObject({
+        publicKey: pendingRotation.pendingPublicKey,
+        generation: 2,
+      });
+      await expect(member.crypto.status()).resolves.toMatchObject({
+        deviceState: "revoked",
+        currentEpoch: 2,
+        installedEpochs: [1],
+      });
+      expect((await owner.crypto.status()).installedEpochs).toEqual([1, 2]);
+    },
+  );
+
+  it.each(["relay", "host"] as const)(
+    "expires pairing invitations after the bounded two-minute window (%s)",
+    async (delivery) => {
+      let ownerService!: SyncHostService;
+      const ownerHarness = await createHarness(
+        {},
+        {
+          security: { argon2: { timeCost: 1, memoryKiB: 32, parallelism: 1 } },
+          requestCryptoUnlock: async (pluginId, _status, enrollment) => {
+            await ownerService.enrollPluginCrypto(
+              pluginId,
+              "owner wrapping passphrase",
+              enrollment,
+            );
+          },
+        },
+      );
+      ownerService = ownerHarness.service;
+      const owner = ownerService.forPlugin("nostr-sync", ["crypto:nostr-sync"]);
+      await owner.crypto.enrollNewVault({ deviceAlias: "Owner device" });
+      const begun = await owner.pairing.beginOwner({
+        ...(delivery === "host"
+          ? { delivery }
+          : { relayUrls: ["wss://relay.example"] }),
+      });
+      const memberHarness = await createHarness();
+      const member = memberHarness.service.forPlugin("nostr-sync", [
+        "crypto:nostr-sync",
+      ]);
+      vi.useFakeTimers();
+      try {
+        vi.setSystemTime(begun.session.expiresAt + 1);
+        await expect(
+          member.pairing.acceptInvite({
+            invitationUri: begun.invitationUri!,
+            deviceAlias: "Late device",
+            ...(delivery === "host" ? { delivery } : {}),
+          }),
+        ).rejects.toThrow(/invitation expired/i);
+      } finally {
+        vi.useRealTimers();
+      }
+    },
+  );
 
   it("exports authenticated owner recovery and restores a fresh rotated identity", async () => {
     let sourceService!: SyncHostService;
@@ -1184,6 +1352,7 @@ describe("SyncHostService", () => {
       deviceAlias: "Recovered owner",
       deviceState: "recovery-pending",
       currentEpoch: 1,
+      installedEpochs: [1],
       membershipGeneration: 1,
     });
     expect(imported.status.vaultId).toBe(original.vaultId);
@@ -1210,6 +1379,7 @@ describe("SyncHostService", () => {
     await expect(restored.crypto.status()).resolves.toMatchObject({
       deviceState: "active",
       currentEpoch: 2,
+      installedEpochs: [1, 2],
       membershipGeneration: 2,
       syncIdentity: {
         publicKey: original.syncIdentity?.publicKey,

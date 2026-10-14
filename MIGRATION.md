@@ -569,3 +569,41 @@ still fails from a fresh Storybook process while the exact warm target passes.
 The trace shows delayed module loading. Remaining shared-package browser lanes
 have not yet completed. Keep these as functional acceptance blockers; visual
 comparison and baseline approval remain separate and deferred.
+
+## Lapis Sync runtime continuation
+
+- Editor document loading now registers/protects the target before reading,
+  cancels obsolete publication and preserves original drafts. Managed file/folder
+  rename flushes protected writers before movement and link rewrites
+  (LN-ARCH-137 through LN-ARCH-139). Workspace navigation event ordering remains
+  pending; the governed loading/rename story stays visual-pending.
+
+- API editor documents now register their original persistence context, retain
+  failed/closing drafts and expose protection plus an asynchronous external
+  writer hook (LN-ARCH-132 through LN-ARCH-135). Navigation coordination, independent
+  Mira registration, host shutdown and complete apply-guard selection remain open.
+
+- The App-owned file editing-session registry (LN-ARCH-129 through LN-ARCH-131)
+  supplies path-bound protection, detached dirty-writer retention and drained
+  shutdown. Mira adapter registration, external-owner barriers,
+  production apply selection and exclusive old/new writer ownership remain open.
+
+- Isolated implementation now qualifies the durable encrypted repository and
+  local-state crypto (LN-ARCH-104/LN-ARCH-105), guarded native files and indexed
+  encrypted receipts (LN-ARCH-106 through LN-ARCH-109).
+- Indexed journal format 2 upgrades supported legacy roots before access
+  (LN-ARCH-110). Ten migration cases and actual earlier-kernel rejection pass in
+  Node and Deno; all 77 native service tests and 243 host Storybook stories pass.
+- Client reconciliation, Deno event/object routes, endpoint enrollment, server
+  participation, host bridges and real multi-device acceptance remain pending.
+- Explicit host-delivery pairing, actual installed-epoch listing and the public
+  headless security export are qualified under LN-ARCH-111 through LN-ARCH-113.
+  The [pairing record](spec/records/2026-10-14-sync-host-pairing.md) separates
+  this host boundary from pending rendezvous, custody and runtime integration.
+- Dedicated wrapped-key storage and the shared headless metadata contract are
+  qualified under LN-ARCH-114 through LN-ARCH-116. Independent Node/Deno process
+  readback preserves identities and encrypted state. The
+  [security-store record](spec/records/2026-10-14-sync-security-store.md) retains
+  production profile/secret/bridge wiring and legacy custody as pending work.
+- The existing private Sync UI/protocol preview is owned by `lapis-plugins`;
+  this host work does not activate or publish it.

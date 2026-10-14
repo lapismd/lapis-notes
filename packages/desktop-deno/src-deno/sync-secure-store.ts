@@ -1,4 +1,5 @@
 const SERVICE = "md.lapis.notes.sync";
+export const NATIVE_SYNC_CREDENTIAL_SERVICE = "md.lapis.notes.sync.native";
 const KEY_BYTES = 32;
 
 export interface SyncSecureStoreBackend {
@@ -42,9 +43,10 @@ export async function getDesktopSyncWrappingKey(
     createPlatformSyncSecureStore(
       options.platform ?? Deno.build.os,
       options.runner ?? runSecureCommand,
+      pluginId === "sync" ? NATIVE_SYNC_CREDENTIAL_SERVICE : SERVICE,
     );
   let secret = await backend.load(account);
-  if (!secret) {
+  if (secret === null) {
     if (!create) {
       throw new Error(
         `The OS credential for ${pluginId} is unavailable; sync recovery or re-enrollment is required`,
@@ -61,18 +63,32 @@ export async function getDesktopSyncWrappingKey(
   };
 }
 
+/** Compatibility RPC only. New Sync obtains wrapping material inside its native broker. */
+export async function getRendererSyncWrappingKey(
+  payload: Record<string, unknown>,
+  options: Parameters<typeof getDesktopSyncWrappingKey>[1] = {},
+): Promise<DesktopSyncWrappingKeyResult> {
+  if (payload.pluginId === "sync")
+    throw new Error("Sync wrapping material is native-only");
+  return getDesktopSyncWrappingKey(payload, options);
+}
+
 export function createPlatformSyncSecureStore(
   platform: typeof Deno.build.os,
   runner: SecureCommandRunner = runSecureCommand,
+  service: string = SERVICE,
 ): SyncSecureStoreBackend {
-  if (platform === "darwin") return createMacosKeychainBackend(runner);
-  if (platform === "linux") return createLinuxSecretServiceBackend(runner);
-  if (platform === "windows") return createWindowsCredentialBackend(runner);
+  if (platform === "darwin") return createMacosKeychainBackend(runner, service);
+  if (platform === "linux")
+    return createLinuxSecretServiceBackend(runner, service);
+  if (platform === "windows")
+    return createWindowsCredentialBackend(runner, service);
   throw new Error(`OS credential storage is unsupported on ${platform}`);
 }
 
 function createMacosKeychainBackend(
   runner: SecureCommandRunner,
+  service: string,
 ): SyncSecureStoreBackend {
   return {
     provider: "macos-keychain",
@@ -80,29 +96,36 @@ function createMacosKeychainBackend(
       const result = await runner("security", [
         "find-generic-password",
         "-s",
-        SERVICE,
+        service,
         "-a",
         account,
         "-w",
       ]);
       if (result.code === 44) return null;
-      if (result.code !== 0) throw commandFailure("macOS Keychain lookup", result);
-      return result.stdout.trim() || null;
+      if (result.code !== 0)
+        throw commandFailure("macOS Keychain lookup", result);
+      return result.stdout.trim();
     },
     async store(account, secret) {
-      const result = await runner("security", ["-i"], [
-        "add-generic-password -U",
-        `-s ${securityQuote(SERVICE)}`,
-        `-a ${securityQuote(account)}`,
-        `-w ${securityQuote(secret)}`,
-      ].join(" ") + "\n");
-      if (result.code !== 0) throw commandFailure("macOS Keychain update", result);
+      const result = await runner(
+        "security",
+        ["-i"],
+        [
+          "add-generic-password -U",
+          `-s ${securityQuote(service)}`,
+          `-a ${securityQuote(account)}`,
+          `-w ${securityQuote(secret)}`,
+        ].join(" ") + "\n",
+      );
+      if (result.code !== 0)
+        throw commandFailure("macOS Keychain update", result);
     },
   };
 }
 
 function createLinuxSecretServiceBackend(
   runner: SecureCommandRunner,
+  service: string,
 ): SyncSecureStoreBackend {
   return {
     provider: "linux-secret-service",
@@ -110,11 +133,13 @@ function createLinuxSecretServiceBackend(
       const result = await runner("secret-tool", [
         "lookup",
         "service",
-        SERVICE,
+        service,
         "account",
         account,
       ]);
-      if (result.code !== 0 || !result.stdout.trim()) return null;
+      if (result.code === 1 && !result.stderr.trim()) return null;
+      if (result.code !== 0)
+        throw commandFailure("Linux Secret Service lookup", result);
       return result.stdout.trim();
     },
     async store(account, secret) {
@@ -124,25 +149,28 @@ function createLinuxSecretServiceBackend(
           "store",
           `--label=Lapis Notes Sync (${account})`,
           "service",
-          SERVICE,
+          service,
           "account",
           account,
         ],
         secret,
       );
-      if (result.code !== 0) throw commandFailure("Secret Service update", result);
+      if (result.code !== 0)
+        throw commandFailure("Secret Service update", result);
     },
   };
 }
 
 function createWindowsCredentialBackend(
   runner: SecureCommandRunner,
+  service: string,
 ): SyncSecureStoreBackend {
   const root = Deno.env.get("LOCALAPPDATA")?.trim();
-  if (!root) throw new Error("Windows local application storage is unavailable");
+  if (!root)
+    throw new Error("Windows local application storage is unavailable");
   const directory = `${root}\\Lapis Notes\\sync-credentials`;
   const pathFor = async (account: string) =>
-    `${directory}\\${await sha256Hex(`${SERVICE}:${account}`)}.dpapi`;
+    `${directory}\\${await sha256Hex(`${service}:${account}`)}.dpapi`;
   return {
     provider: "windows-dpapi-current-user",
     async load(account) {
@@ -159,16 +187,15 @@ function createWindowsCredentialBackend(
         "$clear=[Security.Cryptography.ProtectedData]::Unprotect($encrypted,$null,[Security.Cryptography.DataProtectionScope]::CurrentUser)",
         "try { [Console]::Out.Write([Convert]::ToBase64String($clear)) } finally { [Array]::Clear($clear,0,$clear.Length) }",
       ].join(";");
-      const result = await runner("powershell.exe", [
-        "-NoProfile",
-        "-NonInteractive",
-        "-Command",
-        script,
-      ], encrypted);
+      const result = await runner(
+        "powershell.exe",
+        ["-NoProfile", "-NonInteractive", "-Command", script],
+        encrypted,
+      );
       if (result.code !== 0) {
         throw commandFailure("Windows DPAPI unlock", result);
       }
-      return result.stdout.trim() || null;
+      return result.stdout.trim();
     },
     async store(account, secret) {
       const script = [
@@ -218,10 +245,7 @@ async function runSecureCommand(
 }
 
 function requireIdentifier(value: unknown, label: string): string {
-  if (
-    typeof value !== "string" ||
-    !/^[A-Za-z0-9._:-]{1,160}$/u.test(value)
-  ) {
+  if (typeof value !== "string" || !/^[A-Za-z0-9._:-]{1,160}$/u.test(value)) {
     throw new Error(`${label} is invalid`);
   }
   return value;
@@ -231,7 +255,9 @@ function requireWrappingKey(value: string): void {
   try {
     if (fromBase64(value).byteLength !== KEY_BYTES) throw new Error();
   } catch {
-    throw new Error("The OS credential contains invalid sync wrapping material");
+    throw new Error(
+      "The OS credential contains invalid sync wrapping material",
+    );
   }
 }
 
@@ -240,8 +266,7 @@ function securityQuote(value: string): string {
 }
 
 function commandFailure(action: string, result: SecureCommandResult): Error {
-  const detail = result.stderr.trim() || `exit ${result.code}`;
-  return new Error(`${action} failed: ${detail}`);
+  return new Error(`${action} failed (exit ${result.code})`);
 }
 
 function toBase64(bytes: Uint8Array): string {

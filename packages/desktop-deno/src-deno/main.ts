@@ -4,6 +4,7 @@ import { serveDir } from "jsr:@std/http@1/file-server";
 import { createPlatformInfo, handleDesktopInvoke } from "./bindings.ts";
 import { DenoAgentRuntimeHost } from "./agent-runtime.ts";
 import { DenoAppDatabaseHost } from "./app-database.ts";
+import { DenoSyncSecurityHost } from "./sync-security.ts";
 import { createDesktopAboutWindowManager } from "./about-window.ts";
 import { DESKTOP_APPLICATION_INFO } from "./application-info.ts";
 import {
@@ -176,7 +177,19 @@ const fileWatch = new DenoFileWatchService(emitRendererEvent);
 const pluginAssets = new DenoPluginAssetService();
 const vaultResources = new DenoVaultResourceService();
 const agentRuntime = new DenoAgentRuntimeHost({ dataDirectory: userDataDir() });
-const appDatabase = new DenoAppDatabaseHost(userDataDir(), emitRendererEvent);
+let syncSecurity!: DenoSyncSecurityHost;
+const appDatabase = new DenoAppDatabaseHost(userDataDir(), emitRendererEvent, {
+  onProfilesInvalidated: () => {
+    void syncSecurity
+      .closeInactiveProfiles()
+      .catch(() => desktopLog.warn("Native Sync profile cleanup failed"));
+  },
+});
+syncSecurity = new DenoSyncSecurityHost({
+  userDataPath: userDataDir(),
+  getProfileLease: (vaultId) => appDatabase.getProfileLease(vaultId),
+  getProfileRoot: (vaultId) => appDatabase.getProfileRoot(vaultId),
+});
 const nostrSigner = nostrKeychainAvailable(Deno.build.os)
   ? new DenoNostrSignerService({
       accounts: new JsonDenoNostrSignerAccountStore(userDataDir()),
@@ -220,6 +233,7 @@ const closeCoordinator = createDenoCloseCoordinator({
     pluginAssets.clear();
     vaultResources.clear();
     await terminalRuntime?.shutdown();
+    await syncSecurity.closeAll();
     await nostrSigner?.close();
     await appDatabase.closeAll();
     await agentRuntime.shutdown();
@@ -272,6 +286,7 @@ function registerDesktopBindings() {
               vaultResources,
               agentRuntime,
               appDatabase,
+              syncSecurity,
               terminalRuntime,
               nostrSigner,
               rendererCloseReady: () => {

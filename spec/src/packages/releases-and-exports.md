@@ -88,6 +88,12 @@ Registry-consumer toolchain and build-policy acceptance is recorded in
 
 **Requirement.** Root local-development configuration MUST keep published external LapisMD packages on portable registry ranges in tracked manifests and lockfiles. External repositories MUST NOT become Lapis workspace packages.
 
+The October 2026 security refresh leaves external LapisMD package ranges and
+versions unchanged and resolves bounded third-party overrides from npm. Root
+release tooling uses Changesets 3 with a Node 22.11 development floor. Its
+compatibility checks and accepted temporary QMD exception are recorded in the
+[dependency audit evidence](../../records/2026-10-14-notes-dependency-audit.md).
+
 ## LN-PKG-066 — @lapis-notes/bases: ship one private semantic query-popover sizing rule
 
 <a id="ln-pkg-066"></a>
@@ -123,6 +129,12 @@ Registry-consumer toolchain and build-policy acceptance is recorded in
 <a id="ln-pkg-031"></a>
 
 **Requirement.** `@tobilu/qmd` 2.5.3 MUST remain a pinned root development dependency. Its native build approvals and TypeScript peer MUST remain root tooling and MUST NOT enter workspace package manifests.
+
+The user approved a temporary exception for `GHSA-vfj7-8cjw-p6xm` in QMD's
+`braces` dependency on 14 October 2026. Review it by 13 November 2026 and remove
+it once a patched upstream chain is available. The
+[audit record](../../records/2026-10-14-notes-dependency-audit.md) retains the
+unfiltered finding, dependency path, scope limitation, and removal procedure.
 
 ## LN-PKG-034 — Public @lapis-notes/language-service: live at packages/language-service as a provider-neutral Markdown
 

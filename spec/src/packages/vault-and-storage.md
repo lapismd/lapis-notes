@@ -1,5 +1,10 @@
 # Packages / Vault and storage
 
+The desktop's native RPC codec remains host-owned and preserves the same
+bounded JSON frames across Node and portable hosts under LN-DENO-088. The
+[Sync release record](../../records/2026-10-14-sync-host-release.md) retains
+cross-runtime codec and payload-isolation evidence; public exports are unchanged.
+
 Development Docs acceptance uses installed package exports after its Turbo
 build prerequisites; the [portable startup contract](../storybook-catalog/build-and-process.md#ln-cat-117)
 keeps sibling release preparation outside standalone CI.
@@ -98,7 +103,29 @@ keeps sibling release preparation outside standalone CI.
 
 <a id="ln-pkg-144"></a>
 
-**Requirement.** Private `@lapis-notes/deno-host-services` MUST own reusable Deno filesystem, watch, resource, plugin-asset, language-service, and native AppDatabase kernels. It MUST NOT own desktop windows, server authentication, HTTP routing, vault selection, or Web composition.
+**Requirement.** Private `@lapis-notes/deno-host-services` MUST own reusable Deno filesystem, watch, resource, plugin-asset, language-service, native AppDatabase kernels, and durable opaque sync repositories governed by LN-ARCH-105. It MUST NOT own desktop windows, server authentication, HTTP routing, vault selection, or Web composition.
+
+Its portable `test:sync-engine` script accepts a built engine path for development
+qualification with native storage and opaque host security capabilities. The
+plugin retains history-policy ownership; the native repository stays opaque.
+The same package owns the guarded native vault's process lease, file-version
+tracking, streamed working-copy staging and encrypted mutation receipts under
+LN-ARCH-106 through LN-ARCH-108. The API exports protocol-neutral port types and
+mutation-capture helpers; hosts retain platform setup, grants and lifecycle ownership.
+LN-ARCH-109 adds an immutable opaque record port for separately sealed receipts.
+The native journal retains active work while completed receipts remain indexed
+outside its root record; no filename or receipt payload enters a plaintext index.
+LN-ARCH-110 versions the indexed journal and upgrades supported legacy roots
+before access, so an earlier non-indexed writer cannot ignore archived receipts.
+LN-ARCH-119 through LN-ARCH-122 add API local-provider/guard contracts and the
+private native adapter, exported through `deno-host-services/sync-local-provider`.
+The adapter owns separate engine/apply stores and enforces an explicit host
+inclusion policy. Desktop/server admission, editor protection, transport and
+runtime activation remain host integrations. The package now also owns the
+portable physical-root descriptor and guarded descriptor-read port under
+LN-ARCH-123. LN-ARCH-124 adds optional expected-authority metadata to opaque
+ports; production native RPC requires it while trusted low-level stores remain
+compatible. Client engines must supply their captured fences before activation.
 
 ## LN-PKG-145 — Private @lapis-notes/server-deno: own the authenticated Deno server, managed-vault control
 

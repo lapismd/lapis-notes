@@ -164,7 +164,7 @@ export interface PluginManagerOptions {
     pluginId: string,
     grants: readonly HostedPluginCapability[],
   ) => SyncHostCapabilities;
-  revokeSyncHostCapabilities?: (pluginId: string) => void;
+  revokeSyncHostCapabilities?: (pluginId: string) => void | Promise<void>;
 }
 
 export interface PluginDataAliasMigration {

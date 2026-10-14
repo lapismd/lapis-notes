@@ -10,6 +10,38 @@ import {
 } from "./renderer-telemetry-otel";
 
 describe("desktop renderer telemetry", () => {
+  it("excludes Sync data and security RPC from telemetry payloads and spans", async () => {
+    const exporter = new InMemorySpanExporter();
+    const telemetry = createOtelDesktopRendererTelemetry({
+      endpoint: "http://127.0.0.1:4318/v1/traces",
+      serviceName: "sync-exclusion",
+      version: "1",
+      exporter,
+      registerGlobal: false,
+    });
+    const payload = {
+      sessionToken: "private-token",
+      operation: "uploadChunk",
+      args: "private native file data",
+    };
+    const invoke = vi.fn(async (_command: string, input: unknown) => input);
+    try {
+      for (const command of [
+        "desktop_sync_local_call",
+        "desktop_sync_security_open",
+        "desktop_sync_security_call",
+        "desktop_sync_security_close",
+      ])
+        await telemetry.invoke(invoke as DesktopRawInvoke, command, payload);
+      for (const [, input] of invoke.mock.calls)
+        expect(input).toEqual({
+          __lapisDesktopInvoke: { version: 1, payload },
+        });
+      expect(exporter.getFinishedSpans()).toEqual([]);
+    } finally {
+      await telemetry.shutdown();
+    }
+  });
   it("bounds best-effort shutdown when an exporter never settles", async () => {
     vi.useFakeTimers();
     try {

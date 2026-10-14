@@ -7,6 +7,11 @@ editing, sharing and restart operations; see LN-PKG-161.
 The file-backed recovery diagnostic survives successful acceptance without
 replaying those plugin lifecycle operations.
 
+The common `Plugin.disable()` boundary awaits host security revocation even
+when plugin unload fails. Runtime hooks accept synchronous or asynchronous
+cleanup; a cleanup failure propagates through the existing plugin failure state
+(LN-ARCH-118).
+
 ## LN-PLUG-001 — Extracted first-party plugins: use package directories named by plugin slug
 
 <a id="ln-plug-001"></a>

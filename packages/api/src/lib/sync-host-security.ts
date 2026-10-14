@@ -11,7 +11,10 @@ import {
   type Event as NostrEvent,
 } from "nostr-tools/pure";
 import { v2 as nip44 } from "nostr-tools/nip44";
-import type { AppDatabase } from "./storage/app-database";
+import type { HostMetadataStore } from "./metadata-store";
+
+/** Host-owned persistence for wrapped keys and network grants, outside disposable indexes. */
+export type SyncSecurityStore = HostMetadataStore;
 
 const SECURITY_PREFIX = "sync-host:v1:security:";
 const KEY_LENGTH = 32;
@@ -34,14 +37,13 @@ export type SyncCryptoObjectType =
   | "revision-payload"
   | "revision-archive"
   | "head-payload"
-  | "membership-payload";
+  | "membership-payload"
+  | "local-state";
 
 export type SyncDeviceRole = "owner" | "member";
 
 export type SyncIdentityState =
-  | "setup-required"
-  | "active"
-  | "rotation-pending";
+  "setup-required" | "active" | "rotation-pending";
 
 export interface SyncIdentityHistoryEntry {
   publicKey: string;
@@ -108,6 +110,8 @@ export interface SyncCryptoStatus {
   role?: SyncDeviceRole;
   deviceState?: "active" | "revoked" | "recovery-pending";
   currentEpoch?: number;
+  /** Installed content-key epoch numbers, sorted and copied; present only while unlocked. */
+  installedEpochs?: number[];
   membershipGeneration?: number;
   canManageDevices?: boolean;
   syncIdentity?: SyncIdentityPublicStatus;
@@ -152,16 +156,11 @@ export interface SyncCryptoCapability {
 }
 
 export type SyncIdentitySigningPurpose =
-  | "transport"
-  | "relay-auth"
-  | "blossom-auth"
-  | "connection-probe";
+  "transport" | "relay-auth" | "blossom-auth" | "connection-probe";
 
 export interface SyncIdentityCapability {
   status(): Promise<SyncIdentityPublicStatus>;
-  initialize(input: {
-    cutoffHeads: Record<string, string>;
-  }): Promise<{
+  initialize(input: { cutoffHeads: Record<string, string> }): Promise<{
     status: SyncIdentityPublicStatus;
     membershipEvent: NostrEvent;
   }>;
@@ -206,21 +205,31 @@ export interface SyncPairingActionResult {
   outboundEvents: NostrEvent[];
   /** Public transport endpoints for this bounded pairing session. */
   relayUrls: string[];
+  /** Omitted by older hosts, whose invitations use relay delivery. */
+  delivery?: SyncPairingDelivery;
   invitationUri?: string;
   membershipEvent?: NostrEvent;
   /** Bounded plugin data recovered only from the encrypted pairing transfer. */
   metadata?: unknown;
 }
 
+export type SyncPairingDelivery = "relay" | "host";
+
+export type SyncPairingOwnerRequest = {
+  cutoffHeads?: Record<string, string>;
+  metadata?: unknown;
+} & (
+  | { delivery?: "relay"; relayUrls: string[] }
+  | { delivery: "host"; relayUrls?: never }
+);
+
 export interface SyncPairingCapability {
-  beginOwner(input: {
-    relayUrls: string[];
-    cutoffHeads?: Record<string, string>;
-    metadata?: unknown;
-  }): Promise<SyncPairingActionResult>;
+  beginOwner(input: SyncPairingOwnerRequest): Promise<SyncPairingActionResult>;
   acceptInvite(input: {
     invitationUri: string;
     deviceAlias: string;
+    /** Host delivery must be selected explicitly for an invitation with no relay addresses. */
+    delivery?: SyncPairingDelivery;
   }): Promise<SyncPairingActionResult>;
   ingest(input: {
     sessionId: string;
@@ -481,6 +490,7 @@ interface PairingSession {
   ephemeralPublicKey: string;
   sessionSecret: string;
   relays: string[];
+  delivery: SyncPairingDelivery;
   sequence: number;
   lastReceivedSequence: number;
   peerEphemeralPublicKey?: string;
@@ -541,6 +551,7 @@ function typeTag(type: SyncCryptoObjectType): number {
       "revision-archive": 5,
       "head-payload": 6,
       "membership-payload": 7,
+      "local-state": 8,
     } as const
   )[type];
 }
@@ -641,12 +652,20 @@ function requirePublicKey(value: string, label = "Device public key"): string {
   return value;
 }
 
-function requireRelayUrls(values: string[]): string[] {
-  if (values.length < 1 || values.length > 8) {
+function requirePairingDelivery(value: unknown): SyncPairingDelivery {
+  if (value === undefined) return "relay";
+  if (value === "relay" || value === "host") return value;
+  throw new Error("Unsupported pairing delivery mode");
+}
+
+function requireRelayUrls(values: unknown): string[] {
+  if (!Array.isArray(values) || values.length < 1 || values.length > 8) {
     throw new Error("Pairing requires between one and eight relay URLs");
   }
   const result: string[] = [];
   for (const value of values) {
+    if (typeof value !== "string")
+      throw new Error("Pairing relay URLs must be strings");
     const url = new URL(value);
     if (!["wss:", "ws:"].includes(url.protocol)) {
       throw new Error("Pairing relays must use wss or loopback ws");
@@ -881,10 +900,18 @@ export class SyncHostSecurityService {
   };
 
   constructor(
-    readonly database: AppDatabase,
+    readonly database: SyncSecurityStore,
     readonly assertRuntime: (pluginId: string, runtimeId: string) => void,
     options: SyncHostSecurityOptions = {},
   ) {
+    if (
+      !database ||
+      ["getMeta", "setMeta", "transactMeta"].some(
+        (name) =>
+          typeof database[name as keyof SyncSecurityStore] !== "function",
+      )
+    )
+      throw new Error("Invalid Sync security store");
     this.#fetch = options.fetch ?? globalThis.fetch.bind(globalThis);
     this.#WebSocket = options.WebSocket ?? globalThis.WebSocket;
     this.#argon2 = {
@@ -1038,12 +1065,20 @@ export class SyncHostSecurityService {
           wrappingKey,
           descriptor,
         );
-    const envelope = this.#sealEnvelope(pluginId, keys);
-    const stored = await this.database.transactMeta({
-      checks: [{ key: envelopeKey(pluginId), exists: false }],
-      mutations: [{ key: envelopeKey(pluginId), value: envelope }],
-    });
-    if (!stored.applied) {
+    let applied: boolean;
+    try {
+      const envelope = this.#sealEnvelope(pluginId, keys);
+      applied = (
+        await this.database.transactMeta({
+          checks: [{ key: envelopeKey(pluginId), exists: false }],
+          mutations: [{ key: envelopeKey(pluginId), value: envelope }],
+        })
+      ).applied;
+    } catch (error) {
+      this.#destroyKeys(keys);
+      throw error;
+    }
+    if (!applied) {
       this.#destroyKeys(keys);
       throw new Error(
         `Sync crypto enrollment changed concurrently for ${pluginId}`,
@@ -1452,6 +1487,9 @@ export class SyncHostSecurityService {
         role: unlocked.role,
         deviceState: this.#deviceState(unlocked),
         currentEpoch: unlocked.currentEpoch,
+        installedEpochs: [...unlocked.vaultKeys.keys()].sort(
+          (left, right) => left - right,
+        ),
         membershipGeneration: unlocked.membershipGeneration,
         canManageDevices: unlocked.role === "owner",
         syncIdentity: this.#syncIdentityStatus(unlocked),
@@ -1862,21 +1900,31 @@ export class SyncHostSecurityService {
       session: this.#pairingSnapshot(session),
       outboundEvents,
       relayUrls: [...session.relays],
+      delivery: session.delivery,
       ...extras,
     });
 
     return {
-      beginOwner: async ({ relayUrls, cutoffHeads = {}, metadata }) => {
+      beginOwner: async ({
+        relayUrls,
+        delivery,
+        cutoffHeads = {},
+        metadata,
+      }) => {
         assertActive();
         const keys = this.#requireUnlocked(pluginId);
         if (keys.role !== "owner" || !keys.ownerSecret) {
           throw new Error("Only the owner device may begin pairing");
         }
+        const selectedDelivery = requirePairingDelivery(delivery);
+        if (selectedDelivery === "host" && relayUrls !== undefined)
+          throw new Error("Host-delivered pairing must not specify relay URLs");
+        const relays =
+          selectedDelivery === "host" ? [] : requireRelayUrls(relayUrls);
         const ephemeralSecret = randomBytes(KEY_LENGTH);
         const sessionSecret = toBase64Url(randomBytes(KEY_LENGTH));
         const sessionId = pairingSessionId(sessionSecret);
         const expiresAt = Date.now() + PAIRING_TTL_MS;
-        const relays = requireRelayUrls(relayUrls);
         const session: PairingSession = {
           pluginId,
           sessionId,
@@ -1887,6 +1935,7 @@ export class SyncHostSecurityService {
           ephemeralPublicKey: getPublicKey(ephemeralSecret),
           sessionSecret,
           relays,
+          delivery: selectedDelivery,
           sequence: 0,
           lastReceivedSequence: 0,
           localConfirmed: false,
@@ -1913,14 +1962,18 @@ export class SyncHostSecurityService {
         }
         return result(session, [], { invitationUri });
       },
-      acceptInvite: async ({ invitationUri, deviceAlias }) => {
+      acceptInvite: async ({ invitationUri, deviceAlias, delivery }) => {
         assertActive();
         if ((await this.status(pluginId)).state !== "unenrolled") {
           throw new Error(
             "Pairing import requires an unenrolled sync identity",
           );
         }
-        const invitation = this.#parsePairingInvitation(invitationUri);
+        const selectedDelivery = requirePairingDelivery(delivery);
+        const invitation = this.#parsePairingInvitation(
+          invitationUri,
+          selectedDelivery,
+        );
         if (Date.now() >= invitation.e)
           throw new Error("Pairing invitation expired");
         const ephemeralSecret = randomBytes(KEY_LENGTH);
@@ -1935,7 +1988,8 @@ export class SyncHostSecurityService {
           ephemeralSecret,
           ephemeralPublicKey: getPublicKey(ephemeralSecret),
           sessionSecret: invitation.s,
-          relays: requireRelayUrls(invitation.r),
+          relays: [...invitation.r],
+          delivery: selectedDelivery,
           sequence: 0,
           lastReceivedSequence: 0,
           peerEphemeralPublicKey: requirePublicKey(
@@ -2656,7 +2710,10 @@ export class SyncHostSecurityService {
     session.pendingDeviceSecret = undefined;
   }
 
-  #parsePairingInvitation(invitationUri: string): PairingInvitationPayload {
+  #parsePairingInvitation(
+    invitationUri: string,
+    delivery: SyncPairingDelivery,
+  ): PairingInvitationPayload {
     if (invitationUri.length > 2_048) {
       throw new Error("Pairing invitation exceeds the app URL limit");
     }
@@ -2692,7 +2749,12 @@ export class SyncHostSecurityService {
       throw new Error("Pairing invitation data is invalid");
     }
     requirePublicKey(invitation.p, "Pairing public key");
-    requireRelayUrls(invitation.r);
+    if (delivery === "host") {
+      if (invitation.r.length !== 0)
+        throw new Error(
+          "Host-delivered pairing invitations must not contain relay URLs",
+        );
+    } else invitation.r = requireRelayUrls(invitation.r);
     return invitation;
   }
 

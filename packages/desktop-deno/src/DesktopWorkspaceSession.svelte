@@ -41,6 +41,7 @@
   import { createDenoPluginAssetServer } from "./deno-plugin-asset-server";
   import { getDenoNostrSignerBroker } from "./deno-nostr-signer";
   import { createDesktopSyncUnlockHandler } from "./desktop-sync-security";
+  import { createDesktopSyncHostProviders } from "./deno-sync-security";
   import DesktopWorkspaceStartup from "./DesktopWorkspaceStartup.svelte";
   import type { DenoDesktopBridge, DesktopAppInfo } from "./main";
   import { collectTerminalAcceptance } from "./terminal-acceptance";
@@ -88,36 +89,47 @@
     }),
   );
 
+  let hostSync!: SyncHostService;
   const app = untrack(() => {
     const safeMode = readDesktopSafeModeState();
     let ownedApp!: App;
-    let hostSync!: SyncHostService;
     const requestCryptoUnlock = createDesktopSyncUnlockHandler({
       bridge,
       vaultId: profile.id,
       getSyncHost: () => hostSync,
+    });
+    const requestRecoveryPassphrase = async (mode: "export" | "import") => {
+      const passphrase = globalThis.prompt(
+        mode === "export"
+          ? "Create a recovery-bundle passphrase (at least 10 characters)."
+          : "Enter the recovery-bundle passphrase.",
+      );
+      if (passphrase == null || mode === "import") return passphrase;
+      const confirmation = globalThis.prompt(
+        "Enter the recovery-bundle passphrase again to confirm it.",
+      );
+      if (confirmation !== passphrase) {
+        throw new Error("Recovery passphrase confirmation did not match");
+      }
+      return passphrase;
+    };
+    const nativeSync = createDesktopSyncHostProviders({
+      vaultId: profile.id,
+      invoke: (command, payload) => bridge.invoke(command, payload),
+      requestRecoveryPassphrase,
     });
     ownedApp = new App({
       version: appInfo.version,
       configPath: ".obsidian/app.json",
       session,
       syncHost: {
+        securityProvider: (pluginId) =>
+          pluginId === "sync" ? nativeSync.security : undefined,
+        localProvider: (pluginId) =>
+          pluginId === "sync" ? nativeSync.local : undefined,
         requestCryptoUnlock,
-        requestRecoveryPassphrase: async (_pluginId, mode) => {
-          const passphrase = globalThis.prompt(
-            mode === "export"
-              ? "Create a recovery-bundle passphrase (at least 10 characters)."
-              : "Enter the recovery-bundle passphrase.",
-          );
-          if (passphrase == null || mode === "import") return passphrase;
-          const confirmation = globalThis.prompt(
-            "Enter the recovery-bundle passphrase again to confirm it.",
-          );
-          if (confirmation !== passphrase) {
-            throw new Error("Recovery passphrase confirmation did not match");
-          }
-          return passphrase;
-        },
+        requestRecoveryPassphrase: (_pluginId, mode) =>
+          requestRecoveryPassphrase(mode),
         requestNetworkOriginGrant: async ({
           pluginId,
           origin,
@@ -642,16 +654,23 @@
       await app.telemetry.measureAsync(
         "desktop.session.teardown",
         async () => {
-          if (persistLayout) await writeWorkspaceLayout();
-          ready = false;
-          await app.workspace.disposeWorkspaceHost();
-          stopMetadataTracking?.();
-          stopMetadataTracking = null;
-          await app.metadataCache.dispose();
-          for (const plugin of [...app.plugins.corePlugins].reverse()) {
-            await plugin.disable().catch(() => undefined);
+          try {
+            if (persistLayout) await writeWorkspaceLayout();
+            ready = false;
+            await app.workspace.disposeWorkspaceHost();
+            stopMetadataTracking?.();
+            stopMetadataTracking = null;
+            await app.metadataCache.dispose();
+            for (const plugin of [...app.plugins.corePlugins].reverse()) {
+              await plugin.disable().catch(() => undefined);
+            }
+          } finally {
+            try {
+              await hostSync.dispose();
+            } finally {
+              await session.close();
+            }
           }
-          await session.close();
         },
         { attributes: { "desktop.layout.persisted": persistLayout } },
       );

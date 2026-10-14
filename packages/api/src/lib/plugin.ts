@@ -258,7 +258,7 @@ export interface PluginRuntimeOptions {
   requestedCapabilities?: HostedPluginCapability[];
   grantedCapabilities?: HostedPluginCapability[];
   createSyncHostCapabilities?: () => SyncHostCapabilities;
-  revokeSyncHostCapabilities?: () => void;
+  revokeSyncHostCapabilities?: () => void | Promise<void>;
 }
 
 function formatPluginError(error: unknown): string {
@@ -290,7 +290,7 @@ export abstract class Plugin extends Component {
   #runtimeConfigured = false;
   #syncHostCapabilities: SyncHostCapabilities | null = null;
   #createSyncHostCapabilities: (() => SyncHostCapabilities) | null = null;
-  #revokeSyncHostCapabilities: (() => void) | null = null;
+  #revokeSyncHostCapabilities: (() => void | Promise<void>) | null = null;
 
   constructor(
     readonly app: App,
@@ -527,8 +527,11 @@ export abstract class Plugin extends Component {
 
   async disable(): Promise<void> {
     if (!this.loaded) {
-      this.#revokeSyncHostCapabilities?.();
-      this.#syncHostCapabilities = null;
+      try {
+        await this.#revokeSyncHostCapabilities?.();
+      } finally {
+        this.#syncHostCapabilities = null;
+      }
       this.#runtimeState = "disabled";
       this.#failureMessage = null;
       return;
@@ -537,9 +540,15 @@ export abstract class Plugin extends Component {
     this.#runtimeState = "disabling";
 
     try {
-      await this.unloadAsync();
-      this.#revokeSyncHostCapabilities?.();
-      this.#syncHostCapabilities = null;
+      try {
+        await this.unloadAsync();
+      } finally {
+        try {
+          await this.#revokeSyncHostCapabilities?.();
+        } finally {
+          this.#syncHostCapabilities = null;
+        }
+      }
       this.#runtimeState = "disabled";
       this.#failureMessage = null;
       this.emit("disable");

@@ -1,5 +1,12 @@
 # Plugin Model / Application services
 
+The Sync flush port uses the owning App's complete workspace under LN-ARCH-128.
+Local mutation admission also owns source cancellation before provider calls
+and key teardown under LN-ARCH-122; a rejected guard cannot leave an input live.
+Independent file writers can register with `App.fileEditingSessions` under
+LN-ARCH-129 through LN-ARCH-131. This service has no plugin protocol or secret
+authority, and production Sync apply still requires every writer's integration.
+
 ## LN-PLUG-011 — Package or repository rename: preserve runtime IDs, commands, view types, filenames
 
 <a id="ln-plug-011"></a>

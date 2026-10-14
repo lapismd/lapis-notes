@@ -1,5 +1,9 @@
 # Markdown Plugin / Integration contracts
 
+Markdown uses the shared Plugin disable boundary. Its registered contribution
+cleanup runs through component unload; host security revocation then drains
+before disable completes, including failed unloads (LN-ARCH-118).
+
 ## LN-MD-015 — Storybook and demo hosts that load Markdown: call metadataTypeManager.trackChanges() or an equivalent watchMetadata helper
 
 <a id="ln-md-015"></a>

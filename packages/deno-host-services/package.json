@@ -13,12 +13,21 @@
     "./vault-fs": "./src/vault-fs.ts",
     "./vault-resources": "./src/vault-resources.ts",
     "./app-database-worker-protocol": "./src/app-database-worker-protocol.ts",
-    "./app-database-worker-runtime": "./src/app-database-worker-runtime.ts"
+    "./app-database-worker-runtime": "./src/app-database-worker-runtime.ts",
+    "./sync-repository": "./src/sync-repository.ts",
+    "./sync-vault": "./src/sync-vault.ts",
+    "./sync-security-store": "./src/sync-security-store.ts",
+    "./sync-local-provider": "./src/sync-local-provider.ts",
+    "./sync-vault-root": "./src/sync-vault-root.ts"
   },
   "scripts": {
     "build": "pnpm check",
-    "check": "deno check --sloppy-imports src/paths.ts src/file-watch.ts src/plugin-assets.ts src/vault-fs.ts src/vault-resources.ts && vitest run",
-    "test": "vitest run"
+    "check": "deno check --sloppy-imports src/paths.ts src/file-watch.ts src/plugin-assets.ts src/vault-fs.ts src/vault-resources.ts src/sync-repository.ts src/sync-vault.ts src/sync-security-store.ts src/sync-local-provider.ts && vitest run",
+    "test": "vitest run",
+    "test:sync-engine": "tsx scripts/accept-sync-engine.mjs",
+    "test:sync-native-vault": "tsx scripts/accept-sync-native-vault.mjs",
+    "test:sync-journal-upgrade": "tsx scripts/accept-sync-journal-upgrade.mjs",
+    "test:sync-security": "tsx scripts/accept-sync-security.mjs"
   },
   "dependencies": {
     "@lapis-notes/api": "workspace:*",

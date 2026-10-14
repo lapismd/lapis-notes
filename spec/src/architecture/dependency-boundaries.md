@@ -151,6 +151,16 @@ so standalone CI needs no sibling release directory.
 
 **Requirement.** `pnpm-workspace.yaml` MUST limit workspace membership to Lapis-owned directories. Published external LapisMD packages MUST resolve through registry dependency ranges in tracked manifests and lockfiles, never external workspace membership or checkout-specific paths. Their host-runtime peers MUST resolve to matching colocated workspace packages, through host-owned import-map entries where browser ESM plugins consume shared modules, rather than duplicate registry copies.
 
+Security remediation uses bounded third-party version overrides and registry
+lockfile resolution. The October 2026 refresh preserves YAML 3/4 API families,
+aligns the Vitest 4 tools, and checks Simple Git 4 against the native caller's
+clone API. Changesets 3 removes the obsolete glob/YAML reader chain; root
+development tooling consequently requires Node 22.11 or newer. Public package
+versions and external LapisMD dependency ranges remain unchanged. See the
+[dependency audit record](../../records/2026-10-14-notes-dependency-audit.md)
+for compatibility evidence, the before/after advisory counts, and the user's
+temporary acceptance of the unpatched QMD development advisory.
+
 ## LN-ARCH-052 — API: retain the shared CodeMirror autocomplete extension while
 
 <a id="ln-arch-052"></a>

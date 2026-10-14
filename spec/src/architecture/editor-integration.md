@@ -1,5 +1,99 @@
 # Architecture / Editor integration
 
+## LN-ARCH-137 — Guarded document-load admission
+
+<a id="ln-arch-137"></a>
+
+**Requirement.** Editor document loading MUST register its target before asynchronous reads and synchronously protect editing while draining original saves. Target-session protection and flush MUST wait for load publication or cancellation before admitting mutation. Controlled publication MUST bind file and contents together without a writable intermediate state. Read/save/publication failure, including synchronous publisher cancellation, MUST preserve the previous document and release the provisional registration.
+
+## LN-ARCH-138 — Document-load cancellation and provenance
+
+<a id="ln-arch-138"></a>
+
+**Requirement.** A newer document load MUST supersede an older read without waiting for its result or allowing stale publication. Unload and destruction MUST cancel pending publication and release loading protection. Late read failure MUST be observed without affecting a newer document. Changed editor or view App, or target path MUST reject publication; loads started during independent editor protection MUST reject without changing the current binding.
+
+## LN-ARCH-139 — Protected managed rename
+
+<a id="ln-arch-139"></a>
+
+**Requirement.** FileManager rename MUST protect and flush registered writers before moving a file/folder or calculating link replacements. Failed persistence MUST prevent rename and release protection. Protection MUST cover movement and link rewrites so pending editor timers cannot recreate the old path. Admission MUST retain the originally requested source path; changed targets MUST reject before filesystem mutation.
+
+## LN-ARCH-132 — Document-owned editor save state
+
+<a id="ln-arch-132"></a>
+
+**Requirement.** Editor documents with a file MUST register a session with their original App. Owner, file, persistence-mode or writer changes MUST drain queued snapshots into their original save context before rebinding. Success in another context MUST NOT clear an earlier failure or skip its retry. Retired dirty contexts MUST remain registered until persistence succeeds; rejected registration MUST preserve the previous binding.
+
+## LN-ARCH-133 — Protected API editor transactions
+
+<a id="ln-arch-133"></a>
+
+**Requirement.** Editor protection MUST synchronously block ordinary document transactions, explicit persistence and document/owner rebinding before draining saves. Independent idempotent leases MUST keep protection until every lease releases. CodeMirror readonly state and transaction filtering MUST survive extension reconfiguration. Controlled file refresh MAY update a protected clean buffer without queuing a write; document loading and public resets MUST NOT bypass protection.
+
+## LN-ARCH-134 — Persistence-safe editor destruction
+
+<a id="ln-arch-134"></a>
+
+**Requirement.** Editor destruction MUST stop editing and begin draining queued snapshots instead of canceling them. Awaitable disposal MUST join persistence and report failure. Dirty retired sessions MUST remain registered for explicit host retry after their view is destroyed, and late completions MUST NOT notify a disposed or rebound surface. Successful retry MUST release retired registration without changing another document's buffer.
+
+## LN-ARCH-135 — Captured external persistence writer
+
+<a id="ln-arch-135"></a>
+
+**Requirement.** API editors MAY bind an asynchronous external persistence writer. Saves MUST capture that writer and original App/file/content, join its completion and retain failure before acknowledging saved data; rebinding MUST NOT redirect queued writes. Protected admission MUST reject external mode without an explicit writer because notifications cannot prove persistence. Legacy notification-only editing MAY remain available, but queued unverified sessions MUST retain their barrier after retirement.
+
+## LN-ARCH-136 — Text view save ownership
+
+<a id="ln-arch-136"></a>
+
+**Requirement.** `TextFileView.save` MUST persist the current Editor buffer through its captured persistence boundary rather than issue a parallel Vault write from cached view data. It MUST reject while editing is protected or destroyed and await persistence before reporting success. Optional clearing MUST affect only the same file binding captured before saving.
+
+## LN-ARCH-129 — App-owned file editing sessions
+
+<a id="ln-arch-129"></a>
+
+**Requirement.** Each App MUST own a generic file editing-session registry, independent of Mira and Sync protocols. Sessions MUST expose dirty state, asynchronous flush and protection with an idempotent release. Registrations MUST bind a canonical vault-relative path and deduplicate a shared session. Detached dirty sessions MUST remain discoverable until successful persistence; changing paths MUST require a new session while the old session remains dirty.
+
+## LN-ARCH-130 — Protected editing-session admission
+
+<a id="ln-arch-130"></a>
+
+**Requirement.** Registry guards MUST serialize callbacks, protect every matching session before flushing and admit mutation only after all protections and saves settle successfully; pathless guards MUST cover every file. Matching registration during admission or mutation MUST reject synchronously so writers can disable editing. Failed admission MUST drain all acquired releases. Callback failure MUST still release every acquired protection; failed release MUST withhold subsequent admission until cleanup succeeds.
+
+## LN-ARCH-131 — Editing-session registry shutdown
+
+<a id="ln-arch-131"></a>
+
+**Requirement.** Registry shutdown MUST synchronously reject new registration, flush and guard requests, join admitted callbacks, reject not-yet-running callbacks and protect/flush remaining sessions before completion. A failed save or release MUST remain observable after all work settles and retain retryable cleanup. Repeated shutdown MUST join in-flight cleanup and permit retry after failure. Registrations and protection barriers MUST remain instance-owned without consulting ambient application state.
+
+The registry does not replace API-editor discovery or activate Sync apply. Hosts
+must integrate every writer's registration and lifecycle before selecting it as
+the production apply guard.
+
+## LN-ARCH-125 — Serialized editor persistence barrier
+
+<a id="ln-arch-125"></a>
+
+**Requirement.** API editor persistence MUST serialize debounced and explicit saves. Flush MUST join in-flight writes and drain the latest queued value; older completions MUST NOT replace a newer buffer through change notifications. Failed persistence MUST remain dirty, reject flushing and permit an explicit retry without losing the current buffer. Background failures MUST NOT become unhandled promise rejections.
+
+## LN-ARCH-126 — Captured editor persistence destination
+
+<a id="ln-arch-126"></a>
+
+**Requirement.** Queued editor changes MUST retain their owning application, file and persistence mode from queue time. Switching files MUST NOT redirect an old write or notify the new document with old content. Editor reconfiguration MUST NOT discard pending persistence. These rules MUST apply independently of whether a pane is active.
+
+## LN-ARCH-127 — Guarded editor file refresh
+
+<a id="ln-arch-127"></a>
+
+**Requirement.** File-change refresh MUST preserve unsaved editor text and reject reads completed after a document, owner, buffer or persistence generation changes. Out-of-order reads and disposed trackers MUST NOT restore stale content. Clean buffers MUST remain refreshable; a matching disk value MAY acknowledge mirrored content without replacing it. Failed refresh MUST retain the buffer and remain observable without an unhandled promise rejection.
+
+## LN-ARCH-128 — Workspace-wide editor flush
+
+<a id="ln-arch-128"></a>
+
+**Requirement.** App Sync flush MUST discover workspace-owned API editors across active, inactive, sidebar, grouped and floating leaves. It MUST deduplicate shared instances, honor a requested path and reject changed document bindings or failed persistence. Every captured flush MUST settle before success or failure returns; success MUST require a matching editor. External Mira sessions require their separately registered persistence/protection boundary.
+
 ## LN-ARCH-010 — Editor demo bootstrap ownership
 
 <a id="ln-arch-010"></a>

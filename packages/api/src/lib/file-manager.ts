@@ -254,6 +254,18 @@ export class FileManager {
    * @public
    */
   async renameFile(file: TAbstractFile, newPath: string): Promise<void> {
+    const capturedPath = file.path;
+    await this.app.fileEditingSessions.guard(undefined, async () => {
+      if (file.path !== capturedPath)
+        throw new Error("Rename target changed during editor admission");
+      await this.renameProtectedFile(file, newPath);
+    });
+  }
+
+  private async renameProtectedFile(
+    file: TAbstractFile,
+    newPath: string,
+  ): Promise<void> {
     if (!(file instanceof TFile)) {
       return this.app.vault.rename(file, newPath);
     }

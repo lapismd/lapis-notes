@@ -1,5 +1,27 @@
 # Workspace Shell / View lifecycle
 
+Text file loading registers and protects its target under LN-ARCH-137 and
+LN-ARCH-138. A failed original save preserves the old binding; superseded or
+unloaded reads cannot publish stale content. Managed rename protects and flushes all registered writers under LN-ARCH-139.
+Workspace navigation-event ordering remains part of the complete host integration.
+
+API editor destruction begins persistence rather than dropping pending timers
+under LN-ARCH-134. Retired failed sessions remain owned by the original App;
+host shutdown must drain them before disposing storage. Workspace navigation
+and complete host teardown integration remain required for production Sync.
+
+Plugin disable awaits the host security revocation described by LN-ARCH-118.
+Closing a workspace leaf continues to use its view/component lifetime; the
+owning plugin and application host control runtime revocation and disposal.
+
+LN-ARCH-128 discovers owned editors through the complete leaf tree, including
+inactive tabs, docked groups and floating hosts. Persistence failures remain
+visible to the caller; switching a document during flush rejects that snapshot.
+Independent writers register outside leaf discovery through the App-owned
+registry in LN-ARCH-129 through LN-ARCH-131. Detaching a dirty session does not
+remove its persistence barrier; hosts must await explicit registry cleanup at
+their complete lifetime boundary before releasing backing storage.
+
 ## LN-WS-063 — Workspace.getLeaf() without a new-leaf flag and App.openFile: reuse an empty or file-backed main-area leaf
 
 <a id="ln-ws-063"></a>

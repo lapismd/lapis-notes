@@ -1,5 +1,15 @@
 # Packages / App and services
 
+Sync security may use a host-owned store independent of the application index
+(LN-ARCH-114). The native repository retains wrapped envelopes in a dedicated
+versioned database with atomic conditional metadata writes (LN-ARCH-115).
+`SyncHostServiceOptions.securityProvider` selects endpoint custody per plugin;
+`SyncHostSecurityProvider` creates runtime-scoped capabilities and revokes them.
+The public host controller's `dispose()` drains this custody after invalidation
+(LN-ARCH-117/LN-ARCH-118).
+Desktop composes this provider for `sync` with native profile admission, JSON
+security RPC and dedicated wrapped-key storage (LN-DENO-079 through LN-DENO-081).
+
 ## LN-PKG-001 — @lapis-notes/api: remain the shared runtime kernel: app container
 
 <a id="ln-pkg-001"></a>
@@ -107,6 +117,14 @@
 <a id="ln-pkg-148"></a>
 
 **Requirement.** `@lapis-notes/api` MAY advertise a transport-neutral `nostr-signer` native capability but MUST NOT implement OS credential storage or Nostr cryptography. The private Deno desktop host MUST own its keychain, NIP-46, native signing service, renderer broker, and direct `nostr-tools` runtime dependency.
+
+This native-signer boundary concerns the `nostr-signer` capability. Separately,
+the purpose-scoped Sync security contract follows LN-ARCH-092/LN-ARCH-093 and
+LN-ARCH-111 through LN-ARCH-113. Trusted hosts use the headless
+`@lapis-notes/api/sync-security-host` entrypoint and retain protected storage and
+lifecycle ownership. Protocol plugins receive scoped capabilities; explicit
+pairing delivery does not open a relay, and installed epoch metadata contains no
+key bytes.
 
 ## LN-PKG-080 — @lapis-notes/api: own transport-neutral app-tool contracts, lifecycle, and Vault-backed
 

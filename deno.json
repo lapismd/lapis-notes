@@ -6,6 +6,11 @@
   ],
   "nodeModulesDir": "none",
   "imports": {
+    "@lapis-notes/api/sync-security-host": "./packages/api/src/lib/sync-host-security.ts",
+    "@lapis-notes/api/metadata-store": "./packages/api/src/lib/metadata-store.ts",
+    "@lapis-notes/deno-host-services/sync-security-store": "./packages/deno-host-services/src/sync-security-store.ts",
+    "@noble/ciphers": "npm:@noble/ciphers@2.1.1",
+    "@noble/hashes": "npm:@noble/hashes@2.0.1",
     "@codemirror/language": "npm:@codemirror/language@6.11.3",
     "@lapis-notes/api/app-database": "./packages/api/src/lib/app-database-host.ts",
     "@lapis-notes/api/language-service": "./packages/api/src/lib/language-service/index.ts",
