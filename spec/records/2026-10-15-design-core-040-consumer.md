@@ -105,5 +105,35 @@ change the protected mappings or waive the gate.
 The explicit complete-PR spec-first rerun passes: 13 protected files and 24
 canonical chapters (three missing plugin mappings before, zero after).
 The independent Bases #27 candidate then passes all ten required CI jobs,
-including all 235 browser stories, and is merged at 163d5d9f. Publication still
-requires approval before Notes can consume the repaired package from npm.
+including all 235 browser stories, and is merged at 163d5d9f.
+
+## Approved Bases publication and registry consumer refresh
+
+The user approved the releases. Bases-only production workflow `38817081439`
+completed successfully from `163d5d9f`. Its first browser attempt lost the
+Vitest orchestrator connection before Sync's six panel stories started. The
+diagnostic retry and final production gates passed; no assertion or gate was
+relaxed. The independent main rerun also passed all 235 stories.
+
+Published `@lapis-notes/bases@0.1.4` matches the production candidate exactly:
+
+- npm SHA-256: `0047d4db6324fd38682b9c601d443b424fed37d80112fc817a4d88516e5b041e`.
+- Signed archive SHA-256: `fcae60d5f7a5331f741333f787cff065829d76a82e7115667c04c99497874327`.
+- The npm integrity, package version, unchanged Design Core `^0.3.2` range,
+  source commit and four-entry signed archive were verified. Registry PR #33
+  passed checks and merged with those exact release coordinates. Its deployment
+  passed, and the public registry reports Bases 0.1.4 with the matching archive
+  hash and size.
+
+Notes now requires Bases `^0.1.4` and resolves its public npm tarball with the
+local pnpm hook disabled. Editable Cells targets the named property visibility
+button exposed by the repaired grid, retaining its selected-marker and colour
+assertions. The exact retained-catalog command above is the consumer regression;
+full package, host and catalog qualification stays in required CI.
+
+The final frozen registry install succeeds with only Bases coordinates and
+integrity changed in the lockfile. The exact four-file cold command passes all
+six selected cases (29 unselected cases skipped), with zero interaction or axe
+failures. This closes the remaining published-package failure: one schema
+failure before, zero after. Audit passes with the existing documented QMD
+exception; specification validation and the complete-PR spec-first gate pass.

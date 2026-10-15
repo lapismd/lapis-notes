@@ -468,8 +468,8 @@ export const EditableCells: Story = {
     );
 
     await userEvent.click(canvas.getByRole("button", { name: "Properties" }));
-    const projectOption = await body.findByRole("option", {
-      name: "Project",
+    const projectOption = await body.findByRole("button", {
+      name: "Toggle Project visibility",
       exact: true,
     });
     const selectedMarker = projectOption.querySelector<HTMLElement>(
@@ -506,7 +506,9 @@ export const EditableCells: Story = {
     await waitFor(() => {
       expect(filterPopover).toBeVisible();
       expect(
-        Math.abs(filterPopover!.getBoundingClientRect().width - sortPopoverWidth),
+        Math.abs(
+          filterPopover!.getBoundingClientRect().width - sortPopoverWidth,
+        ),
       ).toBeLessThan(1);
       expect(filterPopover!.getBoundingClientRect().width).toBeCloseTo(
         canvasElement.ownerDocument.defaultView!.innerWidth * 0.45,
