@@ -1,5 +1,9 @@
 # Architecture / Dependency boundaries
 
+UI class-helper dependencies install from the published manifest. The lockfile
+records `clsx` and `tailwind-merge` as UI runtime dependencies, so a clean
+production consumer does not rely on workspace development dependencies.
+
 Dependency-image refreshes follow LN-GOV-050 when proposing the new digest:
 merged and closed reviews produce a fresh PR rather than absorb a later pin.
 

@@ -4,7 +4,7 @@
 | ID | Chapter | Status | Evidence |
 | --- | --- | --- | --- |
 | LN-ARCH-001 | [architecture](../architecture/dependency-boundaries.md#ln-arch-001) | Implemented | root Turbo graph plus host-filtered cached build scripts and package preflights |
-| LN-ARCH-002 | [architecture](../architecture/dependency-boundaries.md#ln-arch-002) | Implemented | framework and app packages remain under `packages/*`; all eleven extracted packages are owned by sibling `lapis-plugins`, and the duplicated source tree is removed |
+| LN-ARCH-002 | [architecture](../architecture/dependency-boundaries.md#ln-arch-002) | Implemented | Framework and app packages remain under `packages/*`; extracted plugins stay in sibling `lapis-plugins`. The UI package class helper declares its runtime imports, covered by `utils.test.ts` and a production-only packed consumer. |
 | LN-ARCH-003 | [architecture](../architecture/dependency-boundaries.md#ln-arch-003) | Implemented | Lapis Notes retains one root Storybook and sibling `lapis-plugins` provides one repository-level Storybook covering all eleven packages |
 | LN-ARCH-004 | [architecture](../architecture/dependency-boundaries.md#ln-arch-004) | Implemented | no `check:source-resolution` scripts |
 | LN-ARCH-005 | [architecture](../architecture/dependency-boundaries.md#ln-arch-005) | Implemented | Root manifest and lockfile consume `@lapismd/design-core` through a published semver range while package-export resolution remains covered by build and Storybook gates |

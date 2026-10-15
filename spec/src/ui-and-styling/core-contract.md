@@ -1,5 +1,9 @@
 # UI and Styling / Retained UI contracts
 
+The retained class helper keeps its existing behavior. Its `clsx` and
+`tailwind-merge` imports are published runtime dependencies; correcting that
+package boundary does not add utility classes to component markup.
+
 ## LN-UI-001 — Shared primitive migration tracking
 
 <a id="ln-ui-001"></a>
