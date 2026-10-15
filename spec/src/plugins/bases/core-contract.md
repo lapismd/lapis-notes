@@ -6,6 +6,7 @@ through a registry release. Consumer plays wait for visible suggestions and
 settled popover geometry while keeping their existing assertions and axe gate.
 Property visibility acceptance targets the named toggle buttons in the public
 picker grid and preserves the selected-marker and theme-colour assertions.
+Retained Mobile shell acceptance uses the published count-bearing tab-dock name.
 
 ## LN-BASE-001 — Legacy Bases behavior preservation
 

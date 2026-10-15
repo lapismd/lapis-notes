@@ -1,6 +1,6 @@
 # Explorer Plugin
 
-The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
+The Design Core dependency refresh consumes released `0.5.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.
 

@@ -487,7 +487,7 @@ export const Mobile: Story = {
     expect(app.workspace.rightSplit.collapsed).toBe(true);
     await expect(canvas.getByTestId("ai-chat-panel")).toBeVisible();
     await expect(
-      canvas.getByRole("button", { name: /Open tabs/u }),
+      canvas.getByRole("button", { name: /^Open \d+ tabs$/u }),
     ).toBeVisible();
   },
 };
@@ -602,7 +602,9 @@ export const LocalConversations: Story = {
       expect(
         within(panel).getByRole("button", { name: "Conversation actions" }),
       ).toHaveAttribute("aria-expanded", "false");
-      expect(getComputedStyle(conversationTrigger).pointerEvents).not.toBe("none");
+      expect(getComputedStyle(conversationTrigger).pointerEvents).not.toBe(
+        "none",
+      );
     });
     await userEvent.click(
       within(panel).getByRole("button", { name: "Effort and model" }),
@@ -619,7 +621,9 @@ export const LocalConversations: Story = {
       expect(
         body.queryByRole("menuitemradio", { name: "gpt-5.6-sol" }),
       ).toBeNull();
-      expect(getComputedStyle(conversationTrigger).pointerEvents).not.toBe("none");
+      expect(getComputedStyle(conversationTrigger).pointerEvents).not.toBe(
+        "none",
+      );
     });
     await userEvent.click(
       within(panel).getByRole("button", {
@@ -952,7 +956,9 @@ export const FollowScope: Story = {
     );
     await userEvent.click(scopeTrigger);
     const body = within(canvasElement.ownerDocument.body);
-    const folderSearch = await body.findByPlaceholderText("Search chat folders");
+    const folderSearch = await body.findByPlaceholderText(
+      "Search chat folders",
+    );
     await waitFor(() => expect(folderSearch).toBeVisible());
     await userEvent.click(body.getByRole("option", { name: "Vault" }));
     await waitFor(() => {

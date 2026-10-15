@@ -5,4 +5,4 @@
 "@lapis-notes/file-explorer": patch
 ---
 
-Consume published Design Core 0.4.0 with prepared browser CSS and bundled font assets through normal npm ranges.
+Consume published Design Core 0.5.0 with prepared browser CSS and bundled font assets through normal npm ranges.

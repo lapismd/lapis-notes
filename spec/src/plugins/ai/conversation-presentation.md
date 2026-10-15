@@ -4,6 +4,7 @@ Prepared Design Core CSS includes overlay entrance and exit transitions. The
 retained Notes chat and shell acceptance waits for visible menu state and
 released pointer handling, while preserving normal input guards and native
 animation. Tool summaries are selected through their public call-name part.
+Retained Mobile shell acceptance uses the published count-bearing tab-dock name.
 
 ## LN-AI-096 — Open Chat action
 

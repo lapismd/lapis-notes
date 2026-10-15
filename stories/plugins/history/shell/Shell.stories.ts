@@ -258,7 +258,7 @@ export const Mobile: Story = {
     expect(app.plugins.isPluginEnabled("search")).toBe(true);
     expect(app.workspace.rightSplit.collapsed).toBe(true);
     await expect(
-      canvas.getByRole("button", { name: /Open tabs/u }),
+      canvas.getByRole("button", { name: /^Open \d+ tabs$/u }),
     ).toBeVisible();
   },
 };

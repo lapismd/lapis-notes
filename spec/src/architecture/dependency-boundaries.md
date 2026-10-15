@@ -1,7 +1,7 @@
 # Architecture / Dependency boundaries
 
 Framework packages and application hosts require published Design Core
-`^0.4.0`, including its prepared browser CSS and bundled font assets. The
+`^0.5.0`, including its prepared browser CSS and bundled font assets. The
 registry dependency refresh retains public export resolution and existing
 application-owned state; it does not activate Sync or publish local host work.
 Notes declares its own Prettier and JSDoc formatter development dependencies;
