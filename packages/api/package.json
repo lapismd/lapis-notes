@@ -18,7 +18,7 @@
   "type": "module",
   "dependencies": {
     "@lapismd/ai-host": "^0.1.0",
-    "@lapismd/design-core": "^0.3.2",
+    "@lapismd/design-core": "^0.4.0",
     "@lapismd/mira": "~0.0.3",
     "@huggingface/transformers": "^4.2.0",
     "@tursodatabase/database-wasm": "0.7.2",
@@ -113,7 +113,7 @@
     "@codemirror/state": "^6.4.1",
     "@codemirror/view": "^6.35.0",
     "@lapis-notes/ui": "^0.1.2",
-    "@lapismd/design-core": "^0.3.2",
+    "@lapismd/design-core": "^0.4.0",
     "@lapismd/mira": "~0.0.3",
     "@lezer/highlight": "^1.2.1",
     "@lezer/markdown": "^1.4.3",

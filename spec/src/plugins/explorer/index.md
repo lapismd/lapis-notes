@@ -1,5 +1,9 @@
 # Explorer Plugin
 
+The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
+components through public exports. Existing application ownership, host
+behavior and plugin activation remain unchanged.
+
 File Explorer requires published Design Core `^0.3.2` alongside its API peer. Its public artifact remains independently versioned and the release consumes registry dependencies rather than local review tarballs.
 
 File Explorer 0.1.1 records landing-leaf reuse in its independent changelog.

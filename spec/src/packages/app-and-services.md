@@ -1,5 +1,9 @@
 # Packages / App and services
 
+The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
+components through public exports. Existing application ownership, host
+behavior and plugin activation remain unchanged.
+
 Sync security may use a host-owned store independent of the application index
 (LN-ARCH-114). The native repository retains wrapped envelopes in a dedicated
 versioned database with atomic conditional metadata writes (LN-ARCH-115).

@@ -1,5 +1,9 @@
 # Lapis Editor Demo / Editor scenarios / Part 1
 
+The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
+components through public exports. Existing application ownership, host
+behavior and plugin activation remain unchanged.
+
 ## LN-ED-001 — @lapis-notes/api: export a complete non-persistent MemoryVaultAdapter for deterministic
 
 <a id="ln-ed-001"></a>

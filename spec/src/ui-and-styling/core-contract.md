@@ -1,5 +1,10 @@
 # UI and Styling / Retained UI contracts
 
+The retained UI consumes published Design Core `^0.4.0`, including prepared
+browser CSS and bundled font assets, through the existing public style exports.
+Its patch release intent updates dependency compatibility without adding a
+second component styling path.
+
 UI 0.1.3 is the prepared packaging patch for the retained runtime dependency
 declarations. Its CSS, tokens, component markup and public exports are unchanged.
 The release follow-up retains ordinary source and release validation.

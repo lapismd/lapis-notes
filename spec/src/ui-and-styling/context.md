@@ -10,7 +10,7 @@ upstream document text-selection listener teardown fix. Dependency-originated
 Svelte diagnostics remain fatal, and retained diagnostics fail after story
 teardown even when component cleanup catches the immediate exception.
 
-UI and Workspace consumers require published Design Core `^0.3.2` for bold Settings headings, selected-tab separator alignment, native window-controls allowances and mobile shell teardown. Presentation continues to use public Design Core tokens and components.
+UI and Workspace consumers require published Design Core `^0.4.0`, retaining bold Settings headings, selected-tab separator alignment, native window-controls allowances and mobile shell teardown alongside prepared browser CSS and bundled fonts. Presentation continues to use public Design Core tokens and components.
 
 UI 0.1.1 carries the shared search-highlight tokens used by the static registry
 plugin candidates. API consumers require that public version while continuing

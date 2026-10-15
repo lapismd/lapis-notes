@@ -1,5 +1,9 @@
 # Workspace Shell / Chrome and navigation
 
+The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
+components through public exports. Existing application ownership, host
+behavior and plugin activation remain unchanged.
+
 ## LN-WS-014 — Desktop top and stacked main-workspace panes: expose design-core's pane-level maximize toggle beside tab
 
 <a id="ln-ws-014"></a>

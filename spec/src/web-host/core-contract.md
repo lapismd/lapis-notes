@@ -1,5 +1,9 @@
 # Web Host / Browser integration
 
+The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
+components through public exports. Existing application ownership, host
+behavior and plugin activation remain unchanged.
+
 Complete CI browser acceptance under LN-PKG-161 includes the real server-host
 editing, sharing and restart scenario. Its private bootstrap fixture is seeded
 for the container user and retains the original browser assertions and deadlines.

@@ -1,5 +1,12 @@
 # Architecture / Dependency boundaries
 
+Framework packages and application hosts require published Design Core
+`^0.4.0`, including its prepared browser CSS and bundled font assets. The
+registry dependency refresh retains public export resolution and existing
+application-owned state; it does not activate Sync or publish local host work.
+Notes declares its own Prettier and JSDoc formatter development dependencies;
+Design Core's authoring tools are no longer supplied as runtime dependencies.
+
 Retained UI dependencies install from the published manifest. The lockfile
 records `clsx`, `tailwind-merge`, `bits-ui` and `@lucide/svelte` as UI runtime
 dependencies, so a clean production consumer does not rely on workspace
