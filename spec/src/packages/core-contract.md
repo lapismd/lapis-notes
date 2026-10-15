@@ -16,6 +16,11 @@ Hosts retain the verified installer's hash, signature and selected-release check
 
 **Requirement.** `@lapis-notes/ui` MUST export only the pruned surface required by api (plus documented transitive dependencies).
 
+The retained class helper imports `clsx` and `tailwind-merge`; dialogs and
+sidebar controls use `bits-ui`, and Search uses `@lucide/svelte`. These are
+runtime dependencies in the published UI manifest. Package consumers do not
+install the UI package's development dependencies.
+
 ## LN-PKG-046 — Private @lapis-notes/web version 2026.6.3: live at packages/web and expose dev, build
 
 <a id="ln-pkg-046"></a>

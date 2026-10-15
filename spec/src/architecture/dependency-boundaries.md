@@ -1,5 +1,10 @@
 # Architecture / Dependency boundaries
 
+Retained UI dependencies install from the published manifest. The lockfile
+records `clsx`, `tailwind-merge`, `bits-ui` and `@lucide/svelte` as UI runtime
+dependencies, so a clean production consumer does not rely on workspace
+development dependencies.
+
 Dependency-image refreshes follow LN-GOV-050 when proposing the new digest:
 merged and closed reviews produce a fresh PR rather than absorb a later pin.
 

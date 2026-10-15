@@ -12,7 +12,7 @@
 | LN-UI-005 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-005) | In progress | Storybook loads design-core styles + lapis theme; production hosts still pending |
 | LN-UI-006 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-006) | Implemented | AA-safe `--primary` / `--destructive` in design-core lapis theme |
 | LN-UI-007 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-007) | Implemented | ui `theme.css` alias-only; brand in design-core `themes/lapis.css` |
-| LN-UI-008 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-008) | Implemented | compounds + api chrome on native CSS; stories excluded |
+| LN-UI-008 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-008) | Implemented | Compounds and API chrome use native CSS; stories excluded. The retained UI import regression and runtime dependency correction leave component utility-class restrictions unchanged. |
 | LN-UI-009 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-009) | Implemented | `pnpm check:no-tailwind` in root/package `check` |
 | LN-UI-010 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-010) | Implemented | design-core `WorkspaceStartup`; semantic source-editor classes and demo CSS |
 | LN-UI-011 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-011) | Implemented | Mira Obsidian theme CSS and `data-mira-theme="obsidian"` on the source editor host |
