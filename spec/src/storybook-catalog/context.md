@@ -161,3 +161,7 @@ the source plugin catalog. Their opening-overlay and post-focus pointer checks
 wait for the expected visible geometry without relaxing tolerances. Bases
 accessibility qualification must use its published picker repair; the consumer
 must not patch installed source or suppress the open-picker violations.
+
+Retained AI shell plays also wait for menu closure to release pointer handling
+before Settings, folder-scope and history actions. They retain the native
+animations and normal userEvent pointer guards.

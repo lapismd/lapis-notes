@@ -75,3 +75,19 @@ and rerun the exact scenario; no local source patch qualifies this boundary.
 ```sh
 CI=1 pnpm exec vitest run --project storybook --no-file-parallelism stories/plugins/ai/AiChat.stories.ts stories/plugins/bases/BasesViews.stories.ts stories/plugins/bases/BasesWorkflows.stories.ts stories/plugins/graph/panels/Graph.stories.ts -t 'Agent Trace|Editable Cells|Query Controls|Schema And View Settings|Middle Top Tabs'
 ```
+
+### Retained AI shell impact check
+
+The same AI shell file retained in Notes independently reproduces the four
+final-shard failures seen in Plugins #26. The exact cold four-story command
+reports four failures before the same Notes-owned overlay-readiness repair.
+This proactively checks the later consumer shard while Bases publication still
+blocks the schema accessibility case.
+
+```sh
+CI=1 pnpm exec vitest run --project storybook --no-file-parallelism stories/plugins/ai/shell/Shell.stories.ts -t 'Desktop|Community Tool Opt In|Local Conversations|Follow Scope'
+```
+
+The final retained-shell cold rerun passes all four selected stories with axe
+enabled. No broad local catalog or host suites were started. The one remaining
+known Notes failure is the unchanged published-Bases schema accessibility case.
