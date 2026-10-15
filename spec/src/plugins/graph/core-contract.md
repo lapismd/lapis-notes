@@ -1,5 +1,9 @@
 # Graph Plugin / Graph behavior
 
+Retained Notes Graph acceptance remeasures the Group remove button after query
+focus can scroll the settings viewport. Its existing pointer-hit assertion uses
+the current geometry instead of a rectangle captured before that focus change.
+
 ## LN-GRAPH-001 — Graph: live at packages/graph in the sibling lapis-plugins
 
 <a id="ln-graph-001"></a>

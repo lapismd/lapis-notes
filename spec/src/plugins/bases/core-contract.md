@@ -1,5 +1,10 @@
 # Bases Plugin / Bases queries and views
 
+Retained Notes acceptance consumes the published Bases package. Its picker
+accessibility repair belongs to the sibling plugin source and must reach Notes
+through a registry release. Consumer plays wait for visible suggestions and
+settled popover geometry while keeping their existing assertions and axe gate.
+
 ## LN-BASE-001 — Legacy Bases behavior preservation
 
 <a id="ln-base-001"></a>

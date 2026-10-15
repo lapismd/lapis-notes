@@ -91,3 +91,19 @@ CI=1 pnpm exec vitest run --project storybook --no-file-parallelism stories/plug
 The final retained-shell cold rerun passes all four selected stories with axe
 enabled. No broad local catalog or host suites were started. The one remaining
 known Notes failure is the unchanged published-Bases schema accessibility case.
+
+### Complete-PR specification mapping
+
+The remote governance gate compares the whole PR against remote main. It
+reports three missing owning canonical plugin chapters for retained AI, Bases
+and Graph story changes. The local default working-copy check did not exercise
+that complete-PR boundary. Update the three actual owning contract/presentation
+chapters and their verification evidence, then rerun the same gate with remote
+main 8f7c7ea9 as the explicit base and the complete candidate as head. Do not
+change the protected mappings or waive the gate.
+
+The explicit complete-PR spec-first rerun passes: 13 protected files and 24
+canonical chapters (three missing plugin mappings before, zero after).
+The independent Bases #27 candidate then passes all ten required CI jobs,
+including all 235 browser stories, and is merged at 163d5d9f. Publication still
+requires approval before Notes can consume the repaired package from npm.
