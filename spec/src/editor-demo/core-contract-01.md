@@ -250,7 +250,7 @@ The live-edit parity scenario verifies:
 
 <a id="ln-ed-042"></a>
 
-**Requirement.** The real Editor Settings story MUST show separate Markdown and Features sections, toggle a representative feature, and verify its existing dotted key in `.obsidian/app.json`. It MUST verify that no `markdown.mira.features` group object is persisted.
+**Requirement.** The real Editor Settings story MUST show separate Markdown and Features sections, toggle a representative feature, and verify its existing dotted key in `.obsidian/app.json`. It MUST verify that no `markdown.mira.features` group object is persisted. Optional-divider acceptance MUST wait for persisted enablement and reveal the divider in the editor viewport before checking its rendered SVG.
 
 ## LN-ED-043 — Runnable editor demo: register Markdownlint after Markdown and open
 

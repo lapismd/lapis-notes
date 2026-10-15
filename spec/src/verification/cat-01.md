@@ -9,7 +9,7 @@
 | LN-CAT-004 | [storybook-catalog](../storybook-catalog/documentation-and-navigation.md#ln-cat-004) | Implemented | docs link to spec chapters |
 | LN-CAT-005 | [storybook-catalog](../storybook-catalog/core-contract.md#ln-cat-005) | Implemented | noted in `MIGRATION.md` |
 | LN-CAT-006 | [storybook-catalog](../storybook-catalog/build-and-process.md#ln-cat-006) | Implemented | Visual Delta baselines under `tests/visual/…`; tags `visual-pending` |
-| LN-CAT-007 | [storybook-catalog](../storybook-catalog/interaction-and-accessibility.md#ln-cat-007) | Implemented | `api-ui-status` + portal body assertions in plays |
+| LN-CAT-007 | [storybook-catalog](../storybook-catalog/interaction-and-accessibility.md#ln-cat-007) | Implemented | `api-ui-status` + portal body assertions in plays. Design Core 0.4.0 regression acceptance waits for menu visibility and final geometry, and checks the media dialog/image instead of its hidden title. |
 | LN-CAT-008 | [storybook-catalog](../storybook-catalog/interaction-and-accessibility.md#ln-cat-008) | Implemented | `.storybook/vitest.setup.ts` + `parameters.a11y.test: "error"` |
 | LN-CAT-009 | [storybook-catalog](../storybook-catalog/build-and-process.md#ln-cat-009) | Implemented | preview/manager: Obsidian-default brand selector, light/dark toggle, design-core styles + lapis + ui alias theme |
 | LN-CAT-010 | [storybook-catalog](../storybook-catalog/core-contract.md#ln-cat-010) | Implemented | stories excluded from no-tailwind scan |

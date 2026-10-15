@@ -994,11 +994,13 @@ export const MarkdownProblems: Story = {
     let warningsFilter = await overlayCanvas.findByRole("menuitemcheckbox", {
       name: /^Warnings: [1-9]\d*$/,
     });
-    expect(
-      overlayCanvas.getByRole("menuitemcheckbox", {
-        name: /^Infos: \d+$/,
-      }),
-    ).toBeVisible();
+    await waitFor(() =>
+      expect(
+        overlayCanvas.getByRole("menuitemcheckbox", {
+          name: /^Infos: \d+$/,
+        }),
+      ).toBeVisible(),
+    );
     const severityItems = [
       overlayCanvas.getByRole("menuitemcheckbox", { name: /^Errors: \d+$/ }),
       warningsFilter,
@@ -1007,9 +1009,11 @@ export const MarkdownProblems: Story = {
     ];
     const severityMenu = warningsFilter.closest<HTMLElement>('[role="menu"]');
     expect(severityMenu).not.toBeNull();
-    const severityMenuWidth = severityMenu!.getBoundingClientRect().width;
-    expect(severityMenuWidth).toBeGreaterThanOrEqual(224);
-    expect(severityMenuWidth).toBeLessThan(288);
+    await waitFor(() => {
+      const severityMenuWidth = severityMenu!.getBoundingClientRect().width;
+      expect(severityMenuWidth).toBeGreaterThanOrEqual(224);
+      expect(severityMenuWidth).toBeLessThan(288);
+    });
     const severityIconColors = new Set<string>();
     const countRightEdges = new Set<number>();
     for (const item of severityItems) {
@@ -2763,6 +2767,13 @@ export const EditorSettings: Story = {
       ).not.toBeNull(),
     );
     await userEvent.click(doodleDividers);
+    await waitFor(async () =>
+      expect(
+        (await persistedStoryConfiguration(canvasElement))[
+          "markdown.mira.editor.doodleDividers.enabled"
+        ],
+      ).toBe(true),
+    );
     const editor = activeStoryEditor(canvasElement);
     const dividerEnd = editor
       .getValue()
@@ -2770,6 +2781,13 @@ export const EditorSettings: Story = {
     expect(dividerEnd).toBeGreaterThan(0);
     editor.setCursor(editor.offsetToPos(dividerEnd + 4));
     editor.focus();
+    editor.scrollIntoView(
+      {
+        from: editor.offsetToPos(dividerEnd),
+        to: editor.offsetToPos(dividerEnd + 3),
+      },
+      true,
+    );
     await waitFor(() =>
       expect(
         canvasElement.querySelector("svg.mira-doodle-divider"),
@@ -2858,10 +2876,11 @@ export const EditorSettings: Story = {
     await expect(association).toBeVisible();
     await userEvent.click(association);
     const page = within(canvasElement.ownerDocument.body);
-    await expect(page.getByRole("option", { name: "Markdown" })).toBeVisible();
-    await expect(page.getByRole("option", { name: "Text" })).toBeVisible();
-    await expect(page.getByRole("option", { name: "JSON" })).toBeVisible();
-    await expect(page.getByRole("option", { name: "YAML" })).toBeVisible();
+    await waitFor(() => {
+      for (const name of ["Markdown", "Text", "JSON", "YAML"]) {
+        expect(page.getByRole("option", { name })).toBeVisible();
+      }
+    });
   },
 };
 
