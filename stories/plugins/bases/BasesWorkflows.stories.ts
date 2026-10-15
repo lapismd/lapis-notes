@@ -124,7 +124,9 @@ export const QueryControls: Story = {
     await waitFor(() => expect(view.sort).toHaveLength(2));
     const groupProperty = body.getAllByRole("button", { name: /Property/ })[0]!;
     await userEvent.click(groupProperty);
-    expect(body.getByPlaceholderText("Group by property")).toBeVisible();
+    await waitFor(() =>
+      expect(body.getByPlaceholderText("Group by property")).toBeVisible(),
+    );
     await userEvent.click(body.getAllByText("Status").at(-1)!);
     await waitFor(() =>
       expect(view.groupBy).toMatchObject({ property: "note.status" }),
@@ -148,9 +150,11 @@ export const QueryControls: Story = {
     );
 
     await userEvent.click(canvas.getByRole("button", { name: /2 results/ }));
-    expect(body.getByRole("button", { name: "Copy to clipboard" })).toBeVisible();
-    expect(body.getByRole("button", { name: "Export CSV..." })).toBeVisible();
-    expect(canvas.getByRole("button", { name: "New" })).toBeVisible();
+    await waitFor(() => {
+      expect(body.getByRole("button", { name: "Copy to clipboard" })).toBeVisible();
+      expect(body.getByRole("button", { name: "Export CSV..." })).toBeVisible();
+      expect(canvas.getByRole("button", { name: "New" })).toBeVisible();
+    });
     await userEvent.click(canvas.getByRole("button", { name: /2 results/ }));
   },
 };

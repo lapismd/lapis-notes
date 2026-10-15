@@ -54,3 +54,24 @@ original failing stories now pass, with zero interaction or axe failures in
 those targets. Specification validation passes (1439 requirements). Full suites
 remain delegated to required CI because of the user's memory-pressure request.
 No timeout, width tolerance, accessibility gate or visual baseline was relaxed.
+
+## PR #36 second-shard follow-up
+
+Run `38809562555` passes all 90 first-shard stories. Its next shard reports
+five failures (60 passed): the retained AI Agent Trace, Bases Editable Cells,
+Bases Query Controls, Bases Schema And View Settings and Graph Middle Top Tabs.
+These consumer stories are independent of the plugin repository's catalog.
+
+The exact five-target cold local reproduction reports five failures. Updating
+only Notes-owned menu readiness, public tool-summary selection and current
+pointer geometry reduces that to one failure (five other selected cases pass).
+Schema And View Settings still correctly fails axe against published Bases
+0.1.3 for input/list, button-name and nested-interactive violations. Its
+assertions and accessibility gate remain unchanged. The source fix is split
+into a standalone Bases 0.1.4 candidate on Plugins main so it can be published
+before the Notes API/UI refresh. Notes must then consume that registry release
+and rerun the exact scenario; no local source patch qualifies this boundary.
+
+```sh
+CI=1 pnpm exec vitest run --project storybook --no-file-parallelism stories/plugins/ai/AiChat.stories.ts stories/plugins/bases/BasesViews.stories.ts stories/plugins/bases/BasesWorkflows.stories.ts stories/plugins/graph/panels/Graph.stories.ts -t 'Agent Trace|Editable Cells|Query Controls|Schema And View Settings|Middle Top Tabs'
+```

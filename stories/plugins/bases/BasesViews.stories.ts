@@ -338,9 +338,11 @@ export const EditableCells: Story = {
       expect(owner.selectionStart).toBe(0);
       expect(owner.selectionEnd).toBe("Maya Chen".length);
     });
-    for (const suggestion of ["Maya Chen", "Priya Shah", "Leo Martins"]) {
-      expect(body.getByRole("option", { name: suggestion })).toBeVisible();
-    }
+    await waitFor(() => {
+      for (const suggestion of ["Maya Chen", "Priya Shah", "Leo Martins"]) {
+        expect(body.getByRole("option", { name: suggestion })).toBeVisible();
+      }
+    });
     const ownerCell = owner.closest<HTMLElement>(".bases-table__cell");
     const ownerCellInner = owner.closest<HTMLElement>(
       ".bases-table__cell-inner",
@@ -447,6 +449,10 @@ export const EditableCells: Story = {
           '[data-bases-popover="sort"][data-state="open"]',
         );
       expect(content).toBeVisible();
+      expect(content!.getBoundingClientRect().width).toBeCloseTo(
+        canvasElement.ownerDocument.defaultView!.innerWidth * 0.45,
+        0,
+      );
       return content!;
     });
     const sortPopoverWidth = sortPopover.getBoundingClientRect().width;
@@ -497,10 +503,16 @@ export const EditableCells: Story = {
     const filterPopover = thisViewTrigger.closest<HTMLElement>(
       '[data-ui-part="popover-content"]',
     );
-    expect(filterPopover).toBeVisible();
-    expect(
-      Math.abs(filterPopover!.getBoundingClientRect().width - sortPopoverWidth),
-    ).toBeLessThan(1);
+    await waitFor(() => {
+      expect(filterPopover).toBeVisible();
+      expect(
+        Math.abs(filterPopover!.getBoundingClientRect().width - sortPopoverWidth),
+      ).toBeLessThan(1);
+      expect(filterPopover!.getBoundingClientRect().width).toBeCloseTo(
+        canvasElement.ownerDocument.defaultView!.innerWidth * 0.45,
+        0,
+      );
+    });
     const visibleFilterElement = <T extends Element>(selector: string) =>
       [...filterPopover!.querySelectorAll<T>(selector)].find((element) => {
         const rect = element.getBoundingClientRect();
@@ -623,15 +635,17 @@ export const EditableCells: Story = {
       expect(content).toBeVisible();
       return content!;
     });
-    const groupTypeTriggerRect = groupTypeTrigger!.getBoundingClientRect();
-    const groupTypeContentRect = groupTypeContent.getBoundingClientRect();
-    expect(groupTypeContentRect.top).toBeGreaterThanOrEqual(
-      groupTypeTriggerRect.bottom - 1,
-    );
-    expect(
-      Math.abs(groupTypeContentRect.left - groupTypeTriggerRect.left),
-    ).toBeLessThan(2);
-    expectFilterMenuAbovePanel(groupTypeContent);
+    await waitFor(() => {
+      const groupTypeTriggerRect = groupTypeTrigger!.getBoundingClientRect();
+      const groupTypeContentRect = groupTypeContent.getBoundingClientRect();
+      expect(groupTypeContentRect.top).toBeGreaterThanOrEqual(
+        groupTypeTriggerRect.bottom - 1,
+      );
+      expect(
+        Math.abs(groupTypeContentRect.left - groupTypeTriggerRect.left),
+      ).toBeLessThan(2);
+      expectFilterMenuAbovePanel(groupTypeContent);
+    });
     await userEvent.click(
       body.getByRole("option", { name: "Any of the following are true" }),
     );
@@ -663,15 +677,17 @@ export const EditableCells: Story = {
       expect(content).toBeVisible();
       return content!;
     });
-    const operatorTriggerRect = operatorTrigger!.getBoundingClientRect();
-    const operatorContentRect = operatorContent.getBoundingClientRect();
-    expect(operatorContentRect.top).toBeGreaterThanOrEqual(
-      operatorTriggerRect.bottom - 1,
-    );
-    expect(
-      Math.abs(operatorContentRect.left - operatorTriggerRect.left),
-    ).toBeLessThan(2);
-    expectFilterMenuAbovePanel(operatorContent);
+    await waitFor(() => {
+      const operatorTriggerRect = operatorTrigger!.getBoundingClientRect();
+      const operatorContentRect = operatorContent.getBoundingClientRect();
+      expect(operatorContentRect.top).toBeGreaterThanOrEqual(
+        operatorTriggerRect.bottom - 1,
+      );
+      expect(
+        Math.abs(operatorContentRect.left - operatorTriggerRect.left),
+      ).toBeLessThan(2);
+      expectFilterMenuAbovePanel(operatorContent);
+    });
     await userEvent.click(body.getByRole("option", { name: "links to" }));
 
     const visibleFilterRowCount = () =>

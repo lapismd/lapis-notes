@@ -314,13 +314,16 @@ function placementStory(
         expect(removeRect.right).toBeLessThanOrEqual(groupItemRect.right);
         const removeStyle = getComputedStyle(removeButton);
         expect(removeStyle.opacity).toBe("1");
-        const removeHitTarget = canvasElement.ownerDocument.elementFromPoint(
-          removeRect.left + removeRect.width / 2,
-          removeRect.top + removeRect.height / 2,
-        );
-        expect(removeHitTarget && removeButton.contains(removeHitTarget)).toBe(
-          true,
-        );
+        await waitFor(() => {
+          const currentRemoveRect = removeButton.getBoundingClientRect();
+          const removeHitTarget = canvasElement.ownerDocument.elementFromPoint(
+            currentRemoveRect.left + currentRemoveRect.width / 2,
+            currentRemoveRect.top + currentRemoveRect.height / 2,
+          );
+          expect(removeHitTarget && removeButton.contains(removeHitTarget)).toBe(
+            true,
+          );
+        });
         expect(
           removeStyle
             .getPropertyValue(
