@@ -27,3 +27,7 @@ before disable completes, including failed unloads (LN-ARCH-118).
 <a id="ln-md-099"></a>
 
 **Requirement.** Published `parse-metadata` MUST import the metadata worker as `./metadata-worker?worker&inline` without a `.ts` suffix so Vite hosts resolve the packaged `metadata-worker.js`.
+
+Markdown acceptance hosts use the shared `.lapis` configuration and layout
+default under LN-ARCH-140; plugin contributions retain their public API-owned
+persistence and editor lifecycle boundaries.

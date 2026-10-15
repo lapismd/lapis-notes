@@ -132,7 +132,7 @@ Web restore verifies the host boot gate:
 
 <a id="ln-web-040"></a>
 
-**Requirement.** Export MUST pick a folder, copy the current OPFS tree including `.obsidian` with overwrite, report determinate progress, and notify success through the session App. Picker cancel MUST be silent.
+**Requirement.** Export MUST pick a folder, copy the current OPFS tree including `.lapis` with overwrite, report determinate progress, and notify success through the session App. Picker cancel MUST be silent.
 
 ## LN-WEB-042 — In-session import and export: report each copied file through notifications.withProgress. After
 

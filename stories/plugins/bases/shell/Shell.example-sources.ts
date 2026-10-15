@@ -17,14 +17,14 @@ export const basesEditorShellExampleSource = `<script lang="ts">
   import { WorkspaceShell } from "@lapis-notes/workspace";
 
   const adapter = new MemoryVaultAdapter({
-    ".obsidian/app.json": ${JSON.stringify(JSON.stringify(BASES_EDITOR_SHELL_CONFIGURATION))},
-    ".obsidian/workspace.json": ${JSON.stringify(JSON.stringify(createBasesEditorShellLayout()))},
+    ".lapis/app.json": ${JSON.stringify(JSON.stringify(BASES_EDITOR_SHELL_CONFIGURATION))},
+    ".lapis/workspace.json": ${JSON.stringify(JSON.stringify(createBasesEditorShellLayout()))},
     "Bases/Projects.base": ${JSON.stringify(JSON.stringify(createBasesViewsDocument("table"), null, 2))},
     ...${JSON.stringify(BASES_SAMPLE_NOTES, null, 2)},
   });
   const app = new App({
     version: "1.0.0",
-    configPath: ".obsidian/app.json",
+    configPath: ".lapis/app.json",
     adapter,
     appDatabase: new MemoryAppDatabase("bases-editor-shell"),
     workspaceShell: { application: { name: "Lapis Notes" } },

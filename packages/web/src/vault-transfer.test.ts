@@ -40,10 +40,12 @@ function createOpfsAdapter() {
   return adapter;
 }
 
-function createApp(overrides: {
-  adapter?: ReturnType<typeof createOpfsAdapter> | { kind: string };
-  userVisibleFiles?: boolean;
-} = {}) {
+function createApp(
+  overrides: {
+    adapter?: ReturnType<typeof createOpfsAdapter> | { kind: string };
+    userVisibleFiles?: boolean;
+  } = {},
+) {
   const adapter =
     overrides.adapter ??
     Object.assign(createOpfsAdapter(), {
@@ -195,7 +197,7 @@ describe("web vault transfer", () => {
     expect(app.notify).toHaveBeenCalledWith(
       expect.objectContaining({
         title: "Imported local folder into browser vault",
-        message: expect.stringContaining(".obsidian settings"),
+        message: expect.stringContaining(".lapis settings"),
       }),
     );
     expect(app.notify.mock.calls[0][0].message).not.toMatch(/plugin/i);
@@ -316,11 +318,9 @@ describe("web vault transfer", () => {
         onProgress,
       }),
     ).resolves.toBe(adapter);
-    expect(importHandle).toHaveBeenCalledWith(
-      { name: "Source" },
-      adapter,
-      { onProgress },
-    );
+    expect(importHandle).toHaveBeenCalledWith({ name: "Source" }, adapter, {
+      onProgress,
+    });
     expect(deleteVault).not.toHaveBeenCalled();
   });
 });

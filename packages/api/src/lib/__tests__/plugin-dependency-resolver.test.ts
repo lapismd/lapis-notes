@@ -4,7 +4,7 @@ import type { PluginDependencyContext } from "../plugin-dependency-resolver";
 
 const context: PluginDependencyContext = {
   pluginId: "example",
-  pluginPath: "/.obsidian/plugins/example",
+  pluginPath: "/.lapis/plugins/example",
   manifest: {
     id: "example",
     name: "Example",

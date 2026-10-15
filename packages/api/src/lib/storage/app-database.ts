@@ -66,7 +66,8 @@ export type {
   SearchEmbeddingRuntimeStatus,
 } from "./search-embedding-provider";
 
-export type RuntimeTarget = "web-pwa" | "deno-desktop" | "deno-server" | "test";
+import type { RuntimeTarget } from "./runtime";
+export { isNativeDesktopRuntime, type RuntimeTarget } from "./runtime";
 
 export interface LocalSearchQueryEnhancementProviderConfig {
   kind: "local-model";
@@ -218,7 +219,10 @@ export interface AppDatabaseFileRecord {
   mtime: number;
   size: number;
   hash: string;
-  /** Parser signature from the indexed metadata row when requested as a manifest. */
+  /**
+   * Parser signature from the indexed metadata row when requested as a
+   * manifest.
+   */
   parserVersion?: string;
   indexed: boolean;
   deleted?: boolean;
@@ -1242,9 +1246,7 @@ export interface AppDatabase extends HostMetadataStore {
     sourceKey: string,
   ): Promise<AppDatabaseMemorySourceRecord | undefined>;
   listMemorySourceStates(): Promise<AppDatabaseMemorySourceRecord[]>;
-  upsertMemorySourceState(
-    record: AppDatabaseMemorySourceRecord,
-  ): Promise<void>;
+  upsertMemorySourceState(record: AppDatabaseMemorySourceRecord): Promise<void>;
   deleteMemorySourceState(sourceKey: string): Promise<void>;
   upsertMemoryCandidate(input: AppDatabaseMemoryCandidateInput): Promise<void>;
   queryMemoryCandidates(
@@ -2522,8 +2524,7 @@ export class MemoryAppDatabase implements AppDatabase {
         key,
         value: clone(this.meta[key]) as T,
       })),
-      nextCursor:
-        keys.length > pageKeys.length ? pageKeys.at(-1) : undefined,
+      nextCursor: keys.length > pageKeys.length ? pageKeys.at(-1) : undefined,
     };
   }
 
@@ -2853,7 +2854,9 @@ export class MemoryAppDatabase implements AppDatabase {
     targetRef?: string,
   ): Promise<AppDatabaseMemoryRecallSignalRecord[]> {
     return [...this.memoryRecallSignals.values()]
-      .filter((record) => targetRef === undefined || record.targetRef === targetRef)
+      .filter(
+        (record) => targetRef === undefined || record.targetRef === targetRef,
+      )
       .sort(
         (left, right) =>
           right.day.localeCompare(left.day) ||
@@ -2909,11 +2912,10 @@ export class MemoryAppDatabase implements AppDatabase {
     const updated: AppDatabaseMemoryJobRecord = {
       ...existing,
       ...clone(input.patch),
-      ownerId:
-        input.patch.status === "running" ? existing.ownerId : undefined,
+      ownerId: input.patch.status === "running" ? existing.ownerId : undefined,
       leaseUntil:
         input.patch.status === "running"
-          ? input.patch.leaseUntil ?? existing.leaseUntil
+          ? (input.patch.leaseUntil ?? existing.leaseUntil)
           : undefined,
     };
     this.memoryJobs.set(updated.id, updated);
@@ -4044,9 +4046,9 @@ export class MemoryAppDatabase implements AppDatabase {
       memoryCandidates: [...this.memoryCandidates.values()].map((value) =>
         clone(value),
       ),
-      memoryCandidateOrigins: [
-        ...this.memoryCandidateOrigins.values(),
-      ].flatMap((origins) => origins.map((origin) => clone(origin))),
+      memoryCandidateOrigins: [...this.memoryCandidateOrigins.values()].flatMap(
+        (origins) => origins.map((origin) => clone(origin)),
+      ),
       memoryRecallSignals: [...this.memoryRecallSignals.values()].map((value) =>
         clone(value),
       ),

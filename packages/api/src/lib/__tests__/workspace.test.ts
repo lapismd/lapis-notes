@@ -1676,7 +1676,7 @@ describe("Workspace compatibility", () => {
       ],
     };
     const workspaceFile = new TFile(
-      "/.obsidian/workspace.json",
+      "/.lapis/workspace.json",
       { ctime: 0, mtime: 0, size: 0 },
       null,
     );
@@ -1732,7 +1732,7 @@ describe("Workspace compatibility", () => {
       ],
     };
     const workspaceFile = new TFile(
-      "/.obsidian/workspace.json",
+      "/.lapis/workspace.json",
       { ctime: 0, mtime: 0, size: 0 },
       null,
     );
@@ -2003,9 +2003,7 @@ describe("Workspace compatibility", () => {
     );
     const extra = workspace.getRightLeaf(false)!;
     await extra.setViewState({ type: "graph", state: {} });
-    expect(
-      workspace.getLeavesOfType("graph"),
-    ).toHaveLength(1);
+    expect(workspace.getLeavesOfType("graph")).toHaveLength(1);
 
     await workspace.loadNamedLayout("Writing");
     const left: string[] = [];
@@ -2021,7 +2019,7 @@ describe("Workspace compatibility", () => {
     expect(left).toEqual(["file-explorer", "search", "bookmarks"]);
     expect(right).toEqual(["outline", "file-properties", "tag"]);
     expect(workspace.getLeavesOfType("graph")).toHaveLength(0);
-    expect(files.get("/.obsidian/workspaces.json")).toContain("Writing");
+    expect(files.get("/.lapis/workspaces.json")).toContain("Writing");
   });
 
   it("resets the live layout to the default sidebar seed", async () => {
@@ -2075,20 +2073,20 @@ describe("Workspace compatibility", () => {
     leaf.id = "alternate-leaf";
     layout.active = "alternate-leaf";
     const workspaceFile = new TFile(
-      "/.obsidian/mobile.json",
+      "/.lapis/mobile.json",
       { ctime: 0, mtime: 0, size: 0 },
       null,
     );
     const getFileByPath = vi
       .spyOn(app.vault, "getFileByPath")
       .mockImplementation((path) =>
-        path === "/.obsidian/mobile.json" ? workspaceFile : null,
+        path === "/.lapis/mobile.json" ? workspaceFile : null,
       );
     vi.spyOn(app.vault, "read").mockResolvedValue(JSON.stringify(layout));
 
     await workspace.loadLayout("mobile.json");
 
-    expect(getFileByPath).toHaveBeenCalledWith("/.obsidian/mobile.json");
+    expect(getFileByPath).toHaveBeenCalledWith("/.lapis/mobile.json");
     expect(workspace.activeLeaf?.id).toBe("alternate-leaf");
     expect(
       JSON.stringify(getWorkspaceHostBinding(workspace).controller.getLayout()),
@@ -2396,7 +2394,7 @@ describe("Workspace compatibility", () => {
     expect(await controller.managedPlugins.enable("app-shell:fmode")).toBe(
       true,
     );
-    expect(files.get(".obsidian/app-shell-plugins.json")).toContain(
+    expect(files.get(".lapis/app-shell-plugins.json")).toContain(
       '"fmode": true',
     );
     await controller.dispose();
@@ -2662,7 +2660,7 @@ describe("Workspace compatibility", () => {
     );
 
     expect(create).toHaveBeenCalledWith(
-      "/.obsidian/mobile.json",
+      "/.lapis/mobile.json",
       expect.any(String),
     );
     const persisted = JSON.parse(String(create.mock.calls[0]?.[1]));
@@ -2895,7 +2893,10 @@ describe("Workspace compatibility", () => {
     async (title, direction, hostDirection) => {
       const { workspace } = createWorkspaceHarness();
       const binding = getWorkspaceHostBinding(workspace);
-      workspace.registerView("graph", (currentLeaf) => new MockChromeView(currentLeaf));
+      workspace.registerView(
+        "graph",
+        (currentLeaf) => new MockChromeView(currentLeaf),
+      );
       const leaf = workspace.getLeaf();
       await leaf.setViewState({
         type: "graph",
@@ -2928,7 +2929,9 @@ describe("Workspace compatibility", () => {
         hostSplitDirectionForTab(binding.controller.getLayout(), duplicate!.id),
       ).toBe(hostDirection);
       expect(binding.controller.renderer.activeTabId).toBe(duplicate!.id);
-      expect(binding.controller.renderer.registry.resolve("graph")).toBeDefined();
+      expect(
+        binding.controller.renderer.registry.resolve("graph"),
+      ).toBeDefined();
     },
   );
 
@@ -3723,10 +3726,7 @@ describe("Workspace compatibility", () => {
       },
     });
 
-    const originalGroup = workspace.getSidebarGroup(
-      "right",
-      "workspace-tools",
-    );
+    const originalGroup = workspace.getSidebarGroup("right", "workspace-tools");
     const originalLeaf = workspace.getLeafById("graph-leaf");
     expect(originalGroup).toBeInstanceOf(WorkspaceSidebarGroup);
     expect(originalLeaf).toBeInstanceOf(WorkspaceLeaf);
@@ -3942,7 +3942,7 @@ describe("Workspace compatibility", () => {
       active: "active-search",
     };
     const workspaceFile = new TFile(
-      "/.obsidian/workspace.json",
+      "/.lapis/workspace.json",
       { ctime: 0, mtime: 0, size: 0 },
       null,
     );
@@ -4000,8 +4000,8 @@ describe("Workspace compatibility", () => {
     await vi.advanceTimersByTimeAsync(1000);
     await Promise.resolve();
 
-    expect(files.has("/.obsidian/workspace.json")).toBe(true);
-    const written = JSON.parse(files.get("/.obsidian/workspace.json")!);
+    expect(files.has("/.lapis/workspace.json")).toBe(true);
+    const written = JSON.parse(files.get("/.lapis/workspace.json")!);
     expect(written.active).toBe(chat.id);
     const rightTabs = written.right.children[0];
     expect(rightTabs.currentTab).toBeGreaterThan(0);
@@ -4027,7 +4027,8 @@ describe("Workspace compatibility", () => {
 
     expect(restored.workspace.activeLeaf?.id).toBe(chat.id);
     expect(restored.workspace.activeLeaf?.view.getViewType()).toBe("search");
-    const restoredTabs = restored.workspace.rightSplit.children[0] as WorkspaceTabs;
+    const restoredTabs = restored.workspace.rightSplit
+      .children[0] as WorkspaceTabs;
     expect(restoredTabs.selectedChild).toBeInstanceOf(WorkspaceSidebarGroup);
     expect(
       (restoredTabs.selectedChild as WorkspaceSidebarGroup).getSelectedLeaf()

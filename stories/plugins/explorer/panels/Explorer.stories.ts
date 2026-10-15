@@ -73,7 +73,7 @@ function placementStory(
       );
       await expect(panel.getByText("Notes")).toBeVisible();
       await expect(panel.queryByText(".env")).toBeNull();
-      await expect(panel.queryByText(".obsidian")).toBeNull();
+      await expect(panel.queryByText(".lapis")).toBeNull();
       await expect(
         panel.getByRole("button", { name: "Create File" }),
       ).toBeVisible();
@@ -85,10 +85,10 @@ function placementStory(
         await userEvent.click(showHidden);
         await expect(showHidden).toHaveAttribute("aria-pressed", "true");
         await expect(panel.getByText(".env")).toBeVisible();
-        await expect(panel.getByText(".obsidian")).toBeVisible();
+        await expect(panel.getByText(".lapis")).toBeVisible();
         const persisted = JSON.parse(
           await panelDemoApp(canvasElement).vault.adapter.read(
-            ".obsidian/app.json",
+            ".lapis/app.json",
           ),
         ) as Record<string, unknown>;
         expect(persisted["workspace.fileExplorer.showHiddenFiles"]).toBe(true);

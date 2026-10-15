@@ -60,7 +60,7 @@ describe("listVaultPaletteFiles", () => {
   it("lists at most 25 visible recents when the query is empty", () => {
     const recent = [
       createFile("Notes/Welcome.md"),
-      createFile(".obsidian/app.json"),
+      createFile(".lapis/app.json"),
       createFile("Notes/draft.bin"),
       ...Array.from({ length: 30 }, (_, index) =>
         createFile(`Recent/${String(index).padStart(2, "0")}.md`),
@@ -80,7 +80,7 @@ describe("listVaultPaletteFiles", () => {
     const files = [
       createFile("Projects/Beta.md"),
       createFile("Projects/Alpha.md"),
-      createFile(".obsidian/app.json"),
+      createFile(".lapis/app.json"),
       ...Array.from({ length: 30 }, (_, index) =>
         createFile(`Notes/${String(index).padStart(2, "0")}.md`),
       ),
@@ -117,7 +117,7 @@ describe("listVaultPaletteFiles", () => {
     const files = [
       createFile("Notes/Welcome.md"),
       createFile("Notes/settings.json"),
-      createFile(".obsidian/app.json"),
+      createFile(".lapis/app.json"),
     ];
     const hiddenOff = createApp({ queryFiles: files });
     expect(
@@ -129,7 +129,7 @@ describe("listVaultPaletteFiles", () => {
     const hiddenOn = createApp({ queryFiles: files, showHidden: true });
     expect(
       listVaultPaletteFiles(hiddenOn, "app.json").map((file) => file.path),
-    ).toEqual([".obsidian/app.json"]);
+    ).toEqual([".lapis/app.json"]);
   });
 
   it("includes YAML defaults and still applies hidden-file visibility", () => {
@@ -151,9 +151,7 @@ describe("listVaultPaletteFiles", () => {
 
     const hiddenOn = createApp({ queryFiles: files, showHidden: true });
     expect(
-      listVaultPaletteFiles(hiddenOn, "metadata.yaml").map(
-        (file) => file.path,
-      ),
+      listVaultPaletteFiles(hiddenOn, "metadata.yaml").map((file) => file.path),
     ).toEqual([".lapis/agents/session/metadata.yaml"]);
     expect(listVaultPaletteFiles(hiddenOn, "archive.bin")).toEqual([]);
   });

@@ -192,3 +192,6 @@ picker grid and preserves the selected-marker and theme-colour assertions.
 <a id="ln-base-031"></a>
 
 **Requirement.** Governed Bases Storybook coverage MUST start from persisted indexed rows, surface an async metadata query failure, and recover after a later committed invalidation without enumerating a MetadataCache snapshot.
+
+Retained Bases hosts seed configuration and layout under the API-owned `.lapis`
+default (LN-ARCH-140). Source ownership stays in the sibling plugin repository.

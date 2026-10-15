@@ -317,3 +317,15 @@ lock/unlock. It does not qualify native filesystem apply or server routes.
 <a id="ln-arch-124"></a>
 
 **Requirement.** API local state/mutation ports MUST accept and capture expected endpoint authority outside encrypted protocol records. Scoped facades MUST forward supplied fences unchanged through host apply guards, without permitting admission-time retargeting. Native RPC adapters MUST require and validate those fences; legacy low-level ciphertext repositories MAY retain their trusted-host operation contract. Fences MUST NOT alter signed Nostr events or encrypted object formats.
+
+## LN-ARCH-140 — Shared application state default
+
+<a id="ln-arch-140"></a>
+
+**Requirement.** The shared application state directory MUST default to `.lapis` across desktop, web, server, and Storybook hosts. Configuration, workspace/layout, hotkeys, core plugin data, installed-plugin state, and registry caches MUST resolve under that directory. Pre-release state MAY be reset without legacy import or preservation. App construction MUST allow an omitted configuration path while resolved public properties retain a string path.
+
+## LN-ARCH-141 — Native desktop runtime classification
+
+<a id="ln-arch-141"></a>
+
+**Requirement.** Public runtime and native desktop bridge contracts MUST recognize `tauri-desktop` as a native desktop runtime. Plugin distribution MUST classify it as desktop without granting unavailable service capabilities. Existing Deno, browser, server, and explicit-test runtime behavior MUST remain supported.

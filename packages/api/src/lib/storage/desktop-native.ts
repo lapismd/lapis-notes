@@ -44,7 +44,7 @@ let registeredNativeDesktopBridge: NativeDesktopBridge | null = null;
 
 // ─── Neutral interface ────────────────────────────────────────────────────────
 
-export type NativeDesktopRuntime = "deno-desktop";
+export type NativeDesktopRuntime = "deno-desktop" | "tauri-desktop";
 
 export type NativeDesktopPlatformOs = "macos" | "windows" | "linux" | "unknown";
 
@@ -643,7 +643,9 @@ export class NativeDesktopVaultAdapter
         return new ReadableStream<Uint8Array>({
           async pull(controller) {
             if (signal?.aborted) {
-              controller.error(signal.reason ?? new DOMException("Aborted", "AbortError"));
+              controller.error(
+                signal.reason ?? new DOMException("Aborted", "AbortError"),
+              );
               return;
             }
             if (cursor >= end) {
@@ -675,16 +677,21 @@ export class NativeDesktopVaultAdapter
     options: AtomicDataWriteOptions = {},
   ): Promise<void> {
     const path = normalizeVaultPath(normalizedPath);
-    const operationId = await invokeNative<string>("desktop_fs_atomic_write_begin", {
-      rootPath: this.rootPath,
-      normalizedPath: path,
-      options: { ctime: options.ctime, mtime: options.mtime },
-    });
+    const operationId = await invokeNative<string>(
+      "desktop_fs_atomic_write_begin",
+      {
+        rootPath: this.rootPath,
+        normalizedPath: path,
+        options: { ctime: options.ctime, mtime: options.mtime },
+      },
+    );
     const reader = source.getReader();
     try {
       while (true) {
         if (options.signal?.aborted) {
-          throw options.signal.reason ?? new DOMException("Aborted", "AbortError");
+          throw (
+            options.signal.reason ?? new DOMException("Aborted", "AbortError")
+          );
         }
         const next = await reader.read();
         if (next.done) break;

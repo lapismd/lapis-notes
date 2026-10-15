@@ -55,7 +55,7 @@ export interface AppWorkspaceShellProperties {
  */
 export type AppStateProperties = {
     version: string;
-    configPath: string;
+    configPath?: string;
     adapter?: DataAdapter;
     session?: VaultSession;
     appDatabase?: AppDatabase;
@@ -70,7 +70,7 @@ export type AppStateProperties = {
     markdownRenderer: (markdown: string, el: HTMLElement, sourcePath: string, component: Component) => Promise<void>;
 };
 /** Renderer-safe application properties exposed to plugins and views. */
-export type AppPublicProperties = Pick<AppStateProperties, "version" | "configPath" | "workspaceShell" | "markdownRenderer">;
+export type AppPublicProperties = Pick<AppStateProperties, "version" | "configPath" | "workspaceShell" | "markdownRenderer"> & { configPath: string };
 export type AppPluginDistributionOptions = Omit<DefaultPluginDistributionManagerOptions, "adapter" | "appVersion" | "platform" | "workspaceTrusted" | "pluginManager">;
 export type ExtType = Extension | ((context: Record<string, any>) => Extension);
 /**

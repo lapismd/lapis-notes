@@ -285,7 +285,7 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   presentation only and must never enter the flat configuration schema or
   persisted configuration. Do not use the collection-oriented `object-grid`
   control for independent feature flags. Prove presentation changes through
-  the real Editor Settings story and its `.obsidian/app.json` persistence path.
+  the real Editor Settings story and its `.lapis/app.json` persistence path.
 - Mount Mira extension styles and lifecycle callbacks with the owning Lapis
   CodeMirror view and clean them up on reconfiguration. Top-toolbar actions
   delegate to the existing Lapis `Editor`, configuration, image picker, and

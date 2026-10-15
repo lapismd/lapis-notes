@@ -25,14 +25,14 @@ export function basesViewsExampleSource(scenario: BasesViewScenario): string {
   }
 
   const adapter = new ExampleVaultAdapter({
-    ".obsidian/app.json": "{}",
-    ".obsidian/types.json": JSON.stringify(${JSON.stringify(BASES_SAMPLE_TYPES)}),
+    ".lapis/app.json": "{}",
+    ".lapis/types.json": JSON.stringify(${JSON.stringify(BASES_SAMPLE_TYPES)}),
     ...${notes},
     ...${artwork},
   });
   const app = new App({
     version: "1.0.0",
-    configPath: ".obsidian/app.json",
+    configPath: ".lapis/app.json",
     adapter,
     appDatabase: new MemoryAppDatabase("bases-example"),
     markdownRenderer: async () => {},

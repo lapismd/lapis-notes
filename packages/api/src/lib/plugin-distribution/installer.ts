@@ -1,3 +1,4 @@
+import { appStatePath } from "../storage/path";
 import { basename, dirname, joinPath } from "$lib/storage/path";
 import type { DataAdapter } from "$lib/storage/fs";
 import type { PluginManifest } from "../plugin";
@@ -628,7 +629,7 @@ export class VerifiedPluginInstaller {
   private async removeCommunityPluginEnabledState(
     pluginId: string,
   ): Promise<void> {
-    const enabledPath = ".obsidian/community-plugins.json";
+    const enabledPath = appStatePath("community-plugins.json");
     try {
       const enabled = JSON.parse(await this.options.adapter.read(enabledPath));
       if (!Array.isArray(enabled)) return;
@@ -656,7 +657,7 @@ export class VerifiedPluginInstaller {
   }
 
   private get pluginsPath(): string {
-    return this.options.pluginsPath ?? ".obsidian/plugins";
+    return this.options.pluginsPath ?? appStatePath("plugins");
   }
 
   private now(): string {

@@ -45,7 +45,7 @@ is still empty. Backlinks also read `resolvedLinks` for inbound sources.
 
 - Markdown also owns `notes_list`.
 
-- That callback captures the plugin's Vault, accepts only scoped portable Markdown paths outside `.obsidian`, `.lapis`, and `.trash`, and returns bounded transport-neutral records.
+- That callback captures the plugin's Vault, accepts only scoped portable Markdown paths outside `.lapis`, `.lapis`, and `.trash`, and returns bounded transport-neutral records.
 
 - The list description tells the agent to prefer it over host-cwd directory walking (LN-AI-108).
 

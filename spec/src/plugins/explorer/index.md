@@ -46,7 +46,7 @@ that root leaf before falling back to the App's normal main-area open policy.
 
 <a id="ln-exp-003"></a>
 
-**Requirement.** Explorer MUST persist Show hidden files, expose a palette command that toggles it, and hide dotted names at any depth unless it is on, including `.obsidian`, `.trash`, and `.lapis`.
+**Requirement.** Explorer MUST persist Show hidden files, expose a palette command that toggles it, and hide dotted names at any depth unless it is on, including `.lapis`, `.trash`, and `.lapis`.
 
 ### Acceptance details
 

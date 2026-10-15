@@ -10,7 +10,7 @@
 
 <a id="ln-hist-002"></a>
 
-**Requirement.** History MUST capture vault create, modify, rename, delete, and restore events into `AppDatabase` file-history tables only. It MUST NOT write snapshots into the vault, `.obsidian/`, or `.lapis/`.
+**Requirement.** History MUST capture vault create, modify, rename, delete, and restore events into `AppDatabase` file-history tables only. It MUST NOT write snapshots into the vault, `.lapis/`, or `.lapis/`.
 
 ## LN-HIST-003 — Tracking: skip internal .lapis paths, glob excludes, binaries
 
@@ -23,7 +23,7 @@
 Tracking policy verifies:
 
 - Default caps are 256 KiB, 50 revisions per file, a 10s modify merge window, and a short create/modify debounce.
-- Default exclude globs are `.obsidian/**`, `.lapis/**`, `**/.git/**`, and `**/.jj/**`.
+- Default exclude globs are `.lapis/**`, `.lapis/**`, `**/.git/**`, and `**/.jj/**`.
 - An empty include-glob list accepts remaining paths after excludes.
 - An empty tracked-extension allowlist accepts remaining UTF-8 text; a small binary deny list is skipped.
 - A modify inside the merge window replaces the latest same-path modify instead of appending.

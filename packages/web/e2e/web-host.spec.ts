@@ -283,7 +283,7 @@ test("installed Bases queries, edits, and restores an OPFS document", async ({
             };
           }
         ).app;
-        const layout = app.vault.getFileByPath(".obsidian/workspace.json");
+        const layout = app.vault.getFileByPath(".lapis/workspace.json");
         return layout ? app.vault.read(layout) : "";
       }),
     )

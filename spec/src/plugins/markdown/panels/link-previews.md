@@ -15,6 +15,10 @@ Backlinks and Outgoing Links retain this preview behavior when a legacy
 view-type alias is restored. Canonicalization changes only persisted workspace
 identity, not link resolution or preview ownership.
 
+Preview geometry acceptance waits for the existing opening animation to settle
+before measuring the full card. Visibility alone does not establish final width;
+the 400px minimum-width assertions for Backlinks and Outgoing Links remain unchanged.
+
 The shared link sidebar rebuilds mention groups under `LN-MD-098` after late
 metadata load or a new followed path, then applies this preview contract to those rows.
 Linked rows come from indexed incoming or outgoing link queries plus async

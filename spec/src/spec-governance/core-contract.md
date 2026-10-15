@@ -11,3 +11,8 @@
 <a id="ln-gov-043"></a>
 
 **Requirement.** `AGENTS.md` MUST require sibling `lapis-plugin-*` Storybooks to follow the same WorkspaceShell and six-placement panel contract as bundled plugins. It MUST forbid isolated pane stories and shell fallbacks, name Tasks Column Canvas as a Tasks-only exception, and point agents at the shared panel helpers plus History panel stories.
+
+The shared state-directory change under LN-ARCH-140 updates mapped host and
+Storybook fixtures with the source. Canonical mirrors are regenerated from
+these chapters; local pnpm archives qualify unpublished source changes during
+the Tauri migration while tracked registry metadata remains portable.

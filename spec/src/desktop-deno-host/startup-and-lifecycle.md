@@ -177,3 +177,7 @@ First-party prompt and leftover ACP embed acceptance verifies:
 <a id="ln-deno-067"></a>
 
 **Requirement.** The desktop renderer MUST keep `@lapis-notes/api` outside dependency optimization, expose `@lapis-notes/api` and `@lapis-notes/api/workspace-host` through host-owned plugin import-map proxy entries in development and production, and resolve them as singletons across the host and packed static plugins. Registry releases and local release-candidate tarballs MUST bind the same API peer so workspace host bindings and other API-owned state remain visible.
+
+The shared native bridge also accepts `tauri-desktop` under LN-ARCH-141. This
+adds a host runtime identity without changing the Deno command transport. The
+Tauri database admission boundary follows LN-DB-055.

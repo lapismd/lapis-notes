@@ -79,3 +79,15 @@ install the UI package's development dependencies.
 <a id="ln-pkg-096"></a>
 
 **Requirement.** `@lapis-notes/api` MUST own skill-source and composer slash-command registration. `@lapis-notes/ai` MUST own discovery, snapshots, skill tools, and the composer router. Those APIs MUST NOT expose MCP, ACP, or vendor runtime types.
+
+## LN-PKG-165 — Public application state paths
+
+<a id="ln-pkg-165"></a>
+
+**Requirement.** API MUST export the shared `.lapis` directory default and application-state path builder through its root and headless `@lapis-notes/api/path` entrypoints. First-party hosts MUST use the shared path contract for default state rather than a Tauri-only override.
+
+## LN-PKG-166 — Independent runtime identity export
+
+<a id="ln-pkg-166"></a>
+
+**Requirement.** API MUST export runtime identity types and native desktop classification through `@lapis-notes/api/runtime` without importing database or model services. Existing root and application-database exports MUST retain those contracts.

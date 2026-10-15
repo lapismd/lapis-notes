@@ -182,7 +182,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/agent-skills": {
     "entry": "@lapis-notes/api/agent-skills",
@@ -195,7 +195,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/agent-skills",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/agent-tools": {
     "entry": "@lapis-notes/api/agent-tools",
@@ -208,7 +208,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/agent-tools",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/app-database": {
     "entry": "@lapis-notes/api/app-database",
@@ -221,7 +221,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/app-database",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/build/vite": {
     "entry": "@lapis-notes/api/build/vite",
@@ -231,7 +231,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/build/vite",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/cache": {
     "entry": "@lapis-notes/api/cache",
@@ -244,7 +244,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/cache",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/copy-button": {
     "entry": "@lapis-notes/api/copy-button",
@@ -257,7 +257,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/copy-button",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/desktop-native": {
     "entry": "@lapis-notes/api/desktop-native",
@@ -270,7 +270,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/desktop-native",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/editor": {
     "defaultExport": true,
@@ -284,7 +284,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/editor",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/editor/core": {
     "entry": "@lapis-notes/api/editor/core",
@@ -297,7 +297,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/editor/core",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/editor/extensions/autocomplete": {
     "entry": "@lapis-notes/api/editor/extensions/autocomplete",
@@ -310,7 +310,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/editor/extensions/autocomplete",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/editor/extensions/class-highlighter": {
     "entry": "@lapis-notes/api/editor/extensions/class-highlighter",
@@ -323,7 +323,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/editor/extensions/class-highlighter",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/editor/extensions/fold-gutter": {
     "entry": "@lapis-notes/api/editor/extensions/fold-gutter",
@@ -336,7 +336,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/editor/extensions/fold-gutter",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/editor/extensions/gutter-line-style-sync": {
     "entry": "@lapis-notes/api/editor/extensions/gutter-line-style-sync",
@@ -349,7 +349,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/editor/extensions/gutter-line-style-sync",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/editor/extensions/lint": {
     "entry": "@lapis-notes/api/editor/extensions/lint",
@@ -362,7 +362,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/editor/extensions/lint",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/editor/extensions/search": {
     "entry": "@lapis-notes/api/editor/extensions/search",
@@ -375,7 +375,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/editor/extensions/search",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/editor/language-service": {
     "entry": "@lapis-notes/api/editor/language-service",
@@ -388,7 +388,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/editor/language-service",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/empty-view": {
     "entry": "@lapis-notes/api/empty-view",
@@ -401,7 +401,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/empty-view",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/icon": {
     "entry": "@lapis-notes/api/icon",
@@ -414,7 +414,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/icon",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/language-service": {
     "entry": "@lapis-notes/api/language-service",
@@ -427,7 +427,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/language-service",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/language-service/worker": {
     "entry": "@lapis-notes/api/language-service/worker",
@@ -440,7 +440,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/language-service/worker",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/menu": {
     "defaultExport": true,
@@ -454,7 +454,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/menu",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/metadata-store": {
     "entry": "@lapis-notes/api/metadata-store",
@@ -464,7 +464,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/metadata-store",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/metadata-value": {
     "entry": "@lapis-notes/api/metadata-value",
@@ -477,7 +477,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/metadata-value",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/path": {
     "entry": "@lapis-notes/api/path",
@@ -490,7 +490,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/path",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/plugin-assets": {
     "entry": "@lapis-notes/api/plugin-assets",
@@ -503,7 +503,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/plugin-assets",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/plugin-distribution-host": {
     "entry": "@lapis-notes/api/plugin-distribution-host",
@@ -516,7 +516,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/plugin-distribution-host",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/plugin-host-modules": {
     "entry": "@lapis-notes/api/plugin-host-modules",
@@ -529,7 +529,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/plugin-host-modules",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/registry/schema": {
     "entry": "@lapis-notes/api/registry/schema",
@@ -542,7 +542,20 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/registry/schema",
-    "version": "0.1.3"
+    "version": "0.1.4"
+  },
+  "@lapis-notes/api/runtime": {
+    "entry": "@lapis-notes/api/runtime",
+    "moduleId": "lapis-notes-api-runtime",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/runtime",
+    "version": "0.1.4"
   },
   "@lapis-notes/api/search-embedding-worker": {
     "entry": "@lapis-notes/api/search-embedding-worker",
@@ -555,7 +568,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/search-embedding-worker",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/select": {
     "entry": "@lapis-notes/api/select",
@@ -568,7 +581,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/select",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/server-host": {
     "entry": "@lapis-notes/api/server-host",
@@ -581,7 +594,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/server-host",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/sync-repository": {
     "entry": "@lapis-notes/api/sync-repository",
@@ -594,7 +607,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/sync-repository",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/sync-security-host": {
     "entry": "@lapis-notes/api/sync-security-host",
@@ -604,7 +617,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/sync-security-host",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/telemetry": {
     "entry": "@lapis-notes/api/telemetry",
@@ -617,7 +630,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/telemetry",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/vault": {
     "entry": "@lapis-notes/api/vault",
@@ -630,7 +643,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/vault",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/api/workspace-host": {
     "entry": "@lapis-notes/api/workspace-host",
@@ -643,7 +656,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/workspace-host",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "@lapis-notes/markdown": {
     "entry": "@lapis-notes/markdown",

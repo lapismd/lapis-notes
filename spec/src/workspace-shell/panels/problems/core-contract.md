@@ -237,3 +237,7 @@ diagnostic snapshot rather than one provider's count.
 <a id="ln-ws-094"></a>
 
 **Requirement.** The API language-service manager MUST expose diagnostic invalidation for registered providers. Attached editors whose language matches MUST request diagnostics again without a document edit, keeping the gutter and Problems collection consistent. Unknown or unloaded providers MUST NOT trigger invalidation. Editor subscriptions MUST dispose with the owning view.
+
+Problems and editor acceptance hosts seed `.lapis` configuration and layout
+through the shared application state default under LN-ARCH-140. Diagnostic
+registration, code-action ownership, and save failure contracts still apply.

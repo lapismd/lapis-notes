@@ -20,7 +20,8 @@
     "fflate": "npm:fflate@0.8.3",
     "markdownlint": "npm:markdownlint@0.40.0",
     "markdownlint/sync": "npm:markdownlint@0.40.0/sync",
-    "zod": "npm:zod@3.25.76"
+    "zod": "npm:zod@3.25.76",
+    "@lapis-notes/api/path": "../api/src/lib/storage/path.ts"
   },
   "compilerOptions": {
     "strict": true,

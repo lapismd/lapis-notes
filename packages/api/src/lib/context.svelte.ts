@@ -1,6 +1,8 @@
 import { Workspace } from "./workspace.svelte";
 import {
   getAdapterVaultId,
+  isNativeDesktopRuntime,
+  appStatePath,
   TFile,
   Vault,
   type AppDatabase,
@@ -133,7 +135,7 @@ export interface AppWorkspaceShellProperties {
 
 export type AppStateProperties = {
   version: string;
-  configPath: string;
+  configPath?: string;
   adapter?: DataAdapter;
   session?: VaultSession;
   appDatabase?: AppDatabase;
@@ -157,7 +159,7 @@ export type AppStateProperties = {
 export type AppPublicProperties = Pick<
   AppStateProperties,
   "version" | "configPath" | "workspaceShell" | "markdownRenderer"
->;
+> & { configPath: string };
 
 export type AppPluginDistributionOptions = Omit<
   DefaultPluginDistributionManagerOptions,
@@ -349,7 +351,7 @@ export class App {
   constructor(props: AppStateProperties) {
     this.props = Object.freeze({
       version: props.version,
-      configPath: props.configPath,
+      configPath: props.configPath ?? appStatePath("app.json"),
       workspaceShell: props.workspaceShell,
       markdownRenderer: props.markdownRenderer,
     });
@@ -396,7 +398,7 @@ export class App {
     this.settings.addGroup((options) =>
       options.setId("community-plugins").setTitle("Community plugins"),
     );
-    this.configuration = new Configuration(this, props.configPath);
+    this.configuration = new Configuration(this, this.props.configPath);
     this.workspace.bindConfiguration();
     this.vault = new Vault(adapter);
     this.#syncHost = new SyncHostService(
@@ -412,22 +414,27 @@ export class App {
     this.workspaceTrust = new WorkspaceTrustService(adapter);
     this.metadataCache = new MetadataCache(this);
     installVaultMaintenanceCommands(this);
-    this.plugins = new PluginManager(this, "/.obsidian/plugins", adapter, {
-      communityPluginHost: hasNativeDesktopCapability("plugin-sidecar")
-        ? new NativeDesktopCommunityPluginExecutionHost(
-            adapter,
-            undefined,
-            props.createCommunityPluginDependencyResolver,
-          )
-        : undefined,
-      createCommunityPluginDependencyResolver:
-        props.createCommunityPluginDependencyResolver,
-      pluginAssetServer: props.pluginAssetServer,
-      createSyncHostCapabilities: (pluginId, grants) =>
-        this.#syncHost.forPlugin(pluginId, grants),
-      revokeSyncHostCapabilities: (pluginId) =>
-        this.#syncHost.revokePlugin(pluginId),
-    });
+    this.plugins = new PluginManager(
+      this,
+      "/" + appStatePath("plugins"),
+      adapter,
+      {
+        communityPluginHost: hasNativeDesktopCapability("plugin-sidecar")
+          ? new NativeDesktopCommunityPluginExecutionHost(
+              adapter,
+              undefined,
+              props.createCommunityPluginDependencyResolver,
+            )
+          : undefined,
+        createCommunityPluginDependencyResolver:
+          props.createCommunityPluginDependencyResolver,
+        pluginAssetServer: props.pluginAssetServer,
+        createSyncHostCapabilities: (pluginId, grants) =>
+          this.#syncHost.forPlugin(pluginId, grants),
+        revokeSyncHostCapabilities: (pluginId) =>
+          this.#syncHost.revokePlugin(pluginId),
+      },
+    );
     this.workspace.bindPlugins();
     const languageServiceDiagnostics =
       this.workspace.diagnostics.createCollection("lapis:language-service", {
@@ -445,7 +452,9 @@ export class App {
       ...props.pluginDistributionOptions,
       adapter,
       appVersion: this.version,
-      platform: props.session?.runtime === "deno-desktop" ? "desktop" : "web",
+      platform: isNativeDesktopRuntime(props.session?.runtime)
+        ? "desktop"
+        : "web",
       workspaceTrusted: async () => (await this.workspaceTrust.ready()).trusted,
       pluginManager: this.plugins,
     });

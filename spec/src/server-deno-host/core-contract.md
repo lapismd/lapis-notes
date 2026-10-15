@@ -145,11 +145,11 @@ other network errors and application readiness failures still fail acceptance.
 
 **Requirement.** The first server slice MUST NOT host AI, terminals, collaborative editing, arbitrary filesystem roots, invitations, public registration, or multi-instance coordination. Missing capabilities MUST be reported explicitly.
 
-## LN-SRV-016 — Browser vault adapter: translate Lapis virtual-root paths such as /.obsidian/plugins
+## LN-SRV-016 — Browser vault adapter: translate Lapis virtual-root paths such as /.lapis/plugins
 
 <a id="ln-srv-016"></a>
 
-**Requirement.** The browser vault adapter MUST translate Lapis virtual-root paths such as `/.obsidian/plugins` to managed relative paths before tRPC requests. Direct server routes MUST continue to reject absolute paths, traversal, and host filesystem access.
+**Requirement.** The browser vault adapter MUST translate Lapis virtual-root paths such as `/.lapis/plugins` to managed relative paths before tRPC requests. Direct server routes MUST continue to reject absolute paths, traversal, and host filesystem access.
 
 ## LN-SRV-017 — Hosted plugin installs: download signed first-party release bundles
 
@@ -168,3 +168,6 @@ other network errors and application readiness failures still fail acceptance.
 <a id="ln-srv-019"></a>
 
 **Requirement.** A server-mode Web client MAY use the public build-configured Nostr plugin source directly. The Deno server MUST NOT become a registry database, relay trust root, curator, or proxy for the signed release evidence.
+
+Vault-local settings and installed-plugin assets use the shared `.lapis`
+default through the public API path contract under LN-ARCH-140 and LN-PKG-165.

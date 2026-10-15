@@ -1,3 +1,11 @@
+/** Shared vault-local state default for every Lapis application host. */
+export const DEFAULT_APP_STATE_DIRECTORY = ".lapis";
+
+/** Resolve an application-owned path beneath the shared state directory. */
+export function appStatePath(...parts: string[]): string {
+  return joinPath(DEFAULT_APP_STATE_DIRECTORY, ...parts);
+}
+
 /**
  * Normalize a vault-style path by removing redundant segments and separators.
  *
@@ -64,8 +72,8 @@ export function basename(path: string): string {
 /**
  * Returns whether a vault path belongs to Lapis' portable internal data.
  *
- * Internal data can occur beneath any folder-scoped feature root. Callers
- * that present ordinary vault content should hide these paths, while explicit
+ * Internal data can occur beneath any folder-scoped feature root. Callers that
+ * present ordinary vault content should hide these paths, while explicit
  * storage and indexing operations remain free to address them directly.
  *
  * @public

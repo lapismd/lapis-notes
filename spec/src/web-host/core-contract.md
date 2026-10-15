@@ -46,3 +46,6 @@ Web agent-runtime Settings verify:
 <a id="ln-web-046"></a>
 
 **Requirement.** The production web build MUST provide an explicit 8 GiB Node heap budget so the registry-backed Design Core and Mira graph completes chunk rendering under the root package build.
+
+Vault-local settings and installed-plugin assets use the shared `.lapis`
+default through the public API path contract under LN-ARCH-140 and LN-PKG-165.

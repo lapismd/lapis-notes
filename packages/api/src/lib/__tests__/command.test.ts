@@ -297,7 +297,7 @@ describe("command hotkey overrides", () => {
       { modifiers: ["Ctrl"], key: "P" },
     ]);
 
-    expect(JSON.parse(vault.files["/.obsidian/hotkeys.json"])).toEqual({
+    expect(JSON.parse(vault.files["/.lapis/hotkeys.json"])).toEqual({
       "test:persist": [{ modifiers: ["Ctrl"], key: "P" }],
     });
 
@@ -314,7 +314,7 @@ describe("command hotkey overrides", () => {
       { modifiers: ["Ctrl"], key: "P" },
     ]);
 
-    vault.files["/.obsidian/hotkeys.json"] = "{";
+    vault.files["/.lapis/hotkeys.json"] = "{";
     const malformed = createCommandManager(vault);
     await expect(malformed.loadHotkeys()).resolves.toBeUndefined();
     expect(malformed.hotkeyOverrides).toEqual({});

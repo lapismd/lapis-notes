@@ -77,11 +77,11 @@ describe("plugin asset server helpers", () => {
     const adapter = new InMemoryDataAdapter();
     const bytes = new TextEncoder().encode("export const value = 1;");
     const sha256 = await sha256Hex(bytes);
-    await adapter.mkdir(".obsidian");
-    await adapter.mkdir(".obsidian/plugins");
-    await adapter.mkdir(".obsidian/plugins/plugin-a");
+    await adapter.mkdir(".lapis");
+    await adapter.mkdir(".lapis/plugins");
+    await adapter.mkdir(".lapis/plugins/plugin-a");
     await adapter.writeBinary(
-      ".obsidian/plugins/plugin-a/main.mjs",
+      ".lapis/plugins/plugin-a/main.mjs",
       bytes.buffer as ArrayBuffer,
     );
 
@@ -163,11 +163,11 @@ describe("plugin asset server helpers", () => {
   it("rejects hash mismatches", async () => {
     const adapter = new InMemoryDataAdapter();
     const bytes = new TextEncoder().encode("changed");
-    await adapter.mkdir(".obsidian");
-    await adapter.mkdir(".obsidian/plugins");
-    await adapter.mkdir(".obsidian/plugins/plugin-a");
+    await adapter.mkdir(".lapis");
+    await adapter.mkdir(".lapis/plugins");
+    await adapter.mkdir(".lapis/plugins/plugin-a");
     await adapter.writeBinary(
-      ".obsidian/plugins/plugin-a/main.mjs",
+      ".lapis/plugins/plugin-a/main.mjs",
       bytes.buffer as ArrayBuffer,
     );
 
@@ -188,11 +188,11 @@ describe("plugin asset server helpers", () => {
     const adapter = new InMemoryDataAdapter();
     const bytes = new TextEncoder().encode("export const value = 1;");
     const sha256 = await sha256Hex(bytes);
-    await adapter.mkdir(".obsidian");
-    await adapter.mkdir(".obsidian/plugins");
-    await adapter.mkdir(".obsidian/plugins/plugin-a");
+    await adapter.mkdir(".lapis");
+    await adapter.mkdir(".lapis/plugins");
+    await adapter.mkdir(".lapis/plugins/plugin-a");
     await adapter.writeBinary(
-      ".obsidian/plugins/plugin-a/main.mjs",
+      ".lapis/plugins/plugin-a/main.mjs",
       bytes.buffer as ArrayBuffer,
     );
 

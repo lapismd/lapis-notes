@@ -1,3 +1,4 @@
+import { appStatePath, DEFAULT_APP_STATE_DIRECTORY } from "./storage/path";
 import type { App } from "./context.svelte";
 import type { Editor } from "./editor.svelte";
 import { EventDispatcher } from "./events";
@@ -235,7 +236,7 @@ interface CommandExecutionContext {
   view?: any;
 }
 
-const HOTKEYS_PATH = "/.obsidian/hotkeys.json";
+const HOTKEYS_PATH = "/" + appStatePath("hotkeys.json");
 const MODIFIER_ORDER: Modifier[] = ["Mod", "Ctrl", "Meta", "Alt", "Shift"];
 const WORKSPACE_ROOT_COMMAND_HOST_ID = "root";
 
@@ -479,7 +480,7 @@ export class CommandManager extends EventDispatcher<{
       return;
     }
 
-    await this.app.vault.mkpath("/.obsidian");
+    await this.app.vault.mkpath("/" + DEFAULT_APP_STATE_DIRECTORY);
     await this.app.vault.create(HOTKEYS_PATH, data);
   }
 

@@ -1,3 +1,4 @@
+import { appStatePath } from "./storage/path";
 import type { CachedMetadata, MetadataProcessor } from "./cache.svelte";
 import type {
   IndexProjectionRegistration,
@@ -215,7 +216,7 @@ export type PluginSource = "core" | "community" | "official" | "system";
  * Resolve the compatibility data path used by `loadData()` and `saveData()`.
  *
  * Community plugins store data beside their manifest folder, while bundled and
- * system plugins use the shared `/.obsidian/<id>.json` location.
+ * system plugins use the shared `/.lapis/<id>.json` location.
  *
  * @public
  */
@@ -225,7 +226,7 @@ export function resolvePluginDataPath(
   basePath?: string,
 ): string | null {
   if (source === "core" || source === "system") {
-    return joinPath("/.obsidian", `${pluginId}.json`);
+    return joinPath("/", appStatePath(`${pluginId}.json`));
   }
 
   if (!basePath) {
@@ -371,7 +372,8 @@ export abstract class Plugin extends Component {
         (this.source === "community" || this.source === "official") &&
         this.manifest.lapis?.database?.metadataAccess !== "queries"
       ) {
-        const lease = await this.app.metadataCache.acquireMetadataSnapshotLease();
+        const lease =
+          await this.app.metadataCache.acquireMetadataSnapshotLease();
         this.register(() => lease.release());
       }
       await this.loadAsync();
@@ -971,9 +973,7 @@ export abstract class Plugin extends Component {
   }
 
   /** Register a plugin-owned Markdown contribution for every Markdown surface. */
-  registerMarkdownExtension(
-    contribution: MarkdownExtensionContribution,
-  ): void {
+  registerMarkdownExtension(contribution: MarkdownExtensionContribution): void {
     this.register(this.app.markdownExtensions.register(this.id, contribution));
   }
 
@@ -1333,7 +1333,8 @@ export abstract class Plugin extends Component {
     if (!binding) {
       throw new Error("Workspace host binding is not initialized");
     }
-    const unregister = binding.controller.settings.registerDefinition(definition);
+    const unregister =
+      binding.controller.settings.registerDefinition(definition);
     let disposed = false;
     const registration: PluginSettingsRegistration = {
       definition,

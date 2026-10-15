@@ -8,7 +8,7 @@ behavior and plugin activation remain unchanged.
 
 <a id="ln-plug-020"></a>
 
-**Requirement.** F-Mode MUST register on the API-owned Design Core controller, default disabled, and remain user-enableable. It MUST NOT enter `registerCorePlugins` or `.obsidian/core-plugins.json`. AppShell enablement persistence MUST resolve the App vault when load and save run.
+**Requirement.** F-Mode MUST register on the API-owned Design Core controller, default disabled, and remain user-enableable. It MUST NOT enter `registerCorePlugins` or `.lapis/core-plugins.json`. AppShell enablement persistence MUST resolve the App vault when load and save run.
 
 ## LN-PLUG-033 — Plugin that exposes multiple views over one: own single-flight construction above the view lifetime
 

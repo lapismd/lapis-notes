@@ -50,7 +50,7 @@ Successful profile URL navigation dismisses owning Settings under
 
 <a id="ln-pkg-099"></a>
 
-**Requirement.** `@lapis-notes/bookmarks` MUST live in the sibling `lapis-plugins` monorepo as an independently versioned installable plugin. It MUST depend on API and Design Core, MUST NOT depend on `@lapis-notes/ui`, and MUST persist `{ items }` through `.obsidian/bookmarks.json`.
+**Requirement.** `@lapis-notes/bookmarks` MUST live in the sibling `lapis-plugins` monorepo as an independently versioned installable plugin. It MUST depend on API and Design Core, MUST NOT depend on `@lapis-notes/ui`, and MUST persist `{ items }` through `.lapis/bookmarks.json`.
 
 ## LN-PKG-103 — Portable Docs plugin dependencies
 

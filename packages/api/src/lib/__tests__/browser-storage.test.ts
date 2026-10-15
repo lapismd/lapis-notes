@@ -372,7 +372,7 @@ describe("BrowserHandleVaultAdapter", () => {
   it("retries transient stale file handles while writing", async () => {
     const root = new MockDirectoryHandle("mock");
     const adapter = createBrowserAdapter(root);
-    const configFolder = (await root.getDirectoryHandle(".obsidian", {
+    const configFolder = (await root.getDirectoryHandle(".lapis", {
       create: true,
     })) as MockDirectoryHandle;
     configFolder.failNextFileHandle(
@@ -380,21 +380,21 @@ describe("BrowserHandleVaultAdapter", () => {
       noModificationAllowed("app.json"),
     );
 
-    await adapter.write(".obsidian/app.json", '{"ok":true}');
+    await adapter.write(".lapis/app.json", '{"ok":true}');
 
-    expect(await adapter.read(".obsidian/app.json")).toBe('{"ok":true}');
+    expect(await adapter.read(".lapis/app.json")).toBe('{"ok":true}');
   });
 
   it("retries transient stale file handles while reading", async () => {
     const root = new MockDirectoryHandle("mock");
     const adapter = createBrowserAdapter(root);
-    await adapter.write(".obsidian/app.json", '{"theme":"dark"}');
+    await adapter.write(".lapis/app.json", '{"theme":"dark"}');
     const configFolder = (await root.getDirectoryHandle(
-      ".obsidian",
+      ".lapis",
     )) as MockDirectoryHandle;
     configFolder.failNextFileHandle("app.json", notReadable("app.json"));
 
-    await expect(adapter.read(".obsidian/app.json")).resolves.toBe(
+    await expect(adapter.read(".lapis/app.json")).resolves.toBe(
       '{"theme":"dark"}',
     );
   });
@@ -402,13 +402,13 @@ describe("BrowserHandleVaultAdapter", () => {
   it("retries InvalidStateError from stale getFile() while reading layout files", async () => {
     const root = new MockDirectoryHandle("mock");
     const adapter = createBrowserAdapter(root);
-    await adapter.write(".obsidian/workspace.json", '{"layout":{}}');
+    await adapter.write(".lapis/workspace.json", '{"layout":{}}');
     const file = (await (
-      await root.getDirectoryHandle(".obsidian")
+      await root.getDirectoryHandle(".lapis")
     ).getFileHandle("workspace.json")) as MockFileHandle;
     file.failNextGetFile(invalidStateError("workspace.json"));
 
-    await expect(adapter.read(".obsidian/workspace.json")).resolves.toBe(
+    await expect(adapter.read(".lapis/workspace.json")).resolves.toBe(
       '{"layout":{}}',
     );
   });
@@ -416,15 +416,13 @@ describe("BrowserHandleVaultAdapter", () => {
   it("retries InvalidStateError from stale getFile() while stat-ing files", async () => {
     const root = new MockDirectoryHandle("mock");
     const adapter = createBrowserAdapter(root);
-    await adapter.write(".obsidian/workspace.json", '{"layout":{}}');
+    await adapter.write(".lapis/workspace.json", '{"layout":{}}');
     const file = (await (
-      await root.getDirectoryHandle(".obsidian")
+      await root.getDirectoryHandle(".lapis")
     ).getFileHandle("workspace.json")) as MockFileHandle;
     file.failNextGetFile(invalidStateError("workspace.json"));
 
-    await expect(
-      adapter.stat(".obsidian/workspace.json"),
-    ).resolves.toMatchObject({
+    await expect(adapter.stat(".lapis/workspace.json")).resolves.toMatchObject({
       type: "file",
       size: 13,
     });
@@ -434,13 +432,13 @@ describe("BrowserHandleVaultAdapter", () => {
     const root = new MockDirectoryHandle("mock");
     const adapter = createBrowserAdapter(root);
     root.failNextDirectoryHandle(
-      ".obsidian",
+      ".lapis",
       invalidStateError("stale mkdir handle"),
     );
 
-    await adapter.mkdir(".obsidian", { recursive: true });
+    await adapter.mkdir(".lapis", { recursive: true });
 
-    await expect(adapter.list(".obsidian")).resolves.toMatchObject({
+    await expect(adapter.list(".lapis")).resolves.toMatchObject({
       files: [],
       folders: [],
     });
@@ -449,15 +447,15 @@ describe("BrowserHandleVaultAdapter", () => {
   it("retries transient stale directory handles while removing", async () => {
     const root = new MockDirectoryHandle("mock");
     const adapter = createBrowserAdapter(root);
-    await adapter.write(".obsidian/search.json", "{}");
+    await adapter.write(".lapis/search.json", "{}");
     const configFolder = (await root.getDirectoryHandle(
-      ".obsidian",
+      ".lapis",
     )) as MockDirectoryHandle;
     configFolder.failNextRemoveEntry("search.json", notReadable("search.json"));
 
-    await adapter.remove(".obsidian/search.json");
+    await adapter.remove(".lapis/search.json");
 
-    await expect(adapter.read(".obsidian/search.json")).rejects.toThrow();
+    await expect(adapter.read(".lapis/search.json")).rejects.toThrow();
   });
 
   it("preserves profile creation time when reopening a stored handle", async () => {

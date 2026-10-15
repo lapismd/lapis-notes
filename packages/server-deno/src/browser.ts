@@ -1,3 +1,4 @@
+import { appStatePath } from "@lapis-notes/api/path";
 import type {
   AppDatabase,
   AppDatabaseChangeListener,
@@ -661,7 +662,7 @@ export function createServerPluginAssetServer(
   return {
     async getPluginAssetUrl(request) {
       const metadata = JSON.parse(
-        await adapter.read(".obsidian/installed-plugins.json"),
+        await adapter.read(appStatePath("installed-plugins.json")),
       ) as { plugins?: Record<string, InstalledPluginRecord> };
       const installed = metadata.plugins?.[request.pluginId];
       if (

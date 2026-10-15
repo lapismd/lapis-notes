@@ -1,3 +1,4 @@
+import { appStatePath } from "./storage/path";
 import { joinPath } from "./storage/path";
 import { assertSafePluginRelativePath } from "./plugin-distribution/path-safety";
 import type { InstalledPluginRecord } from "./plugin-distribution/types";
@@ -210,7 +211,7 @@ export async function readInstalledPluginAsset({
   installedPlugin,
   relativePath,
   expectedSha256,
-  pluginsPath = ".obsidian/plugins",
+  pluginsPath = appStatePath("plugins"),
   verifyHash = true,
 }: InstalledPluginAssetReadOptions): Promise<InstalledPluginAsset> {
   const path = normalizePluginAssetRelativePath(relativePath);

@@ -74,7 +74,7 @@ describe("DefaultPluginDistributionManager", () => {
     expect(events.map((event) => event.phase)).toContain("enabling");
     expect(events.at(-1)?.phase).toBe("complete");
     expect(managerCalls).toEqual([
-      "load:.obsidian/plugins/lapis-docs",
+      "load:.lapis/plugins/lapis-docs",
       "enable:lapis-docs",
     ]);
 
@@ -330,7 +330,7 @@ describe("DefaultPluginDistributionManager", () => {
       { source: { id: "lapis-nostr", enabled: false } },
     ]);
     await expect(
-      adapter.read(".obsidian/plugin-registry-sources.json"),
+      adapter.read(".lapis/plugin-registry-sources.json"),
     ).resolves.toContain('"lapis-nostr"');
 
     const reloaded = new DefaultPluginDistributionManager({
@@ -416,7 +416,7 @@ describe("DefaultPluginDistributionManager", () => {
       pluginId: "lapis-docs",
     });
     await expect(
-      adapter.exists(".obsidian/plugins/lapis-docs/manifest.json"),
+      adapter.exists(".lapis/plugins/lapis-docs/manifest.json"),
     ).resolves.toBe(true);
   });
 

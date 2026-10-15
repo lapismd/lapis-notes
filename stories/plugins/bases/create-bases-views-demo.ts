@@ -37,7 +37,7 @@ export async function bootBasesViewsDemo(): Promise<{
   });
   const app = new App({
     version: "0.0.1-story",
-    configPath: ".obsidian/app.json",
+    configPath: ".lapis/app.json",
     adapter,
     appDatabase: new MemoryAppDatabase("lapis-bases-views"),
     markdownRenderer: async () => {},

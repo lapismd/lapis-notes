@@ -145,7 +145,7 @@
     );
     const runtimeApp = new App({
       version: "0.0.1-story",
-      configPath: ".obsidian/app.json",
+      configPath: ".lapis/app.json",
       adapter: runtimeAdapter,
       appDatabase: new MemoryAppDatabase(
         `lapis-editor-demo-${selectedScenario}-${runtimeAttempt}`,
@@ -296,10 +296,7 @@
     startedApps.add(nextApp);
     app = nextApp;
     adapter = nextAdapter;
-    compatibilityByApp.set(
-      nextApp,
-      installApplicationCompatibility(nextApp),
-    );
+    compatibilityByApp.set(nextApp, installApplicationCompatibility(nextApp));
     refreshDiagnostics(nextApp);
 
     let activeTask = "vault";

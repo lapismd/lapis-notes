@@ -24,7 +24,9 @@ const lapisEditorSource = `<script lang="ts">
 <WorkspaceShell {app} displayMode="desktop" workspaceLabel="Lapis Notes" />`;
 
 export function workspaceExampleSource(catalogId: string): string {
-  if (catalogId === "workspace-lapis-editor-demo-sync-document-loading-and-rename") {
+  if (
+    catalogId === "workspace-lapis-editor-demo-sync-document-loading-and-rename"
+  ) {
     return guardedDocumentSource;
   }
   if (catalogId.startsWith("workspace-shell-")) return workspaceShellSource;
@@ -42,7 +44,7 @@ const guardedDocumentSource = `<script lang="ts">
 
   const app = new App({
     version: "0.1.2",
-    configPath: ".obsidian/app.json",
+    configPath: ".lapis/app.json",
     adapter: new MemoryVaultAdapter({ "first.txt": "first", "second.txt": "second" }),
     appDatabase: new MemoryAppDatabase("guarded-documents"),
     markdownRenderer: async () => {},

@@ -72,7 +72,7 @@ Web session boot verifies the shared startup surface:
 
 <a id="ln-web-022"></a>
 
-**Requirement.** A web vault without `.obsidian/workspace.json` MUST use the same default sidebar seed as desktop: File Explorer, Search, then Bookmarks on the left, and Outline, File Properties, then Tags on the right when those views are registered.
+**Requirement.** A web vault without `.lapis/workspace.json` MUST use the same default sidebar seed as desktop: File Explorer, Search, then Bookmarks on the left, and Outline, File Properties, then Tags on the right when those views are registered.
 
 ## LN-WEB-027 — Creating an OPFS vault: collect the name in a compact dialog
 
@@ -111,7 +111,7 @@ Web Manage Vaults overlay verifies:
 
 <a id="ln-web-039"></a>
 
-**Requirement.** In-session import MUST pick a folder, copy it into the current OPFS vault with overwrite, report determinate progress, reload the vault, and start metadata rebuild without blocking. It MUST then offer a confirm to reload the page so imported `.obsidian` settings apply. Picker cancel MUST be silent. Notifications MUST use the session App and MUST NOT mention community plugins.
+**Requirement.** In-session import MUST pick a folder, copy it into the current OPFS vault with overwrite, report determinate progress, reload the vault, and start metadata rebuild without blocking. It MUST then offer a confirm to reload the page so imported `.lapis` settings apply. Picker cancel MUST be silent. Notifications MUST use the session App and MUST NOT mention community plugins.
 
 ## LN-WEB-041 — Launcher: offer Import Vault beside Create New Vault
 
@@ -124,7 +124,7 @@ Web Manage Vaults overlay verifies:
 Launcher Import Vault verifies a copy into a new private OPFS vault:
 
 - Import Vault MUST NOT replace Open Folder; the latter still mounts the picked directory as `file-system-access`.
-- Copy MUST finish before `WorkspaceShell` mounts so the first session sees imported files and `.obsidian` settings.
+- Copy MUST finish before `WorkspaceShell` mounts so the first session sees imported files and `.lapis` settings.
 - Host boot during copy MUST stay on Design Core `WorkspaceStartup` or the existing opening gate, not the branded landing copy.
 - Picker or name-dialog cancel MUST leave the chooser recoverable without a new profile.
 - A failed copy after create MUST delete that new OPFS vault and stay on the chooser with an error.

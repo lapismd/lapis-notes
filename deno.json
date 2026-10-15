@@ -49,6 +49,7 @@
     "nostr-tools/nip46": "npm:nostr-tools@2.25.2/nip46",
     "nostr-tools/pure": "npm:nostr-tools@2.25.2/pure",
     "ws": "npm:ws@8.18.3",
-    "zod": "npm:zod@3.25.76"
+    "zod": "npm:zod@3.25.76",
+    "@lapis-notes/api/path": "./packages/api/src/lib/storage/path.ts"
   }
 }

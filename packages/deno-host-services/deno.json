@@ -6,12 +6,11 @@
     "@lapis-notes/language-service/markdownlint/runtime": "../language-service/src/markdownlint/runtime.ts",
     "@tursodatabase/database": "npm:@tursodatabase/database@0.7.2",
     "zod": "npm:zod@3.25.76",
-    "@lapis-notes/api/sync-repository": "../api/src/lib/sync-repository.ts"
+    "@lapis-notes/api/sync-repository": "../api/src/lib/sync-repository.ts",
+    "@lapis-notes/api/path": "../api/src/lib/storage/path.ts"
   },
   "compilerOptions": {
     "strict": true,
-    "lib": [
-      "deno.window"
-    ]
+    "lib": ["deno.window"]
   }
 }

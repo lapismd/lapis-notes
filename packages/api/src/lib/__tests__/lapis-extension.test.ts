@@ -44,7 +44,7 @@ describe("lapis contribution registry", () => {
     const indexed = buildLapisContributionIndex({
       pluginId: "example",
       name: "Example",
-      manifestPath: "/.obsidian/plugins/example/manifest.json",
+      manifestPath: "/.lapis/plugins/example/manifest.json",
       classification: "lapis-extension",
       source: "community",
       lapis: {
@@ -118,7 +118,7 @@ describe("lapis contribution registry", () => {
   it("derives activation events from the contribution descriptor registry", () => {
     const indexed = buildLapisContributionIndex({
       pluginId: "example",
-      manifestPath: "/.obsidian/plugins/example/manifest.json",
+      manifestPath: "/.lapis/plugins/example/manifest.json",
       classification: "lapis-extension",
       source: "community",
       lapis: {

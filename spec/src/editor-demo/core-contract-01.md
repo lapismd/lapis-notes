@@ -44,7 +44,7 @@ behavior and plugin activation remain unchanged.
 
 <a id="ln-ed-007"></a>
 
-**Requirement.** The demo MUST adapt Design Core Explorer to the API vault for listing, active-file selection, create, open, rename, move, delete, persisted auto-reveal, and persisted show-hidden files. Dotted names MUST stay hidden unless that setting is on. The left-sidebar Explorer play MUST persist the toolbar toggle to `.obsidian/app.json` and reveal `.env` and `.obsidian`.
+**Requirement.** The demo MUST adapt Design Core Explorer to the API vault for listing, active-file selection, create, open, rename, move, delete, persisted auto-reveal, and persisted show-hidden files. Dotted names MUST stay hidden unless that setting is on. The left-sidebar Explorer play MUST persist the toolbar toggle to `.lapis/app.json` and reveal `.env` and `.lapis`.
 
 ## LN-ED-008 — Empty landing view: expose functional Create note and Go
 
@@ -250,7 +250,7 @@ The live-edit parity scenario verifies:
 
 <a id="ln-ed-042"></a>
 
-**Requirement.** The real Editor Settings story MUST show separate Markdown and Features sections, toggle a representative feature, and verify its existing dotted key in `.obsidian/app.json`. It MUST verify that no `markdown.mira.features` group object is persisted. Optional-divider acceptance MUST wait for persisted enablement and reveal the divider in the editor viewport before checking its rendered SVG.
+**Requirement.** The real Editor Settings story MUST show separate Markdown and Features sections, toggle a representative feature, and verify its existing dotted key in `.lapis/app.json`. It MUST verify that no `markdown.mira.features` group object is persisted. Optional-divider acceptance MUST wait for persisted enablement and reveal the divider in the editor viewport before checking its rendered SVG.
 
 ## LN-ED-043 — Runnable editor demo: register Markdownlint after Markdown and open
 

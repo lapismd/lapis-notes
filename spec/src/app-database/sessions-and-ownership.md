@@ -71,3 +71,9 @@
 <a id="ln-db-054"></a>
 
 **Requirement.** Startup file identity reconciliation MUST treat a missing path during fingerprint opening or streaming as a deletion and continue reconciling remaining files. It MUST NOT publish a present identity from a failed fingerprint or suppress unrelated read failures.
+
+## LN-DB-055 — Tauri database provider admission
+
+<a id="ln-db-055"></a>
+
+**Requirement.** A `tauri-desktop` session MUST require an explicitly injected AppDatabase provider and open it with the direct role. Missing providers MUST fail before opening browser or memory storage. Explicit test database injection MAY remain supported.

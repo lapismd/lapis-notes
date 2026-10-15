@@ -607,3 +607,13 @@ comparison and baseline approval remain separate and deferred.
   production profile/secret/bridge wiring and legacy custody as pending work.
 - The existing private Sync UI/protocol preview is owned by `lapis-plugins`;
   this host work does not activate or publish it.
+
+## Tauri shared-host intake
+
+- [x] Shared `.lapis` state defaults across desktop, web, server and Storybook,
+      public `tauri-desktop` classification, and explicit native-provider admission.
+- [x] Source qualification: 1,555 unit tests passed (1 existing skip), 249 catalog
+      stories passed, full build/check lanes, web/server and packaged host acceptance.
+      See [the qualification record](spec/records/2026-10-16-tauri-shared-state.md).
+- Packages are built and packed locally for Lapis Desktop; npm publication remains
+  deferred to the final release gate. Native vault/session work is tracked there.

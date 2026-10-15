@@ -90,11 +90,11 @@
 
 **Requirement.** Reserved `/context` MUST also report folder-instruction vault-relative paths and whether bootstrap text was truncated. The report MUST stay local and MUST NOT include machine-absolute paths.
 
-## LN-AI-147 — Active-file conversation scope: skip hidden application segments .agents, .lapis, .obsidian
+## LN-AI-147 — Active-file conversation scope: skip hidden application segments .agents, .lapis, .lapis
 
 <a id="ln-ai-147"></a>
 
-**Requirement.** An active-file conversation scope MUST skip hidden application segments `.agents`, `.lapis`, `.obsidian`, and `.trash`. It MUST use the nearest ancestor folder that contains none of those segments, or vault root. The New Chat folder list MUST omit those trees. Existing conversations stored there MUST remain readable.
+**Requirement.** An active-file conversation scope MUST skip hidden application segments `.agents`, `.lapis`, `.lapis`, and `.trash`. It MUST use the nearest ancestor folder that contains none of those segments, or vault root. The New Chat folder list MUST omit those trees. Existing conversations stored there MUST remain readable.
 
 ## LN-AI-160 — AI chat transcript: show the current directory-context scope control at
 

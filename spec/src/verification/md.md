@@ -83,7 +83,7 @@
 | LN-MD-078 | [markdown-plugin](../plugins/markdown/editor-and-authoring.md#ln-md-078) | Implemented | the Lapis Reading wrapper removes Mira Editor's outer border and radius while retaining rendered Markdown styling |
 | LN-MD-079 | [markdown-plugin](../plugins/markdown/editor-and-authoring.md#ln-md-079) | Implemented | API bridge and Markdown Authoring acceptance place the ordered Markdown View section before providers and generic workspace actions |
 | LN-MD-080 | [markdown-plugin](../plugins/markdown/editor-and-authoring.md#ln-md-080) | Implemented | the edit-mode pane menu toggles the typed toolbar setting and acceptance verifies its persisted checked state |
-| LN-MD-081 | [markdown-plugin](../plugins/markdown/editor-and-authoring.md#ln-md-081) | Implemented | Markdown Authoring acceptance changes Mira toolbar indentation controls and reads their persisted values from `.obsidian/app.json` |
+| LN-MD-081 | [markdown-plugin](../plugins/markdown/editor-and-authoring.md#ln-md-081) | Implemented | Markdown Authoring acceptance changes Mira toolbar indentation controls and reads their persisted values from `.lapis/app.json` |
 | LN-MD-082 | [markdown-plugin](../plugins/markdown/editor-and-authoring.md#ln-md-082) | Implemented | the 20 Mira capability rows render in one described, explicitly labelled design-core toggle table |
 | LN-MD-083 | [markdown-plugin](../plugins/markdown/files-and-persistence.md#ln-md-083) | Implemented | feature grouping preserves flat schema keys, defaults, runtime gates, and child-only persistence |
 | LN-MD-084 | [markdown-plugin](../plugins/markdown/editor-and-authoring.md#ln-md-084) | Implemented | Source and Live Preview compose diagnostics-only language-service extensions with shared cached actions |

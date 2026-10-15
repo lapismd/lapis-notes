@@ -295,27 +295,27 @@ describe("Configuration", () => {
   it("defers schema defaults until initial load and preserves persisted settings", async () => {
     const { app, adapter } = createConfigurationApp();
     await app.vault.load();
-    await app.vault.mkpath("/.obsidian");
+    await app.vault.mkpath("/.lapis");
     await app.vault.create(
-      "/.obsidian/app.json",
+      "/.lapis/app.json",
       JSON.stringify({
         "appearence.interface.showInlineTitle": true,
         "editor.defaultEditingMode": "live-preview",
       }),
     );
 
-    const configuration = new Configuration(app, "/.obsidian/app.json");
+    const configuration = new Configuration(app, "/.lapis/app.json");
     registerManifestSchema(configuration.schema);
 
     await configuration.materializeSchemaDefaults();
-    expect(JSON.parse(await adapter.read("/.obsidian/app.json"))).toEqual({
+    expect(JSON.parse(await adapter.read("/.lapis/app.json"))).toEqual({
       "appearence.interface.showInlineTitle": true,
       "editor.defaultEditingMode": "live-preview",
     });
 
     await configuration.load();
 
-    expect(JSON.parse(await adapter.read("/.obsidian/app.json"))).toMatchObject({
+    expect(JSON.parse(await adapter.read("/.lapis/app.json"))).toMatchObject({
       "appearence.interface.showInlineTitle": true,
       "editor.defaultEditingMode": "live-preview",
       "manifest-only.statusBar.mode": "compact",
@@ -328,7 +328,7 @@ describe("Configuration", () => {
     const { app, adapter } = createConfigurationApp();
     await app.vault.load();
 
-    const configuration = new Configuration(app, "/.obsidian/app.json");
+    const configuration = new Configuration(app, "/.lapis/app.json");
     registerManifestSchema(configuration.schema);
 
     await configuration.load();
@@ -339,7 +339,7 @@ describe("Configuration", () => {
     expect(
       configuration.getConfiguration().get("manifest-only.statusBar.palette"),
     ).toEqual(["blue"]);
-    expect(JSON.parse(await adapter.read("/.obsidian/app.json"))).toEqual({
+    expect(JSON.parse(await adapter.read("/.lapis/app.json"))).toEqual({
       "manifest-only.statusBar.mode": "compact",
       "manifest-only.statusBar.palette": ["blue"],
       "manifest-only.statusBar.threshold": 5,
@@ -350,7 +350,7 @@ describe("Configuration", () => {
     const { app, adapter } = createConfigurationApp();
     await app.vault.load();
 
-    const configuration = new Configuration(app, "/.obsidian/app.json");
+    const configuration = new Configuration(app, "/.lapis/app.json");
     configuration.schema.register({
       id: "workspace",
       title: "Workspace",
@@ -370,7 +370,7 @@ describe("Configuration", () => {
     expect(
       configuration.getConfiguration().get("workspace.editorAssociations"),
     ).toEqual({});
-    expect(JSON.parse(await adapter.read("/.obsidian/app.json"))).toEqual({
+    expect(JSON.parse(await adapter.read("/.lapis/app.json"))).toEqual({
       "workspace.editorAssociations": {},
     });
   });
@@ -379,7 +379,7 @@ describe("Configuration", () => {
     const { app, adapter } = createConfigurationApp();
     await app.vault.load();
 
-    const configuration = new Configuration(app, "/.obsidian/app.json");
+    const configuration = new Configuration(app, "/.lapis/app.json");
     registerManifestSchema(configuration.schema);
 
     await configuration.load();
@@ -398,18 +398,16 @@ describe("Configuration", () => {
     expect(
       configuration.getConfiguration().get("manifest-only.statusBar.threshold"),
     ).toBe(8);
-    expect(JSON.parse(await adapter.read("/.obsidian/app.json"))).toMatchObject(
-      {
-        "manifest-only.statusBar.threshold": 8,
-      },
-    );
+    expect(JSON.parse(await adapter.read("/.lapis/app.json"))).toMatchObject({
+      "manifest-only.statusBar.threshold": 8,
+    });
   });
 
   it("validates and persists configuration batches atomically", async () => {
     const { app, adapter } = createConfigurationApp();
     await app.vault.load();
 
-    const configuration = new Configuration(app, "/.obsidian/app.json");
+    const configuration = new Configuration(app, "/.lapis/app.json");
     registerManifestSchema(configuration.schema);
     await configuration.load();
     await configuration.updatePluginData("fixture-plugin", {
@@ -443,7 +441,7 @@ describe("Configuration", () => {
         },
       ],
     ]);
-    expect(JSON.parse(await adapter.read("/.obsidian/app.json"))).toEqual(
+    expect(JSON.parse(await adapter.read("/.lapis/app.json"))).toEqual(
       expect.objectContaining({
         "manifest-only.statusBar.mode": "full",
         "manifest-only.statusBar.threshold": 8,
@@ -489,7 +487,7 @@ describe("Configuration", () => {
     const { app, adapter } = createConfigurationApp();
     await app.vault.load();
 
-    const configuration = new Configuration(app, "/.obsidian/app.json");
+    const configuration = new Configuration(app, "/.lapis/app.json");
     await configuration.load();
 
     await configuration.updatePluginData("community-plugin", {
@@ -501,7 +499,7 @@ describe("Configuration", () => {
       enabled: true,
       filters: ["active"],
     });
-    expect(JSON.parse(await adapter.read("/.obsidian/app.json"))).toEqual({
+    expect(JSON.parse(await adapter.read("/.lapis/app.json"))).toEqual({
       pluginData: {
         "community-plugin": {
           enabled: true,
@@ -515,7 +513,7 @@ describe("Configuration", () => {
     const { app, adapter } = createConfigurationApp();
     await app.vault.load();
 
-    const configuration = new Configuration(app, "/.obsidian/app.json");
+    const configuration = new Configuration(app, "/.lapis/app.json");
     await configuration.load();
 
     const events: Array<{
@@ -528,9 +526,9 @@ describe("Configuration", () => {
       events.push(event);
     });
 
-    await app.vault.mkpath("/.obsidian");
+    await app.vault.mkpath("/.lapis");
     await app.vault.create(
-      "/.obsidian/app.json",
+      "/.lapis/app.json",
       JSON.stringify(
         {
           pluginData: {
@@ -567,7 +565,7 @@ describe("Configuration", () => {
     const { app, adapter } = createConfigurationApp();
     await app.vault.load();
 
-    const configuration = new Configuration(app, "/.obsidian/app.json");
+    const configuration = new Configuration(app, "/.lapis/app.json");
     configuration.schema.register({
       title: "Workspace",
       type: "object",
@@ -586,7 +584,7 @@ describe("Configuration", () => {
         .getConfiguration()
         .get("workspace.fileExplorer.autoRevealCurrentFile"),
     ).toBe(false);
-    expect(JSON.parse(await adapter.read("/.obsidian/app.json"))).toEqual({
+    expect(JSON.parse(await adapter.read("/.lapis/app.json"))).toEqual({
       "workspace.fileExplorer.autoRevealCurrentFile": false,
     });
 
@@ -601,7 +599,7 @@ describe("Configuration", () => {
         .getConfiguration()
         .get("workspace.fileExplorer.autoRevealCurrentFile"),
     ).toBe(true);
-    expect(JSON.parse(await adapter.read("/.obsidian/app.json"))).toEqual({
+    expect(JSON.parse(await adapter.read("/.lapis/app.json"))).toEqual({
       "workspace.fileExplorer.autoRevealCurrentFile": true,
     });
   });

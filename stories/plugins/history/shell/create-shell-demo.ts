@@ -207,8 +207,8 @@ export function createHistoryShellLayout() {
 
 export function createHistoryShellSeed(): Record<string, string | ArrayBuffer> {
   return {
-    ".obsidian/app.json": JSON.stringify(HISTORY_SHELL_CONFIGURATION, null, 2),
-    ".obsidian/workspace.json": JSON.stringify(
+    ".lapis/app.json": JSON.stringify(HISTORY_SHELL_CONFIGURATION, null, 2),
+    ".lapis/workspace.json": JSON.stringify(
       createHistoryShellLayout(),
       null,
       2,
@@ -260,7 +260,7 @@ export async function bootHistoryShellDemo(): Promise<{
   });
   const app = new App({
     version: "0.0.1-story",
-    configPath: ".obsidian/app.json",
+    configPath: ".lapis/app.json",
     adapter,
     appDatabase: new MemoryAppDatabase("lapis-history-shell"),
     workspaceShell: { application: { name: "Lapis Notes" } },

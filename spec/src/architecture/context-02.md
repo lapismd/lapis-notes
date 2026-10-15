@@ -102,7 +102,7 @@ public API barrel and browser graph.
 
 - A missing workspace file seeds File Explorer, Search, then Bookmarks on the left and Outline, File Properties, and Tags on the right when those views are registered.
 
-- Named Save and Load layout commands persist snapshots in `.obsidian/workspaces.json`, and Reset reapplies that default seed.
+- Named Save and Load layout commands persist snapshots in `.lapis/workspaces.json`, and Reset reapplies that default seed.
 
 - `@lapis-notes/api/workspace-host` is the explicit integration seam: root api exports retain their compatibility shape while workspace hosts can obtain the controller without reaching into api internals.
 

@@ -40,7 +40,7 @@ describe("Deno plugin assets", () => {
       rootPath: "/vault",
       pluginId: "plugin-a",
       version: "1.0.0",
-      pluginsPath: ".obsidian/plugins",
+      pluginsPath: ".lapis/plugins",
       installedPlugin: {
         pluginId: "plugin-a",
         installedVersion: "1.0.0",
@@ -56,7 +56,7 @@ describe("Deno plugin assets", () => {
     expect(response?.headers.get("content-type")).toMatch(/^text\/javascript/u);
     expect(await response?.text()).toBe('export default "ok";\n');
     expect(stat).toHaveBeenLastCalledWith(
-      "/vault/.obsidian/plugins/plugin-a/main.mjs",
+      "/vault/.lapis/plugins/plugin-a/main.mjs",
     );
   });
 

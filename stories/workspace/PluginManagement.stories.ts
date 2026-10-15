@@ -84,6 +84,7 @@ export const StaticRegistryV2MediaAndReleaseNotes: Story = {
     const viewer = await body.findByRole("dialog", {
       name: "Graph media viewer",
     });
+    await waitFor(() => expect(viewer).toBeVisible());
     const lightbox = within(viewer);
     await expect(
       await lightbox.findByText("2 of 3: Graph details"),
@@ -126,6 +127,7 @@ export const StaticRegistryV2MediaAndReleaseNotes: Story = {
     const reopened = await body.findByRole("dialog", {
       name: "Graph media viewer",
     });
+    await waitFor(() => expect(reopened).toBeVisible());
     await expect(
       within(reopened).getByText("1 of 3: Graph workspace"),
     ).toBeVisible();
@@ -819,7 +821,7 @@ export const InstalledUpdatesRevocationAndConfirmation: Story = {
     );
     const body = within(canvasElement.ownerDocument.body);
     const dialog = body.getByRole("alertdialog");
-    await expect(dialog).toBeVisible();
+    await waitFor(() => expect(dialog).toBeVisible());
     await expect(
       body.getByRole("heading", { name: "Uninstall plugin?" }),
     ).toBeVisible();

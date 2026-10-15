@@ -67,38 +67,38 @@ describe("ServerVaultAdapter browser transport", () => {
       csrfToken: () => undefined,
     });
 
-    await adapter.stat("/.obsidian/core-plugins.json");
-    await adapter.list("/.obsidian/plugins/");
-    await adapter.mkdir("/.obsidian/plugins/lapis-word-count", {
+    await adapter.stat("/.lapis/core-plugins.json");
+    await adapter.list("/.lapis/plugins/");
+    await adapter.mkdir("/.lapis/plugins/lapis-word-count", {
       recursive: true,
     });
-    await adapter.remove("/.obsidian/plugins/old.json");
-    await adapter.rmdir("/.obsidian/plugins/old", true);
+    await adapter.remove("/.lapis/plugins/old.json");
+    await adapter.rmdir("/.lapis/plugins/old", true);
     await adapter.rename("/Draft.md", "/Notes/Draft.md");
     await adapter.copy("/Notes/Draft.md", "/Notes/Copy.md");
     await adapter.trashLocal("/Notes/Copy.md");
 
     expect(stat).toHaveBeenCalledWith({
       vaultId: profile.id,
-      path: ".obsidian/core-plugins.json",
+      path: ".lapis/core-plugins.json",
     });
     expect(list).toHaveBeenCalledWith({
       vaultId: profile.id,
-      path: ".obsidian/plugins",
+      path: ".lapis/plugins",
     });
     expect(mkdir).toHaveBeenCalledWith({
       vaultId: profile.id,
-      path: ".obsidian/plugins/lapis-word-count",
+      path: ".lapis/plugins/lapis-word-count",
       recursive: true,
     });
     expect(remove).toHaveBeenNthCalledWith(1, {
       vaultId: profile.id,
-      path: ".obsidian/plugins/old.json",
+      path: ".lapis/plugins/old.json",
       recursive: false,
     });
     expect(remove).toHaveBeenNthCalledWith(2, {
       vaultId: profile.id,
-      path: ".obsidian/plugins/old",
+      path: ".lapis/plugins/old",
       recursive: true,
     });
     expect(rename).toHaveBeenCalledWith({

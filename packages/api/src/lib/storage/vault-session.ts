@@ -230,6 +230,12 @@ async function createPreferredAppDatabase(
     if (!provider) await database.open();
     return { appDatabase: database, state: readyState(database, false) };
   }
+  if (runtime === "tauri-desktop") {
+    if (!provider)
+      throw new Error("tauri-desktop requires an AppDatabaseProvider");
+    const database = await provider.open({ vaultId, runtime, role: "direct" });
+    return { appDatabase: database, state: readyState(database, false) };
+  }
   if (runtime === "deno-desktop") {
     const database = provider
       ? await provider.open({ vaultId, runtime, role: "direct" })

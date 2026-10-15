@@ -1,3 +1,4 @@
+import { appStatePath } from "@lapis-notes/api/path";
 import {
   assertSupportedPluginAssetPath,
   createWebPluginAssetUrl,
@@ -80,7 +81,7 @@ export class DenoHttpPluginAssetServer implements PluginAssetServer {
   async #getInstalledPlugin(pluginId: string): Promise<InstalledPluginRecord> {
     try {
       const raw = await this.options.adapter.read(
-        ".obsidian/installed-plugins.json",
+        appStatePath("installed-plugins.json"),
       );
       const parsed = JSON.parse(raw) as {
         plugins?: Record<string, InstalledPluginRecord>;
@@ -112,7 +113,7 @@ export class DenoHttpPluginAssetServer implements PluginAssetServer {
           pluginId: installedPlugin.pluginId,
           version,
           installedPlugin,
-          pluginsPath: this.options.pluginsPath ?? ".obsidian/plugins",
+          pluginsPath: this.options.pluginsPath ?? appStatePath("plugins"),
         },
       )
       .then((result) => result.fingerprintSha256);

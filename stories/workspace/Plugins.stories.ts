@@ -17,7 +17,7 @@ const exampleFor = (
   placement: PluginsPlacement,
 ) => `import { App, MemoryVaultAdapter, MemoryAppDatabase } from "@lapis-notes/api";
 import { PluginsView, WorkspaceShell } from "@lapis-notes/workspace";
-const adapter = new MemoryVaultAdapter({ ".obsidian/workspace.json": JSON.stringify(${JSON.stringify(pluginsBrowserLayout(placement), null, 2)}) });
+const adapter = new MemoryVaultAdapter({ ".lapis/workspace.json": JSON.stringify(${JSON.stringify(pluginsBrowserLayout(placement), null, 2)}) });
 const app = new App({ adapter, appDatabase: new MemoryAppDatabase("plugins-review") });
 app.workspace.registerView("plugins", leaf => new PluginsView(leaf));
 await app.vault.load();
@@ -211,7 +211,7 @@ export const RibbonOpensPlugins: Story = {
       source: {
         code: `import { App, MemoryVaultAdapter, MemoryAppDatabase } from "@lapis-notes/api";
 import { PluginsView, WorkspaceShell } from "@lapis-notes/workspace";
-const app = new App({ adapter: new MemoryVaultAdapter({ ".obsidian/workspace.json": JSON.stringify(${JSON.stringify(pluginsBrowserOpeningLayout(), null, 2)}) }), appDatabase: new MemoryAppDatabase("plugins-opening") });
+const app = new App({ adapter: new MemoryVaultAdapter({ ".lapis/workspace.json": JSON.stringify(${JSON.stringify(pluginsBrowserOpeningLayout(), null, 2)}) }), appDatabase: new MemoryAppDatabase("plugins-opening") });
 app.workspace.registerView("plugins", leaf => new PluginsView(leaf));
 app.workspace.leftRibbon.addItem({ id: "plugins", title: "Plugins", icon: "package", callback: async () => {
   const leaf = app.workspace.getLeavesOfType("plugins")[0] ?? app.workspace.getLeaf(true);

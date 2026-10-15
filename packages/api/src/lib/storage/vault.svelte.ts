@@ -1,3 +1,4 @@
+import { DEFAULT_APP_STATE_DIRECTORY } from "./path";
 import { EventDispatcher } from "$lib/events";
 import {
   hasEditorAssociationGlobMagic,
@@ -57,7 +58,7 @@ export class Vault extends EventDispatcher<{
 }> {
   private files: Record<string, TAbstractFile> = {};
   private filesByName = new Map<string, Set<string>>();
-  public configDir: string = ".obsidian";
+  public configDir: string = DEFAULT_APP_STATE_DIRECTORY;
   readonly cache = new FileCache(1024);
 
   constructor(readonly adapter: DataAdapter) {
@@ -419,7 +420,10 @@ export class Vault extends EventDispatcher<{
       size: data.byteLength,
       mtime: file.stat.mtime,
       stream: ({ offset = 0, length, signal } = {}) => {
-        const start = Math.max(0, Math.min(data.byteLength, Math.floor(offset)));
+        const start = Math.max(
+          0,
+          Math.min(data.byteLength, Math.floor(offset)),
+        );
         const end = Math.min(
           data.byteLength,
           start + Math.max(0, Math.floor(length ?? data.byteLength - start)),
@@ -427,7 +431,9 @@ export class Vault extends EventDispatcher<{
         return new ReadableStream<Uint8Array>({
           start(controller) {
             if (signal?.aborted) {
-              controller.error(signal.reason ?? new DOMException("Aborted", "AbortError"));
+              controller.error(
+                signal.reason ?? new DOMException("Aborted", "AbortError"),
+              );
               return;
             }
             controller.enqueue(data.slice(start, end));
@@ -462,7 +468,9 @@ export class Vault extends EventDispatcher<{
       try {
         while (true) {
           if (options.signal?.aborted) {
-            throw options.signal.reason ?? new DOMException("Aborted", "AbortError");
+            throw (
+              options.signal.reason ?? new DOMException("Aborted", "AbortError")
+            );
           }
           const next = await reader.read();
           if (next.done) break;

@@ -4,6 +4,11 @@ The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.
 
+Mobile acceptance uses the dock's count-bearing `Open N tabs` accessible name,
+derives the initial count, and verifies its increment after adding a tab. The
+selector repair already qualified on Design Core 0.4.0 in `f15b61b4` is retained
+here without changing this migration's dependency target.
+
 ## LN-WS-014 — Desktop top and stacked main-workspace panes: expose design-core's pane-level maximize toggle beside tab
 
 <a id="ln-ws-014"></a>

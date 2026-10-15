@@ -195,6 +195,11 @@
       "import": "./dist/agent-skills.js",
       "default": "./dist/agent-skills.js"
     },
+    "./runtime": {
+      "types": "./dist/storage/runtime.d.ts",
+      "import": "./dist/storage/runtime.js",
+      "default": "./dist/storage/runtime.js"
+    },
     "./path": {
       "types": "./dist/storage/path.d.ts",
       "import": "./dist/storage/path.js",

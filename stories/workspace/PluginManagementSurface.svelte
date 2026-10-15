@@ -744,10 +744,10 @@ Released 1 August 2026.
   );
 
   const adapter = new MemoryVaultAdapter({
-    ".obsidian/app.json": "{}",
+    ".lapis/app.json": "{}",
     ...(untrack(() => surface) === "browser"
       ? {
-          ".obsidian/workspace.json": JSON.stringify(
+          ".lapis/workspace.json": JSON.stringify(
             untrack(() => initiallyClosed)
               ? pluginsBrowserOpeningLayout()
               : pluginsBrowserLayout(
@@ -760,7 +760,7 @@ Released 1 August 2026.
   });
   const app = new App({
     version: "0.1.0-story",
-    configPath: ".obsidian/app.json",
+    configPath: ".lapis/app.json",
     adapter,
     appDatabase: new MemoryAppDatabase(
       `plugin-management-${untrack(() => scenario)}-${untrack(() => section)}`,
@@ -796,13 +796,13 @@ Released 1 August 2026.
   communityPlugin.configureRuntime({
     source: "community",
     provenance: "manual",
-    basePath: "/.obsidian/plugins/community-example",
+    basePath: "/.lapis/plugins/community-example",
   });
   const failedPlugin = new FailedPlugin(app);
   failedPlugin.configureRuntime({
     source: "community",
     provenance: "community",
-    basePath: "/.obsidian/plugins/failed-community-plugin",
+    basePath: "/.lapis/plugins/failed-community-plugin",
   });
   if (untrack(() => scenario) === "community") {
     app.plugins.plugins.set(communityPlugin.manifest.id, communityPlugin);
@@ -817,7 +817,7 @@ Released 1 August 2026.
       source: "community",
       provenance:
         plugin.manifest.id === "lapis-graph" ? "official" : "community",
-      basePath: `/.obsidian/plugins/${plugin.manifest.id}`,
+      basePath: `/.lapis/plugins/${plugin.manifest.id}`,
     });
     app.plugins.plugins.set(plugin.manifest.id, plugin);
   }

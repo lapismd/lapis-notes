@@ -1,3 +1,4 @@
+import { appStatePath } from "../storage/path";
 import { dirname } from "$lib/storage/path";
 import type { DataAdapter } from "$lib/storage/fs";
 import {
@@ -74,7 +75,7 @@ export class InstalledPluginStateStore {
   }
 
   private get path(): string {
-    return this.options.path ?? ".obsidian/installed-plugins.json";
+    return this.options.path ?? appStatePath("installed-plugins.json");
   }
 
   private now(): string {

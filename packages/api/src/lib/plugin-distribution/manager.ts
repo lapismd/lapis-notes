@@ -1,3 +1,4 @@
+import { appStatePath } from "../storage/path";
 import { EventDispatcher } from "$lib/events";
 import type { DataAdapter } from "$lib/storage/fs";
 import { hasNativeDesktopCapability } from "$lib/storage/desktop-native";
@@ -909,7 +910,9 @@ export class DefaultPluginDistributionManager
         fetch: this.options.fetch,
         cache: new PluginRegistryCache({
           adapter: this.options.adapter,
-          cachePath: `.obsidian/plugin-registry-cache/${encodeURIComponent(source.id)}/${encodeURIComponent(source.url)}.json`,
+          cachePath: appStatePath(
+            `plugin-registry-cache/${encodeURIComponent(source.id)}/${encodeURIComponent(source.url)}.json`,
+          ),
         }),
       });
       this.httpClients.set(key, client);

@@ -176,7 +176,7 @@ describe("SyncHostService", () => {
     async (boundary) => {
       const database = new MemoryAppDatabase(`sync-host-missing-${boundary}`);
       await database.open();
-      const missingPath = ".obsidian/plugins/ai/manifest.json";
+      const missingPath = ".lapis/plugins/ai/manifest.json";
       const adapter = new MemoryVaultAdapter({
         [missingPath]: '{"id":"ai"}',
         "remaining.md": "keep tracking",

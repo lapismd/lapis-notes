@@ -1,3 +1,4 @@
+import { appStatePath } from "./storage/path";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { EventDispatcher, type DefaultEventMap, type EventMap } from "./events";
@@ -875,9 +876,7 @@ export class WorkspaceWindow extends WorkspaceContainer {
   }
 }
 
-function hasDestroyableEditor(
-  view: View,
-): view is View & {
+function hasDestroyableEditor(view: View): view is View & {
   editor: { bindApplication?: (app: App) => unknown; destroy: () => void };
 } {
   const candidate = view as View & { editor?: { destroy?: unknown } };
@@ -1169,9 +1168,7 @@ export class WorkspaceSidebarGroup extends WorkspaceParent {
         )
       : undefined;
     return (
-      selected ??
-      this.children.find((leaf) => !this.isLeafHidden(leaf)) ??
-      null
+      selected ?? this.children.find((leaf) => !this.isLeafHidden(leaf)) ?? null
     );
   }
 
@@ -2066,7 +2063,7 @@ export class Workspace extends EventDispatcher<{
         return;
       }
       return this.app.vault.create(
-        joinPath("/.obsidian", this.workspaceLayoutFile),
+        joinPath("/", appStatePath(this.workspaceLayoutFile)),
         JSON.stringify(this.toJson(), null, 2),
       );
     });
@@ -2723,7 +2720,7 @@ export class Workspace extends EventDispatcher<{
       async (span) => {
         span.setAttribute("workspace.layout_file", file);
         const workspaceFile = this.app.vault.getFileByPath(
-          joinPath("/.obsidian", file),
+          joinPath("/", appStatePath(file)),
         );
         this.layoutReady = false;
         if (workspaceFile) {
@@ -2775,7 +2772,7 @@ export class Workspace extends EventDispatcher<{
   }
 
   private namedWorkspacesPath(): string {
-    return joinPath("/.obsidian", NAMED_WORKSPACES_FILE);
+    return joinPath("/", appStatePath(NAMED_WORKSPACES_FILE));
   }
 
   private async readNamedWorkspaceStore(): Promise<NamedWorkspaceStore> {
@@ -5081,7 +5078,9 @@ export class Workspace extends EventDispatcher<{
       this.app.workspace.requestSaveLayout({
         source: "api",
         operation:
-          leafType === "split" ? `duplicate-leaf-${direction}` : "duplicate-leaf-tab",
+          leafType === "split"
+            ? `duplicate-leaf-${direction}`
+            : "duplicate-leaf-tab",
       });
       return duplicateLeaf;
     });
@@ -5367,9 +5366,7 @@ function canReuseLeafForFileNavigation(
   leaf: WorkspaceLeaf | null,
 ): leaf is WorkspaceLeaf {
   if (!leaf) return false;
-  return (
-    leaf.view.getViewType() === "empty" || leaf.view instanceof FileView
-  );
+  return leaf.view.getViewType() === "empty" || leaf.view instanceof FileView;
 }
 
 function isPoorerViewState(
@@ -5404,8 +5401,8 @@ function collectLayoutViewTypes(
 }
 
 /**
- * Compatibility stand-in for a Design Core class view. The host owns the
- * live mount; this view only preserves type and chrome across API commits.
+ * Compatibility stand-in for a Design Core class view. The host owns the live
+ * mount; this view only preserves type and chrome across API commits.
  */
 class HostOwnedWorkspaceView extends View {
   readonly #viewType: string;
@@ -5448,9 +5445,9 @@ function isHostOwnedViewType(workspace: Workspace, type: string): boolean {
     return true;
   }
   return (
-    resolveWorkspaceHostBinding(workspace)?.controller.renderer.registry.resolve(
-      type,
-    ) != null
+    resolveWorkspaceHostBinding(
+      workspace,
+    )?.controller.renderer.registry.resolve(type) != null
   );
 }
 

@@ -100,7 +100,7 @@
 | LN-PKG-097 | [packages](../packages/app-and-services.md#ln-pkg-097) | Implemented | API vault-maintenance tests register app:rebuild-vault-cache and call metadataCache.rebuild |
 | LN-PKG-098 | [packages](../packages/app-and-services.md#ln-pkg-098) | Implemented | API vault-maintenance tests await metadata rebuild then Search command or appDatabase.rebuildSearchIndex |
 | LN-PKG-095 | [packages](../packages/editor-apis.md#ln-pkg-095) | Implemented | plugin-ai package.json depends on @lapis-notes/markdown and not mira |
-| LN-PKG-099 | [packages](../packages/configuration-and-lifecycle.md#ln-pkg-099) | In progress | sibling `lapis-plugins/packages/bookmarks` owns the package and persistence through `.obsidian/bookmarks.json`; remaining integration acceptance is pending |
+| LN-PKG-099 | [packages](../packages/configuration-and-lifecycle.md#ln-pkg-099) | In progress | sibling `lapis-plugins/packages/bookmarks` owns the package and persistence through `.lapis/bookmarks.json`; remaining integration acceptance is pending |
 | LN-PKG-101 | [packages](../packages/workspace-apis.md#ln-pkg-101) | In progress | sibling Tasks package remains independent and absent from both static hosts; configured install acceptance remains |
 | LN-PKG-102 | [packages](../packages/editor-apis.md#ln-pkg-102) | In progress | sibling Docs package remains independent and absent from both static hosts; configured install acceptance remains |
 | LN-PKG-103 | [packages](../packages/configuration-and-lifecycle.md#ln-pkg-103) | Implemented | Docs package manifests and source exclude `/Users/stevejuma/code/cv` and `@cvstudio/*`; coding practice is out of Core Docs |

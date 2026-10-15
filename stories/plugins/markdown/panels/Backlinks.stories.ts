@@ -142,9 +142,12 @@ function placementStory(
           '[data-ui-component="hover-card"][data-ui-part="hover-card-content"]',
         );
         if (!preview) throw new Error("Missing Backlinks preview");
-        expect(preview.getBoundingClientRect().width).toBeGreaterThanOrEqual(
-          400,
-        );
+        expect(preview.offsetWidth).toBeGreaterThanOrEqual(400);
+        await waitFor(() => {
+          expect(preview.getBoundingClientRect().width).toBeGreaterThanOrEqual(
+            400,
+          );
+        });
         const fileEmbed = preview.querySelector<HTMLElement>(
           '[data-ui-component="file-embed"]',
         );

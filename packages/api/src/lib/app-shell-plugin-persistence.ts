@@ -1,4 +1,5 @@
-export const APP_SHELL_PLUGINS_PATH = ".obsidian/app-shell-plugins.json";
+import { appStatePath, DEFAULT_APP_STATE_DIRECTORY } from "./storage/path";
+export const APP_SHELL_PLUGINS_PATH = appStatePath("app-shell-plugins.json");
 
 export interface AppShellPluginPersistenceVault {
   mkpath?(path: string): Promise<unknown>;
@@ -50,7 +51,9 @@ export function createAppShellPluginPersistence(
       const resolved = resolvePluginPersistenceVault(vault);
       const adapter = resolved?.adapter;
       if (!adapter?.write) return;
-      await resolved?.mkpath?.(".obsidian").catch(() => undefined);
+      await resolved
+        ?.mkpath?.(DEFAULT_APP_STATE_DIRECTORY)
+        .catch(() => undefined);
       await adapter.write(
         APP_SHELL_PLUGINS_PATH,
         `${JSON.stringify(enabledById, null, 2)}\n`,

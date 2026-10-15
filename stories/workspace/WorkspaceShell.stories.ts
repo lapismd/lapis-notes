@@ -790,8 +790,8 @@ export const Mobile: Story = {
     expectAppShellPlugins(canvas);
     await expectWordCountForWelcome(canvasElement, canvas);
 
-    const initialOpenTabs = canvas.getByRole("button", {
-      name: /Open tabs \(\d+\)/,
+    const initialOpenTabs = await canvas.findByRole("button", {
+      name: /^Open \d+ tabs$/,
     });
     const initialTabCount = Number.parseInt(
       initialOpenTabs.getAttribute("aria-label")?.match(/\d+/)?.[0] ?? "0",
@@ -800,8 +800,10 @@ export const Mobile: Story = {
     await userEvent.click(
       canvas.getByRole("button", { name: "Create new tab" }),
     );
-    const openTabsLabel = `Open tabs (${initialTabCount + 1})`;
-    await userEvent.click(canvas.getByRole("button", { name: openTabsLabel }));
+    const openTabsLabel = `Open ${initialTabCount + 1} tabs`;
+    await userEvent.click(
+      await canvas.findByRole("button", { name: openTabsLabel }),
+    );
     await expect(
       canvas.getByRole("region", { name: "Open workspace tabs" }),
     ).toBeInTheDocument();

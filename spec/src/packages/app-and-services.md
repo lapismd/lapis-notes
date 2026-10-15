@@ -72,7 +72,7 @@ security RPC and dedicated wrapped-key storage (LN-DENO-079 through LN-DENO-081)
 
 <a id="ln-pkg-072"></a>
 
-**Requirement.** Configuration schema defaults MUST NOT write `.obsidian/app.json` before the initial persisted configuration load completes. Initial loading MUST preserve persisted and unknown keys while adding registered defaults, and later schema registration MUST persist newly introduced defaults through the normal serialized writer.
+**Requirement.** Configuration schema defaults MUST NOT write `.lapis/app.json` before the initial persisted configuration load completes. Initial loading MUST preserve persisted and unknown keys while adding registered defaults, and later schema registration MUST persist newly introduced defaults through the normal serialized writer.
 
 ## LN-PKG-025 — @lapis-notes/markdown: export the real AllProperties Svelte component
 

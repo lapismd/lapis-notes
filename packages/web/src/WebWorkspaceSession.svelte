@@ -1,5 +1,10 @@
 <script lang="ts">
   import {
+    appStatePath,
+    DEFAULT_APP_STATE_DIRECTORY,
+  } from "@lapis-notes/api/path";
+
+  import {
     App,
     type AppPluginDistributionOptions,
     createBrowserSyncUnlockHandler,
@@ -114,7 +119,7 @@
     });
     ownedApp = new App({
       version: "2026.6.3",
-      configPath: ".obsidian/app.json",
+      configPath: appStatePath("app.json"),
       session,
       syncHost: {
         requestCryptoUnlock,
@@ -327,7 +332,7 @@
         corePluginsRegistered = true;
       }
       await app.vault.load();
-      await app.vault.mkpath(".obsidian");
+      await app.vault.mkpath(DEFAULT_APP_STATE_DIRECTORY);
       if (disposed) return;
       setTask(activeTask, "complete");
 
@@ -402,9 +407,11 @@
   async function writeWorkspaceLayout(): Promise<void> {
     if (!app.workspace.layoutReady) return;
     const serializedLayout = JSON.stringify(app.workspace.getLayout(), null, 2);
-    await session.vaultAdapter.mkdir(".obsidian", { recursive: true });
+    await session.vaultAdapter.mkdir(DEFAULT_APP_STATE_DIRECTORY, {
+      recursive: true,
+    });
     await session.vaultAdapter.write(
-      ".obsidian/workspace.json",
+      appStatePath("workspace.json"),
       serializedLayout,
     );
   }

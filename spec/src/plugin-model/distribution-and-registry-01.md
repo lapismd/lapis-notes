@@ -1,5 +1,10 @@
 # Plugin Model / Distribution and registry / Part 1
 
+Interaction acceptance waits for media and confirmation dialogs to become
+visible before checking their content. DOM discovery alone does not establish
+visibility during the existing opening animation; dismissal retains the pointer
+and focus-restoration checks.
+
 ## LN-PLUG-110 — Signed archive delivery endpoint
 
 <a id="ln-plug-110"></a>
@@ -21,11 +26,11 @@ size, embedded signatures, runtime validation, and normal installation policy.
 
 **Requirement.** Standalone first-party plugins MUST use repositories named `lapis-plugin-*`, version independently, and report `distribution: "first-party-external"` with official provenance. Tasks, Docs, Terminal, and CV Roles MUST remain standalone rather than moving into `lapis-plugins`.
 
-## LN-PLUG-003 — Statically shipped profile plugins: use the static lifecycle and .obsidian/core-plugins.json; vault-installed
+## LN-PLUG-003 — Statically shipped profile plugins: use the static lifecycle and .lapis/core-plugins.json; vault-installed
 
 <a id="ln-plug-003"></a>
 
-**Requirement.** Statically shipped profile plugins MUST use the static lifecycle and `.obsidian/core-plugins.json`; vault-installed registry or manual plugins MUST use the verified community-plugin persistence and loader.
+**Requirement.** Statically shipped profile plugins MUST use the static lifecycle and `.lapis/core-plugins.json`; vault-installed registry or manual plugins MUST use the verified community-plugin persistence and loader.
 
 ## LN-PLUG-004 — Core plugin registrations and list entries: expose distribution metadata, defaulting omitted registrations
 

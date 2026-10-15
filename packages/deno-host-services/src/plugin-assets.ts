@@ -1,3 +1,4 @@
+import { appStatePath } from "@lapis-notes/api/path";
 import {
   normalizeRootPath,
   normalizeVaultPath,
@@ -229,7 +230,7 @@ export class DenoPluginAssetService {
     const pluginsPath = normalizeVaultPath(
       typeof payload.pluginsPath === "string"
         ? payload.pluginsPath
-        : ".obsidian/plugins",
+        : appStatePath("plugins"),
     );
     const directory = resolveAbsolutePath(
       rootPath,

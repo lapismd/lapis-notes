@@ -157,7 +157,7 @@ describe("VerifiedPluginInstaller", () => {
       installer.install({ entry: fixture.entry, detail: fixture.detail }),
     ).rejects.toMatchObject({ code: "hash-mismatch" });
     expect(requests).toEqual([endpoint]);
-    expect(await adapter.exists(".obsidian/plugins/lapis-docs")).toBe(false);
+    expect(await adapter.exists(".lapis/plugins/lapis-docs")).toBe(false);
   });
 
   it("installs verified official plugin files and records external provenance", async () => {
@@ -194,9 +194,9 @@ describe("VerifiedPluginInstaller", () => {
       enable: true,
     });
 
-    expect(
-      await adapter.read(".obsidian/plugins/lapis-docs/manifest.json"),
-    ).toBe(fixture.files["manifest.json"]);
+    expect(await adapter.read(".lapis/plugins/lapis-docs/manifest.json")).toBe(
+      fixture.files["manifest.json"],
+    );
     expect(record).toMatchObject({
       pluginId: "lapis-docs",
       installedVersion: "0.1.0",
@@ -204,7 +204,7 @@ describe("VerifiedPluginInstaller", () => {
       registryId: "lapis-official",
     });
     expect(managerCalls).toEqual([
-      "load:.obsidian/plugins/lapis-docs",
+      "load:.lapis/plugins/lapis-docs",
       "enable:lapis-docs",
     ]);
     expect(stateSeenDuringLoad).toEqual(["official"]);
@@ -230,7 +230,7 @@ describe("VerifiedPluginInstaller", () => {
     await expect(
       installer.install({ entry: fixture.entry, detail: fixture.detail }),
     ).rejects.toMatchObject({ code: "hash-mismatch" });
-    expect(await adapter.exists(".obsidian/plugins/lapis-docs")).toBe(false);
+    expect(await adapter.exists(".lapis/plugins/lapis-docs")).toBe(false);
   });
 
   it("aborts before signature verification when bundle metadata is tampered", async () => {
@@ -278,9 +278,9 @@ describe("VerifiedPluginInstaller", () => {
       installedVersion: "0.1.0",
       provenance: "official",
     });
-    expect(
-      await adapter.read(".obsidian/plugins/lapis-docs/manifest.json"),
-    ).toBe(fixture.files["manifest.json"]);
+    expect(await adapter.read(".lapis/plugins/lapis-docs/manifest.json")).toBe(
+      fixture.files["manifest.json"],
+    );
   });
 
   it("verifies bundles in a worker when auto mode can use Worker", async () => {
@@ -331,7 +331,7 @@ describe("VerifiedPluginInstaller", () => {
       expect(progressPhases).toContain("verifying-bundle");
       expect(progressPhases).toContain("verifying-files");
       expect(
-        await adapter.read(".obsidian/plugins/lapis-docs/manifest.json"),
+        await adapter.read(".lapis/plugins/lapis-docs/manifest.json"),
       ).toBe(fixture.files["manifest.json"]);
     } finally {
       fakeWorker.restore();
@@ -364,7 +364,7 @@ describe("VerifiedPluginInstaller", () => {
       });
       expect(fakeWorker.workers).toHaveLength(1);
       expect(fakeWorker.workers[0].terminated).toBe(true);
-      expect(await adapter.exists(".obsidian/plugins/lapis-docs")).toBe(false);
+      expect(await adapter.exists(".lapis/plugins/lapis-docs")).toBe(false);
     } finally {
       fakeWorker.restore();
     }
@@ -415,7 +415,7 @@ describe("VerifiedPluginInstaller", () => {
         detail: mismatch.detail,
       }),
     ).rejects.toMatchObject({ code: "metadata-invalid" });
-    expect(await adapter.exists(".obsidian/plugins/lapis-docs")).toBe(false);
+    expect(await adapter.exists(".lapis/plugins/lapis-docs")).toBe(false);
   });
 
   it("aborts before final install on invalid official runtime metadata", async () => {
@@ -457,7 +457,7 @@ describe("VerifiedPluginInstaller", () => {
         ],
       },
     });
-    expect(await adapter.exists(".obsidian/plugins/lapis-docs")).toBe(false);
+    expect(await adapter.exists(".lapis/plugins/lapis-docs")).toBe(false);
   });
 
   it("records runtime compatibility warnings for manual legacy CommonJS releases", async () => {
@@ -498,22 +498,22 @@ describe("VerifiedPluginInstaller", () => {
       },
     });
     await installer.install({ entry: fixture.entry, detail: fixture.detail });
-    await adapter.write(".obsidian/plugins/lapis-docs/data.json", "{}");
+    await adapter.write(".lapis/plugins/lapis-docs/data.json", "{}");
     await adapter.write(
-      ".obsidian/community-plugins.json",
+      ".lapis/community-plugins.json",
       JSON.stringify(["lapis-docs"]),
     );
 
     await installer.uninstall("lapis-docs");
 
-    expect(await adapter.exists(".obsidian/plugins/lapis-docs/data.json")).toBe(
+    expect(await adapter.exists(".lapis/plugins/lapis-docs/data.json")).toBe(
       true,
     );
-    expect(await adapter.exists(".obsidian/plugins/lapis-docs/main.mjs")).toBe(
+    expect(await adapter.exists(".lapis/plugins/lapis-docs/main.mjs")).toBe(
       false,
     );
     expect(
-      JSON.parse(await adapter.read(".obsidian/community-plugins.json")),
+      JSON.parse(await adapter.read(".lapis/community-plugins.json")),
     ).toEqual([]);
     expect(await new InstalledPluginStateStore(adapter).get("lapis-docs")).toBe(
       null,

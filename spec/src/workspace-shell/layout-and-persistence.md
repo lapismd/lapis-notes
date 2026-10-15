@@ -40,7 +40,7 @@
 
 <a id="ln-ws-004"></a>
 
-**Requirement.** Layout loading and saving MUST remain owned by the api workspace: normalize the existing Lapis JSON shape, read `/.obsidian/<requested-file>`, and write `/.obsidian/workspace.json` through the owning api instance's existing 1000 ms debounce with one writer.
+**Requirement.** Layout loading and saving MUST remain owned by the api workspace: normalize the existing Lapis JSON shape, read `/.lapis/<requested-file>`, and write `/.lapis/workspace.json` through the owning api instance's existing 1000 ms debounce with one writer.
 
 ## LN-WS-005 — Bidirectional controller synchronization
 
@@ -58,7 +58,7 @@
 
 <a id="ln-ws-009"></a>
 
-**Requirement.** Storybook MUST provide persisted desktop and mobile shell stories backed by an actual api `App` and a story-only in-memory data adapter seeded at `/.obsidian/workspace.json`. Navigation acceptance MUST wait for menu close completion, the host callback outcome and restored pointer ownership before continuing.
+**Requirement.** Storybook MUST provide persisted desktop and mobile shell stories backed by an actual api `App` and a story-only in-memory data adapter seeded at `/.lapis/workspace.json`. Navigation acceptance MUST wait for menu close completion, the host callback outcome and restored pointer ownership before continuing.
 
 ## LN-WS-011 — Application metadata in shell chrome
 
@@ -124,7 +124,7 @@
 
 <a id="ln-ws-060"></a>
 
-**Requirement.** The workspace MUST register Save workspace layout and Load workspace layout commands. Those commands MUST persist and restore named layouts in `.obsidian/workspaces.json` while the live layout continues to write `workspace.json`.
+**Requirement.** The workspace MUST register Save workspace layout and Load workspace layout commands. Those commands MUST persist and restore named layouts in `.lapis/workspaces.json` while the live layout continues to write `workspace.json`.
 
 ## LN-WS-061 — Reset Workspace Layout command
 

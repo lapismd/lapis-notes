@@ -15,15 +15,15 @@ export const aiWorkspaceExampleSource = `<script lang="ts">
   import "@lapis-notes/ai/styles.css";
 
   const adapter = new MemoryVaultAdapter({
-    ".obsidian/app.json": ${JSON.stringify(JSON.stringify(AI_WORKSPACE_CONFIGURATION))},
-    ".obsidian/workspace.json": ${JSON.stringify(JSON.stringify(createAiWorkspaceLayout()))},
-    ".obsidian/ai.json": ${JSON.stringify(JSON.stringify(AI_WORKSPACE_PLUGIN_DATA))},
+    ".lapis/app.json": ${JSON.stringify(JSON.stringify(AI_WORKSPACE_CONFIGURATION))},
+    ".lapis/workspace.json": ${JSON.stringify(JSON.stringify(createAiWorkspaceLayout()))},
+    ".lapis/ai.json": ${JSON.stringify(JSON.stringify(AI_WORKSPACE_PLUGIN_DATA))},
     "Notes/Welcome.md": "# Welcome\\n\\nAsk the AI chat in the workspace.\\n",
     "Notes/alpha.md": "# Alpha\\n\\nTODO: summarize this note.\\n",
   });
   const app = new App({
     version: "1.0.0",
-    configPath: ".obsidian/app.json",
+    configPath: ".lapis/app.json",
     adapter,
     appDatabase: new MemoryAppDatabase("ai-workspace"),
     workspaceShell: { application: { name: "Lapis Notes" } },

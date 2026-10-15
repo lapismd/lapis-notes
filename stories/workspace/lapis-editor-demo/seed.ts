@@ -203,8 +203,8 @@ export function createLapisEditorDemoSeed(
   scenario: LapisEditorDemoScenario,
 ): Record<string, string | ArrayBuffer> {
   return {
-    ".obsidian/app.json": JSON.stringify(APP_CONFIGURATION, null, 2),
-    ".obsidian/types.json": JSON.stringify(
+    ".lapis/app.json": JSON.stringify(APP_CONFIGURATION, null, 2),
+    ".lapis/types.json": JSON.stringify(
       {
         types: {
           title: "text",
@@ -215,11 +215,7 @@ export function createLapisEditorDemoSeed(
       null,
       2,
     ),
-    ".obsidian/workspace.json": JSON.stringify(
-      workspaceLayout(scenario),
-      null,
-      2,
-    ),
+    ".lapis/workspace.json": JSON.stringify(workspaceLayout(scenario), null, 2),
     ".env": "DEMO=1\n",
     "Notes/Welcome.md": [
       "---",

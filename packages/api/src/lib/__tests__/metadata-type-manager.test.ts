@@ -58,7 +58,7 @@ function createAppContext() {
   }
 
   const app = {
-    props: { configPath: ".obsidian/app.json" },
+    props: { configPath: ".lapis/app.json" },
     vault: {
       on: vi.fn(() => ({ id: "vault-load" })),
       offref: vi.fn(),
@@ -110,7 +110,9 @@ function createAppContext() {
                 continue;
               }
               const value =
-                query.kind === "property-value" ? property.value : property.name;
+                query.kind === "property-value"
+                  ? property.value
+                  : property.name;
               if (
                 value !== null &&
                 !["string", "number", "boolean"].includes(typeof value)
@@ -148,7 +150,8 @@ function createAppContext() {
           limit?: number;
           query?: { propertyFilters?: Array<{ name: string }> };
         }) => {
-          const required = query.query?.propertyFilters?.map(({ name }) => name) ?? [];
+          const required =
+            query.query?.propertyFilters?.map(({ name }) => name) ?? [];
           const paths = [...files.keys()]
             .filter((path) => {
               const frontmatter = caches.get(path)?.frontmatter;

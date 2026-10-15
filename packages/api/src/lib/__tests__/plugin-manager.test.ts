@@ -27,7 +27,6 @@ import {
 } from "../storage/desktop-native";
 import { InMemoryDataAdapter } from "./data-adapter-conformance";
 
-
 async function waitForAsyncPluginDataSync(): Promise<void> {
   await new Promise<void>((resolve) => setTimeout(resolve, 0));
 }
@@ -317,9 +316,7 @@ function createTestApp(
         callback();
       },
       getLeavesOfType(type: string) {
-        return this.leaves.filter(
-          (leaf) => leaf.view.getViewType() === type,
-        );
+        return this.leaves.filter((leaf) => leaf.view.getViewType() === type);
       },
       iterateAllLeaves(callback: (leaf: unknown) => unknown) {
         for (const leaf of this.leaves) callback(leaf);
@@ -451,12 +448,7 @@ function createTestApp(
     },
   } as unknown as App;
 
-  const plugins = new PluginManager(
-    app,
-    "/.obsidian/plugins",
-    adapter,
-    options,
-  );
+  const plugins = new PluginManager(app, "/.lapis/plugins", adapter, options);
   (app as App & { plugins: PluginManager }).plugins = plugins;
   plugins.registerDependencies({
     obsidian: { Plugin },
@@ -522,7 +514,7 @@ async function seedCommunityPlugin(
     lapis: LapisExtensionManifest | Record<string, unknown>;
   }> = {},
 ) {
-  const pluginPath = `/.obsidian/plugins/${pluginId}`;
+  const pluginPath = `/.lapis/plugins/${pluginId}`;
   await app.vault.mkpath(pluginPath);
   await app.vault.create(
     `${pluginPath}/manifest.json`,
@@ -562,7 +554,7 @@ async function seedCommunityPluginFiles(
     lapis: LapisExtensionManifest | Record<string, unknown>;
   }> = {},
 ) {
-  const pluginPath = `/.obsidian/plugins/${pluginId}`;
+  const pluginPath = `/.lapis/plugins/${pluginId}`;
   await app.vault.mkpath(pluginPath);
   await app.vault.create(
     `${pluginPath}/manifest.json`,
@@ -599,7 +591,7 @@ async function seedInstalledPluginRecord(
 ): Promise<void> {
   const now = new Date(0).toISOString();
   await app.vault.create(
-    "/.obsidian/installed-plugins.json",
+    "/.lapis/installed-plugins.json",
     JSON.stringify(
       {
         schemaVersion: 1,
@@ -869,16 +861,18 @@ describe("PluginManager", () => {
     expect(app.commands.commands["healthy-core:healthy"]).toBeDefined();
     expect(app.commands.commands["broken-core:explode"]).toBeUndefined();
     expect(
-      app.workspace.diagnostics.snapshot().entries.filter(
-        (entry) => entry.resource === null,
-      ),
+      app.workspace.diagnostics
+        .snapshot()
+        .entries.filter((entry) => entry.resource === null),
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           diagnostic: expect.objectContaining({
             source: "Plugin",
             code: "broken-core",
-            message: expect.stringContaining("Failed to enable plugin broken-core"),
+            message: expect.stringContaining(
+              "Failed to enable plugin broken-core",
+            ),
           }),
         }),
       ]),
@@ -1079,7 +1073,7 @@ describe("PluginManager", () => {
       }`,
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["delayed-community"], null, 2),
     );
     app.plugins.registerDependencies({ obsidian: { Plugin } });
@@ -1119,7 +1113,7 @@ describe("PluginManager", () => {
       `,
     });
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["chunked-community"], null, 2),
     );
     app.plugins.registerDependencies({
@@ -1159,7 +1153,7 @@ describe("PluginManager", () => {
       "lib/nested/helper.mjs": `exports.answer = "recursive-local-graph";`,
     });
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["recursive-graph-community"], null, 2),
     );
 
@@ -1196,7 +1190,7 @@ describe("PluginManager", () => {
       `,
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["scoped-suffix-community"], null, 2),
     );
 
@@ -1211,8 +1205,6 @@ describe("PluginManager", () => {
       ),
     ).resolves.toBe("scoped-suffix-community");
   });
-
-
 
   it("classifies installed official plugins as external core plugins while preserving community enablement config", async () => {
     const { app, adapter } = createTestApp();
@@ -1238,7 +1230,7 @@ describe("PluginManager", () => {
     );
     await seedInstalledPluginRecord(app, pluginId, "official");
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify([pluginId], null, 2),
     );
 
@@ -1271,7 +1263,7 @@ describe("PluginManager", () => {
     ).saveCommunityPluginState.flush?.();
 
     expect(
-      JSON.parse(await adapter.read("/.obsidian/community-plugins.json")),
+      JSON.parse(await adapter.read("/.lapis/community-plugins.json")),
     ).toEqual([]);
   });
 
@@ -1299,7 +1291,7 @@ describe("PluginManager", () => {
     );
     await seedInstalledPluginRecord(app, pluginId, "official");
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify([pluginId], null, 2),
     );
 
@@ -1321,8 +1313,6 @@ describe("PluginManager", () => {
       provenance: "official",
     });
   });
-
-
 
   it("loads community plugins through the configured execution host", async () => {
     const requests: CommunityPluginEvaluationRequest[] = [];
@@ -1363,7 +1353,7 @@ describe("PluginManager", () => {
       "throw new Error('renderer evaluator should not run');",
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["hosted-community"], null, 2),
     );
 
@@ -1372,8 +1362,8 @@ describe("PluginManager", () => {
     expect(requests).toHaveLength(1);
     expect(requests[0]).toMatchObject({
       pluginId: "hosted-community",
-      pluginPath: "/.obsidian/plugins/hosted-community",
-      modulePath: "/.obsidian/plugins/hosted-community/main.js",
+      pluginPath: "/.lapis/plugins/hosted-community",
+      modulePath: "/.lapis/plugins/hosted-community/main.js",
     });
     expect(app.plugins.plugins.get("hosted-community")?.enabled).toBe(true);
     expect(
@@ -1523,7 +1513,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["hybrid-config"], null, 2),
     );
 
@@ -1650,7 +1640,7 @@ describe("PluginManager", () => {
     };
     const { app } = createTestApp({ communityPluginHost: host });
     await app.vault.load();
-    const pluginPath = "/.obsidian/plugins/manifest-only";
+    const pluginPath = "/.lapis/plugins/manifest-only";
     await app.vault.mkpath(pluginPath);
     await app.vault.create(
       `${pluginPath}/manifest.json`,
@@ -1697,7 +1687,7 @@ describe("PluginManager", () => {
       ),
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["manifest-only"], null, 2),
     );
 
@@ -1752,7 +1742,7 @@ describe("PluginManager", () => {
     };
     const { app } = createTestApp({ communityPluginHost: host });
     await app.vault.load();
-    const pluginPath = "/.obsidian/plugins/status-bar-manifest";
+    const pluginPath = "/.lapis/plugins/status-bar-manifest";
     await app.vault.mkpath(pluginPath);
     await app.vault.create(
       `${pluginPath}/manifest.json`,
@@ -1796,7 +1786,7 @@ describe("PluginManager", () => {
       ),
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["status-bar-manifest"], null, 2),
     );
     app.contextKeys.set("workspace.trusted", true);
@@ -1838,7 +1828,7 @@ describe("PluginManager", () => {
     };
     const { app } = createTestApp({ communityPluginHost: host });
     await app.vault.load();
-    const pluginPath = "/.obsidian/plugins/editor-view-manifest";
+    const pluginPath = "/.lapis/plugins/editor-view-manifest";
     await app.vault.mkpath(pluginPath);
     await app.vault.create(
       `${pluginPath}/manifest.json`,
@@ -1870,7 +1860,7 @@ describe("PluginManager", () => {
       ),
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["editor-view-manifest"], null, 2),
     );
 
@@ -1905,7 +1895,7 @@ describe("PluginManager", () => {
     };
     const { app } = createTestApp({ communityPluginHost: host });
     await app.vault.load();
-    const pluginPath = "/.obsidian/plugins/invalid-contributions";
+    const pluginPath = "/.lapis/plugins/invalid-contributions";
     await app.vault.mkpath(pluginPath);
     await app.vault.create(
       `${pluginPath}/manifest.json`,
@@ -1949,7 +1939,7 @@ describe("PluginManager", () => {
       ),
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["invalid-contributions"], null, 2),
     );
 
@@ -2033,7 +2023,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["workspace-runtime"], null, 2),
     );
 
@@ -2042,7 +2032,7 @@ describe("PluginManager", () => {
     expect(requests).toHaveLength(1);
     expect(requests[0]).toMatchObject({
       pluginId: "workspace-runtime",
-      modulePath: "/.obsidian/plugins/workspace-runtime/workspace-entry.js",
+      modulePath: "/.lapis/plugins/workspace-runtime/workspace-entry.js",
     });
     expect(
       app.plugins.getCommunityPluginDiagnostics("workspace-runtime"),
@@ -2098,7 +2088,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["structured-runtime"], null, 2),
     );
 
@@ -2174,7 +2164,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["esm-runtime"], null, 2),
     );
 
@@ -2186,7 +2176,7 @@ describe("PluginManager", () => {
     expect(pluginAssetServer.requests).toHaveLength(1);
     expect(pluginAssetServer.requests[0]).toMatchObject({
       pluginId: "esm-runtime",
-      pluginPath: "/.obsidian/plugins/esm-runtime",
+      pluginPath: "/.lapis/plugins/esm-runtime",
       relativePath: "main.mjs",
       version: "1.0.0",
     });
@@ -2253,7 +2243,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["named-esm-runtime"], null, 2),
     );
 
@@ -2338,7 +2328,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["electron-renderer-runtime"], null, 2),
     );
 
@@ -2408,7 +2398,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["esm-with-fallback"], null, 2),
     );
 
@@ -2458,7 +2448,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["esm-without-fallback"], null, 2),
     );
 
@@ -2503,7 +2493,7 @@ describe("PluginManager", () => {
       "module.exports = globalThis.__lapisTestCommonJsRuntimePlugin;",
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["commonjs-runtime"], null, 2),
     );
 
@@ -2533,7 +2523,7 @@ describe("PluginManager", () => {
       },
     } as never);
 
-    app.plugins = new PluginManager(app, "/.obsidian/plugins", adapter, {
+    app.plugins = new PluginManager(app, "/.lapis/plugins", adapter, {
       communityPluginHost: host,
     });
     app.plugins.registerDependencies({
@@ -2556,7 +2546,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["workspace-hybrid"], null, 2),
     );
 
@@ -2588,7 +2578,7 @@ describe("PluginManager", () => {
       },
     } as never);
 
-    app.plugins = new PluginManager(app, "/.obsidian/plugins", adapter, {
+    app.plugins = new PluginManager(app, "/.lapis/plugins", adapter, {
       communityPluginHost: host,
     });
     app.plugins.registerDependencies({
@@ -2605,7 +2595,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["sidecar-bridge"], null, 2),
     );
 
@@ -2620,8 +2610,8 @@ describe("PluginManager", () => {
     ]);
     expect(bridgeCalls[1]?.payload).toMatchObject({
       pluginId: "sidecar-bridge",
-      pluginPath: "/.obsidian/plugins/sidecar-bridge",
-      modulePath: "/.obsidian/plugins/sidecar-bridge/main.js",
+      pluginPath: "/.lapis/plugins/sidecar-bridge",
+      modulePath: "/.lapis/plugins/sidecar-bridge/main.js",
       selectedRuntime: {
         host: "electron-sidecar",
         path: "main.js",
@@ -2649,14 +2639,14 @@ describe("PluginManager", () => {
       async invoke(command: string) {
         if (command === "desktop_plugin_host_evaluate") {
           throw new Error(
-            "Unsupported sidecar dependency svelte in plugin sidecar-bad-dep (host=electron-sidecar, format=commonjs, entry=/.obsidian/plugins/sidecar-bad-dep/main.js)",
+            "Unsupported sidecar dependency svelte in plugin sidecar-bad-dep (host=electron-sidecar, format=commonjs, entry=/.lapis/plugins/sidecar-bad-dep/main.js)",
           );
         }
         return { status: "ok" };
       },
     } as never);
 
-    app.plugins = new PluginManager(app, "/.obsidian/plugins", adapter, {
+    app.plugins = new PluginManager(app, "/.lapis/plugins", adapter, {
       communityPluginHost: host,
     });
     app.plugins.registerDependencies({
@@ -2673,7 +2663,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["sidecar-bad-dep"], null, 2),
     );
 
@@ -2707,7 +2697,7 @@ describe("PluginManager", () => {
       },
     } as never);
 
-    app.plugins = new PluginManager(app, "/.obsidian/plugins", adapter, {
+    app.plugins = new PluginManager(app, "/.lapis/plugins", adapter, {
       communityPluginHost: host,
     });
     app.plugins.registerDependencies({
@@ -2724,7 +2714,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["sidecar-local-require"], null, 2),
     );
 
@@ -2793,7 +2783,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["desktop-runtime"], null, 2),
     );
 
@@ -2802,7 +2792,7 @@ describe("PluginManager", () => {
     expect(requests).toHaveLength(1);
     expect(requests[0]).toMatchObject({
       pluginId: "desktop-runtime",
-      modulePath: "/.obsidian/plugins/desktop-runtime/desktop-entry.js",
+      modulePath: "/.lapis/plugins/desktop-runtime/desktop-entry.js",
     });
     expect(
       app.plugins.getCommunityPluginDiagnostics("desktop-runtime"),
@@ -2846,7 +2836,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["desktop-runtime"], null, 2),
     );
 
@@ -2895,7 +2885,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["needs-vault-read"], null, 2),
     );
 
@@ -2950,7 +2940,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["invalid-runtime-path"], null, 2),
     );
 
@@ -2994,7 +2984,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["invalid-lapis"], null, 2),
     );
 
@@ -3051,7 +3041,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["language-service-plugin"], null, 2),
     );
     app.plugins.registerDependencies({ obsidian: { Plugin } });
@@ -3256,9 +3246,9 @@ describe("PluginManager", () => {
     expect(
       app.plugins.getEnabledInternalPluginById("markdown-lint-system"),
     ).toBeNull();
-    expect(
-      JSON.parse(await adapter.read("/.obsidian/core-plugins.json")),
-    ).toEqual(["markdown-lint-system"]);
+    expect(JSON.parse(await adapter.read("/.lapis/core-plugins.json"))).toEqual(
+      ["markdown-lint-system"],
+    );
 
     await expect(
       app.plugins.enablePlugin("markdown-lint-system"),
@@ -3280,9 +3270,9 @@ describe("PluginManager", () => {
       app.plugins.getEnabledInternalPluginById("markdown-lint-system")?.manifest
         .id,
     ).toBe("markdown-lint-system");
-    expect(
-      JSON.parse(await adapter.read("/.obsidian/core-plugins.json")),
-    ).toEqual([]);
+    expect(JSON.parse(await adapter.read("/.lapis/core-plugins.json"))).toEqual(
+      [],
+    );
   });
 
   it("allows community plugins to register and clean up Bases views", async () => {
@@ -3325,7 +3315,7 @@ describe("PluginManager", () => {
       }`,
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["bases-community"], null, 2),
     );
     app.plugins.registerDependencies({ obsidian: { Plugin } });
@@ -3382,7 +3372,7 @@ describe("PluginManager", () => {
       }`,
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["bases-community"], null, 2),
     );
     app.plugins.registerDependencies({ obsidian: { Plugin } });
@@ -3401,9 +3391,9 @@ describe("PluginManager", () => {
   it("treats manifest preflight failures as non-fatal", async () => {
     const { app } = createTestApp();
     await app.vault.load();
-    await app.vault.mkpath("/.obsidian/plugins/missing-main");
+    await app.vault.mkpath("/.lapis/plugins/missing-main");
     await app.vault.create(
-      "/.obsidian/plugins/missing-main/manifest.json",
+      "/.lapis/plugins/missing-main/manifest.json",
       JSON.stringify(
         {
           id: "missing-main",
@@ -3418,7 +3408,7 @@ describe("PluginManager", () => {
       ),
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["missing-main"], null, 2),
     );
 
@@ -3448,7 +3438,7 @@ describe("PluginManager", () => {
       ].join("\n"),
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["broken-eval"], null, 2),
     );
 
@@ -3495,7 +3485,7 @@ describe("PluginManager", () => {
       { requiredCapabilities: ["vault:read"] },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["sidecar-only", "needs-vault-read"], null, 2),
     );
 
@@ -3558,7 +3548,7 @@ describe("PluginManager", () => {
       }`,
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["flaky-community"], null, 2),
     );
     app.plugins.registerDependencies({ obsidian: { Plugin } });
@@ -3594,9 +3584,9 @@ describe("PluginManager", () => {
   it("prunes configured community plugins whose manifest is missing", async () => {
     const { app, adapter } = createTestApp();
     await app.vault.load();
-    await app.vault.mkpath("/.obsidian/plugins/plugin-diagnostics");
+    await app.vault.mkpath("/.lapis/plugins/plugin-diagnostics");
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["plugin-diagnostics"], null, 2),
     );
 
@@ -3614,7 +3604,7 @@ describe("PluginManager", () => {
     expect(prunedPluginIds).toEqual([["plugin-diagnostics"]]);
     expect(app.plugins.enabledPlugins).toEqual([]);
     expect(
-      JSON.parse(await adapter.read("/.obsidian/community-plugins.json")),
+      JSON.parse(await adapter.read("/.lapis/community-plugins.json")),
     ).toEqual([]);
     expect(errors.some((message) => message.includes("manifest.json"))).toBe(
       false,
@@ -3667,9 +3657,9 @@ describe("PluginManager", () => {
       }
     }
 
-    await app.vault.mkpath("/.obsidian");
+    await app.vault.mkpath("/.lapis");
     await app.vault.create(
-      "/.obsidian/core-plugins.json",
+      "/.lapis/core-plugins.json",
       JSON.stringify(["optional-core"], null, 2),
     );
 
@@ -3728,12 +3718,12 @@ describe("PluginManager", () => {
     ).saveCorePluginState.flush?.();
 
     expect(app.plugins.plugins.get("optional-core")?.enabled).toBe(true);
-    expect(
-      JSON.parse(await adapter.read("/.obsidian/core-plugins.json")),
-    ).toEqual({
-      disabled: [],
-      enabled: ["optional-core"],
-    });
+    expect(JSON.parse(await adapter.read("/.lapis/core-plugins.json"))).toEqual(
+      {
+        disabled: [],
+        enabled: ["optional-core"],
+      },
+    );
   });
 
   it("classifies statically linked first-party plugins without using community persistence", async () => {
@@ -3794,20 +3784,20 @@ describe("PluginManager", () => {
       ]),
     );
 
-    await expect(
-      app.plugins.disablePlugin("first-party-plugin"),
-    ).resolves.toBe(true);
+    await expect(app.plugins.disablePlugin("first-party-plugin")).resolves.toBe(
+      true,
+    );
     await (
       app.plugins as unknown as {
         saveCorePluginState: { flush?: () => Promise<void> | void };
       }
     ).saveCorePluginState.flush?.();
 
-    expect(
-      JSON.parse(await adapter.read("/.obsidian/core-plugins.json")),
-    ).toEqual(["first-party-plugin"]);
+    expect(JSON.parse(await adapter.read("/.lapis/core-plugins.json"))).toEqual(
+      ["first-party-plugin"],
+    );
     const communityConfig = JSON.parse(
-      await adapter.read("/.obsidian/community-plugins.json"),
+      await adapter.read("/.lapis/community-plugins.json"),
     );
     expect(communityConfig).not.toContain("first-party-plugin");
   });
@@ -3922,7 +3912,10 @@ describe("PluginManager", () => {
       },
     };
     (
-      app.workspace as unknown as { leaves: Array<typeof leaf>; activeLeaf: unknown }
+      app.workspace as unknown as {
+        leaves: Array<typeof leaf>;
+        activeLeaf: unknown;
+      }
     ).leaves.push(leaf);
     (app.workspace as unknown as { activeLeaf: unknown }).activeLeaf = leaf;
 
@@ -3932,9 +3925,9 @@ describe("PluginManager", () => {
       state: { selected: "role-1", __missingViewType: "owned-view" },
       pinned: true,
     });
-    expect((app.workspace as unknown as { activeLeaf: unknown }).activeLeaf).toBe(
-      leaf,
-    );
+    expect(
+      (app.workspace as unknown as { activeLeaf: unknown }).activeLeaf,
+    ).toBe(leaf);
 
     await expect(app.plugins.enablePlugin("view-plugin")).resolves.toBe(true);
     expect(state).toEqual({
@@ -3942,9 +3935,9 @@ describe("PluginManager", () => {
       state: { selected: "role-1" },
       pinned: true,
     });
-    expect((app.workspace as unknown as { activeLeaf: unknown }).activeLeaf).toBe(
-      leaf,
-    );
+    expect(
+      (app.workspace as unknown as { activeLeaf: unknown }).activeLeaf,
+    ).toBe(leaf);
   });
 
   it("copies legacy plugin data aliases without overwriting target data", async () => {
@@ -4012,11 +4005,9 @@ describe("PluginManager", () => {
     app.plugins.registerCorePlugins([CorePluginWithData]);
     await app.plugins.enablePlugin("core-with-data");
 
+    expect(app.vault.getFileByPath("/.lapis/core-with-data.json")).toBeTruthy();
     expect(
-      app.vault.getFileByPath("/.obsidian/core-with-data.json"),
-    ).toBeTruthy();
-    expect(
-      app.vault.getFileByPath("/.obsidian/plugins/core-with-data/data.json"),
+      app.vault.getFileByPath("/.lapis/plugins/core-with-data/data.json"),
     ).toBeNull();
 
     await app.plugins.loadPlugins();
@@ -4025,7 +4016,7 @@ describe("PluginManager", () => {
     expect(
       pluginErrors.some(
         ({ id, message }) =>
-          id === "/.obsidian/plugins/core-with-data" &&
+          id === "/.lapis/plugins/core-with-data" &&
           message.includes("manifest.json"),
       ),
     ).toBe(false);
@@ -4041,7 +4032,7 @@ describe("PluginManager", () => {
       "module.exports = class MirroredCommunity extends require('obsidian').Plugin { onload() {} }",
     );
 
-    await app.plugins.loadPlugin("/.obsidian/plugins/mirrored-community");
+    await app.plugins.loadPlugin("/.lapis/plugins/mirrored-community");
     await app.configuration.updatePluginData("mirrored-community", {
       enabled: true,
       source: "config",
@@ -4050,7 +4041,7 @@ describe("PluginManager", () => {
 
     expect(
       JSON.parse(
-        await adapter.read("/.obsidian/plugins/mirrored-community/data.json"),
+        await adapter.read("/.lapis/plugins/mirrored-community/data.json"),
       ),
     ).toEqual({ enabled: true, source: "config" });
   });
@@ -4065,20 +4056,20 @@ describe("PluginManager", () => {
       "module.exports = class RemovableCommunity extends require('obsidian').Plugin { onload() {} }",
     );
 
-    await app.plugins.loadPlugin("/.obsidian/plugins/removable-community");
+    await app.plugins.loadPlugin("/.lapis/plugins/removable-community");
     await app.configuration.updatePluginData("removable-community", {
       enabled: true,
     });
     await waitForAsyncPluginDataSync();
     expect(
-      await adapter.exists("/.obsidian/plugins/removable-community/data.json"),
+      await adapter.exists("/.lapis/plugins/removable-community/data.json"),
     ).toBe(true);
 
     await app.configuration.removePluginData("removable-community");
     await waitForAsyncPluginDataSync();
 
     expect(
-      await adapter.exists("/.obsidian/plugins/removable-community/data.json"),
+      await adapter.exists("/.lapis/plugins/removable-community/data.json"),
     ).toBe(false);
   });
 
@@ -4158,7 +4149,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["lazy-command"], null, 2),
     );
     app.plugins.registerDependencies({ obsidian: { Plugin } });
@@ -4233,7 +4224,7 @@ describe("PluginManager", () => {
       },
     );
     await app.vault.create(
-      "/.obsidian/community-plugins.json",
+      "/.lapis/community-plugins.json",
       JSON.stringify(["lazy-language-service"], null, 2),
     );
     app.plugins.registerDependencies({ obsidian: { Plugin } });
