@@ -759,21 +759,21 @@ importers:
       '@lapismd/design-core':
         specifier: ^0.3.2
         version: 0.3.2(svelte@5.56.10)(tailwindcss@4.3.3)
-      fuse.js:
-        specifier: ^7.3.0
-        version: 7.5.0
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
-      tailwind-merge:
-        specifier: ^3.3.1
-        version: 3.6.0
       '@lucide/svelte':
         specifier: ^0.515.0
         version: 0.515.0(svelte@5.56.10)
       bits-ui:
         specifier: 2.19.5
         version: 2.19.5(patch_hash=bea104a59c6c54ddc78960341344344d787a51eb4d5bc64a32df6aa1e98e5beb)(@internationalized/date@3.12.3)(svelte@5.56.10)
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      fuse.js:
+        specifier: ^7.3.0
+        version: 7.5.0
+      tailwind-merge:
+        specifier: ^3.3.1
+        version: 3.6.0
     devDependencies:
       '@internationalized/date':
         specifier: ^3.8.2
