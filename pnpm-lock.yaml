@@ -768,13 +768,16 @@ importers:
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.6.0
+      '@lucide/svelte':
+        specifier: ^0.515.0
+        version: 0.515.0(svelte@5.56.10)
+      bits-ui:
+        specifier: 2.19.5
+        version: 2.19.5(patch_hash=bea104a59c6c54ddc78960341344344d787a51eb4d5bc64a32df6aa1e98e5beb)(@internationalized/date@3.12.3)(svelte@5.56.10)
     devDependencies:
       '@internationalized/date':
         specifier: ^3.8.2
         version: 3.12.3
-      '@lucide/svelte':
-        specifier: ^0.515.0
-        version: 0.515.0(svelte@5.56.10)
       '@sveltejs/package':
         specifier: ^2.5.0
         version: 2.5.8(svelte@5.56.10)(typescript@5.8.3)
@@ -790,9 +793,6 @@ importers:
       '@tsconfig/svelte':
         specifier: ^5.0.5
         version: 5.0.8
-      bits-ui:
-        specifier: 2.19.5
-        version: 2.19.5(patch_hash=bea104a59c6c54ddc78960341344344d787a51eb4d5bc64a32df6aa1e98e5beb)(@internationalized/date@3.12.3)(svelte@5.56.10)
       mode-watcher:
         specifier: ^1.1.0
         version: 1.1.0(svelte@5.56.10)

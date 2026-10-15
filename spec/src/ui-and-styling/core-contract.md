@@ -1,8 +1,9 @@
 # UI and Styling / Retained UI contracts
 
-The retained class helper keeps its existing behavior. Its `clsx` and
-`tailwind-merge` imports are published runtime dependencies; correcting that
-package boundary does not add utility classes to component markup.
+Retained UI keeps its existing behavior. Its class helper, dialogs, sidebar and
+Search imports are published runtime dependencies (`clsx`, `tailwind-merge`,
+`bits-ui` and `@lucide/svelte`). The source-import regression covers that
+package boundary without adding utility classes to component markup.
 
 ## LN-UI-001 — Shared primitive migration tracking
 

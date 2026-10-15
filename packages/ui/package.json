@@ -79,13 +79,11 @@
   },
   "devDependencies": {
     "@internationalized/date": "^3.8.2",
-    "@lucide/svelte": "^0.515.0",
     "@sveltejs/package": "^2.5.0",
     "@sveltejs/vite-plugin-svelte": "^5.1.1",
     "@tailwindcss/vite": "^4.1.12",
     "@tanstack/table-core": "^8.21.3",
     "@tsconfig/svelte": "^5.0.5",
-    "bits-ui": "2.19.5",
     "mode-watcher": "^1.1.0",
     "paneforge": "^1.0.2",
     "publint": "^0.3.12",
@@ -103,6 +101,8 @@
     "@dnd-kit/dom": "^0.4.0",
     "@dnd-kit/svelte": "^0.4.0",
     "@lapismd/design-core": "^0.3.2",
+    "@lucide/svelte": "^0.515.0",
+    "bits-ui": "2.19.5",
     "clsx": "^2.1.1",
     "fuse.js": "^7.3.0",
     "tailwind-merge": "^3.3.1"
