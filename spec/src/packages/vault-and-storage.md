@@ -1,5 +1,10 @@
 # Packages / Vault and storage
 
+The native codec regression verifies the complete 256 KiB payload with exact
+byte comparison rather than generic deep property traversal. Prototype, length,
+canonical frames, invalid input and portable-fallback checks remain enforced
+under the existing five-second test budget.
+
 The desktop's native RPC codec remains host-owned and preserves the same
 bounded JSON frames across Node and portable hosts under LN-DENO-088. The
 [Sync release record](../../records/2026-10-14-sync-host-release.md) retains

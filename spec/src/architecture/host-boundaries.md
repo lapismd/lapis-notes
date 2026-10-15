@@ -1,5 +1,10 @@
 # Architecture / Host boundaries
 
+Large-frame codec verification compares every byte directly while retaining
+Uint8Array prototype and length checks. Native, Buffer and portable fallback
+paths keep their canonical frame assertions and the existing test deadline;
+only assertion overhead changes.
+
 Desktop RPC codec acceleration retains the bounded, canonical frames under
 LN-DENO-088. Node-decoded byte views own their payload storage; private codec
 selection does not change host authority, wire formats or plugin access.

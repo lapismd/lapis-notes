@@ -1,5 +1,9 @@
 # UI and Styling / Retained UI contracts
 
+UI 0.1.3 is the prepared packaging patch for the retained runtime dependency
+declarations. Its CSS, tokens, component markup and public exports are unchanged.
+The release follow-up retains ordinary source and release validation.
+
 Retained UI keeps its existing behavior. Its class helper, dialogs, sidebar and
 Search imports are published runtime dependencies (`clsx`, `tailwind-merge`,
 `bits-ui` and `@lucide/svelte`). The source-import regression covers that
