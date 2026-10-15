@@ -1,5 +1,10 @@
 # Deno Desktop Host / Native vault and storage / Part 2
 
+The large-frame regression uses exact byte comparison plus strict Uint8Array
+prototype and length checks for LN-DENO-088. Native and portable frames retain
+the same assertions and deadline; codec implementation and wire data do not
+change.
+
 LN-ARCH-114 through LN-ARCH-116 define a native security repository separate
 from disposable indexes. Desktop integration retains the OS credential store
 for wrapping material and supplies host-owned persistent metadata separately.

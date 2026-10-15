@@ -1,5 +1,10 @@
 # Packages / Host and plugin integration
 
+The UI 0.1.3 candidate retains the version and changelog prepared by Changesets
+PR #33 for the runtime dependency repair in PR #32. Its ordinary release
+follow-up also repairs the private desktop large-frame assertion cost; that
+verification change does not alter published UI behavior or bypass normal gates.
+
 The API owns signed archive delivery selection and transport-only origin
 fallback under [LN-PLUG-110 and LN-PLUG-111](../plugin-model/distribution-and-registry-01.md#ln-plug-110).
 Hosts retain the verified installer's hash, signature and selected-release checks.

@@ -1,9 +1,20 @@
 import { expect, it } from "vitest";
+import { Buffer as NativeBuffer } from "node:buffer";
 import { decodeSyncValue, encodeSyncValue } from "./sync-security-protocol";
 
 it("preserves exact canonical byte frames with native base64 or the portable fallback", () => {
   const bytes = new Uint8Array(256 * 1024);
   for (let index = 0; index < bytes.length; index++) bytes[index] = index % 251;
+  const expectExactBytes = (value: unknown) => {
+    expect(value).toBeInstanceOf(Uint8Array);
+    const actual = value as Uint8Array;
+    expect(Object.getPrototypeOf(actual)).toBe(Uint8Array.prototype);
+    expect(actual.byteLength).toBe(bytes.byteLength);
+    expect(Reflect.ownKeys(actual)).toHaveLength(bytes.length);
+    expect(
+      NativeBuffer.compare(NativeBuffer.from(actual), NativeBuffer.from(bytes))
+    ).toBe(0);
+  };
   const expected = encodeSyncValue(bytes);
   const encoder = Object.getOwnPropertyDescriptor(
       Uint8Array.prototype,
@@ -21,7 +32,7 @@ it("preserves exact canonical byte frames with native base64 or the portable fal
       value: undefined,
     });
     expect(encodeSyncValue(bytes)).toBe(expected);
-    expect(decodeSyncValue(expected)).toEqual(bytes);
+    expectExactBytes(decodeSyncValue(expected));
     expect(() => decodeSyncValue('["bytes","AQ"]')).toThrow(
       "Invalid native Sync payload"
     );
@@ -36,7 +47,7 @@ it("preserves exact canonical byte frames with native base64 or the portable fal
       value: undefined,
     });
     expect(encodeSyncValue(bytes)).toBe(expected);
-    expect(decodeSyncValue(expected)).toEqual(bytes);
+    expectExactBytes(decodeSyncValue(expected));
     expect(() => decodeSyncValue('["bytes","AQ"]')).toThrow(
       "Invalid native Sync payload"
     );
@@ -50,7 +61,7 @@ it("preserves exact canonical byte frames with native base64 or the portable fal
     else Reflect.deleteProperty(Uint8Array, "fromBase64");
   }
   expect(encodeSyncValue(bytes)).toBe(expected);
-  expect(decodeSyncValue(expected)).toEqual(bytes);
+  expectExactBytes(decodeSyncValue(expected));
 });
 import { classifyDesktopTelemetryOperation } from "./telemetry-operations";
 

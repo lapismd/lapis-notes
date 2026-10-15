@@ -31,7 +31,7 @@
 | LN-ARCH-026 | [architecture](../architecture/editor-integration.md#ln-arch-026) | Implemented | the API editor owns stable diagnostic-card origin, placement, and pointer handoff while consuming public design-core glyphs and colours |
 | LN-ARCH-027 | [architecture](../architecture/editor-integration.md#ln-arch-027) | Implemented | API editor owns native inline-problem structure and paint while consuming public workspace semantic tokens |
 | LN-ARCH-028 | [architecture](../architecture/dependency-boundaries.md#ln-arch-028) | Implemented | Deno desktop remains a consumer host over API session ownership and the workspace shell |
-| LN-ARCH-029 | [architecture](../architecture/host-boundaries.md#ln-arch-029) | Implemented | typed native binding bridge separates Deno host services from the renderer |
+| LN-ARCH-029 | [architecture](../architecture/host-boundaries.md#ln-arch-029) | Implemented | Typed native bindings separate host services from the renderer; large-frame verification compares every byte with strict prototype, length and shape checks under the existing deadline. |
 | LN-ARCH-030 | [architecture](../architecture/host-boundaries.md#ln-arch-030) | Implemented | Deno desktop imports public Design Core/Lapis styles; production Deno desktop acceptance asserts flex shell geometry, DM Sans, and 32px tab controls |
 | LN-ARCH-031 | [architecture](../architecture/host-boundaries.md#ln-arch-031) | Implemented | Deno maps typed platform metadata to namespaced root classes while desktop CSS targets public shell attributes |
 | LN-ARCH-032 | [architecture](../architecture/host-boundaries.md#ln-arch-032) | Implemented | File Explorer is reusable while desktop and Storybook retain plugin boot, configuration, metadata, and teardown ownership |
