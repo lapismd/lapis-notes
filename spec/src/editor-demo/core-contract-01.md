@@ -52,6 +52,10 @@ behavior and plugin activation remain unchanged.
 
 **Requirement.** The empty landing view MUST expose functional Create note and Go to file actions. Go to file MUST open the Design Core palette on the Files tab with its bounded starter files. Close MUST use the design-core leaf action.
 
+The production Explorer's create/open continuation uses the owning App's file
+operation admission on conditional hosts. The demo consumes that same public
+component; it does not implement a second creation or persistence path.
+
 ## LN-ED-009 — Startup: report real vault, configuration, required-plugin, and layout
 
 <a id="ln-ed-009"></a>

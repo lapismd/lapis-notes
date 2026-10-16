@@ -185,3 +185,50 @@ it("retains failed IO drafts for explicit recovery instead of admitting newer un
   expect(await adapter.read(file.path)).toBe(updated);
   await registry.guard(undefined, async () => {});
 });
+
+it("retains an admitted Properties mutation through its initial read failure", async () => {
+  const { manager, file, registry, adapter } = await fixture();
+  const read = vi
+    .spyOn(adapter, "read")
+    .mockRejectedValue(
+      Object.assign(new Error("Read permission denied"), { code: "EACCES" }),
+    );
+  await expect(
+    manager.processFrontMatter(file, (data) => {
+      data.title = "Updated";
+    }),
+  ).rejects.toMatchObject({ code: "EACCES" });
+  await expect(registry.guard(undefined, async () => {})).rejects.toMatchObject(
+    { code: "EACCES" },
+  );
+  read.mockRestore();
+  await registry.guard(undefined, async () => {});
+  expect(await adapter.read(file.path)).toBe(updated);
+});
+
+it("keeps the Properties shutdown barrier if its recovery projection rejects", async () => {
+  const { manager, file, registry, adapter } = await fixture();
+  await adapter.write(file.path, original.replace("Original", "External"));
+  await expect(
+    manager.processFrontMatter(
+      file,
+      (data) => {
+        data.title = "Updated";
+      },
+      {
+        expectedText: original,
+        onReset() {
+          throw new Error("Projection failed");
+        },
+      },
+    ),
+  ).rejects.toMatchObject({ code: "ECONFLICT" });
+  await expect(
+    registry.textConflicts.entries[0].resolve("use-external"),
+  ).rejects.toThrow("Projection failed");
+  expect(registry.textConflicts.entries).toHaveLength(1);
+  await expect(registry.guard(undefined, async () => {})).rejects.toThrow();
+  await registry.textConflicts.entries[0].resolve("keep-local");
+  expect(await adapter.read(file.path)).toBe(updated);
+  await registry.guard(undefined, async () => {});
+});

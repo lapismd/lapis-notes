@@ -24,6 +24,11 @@ Public `@lapis-notes/file-explorer@0.1.0` owns the reusable Explorer view and it
 command opener. Vault, file-manager, workspace navigation, and editor-demo
 requirements remain defined at their owning API and host boundaries.
 
+On conditional hosts, Explorer actions enter the owning App's admitted-operation
+boundary before reading paths or starting IO. Creation remains admitted through
+the existing open-file action, including the landing view's Create new note.
+The API and host retain persistence and shutdown policy.
+
 The package exports its production `ExplorerPanel` for Autodocs. Canonical
 Storybook coverage remains registration-driven and demonstrates Explorer in
 all six command-panel placements under `Plugins/Explorer/Panels/Explorer`.

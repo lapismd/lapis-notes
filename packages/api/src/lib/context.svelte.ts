@@ -400,7 +400,7 @@ export class App {
     );
     this.configuration = new Configuration(this, this.props.configPath);
     this.workspace.bindConfiguration();
-    this.vault = new Vault(adapter);
+    this.vault = new Vault(adapter, this.fileEditingSessions);
     this.#syncHost = new SyncHostService(
       this.appDatabase,
       this.vault,

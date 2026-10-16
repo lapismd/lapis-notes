@@ -64,7 +64,7 @@ import pluginHostModuleRegistry from "./generated/plugin-host-modules.schema.gen
 import { InstalledPluginStateStore } from "./plugin-distribution/installed-plugin-state";
 import type { PluginProvenance } from "./plugin-distribution/types";
 import { dirname, getAdapterVaultId, joinPath, normalizePath } from "./storage";
-import { debounce } from "lodash-es";
+import { readFileState, saveFileState } from "./file-state-store";
 import { EventDispatcher } from "./events";
 import type { ViewState } from "./view.svelte";
 import type { WorkspaceLeaf } from "./workspace.svelte";
@@ -80,8 +80,7 @@ function resolvePluginModuleExport(moduleExports: unknown): unknown {
     return exportRecord.default;
   }
   const namedPluginClass = Object.values(exportRecord).find(
-    (value) =>
-      typeof value === "function" && value.prototype instanceof Plugin,
+    (value) => typeof value === "function" && value.prototype instanceof Plugin,
   );
   return namedPluginClass ?? Object.values(exportRecord)[0] ?? moduleExports;
 }
@@ -854,9 +853,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       provenance: plugin.provenance,
       distribution:
         this.#corePluginDistribution.get(plugin.manifest.id) ??
-        (plugin.source === "official"
-          ? "first-party-external"
-          : "bundled"),
+        (plugin.source === "official" ? "first-party-external" : "bundled"),
       errorMessage: plugin.errorMessage,
     }));
 
@@ -1014,9 +1011,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         const registeredPlugin = this.registerPlugin(plugin, {
           source: "core",
           provenance:
-            distribution === "first-party-external"
-              ? "official"
-              : "bundled",
+            distribution === "first-party-external" ? "official" : "bundled",
           required,
           basePath: pluginPath,
         });
@@ -1502,14 +1497,20 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
   ): Promise<string[]> {
     const configPath = this.getPluginStatePath(filename);
     try {
-      const exists = await this.adapter.exists(configPath);
-      if (!exists) {
+      const data = await this.readPluginState(configPath, (text) => {
+        const value = JSON.parse(text || "[]");
+        if (!Array.isArray(value) || value.some((id) => typeof id !== "string"))
+          throw new Error("Invalid community plugin configuration");
+        this.#configuredCommunityPlugins = new Set(value);
+      });
+      if (data === null) {
         if (options.createIfMissing) {
-          await this.adapter.write(configPath, "[]");
+          if (this.app.vault.supportsConditionalTextWrites)
+            await saveFileState(this.app, configPath, "[]");
+          else await this.adapter.write(configPath, "[]");
         }
         return [];
       }
-      const data = await this.adapter.read(configPath);
       const plugins = JSON.parse(data);
       if (Array.isArray(plugins)) {
         return plugins.map((it) => it.toString());
@@ -1528,12 +1529,10 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
   private async readCorePluginStateConfig(): Promise<CorePluginStateConfig> {
     const configPath = this.getPluginStatePath("core-plugins.json");
     try {
-      const exists = await this.adapter.exists(configPath);
-      if (!exists) {
-        return { disabled: [], enabled: [] };
-      }
-
-      const data = await this.adapter.read(configPath);
+      const data = await this.readPluginState(configPath, (text) =>
+        this.restoreCorePluginState(text),
+      );
+      if (data === null) return { disabled: [], enabled: [] };
       const config = JSON.parse(data);
 
       if (Array.isArray(config)) {
@@ -1564,74 +1563,95 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     return { disabled: [], enabled: [] };
   }
 
-  private async savePluginListConfig(
-    filename: string,
-    pluginIds: Iterable<string>,
-  ): Promise<void> {
-    const configPath = this.getPluginStatePath(filename);
-    try {
-      const file = this.app.vault.getFileByPath(configPath);
-      const payload = JSON.stringify([...pluginIds], null, 2);
-      if (file) {
-        await this.app.vault.modify(file, payload);
-        return;
-      }
+  readonly #pendingConfigWrites = new Set<Promise<void>>();
 
-      await this.app.vault.create(configPath, payload);
-    } catch (error) {
-      this.reportPluginError(
-        configPath,
-        `Failed to save plugin config ${configPath}: ${formatPluginError(error)}`,
-        error,
-      );
-    }
-  }
-
-  private async saveCorePluginStateConfig(): Promise<void> {
-    const configPath = this.getPluginStatePath("core-plugins.json");
-    try {
-      const file = this.app.vault.getFileByPath(configPath);
-      const payload =
-        this.#enabledCorePlugins.size === 0
-          ? JSON.stringify([...this.#disabledCorePlugins], null, 2)
-          : JSON.stringify(
-              {
-                disabled: [...this.#disabledCorePlugins],
-                enabled: [...this.#enabledCorePlugins],
-              },
-              null,
-              2,
-            );
-
-      if (file) {
-        await this.app.vault.modify(file, payload);
-        return;
-      }
-
-      await this.app.vault.create(configPath, payload);
-    } catch (error) {
-      this.reportPluginError(
-        configPath,
-        `Failed to save plugin config ${configPath}: ${formatPluginError(error)}`,
-        error,
-      );
-    }
-  }
-
-  private saveCommunityPluginState = debounce(() => {
-    return void this.savePluginListConfig(
-      "community-plugins.json",
-      this.#configuredCommunityPlugins,
+  private queuePluginState(filename: string, value: unknown): Promise<void> {
+    const path = this.getPluginStatePath(filename);
+    const payload = JSON.stringify(value, null, 2);
+    const operation = this.app.vault.supportsConditionalTextWrites
+      ? saveFileState(this.app, path, payload)
+      : (async () => {
+          const file = this.app.vault.getFileByPath(path);
+          if (file) await this.app.vault.modify(file, payload);
+          else await this.app.vault.create(path, payload);
+        })();
+    this.#pendingConfigWrites.add(operation);
+    void operation.then(
+      () => this.#pendingConfigWrites.delete(operation),
+      (error) => {
+        this.#pendingConfigWrites.delete(operation);
+        this.reportPluginError(
+          path,
+          `Failed to save plugin config ${path}: ${formatPluginError(error)}`,
+          error,
+        );
+      },
     );
-  }, 500);
+    return this.app.vault.supportsConditionalTextWrites
+      ? operation
+      : operation.catch(() => undefined);
+  }
 
-  private saveCorePluginState = debounce(() => {
-    return void this.saveCorePluginStateConfig();
-  }, 500);
+  private saveCommunityPluginState = (): void => {
+    this.queuePluginState("community-plugins.json", [
+      ...this.#configuredCommunityPlugins,
+    ]);
+  };
 
-  flushPendingConfigWrites(): void {
-    this.saveCommunityPluginState.flush();
-    this.saveCorePluginState.flush();
+  private saveCorePluginState = (): void => {
+    this.queuePluginState(
+      "core-plugins.json",
+      this.#enabledCorePlugins.size === 0
+        ? [...this.#disabledCorePlugins]
+        : {
+            disabled: [...this.#disabledCorePlugins],
+            enabled: [...this.#enabledCorePlugins],
+          },
+    );
+  };
+
+  async flushPendingConfigWrites(): Promise<void> {
+    if (this.app.vault.supportsConditionalTextWrites)
+      await this.app.fileEditingSessions.settleOperations();
+    await Promise.all([...this.#pendingConfigWrites]);
+  }
+
+  private async readPluginState(
+    path: string,
+    reset: (text: string) => void | Promise<void>,
+  ): Promise<string | null> {
+    if (this.app.vault.supportsConditionalTextWrites)
+      return readFileState(this.app, path, reset);
+    return (await this.adapter.exists(path)) ? this.adapter.read(path) : null;
+  }
+
+  private async restoreCorePluginState(text: string): Promise<void> {
+    const value = JSON.parse(text || "[]");
+    if (!Array.isArray(value) && !isRecord(value))
+      throw new Error("Invalid core plugin configuration");
+    const disabled = Array.isArray(value) ? value : (value.disabled ?? []);
+    const enabled = Array.isArray(value) ? [] : (value.enabled ?? []);
+    if (
+      !Array.isArray(disabled) ||
+      !Array.isArray(enabled) ||
+      [...disabled, ...enabled].some((id) => typeof id !== "string")
+    )
+      throw new Error("Invalid core plugin configuration");
+    this.#disabledCorePlugins = new Set(disabled);
+    this.#enabledCorePlugins = new Set(enabled);
+    const loaded = this.#loaded;
+    this.#loaded = false;
+    try {
+      for (const plugin of this.corePlugins) {
+        if (plugin.required) continue;
+        const success = this.isCorePluginEnabled(plugin.id)
+          ? await this.enablePlugin(plugin.id)
+          : await this.disablePlugin(plugin.id);
+        if (!success) throw new Error(`Could not restore plugin ${plugin.id}`);
+      }
+    } finally {
+      this.#loaded = loaded;
+    }
   }
 
   private isCorePluginEnabled(pluginId: string): boolean {
@@ -1678,10 +1698,9 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       this.#configuredCommunityPlugins.delete(pluginId);
     }
 
-    await this.savePluginListConfig(
-      "community-plugins.json",
-      this.#configuredCommunityPlugins,
-    );
+    await this.queuePluginState("community-plugins.json", [
+      ...this.#configuredCommunityPlugins,
+    ]);
     this.emit("community-plugin-config-pruned", missingPluginIds);
     return missingPluginIds;
   }
@@ -1969,7 +1988,14 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     return plugin;
   }
 
-  private async syncLegacyPluginData(pluginId: string): Promise<void> {
+  private syncLegacyPluginData(pluginId: string): Promise<void> {
+    const run = () => this.syncLegacyPluginDataNow(pluginId);
+    return this.app.vault.supportsConditionalTextWrites
+      ? this.app.fileEditingSessions.track(run)
+      : run();
+  }
+
+  private async syncLegacyPluginDataNow(pluginId: string): Promise<void> {
     const plugin = this.plugins.get(pluginId);
     if (!plugin) {
       return;
@@ -1998,6 +2024,10 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         null,
         2,
       );
+      if (this.app.vault.supportsConditionalTextWrites) {
+        await saveFileState(this.app, path, payload);
+        return;
+      }
       const file = this.app.vault.getFileByPath(path);
       if (file) {
         await this.app.vault.modify(file, payload);
@@ -2015,7 +2045,14 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     }
   }
 
-  async enablePlugin(pluginId: string): Promise<boolean> {
+  enablePlugin(pluginId: string): Promise<boolean> {
+    const run = () => this.enablePluginNow(pluginId);
+    return this.#loaded && this.app.vault.supportsConditionalTextWrites
+      ? this.app.fileEditingSessions.track(run)
+      : run();
+  }
+
+  private async enablePluginNow(pluginId: string): Promise<boolean> {
     const plugin = this.plugins.get(pluginId);
     if (!plugin) {
       const indexedExtension = this.#lapisExtensionIndex.get(pluginId);
@@ -2160,7 +2197,14 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     );
   }
 
-  async disablePlugin(pluginId: string): Promise<boolean> {
+  disablePlugin(pluginId: string): Promise<boolean> {
+    const run = () => this.disablePluginNow(pluginId);
+    return this.#loaded && this.app.vault.supportsConditionalTextWrites
+      ? this.app.fileEditingSessions.track(run)
+      : run();
+  }
+
+  private async disablePluginNow(pluginId: string): Promise<boolean> {
     const plugin = this.plugins.get(pluginId);
     if (!plugin) {
       const indexedExtension = this.#lapisExtensionIndex.get(pluginId);

@@ -5,6 +5,11 @@ CodeMirror protection covers Markdown transactions in that editor shell.
 Independent Mira writers still require their public adapter registration hook;
 view loading, renaming and application shutdown remain separate integration.
 
+Properties mutations retain their admitted transform through initial read
+failures under LN-PKG-172. Attachment creation joins the owning App's admitted
+IO boundary under LN-PKG-174, alongside the existing document-writer leases;
+the host drains that work before closing the Notes owner.
+
 API-backed Markdown editors inherit LN-ARCH-125 through LN-ARCH-128 for save
 ordering, dirty refresh protection and inactive-pane flushing. Mira-owned
 editable previews keep their independent writer and full-file surface controls;

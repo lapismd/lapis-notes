@@ -12,6 +12,21 @@
 
 **Requirement.** Configuration, hotkey and plugin-enablement writes on conditional-capable hosts MUST join the owning App's file-writer lifecycle before asynchronous IO or debounce. Pending and failed drafts MUST block shutdown, preserve external changes and permit explicit recovery. A guarded flush MUST await completion without reentering its own registry queue. Recovery MUST update the owning visible state; a rejected reset MUST retain its conflict and barrier.
 
+Core enablement, App Shell enablement and secondary compatibility data files
+participate in this owner. Lazy first-write admission retains the supplied draft
+across initial read failures. Compatibility files mirror canonical plugin data;
+accepting one file's disk version does not rewrite the canonical application
+configuration. Runtime enablement recovery awaits the owning plugin lifecycle.
+The recovery callback is registered before the initial state read so a failed
+load cannot detach later saves from their runtime owner. Invalid top-level core
+configuration records reject recovery without clearing the retained conflict.
+
+Hosts make the workspace inert, await App Shell plugin transitions, and drain
+admitted multi-step operations before entering the global file-writer teardown
+guard. Plugin data operations and runtime transitions register before their
+first asynchronous boundary. Conditional-host Vault creation is tracked through
+file-tree projection; Explorer also tracks the surrounding create/open action.
+
 The public API Workspace owns awaitable layout persistence under
 [LN-WS-095](../workspace-shell/layout-and-persistence.md#ln-ws-095). Hosts call
 `flushLayout()` before teardown instead of implementing a second layout writer.

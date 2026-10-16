@@ -1,3 +1,4 @@
+import { saveFileState } from "./file-state-store";
 import { appStatePath } from "./storage/path";
 import type { CachedMetadata, MetadataProcessor } from "./cache.svelte";
 import type {
@@ -474,6 +475,10 @@ export abstract class Plugin extends Component {
     }
 
     const payload = JSON.stringify(data, null, 2);
+    if (this.app.vault.supportsConditionalTextWrites) {
+      await saveFileState(this.app, path, payload);
+      return;
+    }
     const file = this.app.vault.getFileByPath(path);
     if (file) {
       await this.app.vault.modify(file, payload);
@@ -603,6 +608,16 @@ export abstract class Plugin extends Component {
    * @see {@link https://docs.obsidian.md/Plugins/User+interface/Settings}
    */
   loadData(): Promise<any> {
+    return this.runDataOperation(() => this.loadDataNow());
+  }
+
+  private runDataOperation<T>(run: () => Promise<T>): Promise<T> {
+    return this.app.vault.supportsConditionalTextWrites
+      ? this.app.fileEditingSessions.track(run)
+      : run();
+  }
+
+  private loadDataNow(): Promise<any> {
     return this.measureTelemetryAsync("plugin.load_data", async () => {
       if (this.app.configuration.hasPluginData(this.id)) {
         const data = this.app.configuration.getPluginData(this.id);
@@ -626,6 +641,10 @@ export abstract class Plugin extends Component {
    * @see {@link https://docs.obsidian.md/Plugins/User+interface/Settings}
    */
   saveData(data: any): Promise<void> {
+    return this.runDataOperation(() => this.saveDataNow(data));
+  }
+
+  private saveDataNow(data: any): Promise<void> {
     return this.measureTelemetryAsync("plugin.save_data", async () => {
       await this.app.configuration.updatePluginData(this.id, data, {
         origin: "plugin-save",

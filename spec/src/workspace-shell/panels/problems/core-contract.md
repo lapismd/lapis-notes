@@ -12,6 +12,11 @@ Independent editing-session admission and cleanup failures remain observable
 through LN-ARCH-129 through LN-ARCH-131. The registry does not create diagnostics
 or alter Problems ownership.
 
+File operations started by owned actions remain attached to the originating
+App's admission registry. Conditional hosts drain that work before disposing
+their views and diagnostic collections; Problems does not acquire file-save or
+shutdown policy.
+
 ## LN-WS-025 — Design Core: own the application-independent WorkspaceDiagnostic model and WorkspaceDiagnosticsManager
 
 <a id="ln-ws-025"></a>

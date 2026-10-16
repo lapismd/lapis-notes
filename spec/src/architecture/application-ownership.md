@@ -9,6 +9,11 @@ Requested release names resolve only from indexed own entries under
 The profile dismisses its own Settings after successful URL navigation under
 [LN-PLUG-109](../plugin-model/app-ownership.md#ln-plug-109).
 
+The explicitly owned App also supplies the file-operation admission registry.
+Conditional-host plugin data, runtime choices and file creation join it before
+IO. Hosts drain admitted operations and App Shell transitions before entering
+the global writer guard and releasing views, plugins or the vault session.
+
 ## LN-ARCH-034 — App-database selection: use an API-owned provider contract. Production hosts
 
 <a id="ln-arch-034"></a>

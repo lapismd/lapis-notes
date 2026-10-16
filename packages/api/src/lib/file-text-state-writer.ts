@@ -10,7 +10,7 @@ import { dirname } from "./storage/path";
  */
 export class FileTextStateWriter implements FileEditingSession {
   readonly #path: string;
-  readonly #persistence: FileTextPersistence;
+  #persistence: FileTextPersistence | undefined;
   readonly #unregister: () => void;
   #contents: string;
   #dirty = false;
@@ -21,16 +21,23 @@ export class FileTextStateWriter implements FileEditingSession {
   constructor(
     private readonly app: App,
     private readonly file: TFile,
-    baseline: string | null,
-    reset: (text: string) => void,
+    baseline: string | null | undefined,
+    private readonly reset: (text: string) => void | Promise<void>,
+    private readonly options: { recoverOutsideQueue?: boolean } = {},
   ) {
     this.#path = file.path;
     this.#contents = baseline ?? "";
-    this.#persistence = new FileTextPersistence({
-      vault: app.vault,
-      file,
+    if (baseline !== undefined)
+      this.#persistence = this.#createPersistence(baseline);
+    this.#unregister = app.fileEditingSessions.register(file.path, this);
+  }
+
+  #createPersistence(baseline: string | null): FileTextPersistence {
+    return new FileTextPersistence({
+      vault: this.app.vault,
+      file: this.file,
       baseline,
-      conflicts: app.fileEditingSessions.textConflicts,
+      conflicts: this.app.fileEditingSessions.textConflicts,
       local: () => this.#contents,
       protect: () => {
         const release = this.#protect();
@@ -42,26 +49,27 @@ export class FileTextStateWriter implements FileEditingSession {
             this.#onSaved = undefined;
             notify?.();
           },
-          reset: (text) => {
-            reset(text);
+          reset: (text) => this.reset(text),
+          resetSaved: (text) => {
             this.#contents = text;
             this.#dirty = false;
             this.#onSaved = undefined;
           },
         };
       },
-      serialize: (run) => app.fileEditingSessions.recover(this, run),
+      serialize: (run) => this.app.fileEditingSessions.recover(this, run),
+      recoverOutsideQueue: this.options.recoverOutsideQueue,
     });
-    this.#unregister = app.fileEditingSessions.register(file.path, this);
   }
 
   get dirty(): boolean {
-    return this.#dirty;
+    return this.#dirty || !!this.#persistence?.hasConflict;
   }
 
   acceptBaseline(contents: string | null): boolean {
-    if (this.#dirty || this.#locks || this.#disposed) return false;
-    this.#persistence.acceptBaseline(contents);
+    if (this.dirty || this.#locks || this.#disposed) return false;
+    if (this.#persistence) this.#persistence.acceptBaseline(contents);
+    else this.#persistence = this.#createPersistence(contents);
     return true;
   }
 
@@ -78,7 +86,7 @@ export class FileTextStateWriter implements FileEditingSession {
     this.assertEditable();
     this.#contents = contents;
     this.#dirty = true;
-    this.#persistence.updateLocal(contents);
+    this.#persistence?.updateLocal(contents);
     return this.app.fileEditingSessions.recover(this, () => this.flush());
   }
 
@@ -103,10 +111,17 @@ export class FileTextStateWriter implements FileEditingSession {
     const contents = this.#contents;
     const notify = this.#onSaved;
     try {
+      if (!this.#persistence) {
+        const adapter = this.app.vault.adapter;
+        const baseline = (await adapter.exists(this.#path))
+          ? await adapter.read(this.#path)
+          : null;
+        this.#persistence = this.#createPersistence(baseline);
+      }
       await this.app.vault.mkpath(dirname(this.#path));
       await this.#persistence.persist(contents);
     } catch (error) {
-      if (!this.#persistence.hasConflict)
+      if (this.#persistence && !this.#persistence.hasConflict)
         await this.#persistence.rejectPersistence(error);
       throw error;
     }

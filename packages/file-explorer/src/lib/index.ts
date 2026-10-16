@@ -104,9 +104,14 @@ async function uniquePath(
   }
 }
 
-async function withNotice<T>(operation: () => Promise<T>): Promise<T> {
+async function withNotice<T>(
+  app: App,
+  operation: () => Promise<T>,
+): Promise<T> {
   try {
-    return await operation();
+    return await (app.vault.supportsConditionalTextWrites
+      ? app.fileEditingSessions.track(operation)
+      : operation());
   } catch (error) {
     new Notice(displayError(error));
     throw error;
@@ -156,26 +161,26 @@ function createExplorerController(app: App, loading: boolean) {
     },
     actions: {
       openFile: (path, options) =>
-        withNotice(async () => {
+        withNotice(app, async () => {
           const file = app.vault.getFileByPath(path);
           if (!file) throw new Error(`Unable to find file: ${path}`);
           await openExplorerFile(app, file, options?.disposition ?? "current");
         }),
       createFile: (parent) =>
-        withNotice(async () => {
+        withNotice(app, async () => {
           const path = await uniquePath(app, parent, "Untitled.md");
           const file = await app.vault.create(path, "");
           await app.openFile(file);
           return path;
         }),
       createFolder: (parent) =>
-        withNotice(async () => {
+        withNotice(app, async () => {
           const path = await uniquePath(app, parent, "New folder");
           await app.vault.createFolder(path);
           return path;
         }),
       rename: (path, nextName) =>
-        withNotice(async () => {
+        withNotice(app, async () => {
           const file = app.vault.getAbstractFileByPath(path);
           if (!file) throw new Error(`Unable to find path: ${path}`);
           const nextPath = joinPath(parentPath(path), nextName);
@@ -186,7 +191,7 @@ function createExplorerController(app: App, loading: boolean) {
           return nextPath;
         }),
       move: (path, destinationFolderPath) =>
-        withNotice(async () => {
+        withNotice(app, async () => {
           const file = app.vault.getAbstractFileByPath(path);
           if (!file) throw new Error(`Unable to find path: ${path}`);
           const nextPath = joinPath(destinationFolderPath, basename(path));
@@ -197,7 +202,7 @@ function createExplorerController(app: App, loading: boolean) {
           return nextPath;
         }),
       delete: (path) =>
-        withNotice(async () => {
+        withNotice(app, async () => {
           const file = app.vault.getAbstractFileByPath(path);
           if (!file) throw new Error(`Unable to find path: ${path}`);
           await app.vault.trash(file, false);
@@ -288,11 +293,12 @@ export class LapisLandingView extends View {
         id: "create-note",
         label: "Create new note",
         icon: "square-pen",
-        onSelect: async () => {
-          const path = await uniquePath(this.app, "", "Untitled.md");
-          const file = await this.app.vault.create(path, "");
-          await this.app.openFile(file);
-        },
+        onSelect: () =>
+          withNotice(this.app, async () => {
+            const path = await uniquePath(this.app, "", "Untitled.md");
+            const file = await this.app.vault.create(path, "");
+            await this.app.openFile(file);
+          }),
       },
       {
         id: "go-to-file",

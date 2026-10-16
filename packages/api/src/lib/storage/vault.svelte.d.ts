@@ -1,3 +1,4 @@
+import type { FileEditingSessionRegistry } from "../file-editing-sessions";
 import { EventDispatcher } from "$lib/events";
 import {
   FileCache,
@@ -44,7 +45,10 @@ export declare class Vault extends EventDispatcher<{
   private filesByName;
   configDir: string;
   readonly cache: FileCache;
-  constructor(adapter: DataAdapter);
+  constructor(
+    adapter: DataAdapter,
+    operations?: Pick<FileEditingSessionRegistry, "track">,
+  );
   private getPath;
   getName(): string;
   exists(path: string, sensitive?: boolean): Promise<boolean>;

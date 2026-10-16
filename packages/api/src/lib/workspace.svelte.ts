@@ -2081,6 +2081,11 @@ export class Workspace extends EventDispatcher<{
     return write;
   }
 
+  /** Await admitted App Shell transitions before the owning host tears down. */
+  public async flushPluginChanges(): Promise<void> {
+    await this.#workspaceHostController?.plugins.flushChanges();
+  }
+
   /** Drain the single layout writer before a host closes, reloads or switches. */
   public async flushLayout(): Promise<void> {
     await tick();
@@ -3006,7 +3011,24 @@ export class Workspace extends EventDispatcher<{
             );
           },
         },
-        plugins: createAppShellPluginPersistence(() => this.app.vault),
+        plugins: createAppShellPluginPersistence(
+          () => this.app.vault,
+          this.app,
+          async (enabled) => {
+            const plugins = this.#workspaceHostController!.plugins;
+            for (const state of plugins.states) {
+              if (state.required || typeof enabled[state.id] !== "boolean")
+                continue;
+              const success = enabled[state.id]
+                ? await plugins.enable(state.id)
+                : await plugins.disable(state.id);
+              if (!success)
+                throw new Error(
+                  `Could not restore App Shell plugin ${state.id}`,
+                );
+            }
+          },
+        ),
       },
     });
     setWorkspaceHostBinding(this, {

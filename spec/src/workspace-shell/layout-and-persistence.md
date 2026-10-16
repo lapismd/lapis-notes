@@ -127,6 +127,11 @@ save, and the deferred presentation flush does not reenter a protected queue.
 
 **Requirement.** Default shells MUST include Design Core `fModePlugin({ enabled: false })` on the API-owned controller. AppShell enablement MUST persist through Design Core `persistence.plugins`. Missing persistence MUST keep F-Mode disabled. Plugin-state load and save MUST resolve the App vault when they run.
 
+Conditional hosts retain the acknowledged App Shell enablement snapshot in the
+App-owned writer registry. Conflicts block shutdown and explicit disk recovery
+projects the accepted choices through the existing plugin manager. Recovery
+projection does not enqueue a second save.
+
 ## LN-WS-059 — Default sidebar layout
 
 <a id="ln-ws-059"></a>

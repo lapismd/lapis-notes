@@ -62,6 +62,7 @@ export class FileEditingSessionRegistry {
   readonly #barriers = new Map<object, string | undefined>();
   readonly #releases = new Set<Release>();
   readonly #held = new Set<Registration>();
+  readonly #pendingOperations = new Set<Promise<unknown>>();
   #tail: Promise<void> = Promise.resolve();
   #closing = false;
   #closed = false;
@@ -69,6 +70,42 @@ export class FileEditingSessionRegistry {
 
   get closed(): boolean {
     return this.#closing;
+  }
+
+  /** Admit a multi-step file operation before its first asynchronous boundary. */
+  track<T>(operation: () => Promise<T>): Promise<T> {
+    try {
+      this.#assertOpen();
+      let resolve!: (value: T) => void;
+      let reject!: (error: unknown) => void;
+      const pending = new Promise<T>((done, fail) => {
+        resolve = done;
+        reject = fail;
+      });
+      this.#pendingOperations.add(pending);
+      void pending.then(
+        () => this.#pendingOperations.delete(pending),
+        () => this.#pendingOperations.delete(pending),
+      );
+      try {
+        void operation().then(resolve, reject);
+      } catch (error) {
+        reject(error);
+      }
+      return pending;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  /**
+   * Hosts drain admitted operations before entering their global teardown
+   * guard.
+   */
+  async settleOperations(): Promise<void> {
+    this.#assertOpen();
+    while (this.#pendingOperations.size)
+      await Promise.all([...this.#pendingOperations]);
   }
 
   register(path: string, session: FileEditingSession): () => void {

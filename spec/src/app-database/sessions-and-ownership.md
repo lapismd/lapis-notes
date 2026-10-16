@@ -1,5 +1,10 @@
 # App Database / Sessions and ownership
 
+Conditional hosts retain database/session ownership until admitted file creation
+and plugin-data operations have drained through their App. File-tree projection
+and the owning UI continuation finish before destructive host teardown. This
+does not change provider selection, database paths or SQL authority.
+
 ## LN-DB-001 — Existing AppDatabase operations: remain available while session creation accepts
 
 <a id="ln-db-001"></a>

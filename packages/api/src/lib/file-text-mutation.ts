@@ -16,7 +16,7 @@ export type FileTextMutationOptions = DataWriteOptions & {
 
 /** A retained one-shot draft; it has no view, timer or independent save path. */
 class TextMutation implements FileEditingSession {
-  dirty = true;
+  #dirty = true;
   readonly #path: string;
   #draft = "";
   #persistence: FileTextPersistence | undefined;
@@ -30,22 +30,27 @@ class TextMutation implements FileEditingSession {
     this.#path = file.path;
   }
 
+  get dirty(): boolean {
+    return this.#dirty || !!this.#persistence?.hasConflict;
+  }
+
   async flush(): Promise<void> {
     if (!this.dirty) return;
     if (this.file.path !== this.#path)
       throw new Error("File mutation target changed");
     if (!this.#persistence) {
+      const expected = this.options.expectedText;
+      // Keep the admitted transform if initial IO fails before a draft exists.
+      const baseline =
+        expected === undefined
+          ? await this.app.vault.read(this.file)
+          : expected;
       try {
-        const expected = this.options.expectedText;
-        const baseline =
-          expected === undefined
-            ? await this.app.vault.read(this.file)
-            : expected;
         this.#draft = await this.transform(baseline ?? "");
         if (this.file.path !== this.#path)
           throw new Error("File mutation target changed");
         if (this.#draft === baseline) {
-          this.dirty = false;
+          this.#dirty = false;
           return;
         }
         this.#persistence = new FileTextPersistence({
@@ -66,17 +71,18 @@ class TextMutation implements FileEditingSession {
           protect: () => ({
             release() {},
             saved: () => this.#saved(),
-            reset: (text) => {
+            reset: (text) =>
+              this.options.onReset?.(text, this.#persistence!.baseline),
+            resetSaved: (text) => {
               this.#draft = text;
-              this.dirty = false;
-              this.options.onReset?.(text, this.#persistence!.baseline);
+              this.#dirty = false;
             },
           }),
           serialize: (run) => this.app.fileEditingSessions.recover(this, run),
         });
       } catch (error) {
-        // There is no computed draft to preserve after a read/parse/callback error.
-        this.dirty = false;
+        // Rejected transforms are invalid actions, rather than failed save drafts.
+        this.#dirty = false;
         throw error;
       }
     }
@@ -93,7 +99,7 @@ class TextMutation implements FileEditingSession {
   }
 
   #saved(): void {
-    this.dirty = false;
+    this.#dirty = false;
     this.options.onSaved?.(this.#draft);
   }
 

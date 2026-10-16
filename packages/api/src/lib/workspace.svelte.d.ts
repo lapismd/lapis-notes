@@ -474,6 +474,8 @@ export declare class Workspace extends EventDispatcher<{
     requestSaveLayout(event?: WorkspaceLayoutChangeEvent): void;
     /** Await serialized layout persistence before the owning host tears down. */
     flushLayout(): Promise<void>;
+    /** Await admitted App Shell plugin transitions and their persistence. */
+    flushPluginChanges(): Promise<void>;
     private withoutLayoutPersistence;
     private dispatchLayoutDropEvent;
     willShowLayoutDropOverlay(options: Omit<WorkspaceLayoutDropEvent, "defaultPrevented" | "preventDefault">): WorkspaceLayoutDropEvent;

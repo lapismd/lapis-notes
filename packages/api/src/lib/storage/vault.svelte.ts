@@ -1,3 +1,4 @@
+import type { FileEditingSessionRegistry } from "../file-editing-sessions";
 import { DEFAULT_APP_STATE_DIRECTORY } from "./path";
 import { EventDispatcher } from "$lib/events";
 import {
@@ -62,7 +63,10 @@ export class Vault extends EventDispatcher<{
   public configDir: string = DEFAULT_APP_STATE_DIRECTORY;
   readonly cache = new FileCache(1024);
 
-  constructor(readonly adapter: DataAdapter) {
+  constructor(
+    readonly adapter: DataAdapter,
+    private readonly operations?: Pick<FileEditingSessionRegistry, "track">,
+  ) {
     super();
     this.load();
   }
@@ -192,6 +196,17 @@ export class Vault extends EventDispatcher<{
     data: string,
     options?: DataWriteOptions,
   ): Promise<TFile> {
+    const run = () => this.createNow(path, data, options);
+    return this.operations && this.supportsConditionalTextWrites
+      ? this.operations.track(run)
+      : run();
+  }
+
+  private createNow(
+    path: string,
+    data: string,
+    options?: DataWriteOptions,
+  ): Promise<TFile> {
     path = this.getPath(path);
     const file = this.getFileByPath(path);
     if (file) {
@@ -230,6 +245,17 @@ export class Vault extends EventDispatcher<{
     data: ArrayBuffer,
     options?: DataWriteOptions,
   ): Promise<TFile> {
+    const run = () => this.createBinaryNow(path, data, options);
+    return this.operations && this.supportsConditionalTextWrites
+      ? this.operations.track(run)
+      : run();
+  }
+
+  private createBinaryNow(
+    path: string,
+    data: ArrayBuffer,
+    options?: DataWriteOptions,
+  ): Promise<TFile> {
     path = this.getPath(path);
     return this.adapter
       .writeBinary(path, data, options)
@@ -256,7 +282,14 @@ export class Vault extends EventDispatcher<{
    * @throws Error if folder already exists
    * @public
    */
-  async createFolder(path: string): Promise<TFolder> {
+  createFolder(path: string): Promise<TFolder> {
+    const run = () => this.createFolderNow(path);
+    return this.operations && this.supportsConditionalTextWrites
+      ? this.operations.track(run)
+      : run();
+  }
+
+  private async createFolderNow(path: string): Promise<TFolder> {
     path = this.getPath(path);
 
     try {

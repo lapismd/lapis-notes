@@ -6,11 +6,20 @@
 
 **Requirement.** Conditional-capable hosts MUST apply frontmatter and metadata text mutations through the owning App's file-writer lifecycle. Mutations MUST drain and protect existing document writers before reading authoritative content, retain failed conditional drafts for explicit recovery, and block shutdown until persistence or discard succeeds. Queued mutations MUST serialize without reentering the guard. Cached metadata MUST NOT replace authoritative mutation input.
 
+An admitted transform survives initial read failures; invalid transforms remain
+rejected actions. A rejected recovery projection retains the writer barrier.
+
 ## LN-PKG-170 — Source-owned text conflict recovery
 
 <a id="ln-pkg-170"></a>
 
 **Requirement.** API MUST export a generic FileTextPersistence contract for document-owned conditional baselines and the owning App's text-conflict registry. Recovery MUST acquire protection before yielding and await asynchronous admission before resolving a conflict. Each concurrent operation MUST use its own acknowledgement, reset and release lease. Storage snapshots MUST remain independent of background cache reads; stale decisions MUST reject, and failed resets MUST retain the conflict.
+
+Application-state recovery may restore runtime state outside the persistence
+queue while retaining its owner lease. It revalidates the displayed disk bytes
+after asynchronous restoration and acknowledges only after that check or the
+conditional replacement succeeds. A failed or stale projection retains the
+original local draft, including when the next decision keeps that draft.
 
 ## LN-PKG-169 — Conditional Vault writes
 

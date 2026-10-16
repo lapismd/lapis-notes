@@ -19,7 +19,8 @@ function hasCode(error: unknown, code: string): boolean {
 export type FileTextRecoveryLease = {
   release(): void;
   saved(): void;
-  reset(contents: string): void;
+  reset(contents: string): void | Promise<void>;
+  resetSaved?(contents: string): void;
 };
 
 export type FileTextPersistenceOptions = {
@@ -32,6 +33,8 @@ export type FileTextPersistenceOptions = {
   protect(): FileTextRecoveryLease | Promise<FileTextRecoveryLease>;
   settle?(): Promise<void>;
   serialize(run: () => Promise<void>): Promise<void>;
+  /** State restoration may itself write other owned files; revalidate afterward. */
+  recoverOutsideQueue?: boolean;
 };
 
 /** A single captured document's baseline and explicit text-conflict recovery. */
@@ -158,6 +161,10 @@ export class FileTextPersistence {
     const lease = await this.options.protect();
     try {
       await this.options.settle?.();
+      if (this.options.recoverOutsideQueue && choice !== undefined) {
+        await this.#recoverState(conflict, choice, lease);
+        return;
+      }
       await this.options.serialize(async () => {
         this.#assertCurrent(conflict);
         if (choice === undefined) {
@@ -207,11 +214,59 @@ export class FileTextPersistence {
             throw error;
           }
           this.#clear();
+          lease.resetSaved?.(external ?? "");
         }
       });
     } finally {
       lease.release();
     }
+  }
+
+  async #recoverState(
+    conflict: FileTextConflict,
+    choice: FileTextResolution,
+    lease: FileTextRecoveryLease,
+  ): Promise<void> {
+    let selected = "";
+    await this.options.serialize(async () => {
+      this.#assertCurrent(conflict);
+      if (conflict.external === undefined)
+        throw new Error("Read the disk version before resolving this conflict");
+      const actual = await this.#read();
+      if (actual !== conflict.external) {
+        this.#publish(actual);
+        throw this.#error;
+      }
+      selected =
+        choice === "keep-local" ? this.options.local() : (actual ?? "");
+    });
+    // The owner lease remains held, but other owned files can use the queue.
+    await lease.reset(selected);
+    await this.options.serialize(async () => {
+      this.#assertCurrent(conflict);
+      if (choice === "keep-local") {
+        try {
+          await this.options.vault.modifyIfUnchanged(
+            this.options.file,
+            selected,
+            conflict.external!,
+          );
+        } catch (error) {
+          if (hasCode(error, "ECONFLICT")) await this.#captureExternal();
+          throw error;
+        }
+      } else {
+        const actual = await this.#read();
+        if (actual !== conflict.external) {
+          this.#publish(actual);
+          throw this.#error;
+        }
+      }
+      this.#baseline = choice === "keep-local" ? selected : conflict.external!;
+      this.#clear();
+      if (choice === "keep-local") lease.saved();
+      else lease.resetSaved?.(selected);
+    });
   }
 
   #clear(): void {
