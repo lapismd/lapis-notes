@@ -5,6 +5,20 @@ intake or UI swap status changes.
 
 ## Tauri source support (2026-10-16)
 
+- [ ] Complete native system-trash and owned Explorer-action qualification
+      (LN-PKG-184, LN-EXP-009); 35 affected API and 31 Explorer cases plus public
+      checks/builds pass. [Source evidence](spec/records/2026-10-16-native-system-trash-and-actions.md)
+      retains unsupported fallback and separates source checks from actual OS UI.
+- [ ] Complete stable tree and App-owned watch qualification (LN-PKG-180 through
+      LN-PKG-183, LN-WS-097); [tree](spec/records/2026-10-16-stable-vault-reconciliation.md)
+      and [ingestion](spec/records/2026-10-16-app-owned-vault-ingestion.md) records
+      retain source cases and public builds. Tauri E-INGESTION-001 separately
+      qualifies 17 cold native cases; end-of-M7 full lanes remain pending.
+- [ ] Complete exclusive creation/import qualification (LN-PKG-178/179);
+      [source creation evidence](spec/records/2026-10-16-exclusive-file-creation.md)
+      and Tauri E-CREATE-001 retain successful components. Attachment integration
+      and aggregate qualification remain pending.
+
 - [ ] Complete owned notice delivery qualification (LN-WS-096);
       135 affected API and 28 Explorer cases plus public checks/builds pass.
       [Source evidence](spec/records/2026-10-16-owned-notice-projection.md)

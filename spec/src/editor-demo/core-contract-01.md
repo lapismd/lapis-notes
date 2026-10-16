@@ -1,5 +1,9 @@
 # Lapis Editor Demo / Editor scenarios / Part 1
 
+The reusable Explorer retains existing menu components while LN-EXP-009 makes
+native/copy feedback explicitly App-owned. Unavailable clipboard support reports
+failure through the existing notice owner instead of claiming success.
+
 The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.

@@ -1,10 +1,12 @@
 import { NativeDesktopVaultAdapter } from "@lapis-notes/api/desktop-native";
 import { WorkspaceMenu } from "@lapismd/design-core/workspace/core";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { Notice } from "@lapis-notes/api";
 import {
   appendNativeExplorerMenu,
   hasNativeExplorerActions,
   revealInFileManagerLabel,
+  copyExplorerText,
 } from "./native-explorer-actions";
 
 const {
@@ -69,11 +71,53 @@ function titles(menu: WorkspaceMenu): string[] {
 
 describe("native explorer actions", () => {
   beforeEach(() => {
+    vi.mocked(Notice).mockClear();
     hasNativeDesktopCapability.mockReset();
     getNativeDesktopPlatform.mockReset();
     resolveNativeDesktopVaultPath.mockReset();
     openNativeDesktopVaultPath.mockReset();
     revealNativeDesktopVaultPath.mockReset();
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("attributes clipboard success to the explicitly owned App", async () => {
+    const app = createApp({});
+    const writeText = vi.fn(async () => {});
+    vi.stubGlobal("navigator", { clipboard: { writeText } });
+    await copyExplorerText(app, "vault path", "Notes/café.md");
+    expect(writeText).toHaveBeenCalledWith("Notes/café.md");
+    expect(Notice).toHaveBeenCalledWith("Copied vault path", undefined, app);
+  });
+
+  it("rejects missing clipboard support without a success notice", async () => {
+    vi.stubGlobal("navigator", {});
+    await expect(
+      copyExplorerText(createApp({}), "path", "note.md"),
+    ).rejects.toThrow(/clipboard/i);
+    expect(Notice).not.toHaveBeenCalled();
+  });
+
+  it("reports native provider failures through its originating App", async () => {
+    hasNativeDesktopCapability.mockReturnValue(true);
+    getNativeDesktopPlatform.mockReturnValue({ os: "macos" });
+    const app = createApp(new NativeDesktopVaultAdapter("/vault"));
+    const menu = new WorkspaceMenu();
+    openNativeDesktopVaultPath.mockRejectedValueOnce(
+      new Error("native denied"),
+    );
+    appendNativeExplorerMenu(
+      menu,
+      { kind: "file", path: "note.md", name: "note.md" },
+      app,
+    );
+    const open = menu.entries.find(
+      (entry) => entry.kind === "item" && entry.title === "Open in default app",
+    );
+    if (open?.kind !== "item") throw new Error("Missing existing Open action");
+    await open.callback?.();
+    await vi.waitFor(() =>
+      expect(Notice).toHaveBeenCalledWith("native denied", undefined, app),
+    );
   });
 
   it("labels reveal by host OS", () => {

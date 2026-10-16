@@ -1,5 +1,9 @@
 # Architecture / Host boundaries
 
+LN-PKG-184 keeps OS-trash authority in the native host. The shared adapter
+advertises the optional port and distinguishes unsupported fallback from
+provider failure; the existing Vault projection never deletes handled items twice.
+
 LN-PKG-183 places watch ingestion and retirement on the explicitly owned App;
 hosts opt in and must stop/drain the service before destructive teardown,
 then resume/reconcile if leaving fails.

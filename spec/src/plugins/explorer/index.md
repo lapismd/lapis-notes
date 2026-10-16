@@ -1,5 +1,11 @@
 # Explorer Plugin
 
+## LN-EXP-009 — Owned native action feedback
+
+<a id="ln-exp-009"></a>
+
+**Requirement.** Explorer copy and native-action feedback MUST use the explicitly owning App's existing Notice boundary. Missing clipboard support MUST reject without a success notice; UI callers MUST present failure through that same owner. Native open, reveal and path-copy actions MUST preserve provider failures rather than report an unperformed action as successful.
+
 The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.

@@ -207,7 +207,8 @@ function createExplorerController(app: App, loading: boolean) {
           if (!file) throw new Error(`Unable to find path: ${path}`);
           await app.fileManager.trashFile(file);
         }),
-      copyText: copyExplorerText,
+      copyText: (label, value) =>
+        withNotice(app, () => copyExplorerText(app, label, value)),
     },
     buildItemMenu: (menu, node) => {
       appendNativeExplorerMenu(menu, node, app);

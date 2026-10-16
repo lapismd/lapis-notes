@@ -1,5 +1,9 @@
 # Deno Desktop Host / Native vault and storage / Part 1
 
+The neutral native adapter gains an optional system-trash port under LN-PKG-184.
+Tauri implements the new capability; the superseded Deno host remains frozen
+and does not advertise it. This annotation changes no Deno host source.
+
 The optional conditional text port is governed by
 [LN-PKG-168](../packages/vault-and-storage.md#ln-pkg-168). A shared adapter method
 alone does not make it available: this legacy host does not advertise that

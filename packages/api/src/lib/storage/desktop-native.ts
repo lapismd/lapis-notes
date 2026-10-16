@@ -58,6 +58,7 @@ export interface NativeDesktopPlatformInfo {
 }
 
 export type NativeDesktopCapabilityId =
+  | "system-trash"
   | "exclusive-create"
   | "conditional-text-write"
   | "resource"
@@ -566,7 +567,7 @@ export class NativeDesktopVaultAdapter
         hasNativeDesktopCapability("file-watch") ||
         typeof getNativeDesktopBridge()?.watch === "function",
       resourceUrls: true,
-      systemTrash: false,
+      systemTrash: hasNativeDesktopCapability("system-trash"),
     };
   }
 
@@ -909,8 +910,23 @@ export class NativeDesktopVaultAdapter
     return this.getResourcePath(normalizedPath);
   }
 
-  async trashSystem(): Promise<boolean> {
-    return false;
+  async trashSystem(normalizedPath: string): Promise<boolean> {
+    const path = normalizeVaultPath(normalizedPath);
+    if (path === "/")
+      throw createFsError("EINVAL", "Cannot trash the vault root");
+    if (!hasNativeDesktopCapability("system-trash")) return false;
+    try {
+      const handled = await invokeNative<unknown>("desktop_fs_trash_system", {
+        rootPath: this.rootPath,
+        normalizedPath: path,
+      });
+      if (typeof handled !== "boolean")
+        throw createFsError("EINVAL", "Invalid native trash acknowledgement");
+      return handled;
+    } catch (error) {
+      if ((error as { code?: string })?.code === "ENOTSUP") return false;
+      throw error;
+    }
   }
 
   async trashLocal(normalizedPath: string): Promise<void> {

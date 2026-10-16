@@ -1,5 +1,11 @@
 # Packages / Vault and storage
 
+## LN-PKG-184 — Optional native system-trash port
+
+<a id="ln-pkg-184"></a>
+
+**Requirement.** Native Vault adapters MUST advertise system trash only with its implemented host capability and invoke it with a normalized admitted path. Root trash MUST reject before invocation. Unsupported capability or ENOTSUP MUST return explicit unavailability for the existing local-trash fallback; other provider errors MUST propagate without fallback. Handled native trash MUST project removal without a second filesystem deletion.
+
 ## LN-PKG-183 — App-owned watch ingestion
 
 <a id="ln-pkg-183"></a>

@@ -1,5 +1,9 @@
 # Plugin Model / Lifecycle and views
 
+LN-EXP-009 keeps native Explorer action feedback attached to its originating
+App, including failed OS operations and unavailable clipboard support. Native
+system trash remains an optional adapter capability under LN-PKG-184.
+
 LN-PKG-183 and LN-WS-097 use existing FileView and workspace event owners for
 watch reconciliation. Dirty and retired writers keep their original view and
 explicit conflict-recovery owner; watcher callbacks cannot retarget them.
