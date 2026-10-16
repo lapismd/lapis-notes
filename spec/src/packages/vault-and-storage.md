@@ -18,6 +18,8 @@
 
 **Requirement.** Vault mutations and reconciliation MUST serialize IO through cache/tree/event projection so a scan cannot publish over an in-flight internal mutation. App operation admission MUST include queued work. Rejection MUST NOT poison later operations; internal method delegation MUST NOT deadlock by re-entering the queue.
 
+- View projection MUST await admitted mutation guards before rebinding clean editors. Internal rename projections MUST retain event order and retire with their owning App; dirty external views retain their existing recovery owner.
+
 ## LN-PKG-180 — Stable vault tree reconciliation
 
 <a id="ln-pkg-180"></a>

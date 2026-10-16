@@ -6,6 +6,8 @@
 
 **Requirement.** App-owned reconciliation MUST forward external file changes through existing workspace events so clean editors refresh while dirty drafts remain protected. Rename/delete projection MUST use existing file-view and layout lifecycle APIs. Dirty or retained failed writers MUST prevent automatic retargeting or removal of their views and receive an existing notification explaining the change. Explicit recovery MUST retain its existing owner.
 
+- Clean internal rename/move projection MUST run after the admitted editing guard releases and before a later queued mutation can interfere. Rebinding MUST preserve ordered event snapshots and the existing editor save owner.
+
 Text file loading registers and protects its target under LN-ARCH-137 and
 LN-ARCH-138. A failed original save preserves the old binding; superseded or
 unloaded reads cannot publish stale content. Managed rename protects and flushes all registered writers under LN-ARCH-139.

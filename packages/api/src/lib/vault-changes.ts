@@ -40,9 +40,13 @@ export class VaultChangeService {
       this.watcher = watcher;
       const projection = this.app.vault.on("all", (event, file, context) => {
         if (!this.live(generation) || !(file instanceof TFile)) return;
+        const snapshot = file.copy(),
+          details = { ...context };
         const pending = this.app.fileEditingSessions.track(() =>
-          projectVaultChange(this.app, event, file.copy(), context, () =>
-            this.live(generation),
+          this.app.fileEditingSessions.afterMutations(() =>
+            projectVaultChange(this.app, event, snapshot, details, () =>
+              this.live(generation),
+            ),
           ),
         );
         this.projections.add(pending);

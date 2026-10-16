@@ -6,6 +6,7 @@ import { FileEditingSessionRegistry } from "../file-editing-sessions";
 import { EventDispatcher } from "../events";
 import { FileView } from "../view.svelte";
 import { Editor } from "../editor.svelte";
+import { FileManager } from "../file-manager";
 import { InMemoryDataAdapter } from "./data-adapter-conformance";
 
 class WatchedAdapter extends InMemoryDataAdapter {
@@ -393,4 +394,87 @@ it("retains a dirty view after external deletion without attempting persistence"
     }),
   );
   await changes.stop();
+});
+
+for (const destination of ["renamed.md", "Archive/note.md"]) {
+  it(`rebinds a real editor after guarded internal rename to ${destination}`, async () => {
+    const { app, adapter, changes, vault } = await fixture();
+    app.telemetry = {
+      measure: (_name: string, run: any) => run({ setAttribute() {} }),
+    };
+    app.metadataCache = { queryLinks: vi.fn(async () => []) };
+    await adapter.mkdir("Archive");
+    await vault.load();
+    const editor = new Editor("before", [], app);
+    editor.file = vault.getFileByPath("note.md");
+    const { view } = openView(app);
+    view.onRename = vi.fn(async (file) => {
+      editor.file = file.copy();
+      view.file = file.copy();
+    });
+    const stop = editor.trackChanges();
+    try {
+      await changes.start();
+      await new FileManager(app).renameFile(
+        vault.getFileByPath("note.md")!,
+        destination,
+      );
+      await changes.settle();
+      expect(app.notifications.notify).not.toHaveBeenCalled();
+      expect(editor.file?.path).toBe(destination);
+      editor.view.dispatch({
+        changes: {
+          from: 0,
+          to: editor.view.state.doc.length,
+          insert: "after internal move",
+        },
+      });
+      await editor.flushChanges();
+      expect(await adapter.read(destination)).toBe("after internal move");
+      expect(await adapter.exists("note.md")).toBe(false);
+    } finally {
+      stop();
+      await changes.stop();
+      await editor.dispose();
+    }
+  });
+}
+
+it("orders view rebinding before a follow-on mutation admitted by a rename event", async () => {
+  const { app, changes, vault } = await fixture();
+  app.telemetry = {
+    measure: (_name: string, run: any) => run({ setAttribute() {} }),
+  };
+  app.metadataCache = { queryLinks: vi.fn(async () => []) };
+  const editor = new Editor("before", [], app);
+  editor.file = vault.getFileByPath("note.md");
+  const { view } = openView(app);
+  view.onRename = vi.fn(async (file) => {
+    editor.file = file.copy();
+    view.file = file.copy();
+  });
+  const manager = new FileManager(app);
+  let second: Promise<void> | undefined;
+  try {
+    await changes.start();
+    const event = vault.on("rename", (file) => {
+      if (file.path === "first.md")
+        second = manager.renameFile(
+          vault.getFileByPath("first.md")!,
+          "second.md",
+        );
+    });
+    await manager.renameFile(vault.getFileByPath("note.md")!, "first.md");
+    await second;
+    vault.offref(event);
+    await changes.settle();
+    expect(app.notifications.notify).not.toHaveBeenCalled();
+    expect(editor.file?.path).toBe("second.md");
+    expect(
+      vi.mocked(view.onRename).mock.calls.map(([file]) => file.path),
+    ).toEqual(["first.md", "second.md"]);
+  } finally {
+    await changes.stop();
+    await editor.dispose();
+  }
 });

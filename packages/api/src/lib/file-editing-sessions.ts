@@ -72,6 +72,14 @@ export class FileEditingSessionRegistry {
     return this.#closing;
   }
 
+  /**
+   * Schedule owned event projection between mutations without acquiring an
+   * editing guard. Guard callbacks may schedule this but must not await it.
+   */
+  afterMutations<T>(operation: () => Promise<T>): Promise<T> {
+    return this.#enqueue(operation);
+  }
+
   /** Includes retained writers; a failing dirty getter cannot waive protection. */
   hasDirty(path?: string): boolean {
     const scope = path === undefined ? undefined : filePath(path);

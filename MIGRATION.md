@@ -1,5 +1,7 @@
 # Migration Status
 
+Internal file-view projection now queues after FileManager editing guards, preserving clean editor rebinding through rename/move. Seventeen exact and 207 affected API cases qualify the source; native archive acceptance and end-of-M7 full lanes remain pending. See `spec/records/2026-10-16-internal-view-mutation-order.md`.
+
 Living checklist for the minimal Lapis Notes monorepo. Update this file when
 intake or UI swap status changes.
 

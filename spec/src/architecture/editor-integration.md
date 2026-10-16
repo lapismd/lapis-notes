@@ -41,7 +41,11 @@ not enqueue a second operation from inside the protected shutdown callback.
 Host shutdown uses the pathless editing guard before destructive teardown. The
 API-owned layout flush under [LN-WS-095](../workspace-shell/layout-and-persistence.md#ln-ws-095)
 joins workspace persistence while that protection remains held. Registry disposal
-follows the guard; a callback cannot reenter its own queued registry operations.
+follows the guard; a callback cannot await its own queued registry operations.
+App-owned event projection uses `afterMutations` to schedule clean view rebinding
+between admitted mutation guards. It does not acquire another editing guard or
+flush dirty external writers. Guard callbacks may schedule this detached work,
+but must not await it while holding their guard.
 
 The public FileTextPersistence contract under
 [LN-PKG-170](../packages/vault-and-storage.md#ln-pkg-170) lets independent file
