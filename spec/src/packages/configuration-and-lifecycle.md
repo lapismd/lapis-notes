@@ -1,5 +1,11 @@
 # Packages / Configuration and lifecycle
 
+The public API Workspace owns awaitable layout persistence under
+[LN-WS-095](../workspace-shell/layout-and-persistence.md#ln-ws-095). Hosts call
+`flushLayout()` before teardown instead of implementing a second layout writer.
+The packaged method uses the same shared `.lapis` path and selected workspace
+filename as normal debounced persistence.
+
 The private application profile owns plugin App URL registration, while
 Workspace's public navigator accepts an optional selected release version.
 The profile and hosts consume that generic navigator under

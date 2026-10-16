@@ -11,6 +11,7 @@
 | LN-WS-065 | [workspace-shell](../workspace-shell/view-lifecycle.md#ln-ws-065) | Implemented | missing-view EmptyView and Design Core empty surface use the ghost icon; ordinary empty tabs keep file |
 | LN-WS-003 | [workspace-shell](../workspace-shell/layout-and-persistence.md#ln-ws-003) | Implemented | `@lapis-notes/api/workspace-host` |
 | LN-WS-004 | [workspace-shell](../workspace-shell/layout-and-persistence.md#ln-ws-004) | Implemented | instance-owned api load/save writer + alternate filename and final-projection tests |
+| LN-WS-095 | [workspace-shell](../workspace-shell/layout-and-persistence.md#ln-ws-095) | Implemented | Six focused regressions and all 124 workspace tests; packed public declaration and cold native save/reload/restore qualification in spec/records/2026-10-16-awaitable-layout-persistence.md. |
 | LN-WS-005 | [workspace-shell](../workspace-shell/layout-and-persistence.md#ln-ws-005) | Implemented | guarded bidirectional adapter + snapshot-based child reconciliation |
 | LN-WS-006 | [workspace-shell](../workspace-shell/view-lifecycle.md#ln-ws-006) | Implemented | imperative view registration, utility-independent full-height roots, stale-root removal, and shared `ItemView` content reattachment |
 | LN-WS-007 | [workspace-shell](../workspace-shell/plugin-management.md#ln-ws-007) | Implemented | default Design Core surface; the workspace package does not register an application PluginProfile or invoke plugin loaders; notifications remain the only required shell plugin and F-Mode is optional |

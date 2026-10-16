@@ -472,6 +472,8 @@ export declare class Workspace extends EventDispatcher<{
     containerEl: HTMLElement;
     private saveLayoutDebounced;
     requestSaveLayout(event?: WorkspaceLayoutChangeEvent): void;
+    /** Await serialized layout persistence before the owning host tears down. */
+    flushLayout(): Promise<void>;
     private withoutLayoutPersistence;
     private dispatchLayoutDropEvent;
     willShowLayoutDropOverlay(options: Omit<WorkspaceLayoutDropEvent, "defaultPrevented" | "preventDefault">): WorkspaceLayoutDropEvent;

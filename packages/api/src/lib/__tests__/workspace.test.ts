@@ -2643,6 +2643,154 @@ describe("Workspace compatibility", () => {
     ).resolves.toBe(false);
   });
 
+  it("flushes the latest layout before debounce without a later duplicate write", async () => {
+    vi.useFakeTimers();
+    try {
+      const { app, workspace } = createWorkspaceHarness();
+      await workspace.loadLayout("mobile.json");
+      const create = vi.spyOn(app.vault, "create");
+      workspace.getBottomLeaf();
+      workspace.setBottomPanelSize(301);
+      await workspace.flushLayout();
+      expect(create).toHaveBeenCalledTimes(1);
+      expect(create.mock.calls[0]?.[0]).toBe("/.lapis/mobile.json");
+      expect(JSON.parse(String(create.mock.calls[0]?.[1])).bottom.height).toBe(
+        "301px",
+      );
+      await vi.advanceTimersByTimeAsync(1500);
+      expect(create).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("serializes an in-flight layout write with a newer explicit flush", async () => {
+    vi.useFakeTimers();
+    try {
+      const { app, workspace } = createWorkspaceHarness();
+      await workspace.loadLayout();
+      workspace.getBottomLeaf();
+      let release!: () => void;
+      const held = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const heights: string[] = [];
+      vi.spyOn(app.vault, "create").mockImplementation(async (_path, value) => {
+        heights.push(JSON.parse(value).bottom.height);
+        if (heights.length === 1) await held;
+        return null as never;
+      });
+      workspace.setBottomPanelSize(300);
+      const first = workspace.flushLayout();
+      await vi.advanceTimersByTimeAsync(0);
+      workspace.setBottomPanelSize(350);
+      let completed = false;
+      const second = workspace.flushLayout().then(() => {
+        completed = true;
+      });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(heights).toEqual(["300px"]);
+      expect(completed).toBe(false);
+      release();
+      await Promise.all([first, second]);
+      expect(heights).toEqual(["300px", "350px"]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("reports layout write failure and retries the latest state on flush", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    await workspace.loadLayout();
+    workspace.getBottomLeaf();
+    const create = vi
+      .spyOn(app.vault, "create")
+      .mockRejectedValueOnce(new Error("disk full"));
+    workspace.setBottomPanelSize(300);
+    await expect(workspace.flushLayout()).rejects.toThrow("disk full");
+    workspace.setBottomPanelSize(351);
+    await workspace.flushLayout();
+    expect(
+      JSON.parse(String(create.mock.calls.at(-1)?.[1])).bottom.height,
+    ).toBe("351px");
+  });
+
+  it("joins pending controller projections when flushing layout", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    await workspace.loadLayout();
+    const create = vi.spyOn(app.vault, "create");
+    const { controller } = getWorkspaceHostBinding(workspace);
+    controller.renderer.setSidebarOpen("left", true);
+    controller.renderer.setSidebarOpen("right", true);
+    await workspace.flushLayout();
+    const written = JSON.parse(String(create.mock.calls.at(-1)?.[1]));
+    expect(workspace.leftSplit.collapsed).toBe(false);
+    expect(workspace.rightSplit.collapsed).toBe(false);
+    expect(written.left.width).toBe(workspace.leftSplit.sidebar.width);
+    expect(written.right.width).toBe(workspace.rightSplit.sidebar.width);
+  });
+
+  it("joins accepted layout writes and cancels timers before host disposal", async () => {
+    vi.useFakeTimers();
+    try {
+      const { app, workspace } = createWorkspaceHarness();
+      Object.assign(app, { languageServices: { unbindDiagnostics() {} } });
+      await workspace.loadLayout();
+      let release!: () => void;
+      const held = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const create = vi
+        .spyOn(app.vault, "create")
+        .mockImplementation(async () => {
+          await held;
+          return null as never;
+        });
+      workspace.getBottomLeaf();
+      const write = workspace.flushLayout();
+      await vi.advanceTimersByTimeAsync(0);
+      let disposed = false;
+      const disposal = workspace.disposeWorkspaceHost().then(() => {
+        disposed = true;
+      });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(disposed).toBe(false);
+      release();
+      await Promise.all([write, disposal]);
+      workspace.requestSaveLayout();
+      await vi.advanceTimersByTimeAsync(1500);
+      expect(create).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("observes background layout failures and permits an explicit retry", async () => {
+    vi.useFakeTimers();
+    const report = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
+    try {
+      const { app, workspace } = createWorkspaceHarness();
+      await workspace.loadLayout();
+      const failure = new Error("background disk full");
+      const create = vi
+        .spyOn(app.vault, "create")
+        .mockRejectedValueOnce(failure);
+      workspace.getBottomLeaf();
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(report).toHaveBeenCalledWith(
+        "Unable to save workspace layout",
+        failure,
+      );
+      await workspace.flushLayout();
+      expect(create).toHaveBeenCalledTimes(2);
+    } finally {
+      report.mockRestore();
+      vi.useRealTimers();
+    }
+  });
+
   it("debounces bottom layout writes and leaves settings out of workspace persistence", async () => {
     const { app, workspace } = createWorkspaceHarness();
     await workspace.loadLayout("mobile.json");

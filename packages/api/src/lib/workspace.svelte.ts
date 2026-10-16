@@ -2050,6 +2050,8 @@ export class Workspace extends EventDispatcher<{
   #notificationProgressBridgeDisposer: (() => void) | null = null;
   #commandBridgeDisposer: (() => void) | null = null;
   private workspaceLayoutFile = "workspace.json";
+  #layoutSaveTail: Promise<void> = Promise.resolve();
+  #layoutPersistenceDisposed = false;
 
   public statusEl: HTMLElement = $state()!;
   public statusCompatEl: HTMLElement = $state()!;
@@ -2058,21 +2060,42 @@ export class Workspace extends EventDispatcher<{
   public containerEl: HTMLElement = $state(createDiv("workspace"));
 
   private saveLayoutDebounced = debounce(() => {
-    tick().then(() => {
-      if (!this.layoutReady) {
-        return;
-      }
-      return this.app.vault.create(
-        joinPath("/", appStatePath(this.workspaceLayoutFile)),
-        JSON.stringify(this.toJson(), null, 2),
-      );
+    void this.saveLayoutNow().catch((error) => {
+      console.error("Unable to save workspace layout", error);
     });
   }, 1000);
+
+  private saveLayoutNow(): Promise<void> {
+    const write = this.#layoutSaveTail
+      .catch(() => undefined)
+      .then(async () => {
+        await tick();
+        await this.#workspaceHostProjection;
+        if (!this.layoutReady || this.#layoutPersistenceDisposed) return;
+        await this.app.vault.create(
+          joinPath("/", appStatePath(this.workspaceLayoutFile)),
+          JSON.stringify(this.toJson(), null, 2),
+        );
+      });
+    this.#layoutSaveTail = write;
+    return write;
+  }
+
+  /** Drain the single layout writer before a host closes, reloads or switches. */
+  public async flushLayout(): Promise<void> {
+    await tick();
+    await this.#workspaceHostProjection;
+    this.saveLayoutDebounced.cancel();
+    await this.saveLayoutNow();
+  }
 
   public requestSaveLayout(
     event: WorkspaceLayoutChangeEvent = { source: "api" },
   ): void {
-    if (this.suspendedLayoutPersistence > 0) {
+    if (
+      this.suspendedLayoutPersistence > 0 ||
+      this.#layoutPersistenceDisposed
+    ) {
       return;
     }
     untrack(() => this.commitCompatibilityLayoutToHost(event));
@@ -2082,6 +2105,7 @@ export class Workspace extends EventDispatcher<{
   private emitLayoutChangeAndScheduleSave(
     event: WorkspaceLayoutChangeEvent,
   ): void {
+    if (this.#layoutPersistenceDisposed) return;
     this.trigger("layout-change", event);
     this.saveLayoutDebounced();
   }
@@ -3142,6 +3166,11 @@ export class Workspace extends EventDispatcher<{
 
   /** Dispose the API-owned shell controller and its compatibility bridges. */
   async disposeWorkspaceHost(): Promise<void> {
+    await this.#workspaceHostProjection;
+    this.saveLayoutDebounced.cancel();
+    await this.#layoutSaveTail;
+    this.#layoutPersistenceDisposed = true;
+    this.saveLayoutDebounced.cancel();
     this.app.languageServices.unbindDiagnostics();
     this.#configurationBridgeDisposer?.();
     this.#configurationBridgeDisposer = null;
@@ -3369,6 +3398,7 @@ export class Workspace extends EventDispatcher<{
     layout: unknown,
     event: DesignWorkspaceLayoutChangeEvent,
   ): void {
+    if (this.#layoutPersistenceDisposed) return;
     const projected = workspaceJsonForCompatibility(
       normalizeWorkspaceJson(layout),
     );

@@ -42,6 +42,12 @@
 
 **Requirement.** Layout loading and saving MUST remain owned by the api workspace: normalize the existing Lapis JSON shape, read `/.lapis/<requested-file>`, and write `/.lapis/workspace.json` through the owning api instance's existing 1000 ms debounce with one writer.
 
+## LN-WS-095 — Awaitable layout persistence
+
+<a id="ln-ws-095"></a>
+
+**Requirement.** `Workspace.flushLayout` MUST await pending controller projections and serialized layout writes, persist the latest live state without waiting for the debounce, and reject on persistence failure. A later flush MUST permit retry. Explicit flush and disposal MUST cancel obsolete timers; disposal MUST join accepted writes before releasing the host. Background write failures MUST remain observable without unhandled rejections.
+
 ## LN-WS-005 — Bidirectional controller synchronization
 
 <a id="ln-ws-005"></a>

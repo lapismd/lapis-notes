@@ -1,5 +1,10 @@
 # Plugin Model / Lifecycle and views
 
+Hosts finish note and layout persistence before unloading plugin-owned views.
+[LN-WS-095](../workspace-shell/layout-and-persistence.md#ln-ws-095) supplies the
+awaitable workspace boundary; plugins retain their existing view-state and
+teardown contracts. A rejected flush lets the host retain its live views.
+
 Server browser qualification retains the verified registry fixture and normal
 plugin lifecycle assertions. Its one initial navigation retry for an observed
 Chromium module transport abort does not replay plugin installation or later

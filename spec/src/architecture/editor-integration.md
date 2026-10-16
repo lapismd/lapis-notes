@@ -1,5 +1,10 @@
 # Architecture / Editor integration
 
+Host shutdown uses the pathless editing guard before destructive teardown. The
+API-owned layout flush under [LN-WS-095](../workspace-shell/layout-and-persistence.md#ln-ws-095)
+joins workspace persistence while that protection remains held. Registry disposal
+follows the guard; a callback cannot reenter its own queued registry operations.
+
 ## LN-ARCH-137 — Guarded document-load admission
 
 <a id="ln-arch-137"></a>
