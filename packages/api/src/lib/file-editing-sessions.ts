@@ -72,6 +72,18 @@ export class FileEditingSessionRegistry {
     return this.#closing;
   }
 
+  /** Includes retained writers; a failing dirty getter cannot waive protection. */
+  hasDirty(path?: string): boolean {
+    const scope = path === undefined ? undefined : filePath(path);
+    return this.#matching(scope).some(({ session }) => {
+      try {
+        return session.dirty;
+      } catch {
+        return true;
+      }
+    });
+  }
+
   /** Admit a multi-step file operation before its first asynchronous boundary. */
   track<T>(operation: () => Promise<T>): Promise<T> {
     try {

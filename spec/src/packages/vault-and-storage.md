@@ -1,5 +1,11 @@
 # Packages / Vault and storage
 
+## LN-PKG-183 — App-owned watch ingestion
+
+<a id="ln-pkg-183"></a>
+
+**Requirement.** App MUST own an explicitly started watch/reconciliation service that awaits registration before its initial complete scan. It MUST bound/coalesce hints, reconcile after uncertainty, report failures through existing notifications and limit automatic retries. Stop MUST retire callbacks synchronously and drain registration, cleanup and scans; failed cleanup MUST remain retryable. Restart after a failed leave MUST register afresh and reconcile missed changes.
+
 ## LN-PKG-182 — Serialized vault mutation projection
 
 <a id="ln-pkg-182"></a>

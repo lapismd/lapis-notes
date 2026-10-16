@@ -611,6 +611,7 @@ export declare class Workspace extends EventDispatcher<{
      * @public
      */
     getActiveFile(): TFile | null;
+    reconcileFileReference(oldPath: string, file: TFile | null): void;
     /**
      * Iterate through all leaves, including main area leaves, floating leaves,
      * and sidebar leaves.

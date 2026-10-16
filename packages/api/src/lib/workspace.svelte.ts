@@ -4161,6 +4161,12 @@ export class Workspace extends EventDispatcher<{
     return this.lastActiveFile;
   }
 
+  /** Reconcile the remembered file through its workspace owner. */
+  reconcileFileReference(oldPath: string, file: TFile | null): void {
+    if (this.lastActiveFile?.path === oldPath)
+      this.lastActiveFile = file?.copy() ?? null;
+  }
+
   /**
    * Iterate through all leaves, including main area leaves, floating leaves,
    * and sidebar leaves.

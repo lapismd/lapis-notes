@@ -1,5 +1,9 @@
 # Plugin Model / Lifecycle and views
 
+LN-PKG-183 and LN-WS-097 use existing FileView and workspace event owners for
+watch reconciliation. Dirty and retired writers keep their original view and
+explicit conflict-recovery owner; watcher callbacks cannot retarget them.
+
 The LN-PKG-175 recovery banner presents host-owned Safe Mode state. Entering
 optional-plugin recovery does not persist new core enablement choices; normal
 plugin and workspace teardown remain owned by the host.

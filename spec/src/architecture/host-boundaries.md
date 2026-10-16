@@ -1,5 +1,9 @@
 # Architecture / Host boundaries
 
+LN-PKG-183 places watch ingestion and retirement on the explicitly owned App;
+hosts opt in and must stop/drain the service before destructive teardown,
+then resume/reconcile if leaving fails.
+
 LN-PKG-180 and LN-PKG-181 keep complete tree reconciliation in the shared Vault
 owner. Native transports supply hints; hosts do not replace canonical resource
 identities or synthesize a separate file tree.

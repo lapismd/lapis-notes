@@ -37,6 +37,7 @@ import type { Component } from "./view.svelte";
 import { MetadataTypeManager } from "./metadata.svelte";
 import type { EditorSuggest } from "./suggest";
 import { FileManager } from "./file-manager";
+import { VaultChangeService } from "./vault-changes";
 import { EmbedRegistry } from "./embed-registry";
 import {
   findOpenFileLeaf,
@@ -290,6 +291,7 @@ export class App {
   readonly editorSuggest: Map<string, Set<EditorSuggest<any>>> = new Map();
   readonly configuration: Configuration;
   readonly fileManager: FileManager = new FileManager(this);
+  readonly vaultChanges = new VaultChangeService(this);
   readonly contextKeys: ContextKeyService = new ContextKeyService();
   readonly statusBar: StatusBarManager = new StatusBarManager();
   readonly urls: AppUrlService = new AppUrlService(this);

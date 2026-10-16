@@ -745,6 +745,29 @@ describe("Workspace compatibility", () => {
     expect(workspace.getActiveFile()).toBe(file);
   });
 
+  it("reconciles a remembered file after rename and deletion through its owner", () => {
+    const { workspace } = createWorkspaceHarness();
+    const leaf = workspace.getLeaf();
+    const file = new TFile(
+      "original.md",
+      { ctime: 0, mtime: 0, size: 0 },
+      null,
+    );
+    const view = new MockTextFileView(leaf);
+    view.file = file;
+    leaf.view = view;
+    workspace.activeLeaf = leaf;
+    workspace.getActiveFile();
+    workspace.activeLeaf = workspace.getLeftLeaf(false)!;
+    const renamed = file.copy({ path: "renamed.md" });
+    workspace.reconcileFileReference("original.md", renamed);
+    expect(workspace.getActiveFile()?.path).toBe("renamed.md");
+    workspace.reconcileFileReference("unrelated.md", null);
+    expect(workspace.getActiveFile()?.path).toBe("renamed.md");
+    workspace.reconcileFileReference("renamed.md", null);
+    expect(workspace.getActiveFile()).toBeNull();
+  });
+
   it("projects API plugin lifecycle state into the managed settings registry", async () => {
     const { app, workspace } = createWorkspaceHarness();
     const pluginEvents = new EventDispatcher<{

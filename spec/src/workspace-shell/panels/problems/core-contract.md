@@ -1,5 +1,9 @@
 # Problems / Integration contracts
 
+LN-PKG-183 adds an App-owned watch service without changing diagnostic ownership.
+File changes reach existing workspace/editor lifecycles under LN-WS-097;
+Problems retains its existing open-document and disposal boundaries.
+
 Diagnostic registrations retain their component-owned disposal. The shared
 Plugin disable boundary additionally drains host security cleanup; unload or
 security cleanup failures propagate through the plugin failure state

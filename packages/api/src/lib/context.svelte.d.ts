@@ -12,6 +12,7 @@ import type { Component } from "./view.svelte";
 import { MetadataTypeManager } from "./metadata.svelte";
 import type { EditorSuggest } from "./suggest";
 import { FileManager } from "./file-manager";
+import { VaultChangeService } from "./vault-changes";
 import { EmbedRegistry } from "./embed-registry";
 import type { OpenViewState } from "./workspace.svelte";
 import { LocalizationManager } from "./localization-manager.svelte";
@@ -169,6 +170,7 @@ export declare class App {
     readonly editorSuggest: Map<string, Set<EditorSuggest<any>>>;
     readonly configuration: Configuration;
     readonly fileManager: FileManager;
+    readonly vaultChanges: VaultChangeService;
     readonly contextKeys: ContextKeyService;
     readonly statusBar: StatusBarManager;
     readonly urls: AppUrlService;

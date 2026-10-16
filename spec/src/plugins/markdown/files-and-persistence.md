@@ -1,5 +1,9 @@
 # Markdown Plugin / Files and persistence
 
+LN-PKG-183 and LN-WS-097 route external file changes through the owning App's
+existing view events. Clean editor refresh and dirty-draft recovery retain
+their original persistence owners; watching adds no replacement editor.
+
 API editor documents now register under LN-ARCH-132 through LN-ARCH-135. Native
 CodeMirror protection covers Markdown transactions in that editor shell.
 Independent Mira writers still require their public adapter registration hook;
