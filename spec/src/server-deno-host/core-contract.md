@@ -1,5 +1,9 @@
 # Deno Server Host / Integration contracts
 
+The Design Core dependency refresh consumes released `0.5.0` CSS, fonts and
+components through public exports. Existing application ownership, host
+behavior and plugin activation remain unchanged.
+
 The served Web client interprets `plugins` App URLs through its owning application
 profile ([LN-PLUG-106](../plugin-model/app-ownership.md#ln-plug-106)). Selected
 release coordinates enter the verified Plugins browser; the URL does not grant

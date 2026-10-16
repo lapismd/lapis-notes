@@ -1,5 +1,10 @@
 # Workspace Shell / Layout and persistence
 
+Retained Mobile acceptance uses the published Design Core dock name
+`Open <count> tabs`. Creating a tab must update that accessible count before
+opening the overview; persisted-layout and controller identity assertions stay
+unchanged.
+
 ## LN-WS-001 — Design Core layout engine
 
 <a id="ln-ws-001"></a>

@@ -84,6 +84,7 @@ export const StaticRegistryV2MediaAndReleaseNotes: Story = {
     const viewer = await body.findByRole("dialog", {
       name: "Graph media viewer",
     });
+    await waitFor(() => expect(viewer).toBeVisible());
     const lightbox = within(viewer);
     await expect(
       await lightbox.findByText("2 of 3: Graph details"),
@@ -126,6 +127,7 @@ export const StaticRegistryV2MediaAndReleaseNotes: Story = {
     const reopened = await body.findByRole("dialog", {
       name: "Graph media viewer",
     });
+    await waitFor(() => expect(reopened).toBeVisible());
     await expect(
       within(reopened).getByText("1 of 3: Graph workspace"),
     ).toBeVisible();
@@ -763,7 +765,8 @@ export const DisableInsteadKeepsInstalledArtifact: Story = {
     );
     const bodyElement = canvasElement.ownerDocument.body;
     const body = within(bodyElement);
-    const dialog = body.getByRole("alertdialog");
+    const dialog = await body.findByRole("alertdialog");
+    await waitFor(() => expect(dialog).toBeVisible());
     await userEvent.click(
       within(dialog).getByRole("switch", {
         name: "Choose Disable instead for Graph",
@@ -818,8 +821,8 @@ export const InstalledUpdatesRevocationAndConfirmation: Story = {
       canvas.getByRole("button", { name: "Uninstall Graph" }),
     );
     const body = within(canvasElement.ownerDocument.body);
-    const dialog = body.getByRole("alertdialog");
-    await expect(dialog).toBeVisible();
+    const dialog = await body.findByRole("alertdialog");
+    await waitFor(() => expect(dialog).toBeVisible());
     await expect(
       body.getByRole("heading", { name: "Uninstall plugin?" }),
     ).toBeVisible();

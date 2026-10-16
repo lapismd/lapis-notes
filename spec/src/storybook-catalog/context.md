@@ -153,3 +153,15 @@ The app-owned Plugins browser is covered under `Workspace/Plugins`, including al
 For LN-CAT-099, verified-image failure presentation prebundles the exact
 `@lucide/svelte/icons/image-off` import before cold stories run. Late icon
 discovery must not reload the optimizer and invalidate an active Axe import.
+
+### Design Core 0.4.0 retained consumer acceptance
+
+Notes retains public-package AI, Bases and Graph acceptance independently from
+the source plugin catalog. Their opening-overlay and post-focus pointer checks
+wait for the expected visible geometry without relaxing tolerances. Bases
+accessibility qualification must use its published picker repair; the consumer
+must not patch installed source or suppress the open-picker violations.
+
+Retained AI shell plays also wait for menu closure to release pointer handling
+before Settings, folder-scope and history actions. They retain the native
+animations and normal userEvent pointer guards.

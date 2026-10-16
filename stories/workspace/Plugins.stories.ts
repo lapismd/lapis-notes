@@ -348,9 +348,13 @@ export const CategoryDetailsAndInstall: Story = {
       canvas.getByRole("button", { name: /Open Graph banner/ }),
     );
     const body = within(canvasElement.ownerDocument.body);
-    await expect(
-      await body.findByRole("heading", { name: "Graph media viewer" }),
-    ).toBeVisible();
+    const mediaViewer = await body.findByRole("dialog", {
+      name: "Graph media viewer",
+    });
+    await waitFor(() => {
+      expect(mediaViewer).toBeVisible();
+      expect(within(mediaViewer).getByRole("img")).toBeVisible();
+    });
     await userEvent.keyboard("{Escape}");
     await waitFor(() =>
       expect(

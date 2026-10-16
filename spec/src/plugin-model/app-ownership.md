@@ -1,5 +1,9 @@
 # Plugin Model / App ownership
 
+The Design Core dependency refresh consumes released `0.5.0` CSS, fonts and
+components through public exports. Existing application ownership, host
+behavior and plugin activation remain unchanged.
+
 ## LN-PLUG-020 — F-Mode: register on the API-owned Design Core controller
 
 <a id="ln-plug-020"></a>

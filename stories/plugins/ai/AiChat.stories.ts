@@ -897,7 +897,7 @@ export const AgentTrace: Story = {
       canvas.getByRole("button", { name: "Effort and model" }),
     );
     const modelMenu = body.getByTestId("ai-chat-model");
-    await expect(modelMenu).toBeVisible();
+    await waitFor(() => expect(modelMenu).toBeVisible());
     await userEvent.hover(modelMenu);
     await expect(
       await body.findByRole("menuitemradio", { name: "gpt-5.6-sol" }),
@@ -976,7 +976,11 @@ export const AgentTrace: Story = {
       expect(
         canvasElement.querySelector('[data-ui-part="reasoning-content-inner"]'),
       ).toHaveTextContent("I will read the mentioned note, then summarize it.");
-      expect(canvas.getByText("vault.read")).toBeVisible();
+      expect(
+        canvas.getByText("vault.read", {
+          selector: '[data-ui-part="call-name"]',
+        }),
+      ).toBeVisible();
       expect(
         canvas.getByRole("article", { name: "Message from assistant" }),
       ).toHaveTextContent("Summary");

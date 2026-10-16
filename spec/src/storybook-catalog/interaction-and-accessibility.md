@@ -4,7 +4,7 @@
 
 <a id="ln-cat-007"></a>
 
-**Requirement.** Interactive plays MUST assert outcomes via a demo status surface (`data-testid="api-ui-status"`) and use `storybook/test` helpers; portaled overlays MUST assert against `canvasElement.ownerDocument.body`.
+**Requirement.** Interactive plays MUST assert outcomes via a demo status surface (`data-testid="api-ui-status"`) and use `storybook/test` helpers; portaled overlays MUST assert against `canvasElement.ownerDocument.body`. Visibility and geometry assertions MUST wait for overlay readiness while retaining their original bounds. A media viewer play MUST check its named dialog and visible image rather than its visually hidden title.
 
 ## LN-CAT-008 — Storybook accessibility checks: fail pnpm test:storybook on axe violations: .storybook/vitest.setup.ts
 

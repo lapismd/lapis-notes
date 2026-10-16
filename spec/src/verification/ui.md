@@ -11,7 +11,7 @@
 | LN-UI-004 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-004) | Implemented | policy in AGENTS + this chapter; no-TW gate |
 | LN-UI-005 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-005) | In progress | Storybook loads design-core styles + lapis theme; production hosts still pending |
 | LN-UI-006 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-006) | Implemented | AA-safe `--primary` / `--destructive` in design-core lapis theme |
-| LN-UI-007 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-007) | Implemented | ui `theme.css` alias-only; brand in design-core `themes/lapis.css` |
+| LN-UI-007 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-007) | Implemented | Published Design Core `^0.5.0` supplies prepared CSS and bundled fonts through public exports. ui `theme.css` alias-only; brand in design-core `themes/lapis.css` |
 | LN-UI-008 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-008) | Implemented | Compounds and API chrome use native CSS; stories excluded. UI 0.1.3 packages the retained runtime imports while preserving component utility-class restrictions, markup and tokens. |
 | LN-UI-009 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-009) | Implemented | `pnpm check:no-tailwind` in root/package `check` |
 | LN-UI-010 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-010) | Implemented | design-core `WorkspaceStartup`; semantic source-editor classes and demo CSS |

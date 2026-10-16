@@ -1,5 +1,9 @@
 # History Plugin / History and comparison
 
+Retained Mobile shell acceptance uses the published Design Core tab-dock name
+`Open <count> tabs` while retaining the existing plugin and collapsed-sidebar
+assertions.
+
 ## LN-HIST-001 — Sibling lapis-plugins repository: ship @lapis-notes/history at packages/history for static composition
 
 <a id="ln-hist-001"></a>
