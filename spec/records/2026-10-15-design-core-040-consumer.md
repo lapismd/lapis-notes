@@ -184,3 +184,32 @@ web acceptance pass. No native shutdown code changed in the preceding Bases
 refresh. One targeted diagnostic rerun of the failed Linux job is underway;
 the native failure is neither diagnosed nor waived. The final candidate still
 requires every native CI gate before merging or publishing.
+
+## Final-shard dialog readiness
+
+The fresh 0.5.0 Desktop run `38826900817` passes every native job, including
+Linux x64; the earlier shutdown signal does not recur. Lapis run `38826900861`
+also passes web, packaged hosts, quality, unit, static catalog and release
+artifacts. A single diagnostic browser rerun passes all Graph stories and the
+four Mobile consumers (90 + 65 + 40 cases in its first three shards). Its final
+shard has two failures and 52 passes in Plugin Management: the media viewer and
+uninstall confirmation are mounted before their entrance animation is visible.
+
+The exact cold consumer reproduction is:
+
+```sh
+CI=1 pnpm exec vitest run --project storybook --no-file-parallelism stories/workspace/PluginManagement.stories.ts -t 'Static Registry V 2 Media And Release Notes|Installed Updates Revocation And Confirmation'
+```
+
+It reports two failures before the repair, including a subsequent pointer-block
+failure after the first story leaves its dialog open. The same command passes
+both selected stories afterward, with 23 unselected cases skipped and axe
+enabled. Opening and reopening the media viewer now waits for visible dialog
+state before reading its status. Both uninstall stories wait for the visible
+confirmation before inspecting or using it. Existing assertions, animations,
+timeouts and product code remain unchanged.
+
+Formatting, audit under the existing QMD exception, specification validation
+(1439 requirements), and the complete-PR spec-first gate (15 protected files,
+28 chapters) pass. Full Plugin Management and catalog qualification remain in
+required CI under the user's memory-pressure constraint.
