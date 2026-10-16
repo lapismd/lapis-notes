@@ -1,5 +1,18 @@
 # @lapis-notes/api
 
+## 0.1.5
+
+### Patch Changes
+
+- [#36](https://github.com/lapismd/lapis-notes/pull/36)
+  [`17060a1`](https://github.com/lapismd/lapis-notes/commit/17060a1df152c9fc2302c93767cd7172868ff030)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Consume published Design
+  Core 0.5.0 with prepared browser CSS and bundled font assets through normal
+  npm ranges.
+- Updated dependencies
+  [[`17060a1`](https://github.com/lapismd/lapis-notes/commit/17060a1df152c9fc2302c93767cd7172868ff030)]:
+  - @lapis-notes/ui@0.1.4
+
 ## 0.1.4
 
 ### Patch Changes
