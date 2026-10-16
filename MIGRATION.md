@@ -1,5 +1,7 @@
 # Migration Status
 
+Explorer attachment dropping now uses admitted FileManager new-file creation with bounded sequential binary reads, filename validation and existing App notices. Six exact and 37 package cases pass; native consumer and end-of-M7 full lanes remain pending. See `spec/records/2026-10-16-existing-explorer-imports.md`.
+
 Internal file-view projection now queues after FileManager editing guards, preserving clean editor rebinding through rename/move. Seventeen exact and 207 affected API cases qualify the source; native archive acceptance and end-of-M7 full lanes remain pending. See `spec/records/2026-10-16-internal-view-mutation-order.md`.
 
 Living checklist for the minimal Lapis Notes monorepo. Update this file when

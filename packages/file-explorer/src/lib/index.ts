@@ -22,6 +22,7 @@ import {
   copyExplorerText,
 } from "./native-explorer-actions";
 import { openExplorerFile } from "./open-explorer-file";
+import { importExplorerFiles } from "./explorer-imports";
 import {
   DEFAULT_VAULT_PALETTE_FILE_EXTENSIONS,
   EXPLORER_SETTING_IDS,
@@ -160,6 +161,8 @@ function createExplorerController(app: App, loading: boolean) {
         ),
     },
     actions: {
+      importExternalFiles: (folder, files) =>
+        withNotice(app, () => importExplorerFiles(app, folder, files)),
       openFile: (path, options) =>
         withNotice(app, async () => {
           const file = app.vault.getFileByPath(path);

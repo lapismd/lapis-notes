@@ -338,3 +338,5 @@ the editor demo receives no separate notification component or persistence.
 LN-PKG-178 and LN-PKG-179 add opt-in exclusive creation and source-owned new-file
 intent. Existing low-level overwrite behavior and unsupported legacy hosts stay
 explicit; Deno host source remains frozen. Admission spans creation projection.
+
+The reusable Explorer now connects the existing external-file drop callback to App-owned FileManager creation under LN-EXP-010/011/012. The editor demo consumes this same public package and component. Native byte, failure, rendering and restart qualification remains separate from deferred complete Storybook/axe and web lanes.

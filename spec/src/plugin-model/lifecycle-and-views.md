@@ -130,3 +130,5 @@ its owned App to Notice; native error handling keeps the existing presentation.
 LN-PKG-178 and LN-PKG-179 add opt-in exclusive creation and source-owned new-file
 intent. Existing low-level overwrite behavior and unsupported legacy hosts stay
 explicit; Deno host source remains frozen. Admission spans creation projection.
+
+Explorer activation now supplies the existing external-file import callback using its owned App. Input reading and FileManager creation remain admitted through completion, and existing notices report failures. The plugin keeps its identity, view registration and presentation; no separate import screen or host filesystem port is introduced.

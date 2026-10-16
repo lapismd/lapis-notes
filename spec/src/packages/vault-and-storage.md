@@ -308,3 +308,5 @@ compatible. Client engines must supply their captured fences before activation.
 Managed FileManager trash follows LN-ARCH-145: the originally selected path
 remains protected through writer drain and removal, including failed descendant
 writes. Explorer uses this shared owner instead of low-level Vault trash.
+
+The existing FileManager new-file intent under LN-PKG-179 also accepts Explorer attachment bytes. File Explorer admits asynchronous reading before calling it and retains the operation through projection. Native exclusive publication remains source-owned; import does not retry collisions through low-level overwrite APIs.

@@ -237,3 +237,5 @@ the production apply guard.
 <a id="ln-arch-088"></a>
 
 **Requirement.** Workspace-owned plugin management MAY compose public Design Core SearchFilterBar, FilterCommandPicker, Resizable, and settings navigation primitives. Registry state, verified Markdown, filtering, installation actions, and application policy MUST remain in Lapis; reusable search, command-option, resizing, and responsive settings-shell behavior MUST remain in Design Core.
+
+Attachment dropping keeps Design Core presentation and the existing Explorer callback. File Explorer owns admission, input bounds and FileManager new-file integration under LN-EXP-010/011/012. The API retains exclusive publication and tree projection; hosts do not add a replacement importer or bypass existing save ownership.

@@ -1,10 +1,28 @@
 # Explorer Plugin
 
+## LN-EXP-010 — Existing file import surface
+
+<a id="ln-exp-010"></a>
+
+**Requirement.** Explorer MUST connect its existing external-file drop surface to the owning FileManager's new-file intent. Imported files MUST preserve complete binary bytes beneath the selected vault folder and MUST NOT replace an existing destination. Empty or cancelled drops MUST leave the vault unchanged.
+
+## LN-EXP-011 — Import lifecycle admission
+
+<a id="ln-exp-011"></a>
+
+**Requirement.** File imports MUST enter the owning App's admitted-operation boundary before asynchronous byte reading and remain admitted through creation and tree projection. Leave MUST await that work; failed creation MUST propagate without an overwrite retry or projected success.
+
+## LN-EXP-012 — Bounded import bytes and names
+
+<a id="ln-exp-012"></a>
+
+**Requirement.** File imports MUST validate every imported name as a single nonempty filename before reading or writing. Dot, parent, separator and NUL names MUST reject. Files larger than 64 MiB MUST reject before byte reads, and actual buffers MUST obey the same bound. Multiple files MUST be read and created sequentially.
+
 ## LN-EXP-009 — Owned native action feedback
 
 <a id="ln-exp-009"></a>
 
-**Requirement.** Explorer copy and native-action feedback MUST use the explicitly owning App's existing Notice boundary. Missing clipboard support MUST reject without a success notice; UI callers MUST present failure through that same owner. Native open, reveal and path-copy actions MUST preserve provider failures rather than report an unperformed action as successful.
+**Requirement.** Explorer copy, import and native-action feedback MUST use the explicitly owning App's existing Notice boundary. Missing clipboard support MUST reject without a success notice; UI callers MUST present failure through that same owner. Native open, reveal and path-copy actions MUST preserve provider failures rather than report an unperformed action as successful.
 
 The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
 components through public exports. Existing application ownership, host
