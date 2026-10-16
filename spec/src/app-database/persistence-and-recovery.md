@@ -1,5 +1,10 @@
 # App Database / Persistence and recovery
 
+Server-image build repairs retain the existing AppDatabase ownership and
+persistence contracts. [Server qualification](../../records/2026-10-16-m7-server-qualification.md)
+reopens the same private data volume after a clean container restart; dependency
+installation and frontend compilation alone do not prove persistence.
+
 ## LN-DB-028 — Change publication after commit
 
 <a id="ln-db-028"></a>

@@ -1,5 +1,11 @@
 # Deno Server Host / Integration contracts
 
+The candidate image builds the dedicated Web frontend through the public,
+checksum-matched pnpm hook and frozen registry lockfile. Its Deno runtime,
+authenticated routes and private data-volume contract remain unchanged; the
+[server qualification](../../records/2026-10-16-m7-server-qualification.md)
+exercises editing and a clean restart of that exact image.
+
 The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.

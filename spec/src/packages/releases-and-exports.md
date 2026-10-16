@@ -323,8 +323,8 @@ interactions and both native packaged lanes remain blocking independently.
 
 Fixture builds verify their checkout and export source provenance in the executing
 shell so the host workflow SHA cannot label another repository's artifacts.
-The full suite includes server-host Docker acceptance, so the runner provisions
-Docker and builds the candidate server image before browser execution.
+The runner provisions Docker and builds the candidate server image with its
+checksum-matched public pnpm hook and frozen registry installation.
 Server acceptance seeds bootstrap credentials through stdin into a private
 service-user-owned Docker volume and mounts it read-only into the candidate.
 

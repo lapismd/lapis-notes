@@ -107,12 +107,13 @@ export const SyncDocumentLoadingAndRename: Story = {
           insert: "draft retained across rename",
         },
       });
+      const previousPath = second.path;
       await app.fileManager.renameFile(second, "sync-loading-renamed.txt");
       const renamed = app.vault.getFileByPath("sync-loading-renamed.txt");
       if (!renamed) throw new Error("Managed rename did not produce its file");
       await view.onRename(renamed);
       await editor.flushChanges();
-      expect(app.vault.getFileByPath(second.path)).toBeNull();
+      expect(app.vault.getFileByPath(previousPath)).toBeNull();
       expect(await app.vault.read(renamed)).toBe(
         "draft retained across rename",
       );

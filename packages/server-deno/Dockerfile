@@ -4,7 +4,8 @@ FROM node:24.13-bookworm-slim AS web-build
 WORKDIR /workspace
 RUN corepack enable && corepack prepare pnpm@10.34.5 --activate
 COPY . .
-RUN pnpm install --frozen-lockfile --ignore-pnpmfile --ignore-scripts --filter @lapis-notes/web...
+RUN printf '%s\n' 'module.exports = require("./scripts/local-plugin-pnpmfile.cjs");' > .pnpmfile.cjs \
+    && pnpm install --frozen-lockfile --ignore-scripts --filter @lapis-notes/web...
 RUN pnpm --filter @lapis-notes/web build:server
 
 FROM denoland/deno:2.9.5 AS deno-deps

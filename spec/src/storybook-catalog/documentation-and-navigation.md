@@ -13,6 +13,9 @@ through LN-ARCH-139. Its Show Code includes public App construction, vault seed,
 Source Editor loading, layout restoration and disposal under LN-CAT-024.
 The authored description and independent visual-pending declaration remain
 governed by LN-CAT-016 and LN-CAT-017.
+Rename acceptance snapshots the original path before the managed operation
+mutates the public file object. Installation-failure acceptance identifies the
+detail's titled alert independently of the simultaneous notification toast.
 
 ## LN-CAT-001 — Repository Storybook catalog: run on port 7010 as the workspace
 

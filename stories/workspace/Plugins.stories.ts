@@ -456,9 +456,15 @@ export const InstallFailure: Story = {
         exact: true,
       }),
     );
-    await expect(await canvas.findByRole("alert")).toHaveTextContent(
-      "runtime metadata is invalid",
-    );
+    await waitFor(() => {
+      const alerts = canvas
+        .getAllByRole("alert")
+        .filter((alert) =>
+          within(alert).queryByText("Couldn’t install Graph", { exact: true }),
+        );
+      expect(alerts).toHaveLength(1);
+      expect(alerts[0]).toHaveTextContent("runtime metadata is invalid");
+    });
     await expect(
       canvas.getByRole("button", { name: "Retry install", exact: true }),
     ).toHaveTextContent("Retry install");
