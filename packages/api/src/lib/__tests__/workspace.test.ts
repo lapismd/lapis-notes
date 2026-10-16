@@ -3,6 +3,7 @@ import { isEqual } from "lodash-es";
 import { effect_root } from "svelte/internal/client";
 import { APP_SHELL_SETTING_IDS } from "@lapismd/design-core/workspace/core";
 import type { App } from "../context.svelte";
+import { FileEditingSessionRegistry } from "../file-editing-sessions";
 import { EventDispatcher } from "../events";
 import { Plugin } from "../plugin";
 import type { PluginSettingsDefinition } from "../plugin-settings";
@@ -384,6 +385,7 @@ function createWorkspaceHarness(
     },
   );
   const app = {
+    fileEditingSessions: new FileEditingSessionRegistry(),
     version: "1.10.0",
     telemetry: {
       measure<T>(
@@ -713,6 +715,43 @@ beforeEach(() => {
 });
 
 describe("Workspace compatibility", () => {
+  it("preserves live popup leaf identity without reopening the host", async () => {
+    const { workspace } = createWorkspaceHarness();
+    const leaf = workspace.getLeaf();
+    await leaf.setViewState({ type: "empty", state: {} });
+    const view = leaf.view;
+    const mainLeaf = workspace.getLeaf("tab");
+    await mainLeaf.setViewState({ type: "empty", state: {} });
+    const controller = getWorkspaceHostBinding(workspace).controller;
+    const open = vi.fn(() => ({
+      window: globalThis.window,
+      document: globalThis.document,
+      focus: vi.fn(),
+      close: vi.fn(),
+      onClose: () => () => {},
+    }));
+    controller.renderer.setPopoutHost({ open });
+    const popup = controller.renderer.popoutTab(leaf.id)!;
+    await workspace.flushLayout();
+    expect(workspace.floating.children.map((win) => win.id)).toContain(
+      popup.id,
+    );
+    expect(workspace.getLeafById(leaf.id)).toBe(leaf);
+    expect(leaf.view).toBe(view);
+    expect(open).toHaveBeenCalledTimes(1);
+    controller.renderer.selectTab(mainLeaf.id);
+    await workspace.flushLayout();
+    expect(workspace.getFocusedCommandHostId()).toBe("root");
+    controller.renderer.selectTab(leaf.id);
+    await workspace.flushLayout();
+    expect(open).toHaveBeenCalledTimes(1);
+    controller.renderer.moveTabToMain(leaf.id);
+    await workspace.flushLayout();
+    expect(workspace.getLeafById(leaf.id)).toBe(leaf);
+    expect(leaf.view).toBe(view);
+    expect(workspace.floating.children).toHaveLength(0);
+  });
+
   it("keeps leaves, views, and editors bound to their owning application", () => {
     const { app, workspace } = createWorkspaceHarness();
     const leaf = workspace.getLeaf();
@@ -2901,8 +2940,9 @@ describe("Workspace compatibility", () => {
       { paneId: tabs.id, title: "Transient", active: true },
     );
     expect(added).not.toBeNull();
-    expect(binding.controller.workspace.closeLeaf(added!.id)).toBe(true);
+    const closing = binding.controller.renderer.requestCloseTab(added!.id);
     binding.controller.renderer.setSidebarOpen("left", true);
+    expect(await closing).toBe(true);
 
     await vi.waitFor(() => {
       expect(workspace.getLeafById(added!.id)).toBeNull();
@@ -2939,7 +2979,9 @@ describe("Workspace compatibility", () => {
     expect(binding.controller.workspace.setActiveLeaf(originalLeaf.id)).toBe(
       true,
     );
-    expect(binding.controller.workspace.closeLeaf(added!.id)).toBe(true);
+    expect(await binding.controller.renderer.requestCloseTab(added!.id)).toBe(
+      true,
+    );
 
     await vi.waitFor(() => {
       expect(workspace.getLeafById(added!.id)).toBeNull();
@@ -2950,14 +2992,10 @@ describe("Workspace compatibility", () => {
       ...app,
       vault: { ...app.vault, create: otherCreate },
     } as App;
-    await vi.waitFor(
-      () => {
-        expect(create).toHaveBeenCalledTimes(1);
-      },
-      { timeout: 2_000 },
-    );
-
-    const persisted = JSON.parse(String(create.mock.calls[0]?.[1]));
+    await workspace.flushLayout();
+    // Admission saves the still-reachable layout; final flush saves removal.
+    expect(create).toHaveBeenCalledTimes(2);
+    const persisted = JSON.parse(String(create.mock.calls.at(-1)?.[1]));
     expect(
       persisted.main.children[0].children.map(
         (child: { id: string }) => child.id,

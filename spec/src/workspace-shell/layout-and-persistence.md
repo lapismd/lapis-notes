@@ -58,7 +58,7 @@
 
 <a id="ln-ws-008"></a>
 
-**Requirement.** `WorkspaceShell` MUST accept `app`, optional `displayMode`, `workspaceLabel`, generic `workspaceNavigation`, and `class`, and MUST mount `AppShell.Root` with `autoStart={false}` because application and layout boot remain consumer-owned. It MUST forward navigation presentation without discovering profiles or owning selection policy.
+**Requirement.** `WorkspaceShell` MUST accept `app`, optional `displayMode`, `workspaceLabel`, generic `workspaceNavigation`, optional `popoutHost`, and `class`, and MUST mount `AppShell.Root` with `autoStart={false}` because application and layout boot remain consumer-owned. It MUST forward navigation presentation without discovering profiles or owning selection policy.
 
 ## LN-WS-009 — Persisted desktop and mobile stories
 
@@ -167,3 +167,21 @@ projection does not enqueue a second save.
 <a id="ln-ws-085"></a>
 
 **Requirement.** The `@lapis-notes/workspace` public `0.1.0` package MUST remain a shell adapter around a host-supplied API `App`. Its release manifest, README, and package metadata MUST keep vault discovery, plugin boot, persistence, profile management, and backend setup outside the package.
+
+## LN-WS-098 — Live popup projection
+
+<a id="ln-ws-098"></a>
+
+**Requirement.** Live controller projection MUST preserve session-only popup records and claimed leaf, view, editor and history identity. Compatibility windows MUST bind existing controller handles without opening another host. Cold restoration MUST omit popups. The API workspace MUST remain the sole layout writer.
+
+## LN-WS-099 — Popup close admission
+
+<a id="ln-ws-099"></a>
+
+**Requirement.** Shared tab and popup removal MUST await focused-control blur, pending file writers and layout persistence through the owning App before destroying views. Rejected saving MUST preserve reachable content.
+
+## LN-WS-100 — Focused popup command ownership
+
+<a id="ln-ws-100"></a>
+
+**Requirement.** Popup focus and commands MUST use the existing owned App and its document. Selecting a main tab while popups remain open MUST restore main-host command routing.

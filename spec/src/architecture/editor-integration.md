@@ -1,5 +1,9 @@
 # Architecture / Editor integration
 
+Popup attachment under LN-WS-064 retargets the retained CodeMirror view to its
+new owner document. State, drafts and undo history remain on that same editor;
+LN-WS-099 uses the existing App-owned registry for close admission.
+
 ## LN-ARCH-145 — Protected managed trash
 
 <a id="ln-arch-145"></a>

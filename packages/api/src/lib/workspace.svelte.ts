@@ -21,6 +21,8 @@ import {
   type SidebarStateProps,
 } from "@lapis-notes/ui/sidebar-custom";
 import { uniqueId } from "./utils";
+import { attachWorkspaceView } from "./workspace-view-document";
+import { workspaceCloseGuard } from "./workspace-close-guard";
 import { normalizeWorkspaceJson } from "./workspace-layout-normalizer";
 import {
   promptLoadWorkspaceLayout,
@@ -907,6 +909,7 @@ export class WorkspaceFloating extends WorkspaceParent {
   loadJson(
     layouts: WorkspaceWindowJson[] = [],
     projectionItems?: WorkspaceProjectionItems,
+    resolveHandle?: (id: string) => WorkspacePopoutHostHandle | null,
   ) {
     const promises: Array<Promise<any>> = [];
     this.children.slice().forEach((child) => this.removeChild(child, true));
@@ -924,12 +927,14 @@ export class WorkspaceFloating extends WorkspaceParent {
             return;
           }
 
-          const handle = openWorkspacePopoutHandle({
-            x: child.x,
-            y: child.y,
-            size: { width: child.width, height: child.height },
-            mode: "popout",
-          });
+          const handle = resolveHandle
+            ? resolveHandle(child.id)
+            : openWorkspacePopoutHandle({
+                x: child.x,
+                y: child.y,
+                size: { width: child.width, height: child.height },
+                mode: "popout",
+              });
           if (!handle) {
             child.mode = "floating";
             return;
@@ -2714,9 +2719,12 @@ export class Workspace extends EventDispatcher<{
 
   private async restoreLayoutJson(
     config: WorkspaceJson | unknown,
+    live = false,
   ): Promise<void> {
-    this.exitFocusMode();
-    const normalized = normalizeWorkspaceJson(config);
+    if (!live) this.exitFocusMode();
+    const normalized = normalizeWorkspaceJson(config, {
+      preservePopouts: live,
+    });
     await this.activateLayoutPlugins(normalized);
     const projectionItems = beginWorkspaceProjection(this);
     try {
@@ -2725,7 +2733,26 @@ export class Workspace extends EventDispatcher<{
         this.leftSplit.loadJson(normalized.left, projectionItems),
         this.rightSplit.loadJson(normalized.right, projectionItems),
         this.bottomPanel.loadJson(normalized.bottom, projectionItems),
-        this.floating.loadJson(normalized.floating, projectionItems),
+        this.floating.loadJson(
+          normalized.floating,
+          projectionItems,
+          live
+            ? (id) => {
+                const handle =
+                  this.#workspaceHostController?.renderer.getPopoutHandle(id);
+                return handle
+                  ? {
+                      win: handle.window,
+                      doc: handle.document,
+                      focus: () => handle.focus(),
+                      // The controller owns host removal; wrappers only project identity.
+                      close: () => {},
+                      onClose: () => () => {},
+                    }
+                  : null;
+              }
+            : undefined,
+        ),
       ]);
     } finally {
       finishWorkspaceProjection(projectionItems);
@@ -3038,6 +3065,17 @@ export class Workspace extends EventDispatcher<{
         ),
       },
     });
+    this.#workspaceHostController.renderer.setCloseGuard(
+      workspaceCloseGuard(this, () =>
+        this.#workspaceHostController!.renderer.layout.windows.flatMap(
+          (win) => {
+            const handle =
+              this.#workspaceHostController!.renderer.getPopoutHandle(win.id);
+            return handle ? [handle.document] : [];
+          },
+        ),
+      ),
+    );
     setWorkspaceHostBinding(this, {
       controller: this.#workspaceHostController,
     });
@@ -3464,7 +3502,7 @@ export class Workspace extends EventDispatcher<{
     if (this.#layoutPersistenceDisposed) return;
     const mutationRevision = layoutMutationRevisions.get(this) ?? 0;
     const projected = workspaceJsonForCompatibility(
-      normalizeWorkspaceJson(layout),
+      normalizeWorkspaceJson(layout, { preservePopouts: true }),
     );
     const preserveSidebarWidth = (
       side: SidebarSide,
@@ -3483,7 +3521,8 @@ export class Workspace extends EventDispatcher<{
     const run = this.#workspaceHostProjection.then(async () => {
       if (mutationRevision !== (layoutMutationRevisions.get(this) ?? 0)) return;
       await this.withoutLayoutPersistence(async () => {
-        await this.restoreLayoutJson(projected);
+        await this.restoreLayoutJson(projected, true);
+        this.focusedHostId = this.getCommandHostIdForLeaf(this.activeLeaf);
         // Sidedock compatibility effects flush after loadJson resolves. Keep
         // persistence suppressed through that flush so an older queued
         // projection cannot be committed back over a newer controller layout.
@@ -3633,7 +3672,7 @@ export class Workspace extends EventDispatcher<{
       mount: (target, context) => {
         const leaf = this.getLeafById(context.tab.id);
         if (!leaf) return;
-        target.replaceChildren(leaf.containerEl);
+        attachWorkspaceView(target, leaf);
         return () => {
           if (leaf.containerEl.parentElement === target) {
             leaf.containerEl.remove();

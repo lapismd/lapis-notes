@@ -73,7 +73,7 @@ type WorkspaceBottomPanelJson = WorkspaceTabsJson & { height: string };
 type WorkspaceWindowJson = {
   id: string;
   type: "floating";
-  mode?: "floating";
+  mode?: "floating" | "popout";
   displayState?: "collapsed" | "minimized";
   direction: "horizontal" | "vertical";
   sizes: number[];
@@ -335,12 +335,15 @@ function normalizeBottomPanel(raw: unknown): WorkspaceBottomPanelJson {
   };
 }
 
-function normalizeFloatingWindow(raw: unknown): WorkspaceWindowJson | null {
+function normalizeFloatingWindow(
+  raw: unknown,
+  preservePopouts = false,
+): WorkspaceWindowJson | null {
   if (!raw || typeof raw !== "object") return null;
   const r = raw as Record<string, unknown>;
   if (r.type !== "floating") return null;
   // Popout windows cannot be restored across sessions — drop them.
-  if (r.mode === "popout") return null;
+  if (r.mode === "popout" && !preservePopouts) return null;
 
   const children = (Array.isArray(r.children) ? r.children : [])
     .map(normalizeSplitChild)
@@ -361,7 +364,7 @@ function normalizeFloatingWindow(raw: unknown): WorkspaceWindowJson | null {
   return {
     id: ensureId(r.id),
     type: "floating",
-    mode: "floating",
+    mode: r.mode === "popout" ? "popout" : "floating",
     ...(displayState !== undefined ? { displayState } : {}),
     direction: ensureDirection(r.direction),
     sizes: repairSizes(r.sizes, children.length),
@@ -397,13 +400,18 @@ function hasAnyLeaf(
  * Always returns a structurally valid {@link WorkspaceJson} even when the input
  * is `null`, empty, partial, or corrupted.
  */
-export function normalizeWorkspaceJson(raw: unknown): WorkspaceJson {
+export function normalizeWorkspaceJson(
+  raw: unknown,
+  options: { preservePopouts?: boolean } = {},
+): WorkspaceJson {
   const r =
     raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
 
   const floating = Array.isArray(r.floating)
     ? r.floating
-        .map(normalizeFloatingWindow)
+        .map((window) =>
+          normalizeFloatingWindow(window, options.preservePopouts),
+        )
         .filter((w): w is WorkspaceWindowJson => w !== null)
     : [];
 

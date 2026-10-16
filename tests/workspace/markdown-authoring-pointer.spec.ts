@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { waitForVisualStoryFinished } from "@lapismd/storybook-addon-visual-delta/playwright";
 
 test("Markdown authoring reorders a block through the real Mira drag handle", async ({
   page,
@@ -14,9 +15,18 @@ test("Markdown authoring reorders a block through the real Mira drag handle", as
     await page.reload();
     await expect(status).toHaveText("ready", { timeout: 60_000 });
   }
+  // The story exercises mode changes after boot. Start the independent drag
+  // workflow only once that play has returned to its final editing surface.
+  await waitForVisualStoryFinished(
+    page,
+    "workspace-lapis-editor-demo--markdown-authoring",
+  );
   const persisted = page.getByTestId("lapis-editor-target-contents");
 
   const editor = page.locator('.cm-editor[data-language="markdown"]');
+  await editor.locator(":scope > .cm-scroller").evaluate((scroller) => {
+    scroller.scrollTop = 0;
+  });
   const firstLine = editor
     .locator(".cm-line")
     .filter({ hasText: "First draggable block." })

@@ -113,6 +113,9 @@ indexed.
 
 **Requirement.** Editable panel `FileEmbed` MUST omit the embedded-note guide and retain a sticky top-right open-note action that stays visible while content scrolls and reserves normal-flow content space.
 
+Pointer acceptance distinguishes the omitted outer guide from image embeds
+authored inside the note. The seeded Ideas preview retains its map image.
+
 ## LN-MD-063 — In edit mode, the preview viewport: constrain FileEmbed so CodeMirror owns vertical scrolling
 
 <a id="ln-md-063"></a>

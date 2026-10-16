@@ -1,5 +1,9 @@
 # Plugin Model / App ownership
 
+Session popups inherit the owning shell context under LN-WS-055 and LN-WS-098.
+Their plugin views retain the same App and compatibility lease lifetime;
+detaching a view never boots another plugin manager or vault session.
+
 The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.

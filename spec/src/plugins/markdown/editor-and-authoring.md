@@ -90,6 +90,10 @@
 
 **Requirement.** Selection tools, standard block handles with drag and keyboard movement, block context actions, slash commands, Live Preview heading controls, tables, images, completions, smart paste, and input handlers MUST default on. The contextual block-type toolbar and AI MUST default off.
 
+The real pointer drag acceptance waits for the authoring story's complete play
+before measuring the final editor, so concurrent mode changes cannot replace
+the surface under the pointer workflow. It verifies the reordered vault text.
+
 ## LN-MD-074 — Markdown.mira.editor.toolbar.enabled: default to false and control a public
 
 <a id="ln-md-074"></a>

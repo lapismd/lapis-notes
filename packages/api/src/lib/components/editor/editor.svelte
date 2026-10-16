@@ -53,8 +53,8 @@
   const codeMirror = (node: HTMLDivElement) => {
     let focusTimeout: ReturnType<typeof setTimeout> | null = null;
     const root = node.getRootNode();
-    if (root instanceof Document || root instanceof ShadowRoot) {
-      editor.view.setRoot(root);
+    if (root.nodeType === 9 || root.nodeType === 11) {
+      editor.view.setRoot(root as Document | ShadowRoot);
     }
     node.append(editor.view.dom);
     focusTimeout = setTimeout(() => {

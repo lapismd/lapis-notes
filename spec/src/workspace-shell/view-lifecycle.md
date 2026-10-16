@@ -40,7 +40,7 @@ their complete lifetime boundary before releasing backing storage.
 
 <a id="ln-ws-064"></a>
 
-**Requirement.** An imperative view host MUST remount a Lapis view only when the tab id or view type changes. Remount MUST look up the existing leaf by that id and reattach its `containerEl`.
+**Requirement.** An imperative view host MUST remount a Lapis view only when the tab id or view type changes. Remount MUST look up the existing leaf by that id and reattach its `containerEl`. Cross-document attachment MUST retarget a retained editor to its new document without replacing its state or history.
 
 ## LN-WS-065 — Missing-view placeholder: use the Lucide ghost icon on
 
@@ -119,3 +119,7 @@ their complete lifetime boundary before releasing backing storage.
 <a id="ln-ws-091"></a>
 
 **Requirement.** Workspace plugin activation MUST accept a verified renderer ESM module whose plugin constructor is a named `Plugin` subclass when no default export exists. Supporting constants, views, settings helpers, and manifest exports MUST remain available without becoming constructor candidates.
+
+Link-preview pointer acceptance follows the current
+`plugins-markdown-panels-link-preview-acceptance` catalog family. Renamed
+catalog paths retain the original preview interaction assertions.

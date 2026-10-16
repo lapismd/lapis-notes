@@ -75,7 +75,7 @@
 | LN-MD-070 | [markdown-panel-outgoing-links](../plugins/markdown/panels/outgoing-links.md#ln-md-070) | Implemented | Outgoing Links uses the valid Lucide external-link icon in every placement |
 | LN-MD-071 | [markdown-plugin](../plugins/markdown/editor-and-authoring.md#ln-md-071) | Implemented | Markdown composes Mira's base-free public factory while retaining every portable authoring layer |
 | LN-MD-072 | [markdown-plugin](../plugins/markdown/editor-and-authoring.md#ln-md-072) | Implemented | typed descriptors drive schema, Settings fields, runtime defaults, and legacy-toolbar supersession |
-| LN-MD-073 | [markdown-plugin](../plugins/markdown/editor-and-authoring.md#ln-md-073) | Implemented | unit and Storybook coverage verify complete authoring defaults and capability gates |
+| LN-MD-073 | [markdown-plugin](../plugins/markdown/editor-and-authoring.md#ln-md-073) | Implemented | unit and Storybook coverage verify complete authoring defaults and capability gates; `tests/workspace/markdown-authoring-pointer.spec.ts` waits for completed story setup and verifies persisted drag order |
 | LN-MD-074 | [markdown-plugin](../plugins/markdown/editor-and-authoring.md#ln-md-074) | Implemented | optional edit-only Mira toolbar delegates through the existing Lapis Editor and retains the borderless shell surface |
 | LN-MD-075 | [markdown-plugin](../plugins/markdown/editor-and-authoring.md#ln-md-075) | Implemented | opt-in Doodle Dividers use the public Mira extension and shipped styles |
 | LN-MD-076 | [markdown-plugin](../plugins/markdown/editor-and-authoring.md#ln-md-076) | Implemented | Markdown Authoring acceptance switches between book-open and pencil mode actions; implementation preserves full-repo split-click behavior |

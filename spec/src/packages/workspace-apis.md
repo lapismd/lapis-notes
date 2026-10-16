@@ -1,5 +1,9 @@
 # Packages / Workspace APIs
 
+The optional WorkspaceShell popup host in LN-WS-008 uses the public Design Core
+host contract. API host binding remains on the host-only subpath; LN-WS-098
+projects existing handles rather than constructing another App or host.
+
 ## LN-PKG-171 — Shared desktop vault presentation
 
 <a id="ln-pkg-171"></a>
