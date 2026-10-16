@@ -59,7 +59,7 @@ export class FileTextPersistence {
     return this.#baseline;
   }
 
-  acceptBaseline(contents: string): void {
+  acceptBaseline(contents: string | null): void {
     if (!this.#conflict) this.#baseline = contents;
   }
 
@@ -198,9 +198,15 @@ export class FileTextPersistence {
             this.#publish(external);
             throw this.#error;
           }
+          const previousBaseline = this.#baseline;
           this.#baseline = external;
+          try {
+            await lease.reset(external ?? "");
+          } catch (error) {
+            this.#baseline = previousBaseline;
+            throw error;
+          }
           this.#clear();
-          lease.reset(external ?? "");
         }
       });
     } finally {

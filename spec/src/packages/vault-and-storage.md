@@ -10,7 +10,7 @@
 
 <a id="ln-pkg-170"></a>
 
-**Requirement.** API MUST export a generic FileTextPersistence contract for document-owned conditional baselines and the owning App's text-conflict registry. Recovery MUST acquire protection before yielding and await asynchronous admission before resolving a conflict. Each concurrent operation MUST use its own acknowledgement, reset and release lease. Storage snapshots MUST remain independent of background cache reads, and stale recovery decisions MUST reject.
+**Requirement.** API MUST export a generic FileTextPersistence contract for document-owned conditional baselines and the owning App's text-conflict registry. Recovery MUST acquire protection before yielding and await asynchronous admission before resolving a conflict. Each concurrent operation MUST use its own acknowledgement, reset and release lease. Storage snapshots MUST remain independent of background cache reads; stale decisions MUST reject, and failed resets MUST retain the conflict.
 
 ## LN-PKG-169 — Conditional Vault writes
 

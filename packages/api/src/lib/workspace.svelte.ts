@@ -2999,6 +2999,8 @@ export class Workspace extends EventDispatcher<{
             ),
           }),
           save: async (snapshot) => {
+            // Conditional hosts admit changes in bindConfiguration, before debounce.
+            if (this.app.vault?.supportsConditionalTextWrites) return;
             await this.app.configuration.updateConfigurationOptions(
               snapshot.values,
             );
@@ -3087,6 +3089,27 @@ export class Workspace extends EventDispatcher<{
     const controller = this.#workspaceHostController;
     if (!controller) return;
 
+    let projecting = false;
+    const project = (values: Record<string, unknown>) => {
+      projecting = true;
+      try {
+        controller.settings.changeSnapshot({ version: 1, values });
+      } finally {
+        projecting = false;
+      }
+    };
+
+    const settingsRef = controller.settings.on("change", ({ id }) => {
+      if (projecting || !this.app.vault?.supportsConditionalTextWrites) return;
+      const { values } = controller.settings.getSnapshot();
+      if (id && !Object.hasOwn(values, id)) return;
+      const change = this.app.configuration.updateConfigurationOptions(
+        id ? { [id]: values[id] } : values,
+      );
+      // The App-owned writer retains failures in the visible conflict registry.
+      void change.catch(() => undefined);
+    });
+
     const syncAll = () => {
       const snapshot = controller.settings.getSnapshot();
       const apiValues = Object.fromEntries(
@@ -3097,7 +3120,7 @@ export class Workspace extends EventDispatcher<{
         if (Object.hasOwn(apiValues, key)) next[key] = apiValues[key];
       }
       if (!isEqual(next, snapshot.values)) {
-        controller.settings.changeSnapshot({ version: 1, values: next });
+        project(next);
       }
     };
 
@@ -3110,7 +3133,7 @@ export class Workspace extends EventDispatcher<{
         if (value === undefined) delete next[key];
         else next[key] = value;
         if (!isEqual(next, snapshot.values)) {
-          controller.settings.changeSnapshot({ version: 1, values: next });
+          project(next);
         }
       },
     );
@@ -3118,6 +3141,7 @@ export class Workspace extends EventDispatcher<{
     this.#configurationBridgeDisposer = () => {
       this.app.configuration.offref(configurationRef);
       controller.settings.offref(schemaRef);
+      controller.settings.offref(settingsRef);
     };
   }
 

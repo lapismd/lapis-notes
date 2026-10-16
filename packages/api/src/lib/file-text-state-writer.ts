@@ -2,6 +2,7 @@ import type { App } from "./context.svelte";
 import type { FileEditingSession } from "./file-editing-sessions";
 import { FileTextPersistence } from "./file-text-persistence";
 import type { TFile } from "./storage/fs";
+import { dirname } from "./storage/path";
 
 /**
  * App-owned mutable text state using the same persistence contract as
@@ -15,6 +16,7 @@ export class FileTextStateWriter implements FileEditingSession {
   #dirty = false;
   #locks = 0;
   #disposed = false;
+  #onSaved: (() => void) | undefined;
 
   constructor(
     private readonly app: App,
@@ -36,11 +38,15 @@ export class FileTextStateWriter implements FileEditingSession {
           release,
           saved: () => {
             this.#dirty = false;
+            const notify = this.#onSaved;
+            this.#onSaved = undefined;
+            notify?.();
           },
           reset: (text) => {
+            reset(text);
             this.#contents = text;
             this.#dirty = false;
-            reset(text);
+            this.#onSaved = undefined;
           },
         };
       },
@@ -51,6 +57,12 @@ export class FileTextStateWriter implements FileEditingSession {
 
   get dirty(): boolean {
     return this.#dirty;
+  }
+
+  acceptBaseline(contents: string | null): boolean {
+    if (this.#dirty || this.#locks || this.#disposed) return false;
+    this.#persistence.acceptBaseline(contents);
+    return true;
   }
 
   assertEditable(): void {
@@ -70,11 +82,37 @@ export class FileTextStateWriter implements FileEditingSession {
     return this.app.fileEditingSessions.recover(this, () => this.flush());
   }
 
+  /** Calculate a logical change only after every earlier change is acknowledged. */
+  update(
+    calculate: () => { contents: string; onSaved(): void } | undefined,
+  ): Promise<void> {
+    this.assertEditable();
+    return this.app.fileEditingSessions.recover(this, async () => {
+      await this.flush();
+      const change = calculate();
+      if (!change) return;
+      this.#contents = change.contents;
+      this.#dirty = true;
+      this.#onSaved = change.onSaved;
+      await this.flush();
+    });
+  }
+
   async flush(): Promise<void> {
     if (!this.#dirty) return;
     const contents = this.#contents;
-    await this.#persistence.persist(contents);
+    const notify = this.#onSaved;
+    try {
+      await this.app.vault.mkpath(dirname(this.#path));
+      await this.#persistence.persist(contents);
+    } catch (error) {
+      if (!this.#persistence.hasConflict)
+        await this.#persistence.rejectPersistence(error);
+      throw error;
+    }
     this.#dirty = this.#contents !== contents;
+    if (!this.#dirty) this.#onSaved = undefined;
+    notify?.();
   }
 
   #protect(): () => void {

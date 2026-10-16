@@ -1,5 +1,17 @@
 # Packages / Configuration and lifecycle
 
+## LN-PKG-173 — Serialized configuration changes
+
+<a id="ln-pkg-173"></a>
+
+**Requirement.** Configuration updates, plugin-data updates, removals and schema-default materialization MUST serialize calculation and persistence against the latest acknowledged state. Concurrent independent updates MUST preserve every key. Successful persistence MUST precede observable configuration updates and events; rejected validation MUST NOT enqueue a draft.
+
+## LN-PKG-174 — App-owned application-state writers
+
+<a id="ln-pkg-174"></a>
+
+**Requirement.** Configuration, hotkey and plugin-enablement writes on conditional-capable hosts MUST join the owning App's file-writer lifecycle before asynchronous IO or debounce. Pending and failed drafts MUST block shutdown, preserve external changes and permit explicit recovery. A guarded flush MUST await completion without reentering its own registry queue. Recovery MUST update the owning visible state; a rejected reset MUST retain its conflict and barrier.
+
 The public API Workspace owns awaitable layout persistence under
 [LN-WS-095](../workspace-shell/layout-and-persistence.md#ln-ws-095). Hosts call
 `flushLayout()` before teardown instead of implementing a second layout writer.

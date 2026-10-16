@@ -82,6 +82,14 @@ cleanup; a cleanup failure propagates through the existing plugin failure state
 
 **Requirement.** `Plugin.registerSettingsSection` MUST register one lifecycle-owned declarative settings definition backed by a controlled source. It MUST preserve workspace ownership, trust checks, source disposal, and configuration-snapshot separation without exposing Design Core controller internals.
 
+The Workspace bridge under
+[LN-PKG-174](../packages/configuration-and-lifecycle.md#ln-pkg-174) preserves
+this separation: a source-controlled field absent from the persistence snapshot
+does not create a second configuration write through its change event. The
+plugin's controlled source retains its own persistence ownership; admission of
+shared configuration does not qualify separate plugin-enablement or
+compatibility-file writers.
+
 ## LN-PLUG-091 — DeclarativePluginSettingTab: render a plugin-provided settings definition
 
 <a id="ln-plug-091"></a>

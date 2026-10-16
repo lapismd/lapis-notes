@@ -11,10 +11,18 @@ intake or UI swap status changes.
 - [x] Bind editable Markdown preview writers to the public source-owned
       persistence/recovery contract; final host acceptance is recorded with the
       current slice.
-- [ ] Qualify Properties/metadata writers and finish the complete M4 writer audit.
+- [x] Qualify Properties/metadata writers (LN-PKG-172);
+      [source acceptance](spec/records/2026-10-16-managed-file-mutations.md).
+- [x] Qualify serialized configuration changes (LN-PKG-173) and the settings/
+      hotkey component of App-owned state writers (LN-PKG-174 remains Partial);
+      [component evidence](spec/records/2026-10-16-app-state-writers.md).
+- [ ] Finish the complete M4 writer audit, including core/plugin enablement,
+      App Shell plugin state and compatibility plugin-data files.
 - [ ] Share the existing Deno chooser and branded startup through Workspace,
-      qualify both native hosts, and consume verified local archives. Publication
-      remains deferred to migration completion (LN-PKG-171).
+      qualify the Tauri consumer, and consume verified local archives. Deno
+      desktop is superseded and frozen; no further host changes or packaged
+      reruns are required. Publication remains deferred to migration completion
+      (LN-PKG-171).
 
 ## Specification readability and navigation (2026-10-13)
 

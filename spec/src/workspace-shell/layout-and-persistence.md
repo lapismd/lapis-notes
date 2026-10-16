@@ -78,6 +78,13 @@
 
 **Requirement.** Bottom-panel layout changes MUST round-trip through the existing api-owned 1000 ms workspace writer. Design-core settings, including `appearence.interface.scrollbarVisibility`, MUST persist separately through api configuration with atomic writes and no layout/configuration feedback loop.
 
+On conditional-capable hosts, the Workspace configuration bridge applies
+[LN-PKG-173](../packages/configuration-and-lifecycle.md#ln-pkg-173) and
+[LN-PKG-174](../packages/configuration-and-lifecycle.md#ln-pkg-174) before the
+presentation controller's debounce. A shared Settings change enters the owning
+App's writer queue immediately. API recovery projection does not enqueue another
+save, and the deferred presentation flush does not reenter a protected queue.
+
 ## LN-WS-017 — Imperative view lifetime
 
 <a id="ln-ws-017"></a>

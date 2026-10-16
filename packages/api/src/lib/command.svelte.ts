@@ -1,8 +1,14 @@
-import { appStatePath, DEFAULT_APP_STATE_DIRECTORY } from "./storage/path";
+import {
+  appStatePath,
+  DEFAULT_APP_STATE_DIRECTORY,
+  normalizePath,
+} from "./storage/path";
 import type { App } from "./context.svelte";
 import type { Editor } from "./editor.svelte";
 import { EventDispatcher } from "./events";
 import type { TFile } from "./storage/fs";
+import { TFile as VaultFile } from "./storage/fs";
+import { FileTextStateWriter } from "./file-text-state-writer";
 import { resolveApplication } from "./application-compatibility";
 
 /**
@@ -333,6 +339,8 @@ export class CommandManager extends EventDispatcher<{
   readonly editorCommands: Record<string, Command> = $state({});
   readonly bindings: Record<string, Command[]> = $state({});
   readonly hotkeyOverrides: Record<string, Hotkey[]> = $state({});
+  private hotkeysBaseline: string | null = null;
+  private hotkeysWriter: FileTextStateWriter | undefined;
 
   constructor(readonly app: App) {
     super();
@@ -454,14 +462,20 @@ export class CommandManager extends EventDispatcher<{
   }
 
   async loadHotkeys(): Promise<void> {
+    if (this.hotkeysWriter?.dirty) return;
     const file = this.readHotkeyOverrideFile();
     if (!file) {
+      this.hotkeysBaseline = null;
+      if (this.hotkeysWriter && !this.hotkeysWriter.acceptBaseline(null))
+        return;
       this.replaceHotkeyOverrides({});
       return;
     }
 
     try {
       const raw = await this.app.vault.read(file);
+      if (this.hotkeysWriter && !this.hotkeysWriter.acceptBaseline(raw)) return;
+      this.hotkeysBaseline = raw;
       this.replaceHotkeyOverrides(this.normalizeOverrides(JSON.parse(raw)));
     } catch (error) {
       console.warn(
@@ -474,6 +488,8 @@ export class CommandManager extends EventDispatcher<{
 
   async saveHotkeys(): Promise<void> {
     const data = JSON.stringify(this.hotkeyOverrides, null, 2);
+    if (this.app.vault.supportsConditionalTextWrites)
+      return this.getHotkeysWriter().set(data);
     const file = this.readHotkeyOverrideFile();
     if (file) {
       await this.app.vault.modify(file, data);
@@ -482,6 +498,27 @@ export class CommandManager extends EventDispatcher<{
 
     await this.app.vault.mkpath("/" + DEFAULT_APP_STATE_DIRECTORY);
     await this.app.vault.create(HOTKEYS_PATH, data);
+  }
+
+  private getHotkeysWriter(): FileTextStateWriter {
+    if (this.hotkeysWriter) return this.hotkeysWriter;
+    const file =
+      this.readHotkeyOverrideFile() ??
+      new VaultFile(
+        normalizePath(HOTKEYS_PATH),
+        { ctime: 0, mtime: 0, size: 0 },
+        null,
+      );
+    this.hotkeysWriter = new FileTextStateWriter(
+      this.app,
+      file,
+      this.hotkeysBaseline,
+      (text) =>
+        this.replaceHotkeyOverrides(
+          this.normalizeOverrides(JSON.parse(text || "{}")),
+        ),
+    );
+    return this.hotkeysWriter;
   }
 
   private replaceHotkeyOverrides(overrides: Record<string, Hotkey[]>): void {
@@ -515,6 +552,8 @@ export class CommandManager extends EventDispatcher<{
   }
 
   async setHotkeys(commandId: string, hotkeys: Hotkey[]): Promise<void> {
+    if (this.app.vault.supportsConditionalTextWrites)
+      this.getHotkeysWriter().assertEditable();
     this.hotkeyOverrides[commandId] = this.dedupeHotkeys(hotkeys);
     this.rebuildBindings();
     this.emit("hotkeys-updated", {
@@ -542,6 +581,8 @@ export class CommandManager extends EventDispatcher<{
   }
 
   async resetHotkeys(commandId: string): Promise<void> {
+    if (this.app.vault.supportsConditionalTextWrites)
+      this.getHotkeysWriter().assertEditable();
     delete this.hotkeyOverrides[commandId];
     this.rebuildBindings();
     this.emit("hotkeys-updated", {

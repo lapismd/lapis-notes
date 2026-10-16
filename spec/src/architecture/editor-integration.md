@@ -1,5 +1,19 @@
 # Architecture / Editor integration
 
+Application-state writers under
+[LN-PKG-173](../packages/configuration-and-lifecycle.md#ln-pkg-173) and
+[LN-PKG-174](../packages/configuration-and-lifecycle.md#ln-pkg-174) share the
+App-owned registry. Their logical updates serialize before calculating a new
+record, and their flush performs IO directly within its admitted operation.
+Configuration, shortcut and plugin state retain distinct file baselines and
+recovery callbacks; the host cannot replace them with independent save paths.
+On conditional-capable hosts, the API Workspace configuration bridge admits
+shared Settings changes synchronously through the public change event, before
+the presentation controller's debounce. It submits only the changed field when
+one is supplied, preserving independent queued API updates. API-to-controller
+projection does not submit another write. The controller's deferred save does
+not enqueue a second operation from inside the protected shutdown callback.
+
 ## LN-ARCH-142 — Document-owned conditional save baselines
 
 <a id="ln-arch-142"></a>
