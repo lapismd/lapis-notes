@@ -393,8 +393,8 @@ test-signed archive fixtures remain separate acceptance inputs.
 
 ## Current CI dependency image
 
-- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:fe28e5a789f6266bd48b3a7922d3bfe8f823af7d892c07b252f43dbb252ba96e`
-- Lockfile tag: `lock-f2f65624a7eaf81d`
-- pnpm-lock.yaml SHA-256: `f2f65624a7eaf81dea6ab27ff21633c999972677224d7558b001d6b160dea915`
+- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:6fc66e30aa3ac6935fea5164dd1c77c9eaae0a443bc26b26ba21371517dab690`
+- Lockfile tag: `lock-8c1973e1def39abf`
+- pnpm-lock.yaml SHA-256: `8c1973e1def39abf3effc338cd6744c49e1ba238de4fc442be5002eec26a6709`
 
 <!-- ci-dependency-image:end -->
