@@ -28,6 +28,20 @@ The public FileTextPersistence contract under
 writers share this conflict lifecycle. Each recovery carries its own protected
 acknowledgement and reset callbacks, including asynchronous surface admission.
 
+Managed frontmatter and metadata mutations under
+[LN-PKG-172](../packages/vault-and-storage.md#ln-pkg-172) join the same serialized
+registry before transformation. Their writer is admitted after existing
+documents are protected and flushed. Failed computed drafts remain registered;
+recovery excludes only that retained writer while protecting the other writers
+of its file. A presentation-owned property record is checked against parsed
+authoritative input, independently of unrelated body edits.
+
+Mutable metadata type state retains one App-owned text writer and acknowledged
+baseline across edits. Its saves and recovery run on the registry queue;
+protection blocks model edits before yielding. Later edits update a retained
+conflict's local snapshot. A flush already admitted by a lifecycle guard performs
+IO directly without reentering the queued guard, preventing shutdown deadlock.
+
 ## LN-ARCH-137 — Guarded document-load admission
 
 <a id="ln-arch-137"></a>

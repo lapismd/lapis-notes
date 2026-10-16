@@ -67,6 +67,10 @@ export class FileEditingSessionRegistry {
   #closed = false;
   #disposal: Promise<void> | undefined;
 
+  get closed(): boolean {
+    return this.#closing;
+  }
+
   register(path: string, session: FileEditingSession): () => void {
     this.#assertOpen();
     const capturedPath = filePath(path);
@@ -139,6 +143,47 @@ export class FileEditingSessionRegistry {
     }
   }
 
+  /** Admit a one-shot writer only after existing document writers settle. */
+  mutate(path: string, create: () => FileEditingSession): Promise<void> {
+    const scope = filePath(path);
+    return this.guard(scope, async () => {
+      const session = create();
+      if (
+        !session ||
+        typeof session.flush !== "function" ||
+        typeof session.protect !== "function" ||
+        typeof session.dirty !== "boolean"
+      )
+        throw new Error("Invalid file editing session");
+      const entry = { path: scope, session, references: 0 };
+      this.#sessions.set(session, entry);
+      try {
+        await session.flush();
+        if (session.dirty)
+          throw new Error(`File mutation remains dirty: ${scope}`);
+      } finally {
+        this.#prune(entry);
+      }
+    });
+  }
+
+  /** Recover one retained writer while protecting all other writers of its file. */
+  recover<T>(
+    session: FileEditingSession,
+    operation: () => Promise<T>,
+  ): Promise<T> {
+    const entry = this.#sessions.get(session);
+    if (!entry || this.#closed)
+      return Promise.reject(new Error("File writer is unavailable"));
+    return this.#enqueue(async () => {
+      try {
+        return await this.#guard(entry.path, operation, true, entry);
+      } finally {
+        this.#prune(entry);
+      }
+    }, true);
+  }
+
   /**
    * Stop admission immediately, drain callbacks and retry failed
    * persistence/cleanup.
@@ -165,9 +210,11 @@ export class FileEditingSessionRegistry {
       throw new Error("File editing-session registry is closed");
   }
 
-  #enqueue<T>(operation: () => Promise<T>): Promise<T> {
+  #enqueue<T>(operation: () => Promise<T>, recovery = false): Promise<T> {
     const run = this.#tail.then(() => {
-      this.#assertOpen();
+      if (!recovery) this.#assertOpen();
+      else if (this.#closed)
+        throw new Error("File editing-session registry is closed");
       return operation();
     });
     this.#tail = run.then(
@@ -217,12 +264,13 @@ export class FileEditingSessionRegistry {
     path: string | undefined,
     operation: () => Promise<T>,
     shutdown = false,
+    excluded?: Registration,
   ): Promise<T> {
     // A previous release failure must be repaired before another mutation starts.
     throwFailures(await this.#release([...this.#releases]));
     const barrier = {};
     this.#barriers.set(barrier, path);
-    const entries = this.#matching(path);
+    const entries = this.#matching(path).filter((entry) => entry !== excluded);
     for (const entry of entries) this.#held.add(entry);
     let result!: T;
     const errors: unknown[] = [];

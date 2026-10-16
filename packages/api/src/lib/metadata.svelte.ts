@@ -1,5 +1,7 @@
 import type { CachedMetadata, MetadataCache } from "./cache.svelte";
 import type { App } from "./context.svelte";
+import { FileTextStateWriter } from "./file-text-state-writer";
+import { TFile as VaultFile } from "./storage/fs";
 import {
   inferMetadataPropertyType,
   inferMetadataType,
@@ -7,6 +9,7 @@ import {
 } from "./metadata-value";
 import {
   joinPath,
+  normalizePath,
   type AppDatabaseMetadataFacetRow,
   type TFile,
 } from "./storage";
@@ -101,6 +104,8 @@ export class MetadataTypeManager {
   propertiesLoading = $state(false);
   queryError = $state<string | null>(null);
   private propertiesGeneration = 0;
+  private typesBaseline: string | null | undefined;
+  private typesWriter: FileTextStateWriter | undefined;
   private readonly valueGenerations = new Map<string, number>();
   private readonly schedulePropertiesRefresh = debounce(
     () => void this.updateProperties(),
@@ -123,6 +128,7 @@ export class MetadataTypeManager {
         this.app.metadataCache.offref(metadataHandler);
         this.app.metadataCache.offref(indexHandler);
         this.schedulePropertiesRefresh.cancel();
+        this.typesWriter?.dispose();
       };
     });
     this.load();
@@ -197,9 +203,12 @@ export class MetadataTypeManager {
     const file = this.app.vault.getFileByPath(
       joinPath(this.app.props.configPath, "../", "types.json"),
     );
+    if (!file && !this.typesWriter) this.typesBaseline = null;
     if (file) {
       promises.push(
         this.app.vault.read(file).then((data) => {
+          if (this.typesWriter) return;
+          this.typesBaseline = data;
           try {
             const typeData = JSON.parse(data) as {
               types: Record<string, string>;
@@ -257,7 +266,7 @@ export class MetadataTypeManager {
     return type === "checkbox" ? "checkbox" : "unknown";
   }
 
-  readonly save = debounce(() => {
+  private readonly saveLegacy = debounce(() => {
     const file = this.app.vault.getFileByPath(
       joinPath(this.app.props.configPath, "../", "types.json"),
     );
@@ -268,6 +277,36 @@ export class MetadataTypeManager {
       );
     }
   }, 500);
+
+  readonly save = (): void => {
+    if (!this.app.vault.supportsConditionalTextWrites) {
+      this.saveLegacy();
+      return;
+    }
+    void this.getTypesWriter().set(JSON.stringify(this.toJSON(), null, 2))
+      .catch((error) => notifyMetadataTypeError(`Failed to save types.json: ${error}`));
+  };
+
+  private getTypesWriter(): FileTextStateWriter {
+    if (this.typesWriter) return this.typesWriter;
+    const path = normalizePath(joinPath(this.app.props.configPath, "../", "types.json"));
+    const file = this.app.vault.getFileByPath(path) ??
+      new VaultFile(path, { ctime: 0, mtime: 0, size: 0 }, null);
+    this.typesWriter ??= new FileTextStateWriter(this.app, file, this.typesBaseline ?? null,
+      (text) => {
+        for (const key of Object.keys(this.types)) delete this.types[key];
+        try {
+          const value = JSON.parse(text || '{"types":{}}');
+          for (const [name, type] of Object.entries(value.types ?? {})) {
+            if (typeof type === "string") this.types[name] = { name, type: type as MetadataType };
+          }
+        } catch (error) {
+          notifyMetadataTypeError(`Failed to load types.json: ${error}`);
+        }
+        void this.updateProperties();
+      });
+    return this.typesWriter;
+  }
 
   toJSON() {
     const types: Record<string, string> = {};
@@ -280,6 +319,7 @@ export class MetadataTypeManager {
   }
 
   setType(field: string, type: MetadataType) {
+    if (this.app.vault.supportsConditionalTextWrites) this.getTypesWriter().assertEditable();
     this.types[field] = { name: field, type };
     this.properties[field] ||= {
       name: field,

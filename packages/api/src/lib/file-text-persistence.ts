@@ -25,7 +25,7 @@ export type FileTextRecoveryLease = {
 export type FileTextPersistenceOptions = {
   vault: Pick<Vault, "read" | "modifyIfUnchanged">;
   file: TFile;
-  baseline: string;
+  baseline: string | null;
   conflicts: FileTextConflictRegistry;
   local(): string;
   /** Acquire editing protection synchronously, before asynchronous admission. */
@@ -55,6 +55,10 @@ export class FileTextPersistence {
     return !!this.#conflict;
   }
 
+  get baseline(): string | null {
+    return this.#baseline;
+  }
+
   acceptBaseline(contents: string): void {
     if (!this.#conflict) this.#baseline = contents;
   }
@@ -62,6 +66,13 @@ export class FileTextPersistence {
   updateLocal(contents: string): void {
     if (this.#conflict && this.#conflict.local !== contents)
       this.#publish(this.#conflict.external, this.#conflict.readError);
+  }
+
+  /** Retain a computed draft and authoritative disk snapshot before rejecting. */
+  async rejectPersistence(error: unknown = this.#error): Promise<never> {
+    this.#assertTarget();
+    await this.#captureExternal();
+    throw error;
   }
 
   async persist(contents: string): Promise<void> {

@@ -56,3 +56,4 @@
 | LN-PKG-169 | [packages](../packages/vault-and-storage.md#ln-pkg-169) | Implemented | Sixteen exact cases, sixty affected regressions, public built types and native recovery pass; [editor conflict qualification](../../records/2026-10-16-editor-file-conflicts.md). |
 | LN-PKG-170 | [packages](../packages/vault-and-storage.md#ln-pkg-170) | In progress | Generic public export, asynchronous admission and operation-owned recovery leases are being qualified. |
 | LN-PKG-171 | [packages](../packages/workspace-apis.md#ln-pkg-171) | In progress | Shared Deno chooser/startup extraction; source and both native consumers require qualification. |
+| LN-PKG-172 | [packages](../packages/vault-and-storage.md#ln-pkg-172) | Implemented | All 57 affected writer cases, 256 catalog cases and four native Properties/type cases pass; [source qualification](../../records/2026-10-16-managed-file-mutations.md). M4's remaining writer audit stays open. |

@@ -1,5 +1,11 @@
 # Packages / Vault and storage
 
+## LN-PKG-172 — Protected text mutations
+
+<a id="ln-pkg-172"></a>
+
+**Requirement.** Conditional-capable hosts MUST apply frontmatter and metadata text mutations through the owning App's file-writer lifecycle. Mutations MUST drain and protect existing document writers before reading authoritative content, retain failed conditional drafts for explicit recovery, and block shutdown until persistence or discard succeeds. Queued mutations MUST serialize without reentering the guard. Cached metadata MUST NOT replace authoritative mutation input.
+
 ## LN-PKG-170 — Source-owned text conflict recovery
 
 <a id="ln-pkg-170"></a>
