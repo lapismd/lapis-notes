@@ -339,3 +339,6 @@ lock/unlock. It does not qualify native filesystem apply or server routes.
 The optional native watch contract carries rename hints and awaitable cleanup
 under LN-PKG-176. DirectoryWatcher owns generation retirement; hosts own native
 resources and session release. This introduces no ambient App state or provider.
+
+LN-PKG-177 exposes optional watch registration readiness before initial
+reconciliation. Array adapters preserve it; the frozen Deno host is unchanged.

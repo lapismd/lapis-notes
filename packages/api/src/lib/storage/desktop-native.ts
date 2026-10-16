@@ -586,7 +586,12 @@ export class NativeDesktopVaultAdapter
         .filter((subscription): subscription is NativeWatchSubscription =>
           Boolean(subscription),
         );
+      const ready = Promise.all(
+        subscriptions.map((subscription) => subscription.ready),
+      ).then(() => {});
+      void ready.catch(() => {});
       return {
+        ready,
         close: async () => {
           const results = await Promise.allSettled(
             subscriptions.map(async (subscription) => subscription.close()),

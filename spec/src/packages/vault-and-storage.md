@@ -1,5 +1,11 @@
 # Packages / Vault and storage
 
+## LN-PKG-177 — Watch registration readiness
+
+<a id="ln-pkg-177"></a>
+
+**Requirement.** NativeWatchSubscription MAY expose registration readiness. Supporting adapters and DirectoryWatcher MUST preserve that promise, including array subscriptions, so owners can register watching before their initial reconciliation. Failed registration MUST remain observable through readiness without an unhandled background rejection. Closing during registration MUST retain cleanup ownership until the native start and stop boundary completes.
+
 ## LN-PKG-176 — Owned watcher retirement
 
 <a id="ln-pkg-176"></a>

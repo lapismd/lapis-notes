@@ -53,7 +53,12 @@ export class DirectoryWatcher extends EventDispatcher<{
   ): NativeWatchSubscription {
     if (Array.isArray(path)) {
       const subscriptions = path.map((entry) => this.watch(entry, options));
+      const ready = Promise.all(subscriptions.map((entry) => entry.ready)).then(
+        () => {},
+      );
+      void ready.catch(() => {});
       return {
+        ready,
         close: () => drain(subscriptions.map(async (entry) => entry.close())),
       };
     }
@@ -72,6 +77,7 @@ export class DirectoryWatcher extends EventDispatcher<{
       pending: Promise.resolve(),
     };
     this.watchers.set(path, state);
+    let ready = Promise.resolve();
     const adapter = this.adapter as Partial<VaultAdapter> &
       Partial<NativeWatchAdapter>;
     if (
@@ -95,6 +101,7 @@ export class DirectoryWatcher extends EventDispatcher<{
                   },
             );
           }) ?? null;
+        ready = state.native?.ready ?? ready;
       } catch (error) {
         state.active = false;
         if (this.watchers.get(path) === state) this.watchers.delete(path);
@@ -104,8 +111,10 @@ export class DirectoryWatcher extends EventDispatcher<{
       }
     } else {
       state.pending = this.poll(state);
+      ready = state.pending;
     }
-    return { close: () => this.retire(state) };
+    void ready.catch(() => {});
+    return { ready, close: () => this.retire(state) };
   }
 
   unwatch(path: string): Promise<void> {

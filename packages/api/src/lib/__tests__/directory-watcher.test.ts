@@ -17,6 +17,7 @@ function deferred<T = void>() {
 class NativeAdapter extends InMemoryDataAdapter {
   listeners: Array<(event: ChangeEvent | WatchErrorEvent) => void> = [];
   cleanup = vi.fn((): void | Promise<void> => undefined);
+  ready: Promise<void> | undefined;
   options: unknown[] = [];
   getCapabilities() {
     return {
@@ -35,10 +36,41 @@ class NativeAdapter extends InMemoryDataAdapter {
   ): NativeWatchSubscription {
     this.listeners.push(listener);
     this.options.push(options);
-    return { close: () => this.cleanup() };
+    return { ready: this.ready, close: () => this.cleanup() };
   }
 }
 describe("owned DirectoryWatcher retirement", () => {
+  it("exposes native registration readiness before an initial reconciliation", async () => {
+    const adapter = new NativeAdapter();
+    const release = deferred();
+    adapter.ready = release.promise;
+    const watcher = new DirectoryWatcher(adapter);
+    const subscription = watcher.watch("/");
+    let ready = false;
+    const starting = Promise.resolve(subscription.ready).then(() => {
+      ready = true;
+    });
+    await Promise.resolve();
+    expect(ready).toBe(false);
+    release.resolve();
+    await starting;
+    expect(ready).toBe(true);
+    await watcher.close();
+  });
+  it("retains rejected readiness through array subscriptions", async () => {
+    const adapter = new NativeAdapter();
+    const release = deferred();
+    adapter.ready = release.promise;
+    const watcher = new DirectoryWatcher(adapter);
+    const subscription = watcher.watch(["Notes", "Other"]);
+    release.resolve();
+    await subscription.ready;
+    await watcher.close();
+    adapter.ready = Promise.reject(new Error("registration rejected"));
+    const failed = watcher.watch("/");
+    await expect(failed.ready).rejects.toThrow("registration rejected");
+    await watcher.close();
+  });
   it("closes a subscription retired by its registration callback", async () => {
     const adapter = new NativeAdapter();
     const original = adapter.watch.bind(adapter);

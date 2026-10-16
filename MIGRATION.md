@@ -6,7 +6,8 @@ intake or UI swap status changes.
 ## Tauri source support (2026-10-16)
 
 - [ ] Qualify owned native watcher retirement and App ingestion (LN-PKG-176);
-      targeted source work is in progress and full lanes remain deferred until
+      retirement and registration readiness (LN-PKG-177) have targeted source
+      evidence; full lanes remain deferred until
       M7 implementation completes.
 
 - [x] Qualify document-owned API editor baselines, retained text conflicts and

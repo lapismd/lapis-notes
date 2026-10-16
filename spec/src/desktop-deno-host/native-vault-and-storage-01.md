@@ -327,3 +327,6 @@ Desktop session lifecycle telemetry verifies:
 The shared API watch subscription now permits awaited cleanup and optional
 rename hints (LN-PKG-176) for Tauri ingestion. The superseded Deno host remains
 frozen; this shared-contract annotation requires no legacy host changes.
+
+LN-PKG-177 exposes optional watch registration readiness before initial
+reconciliation. Array adapters preserve it; the frozen Deno host is unchanged.

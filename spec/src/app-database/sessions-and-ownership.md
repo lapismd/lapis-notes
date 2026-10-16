@@ -92,3 +92,6 @@ complete snapshot; no database provider or authority is introduced.
 <a id="ln-db-056"></a>
 
 **Requirement.** Direct Turso close MUST drain accepted mutations and retain its connection until the driver closes successfully. Concurrent close calls MUST share completion. A failed close MUST remain observable and permit retry against the same owned driver without reopening it.
+
+LN-PKG-177 exposes optional watch registration readiness before initial
+reconciliation. Array adapters preserve it; the frozen Deno host is unchanged.

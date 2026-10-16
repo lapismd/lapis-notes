@@ -194,6 +194,8 @@ export interface WatchErrorEvent {
 }
 
 export interface NativeWatchSubscription {
+  /** Resolves after native registration and its initial snapshot complete. */
+  readonly ready?: Promise<void>;
   close(): void | Promise<void>;
 }
 

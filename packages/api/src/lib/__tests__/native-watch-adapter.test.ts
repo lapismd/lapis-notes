@@ -6,6 +6,33 @@ import {
 
 afterEach(() => setNativeDesktopBridge(null));
 
+it("preserves pending and failed native readiness across array subscriptions", async () => {
+  let release!: () => void;
+  const ready = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  setNativeDesktopBridge({
+    runtime: "tauri-desktop",
+    toFileUrl: (path) => path,
+    invoke: async () => {
+      throw new Error("unexpected IO");
+    },
+    watch: () => ({ ready, close() {} }),
+  });
+  const adapter = new NativeDesktopVaultAdapter("/owned", {}, "tauri-desktop");
+  const subscription = adapter.watch(["Notes", "Other"], {}, () => {});
+  let done = false;
+  const starting = Promise.resolve(subscription?.ready).then(() => {
+    done = true;
+  });
+  await Promise.resolve();
+  expect(done).toBe(false);
+  release();
+  await starting;
+  expect(done).toBe(true);
+  await subscription?.close();
+});
+
 it("awaits every array subscription even when one native stop throws", async () => {
   let release!: () => void;
   const pending = new Promise<void>((resolve) => {
