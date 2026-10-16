@@ -4,7 +4,7 @@
 
 <a id="ln-exp-010"></a>
 
-**Requirement.** Explorer MUST connect its existing external-file drop surface to the owning FileManager's new-file intent. Imported files MUST preserve complete binary bytes beneath the selected vault folder and MUST NOT replace an existing destination. Empty or cancelled drops MUST leave the vault unchanged.
+**Requirement.** Explorer MUST connect its existing external-file drop surface to the owning FileManager's new-file intent. Imported files MUST preserve complete binary bytes beneath the selected vault folder and retain FileManager's optional exclusive-creation contract. A rejected creation MUST NOT retry as an overwrite. Empty or cancelled drops MUST leave the vault unchanged.
 
 ## LN-EXP-011 — Import lifecycle admission
 

@@ -52,3 +52,5 @@ Normal public build/publint, changed-file formatting, App-ownership audit,
 spec-first and canonical validation pass. Validation retains 172 chapters and
 now covers 1,475 requirements. Node 26.9.0, pnpm 10.34.5, Vitest 4.1.11,
 macOS ARM64. Logs remain in ignored `.local/m5-import`.
+
+The source import contract delegates atomic absence guarantees to FileManager's optional exclusive-create port. Native Tauri implements that port; this slice does not change the explicitly retained legacy fallback or low-level create semantics on other hosts. Clarify that scope without changing implementation or qualifying an unsupported provider.
