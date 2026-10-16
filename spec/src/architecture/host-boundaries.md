@@ -1,5 +1,9 @@
 # Architecture / Host boundaries
 
+LN-PKG-180 and LN-PKG-181 keep complete tree reconciliation in the shared Vault
+owner. Native transports supply hints; hosts do not replace canonical resource
+identities or synthesize a separate file tree.
+
 The optional conditional text-write port is governed by
 [LN-PKG-167](../packages/vault-and-storage.md#ln-pkg-167) and
 [LN-PKG-168](../packages/vault-and-storage.md#ln-pkg-168). Native capability

@@ -1,5 +1,9 @@
 # App Database / Sessions and ownership
 
+LN-PKG-180 and LN-PKG-181 project complete disk snapshots through existing
+Vault events, including folder descendants needed by metadata ownership.
+Retired generations cannot publish a snapshot into the next session.
+
 Conditional hosts retain database/session ownership until admitted file creation
 and plugin-data operations have drained through their App. File-tree projection
 and the owning UI continuation finish before destructive host teardown. This

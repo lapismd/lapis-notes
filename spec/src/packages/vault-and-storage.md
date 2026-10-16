@@ -1,5 +1,23 @@
 # Packages / Vault and storage
 
+## LN-PKG-182 — Serialized vault mutation projection
+
+<a id="ln-pkg-182"></a>
+
+**Requirement.** Vault mutations and reconciliation MUST serialize IO through cache/tree/event projection so a scan cannot publish over an in-flight internal mutation. App operation admission MUST include queued work. Rejection MUST NOT poison later operations; internal method delegation MUST NOT deadlock by re-entering the queue.
+
+## LN-PKG-180 — Stable vault tree reconciliation
+
+<a id="ln-pkg-180"></a>
+
+**Requirement.** Vault reconciliation MUST preserve canonical nodes, parents, children and filename indexes for unchanged or explicitly renamed resources. Modified content MUST invalidate cached bytes; renames and deletions MUST notify each affected descendant through existing lifecycle events. Internal rename, copy, trash and atomic writes MUST preserve unrelated identities and use the same tree projection.
+
+## LN-PKG-181 — Complete bounded reconciliation snapshots
+
+<a id="ln-pkg-181"></a>
+
+**Requirement.** Reconciliation MUST bound snapshot entries and path storage, validate child paths and complete all required listing/stat operations before publishing tree changes. Incomplete or invalid scans MUST retain the previous complete tree and permit retry. Retired generations MUST NOT publish scanned changes. Successful scans MUST NOT write note bytes.
+
 ## LN-PKG-178 — Optional exclusive-create transport
 
 <a id="ln-pkg-178"></a>

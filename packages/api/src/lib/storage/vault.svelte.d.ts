@@ -5,6 +5,7 @@ import {
   TFile,
   TFolder,
   type DataAdapter,
+  type ChangeEvent,
   type DataWriteOptions,
   type TAbstractFile,
 } from "./fs";
@@ -43,6 +44,10 @@ export declare class Vault extends EventDispatcher<{
   readonly adapter: DataAdapter;
   private files;
   private filesByName;
+  private mutationTail;
+  private mutate;
+  private mutateFile;
+  private reconcileNow;
   configDir: string;
   readonly cache: FileCache;
   constructor(
@@ -56,6 +61,23 @@ export declare class Vault extends EventDispatcher<{
   list(path?: string): Promise<import("./fs").ListedFiles>;
   load(): Promise<void>;
   reload(): Promise<TFolder>;
+  reconcile(
+    hints?: readonly ChangeEvent[],
+    current?: () => boolean,
+    context?: Record<string, unknown>,
+  ): Promise<void>;
+  private deleteNow;
+  private trashNow;
+  private atomicWriteNow;
+  private renameNow;
+  private modifyNow;
+  private modifyIfUnchangedNow;
+  private modifyBinaryNow;
+  private processNow;
+  private appendNow;
+  private appendBinaryNow;
+  private copyNow;
+  private recordFile;
   private addToFileNameIndex;
   private removeFromFileNameIndex;
   private rebuildFileNameIndex;
