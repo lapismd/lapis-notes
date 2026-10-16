@@ -1,5 +1,9 @@
 # Architecture / Application ownership
 
+Sync-host identity reconciliation completes before its observed file-event queue
+commits changes. App-owned startup and teardown share that ordered readiness
+boundary (LN-DB-047); native hosts do not bypass or retry rejected readiness.
+
 Desktop recovery presentation under LN-PKG-175 receives descriptions and
 callbacks from the session owner. It cannot discover App state, restart a host
 or persist recovery configuration independently.

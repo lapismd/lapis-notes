@@ -1,5 +1,9 @@
 # Packages / App and services
 
+The API-owned SyncHostService queues observed file changes behind initial
+identity reconciliation (LN-DB-047), retaining durable sequence checks while
+preventing its own startup and event writers from competing.
+
 The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.

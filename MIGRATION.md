@@ -9,6 +9,11 @@ intake or UI swap status changes.
 
 ## Tauri source support (2026-10-16)
 
+- [ ] Complete consumer qualification of ordered sync-host initialization
+      (LN-DB-047). The exact regression and all 74 affected cases pass;
+      [source evidence](spec/records/2026-10-16-sync-host-startup-ordering.md).
+      End-of-M7 full qualification remains pending.
+
 - [ ] Complete native system-trash and owned Explorer-action qualification
       (LN-PKG-184, LN-EXP-009); 35 affected API and 31 Explorer cases plus public
       checks/builds pass. [Source evidence](spec/records/2026-10-16-native-system-trash-and-actions.md)

@@ -16,7 +16,7 @@
 
 <a id="ln-db-047"></a>
 
-**Requirement.** File identity reconciliation MAY preserve a unique recent tombstone by strong content fingerprint, but size and mtime alone MUST NOT establish identity. A database rebuild MUST receive a new database-generation ID while vault content remains authoritative.
+**Requirement.** File identity reconciliation MAY preserve a unique recent tombstone by strong content fingerprint, but size and mtime alone MUST NOT establish identity. A database rebuild MUST receive a new database-generation ID while vault content remains authoritative. Observed file events MUST queue behind startup reconciliation so local writes cannot starve readiness.
 
 ## LN-DB-048 — AppDatabase: expose a generation-scoped, monotonically increasing change cursor
 
