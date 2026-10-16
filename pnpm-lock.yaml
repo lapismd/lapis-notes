@@ -315,7 +315,7 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0
       '@lapis-notes/ui':
-        specifier: ^0.1.2
+        specifier: ^0.1.4
         version: link:../ui
       '@lapismd/ai-host':
         specifier: ^0.1.0
@@ -528,7 +528,7 @@ importers:
         version: 5.56.10
       svelte-check:
         specifier: ^4.3.1
-        version: 4.7.4(picomatch@4.0.7)(svelte@5.56.10)(typescript@5.8.3)
+        version: 4.7.4(picomatch@4.0.5)(svelte@5.56.10)(typescript@5.8.3)
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
@@ -632,7 +632,7 @@ importers:
         version: 5.56.10
       svelte-check:
         specifier: ^4.3.1
-        version: 4.7.4(picomatch@4.0.5)(svelte@5.56.10)(typescript@5.9.3)
+        version: 4.7.4(picomatch@4.0.7)(svelte@5.56.10)(typescript@5.9.3)
       tailwindcss:
         specifier: ^4.1.12
         version: 4.3.3
@@ -652,7 +652,7 @@ importers:
   packages/file-explorer:
     dependencies:
       '@lapis-notes/api':
-        specifier: ^0.1.2
+        specifier: ^0.1.5
         version: link:../api
       '@lapismd/design-core':
         specifier: ^0.5.0
@@ -909,7 +909,7 @@ importers:
   packages/workspace:
     dependencies:
       '@lapis-notes/api':
-        specifier: ^0.1.2
+        specifier: ^0.1.5
         version: link:../api
       '@lapismd/design-core':
         specifier: ^0.5.0
@@ -16904,19 +16904,6 @@ snapshots:
     transitivePeerDependencies:
       - picomatch
 
-  svelte-check@4.7.4(picomatch@4.0.5)(svelte@5.56.10)(typescript@5.9.3):
-    dependencies:
-      '@jridgewell/trace-mapping': 0.3.31
-      '@sveltejs/load-config': 0.2.1
-      chokidar: 4.0.3
-      fdir: 6.5.0(picomatch@4.0.5)
-      picocolors: 1.1.1
-      sade: 1.8.1
-      svelte: 5.56.10
-      typescript: 5.9.3
-    transitivePeerDependencies:
-      - picomatch
-
   svelte-check@4.7.4(picomatch@4.0.7)(svelte@5.56.10)(typescript@5.8.3):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
@@ -16927,6 +16914,19 @@ snapshots:
       sade: 1.8.1
       svelte: 5.56.10
       typescript: 5.8.3
+    transitivePeerDependencies:
+      - picomatch
+
+  svelte-check@4.7.4(picomatch@4.0.7)(svelte@5.56.10)(typescript@5.9.3):
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.31
+      '@sveltejs/load-config': 0.2.1
+      chokidar: 4.0.3
+      fdir: 6.5.0(picomatch@4.0.7)
+      picocolors: 1.1.1
+      sade: 1.8.1
+      svelte: 5.56.10
+      typescript: 5.9.3
     transitivePeerDependencies:
       - picomatch
 
