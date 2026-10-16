@@ -17,3 +17,5 @@ export type {
   DesktopLauncherAppearance,
   LauncherStatus,
 } from "./desktop/desktop-vault-launcher";
+
+export { default as DesktopRecoveryBanner } from "./desktop/DesktopRecoveryBanner.svelte";

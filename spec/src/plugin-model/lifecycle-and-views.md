@@ -1,5 +1,9 @@
 # Plugin Model / Lifecycle and views
 
+The LN-PKG-175 recovery banner presents host-owned Safe Mode state. Entering
+optional-plugin recovery does not persist new core enablement choices; normal
+plugin and workspace teardown remain owned by the host.
+
 Conditional text persistence uses the optional public vault port in
 [LN-PKG-167](../packages/vault-and-storage.md#ln-pkg-167). Plugins and hosts retain
 their owning document baselines and recovery UI; adding this storage port alone

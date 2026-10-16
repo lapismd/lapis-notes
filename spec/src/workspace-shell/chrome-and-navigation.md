@@ -1,5 +1,9 @@
 # Workspace Shell / Chrome and navigation
 
+Desktop Safe Mode presentation is shared under LN-PKG-175. Its retained Deno
+labels and Design Core controls sit below the top tabs; the host supplies
+restriction descriptions, operation status and callbacks.
+
 The desktop chooser and startup precede the workspace through the shared
 public presentation in LN-PKG-171. Deno and Tauri provide native vault actions
 and session ownership while reusing the same chooser markup, native CSS and

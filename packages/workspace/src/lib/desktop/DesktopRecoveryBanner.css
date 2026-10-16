@@ -1,0 +1,46 @@
+.desktop-recovery-banner {
+  position: absolute;
+  z-index: 80;
+  inset-block-end: 0.75rem;
+  inset-inline-start: 50%;
+  display: flex;
+  width: min(56rem, calc(100% - 2rem));
+  box-sizing: border-box;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--ui-workspace-border);
+  border-radius: var(--ui-radius, 0.625rem);
+  color: var(--ui-workspace-foreground);
+  background: var(--ui-workspace-panel-background);
+  box-shadow: var(--ui-workspace-shadow-lg, 0 12px 30px rgb(0 0 0 / 16%));
+  translate: -50% 0;
+}
+.desktop-recovery-banner__message {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem;
+  font-size: 0.75rem;
+  color: var(--ui-workspace-muted-foreground);
+}
+.desktop-recovery-banner__message strong {
+  font-size: 0.875rem;
+  color: var(--ui-workspace-foreground);
+}
+.desktop-recovery-banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+@media (width < 48rem) {
+  .desktop-recovery-banner {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .desktop-recovery-banner__actions {
+    justify-content: flex-start;
+  }
+}

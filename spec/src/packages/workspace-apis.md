@@ -6,6 +6,12 @@
 
 **Requirement.** `@lapis-notes/workspace` MUST export the existing desktop vault chooser and branded startup components for Deno and Tauri consumers. The chooser MUST retain the Deno layout, labels, recent-project search, appearance controls and drag exclusions through native CSS and public Design Core primitives. Hosts MUST inject profile storage and actions; unavailable profile operations MUST remain absent. Vault selection and session ownership MUST remain host-owned.
 
+## LN-PKG-175 — Shared desktop recovery presentation
+
+<a id="ln-pkg-175"></a>
+
+**Requirement.** Workspace MUST export the existing desktop Safe Mode banner using public Design Core controls and native CSS. The banner MUST describe active restrictions and expose metadata rebuild, Search rebuild and normal restart through host-owned callbacks. It MUST keep startup policy, App ownership and persistence in the host, remain outside the top tab strips, and omit unavailable recovery capabilities.
+
 ## LN-PKG-009 — @lapis-notes/api: expose the design-core V3 bottom panel
 
 <a id="ln-pkg-009"></a>

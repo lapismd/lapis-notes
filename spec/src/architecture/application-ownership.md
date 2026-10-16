@@ -1,5 +1,9 @@
 # Architecture / Application ownership
 
+Desktop recovery presentation under LN-PKG-175 receives descriptions and
+callbacks from the session owner. It cannot discover App state, restart a host
+or persist recovery configuration independently.
+
 The app-profile `plugins` URL action is scoped to its owning App under
 [LN-PLUG-106](../plugin-model/app-ownership.md#ln-plug-106). Native and Web
 hosts retain transport delivery; verified catalog selection and installation
