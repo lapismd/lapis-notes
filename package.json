@@ -153,7 +153,7 @@
     "@lapis-notes/ui": "workspace:*",
     "@lapis-notes/workspace": "workspace:*",
     "@lapismd/design-core": "^0.4.0",
-    "@lapismd/mira": "~0.0.3",
+    "@lapismd/mira": "~0.0.5",
     "@lapismd/mira-editor": "~0.0.2",
     "@lapismd/mira-plugin-ai": "~0.0.2",
     "@lapismd/mira-plugin-mermaid": "~0.0.2",

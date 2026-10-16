@@ -13,7 +13,7 @@ The profile dismisses its own Settings after successful URL navigation under
 
 <a id="ln-arch-034"></a>
 
-**Requirement.** App-database selection MUST use an API-owned provider contract. Production hosts MUST register Turso providers without retaining SQLite compatibility or non-Turso fallback paths, while Search and workspace consumers MUST depend only on generic `AppDatabase` capabilities.
+**Requirement.** App-database selection MUST use an API-owned provider contract. Production hosts MUST register Turso providers without retaining SQLite compatibility or non-Turso fallback paths, while Search and workspace consumers MUST depend only on generic `AppDatabase` capabilities. Direct Turso teardown MUST retain driver ownership after failure and drain accepted mutations before successful release, as specified by LN-DB-056.
 
 ## LN-ARCH-054 — App-linked runtime objects: resolve App through explicit injection, workspace ownership
 

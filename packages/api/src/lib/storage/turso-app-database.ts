@@ -759,6 +759,7 @@ export class TursoAppDatabase implements AppDatabase {
 
   private connection: TursoConnection | null = null;
   private opened = false;
+  private closeTask: Promise<void> | null = null;
   private nativeFullTextSearch = false;
   private nativeVectorSearch = false;
   private searchEmbeddingProviderConfig: SearchEmbeddingProviderConfig | null =
@@ -873,14 +874,23 @@ export class TursoAppDatabase implements AppDatabase {
   }
 
   async close(): Promise<void> {
-    if (!this.connection) return;
+    if (this.closeTask) return this.closeTask;
     const connection = this.connection;
-    this.connection = null;
-    this.opened = false;
-    await this.searchEmbeddingProvider?.dispose?.();
-    this.searchEmbeddingProvider = null;
-    this.changeListeners.clear();
-    await connection.close();
+    if (!connection) return;
+    this.closeTask = (async () => {
+      await this.commitQueue;
+      await this.searchEmbeddingProvider?.dispose?.();
+      this.searchEmbeddingProvider = null;
+      await connection.close();
+      this.connection = null;
+      this.opened = false;
+      this.changeListeners.clear();
+    })();
+    try {
+      await this.closeTask;
+    } finally {
+      this.closeTask = null;
+    }
   }
 
   async beginSearchIndexingBatch(): Promise<void> {}

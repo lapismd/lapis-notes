@@ -77,3 +77,9 @@
 <a id="ln-db-055"></a>
 
 **Requirement.** A `tauri-desktop` session MUST require an explicitly injected AppDatabase provider and open it with the direct role. Missing providers MUST fail before opening browser or memory storage. Explicit test database injection MAY remain supported.
+
+## LN-DB-056 — Direct Turso close ownership
+
+<a id="ln-db-056"></a>
+
+**Requirement.** Direct Turso close MUST drain accepted mutations and retain its connection until the driver closes successfully. Concurrent close calls MUST share completion. A failed close MUST remain observable and permit retry against the same owned driver without reopening it.

@@ -38,7 +38,7 @@ Registry-consumer toolchain and build-policy acceptance is recorded in
 
 <a id="ln-pkg-012"></a>
 
-**Requirement.** `@lapis-notes/api` MUST consume `@lapismd/mira` through its published npm package and built public exports for the shared source-editor CodeMirror shell; package manifests MUST use a portable semver dependency range.
+**Requirement.** `@lapis-notes/api` MUST consume Mira through built public exports with portable registry dependency and peer ranges. During the Tauri migration, hosts MAY use verified source-owned pnpm archives; publication remains deferred to the final release gate.
 
 ## LN-PKG-016 — @lapismd/storybook-addon-visual-delta: remain a private root development dependency resolved
 
