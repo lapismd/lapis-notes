@@ -1,5 +1,10 @@
 # Plugin Model / Lifecycle and views
 
+Conditional text persistence uses the optional public vault port in
+[LN-PKG-167](../packages/vault-and-storage.md#ln-pkg-167). Plugins and hosts retain
+their owning document baselines and recovery UI; adding this storage port alone
+does not provide editor conflict protection.
+
 Hosts finish note and layout persistence before unloading plugin-owned views.
 [LN-WS-095](../workspace-shell/layout-and-persistence.md#ln-ws-095) supplies the
 awaitable workspace boundary; plugins retain their existing view-state and

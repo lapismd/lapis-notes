@@ -1,5 +1,10 @@
 # App Database / Database integration
 
+The conditional text-write port under
+[LN-PKG-167](../packages/vault-and-storage.md#ln-pkg-167) is a vault capability.
+Its native advertisement does not grant SQL or database connection authority;
+database providers and their owned lifetimes remain independent.
+
 Metadata checks, mutations and transaction results have one shared definition
 in the headless `@lapis-notes/api/metadata-store` contract (LN-ARCH-116).
 AppDatabase retains its existing type exports and inherits that contract;

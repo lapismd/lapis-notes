@@ -263,6 +263,7 @@ export interface DataAdapter {
 }
 
 export interface VaultAdapterCapabilities {
+  conditionalTextWrite?: boolean;
   persistent: boolean;
   userVisibleFiles: boolean;
   requiresPermission: boolean;
@@ -279,6 +280,16 @@ export interface VaultAdapterCapabilities {
  */
 export interface VaultAdapter extends DataAdapter {
   getCapabilities?(): Partial<VaultAdapterCapabilities>;
+  /**
+   * Reject when the file no longer has these exact contents (null means
+   * absent).
+   */
+  writeTextIfUnchanged?(
+    normalizedPath: string,
+    data: string,
+    expected: string | null,
+    options?: DataWriteOptions,
+  ): Promise<void>;
   openRead?(normalizedPath: string): Promise<VaultReadHandle>;
   atomicWrite?(
     normalizedPath: string,

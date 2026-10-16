@@ -1,5 +1,11 @@
 # Architecture / Host boundaries
 
+The optional conditional text-write port is governed by
+[LN-PKG-167](../packages/vault-and-storage.md#ln-pkg-167) and
+[LN-PKG-168](../packages/vault-and-storage.md#ln-pkg-168). Native capability
+advertisement and enforcement stay host-owned; the shared adapter cannot replace
+a rejected or unsupported conditional request with a normal write.
+
 Large-frame codec verification compares every byte directly while retaining
 Uint8Array prototype and length checks. Native, Buffer and portable fallback
 paths keep their canonical frame assertions and the existing test deadline;

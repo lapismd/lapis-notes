@@ -58,6 +58,7 @@ export interface NativeDesktopPlatformInfo {
 }
 
 export type NativeDesktopCapabilityId =
+  | "conditional-text-write"
   | "resource"
   | "database"
   | "search"
@@ -553,6 +554,9 @@ export class NativeDesktopVaultAdapter
 
   getCapabilities(): Partial<VaultAdapterCapabilities> {
     return {
+      conditionalTextWrite: hasNativeDesktopCapability(
+        "conditional-text-write",
+      ),
       persistent: true,
       userVisibleFiles: true,
       requiresPermission: false,
@@ -717,6 +721,27 @@ export class NativeDesktopVaultAdapter
     } finally {
       reader.releaseLock();
     }
+  }
+
+  async writeTextIfUnchanged(
+    normalizedPath: string,
+    data: string,
+    expected: string | null,
+    options?: DataWriteOptions,
+  ): Promise<void> {
+    if (expected !== null && typeof expected !== "string")
+      throw new Error("Invalid expected text snapshot");
+    if (!hasNativeDesktopCapability("conditional-text-write"))
+      throw new Error(
+        "Conditional text writes are unavailable in this native host",
+      );
+    await invokeNative<void>("desktop_fs_write_text_if_unchanged", {
+      rootPath: this.rootPath,
+      normalizedPath: normalizeVaultPath(normalizedPath),
+      data,
+      expected,
+      options,
+    });
   }
 
   async write(

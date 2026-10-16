@@ -1,5 +1,17 @@
 # Packages / Vault and storage
 
+## LN-PKG-167 — Optional conditional text writes
+
+<a id="ln-pkg-167"></a>
+
+**Requirement.** `VaultAdapter` MAY expose `writeTextIfUnchanged` with exact expected text or explicit expected absence. A supporting adapter MUST reject an observed mismatch without an unconditional-write fallback. The public package MUST expose the method's types.
+
+## LN-PKG-168 — Native conditional text transport
+
+<a id="ln-pkg-168"></a>
+
+**Requirement.** Native adapters MUST require an advertised `conditional-text-write` capability before conditional text IO. Missing or unavailable capability MUST reject before invocation. The adapter MUST transmit the explicit expected snapshot and preserve portable conflict errors without automatic retries or fallback writes.
+
 The native codec regression verifies the complete 256 KiB payload with exact
 byte comparison rather than generic deep property traversal. Prototype, length,
 canonical frames, invalid input and portable-fallback checks remain enforced
