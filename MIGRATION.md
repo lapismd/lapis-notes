@@ -8,9 +8,13 @@ intake or UI swap status changes.
 - [x] Qualify document-owned API editor baselines, retained text conflicts and
       protected explicit recovery (LN-ARCH-142 through LN-ARCH-144, LN-PKG-169);
       [source acceptance](spec/records/2026-10-16-editor-file-conflicts.md).
-- [ ] Integrate the separate editable Markdown preview writer before the
-      desktop's complete M4 gate can pass. Consume verified local archives and
-      defer package publication to migration completion.
+- [x] Bind editable Markdown preview writers to the public source-owned
+      persistence/recovery contract; final host acceptance is recorded with the
+      current slice.
+- [ ] Qualify Properties/metadata writers and finish the complete M4 writer audit.
+- [ ] Share the existing Deno chooser and branded startup through Workspace,
+      qualify both native hosts, and consume verified local archives. Publication
+      remains deferred to migration completion (LN-PKG-171).
 
 ## Specification readability and navigation (2026-10-13)
 

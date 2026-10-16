@@ -23,6 +23,11 @@ API-owned layout flush under [LN-WS-095](../workspace-shell/layout-and-persisten
 joins workspace persistence while that protection remains held. Registry disposal
 follows the guard; a callback cannot reenter its own queued registry operations.
 
+The public FileTextPersistence contract under
+[LN-PKG-170](../packages/vault-and-storage.md#ln-pkg-170) lets independent file
+writers share this conflict lifecycle. Each recovery carries its own protected
+acknowledgement and reset callbacks, including asynchronous surface admission.
+
 ## LN-ARCH-137 — Guarded document-load admission
 
 <a id="ln-arch-137"></a>

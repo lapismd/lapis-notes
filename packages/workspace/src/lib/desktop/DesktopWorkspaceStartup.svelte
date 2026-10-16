@@ -4,7 +4,7 @@
     type WorkspaceStartupFailure,
     type WorkspaceStartupTask,
   } from "@lapismd/design-core/workspace/startup";
-  import lapisLogo from "./assets/lapis-logo.svg";
+  import lapisLogo from "./lapis-logo.svg";
   import "./DesktopWorkspaceStartup.css";
 
   let {

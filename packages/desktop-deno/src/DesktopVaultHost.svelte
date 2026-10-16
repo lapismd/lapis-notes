@@ -15,11 +15,10 @@
     WorkspaceStartupTask,
   } from "@lapismd/design-core/workspace/startup";
   import { onMount, tick } from "svelte";
-  import DesktopVaultLauncher, {
-    type LauncherStatus,
-  } from "./DesktopVaultLauncher.svelte";
+  import { DesktopVaultLauncher, type LauncherStatus } from "@lapis-notes/workspace";
+  import { desktopVaultLauncherHost } from "./desktop-vault-launcher-host";
   import DesktopWorkspaceSession from "./DesktopWorkspaceSession.svelte";
-  import DesktopWorkspaceStartup from "./DesktopWorkspaceStartup.svelte";
+  import { DesktopWorkspaceStartup } from "@lapis-notes/workspace";
   import { DenoDesktopAppDatabaseProvider } from "./deno-app-database";
   import type { DenoDesktopBridge, DesktopAppInfo } from "./main";
 
@@ -269,6 +268,7 @@
   {/if}
   {#if showChooser}
     <DesktopVaultLauncher
+      host={desktopVaultLauncherHost}
       status={status as LauncherStatus}
       {errorMessage}
       {canReturn}

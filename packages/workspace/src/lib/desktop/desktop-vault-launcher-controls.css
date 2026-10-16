@@ -1,0 +1,142 @@
+.desktop-launcher__action[data-ui-component="button"],
+.desktop-launcher__option[data-ui-component="button"] {
+  width: 100%;
+  height: auto;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: flex-start;
+  white-space: normal;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  text-align: start;
+}
+.desktop-launcher__action-copy,
+.desktop-launcher__option-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  text-align: start;
+}
+.desktop-launcher__hint {
+  font-size: 0.75rem;
+  font-weight: 400;
+  opacity: 0.8;
+}
+.desktop-launcher__icon {
+  width: 1rem;
+  height: 1rem;
+}
+.desktop-launcher__large-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+.desktop-launcher__settings-trigger[data-ui-component="button"],
+.desktop-launcher__link[data-ui-component="button"] {
+  padding-inline: 0;
+}
+.desktop-launcher__close[data-ui-component="button"] {
+  border: 0;
+  border-radius: 50%;
+  box-shadow: none;
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+}
+.desktop-launcher__close[data-ui-component="button"]:hover:not(:disabled) {
+  color: var(--ui-workspace-panel-action-hover-foreground);
+  background: var(--ui-workspace-panel-action-hover-background);
+}
+.desktop-launcher__recent-open {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.desktop-launcher__recent-open:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.desktop-launcher__recent-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  margin-block-start: 0.125rem;
+  color: var(--ui-workspace-muted-foreground);
+}
+.desktop-launcher__outline[data-ui-component="button"]:hover:not(:disabled),
+.desktop-launcher__recent-open:hover:not(:disabled) {
+  color: var(--ui-workspace-foreground);
+  background: var(--background-modifier-active-hover);
+}
+.desktop-launcher__recent-menu {
+  display: flex;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  margin-block: auto;
+  border: 0;
+  border-radius: 0.5rem;
+  color: var(--ui-workspace-muted-foreground);
+  background: transparent;
+}
+.desktop-launcher__recent-menu:hover {
+  color: var(--ui-workspace-foreground);
+  background: var(--ui-workspace-panel-action-hover-background);
+}
+.desktop-launcher__recent-menu:focus-visible,
+.desktop-launcher__recent-open:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+.desktop-launcher__settings[data-ui-component="dialog"][data-ui-part="dialog-content"],
+.desktop-launcher__rename[data-ui-component="dialog"][data-ui-part="dialog-content"] {
+  top: 50%;
+  left: 50%;
+  width: min(28rem, calc(100% - 2rem));
+  max-width: 28rem;
+  max-height: calc(100% - 2rem);
+  overflow: auto;
+  translate: -50% -50%;
+}
+.desktop-launcher__command[data-ui-component="dialog"][data-ui-part="dialog-content"] {
+  top: 20vh;
+  left: 50%;
+  width: min(34rem, calc(100% - 2rem));
+  max-width: 34rem;
+  max-height: calc(80vh - 1rem);
+  overflow: hidden;
+  translate: -50% 0;
+  gap: 0;
+  padding: 0;
+  --ui-command-view-list-max-height: min(20rem, calc(80vh - 6rem));
+}
+.desktop-launcher__options {
+  display: grid;
+  gap: 0.75rem;
+}
+.desktop-launcher__option[data-ui-component="button"] {
+  padding-block: 0.75rem;
+}
+.desktop-launcher__form {
+  display: grid;
+  gap: 1rem;
+}
+.desktop-launcher__field {
+  display: grid;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}

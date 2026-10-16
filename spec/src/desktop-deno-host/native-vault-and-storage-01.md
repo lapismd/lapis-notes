@@ -74,7 +74,7 @@ Plugin registration parity verifies:
 
 <a id="ln-deno-009"></a>
 
-**Requirement.** Session boot MUST render Design Core `WorkspaceStartup` with vault, configuration, plugin, and layout tasks, then mount `WorkspaceShell` with an API `App`. While loading without failure, it MUST replace the visible title with the package-local Lapis logo while retaining the title as the region's accessible name. It MUST NOT copy the workspace renderer.
+**Requirement.** Session boot MUST render the shared Workspace `DesktopWorkspaceStartup`, composing Design Core `WorkspaceStartup` with vault, configuration, plugin, and layout tasks, then mount `WorkspaceShell` with an API `App`. While loading without failure, it MUST replace the visible title with the shared Lapis logo while retaining the title as the region's accessible name. It MUST NOT copy the workspace renderer.
 
 ### Acceptance details
 

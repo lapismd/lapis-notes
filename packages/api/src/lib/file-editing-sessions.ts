@@ -1,5 +1,6 @@
 import { FileTextConflictRegistry } from "./file-text-conflicts";
 export * from "./file-text-conflicts";
+export * from "./file-text-persistence";
 
 /**
  * Independent file writers implement this contract without importing a

@@ -11,6 +11,10 @@ backend setup.
 
 - `WorkspaceShell`, the Svelte component used by hosts and demos.
 - `WorkspaceShellProps`, the public prop contract for typed Svelte consumers.
+- `DesktopVaultLauncher` and `DesktopVaultLauncherHost`, the existing Deno
+  vault chooser with injected profile storage, appearance and native actions.
+- `DesktopWorkspaceStartup`, the shared Lapis-branded Design Core startup
+  presentation. Both native hosts pass actual phase progress and recovery actions.
 
 ## Usage
 

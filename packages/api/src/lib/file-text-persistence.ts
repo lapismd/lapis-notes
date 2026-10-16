@@ -15,28 +15,34 @@ function hasCode(error: unknown, code: string): boolean {
   );
 }
 
+/** A single recovery operation owns its protected document acknowledgement. */
+export type FileTextRecoveryLease = {
+  release(): void;
+  saved(): void;
+  reset(contents: string): void;
+};
+
+export type FileTextPersistenceOptions = {
+  vault: Pick<Vault, "read" | "modifyIfUnchanged">;
+  file: TFile;
+  baseline: string;
+  conflicts: FileTextConflictRegistry;
+  local(): string;
+  /** Acquire editing protection synchronously, before asynchronous admission. */
+  protect(): FileTextRecoveryLease | Promise<FileTextRecoveryLease>;
+  settle?(): Promise<void>;
+  serialize(run: () => Promise<void>): Promise<void>;
+};
+
 /** A single captured document's baseline and explicit text-conflict recovery. */
-export class EditorTextPersistence {
+export class FileTextPersistence {
   readonly #id = crypto.randomUUID();
   readonly #path: string;
   readonly #error: Error & { code: string };
   #baseline: string | null;
   #conflict: FileTextConflict | undefined;
 
-  constructor(
-    private readonly options: {
-      vault: Vault;
-      file: TFile;
-      baseline: string;
-      conflicts: FileTextConflictRegistry;
-      local(): string;
-      protect(): () => void;
-      settle(): Promise<void>;
-      serialize(run: () => Promise<void>): Promise<void>;
-      saved(): void;
-      reset(contents: string): void;
-    },
-  ) {
+  constructor(private readonly options: FileTextPersistenceOptions) {
     this.#path = options.file.path;
     this.#baseline = options.baseline;
     this.#error = Object.assign(
@@ -82,7 +88,7 @@ export class EditorTextPersistence {
 
   #assertTarget(): void {
     if (this.options.file.path !== this.#path)
-      throw new Error("Editor persistence target changed");
+      throw new Error("File text persistence target changed");
   }
 
   #assertCurrent(conflict: FileTextConflict): void {
@@ -138,9 +144,9 @@ export class EditorTextPersistence {
       choice !== "use-external"
     )
       throw new Error("Invalid text conflict resolution");
-    const release = this.options.protect();
+    const lease = await this.options.protect();
     try {
-      await this.options.settle();
+      await this.options.settle?.();
       await this.options.serialize(async () => {
         this.#assertCurrent(conflict);
         if (choice === undefined) {
@@ -168,7 +174,7 @@ export class EditorTextPersistence {
           }
           this.#baseline = contents;
           this.#clear();
-          this.options.saved();
+          lease.saved();
         } else {
           let external: string | null;
           try {
@@ -183,11 +189,11 @@ export class EditorTextPersistence {
           }
           this.#baseline = external;
           this.#clear();
-          this.options.reset(external ?? "");
+          lease.reset(external ?? "");
         }
       });
     } finally {
-      release();
+      lease.release();
     }
   }
 

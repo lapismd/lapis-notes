@@ -20,7 +20,7 @@ import {
   type EditorSaveSnapshot,
 } from "./editor-save-context";
 import { resolveApplication } from "./application-compatibility";
-import { EditorTextPersistence } from "./editor-text-persistence";
+import { FileTextPersistence } from "./file-text-persistence";
 
 export type EditorPosition = { line: number; ch: number };
 export interface EditorRange {
@@ -92,7 +92,7 @@ interface EditorDocumentBinding {
   persistence: EditorPersistence;
   writer?: EditorPersistenceWriter;
   saves: EditorSaveContext;
-  text?: EditorTextPersistence;
+  text?: FileTextPersistence;
   unregister?: () => void;
   loading?: Promise<void>;
 }
@@ -365,16 +365,30 @@ export class Editor extends EventDispatcher<{
       file &&
       application.vault.supportsConditionalTextWrites
     ) {
-      document.text = new EditorTextPersistence({
+      document.text = new FileTextPersistence({
         vault: application.vault,
         file,
         baseline: this.data,
         conflicts: application.fileEditingSessions.textConflicts,
         local: () => document.saves.latest?.content ?? this.data,
-        protect: () =>
-          !this.destroyed && this.#document === document
-            ? this.#holdEditing()
-            : () => undefined,
+        protect: () => ({
+          release:
+            !this.destroyed && this.#document === document
+              ? this.#holdEditing()
+              : () => undefined,
+          saved: () => {
+            const snapshot = document.saves.latest;
+            if (!snapshot) throw new Error("No retained editor snapshot");
+            document.saves.accept(snapshot);
+          },
+          reset: (contents) => {
+            if (!this.destroyed && this.#document === document) {
+              this.#replaceContent(contents);
+              this.onChange(contents);
+            }
+            document.saves.discard();
+          },
+        }),
         settle: async () => {
           await document.loading;
           try {
@@ -384,18 +398,6 @@ export class Editor extends EventDispatcher<{
           }
         },
         serialize: (run) => this.#serializeWrite(run),
-        saved: () => {
-          const snapshot = document.saves.latest;
-          if (!snapshot) throw new Error("No retained editor snapshot");
-          document.saves.accept(snapshot);
-        },
-        reset: (contents) => {
-          if (!this.destroyed && this.#document === document) {
-            this.#replaceContent(contents);
-            this.onChange(contents);
-          }
-          document.saves.discard();
-        },
       });
     }
     if (file) {

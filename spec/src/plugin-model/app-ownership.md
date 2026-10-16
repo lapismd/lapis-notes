@@ -4,6 +4,10 @@ The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.
 
+The shared desktop chooser and startup presentation (LN-PKG-171) accept host
+callbacks and phase data. They do not construct an App, load plugins or acquire
+the compatibility lease; the owning desktop session retains those lifetimes.
+
 ## LN-PLUG-020 — F-Mode: register on the API-owned Design Core controller
 
 <a id="ln-plug-020"></a>

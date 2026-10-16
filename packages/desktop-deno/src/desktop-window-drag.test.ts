@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 describe("Deno desktop launcher drag markers", () => {
   it("marks empty launcher chrome as a drag region", () => {
     const source = readFileSync(
-      new URL("./DesktopVaultLauncher.svelte", import.meta.url),
+      new URL("../../workspace/src/lib/desktop/DesktopVaultLauncher.svelte", import.meta.url),
       "utf8",
     );
     expect(source).toMatch(

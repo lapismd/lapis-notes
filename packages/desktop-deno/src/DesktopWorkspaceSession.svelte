@@ -47,7 +47,7 @@
   import { getDenoNostrSignerBroker } from "./deno-nostr-signer";
   import { createDesktopSyncUnlockHandler } from "./desktop-sync-security";
   import { createDesktopSyncHostProviders } from "./deno-sync-security";
-  import DesktopWorkspaceStartup from "./DesktopWorkspaceStartup.svelte";
+  import { DesktopWorkspaceStartup } from "@lapis-notes/workspace";
   import type { DenoDesktopBridge, DesktopAppInfo } from "./main";
   import { collectTerminalAcceptance } from "./terminal-acceptance";
 

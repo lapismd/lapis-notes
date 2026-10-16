@@ -1,5 +1,11 @@
 # Packages / Workspace APIs
 
+## LN-PKG-171 — Shared desktop vault presentation
+
+<a id="ln-pkg-171"></a>
+
+**Requirement.** `@lapis-notes/workspace` MUST export the existing desktop vault chooser and branded startup components for Deno and Tauri consumers. The chooser MUST retain the Deno layout, labels, recent-project search, appearance controls and drag exclusions through native CSS and public Design Core primitives. Hosts MUST inject profile storage and actions; unavailable profile operations MUST remain absent. Vault selection and session ownership MUST remain host-owned.
+
 ## LN-PKG-009 — @lapis-notes/api: expose the design-core V3 bottom panel
 
 <a id="ln-pkg-009"></a>

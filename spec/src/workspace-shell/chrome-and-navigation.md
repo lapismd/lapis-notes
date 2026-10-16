@@ -1,5 +1,11 @@
 # Workspace Shell / Chrome and navigation
 
+The desktop chooser and startup precede the workspace through the shared
+public presentation in LN-PKG-171. Deno and Tauri provide native vault actions
+and session ownership while reusing the same chooser markup, native CSS and
+Lapis startup visual. The shared presentation contains no vault discovery,
+session teardown or alternate workspace renderer.
+
 The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.

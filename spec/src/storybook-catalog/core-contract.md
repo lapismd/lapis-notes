@@ -1,5 +1,11 @@
 # Storybook Catalog / Catalog policy
 
+`Workspace/Desktop Vault Launcher` and `Workspace/Desktop Startup` verify the
+public components shared by the Deno and Tauri hosts (LN-PKG-171). Their plays
+cover native-action callbacks, recent-project search, supported profile actions,
+appearance persistence, startup and recovery accessibility. Public consumer
+examples accompany both families; visual capture and approval remain pending.
+
 Sync Protected Editor exercises LN-ARCH-132 through LN-ARCH-134 in the real
 App/source editor. Its independent declared baseline is
 `stories/workspace/lapis-editor-demo/sync-protected-editor-chromium.png`; capture
