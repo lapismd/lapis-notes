@@ -53,3 +53,7 @@
 <a id="ln-arch-090"></a>
 
 **Requirement.** Signed catalog metadata and unsigned aggregate download statistics MUST remain separate contracts. API owns summary validation and source access; Workspace owns optional display and sorting. Missing statistics MUST NOT affect signature verification, install availability, updates, or registry errors.
+
+The workspace compatibility owner versions explicit API view transitions and
+activations against queued controller projections. Older queued snapshots yield
+before reconciliation so they cannot unload a newly opened plugin view.

@@ -2753,6 +2753,53 @@ describe("Workspace compatibility", () => {
     expect(written.right.width).toBe(workspace.rightSplit.sidebar.width);
   });
 
+  it("retains new ItemViews while sidebar projection and activation overlap", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    await workspace.loadLayout();
+    const loads = new Map<string, number>();
+    const unloads = new Map<string, number>();
+    class TrackingPanel extends MockItemView {
+      onload(): void {
+        const type = this.getViewType();
+        loads.set(type, (loads.get(type) ?? 0) + 1);
+        super.onload();
+      }
+      onunload(): void {
+        const type = this.getViewType();
+        unloads.set(type, (unloads.get(type) ?? 0) + 1);
+      }
+    }
+    workspace.registerView(
+      "graph",
+      (leaf) => new TrackingPanel(leaf, "graph", "Graph"),
+    );
+    workspace.registerView(
+      "graph-local",
+      (leaf) => new TrackingPanel(leaf, "graph-local", "Local graph"),
+    );
+    const main = workspace.getLeaf(true);
+    await main.setViewState({ type: "graph" });
+    workspace.activateLeaf(main, { focusRootHost: false });
+    await workspace.revealLeaf(main);
+    const { controller } = getWorkspaceHostBinding(workspace);
+    controller.renderer.setSidebarOpen("right", true);
+    const local = workspace.ensureSideLeaf("graph-local", "right");
+    await local.setViewState({ type: "graph-local" });
+    workspace.activateLeaf(local, { focusRootHost: false });
+    await workspace.revealLeaf(local);
+    await workspace.flushLayout();
+    expect(workspace.getLeavesOfType("graph")[0]).toBe(main);
+    expect(workspace.getLeavesOfType("graph-local")[0]).toBe(local);
+    expect(loads.get("graph-local")).toBe(1);
+    expect(unloads.get("graph-local") ?? 0).toBe(0);
+    expect(workspace.activeRootLeaf).toBe(main);
+    const layout = workspace.toJson();
+    expect(layout.main.children[0].type).toBe("tabs");
+    const saved = vi.spyOn(app.vault, "create");
+    await workspace.flushLayout();
+    expect(String(saved.mock.calls.at(-1)?.[1])).toContain('"graph-local"');
+  });
+
   it("joins accepted layout writes and cancels timers before host disposal", async () => {
     vi.useFakeTimers();
     try {

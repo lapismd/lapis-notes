@@ -52,7 +52,7 @@
 
 <a id="ln-ws-005"></a>
 
-**Requirement.** Api mutations MUST commit to the design-core controller, and controller-originated layout changes MUST project back into api wrappers, lifecycle state, legacy events, and persistence without feedback loops. Projection reconciliation MUST remove against a child snapshot so no stale node survives mutation.
+**Requirement.** Api mutations MUST commit to the design-core controller, and controller-originated layout changes MUST project back into api wrappers, lifecycle state, legacy events, and persistence without feedback loops. Projection reconciliation MUST remove against a child snapshot so no stale node survives mutation. A queued controller snapshot MUST NOT replace a newer explicit API view transition or activation before it is applied.
 
 ## LN-WS-008 — WorkspaceShell public inputs
 

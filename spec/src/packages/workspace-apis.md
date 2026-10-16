@@ -93,3 +93,10 @@
 LN-WS-096 projects notices from the explicit App into the existing shared
 notification UI and removes that subscription on host disposal. Explorer passes
 its owned App to Notice; native error handling keeps the existing presentation.
+
+API view-state transitions and leaf activation retain their existing public
+signatures. Internal layout replay does not count as a newer user mutation;
+queued older snapshots cannot discard a later live view or its selected leaf.
+
+The projection repair carries API patch intent and a verified public archive
+for Tauri intake. Publication remains at the migration release gate.

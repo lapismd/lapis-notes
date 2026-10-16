@@ -447,6 +447,13 @@ export const WORKSPACE_POPOUT_UNSUPPORTED_ERROR_MESSAGE =
   "Workspace popout windows are not supported in the current renderer host.";
 
 let workspacePopoutHost: WorkspacePopoutHost | null = null;
+const layoutMutationRevisions = new WeakMap<Workspace, number>();
+function recordLayoutMutation(workspace: Workspace): void {
+  layoutMutationRevisions.set(
+    workspace,
+    (layoutMutationRevisions.get(workspace) ?? 0) + 1,
+  );
+}
 
 export function setWorkspacePopoutHost(host: WorkspacePopoutHost | null): void {
   workspacePopoutHost = host;
@@ -3455,6 +3462,7 @@ export class Workspace extends EventDispatcher<{
     event: DesignWorkspaceLayoutChangeEvent,
   ): void {
     if (this.#layoutPersistenceDisposed) return;
+    const mutationRevision = layoutMutationRevisions.get(this) ?? 0;
     const projected = workspaceJsonForCompatibility(
       normalizeWorkspaceJson(layout),
     );
@@ -3473,6 +3481,7 @@ export class Workspace extends EventDispatcher<{
     preserveSidebarWidth("right", this.rightSplit);
 
     const run = this.#workspaceHostProjection.then(async () => {
+      if (mutationRevision !== (layoutMutationRevisions.get(this) ?? 0)) return;
       await this.withoutLayoutPersistence(async () => {
         await this.restoreLayoutJson(projected);
         // Sidedock compatibility effects flush after loadJson resolves. Keep
@@ -4316,6 +4325,7 @@ export class Workspace extends EventDispatcher<{
     if (!this.containsLeaf(leaf)) {
       return false;
     }
+    if (options.source !== "layout-load") recordLayoutMutation(this);
 
     const tabs = this.tabsForLeaf(leaf);
     if (leaf.parent instanceof WorkspaceSidebarGroup) {
@@ -5833,6 +5843,7 @@ export class WorkspaceLeaf extends WorkspaceItem<{
   }
 
   async setViewState(viewState: ViewState, eState?: any) {
+    if (!eState?.layoutProjection) recordLayoutMutation(this.app.workspace);
     return this.app.telemetry.measureAsync(
       "workspace.leaf.set_view_state",
       async (span) => {
@@ -6027,6 +6038,7 @@ export class WorkspaceLeaf extends WorkspaceItem<{
       },
       {
         history: true,
+        layoutProjection: true,
         title: layout.state.title,
         icon: layout.state.icon,
       },
