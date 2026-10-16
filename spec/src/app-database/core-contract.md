@@ -1,5 +1,10 @@
 # App Database / Database integration
 
+Editor conflict baselines remain document-owned under LN-ARCH-142, separate from
+metadata reads and the vault cache. Conditional Vault projections under
+LN-PKG-169 update only after successful native persistence; database ownership
+and transaction authority do not expand.
+
 The conditional text-write port under
 [LN-PKG-167](../packages/vault-and-storage.md#ln-pkg-167) is a vault capability.
 Its native advertisement does not grant SQL or database connection authority;

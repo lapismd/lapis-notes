@@ -103,9 +103,13 @@ export declare class Vault extends EventDispatcher<{
    *   children
    * @public
    */
-  delete(file: TAbstractFile, force?: boolean, context?: {
-    operationOrigin?: string;
-  }): Promise<void>;
+  delete(
+    file: TAbstractFile,
+    force?: boolean,
+    context?: {
+      operationOrigin?: string;
+    },
+  ): Promise<void>;
   trash(file: TAbstractFile, system?: boolean): Promise<void>;
   /**
    * Read a plaintext file that is stored inside the vault, directly from disk.
@@ -147,6 +151,13 @@ export declare class Vault extends EventDispatcher<{
    * @public
    */
   modify(file: TFile, data: string, options?: DataWriteOptions): Promise<void>;
+  get supportsConditionalTextWrites(): boolean;
+  modifyIfUnchanged(
+    file: TFile,
+    data: string,
+    expected: string | null,
+    options?: DataWriteOptions,
+  ): Promise<void>;
   /**
    * Modify the contents of a binary file.
    *
@@ -241,6 +252,7 @@ export declare class Vault extends EventDispatcher<{
   getFiles(): TFile[];
   /**
    * Iterate loaded files without allocating a second vault-sized collection.
+   *
    * @public
    */
   iterateFiles(): IterableIterator<TFile>;

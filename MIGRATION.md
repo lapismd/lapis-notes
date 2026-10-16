@@ -3,6 +3,15 @@
 Living checklist for the minimal Lapis Notes monorepo. Update this file when
 intake or UI swap status changes.
 
+## Tauri source support (2026-10-16)
+
+- [x] Qualify document-owned API editor baselines, retained text conflicts and
+      protected explicit recovery (LN-ARCH-142 through LN-ARCH-144, LN-PKG-169);
+      [source acceptance](spec/records/2026-10-16-editor-file-conflicts.md).
+- [ ] Integrate the separate editable Markdown preview writer before the
+      desktop's complete M4 gate can pass. Consume verified local archives and
+      defer package publication to migration completion.
+
 ## Specification readability and navigation (2026-10-13)
 
 - [x] Split the specification into 172 bounded topic and verification pages,

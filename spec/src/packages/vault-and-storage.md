@@ -1,5 +1,11 @@
 # Packages / Vault and storage
 
+## LN-PKG-169 — Conditional Vault writes
+
+<a id="ln-pkg-169"></a>
+
+**Requirement.** Vault MUST expose conditional text-write support and `modifyIfUnchanged` through the public built package. Unsupported adapters MUST reject conditional requests before IO. Successful writes MUST update the file tree, cache and modification events consistently; rejected writes MUST NOT acknowledge new contents through those projections.
+
 ## LN-PKG-167 — Optional conditional text writes
 
 <a id="ln-pkg-167"></a>

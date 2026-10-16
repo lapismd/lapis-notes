@@ -20,6 +20,7 @@ import {
   type EditorSaveSnapshot,
 } from "./editor-save-context";
 import { resolveApplication } from "./application-compatibility";
+import { EditorTextPersistence } from "./editor-text-persistence";
 
 export type EditorPosition = { line: number; ch: number };
 export interface EditorRange {
@@ -91,6 +92,7 @@ interface EditorDocumentBinding {
   persistence: EditorPersistence;
   writer?: EditorPersistenceWriter;
   saves: EditorSaveContext;
+  text?: EditorTextPersistence;
   unregister?: () => void;
   loading?: Promise<void>;
 }
@@ -305,6 +307,12 @@ export class Editor extends EventDispatcher<{
     this.#document?.saves.retire();
   }
 
+  #serializeWrite(run: () => Promise<void>): Promise<void> {
+    const result = this.#writeTail.then(run);
+    this.#writeTail = result.catch(() => undefined);
+    return result;
+  }
+
   #createDocument(
     application: App,
     file: TFile | null,
@@ -320,15 +328,12 @@ export class Editor extends EventDispatcher<{
     } as EditorDocumentBinding;
     document.saves = new EditorSaveContext({
       unownedExternal: persistence === "external" && !writer,
-      serialize: (run) => {
-        const result = this.#writeTail.then(run);
-        this.#writeTail = result.catch(() => undefined);
-        return result;
-      },
+      serialize: (run) => this.#serializeWrite(run),
       persist: async (snapshot) => {
         if (file?.path !== document.path)
           throw new Error("Editor persistence target changed");
-        if (persistence === "vault" && file)
+        if (document.text) await document.text.persist(snapshot.content);
+        else if (persistence === "vault" && file)
           await application.vault.modify(file, snapshot.content);
         else if (persistence === "external" && writer)
           await writer({ application, file, content: snapshot.content });
@@ -355,6 +360,44 @@ export class Editor extends EventDispatcher<{
         this.#documents.delete(document);
       },
     });
+    if (
+      persistence === "vault" &&
+      file &&
+      application.vault.supportsConditionalTextWrites
+    ) {
+      document.text = new EditorTextPersistence({
+        vault: application.vault,
+        file,
+        baseline: this.data,
+        conflicts: application.fileEditingSessions.textConflicts,
+        local: () => document.saves.latest?.content ?? this.data,
+        protect: () =>
+          !this.destroyed && this.#document === document
+            ? this.#holdEditing()
+            : () => undefined,
+        settle: async () => {
+          await document.loading;
+          try {
+            await document.saves.flush(false);
+          } catch (error) {
+            if (!document.text?.hasConflict) throw error;
+          }
+        },
+        serialize: (run) => this.#serializeWrite(run),
+        saved: () => {
+          const snapshot = document.saves.latest;
+          if (!snapshot) throw new Error("No retained editor snapshot");
+          document.saves.accept(snapshot);
+        },
+        reset: (contents) => {
+          if (!this.destroyed && this.#document === document) {
+            this.#replaceContent(contents);
+            this.onChange(contents);
+          }
+          document.saves.discard();
+        },
+      });
+    }
     if (file) {
       if (!application.fileEditingSessions)
         throw new Error("App has no file editing-session registry");
@@ -460,7 +503,10 @@ export class Editor extends EventDispatcher<{
     return this.#protectDocument(this.#currentDocument());
   }
 
-  /** Register and protect a target, then publish its file and contents atomically. */
+  /**
+   * Register and protect a target, then publish its file and contents
+   * atomically.
+   */
   async loadDocument(
     file: TFile,
     read: () => Promise<string>,
@@ -631,7 +677,9 @@ export class Editor extends EventDispatcher<{
   /** Queue the latest editor contents for persistence/change notification. */
   queueChange(data: string): void {
     this.#assertWritable();
-    this.#currentDocument().saves.queue(this.captureChange(data));
+    const document = this.#currentDocument();
+    document.saves.queue(this.captureChange(data));
+    document.text?.updateLocal(data);
   }
 
   /** Drain every captured document, including failed or retired saves. */
@@ -742,6 +790,8 @@ export class Editor extends EventDispatcher<{
                 this.#refreshError = undefined;
                 if (this.getValue() === contents) {
                   this.data = contents;
+                  if (!this.#document?.saves.dirty)
+                    this.#document?.text?.acceptBaseline(contents);
                   return;
                 }
                 if (
@@ -815,6 +865,8 @@ export class Editor extends EventDispatcher<{
     else if (this.destroyed) throw new Error("Editor is destroyed");
     this.#documentGeneration++;
     this.#refreshError = undefined;
+    if (!this.#document?.saves.dirty)
+      this.#document?.text?.acceptBaseline(content);
     this.app.telemetry.measure(
       "editor.set_value",
       (span) => {
@@ -838,6 +890,8 @@ export class Editor extends EventDispatcher<{
   #replaceContent(content: string, options: { userEvent?: string } = {}) {
     this.#documentGeneration++;
     this.#refreshError = undefined;
+    if (!this.#document?.saves.dirty)
+      this.#document?.text?.acceptBaseline(content);
     this.data = content;
     const annotations = [syncAnnotation.of(true)];
     this.view.dispatch({

@@ -15,6 +15,7 @@ import {
   type DataAdapter,
   type DataWriteOptions,
   type VaultReadHandle,
+  type VaultAdapter,
   type TAbstractFile,
 } from "./fs";
 import { dirname, joinPath, normalizePath } from "./path";
@@ -554,20 +555,54 @@ export class Vault extends EventDispatcher<{
     const path = file.path;
     return this.adapter
       .write(path, data, options)
-      .then(() => this.adapter.stat(path))
-      .then((stat) => {
-        if (!stat) {
-          return Promise.reject(`Unable to write file: ${path}`);
-        }
-        let parent = this.files[dirname(path)] as TFolder;
-        const file = new TFile(path, stat, parent, this);
-        this.files[path] = file;
-        this.cache.put(path, data);
+      .then(() => this.#recordTextWrite(path, data, options));
+  }
 
-        this.cache.put(file.path, data);
-        this.dispatch("modify", file);
-        this.dispatch("all", "modify", file, { data, options });
-      });
+  get supportsConditionalTextWrites(): boolean {
+    const adapter = this.adapter as VaultAdapter;
+    return (
+      adapter.getCapabilities?.().conditionalTextWrite === true &&
+      typeof adapter.writeTextIfUnchanged === "function"
+    );
+  }
+
+  /** Persist only the caller's captured text version; never fall back to write. */
+  async modifyIfUnchanged(
+    file: TFile,
+    data: string,
+    expected: string | null,
+    options?: DataWriteOptions,
+  ): Promise<void> {
+    if (!this.supportsConditionalTextWrites)
+      throw new Error("Conditional text writes are unavailable");
+    if (expected !== null && typeof expected !== "string")
+      throw new Error("Invalid expected text snapshot");
+    const path = file.path;
+    await (this.adapter as VaultAdapter).writeTextIfUnchanged!(
+      path,
+      data,
+      expected,
+      options,
+    );
+    await this.#recordTextWrite(path, data, options);
+  }
+
+  #recordTextWrite(
+    path: string,
+    data: string,
+    options?: DataWriteOptions,
+  ): Promise<void> {
+    return this.adapter.stat(path).then((stat) => {
+      if (!stat) {
+        return Promise.reject(`Unable to write file: ${path}`);
+      }
+      let parent = this.files[dirname(path)] as TFolder;
+      const file = new TFile(path, stat, parent, this);
+      this.files[path] = file;
+      this.cache.put(file.path, data);
+      this.dispatch("modify", file);
+      this.dispatch("all", "modify", file, { data, options });
+    });
   }
 
   /**

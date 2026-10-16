@@ -1,9 +1,18 @@
-/** Independent file writers implement this contract without importing a renderer. */
+import { FileTextConflictRegistry } from "./file-text-conflicts";
+export * from "./file-text-conflicts";
+
+/**
+ * Independent file writers implement this contract without importing a
+ * renderer.
+ */
 export interface FileEditingSession {
   /** Includes queued, in-flight and failed persistence. */
   readonly dirty: boolean;
   flush(): Promise<void>;
-  /** Block edits before yielding; drain pending saves and return an idempotent release. */
+  /**
+   * Block edits before yielding; drain pending saves and return an idempotent
+   * release.
+   */
   protect(): Promise<() => void | Promise<void>>;
 }
 
@@ -42,10 +51,12 @@ function failures(results: PromiseSettledResult<unknown>[]): unknown[] {
 }
 
 /**
- * An App-owned persistence and protection boundary for independent file writers.
- * Hosts must register every writer before selecting this as an apply guard.
+ * An App-owned persistence and protection boundary for independent file
+ * writers. Hosts must register every writer before selecting this as an apply
+ * guard.
  */
 export class FileEditingSessionRegistry {
+  readonly textConflicts = new FileTextConflictRegistry();
   readonly #sessions = new Map<FileEditingSession, Registration>();
   readonly #barriers = new Map<object, string | undefined>();
   readonly #releases = new Set<Release>();
@@ -113,8 +124,9 @@ export class FileEditingSessionRegistry {
   }
 
   /**
-   * Serialize mutations, holding matching sessions protected throughout the callback.
-   * Callbacks and session methods must not re-enter queued registry operations.
+   * Serialize mutations, holding matching sessions protected throughout the
+   * callback. Callbacks and session methods must not re-enter queued registry
+   * operations.
    */
   guard<T>(path: string | undefined, operation: () => Promise<T>): Promise<T> {
     try {
@@ -126,7 +138,10 @@ export class FileEditingSessionRegistry {
     }
   }
 
-  /** Stop admission immediately, drain callbacks and retry failed persistence/cleanup. */
+  /**
+   * Stop admission immediately, drain callbacks and retry failed
+   * persistence/cleanup.
+   */
   dispose(): Promise<void> {
     if (this.#disposal) return this.#disposal;
     this.#closing = true;

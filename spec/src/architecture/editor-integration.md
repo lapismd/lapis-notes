@@ -1,5 +1,23 @@
 # Architecture / Editor integration
 
+## LN-ARCH-142 — Document-owned conditional save baselines
+
+<a id="ln-arch-142"></a>
+
+**Requirement.** API editors on a vault advertising conditional text writes MUST save against their document-owned last acknowledged text. Background reads MUST NOT advance a dirty document's baseline. Successful saves and accepted clean refreshes MUST advance only that document's baseline. Hosts without that optional capability MAY retain existing persistence; an attempted conditional operation MUST NOT fall back to an unconditional write.
+
+## LN-ARCH-143 — Retained editor conflicts
+
+<a id="ln-arch-143"></a>
+
+**Requirement.** Conditional API editor save conflicts MUST retain local text, the document baseline and an authoritative external snapshot or observable read failure. The original App MUST expose conflicts through a subscribable registry, including inactive and retired writers. Further editing MUST update retained local text without silently resolving the conflict. Flush and shutdown MUST remain blocked until explicit resolution.
+
+## LN-ARCH-144 — Explicit conflict resolution
+
+<a id="ln-arch-144"></a>
+
+**Requirement.** Keeping local text MUST condition replacement on the displayed external snapshot; accepting external text MUST revalidate that snapshot before discarding local text. Another external change or unavailable snapshot MUST retain the conflict and require a new decision. Resolution MUST protect the document, drain pending saves and update only its original context. Resolving a retired writer MUST release its barrier without changing another document.
+
 Host shutdown uses the pathless editing guard before destructive teardown. The
 API-owned layout flush under [LN-WS-095](../workspace-shell/layout-and-persistence.md#ln-ws-095)
 joins workspace persistence while that protection remains held. Registry disposal

@@ -1,5 +1,9 @@
 # Packages / Host and plugin integration
 
+The public editing-session registry exposes retained text conflicts under
+LN-ARCH-143 and explicit protected resolution under LN-ARCH-144. Host-owned
+presentation consumes those contracts; it must not create another save path.
+
 The UI 0.1.3 candidate retains the version and changelog prepared by Changesets
 PR #33 for the runtime dependency repair in PR #32. Its ordinary release
 follow-up also repairs the private desktop large-frame assertion cost; that
