@@ -1,5 +1,11 @@
 # Architecture / Editor integration
 
+## LN-ARCH-145 — Protected managed trash
+
+<a id="ln-arch-145"></a>
+
+**Requirement.** FileManager trash and deletion commands MUST protect and flush registered writers before filesystem removal, including folder descendants. Failed persistence MUST prevent removal and release protection for explicit retry. Admission MUST retain the originally selected source path; changed targets MUST reject before IO. Native removal failures MUST remain observable without leaving editing protected.
+
 Application-state writers under
 [LN-PKG-173](../packages/configuration-and-lifecycle.md#ln-pkg-173) and
 [LN-PKG-174](../packages/configuration-and-lifecycle.md#ln-pkg-174) share the

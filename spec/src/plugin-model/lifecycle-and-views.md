@@ -110,3 +110,7 @@ compatibility-file writers.
 <a id="ln-role-016"></a>
 
 **Requirement.** Desktop and web MUST restore persisted `role`, `roles`, and `cv` leaves when Roles is enabled without forcing Roles into a default layout. Disabled leaves MUST remain persisted missing-view placeholders and recover after re-enable.
+
+Explorer deletion now follows the shared FileManager guard under LN-ARCH-145
+and LN-EXP-008. The existing App owns writer protection, native IO failure and
+retry; the view continues to use its existing action and notice presentation.

@@ -323,3 +323,7 @@ Focused Explorer acceptance verifies:
 <a id="ln-ed-052"></a>
 
 **Requirement.** The public Markdown view state MUST support a generic serialized return target so a domain file preview can delegate whole-file editing to the registered Markdown leaf without importing Markdown implementation internals.
+
+Explorer deletion now follows the shared FileManager guard under LN-ARCH-145
+and LN-EXP-008. The existing App owns writer protection, native IO failure and
+retry; the view continues to use its existing action and notice presentation.

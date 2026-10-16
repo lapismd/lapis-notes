@@ -94,3 +94,9 @@ but appears in the Files palette only while Show hidden files is enabled.
 <a id="ln-exp-007"></a>
 
 **Requirement.** The Files palette extension allowlist MUST be exposed as the flat `workspace.fileExplorer.paletteFileExtensions` list setting. Its default MUST include Markdown, text, JSON, and YAML/YML source-editor extensions. Values MUST be normalized without leading dots and case-insensitively before filtering; an explicit empty list MUST yield no file results.
+
+## LN-EXP-008 — Protected Explorer deletion
+
+<a id="ln-exp-008"></a>
+
+**Requirement.** Explorer deletion MUST use the owning App's FileManager writer guard. It MUST NOT bypass failed or dirty writers through low-level Vault trash. The existing action and notice presentation MUST remain available for retry after explicit persistence or conflict recovery.

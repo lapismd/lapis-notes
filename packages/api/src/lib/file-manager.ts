@@ -317,8 +317,13 @@ export class FileManager {
    * @param file
    * @public
    */
-  trashFile(file: TAbstractFile): Promise<void> {
-    return this.app.vault.trash(file, true);
+  async trashFile(file: TAbstractFile): Promise<void> {
+    const capturedPath = file.path;
+    await this.app.fileEditingSessions.guard(undefined, async () => {
+      if (file.path !== capturedPath)
+        throw new Error("Trash target changed during editor admission");
+      await this.app.vault.trash(file, true);
+    });
   }
 
   promptForDeletion(file: TAbstractFile): Promise<void> {

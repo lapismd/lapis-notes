@@ -5,6 +5,11 @@ intake or UI swap status changes.
 
 ## Tauri source support (2026-10-16)
 
+- [ ] Qualify protected managed deletion (LN-ARCH-145, LN-EXP-008);
+      38 API and 28 Explorer cases plus public checks/builds pass in the
+      [source record](spec/records/2026-10-16-managed-file-deletion.md).
+      Cold Tauri and end-of-M7 aggregate lanes remain pending.
+
 - [ ] Qualify owned native watcher retirement and App ingestion (LN-PKG-176);
       retirement and registration readiness (LN-PKG-177) have targeted source
       evidence; full lanes remain deferred until

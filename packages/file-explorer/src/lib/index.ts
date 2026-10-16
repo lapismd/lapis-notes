@@ -205,7 +205,7 @@ function createExplorerController(app: App, loading: boolean) {
         withNotice(app, async () => {
           const file = app.vault.getAbstractFileByPath(path);
           if (!file) throw new Error(`Unable to find path: ${path}`);
-          await app.vault.trash(file, false);
+          await app.fileManager.trashFile(file);
         }),
       copyText: copyExplorerText,
     },

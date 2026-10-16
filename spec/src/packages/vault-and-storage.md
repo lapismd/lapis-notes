@@ -260,3 +260,7 @@ compatible. Client engines must supply their captured fences before activation.
 <a id="ln-pkg-160"></a>
 
 **Requirement.** Tests of live servers, installed native executables, external dependency staging, or baseline mutation MUST remain uncached while running through Turbo. Supplying live controller, terminal, or external Storybook configuration MUST disable result reuse and writes. Cold acceptance MUST use a forced run; cache-service credentials MUST NOT affect functional result identity.
+
+Managed FileManager trash follows LN-ARCH-145: the originally selected path
+remains protected through writer drain and removal, including failed descendant
+writes. Explorer uses this shared owner instead of low-level Vault trash.
