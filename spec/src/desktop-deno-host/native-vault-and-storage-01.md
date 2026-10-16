@@ -323,3 +323,7 @@ Desktop session lifecycle telemetry verifies:
 <a id="ln-deno-037"></a>
 
 **Requirement.** Vault resource URLs MUST use a capability-scoped same-origin HTTP route with vault-root containment, explicit content types, no-store and nosniff headers, and binary response bodies. Raw vault bytes and `file:` URLs MUST NOT cross the Laufey binding string boundary, and text reads containing NUL bytes MUST fail before producing a native string response.
+
+The shared API watch subscription now permits awaited cleanup and optional
+rename hints (LN-PKG-176) for Tauri ingestion. The superseded Deno host remains
+frozen; this shared-contract annotation requires no legacy host changes.

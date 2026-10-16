@@ -5,6 +5,10 @@ intake or UI swap status changes.
 
 ## Tauri source support (2026-10-16)
 
+- [ ] Qualify owned native watcher retirement and App ingestion (LN-PKG-176);
+      targeted source work is in progress and full lanes remain deferred until
+      M7 implementation completes.
+
 - [x] Qualify document-owned API editor baselines, retained text conflicts and
       protected explicit recovery (LN-ARCH-142 through LN-ARCH-144, LN-PKG-169);
       [source acceptance](spec/records/2026-10-16-editor-file-conflicts.md).

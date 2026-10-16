@@ -1,5 +1,11 @@
 # Packages / Vault and storage
 
+## LN-PKG-176 — Owned watcher retirement
+
+<a id="ln-pkg-176"></a>
+
+**Requirement.** DirectoryWatcher MUST retire callbacks synchronously when a subscription is replaced or closed. Its close boundary MUST await native cleanup and admitted polling, retain failed cleanup for retry, and reject incomplete polling snapshots without projecting deletions. Portable changes MAY carry an optional previous path for rename reconciliation. Array subscriptions MUST preserve options and await every owned subscription during closure.
+
 ## LN-PKG-172 — Protected text mutations
 
 <a id="ln-pkg-172"></a>

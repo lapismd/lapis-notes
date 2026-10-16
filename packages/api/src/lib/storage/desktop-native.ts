@@ -587,8 +587,12 @@ export class NativeDesktopVaultAdapter
           Boolean(subscription),
         );
       return {
-        close: () => {
-          subscriptions.forEach((subscription) => subscription.close());
+        close: async () => {
+          const results = await Promise.allSettled(
+            subscriptions.map(async (subscription) => subscription.close()),
+          );
+          const failed = results.find((result) => result.status === "rejected");
+          if (failed?.status === "rejected") throw failed.reason;
         },
       };
     }

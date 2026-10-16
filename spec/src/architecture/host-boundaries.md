@@ -335,3 +335,7 @@ lock/unlock. It does not qualify native filesystem apply or server routes.
 <a id="ln-arch-141"></a>
 
 **Requirement.** Public runtime and native desktop bridge contracts MUST recognize `tauri-desktop` as a native desktop runtime. Plugin distribution MUST classify it as desktop without granting unavailable service capabilities. Existing Deno, browser, server, and explicit-test runtime behavior MUST remain supported.
+
+The optional native watch contract carries rename hints and awaitable cleanup
+under LN-PKG-176. DirectoryWatcher owns generation retirement; hosts own native
+resources and session release. This introduces no ambient App state or provider.

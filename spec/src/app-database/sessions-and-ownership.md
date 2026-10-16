@@ -5,6 +5,10 @@ and plugin-data operations have drained through their App. File-tree projection
 and the owning UI continuation finish before destructive host teardown. This
 does not change provider selection, database paths or SQL authority.
 
+LN-PKG-176 keeps native watcher cleanup awaitable for session owners. Retired
+subscriptions ignore queued callbacks and incomplete polling retains its last
+complete snapshot; no database provider or authority is introduced.
+
 ## LN-DB-001 — Existing AppDatabase operations: remain available while session creation accepts
 
 <a id="ln-db-001"></a>

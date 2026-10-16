@@ -1,5 +1,4 @@
-import { EventDispatcher } from "$lib/events";
-import { basename, joinPath, normalizePath } from "./path";
+import { basename, normalizePath } from "./path";
 import type { Vault } from "./vault.svelte";
 
 interface FileProperties {
@@ -183,6 +182,7 @@ export type WatchOptions = {
 };
 
 export interface ChangeEvent {
+  previousPath?: string;
   type: "create" | "modify" | "delete";
   path: string;
 }
@@ -194,7 +194,7 @@ export interface WatchErrorEvent {
 }
 
 export interface NativeWatchSubscription {
-  close(): void;
+  close(): void | Promise<void>;
 }
 
 export interface NativeWatchAdapter {
@@ -307,214 +307,7 @@ export interface AsyncResourceAdapter {
   revokeResourceUrl?(url: string): void;
 }
 
-type WatcherOptions = {
-  recursive: boolean;
-  interval: number;
-  lastSnapshot: Map<string, Stat> | null;
-  timeout: ReturnType<typeof setInterval> | null;
-  nativeSubscription: NativeWatchSubscription | null;
-};
-
-function isNativeWatchAdapter(
-  adapter: DataAdapter,
-): adapter is DataAdapter & NativeWatchAdapter {
-  const vaultAdapter = adapter as Partial<VaultAdapter> &
-    Partial<NativeWatchAdapter>;
-  return (
-    typeof vaultAdapter.watch === "function" &&
-    vaultAdapter.getCapabilities?.().nativeWatch === true
-  );
-}
-
-export class DirectoryWatcher extends EventDispatcher<{
-  error: [{ error: unknown; path: string }];
-  all: [event: ChangeEvent | WatchErrorEvent];
-  create: [path: string];
-  modify: [path: string];
-  delete: [path: string];
-}> {
-  private watchers: Map<string, WatcherOptions> = new Map();
-  constructor(
-    readonly adapter: DataAdapter,
-    readonly pollingInterval: number = 5000,
-  ) {
-    super();
-  }
-
-  watch(path: string | string[], options: WatchOptions = {}) {
-    if (Array.isArray(path)) {
-      path.forEach((p) => this.watch(p));
-      return;
-    }
-    path = normalizePath(path);
-    const watcherOptions: WatcherOptions = {
-      recursive: options.recursive || false,
-      interval: options.interval || this.pollingInterval,
-      lastSnapshot: null,
-      timeout: null,
-      nativeSubscription: null,
-    };
-
-    this.watchers.set(path, watcherOptions);
-
-    if (isNativeWatchAdapter(this.adapter)) {
-      watcherOptions.nativeSubscription =
-        this.adapter.watch(path, options, (event) => {
-          const normalizedEvent =
-            event.type === "error"
-              ? { ...event, path: this.toEventPath(event.path) }
-              : { ...event, path: this.toEventPath(event.path) };
-          this.dispatch("all", normalizedEvent);
-          if (normalizedEvent.type === "error") {
-            this.dispatch("error", {
-              error: normalizedEvent.error,
-              path: normalizedEvent.path,
-            });
-            return;
-          }
-          this.dispatch(normalizedEvent.type, normalizedEvent.path);
-        }) ?? null;
-      return {
-        close: () => this.unwatch(path),
-      };
-    }
-
-    this.takeSnapshot(path, watcherOptions.recursive).then((snapshot) => {
-      watcherOptions.lastSnapshot = snapshot;
-      watcherOptions.timeout = setInterval(() => {
-        this.checkForChanges(path, watcherOptions);
-      }, watcherOptions.interval);
-    });
-
-    return {
-      close: () => this.unwatch(path),
-    };
-  }
-
-  unwatch(path: string) {
-    path = normalizePath(path);
-    const watcher = this.watchers.get(path);
-    if (!watcher) {
-      return;
-    }
-
-    watcher.nativeSubscription?.close();
-    if (watcher.timeout) {
-      clearInterval(watcher.timeout);
-    }
-    this.watchers.delete(path);
-  }
-
-  close(): void {
-    for (const path of this.watchers.keys()) {
-      this.unwatch(path);
-    }
-  }
-
-  private async takeSnapshot(
-    path: string,
-    recursive: boolean,
-  ): Promise<Map<string, Stat>> {
-    path = normalizePath(path);
-    const snapshot = new Map<string, Stat>();
-    try {
-      const stats = await this.adapter.stat(path);
-      if (!stats) return snapshot;
-      snapshot.set(this.toEventPath(path), stats);
-      if (stats.type === "folder") {
-        const { files, folders } = await this.adapter.list(path);
-        for (const file of files) {
-          const entryPath = joinPath(path, file);
-          const entryStats = await this.adapter.stat(entryPath);
-          if (!entryStats) continue;
-          snapshot.set(this.toEventPath(entryPath), entryStats);
-        }
-
-        if (!recursive) return snapshot;
-        for (const folder of folders) {
-          const entryPath = joinPath(path, folder);
-          const subSnapshot = await this.takeSnapshot(entryPath, recursive);
-          for (const [subPath, subStats] of subSnapshot.entries()) {
-            snapshot.set(subPath, subStats);
-          }
-        }
-      }
-    } catch (error) {
-      console.error("fs:watch", error);
-      this.trigger("error", { error, path });
-      this.trigger("all", { type: "error", path, error });
-    }
-
-    return snapshot;
-  }
-
-  private toEventPath(path: string): string {
-    path = normalizePath(path);
-    return path === "/" ? "/" : path.replace(/^\/+/, "");
-  }
-
-  private async checkForChanges(path: string, watcherOptions: WatcherOptions) {
-    path = normalizePath(path);
-    try {
-      const newSnapshot = await this.takeSnapshot(
-        path,
-        watcherOptions.recursive,
-      );
-      if (watcherOptions.lastSnapshot) {
-        const changes = this.diffSnapshot(
-          watcherOptions.lastSnapshot,
-          newSnapshot,
-        );
-        for (const change of changes) {
-          this.dispatch(change.type, change.path);
-          this.dispatch("all", change);
-        }
-      }
-      watcherOptions.lastSnapshot = newSnapshot;
-    } catch (err) {
-      const error = err as Error & { code?: string };
-      if (error.code === "ENOENT") {
-        this.dispatch("delete", path);
-        this.dispatch("all", { type: "delete", path });
-        if (this.watchers.has(path)) {
-          this.unwatch(path);
-        }
-      } else {
-        console.error("fs:watch", error);
-        this.dispatch("error", { error, path });
-        this.trigger("all", { type: "error", path, error });
-      }
-    }
-  }
-
-  private diffSnapshot(
-    oldSnapshot: Map<string, Stat>,
-    newSnapshot: Map<string, Stat>,
-  ): ChangeEvent[] {
-    const changes: ChangeEvent[] = [];
-    for (const [path, stats] of newSnapshot) {
-      if (!oldSnapshot.has(path)) {
-        changes.push({ type: "create", path });
-      } else {
-        const oldStats = oldSnapshot.get(path)!;
-        if (
-          oldStats.mtime !== stats.mtime ||
-          oldStats.size !== stats.size ||
-          oldStats.type !== stats.type
-        ) {
-          changes.push({ type: "modify", path });
-        }
-      }
-    }
-
-    for (const path of oldSnapshot.keys()) {
-      if (!newSnapshot.has(path)) {
-        changes.push({ type: "delete", path });
-      }
-    }
-    return changes;
-  }
-}
+export { DirectoryWatcher } from "./directory-watcher";
 
 export class FileCache {
   private capacity: number;
