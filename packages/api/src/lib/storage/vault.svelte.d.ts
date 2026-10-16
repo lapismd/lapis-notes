@@ -76,6 +76,12 @@ export declare class Vault extends EventDispatcher<{
     data: string,
     options?: DataWriteOptions,
   ): Promise<TFile>;
+  get supportsExclusiveCreate(): boolean;
+  createExclusive(
+    path: string,
+    data: string | ArrayBuffer,
+    options?: DataWriteOptions,
+  ): Promise<TFile>;
   /**
    * Create a new binary file inside the vault.
    *

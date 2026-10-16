@@ -169,7 +169,7 @@ function createExplorerController(app: App, loading: boolean) {
       createFile: (parent) =>
         withNotice(app, async () => {
           const path = await uniquePath(app, parent, "Untitled.md");
-          const file = await app.vault.create(path, "");
+          const file = await app.fileManager.createFile(path, "");
           await app.openFile(file);
           return path;
         }),
@@ -296,7 +296,7 @@ export class LapisLandingView extends View {
         onSelect: () =>
           withNotice(this.app, async () => {
             const path = await uniquePath(this.app, "", "Untitled.md");
-            const file = await this.app.vault.create(path, "");
+            const file = await this.app.fileManager.createFile(path, "");
             await this.app.openFile(file);
           }),
       },

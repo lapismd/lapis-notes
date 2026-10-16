@@ -231,6 +231,52 @@ export class Vault extends EventDispatcher<{
       });
   }
 
+  get supportsExclusiveCreate(): boolean {
+    const adapter = this.adapter as VaultAdapter;
+    return (
+      adapter.getCapabilities?.().exclusiveCreate === true &&
+      typeof adapter.writeExclusive === "function"
+    );
+  }
+
+  /** Create new bytes without replacing a cached or newly arriving file. */
+  createExclusive(
+    path: string,
+    data: string | ArrayBuffer,
+    options?: DataWriteOptions,
+  ): Promise<TFile> {
+    if (!this.supportsExclusiveCreate)
+      return Promise.reject(
+        Object.assign(new Error("Exclusive file creation is unavailable"), {
+          code: "ENOTSUP",
+        }),
+      );
+    const run = async () => {
+      await this.load();
+      path = this.getPath(path);
+      if (this.files[path])
+        throw Object.assign(new Error(`A file already exists at ${path}`), {
+          code: "EEXIST",
+        });
+      const parent = this.files[dirname(path)];
+      if (!(parent instanceof TFolder)) throw new ENOTDIR(dirname(path));
+      await (this.adapter as VaultAdapter).writeExclusive!(path, data, options);
+      const stat = await this.adapter.stat(path);
+      if (!stat || stat.type !== "file")
+        throw new Error(`Unable to create file: ${path}`);
+      const file = new TFile(path, stat, parent, this);
+      this.files[path] = file;
+      this.addToFileNameIndex(file);
+      if (typeof data === "string") this.cache.put(path, data);
+      else this.cache.invalidate(path);
+      parent.children.push(file);
+      this.dispatch("create", file);
+      this.dispatch("all", "create", file, {});
+      return file;
+    };
+    return this.operations ? this.operations.track(run) : run();
+  }
+
   /**
    * Create a new binary file inside the vault.
    *

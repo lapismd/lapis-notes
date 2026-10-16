@@ -330,3 +330,7 @@ retry; the view continues to use its existing action and notice presentation.
 
 Owned failure notices follow LN-WS-096 in the existing shell notification UI;
 the editor demo receives no separate notification component or persistence.
+
+LN-PKG-178 and LN-PKG-179 add opt-in exclusive creation and source-owned new-file
+intent. Existing low-level overwrite behavior and unsupported legacy hosts stay
+explicit; Deno host source remains frozen. Admission spans creation projection.

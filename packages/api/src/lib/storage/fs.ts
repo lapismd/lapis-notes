@@ -265,6 +265,7 @@ export interface DataAdapter {
 }
 
 export interface VaultAdapterCapabilities {
+  exclusiveCreate?: boolean;
   conditionalTextWrite?: boolean;
   persistent: boolean;
   userVisibleFiles: boolean;
@@ -282,6 +283,12 @@ export interface VaultAdapterCapabilities {
  */
 export interface VaultAdapter extends DataAdapter {
   getCapabilities?(): Partial<VaultAdapterCapabilities>;
+  /** Publish new complete bytes without replacing an existing destination. */
+  writeExclusive?(
+    normalizedPath: string,
+    data: string | ArrayBuffer,
+    options?: DataWriteOptions,
+  ): Promise<void>;
   /**
    * Reject when the file no longer has these exact contents (null means
    * absent).

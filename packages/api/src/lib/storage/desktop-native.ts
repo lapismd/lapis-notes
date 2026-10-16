@@ -58,6 +58,7 @@ export interface NativeDesktopPlatformInfo {
 }
 
 export type NativeDesktopCapabilityId =
+  | "exclusive-create"
   | "conditional-text-write"
   | "resource"
   | "database"
@@ -554,6 +555,7 @@ export class NativeDesktopVaultAdapter
 
   getCapabilities(): Partial<VaultAdapterCapabilities> {
     return {
+      exclusiveCreate: hasNativeDesktopCapability("exclusive-create"),
       conditionalTextWrite: hasNativeDesktopCapability(
         "conditional-text-write",
       ),
@@ -637,6 +639,26 @@ export class NativeDesktopVaultAdapter
       normalizedPath: normalizeVaultPath(normalizedPath),
     });
     return new Uint8Array(data).buffer;
+  }
+
+  async writeExclusive(
+    normalizedPath: string,
+    data: string | ArrayBuffer,
+    options: DataWriteOptions = {},
+  ): Promise<void> {
+    const path = normalizeVaultPath(normalizedPath);
+    if (!hasNativeDesktopCapability("exclusive-create"))
+      throw createFsError("ENOTSUP", "Exclusive file creation is unavailable");
+    const bytes =
+      typeof data === "string"
+        ? new TextEncoder().encode(data)
+        : new Uint8Array(data);
+    await invokeNative<void>("desktop_fs_create_exclusive", {
+      rootPath: this.rootPath,
+      normalizedPath: path,
+      data: [...bytes],
+      options,
+    });
   }
 
   async openRead(normalizedPath: string): Promise<VaultReadHandle> {

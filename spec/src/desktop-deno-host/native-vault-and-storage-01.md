@@ -330,3 +330,7 @@ frozen; this shared-contract annotation requires no legacy host changes.
 
 LN-PKG-177 exposes optional watch registration readiness before initial
 reconciliation. Array adapters preserve it; the frozen Deno host is unchanged.
+
+LN-PKG-178 and LN-PKG-179 add opt-in exclusive creation and source-owned new-file
+intent. Existing low-level overwrite behavior and unsupported legacy hosts stay
+explicit; Deno host source remains frozen. Admission spans creation projection.

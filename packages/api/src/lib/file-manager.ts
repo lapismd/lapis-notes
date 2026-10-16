@@ -1,7 +1,12 @@
 import { getFrontMatterInfo } from "./cache.svelte";
 import type { App } from "./context.svelte";
 import { TFile } from "./storage/fs";
-import type { DataWriteOptions, TAbstractFile, TFolder } from "./storage/fs";
+import type {
+  DataWriteOptions,
+  TAbstractFile,
+  TFolder,
+  VaultAdapter,
+} from "./storage/fs";
 import { joinPath } from "./storage/path";
 import {
   defaultLinkSettings,
@@ -242,6 +247,25 @@ export class FileManager {
    */
   getNewFileParent(sourcePath: string, newFilePath?: string): TFolder {
     return this.app.vault.getRoot();
+  }
+
+  /** New-file intent; exclusive-capable hosts never fall back to overwrite. */
+  createFile(
+    path: string,
+    data: string | ArrayBuffer,
+    options?: DataWriteOptions,
+  ): Promise<TFile> {
+    return this.app.fileEditingSessions.track(async () => {
+      await this.app.vault.load();
+      if (
+        (this.app.vault.adapter as VaultAdapter).getCapabilities?.()
+          .exclusiveCreate === true
+      )
+        return this.app.vault.createExclusive(path, data, options);
+      return typeof data === "string"
+        ? this.app.vault.create(path, data, options)
+        : this.app.vault.createBinary(path, data, options);
+    });
   }
 
   getAvailablePathForAttachment(filename: string, sourcePath?: string): string {

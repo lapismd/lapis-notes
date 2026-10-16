@@ -118,3 +118,7 @@ retry; the view continues to use its existing action and notice presentation.
 LN-WS-096 projects notices from the explicit App into the existing shared
 notification UI and removes that subscription on host disposal. Explorer passes
 its owned App to Notice; native error handling keeps the existing presentation.
+
+LN-PKG-178 and LN-PKG-179 add opt-in exclusive creation and source-owned new-file
+intent. Existing low-level overwrite behavior and unsupported legacy hosts stay
+explicit; Deno host source remains frozen. Admission spans creation projection.

@@ -1,5 +1,17 @@
 # Packages / Vault and storage
 
+## LN-PKG-178 — Optional exclusive-create transport
+
+<a id="ln-pkg-178"></a>
+
+**Requirement.** Vault adapters MAY expose an exclusive-create capability and write port for text or binary bytes. Native adapters MUST require the advertised capability, preserve bytes, options and collision errors, and reject unsupported requests before invocation without an overwrite fallback. Capability absence MUST remain explicit. An advertised incomplete port MUST fail closed.
+
+## LN-PKG-179 — New-file creation intent
+
+<a id="ln-pkg-179"></a>
+
+**Requirement.** Vault MUST expose explicit exclusive creation and preserve legacy low-level create semantics. FileManager new-file creation MUST use exclusivity when supported; Explorer new-note and landing actions MUST use this intent boundary. Admitted operations MUST span IO, cache/tree projection and creation events. Failed creation MUST NOT project success; existing destinations MUST remain unchanged on collision.
+
 ## LN-PKG-177 — Watch registration readiness
 
 <a id="ln-pkg-177"></a>
