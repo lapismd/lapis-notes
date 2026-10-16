@@ -4924,6 +4924,37 @@ describe("Workspace compatibility", () => {
     expect(layoutChange).not.toHaveBeenCalled();
   });
 
+  it("projects owned Lapis notices into the shared workspace toasts", () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const controller = getWorkspaceHostBinding(workspace).controller;
+    const record = {
+      id: "owned-notice",
+      title: "File action failed",
+      message: "File changed on disk: Note.md",
+      severity: "error" as const,
+      source: "Explorer",
+    };
+    app.notifications.trigger("notify", record);
+    expect(controller.notifications.transient).toEqual(
+      expect.arrayContaining([expect.objectContaining(record)]),
+    );
+    controller.notifications.dismiss(record.id);
+  });
+
+  it("retires notice delivery when its workspace host is disposed", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const controller = getWorkspaceHostBinding(workspace).controller;
+    const notify = vi.spyOn(controller.notifications, "notify");
+    Object.assign(app, { languageServices: { unbindDiagnostics() {} } });
+    await workspace.disposeWorkspaceHost();
+    app.notifications.trigger("notify", {
+      id: "retired",
+      message: "not for this host",
+      severity: "error",
+    });
+    expect(notify).not.toHaveBeenCalled();
+  });
+
   it("projects Lapis notification progress into the Design Core manager", async () => {
     const { app, workspace } = createWorkspaceHarness();
     const controller = getWorkspaceHostBinding(workspace).controller;

@@ -5,6 +5,11 @@ intake or UI swap status changes.
 
 ## Tauri source support (2026-10-16)
 
+- [ ] Complete owned notice delivery qualification (LN-WS-096);
+      135 affected API and 28 Explorer cases plus public checks/builds pass.
+      [Source evidence](spec/records/2026-10-16-owned-notice-projection.md)
+      separates this from native OS notifications and deferred full lanes.
+
 - [ ] Qualify protected managed deletion (LN-ARCH-145, LN-EXP-008);
       38 API and 28 Explorer cases plus public checks/builds pass in the
       [source record](spec/records/2026-10-16-managed-file-deletion.md).

@@ -3382,9 +3382,19 @@ export class Workspace extends EventDispatcher<{
       }
     };
     const changed = notifications.on("changed", sync);
+    const notified = notifications.on("notify", (record) => {
+      controller.notifications.notify({
+        id: record.id,
+        title: record.title,
+        message: record.message,
+        severity: record.severity,
+        source: record.source,
+      });
+    });
     sync();
     this.#notificationProgressBridgeDisposer = () => {
       notifications.offref(changed);
+      notifications.offref(notified);
       for (const handle of projected.values()) {
         handle.complete();
       }

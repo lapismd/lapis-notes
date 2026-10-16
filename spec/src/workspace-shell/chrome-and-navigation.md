@@ -42,3 +42,9 @@ here without changing this migration's dependency target.
 <a id="ln-ws-058"></a>
 
 **Requirement.** Default desktop shells MUST show Design Core's built-in Settings action in the left ribbon footer while the ribbon is visible. The action MUST expose the public "Open settings" label and activate the same settings dialog as any shell settings trigger.
+
+## LN-WS-096 — Owned notice projection
+
+<a id="ln-ws-096"></a>
+
+**Requirement.** A workspace host MUST project its owning App's notice events through the existing Design Core notification manager, preserving identity, message, title, severity and source. Disposing the host MUST unsubscribe notice delivery so a retired App cannot publish into that host. First-party callers with an App MUST pass that owner explicitly to Notice.

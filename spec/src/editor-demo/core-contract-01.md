@@ -327,3 +327,6 @@ Focused Explorer acceptance verifies:
 Explorer deletion now follows the shared FileManager guard under LN-ARCH-145
 and LN-EXP-008. The existing App owns writer protection, native IO failure and
 retry; the view continues to use its existing action and notice presentation.
+
+Owned failure notices follow LN-WS-096 in the existing shell notification UI;
+the editor demo receives no separate notification component or persistence.

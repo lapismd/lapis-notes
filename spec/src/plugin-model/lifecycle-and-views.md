@@ -114,3 +114,7 @@ compatibility-file writers.
 Explorer deletion now follows the shared FileManager guard under LN-ARCH-145
 and LN-EXP-008. The existing App owns writer protection, native IO failure and
 retry; the view continues to use its existing action and notice presentation.
+
+LN-WS-096 projects notices from the explicit App into the existing shared
+notification UI and removes that subscription on host disposal. Explorer passes
+its owned App to Notice; native error handling keeps the existing presentation.

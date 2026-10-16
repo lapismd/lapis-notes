@@ -89,3 +89,7 @@
 <a id="ln-pkg-105"></a>
 
 **Requirement.** `@lapis-notes/api` MUST own the bridge from Design Core pane-menu split actions to Lapis `WorkspaceLeaf` duplication. Lapis-hosted imperative views MUST keep live leaf ids, containers, copied view state, translated split directions, and projected host layout before the new pane renders.
+
+LN-WS-096 projects notices from the explicit App into the existing shared
+notification UI and removes that subscription on host disposal. Explorer passes
+its owned App to Notice; native error handling keeps the existing presentation.

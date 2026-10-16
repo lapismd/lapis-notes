@@ -113,7 +113,7 @@ async function withNotice<T>(
       ? app.fileEditingSessions.track(operation)
       : operation());
   } catch (error) {
-    new Notice(displayError(error));
+    new Notice(displayError(error), undefined, app);
     throw error;
   }
 }

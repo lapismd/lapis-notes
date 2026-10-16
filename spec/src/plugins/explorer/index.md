@@ -100,3 +100,7 @@ but appears in the Files palette only while Show hidden files is enabled.
 <a id="ln-exp-008"></a>
 
 **Requirement.** Explorer deletion MUST use the owning App's FileManager writer guard. It MUST NOT bypass failed or dirty writers through low-level Vault trash. The existing action and notice presentation MUST remain available for retry after explicit persistence or conflict recovery.
+
+LN-WS-096 projects notices from the explicit App into the existing shared
+notification UI and removes that subscription on host disposal. Explorer passes
+its owned App to Notice; native error handling keeps the existing presentation.

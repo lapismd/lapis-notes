@@ -342,3 +342,7 @@ resources and session release. This introduces no ambient App state or provider.
 
 LN-PKG-177 exposes optional watch registration readiness before initial
 reconciliation. Array adapters preserve it; the frozen Deno host is unchanged.
+
+LN-WS-096 projects notices from the explicit App into the existing shared
+notification UI and removes that subscription on host disposal. Explorer passes
+its owned App to Notice; native error handling keeps the existing presentation.
