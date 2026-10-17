@@ -54,6 +54,9 @@ their complete lifetime boundary before releasing backing storage.
 
 **Requirement.** Api view registration MUST expose registered Lapis views to design-core through imperative view definitions while retaining Lapis view creation, state, load, mount, unload, history, and missing-view behavior. Each imperative compatibility root MUST fill its Design Core view host without depending on a host-global utility stylesheet. Each transition MUST remove the previous view root before mounting the next while reattaching the shared `ItemView` content element when required. The `empty` type MUST use design-core's built-in visual empty view.
 
+- Attachment MUST wait for the original queued compatibility projection when the controller opens a leaf before its API wrapper exists. Completion MUST attach that wrapper's retained container without recreating its view.
+- A disposed mount MUST fence its deferred attachment so later projection cannot attach content to a retired host.
+
 ## LN-WS-012 — Stacked-pane width tokens
 
 <a id="ln-ws-012"></a>

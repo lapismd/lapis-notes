@@ -4,6 +4,10 @@ Workspace diagnostic-resource registrations belong to their owning App and
 return disposal callbacks. Desktop conflict review composes its own view; the
 shared API retains ordinary vault-file navigation for unhandled resources.
 
+The deferred host attachment in LN-WS-006/064 preserves plugin-owned view
+creation, load and unload. Closing a host cancels its pending attachment; it
+does not construct a replacement view, reactivate a plugin or admit a service.
+
 ## LN-PLUG-121 — Required native service admission
 
 <a id="ln-plug-121"></a>

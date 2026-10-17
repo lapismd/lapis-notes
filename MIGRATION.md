@@ -31,6 +31,11 @@ intake or UI swap status changes.
 
 ## Tauri source support (2026-10-16)
 
+- [ ] Complete deferred imperative-attachment qualification (LN-WS-006/064).
+      The exact regression and all 131 workspace / 1,160 API cases pass;
+      public API build passes. Consumer and wider source lanes remain pending;
+      see `spec/records/2026-10-17-deferred-imperative-attachment.md`.
+
 - [ ] Complete consumer qualification of ordered sync-host initialization
       (LN-DB-047). The exact regression and all 74 affected cases pass;
       [source evidence](spec/records/2026-10-16-sync-host-startup-ordering.md).

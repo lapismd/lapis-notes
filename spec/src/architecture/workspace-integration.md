@@ -4,6 +4,11 @@ Diagnostic navigation may register disposable App-owned resource openers before
 the existing vault-file fallback. The desktop routes conflict resources while
 retaining writer-owned persistence; the shared API grants no file authority.
 
+Deferred imperative attachment follows LN-WS-006/064: the API waits for its
+queued compatibility projection and retains the same view/container owner.
+Layout authority, navigation policy and application service admission stay with
+their existing owners; attachment cannot create another App or execution scope.
+
 ## LN-ARCH-008 — Storybook: consume design-core's shared catalog stylesheet and layout
 
 <a id="ln-arch-008"></a>

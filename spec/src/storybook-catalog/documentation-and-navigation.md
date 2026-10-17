@@ -244,6 +244,10 @@ detail's titled alert independently of the simultaneous notification toast.
 
 **Requirement.** Source-aliased framework packages and packages that own emitted workers MUST remain outside Storybook dependency optimization. Linked framework identities MUST be deduplicated. Deep Mira modules, pure catalog and Nostr leaves, the accessibility runtime, and transitive CommonJS leaves from installed plugins MUST be pre-bundled.
 
+Cold workspace acceptance MUST pre-bundle statically used recovery icons so late
+dependency discovery cannot reload an active interaction or its accessibility
+runtime.
+
 ## LN-CAT-100 — Workspace/Plugin Management/Browse Details And Readme: provide valid structured Overview and Changelog Markdown
 
 <a id="ln-cat-100"></a>

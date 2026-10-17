@@ -3058,6 +3058,61 @@ describe("Workspace compatibility", () => {
     ).toBeUndefined();
   });
 
+  it.each([false, true])(
+    "attaches a controller-opened view after projection unless its host closed: %s",
+    async (closed) => {
+      const { app, workspace } = createWorkspaceHarness();
+      Object.assign(app, { languageServices: { unbindDiagnostics: vi.fn() } });
+      const binding = getWorkspaceHostBinding(workspace);
+      const created = vi.fn(
+        (leaf: WorkspaceLeaf) =>
+          new MockItemView(leaf, "late-history", "History"),
+      );
+      workspace.registerView("late-history", created);
+      const tabs = workspace.rootSplit.children[0] as WorkspaceTabs;
+      const opened = binding.controller.workspace.openLeaf(
+        "late-history",
+        {},
+        { paneId: tabs.id, active: true },
+      );
+      expect(opened).not.toBeNull();
+      expect(workspace.getLeafById(opened!.id)).toBeNull();
+      const target = Object.assign(createElement(), {
+        getRootNode: () => ({ nodeType: 9 }),
+      }) as unknown as HTMLElement;
+      const definition =
+        binding.controller.renderer.registry.resolve("late-history");
+      if (definition?.kind !== "imperative")
+        throw new Error("Missing imperative definition");
+      const dispose = definition.mount(target, {
+        tab: {
+          id: opened!.id,
+          kind: "tab",
+          title: "History",
+          view: { type: "late-history", state: {} },
+        },
+        hostId: "root",
+        paneId: tabs.id,
+        active: true,
+        showInlineTitle: true,
+        activate: () => true,
+        close: () => true,
+        setState: () => true,
+      });
+      if (closed) dispose?.();
+      await vi.waitFor(() =>
+        expect(workspace.getLeafById(opened!.id)).not.toBeNull(),
+      );
+      await workspace.flushLayout();
+      const leaf = workspace.getLeafById(opened!.id)!;
+      expect(created).toHaveBeenCalledTimes(1);
+      if (closed) expect(target.children).toHaveLength(0);
+      else expect(target.children).toEqual([leaf.containerEl]);
+      dispose?.();
+      await workspace.disposeWorkspaceHost();
+    },
+  );
+
   it("projects view actions and pane-menu contributions into design-core chrome", async () => {
     const { workspace } = createWorkspaceHarness();
     const binding = getWorkspaceHostBinding(workspace);

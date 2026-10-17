@@ -3692,12 +3692,25 @@ export class Workspace extends EventDispatcher<{
         };
       },
       mount: (target, context) => {
-        const leaf = this.getLeafById(context.tab.id);
-        if (!leaf) return;
-        attachWorkspaceView(target, leaf);
+        let active = true;
+        let attached: WorkspaceLeaf | null = null;
+        const attach = () => {
+          if (!active) return;
+          const leaf = this.getLeafById(context.tab.id);
+          if (!leaf || leaf.containerEl.parentElement === target) return;
+          attachWorkspaceView(target, leaf);
+          attached = leaf;
+        };
+        attach();
+        // Controller leaves can render before their compatibility projection.
+        // Reattach the same retained view; do not create another lifecycle owner.
+        void this.#workspaceHostProjection.then(attach).catch((error) => {
+          console.error("Unable to attach projected workspace view", error);
+        });
         return () => {
-          if (leaf.containerEl.parentElement === target) {
-            leaf.containerEl.remove();
+          active = false;
+          if (attached?.containerEl.parentElement === target) {
+            attached.containerEl.remove();
           }
         };
       },

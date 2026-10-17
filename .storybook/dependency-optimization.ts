@@ -95,6 +95,7 @@ export const storybookPackedDependencyIncludes = [
   "@lucide/svelte/icons/power",
   "@lucide/svelte/icons/puzzle",
   "@lucide/svelte/icons/refresh-cw",
+  "@lucide/svelte/icons/rotate-ccw",
   "@lucide/svelte/icons/rotate-cw",
   "@lucide/svelte/icons/search",
   "@lucide/svelte/icons/search-x",
