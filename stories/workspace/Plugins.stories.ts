@@ -1,3 +1,4 @@
+import { desktopOnlyAI } from "./plugin-host-compatibility";
 import "./Plugins.docs.css";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
@@ -1349,3 +1350,5 @@ export const DetailImagesUnavailable: Story = {
     ).toBeEnabled();
   },
 };
+
+export const DesktopOnlyAI: Story = desktopOnlyAI;

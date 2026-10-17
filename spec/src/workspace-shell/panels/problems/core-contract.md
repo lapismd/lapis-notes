@@ -1,5 +1,9 @@
 # Problems / Integration contracts
 
+LN-PLUG-113 records rejected external plugin startup through existing runtime
+diagnostics before manifest contributions or code can activate. It adds no
+Problems presentation, document collection or diagnostic ownership boundary.
+
 LN-PKG-183 adds an App-owned watch service without changing diagnostic ownership.
 File changes reach existing workspace/editor lifecycles under LN-WS-097;
 Problems retains its existing open-document and disposal boundaries.

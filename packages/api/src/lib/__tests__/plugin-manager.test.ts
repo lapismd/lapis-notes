@@ -723,6 +723,32 @@ function getPluginStyle(pluginId: string): HTMLStyleElement | undefined {
 }
 
 describe("PluginManager", () => {
+  it.each(["ai", "terminal"])(
+    "host restriction rejects older web-compatible %s before evaluation and preserves data",
+    async (pluginId) => {
+      const evaluate = () => {
+        throw new Error("must not evaluate");
+      };
+      const { app, adapter } = createTestApp({
+        unavailablePlugins: { [pluginId]: "desktop-only" },
+        communityPluginHost: { id: "web", evaluate },
+      });
+      await seedCommunityPlugin(app, pluginId, "module.exports = class {}", {
+        supportedRuntimes: ["web"],
+        isDesktopOnly: false,
+      });
+      const dataPath = `/.lapis/plugins/${pluginId}/data.json`;
+      await adapter.write(dataPath, '{"retained":true}');
+      expect(
+        await app.plugins.loadPlugin(`/.lapis/plugins/${pluginId}`),
+      ).toBeNull();
+      expect(app.plugins.plugins.has(pluginId)).toBe(false);
+      expect(
+        app.plugins.getCommunityPluginDiagnostics(pluginId)?.lastFailureMessage,
+      ).toContain("desktop-only");
+      expect(await adapter.read(dataPath)).toBe('{"retained":true}');
+    },
+  );
   beforeEach(() => {
     setNativeDesktopBridge(null);
     styleElements = new Map();

@@ -12,3 +12,9 @@ pnpm dev:web
 pnpm build:web
 pnpm test:web:e2e
 ```
+
+AI and Terminal are native desktop features. This host rejects their retained
+installed identities even when older manifests claim Web compatibility. Saved
+plugin data and layout remain; obsolete dedicated service tokens are removed
+after configuration loads. No service URL/token settings or environment
+attachment remain in the Web application.

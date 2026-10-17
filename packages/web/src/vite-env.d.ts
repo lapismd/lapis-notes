@@ -5,10 +5,6 @@ declare const __LAPIS_SERVER_MODE__: boolean;
 
 interface ImportMetaEnv {
   readonly VITE_APP_COMMIT_HASH: string;
-  readonly LAPIS_AGENT_RUNTIME_URL?: string;
-  readonly LAPIS_AGENT_RUNTIME_TOKEN?: string;
-  readonly LAPIS_TERMINAL_HOST_URL?: string;
-  readonly LAPIS_TERMINAL_HOST_TOKEN?: string;
   readonly VITE_LAPIS_NOSTR_REGISTRY_RELAYS?: string;
   readonly VITE_LAPIS_NOSTR_CURATOR_PUBKEYS?: string;
   readonly VITE_LAPIS_NOSTR_INSTALL_QUORUM?: string;

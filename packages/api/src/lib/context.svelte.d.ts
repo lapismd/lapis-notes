@@ -64,6 +64,8 @@ export type AppStateProperties = {
     createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
     pluginAssetServer?: PluginAssetServer;
     pluginDistributionOptions?: AppPluginDistributionOptions;
+    /** Host restrictions apply to discovery, installation and external loading. */
+    unavailablePlugins?: DefaultPluginDistributionManagerOptions["unavailablePlugins"];
     /** Host-owned Nostr account, keychain, and remote-signer implementation. */
     nostrSignerBroker?: NostrSignerBroker;
     syncHost?: SyncHostServiceOptions;
@@ -72,7 +74,7 @@ export type AppStateProperties = {
 };
 /** Renderer-safe application properties exposed to plugins and views. */
 export type AppPublicProperties = Pick<AppStateProperties, "version" | "configPath" | "workspaceShell" | "markdownRenderer"> & { configPath: string };
-export type AppPluginDistributionOptions = Omit<DefaultPluginDistributionManagerOptions, "adapter" | "appVersion" | "platform" | "workspaceTrusted" | "pluginManager">;
+export type AppPluginDistributionOptions = Omit<DefaultPluginDistributionManagerOptions, "adapter" | "appVersion" | "platform" | "workspaceTrusted" | "pluginManager" | "unavailablePlugins">;
 export type ExtType = Extension | ((context: Record<string, any>) => Extension);
 /**
  * Details about the last startup failure that caused safe mode to activate.

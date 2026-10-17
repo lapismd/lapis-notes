@@ -100,13 +100,13 @@
 
 - The standalone `lapis-ai-controller` owns orchestration and its authenticated service protocol.
 
-- Deno desktop supervises it; web and Storybook attach with a URL and token.
+- Frozen Deno desktop supervises it; development Storybook can attach with a URL and token. Web AI and Terminal are retired desktop-only features under LN-PLUG-113.
 
 - The AI plugin uses the controller SDK for events, recovery and tool callbacks.
 
-- The web host persists those values as `web.agentRuntime.url` and `web.agentRuntime.token` in Settings.
+- Web no longer exposes runtime connection Settings and removes dedicated obsolete tokens after loading configuration.
 
-- The token field uses password presentation so the value stays masked until revealed.
+- Retained conversations and plugin settings survive the Web retirement; no service attachment is attempted.
 
 - When the selected runtime is not Fake and no host is connected, chat tells the user to start the local server and set URL, port, and token.
 

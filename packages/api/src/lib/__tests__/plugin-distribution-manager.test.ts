@@ -521,6 +521,30 @@ describe("DefaultPluginDistributionManager", () => {
     });
   });
 
+  it("host restrictions identify obsolete compatible catalog entries and reject installation", async () => {
+    const fixture = await createManagerFixture();
+    const manager = new DefaultPluginDistributionManager({
+      adapter: new InMemoryDataAdapter(),
+      appVersion: "0.20.0",
+      platform: "web",
+      unavailablePlugins: { "lapis-docs": "desktop-only" },
+      registries: [fixture.source],
+      trustedKeys: [fixture.trustedKey],
+      fetch: fakeFetch(fixture.responses),
+    });
+    await manager.refreshCatalog();
+    expect(manager.search().map((entry) => entry.id)).toContain("lapis-docs");
+    expect(manager.search({ compatibleOnly: true })).toEqual([]);
+    expect(manager.getCompatibility("lapis-docs")).toEqual({
+      compatible: false,
+      reasons: ["desktop-only"],
+    });
+    await expect(manager.install("lapis-docs")).rejects.toMatchObject({
+      code: "compatibility-failed",
+      details: { reasons: ["desktop-only"] },
+    });
+  });
+
   it("blocks privileged desktop installs when workspace trust is revoked", async () => {
     const fixture = await createManagerFixture({
       platforms: ["electron"],

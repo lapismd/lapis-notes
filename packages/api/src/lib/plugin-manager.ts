@@ -62,7 +62,10 @@ import {
 import { scanBarePluginDependencySpecifiers } from "./plugin-dependency-scanner";
 import pluginHostModuleRegistry from "./generated/plugin-host-modules.schema.generated";
 import { InstalledPluginStateStore } from "./plugin-distribution/installed-plugin-state";
-import type { PluginProvenance } from "./plugin-distribution/types";
+import type {
+  PluginProvenance,
+  PluginHostRestrictions,
+} from "./plugin-distribution/types";
 import { dirname, getAdapterVaultId, joinPath, normalizePath } from "./storage";
 import { readFileState, saveFileState } from "./file-state-store";
 import { EventDispatcher } from "./events";
@@ -156,6 +159,7 @@ export interface CommunityPluginExecutionHost {
 }
 
 export interface PluginManagerOptions {
+  unavailablePlugins?: PluginHostRestrictions;
   communityPluginHost?: CommunityPluginExecutionHost;
   createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
   pluginAssetServer?: PluginAssetServer;
@@ -778,6 +782,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     new Map();
   #communityPluginHost: CommunityPluginExecutionHost;
   #pluginAssetServer?: PluginAssetServer;
+  #unavailablePlugins: PluginHostRestrictions;
   #createSyncHostCapabilities?: PluginManagerOptions["createSyncHostCapabilities"];
   #revokeSyncHostCapabilities?: PluginManagerOptions["revokeSyncHostCapabilities"];
 
@@ -793,6 +798,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       options.createCommunityPluginDependencyResolver?.(this.dependencies) ??
       this.dependencies;
     this.#pluginAssetServer = options.pluginAssetServer;
+    this.#unavailablePlugins = { ...options.unavailablePlugins };
     this.#createSyncHostCapabilities = options.createSyncHostCapabilities;
     this.#revokeSyncHostCapabilities = options.revokeSyncHostCapabilities;
     const commonJsHost =
@@ -1789,6 +1795,11 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
           const manifestContent = await this.adapter.read(manifestPath);
           manifest = JSON.parse(manifestContent) as PluginManifest;
           pluginId = manifest.id || pluginId;
+          if (Object.hasOwn(this.#unavailablePlugins, manifest.id)) {
+            throw new Error(
+              `Plugin ${manifest.id} is unavailable: ${this.#unavailablePlugins[manifest.id]}`,
+            );
+          }
           span.setAttribute("plugin.id", manifest.id);
           manifest.dir ??= pluginPath;
           const runtimeSource =

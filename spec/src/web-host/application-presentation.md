@@ -26,11 +26,11 @@ release is preserved; installation remains an explicit verified app action.
 
 **Requirement.** The web launcher “View all” palette MUST compose `@lapismd/design-core/shadcn/command-view` for its inner search and result list.
 
-## LN-WEB-020 — Authenticated protocol-v3 web bridge: proxy application-tool calls, responses, and cancellation
+## LN-WEB-020 — Retired Web application-tool proxy
 
 <a id="ln-web-020"></a>
 
-**Requirement.** An authenticated protocol-v3 web bridge MUST proxy application-tool calls, responses, and cancellation through its existing agent-runtime connection while the browser App executes the tool. A real stdio-shim round trip MUST use that same connection, and disconnect MUST revoke bridge authorization and cancel pending calls without retaining note contents in host replay.
+**Requirement.** Web MUST NOT publish a controller application-tool proxy or authorize remote agent calls. Shared application-tool registry contracts required by native desktop MUST remain available without starting a Web agent connection.
 
 ## LN-WEB-047 — Web development renderer: pre-bundle deep @lapismd/mira modules used by registry-installed
 

@@ -2,7 +2,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { DenoAgentRuntimeHost } from "../../packages/desktop-deno/src-deno/agent-runtime";
-import { createControllerConnectionBridge } from "../../packages/web/src/controller-connection-bridge";
+import { createControllerConnectionBridge } from "./controller-connection-bridge";
 
 /** Real smoke probes use the same separate-service boundary as the desktop. */
 export async function startAiSmokeController(workspace: string) {

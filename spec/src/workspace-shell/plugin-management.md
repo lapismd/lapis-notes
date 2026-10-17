@@ -1,5 +1,10 @@
 # Workspace Shell / Plugin management
 
+Registry discovery consumes App-owned LN-PLUG-113 compatibility reasons. A
+desktop-only entry displays the existing disabled installation state with clear
+desktop guidance, including already installed older copies. Registry signatures,
+shared module identity and unrelated install/disable flows retain their owners.
+
 App links and persisted Plugins routes retain a selected release version
 ([LN-PLUG-103](../plugin-model/app-ownership.md#ln-plug-103)). The view resolves
 that version from verified detail metadata's indexed own entries, shows an unavailable state for a

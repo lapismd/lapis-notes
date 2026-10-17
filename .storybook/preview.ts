@@ -1,6 +1,6 @@
 import type { Preview } from "@storybook/svelte-vite";
 import { withThemeByDataAttribute } from "@storybook/addon-themes";
-import { createControllerConnectionBridge } from "../packages/web/src/controller-connection-bridge";
+import { createControllerConnectionBridge } from "../scripts/lib/controller-connection-bridge";
 import { syncCatalogStoryLayout } from "@lapismd/design-core/storybook/catalog-layout";
 import { SpecificationDocsContainer } from "./specification-docs";
 // Brand + shadcn paint: design-core. ui/theme.css is Obsidian alias-only.

@@ -1,5 +1,9 @@
 # Packages / Configuration and lifecycle
 
+Web retirement removes dedicated connection tokens through the existing
+serialized configuration writer. LN-PLUG-113 does not reset plugin data,
+conversations, unrelated secrets or retained workspace state.
+
 ## LN-PKG-173 — Serialized configuration changes
 
 <a id="ln-pkg-173"></a>

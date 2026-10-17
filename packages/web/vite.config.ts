@@ -200,7 +200,7 @@ const pwaPlugin = VitePWA({
 });
 
 export default defineConfig(({ mode }) => ({
-  envPrefix: ["VITE_", "LAPIS_"],
+  envPrefix: ["VITE_"],
   define: {
     __LAPIS_SERVER_MODE__: JSON.stringify(mode === "server"),
     "import.meta.env.VITE_APP_COMMIT_HASH": JSON.stringify(

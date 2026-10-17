@@ -1,5 +1,9 @@
 # Markdown Plugin / Integration contracts
 
+LN-PLUG-113 restricts retired Web service identities before plugin evaluation.
+Markdown rendering, shared application-tool contracts and document ownership
+remain unchanged; this host policy adds no Markdown runtime or wrapper.
+
 Markdown uses the shared Plugin disable boundary. Its registered contribution
 cleanup runs through component unload; host security revocation then drains
 before disable completes, including failed unloads (LN-ARCH-118).

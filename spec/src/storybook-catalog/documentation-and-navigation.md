@@ -1,5 +1,10 @@
 # Storybook Catalog / Documentation and navigation
 
+The optional development controller metadata bridge now lives in
+`scripts/lib/controller-connection-bridge.ts`, shared by catalog preview and
+live acceptance fixtures. It is excluded from the Web product; default stories
+remain Fake and no controller sidecar is started.
+
 Plugins app-link stories demonstrate the public App URL registry and Workspace
 navigator under [LN-PLUG-106](../plugin-model/app-ownership.md#ln-plug-106).
 Historical and unavailable release cases retain independent `visual-pending`
@@ -298,3 +303,8 @@ detail's titled alert independently of the simultaneous notification toast.
 <a id="ln-cat-115"></a>
 
 **Requirement.** Specification Docs MUST derive chapter hierarchy, breadcrumbs, and previous/next navigation from SUMMARY. Every indexed canonical page MUST have exactly one metadata-only mirror and one unique built Docs route.
+
+The host compatibility story retains signed snapshot discovery and real PluginBrowser
+installation state under LN-PLUG-113. Its independent visual path is
+`workspace/plugins/desktop-only-ai`; review and capture remain
+pending without baseline changes.

@@ -387,7 +387,13 @@ export interface PluginCompatibilityInput {
   appVersion: string;
   platform: PluginPlatform;
   workspaceTrusted?: boolean;
+  unavailablePlugins?: PluginHostRestrictions;
 }
+
+/** App-owned exclusions override older manifests' compatibility claims. */
+export type PluginHostRestrictions = Readonly<
+  Record<string, "desktop-only" | "platform-unsupported">
+>;
 
 export interface PluginCompatibilityResult {
   compatible: boolean;

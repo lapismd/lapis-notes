@@ -144,6 +144,8 @@ export type AppStateProperties = {
   createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
   pluginAssetServer?: PluginAssetServer;
   pluginDistributionOptions?: AppPluginDistributionOptions;
+  /** Host restrictions apply to discovery, installation and external loading. */
+  unavailablePlugins?: DefaultPluginDistributionManagerOptions["unavailablePlugins"];
   /** Host-owned Nostr account, keychain, and remote-signer implementation. */
   nostrSignerBroker?: NostrSignerBroker;
   syncHost?: SyncHostServiceOptions;
@@ -164,7 +166,12 @@ export type AppPublicProperties = Pick<
 
 export type AppPluginDistributionOptions = Omit<
   DefaultPluginDistributionManagerOptions,
-  "adapter" | "appVersion" | "platform" | "workspaceTrusted" | "pluginManager"
+  | "adapter"
+  | "appVersion"
+  | "platform"
+  | "workspaceTrusted"
+  | "pluginManager"
+  | "unavailablePlugins"
 >;
 
 export type ExtType = Extension | ((context: Record<string, any>) => Extension);
@@ -431,6 +438,7 @@ export class App {
         createCommunityPluginDependencyResolver:
           props.createCommunityPluginDependencyResolver,
         pluginAssetServer: props.pluginAssetServer,
+        unavailablePlugins: props.unavailablePlugins,
         createSyncHostCapabilities: (pluginId, grants) =>
           this.#syncHost.forPlugin(pluginId, grants),
         revokeSyncHostCapabilities: (pluginId) =>
@@ -454,6 +462,7 @@ export class App {
       ...props.pluginDistributionOptions,
       adapter,
       appVersion: this.version,
+      unavailablePlugins: props.unavailablePlugins,
       platform: isNativeDesktopRuntime(props.session?.runtime)
         ? "desktop"
         : "web",

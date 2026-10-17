@@ -36,16 +36,10 @@
     type WorkspaceStartupTask,
   } from "@lapismd/design-core/workspace/startup";
   import { onMount, untrack } from "svelte";
-  import { registerWebAgentRuntimeBridge } from "./agent-runtime-attach";
   import {
-    registerWebAgentRuntimeSettings,
-    syncWebAgentRuntime,
-  } from "./agent-runtime-settings";
-  import { registerWebTerminalRuntimeBridge } from "./terminal-runtime-attach";
-  import {
-    registerWebTerminalRuntimeSettings,
-    syncWebTerminalRuntime,
-  } from "./terminal-runtime-settings";
+    webPluginRestrictions,
+    removeObsoleteServiceSecrets,
+  } from "./desktop-plugin-policy";
   import { registerWebVaultTransferSettings } from "./vault-transfer-settings";
   import { createWebPluginAssetServer } from "./plugin-asset-server";
   import { setPwaRuntimeApplication } from "./pwa-runtime-application";
@@ -154,6 +148,7 @@
       pluginAssetServer:
         pluginAssetServer ?? createWebPluginAssetServer({ adapter }),
       pluginDistributionOptions: staticPluginDistributionOptions,
+      unavailablePlugins: webPluginRestrictions,
       workspaceShell: {
         application: {
           name: "Lapis Notes",
@@ -184,8 +179,6 @@
   let stopMetadataTracking: (() => void) | null = null;
   let disposeDatabaseStatus: (() => void) | null = null;
   let disposeCoordinationListener: (() => void) | null = null;
-  let disposeAgentRuntimeSettings: (() => void) | null = null;
-  let disposeTerminalRuntimeSettings: (() => void) | null = null;
   let disposeVaultTransferSettings: (() => void) | null = null;
   let recentVaults = $state.raw<VaultProfile[]>([]);
   let workspaceNavigation = $derived.by<WorkspaceNavigation>(() => {
@@ -295,13 +288,9 @@
     stopMetadataTracking = null;
     disposeCoordinationListener?.();
     disposeDatabaseStatus?.();
-    disposeAgentRuntimeSettings?.();
-    disposeTerminalRuntimeSettings?.();
     disposeVaultTransferSettings?.();
     disposeCoordinationListener = null;
     disposeDatabaseStatus = null;
-    disposeAgentRuntimeSettings = null;
-    disposeTerminalRuntimeSettings = null;
     disposeVaultTransferSettings = null;
     await app.workspace.disposeWorkspaceHost().catch(() => undefined);
     await app.metadataCache.dispose().catch(() => undefined);
@@ -323,10 +312,6 @@
       if (disposed) return;
 
       setTask(activeTask, "active");
-      if (runtime === "web-pwa") {
-        registerWebAgentRuntimeBridge();
-        registerWebTerminalRuntimeBridge();
-      }
       if (!corePluginsRegistered) {
         app.plugins.registerStaticPlugins(notesPluginProfile);
         corePluginsRegistered = true;
@@ -339,16 +324,10 @@
       activeTask = "configuration";
       setTask(activeTask, "active");
       await app.configuration.load();
-      disposeAgentRuntimeSettings?.();
-      disposeTerminalRuntimeSettings?.();
+      await removeObsoleteServiceSecrets(app);
       disposeVaultTransferSettings?.();
       if (runtime === "web-pwa") {
-        disposeAgentRuntimeSettings = registerWebAgentRuntimeSettings(app);
-        disposeTerminalRuntimeSettings =
-          registerWebTerminalRuntimeSettings(app);
         disposeVaultTransferSettings = registerWebVaultTransferSettings(app);
-        syncWebAgentRuntime(app);
-        syncWebTerminalRuntime(app);
       }
       if (disposed) return;
       setTask(activeTask, "complete");
@@ -436,13 +415,9 @@
       }
       disposeCoordinationListener?.();
       disposeDatabaseStatus?.();
-      disposeAgentRuntimeSettings?.();
-      disposeTerminalRuntimeSettings?.();
       disposeVaultTransferSettings?.();
       disposeCoordinationListener = null;
       disposeDatabaseStatus = null;
-      disposeAgentRuntimeSettings = null;
-      disposeTerminalRuntimeSettings = null;
       disposeVaultTransferSettings = null;
       await session.close();
     } finally {

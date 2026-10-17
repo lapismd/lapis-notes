@@ -22,7 +22,6 @@
     "@lapis-notes/api": "workspace:*",
     "@lapis-notes/app-profile": "workspace:*",
     "@lapis-notes/server-deno": "workspace:*",
-    "@lapismd/terminal-host": "^0.1.0",
     "@lapis-notes/ui": "workspace:*",
     "@lapis-notes/workspace": "workspace:*",
     "@lapismd/design-core": "^0.4.0",

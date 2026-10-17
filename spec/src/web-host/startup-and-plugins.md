@@ -6,29 +6,29 @@
 
 **Requirement.** The web host MUST own its launcher, profile selection, session lifecycle, PWA registration, and plugin boot while `@lapis-notes/workspace` remains shell-only.
 
-## LN-WEB-031 — Web host: keep terminal-host configuration and bridge attachment independent
+## LN-WEB-031 — Desktop-only Terminal identity
 
 <a id="ln-web-031"></a>
 
-**Requirement.** The web host MUST keep terminal-host configuration and bridge attachment independent from static plugin composition. An installed `@lapis-notes/lapis-plugin-terminal` MUST load through configured plugin persistence rather than a host import.
+**Requirement.** Web MUST exclude Terminal from its static profile and reject activation of the `terminal` identity through the App-owned host restriction, including older installed manifests that advertise Web support. Saved plugin data, disabled preferences and layout MUST remain intact.
 
-## LN-WEB-033 — After configuration load and whenever those values: register or replace only a lapis-terminal-host contribution
+## LN-WEB-033 — No Terminal bridge attachment
 
 <a id="ln-web-033"></a>
 
-**Requirement.** After configuration load and whenever those values change, the web session MUST register or replace only a `lapis-terminal-host` contribution. It MUST NOT overwrite a desktop IPC bridge.
+**Requirement.** Web startup and configuration changes MUST NOT publish a terminal runtime contribution or connect to a terminal-host service.
 
-## LN-WEB-035 — After attaching or replacing the terminal-host contribution: refresh an installed Terminal plugin so already-constructed
+## LN-WEB-035 — No Terminal runtime refresh
 
 <a id="ln-web-035"></a>
 
-**Requirement.** After attaching or replacing the terminal-host contribution, the web session MUST refresh an installed Terminal plugin so already-constructed panels remount. Absence of that plugin MUST remain a no-op.
+**Requirement.** Web MUST NOT refresh installed Terminal runtime clients. The desktop-only rejection MUST precede external module evaluation and command or view registration.
 
-## LN-WEB-036 — Portable Terminal package dependencies
+## LN-WEB-036 — Retired Terminal distribution inputs
 
 <a id="ln-web-036"></a>
 
-**Requirement.** Web Vite and the web package manifest MUST NOT contain a linked `@lapis-notes/lapis-plugin-terminal` source root. Registry-installed plugin assets, including Ghostty WASM, MUST be served through the verified plugin-asset contract.
+**Requirement.** The Web package and Vite configuration MUST NOT import the standalone Terminal plugin, terminal-host client or Ghostty assets. Other compatible installed plugins MUST retain verified asset delivery.
 
 ## LN-WEB-008 — Owner shutdown or stale heartbeats: allow one proxy to promote without losing
 
@@ -54,17 +54,17 @@
 
 **Requirement.** Bases MUST be absent from the static web profile and load only when installed and enabled through configured plugin persistence. Browser acceptance MUST install it, create and reopen a Bases fixture, query rows, edit frontmatter, and preserve the configured view after restart.
 
-## LN-WEB-012 — AI: absent from the static web profile
+## LN-WEB-012 — Desktop-only AI identity
 
 <a id="ln-web-012"></a>
 
-**Requirement.** AI MUST be absent from the static web profile and load only when installed and enabled through configured plugin persistence. Live runtimes MUST be available only when both a runtime URL and token are configured. Otherwise the installed chat MUST stay usable through Fake or an unavailable state.
+**Requirement.** Web MUST exclude AI from its static profile and reject activation of the `ai` identity through App-owned host restrictions, including older installed manifests that advertise Web support. Discovery MUST report desktop-only compatibility without deleting conversations, enabled preferences or saved layout.
 
-## LN-WEB-014 — Web session: register an agent-runtime WebSocket bridge before loading
+## LN-WEB-014 — No AI environment attachment
 
 <a id="ln-web-014"></a>
 
-**Requirement.** The web session MUST register an agent-runtime WebSocket bridge before loading configured plugins only when URL and token are both set. It MUST NOT overwrite an existing desktop bridge. The bridge MUST expose agent-scoped model discovery, reject pending commands on transport closure, and retain active-session cursors for reconnect rather than terminating them on a transient socket close.
+**Requirement.** Web startup MUST NOT publish an AI bridge or connect to an agent runtime, regardless of obsolete URL/token environment variables. Retired service environment prefixes MUST NOT be exposed to the Web renderer.
 
 ## LN-WEB-013 — Web renderer: load the public Lapis CodeMirror autocomplete stylesheet
 
@@ -78,11 +78,11 @@
 
 **Requirement.** Each web session MUST own its compatibility App lease. PWA commands and status bindings MUST use the explicit session App, unbind before replacement, and MUST NOT poll or execute through `globalThis.app`.
 
-## LN-WEB-017 — Standalone bridge: reconnect and resubscribe active sessions
+## LN-WEB-017 — Retired Web agent subscriptions
 
 <a id="ln-web-017"></a>
 
-**Requirement.** The standalone bridge MUST reconnect and resubscribe active sessions from their last accepted sequence before admitting live frames. Duplicate or older frames MUST be discarded. A replay gap or unknown host session MUST become a retryable interrupted turn and MUST NOT automatically resend input that may have caused side effects.
+**Requirement.** Web MUST NOT establish agent-session subscriptions, reconnect streams or replay agent input. Reusable native/runtime protocols and development-only catalog fixtures MUST remain outside the Web product graph.
 
 ## LN-WEB-023 — Metadata indexing after layout restoration
 
@@ -99,19 +99,11 @@ Web boot restores the layout before opening the metadata store:
 - `loaded` MUST make persisted metadata queries available before vault reconciliation completes.
 - Tags, Outline, Backlinks, Outgoing Links, Search, Bases, and File Properties MUST refresh on readiness and relevant committed revisions.
 
-## LN-WEB-025 — After configuration load and whenever those values: register or replace its lapis-ai-controller WebSocket bridge
+## LN-WEB-025 — No AI configuration attachment
 
 <a id="ln-web-025"></a>
 
-**Requirement.** After configuration load and whenever those values change, the web session MUST register or replace its `lapis-ai-controller` WebSocket bridge and refresh AI host runtimes. It MUST NOT overwrite a desktop IPC bridge.
-
-### Acceptance details
-
-Web attach after configuration verifies:
-
-- Settings-backed attach MUST run after `configuration.load` and before `loadPlugins`.
-- A later Settings change MUST replace only a `lapis-ai-controller` bridge.
-- The loaded AI plugin MUST gain ACP and Codex host runtimes once the capability appears.
+**Requirement.** Web configuration changes MUST NOT attach or replace an AI controller contribution or refresh AI host runtimes. Existing unrelated host lifecycle and configuration behavior MUST remain unchanged.
 
 ## LN-WEB-026 — Launcher visibility during profile resolution
 

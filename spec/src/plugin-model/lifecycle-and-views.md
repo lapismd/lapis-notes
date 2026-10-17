@@ -1,5 +1,11 @@
 # Plugin Model / Lifecycle and views
 
+## LN-PLUG-113 — Host-owned plugin restrictions
+
+<a id="ln-plug-113"></a>
+
+**Requirement.** An App MAY supply plugin-ID restrictions using existing compatibility reasons. Registry discovery, install/update and external activation MUST apply the same host policy even when an older manifest advertises compatibility. Rejection MUST precede module evaluation and MUST preserve installed records, enabled preferences, saved plugin data and layout. Restrictions MUST remain App-owned; the API MUST NOT hard-code application plugin IDs.
+
 LN-EXP-009 keeps native Explorer action feedback attached to its originating
 App, including failed OS operations and unavailable clipboard support. Native
 system trash remains an optional adapter capability under LN-PKG-184.

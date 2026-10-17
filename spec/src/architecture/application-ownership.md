@@ -1,5 +1,9 @@
 # Architecture / Application ownership
 
+App host restrictions under LN-PLUG-113 remain constructor-owned and are not
+part of renderer-safe public properties. Notes API supplies the generic boundary;
+the Web host alone selects its desktop-only plugin identities.
+
 Sync-host identity reconciliation completes before its observed file-event queue
 commits changes. App-owned startup and teardown share that ordered readiness
 boundary (LN-DB-047); native hosts do not bypass or retry rejected readiness.

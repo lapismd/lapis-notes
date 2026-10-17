@@ -132,3 +132,12 @@ return a route that the current page cannot yet fetch.
 The static Web profile uses API-owned schema and build tooling under LN-PKG-150 and LN-PKG-151. Concrete Community NIP-29 startup composition remains deferred.
 
 The web host registers the default Plugins browser before loading workspace layout and disposes it during session teardown (LN-PLUG-098–103). Built browser acceptance uses the controlling service worker for verified installed plugin assets and the existing host-configured registry.
+
+M8.2 retires Web AI and Terminal. App-owned restrictions reject their identities
+before manifest indexing or module evaluation and report desktop-only discovery,
+including older manifests that claim Web support. The Web graph contains no
+service bridge, client, connection Settings or environment attachment. Startup
+removes only dedicated obsolete connection tokens; conversations, settings,
+installed records, enabled choices and unknown saved views remain. The optional
+controller bridge used by development catalogs lives under `scripts/lib`,
+outside the Web product. Native desktop tools retain their shared API contracts.

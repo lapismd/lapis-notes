@@ -29,11 +29,11 @@ configured-plugin restoration; a signed fixture does not replace npm resolution.
 
 **Requirement.** Development, preview, and production responses MUST provide cross-origin isolation required by the database and embedding workers. Production assets MUST include required WASM files.
 
-## LN-WEB-037 — Terminal server Settings: tell the user to start lapis-terminal-host serve
+## LN-WEB-037 — Retired Terminal setup guidance
 
 <a id="ln-web-037"></a>
 
-**Requirement.** Terminal server Settings MUST tell the user to start `lapis-terminal-host serve --workspace` on the vault, or a parent of `terminal.cwd`.
+**Requirement.** Web Settings MUST NOT display terminal server setup instructions or a terminal-host connection section. Browser vault transfer and unrelated Settings MUST remain available.
 
 ## LN-WEB-007 — One tab: own each vault database while secondary tabs
 

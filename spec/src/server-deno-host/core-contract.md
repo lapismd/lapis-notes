@@ -1,5 +1,9 @@
 # Deno Server Host / Integration contracts
 
+The server-mode Web client applies LN-PLUG-113 desktop-only restrictions to AI
+and Terminal. Server vault/data services and authenticated distribution remain
+unchanged; the browser does not attach agent or terminal services.
+
 The candidate image builds the dedicated Web frontend through the public,
 checksum-matched pnpm hook and frozen registry lockfile. Its Deno runtime,
 authenticated routes and private data-volume contract remain unchanged; the

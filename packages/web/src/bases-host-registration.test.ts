@@ -37,9 +37,9 @@ describe("web plugin profile registration", () => {
     expect(source).toContain('id: "layout"');
     expect(source).toContain("onProgress");
     expect(source).toContain("startMetadataCache");
-    expect(source).toContain("registerWebAgentRuntimeSettings");
+    expect(source).toContain("unavailablePlugins: webPluginRestrictions");
     expect(source).toContain("registerWebVaultTransferSettings");
-    expect(source).toContain("syncWebAgentRuntime");
+    expect(source).not.toContain("syncWebAgentRuntime");
     expect(
       source.indexOf("registerWebVaultTransferSettings(app)"),
     ).toBeGreaterThan(source.indexOf("await app.configuration.load()"));
