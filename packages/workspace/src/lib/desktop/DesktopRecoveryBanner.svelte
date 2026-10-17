@@ -1,4 +1,7 @@
 <script lang="ts">
+  import DatabaseIcon from "@lucide/svelte/icons/database";
+  import SearchIcon from "@lucide/svelte/icons/search";
+  import RotateCcwIcon from "@lucide/svelte/icons/rotate-ccw";
   import * as Button from "@lapismd/design-core/shadcn/button";
   import "./DesktopRecoveryBanner.css";
 
@@ -49,6 +52,7 @@
       disabled={disabled || metadataBusy}
       onclick={onRebuildMetadata}
     >
+      <DatabaseIcon aria-hidden="true" />
       {metadataBusy ? "Rebuilding metadata…" : "Rebuild metadata"}
     </Button.Root>
     <Button.Root
@@ -56,8 +60,11 @@
       disabled={disabled || searchBusy}
       onclick={onRebuildSearch}
     >
+      <SearchIcon aria-hidden="true" />
       {searchBusy ? "Rebuilding Search…" : "Rebuild Search"}
     </Button.Root>
-    <Button.Root {disabled} onclick={onRestart}>Restart normally</Button.Root>
+    <Button.Root {disabled} onclick={onRestart}>
+      <RotateCcwIcon aria-hidden="true" />Restart normally
+    </Button.Root>
   </div>
 </div>

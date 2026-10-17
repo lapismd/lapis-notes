@@ -51,6 +51,14 @@ export interface WorkspaceDiagnosticEntry {
   diagnostic: WorkspaceDiagnostic;
 }
 
+/** Application-owned navigation target for a serializable diagnostic resource. */
+export interface DiagnosticLocation {
+  resource: DiagnosticResource;
+  range?: DiagnosticRange;
+  diagnostic: WorkspaceDiagnostic;
+  related?: DiagnosticRelatedInformation;
+}
+
 export interface DiagnosticCollectionOptions {
   label?: string;
   buildItemMenu?: (menu: Menu, entry: WorkspaceDiagnosticEntry) => void;

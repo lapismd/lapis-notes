@@ -61,6 +61,11 @@ shutdown policy.
 
 **Requirement.** Primary problem activation MUST delegate to a host navigation adapter. Context menus MUST provide Copy Message and Copy Problem before collection-owned actions, including on tree group rows. Copy Problem MUST copy a JSON array of serializable problem objects. Unlocated shell failures MUST remain non-navigable.
 
+Applications may register disposable diagnostic openers for opaque resources.
+The first opener that handles a location owns navigation; unmatched resources
+retain ordinary note navigation. Registration does not grant vault authority or
+change diagnostic data, and disposal removes only the owning registration.
+
 ## LN-WS-030 — Required Problems presentation plugin: preserve a persisted or moved Problems leaf
 
 <a id="ln-ws-030"></a>

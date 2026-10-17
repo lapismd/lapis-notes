@@ -16,6 +16,10 @@ projects existing handles rather than constructing another App or host.
 
 **Requirement.** Workspace MUST export the existing desktop Safe Mode banner using public Design Core controls and native CSS. The banner MUST describe active restrictions and expose metadata rebuild, Search rebuild and normal restart through host-owned callbacks. It MUST keep startup policy, App ownership and persistence in the host, remain outside the top tab strips, and omit unavailable recovery capabilities.
 
+The recovery banner uses an opaque themed background and relevant icons for
+metadata rebuild, Search rebuild and restart. Decorative icons retain each
+button's existing accessible name and callback.
+
 ## LN-PKG-009 — @lapis-notes/api: expose the design-core V3 bottom panel
 
 <a id="ln-pkg-009"></a>

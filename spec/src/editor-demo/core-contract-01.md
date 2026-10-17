@@ -1,5 +1,9 @@
 # Lapis Editor Demo / Editor scenarios / Part 1
 
+The desktop catalog's current dependency intake accepts Design Core 0.5.1
+alongside 0.4 through public prepared archives. Its manual presentation review
+does not qualify deferred source, interaction or native acceptance.
+
 The reusable Explorer retains existing menu components while LN-EXP-009 makes
 native/copy feedback explicitly App-owned. Unavailable clipboard support reports
 failure through the existing notice owner instead of claiming success.

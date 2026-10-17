@@ -12,7 +12,7 @@
   border: 1px solid var(--ui-workspace-border);
   border-radius: var(--ui-radius, 0.625rem);
   color: var(--ui-workspace-foreground);
-  background: var(--ui-workspace-panel-background);
+  background: var(--ui-workspace-background, var(--background));
   box-shadow: var(--ui-workspace-shadow-lg, 0 12px 30px rgb(0 0 0 / 16%));
   translate: -50% 0;
 }

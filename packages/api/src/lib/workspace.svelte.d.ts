@@ -7,6 +7,7 @@ import { SidebarState, type SidebarStateProps } from "@lapis-notes/ui/sidebar-cu
 import { HistoryManager } from "./history.svelte";
 import type { TransactionSpec } from "@codemirror/state";
 import type { App } from "./context.svelte";
+import type { DiagnosticLocation, DiagnosticsManager } from "./diagnostics";
 import { EditorViewRegistry, type EditorViewContribution, type RegisteredEditorViewContribution } from "./editor-view-registry";
 /** @public */
 export type Constructor<T> = abstract new (...args: any[]) => T;
@@ -537,6 +538,9 @@ export declare class Workspace extends EventDispatcher<{
     bindConfiguration(): void;
     /** Dispose the API-owned shell controller and its compatibility bridges. */
     disposeWorkspaceHost(): Promise<void>;
+    readonly diagnostics: DiagnosticsManager;
+    /** Register an owned opener for application-specific diagnostic resources. */
+    registerDiagnosticOpener(opener: (location: DiagnosticLocation) => boolean | Promise<boolean>): () => void;
     getMostRecentLeaf(): WorkspaceLeaf | null;
     getVisibleHintTargets(): WorkspaceHintTarget[];
     changeLayout(workspace: WorkspaceJson | any): Promise<void>;

@@ -87,7 +87,11 @@ import {
   setWorkspaceHostBinding,
 } from "./workspace-host-internal";
 import { getWorkspaceHostBinding } from "./workspace-host";
-import { DiagnosticsManager, pathFromDiagnosticResource } from "./diagnostics";
+import {
+  DiagnosticsManager,
+  pathFromDiagnosticResource,
+  type DiagnosticLocation,
+} from "./diagnostics";
 import {
   getApplicationCompatibility,
   resolveApplication,
@@ -2051,6 +2055,9 @@ export class Workspace extends EventDispatcher<{
   private layoutHandlers: Array<() => void> = [];
   private suspendedLayoutPersistence = 0;
   #workspaceHostController: AppShellController | null = null;
+  #diagnosticOpeners = new Set<
+    (location: DiagnosticLocation) => boolean | Promise<boolean>
+  >();
   readonly diagnostics: DiagnosticsManager;
   #syncingWorkspaceHost = 0;
   #workspaceHostProjection: Promise<void> = Promise.resolve();
@@ -3118,9 +3125,21 @@ export class Workspace extends EventDispatcher<{
     });
   }
 
+  /** Register an owned opener for application-specific diagnostic resources. */
+  registerDiagnosticOpener(
+    opener: (location: DiagnosticLocation) => boolean | Promise<boolean>,
+  ): () => void {
+    this.#diagnosticOpeners.add(opener);
+    return () => {
+      this.#diagnosticOpeners.delete(opener);
+    };
+  }
+
   private async openDiagnosticLocation(
     location: WorkspaceDiagnosticLocation,
   ): Promise<void> {
+    for (const opener of [...this.#diagnosticOpeners])
+      if (await opener(location)) return;
     const path = pathFromDiagnosticResource(location.resource);
     if (!path) return;
     const file = this.app.vault.getFileByPath(path);
@@ -3280,6 +3299,7 @@ export class Workspace extends EventDispatcher<{
     this.#workspaceHostViewDisposers.forEach((dispose) => dispose());
     this.#workspaceHostViewDisposers.clear();
     await this.#workspaceHostController?.dispose();
+    this.#diagnosticOpeners.clear();
   }
 
   private installCommandBridge(controller: AppShellController): void {

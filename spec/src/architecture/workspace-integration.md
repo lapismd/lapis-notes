@@ -1,5 +1,9 @@
 # Architecture / Workspace integration
 
+Diagnostic navigation may register disposable App-owned resource openers before
+the existing vault-file fallback. The desktop routes conflict resources while
+retaining writer-owned persistence; the shared API grants no file authority.
+
 ## LN-ARCH-008 — Storybook: consume design-core's shared catalog stylesheet and layout
 
 <a id="ln-arch-008"></a>

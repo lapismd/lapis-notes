@@ -320,7 +320,7 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0(zod@3.25.76)
       '@lapismd/design-core':
-        specifier: ^0.4.0
+        specifier: ^0.4.0 || ^0.5.1
         version: 0.4.0(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapismd/mira':
         specifier: ~0.0.5
@@ -654,7 +654,7 @@ importers:
         specifier: ^0.1.2
         version: link:../api
       '@lapismd/design-core':
-        specifier: ^0.4.0
+        specifier: ^0.4.0 || ^0.5.1
         version: 0.4.0(svelte@5.56.10)(tailwindcss@4.3.3)
     devDependencies:
       '@sveltejs/package':
@@ -762,7 +762,7 @@ importers:
         specifier: ^0.4.0
         version: 0.4.0(svelte@5.56.10)
       '@lapismd/design-core':
-        specifier: ^0.4.0
+        specifier: ^0.4.0 || ^0.5.1
         version: 0.4.0(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lucide/svelte':
         specifier: ^0.515.0
@@ -911,7 +911,7 @@ importers:
         specifier: ^0.1.2
         version: link:../api
       '@lapismd/design-core':
-        specifier: ^0.4.0
+        specifier: ^0.4.0 || ^0.5.1
         version: 0.4.0(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lucide/svelte':
         specifier: ^0.523.0

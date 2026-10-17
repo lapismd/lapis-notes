@@ -1,6 +1,6 @@
 # UI and Styling / Retained UI contracts
 
-The retained UI consumes published Design Core `^0.4.0`, including prepared
+The retained UI accepts Design Core `^0.4.0 || ^0.5.1`, including prepared
 browser CSS and bundled font assets, through the existing public style exports.
 Its patch release intent updates dependency compatibility without adding a
 second component styling path.

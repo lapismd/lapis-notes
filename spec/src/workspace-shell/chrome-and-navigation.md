@@ -1,5 +1,9 @@
 # Workspace Shell / Chrome and navigation
 
+The shared Safe Mode banner uses an opaque workspace background and semantic
+fallback, with database, search and restart icons beside its accessible action
+names. Hosts retain recovery operations and failure status ownership.
+
 Desktop Safe Mode presentation is shared under LN-PKG-175. Its retained Deno
 labels and Design Core controls sit below the top tabs; the host supplies
 restriction descriptions, operation status and callbacks.

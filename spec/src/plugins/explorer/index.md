@@ -1,5 +1,9 @@
 # Explorer Plugin
 
+File Explorer accepts Design Core 0.5.1 alongside 0.4 without changing file
+actions or persistence. The temporary desktop review archive remains separate
+from portable registry manifests and the deferred full qualification lanes.
+
 ## LN-EXP-010 — Existing file import surface
 
 <a id="ln-exp-010"></a>

@@ -1,5 +1,9 @@
 # Plugin Model / Lifecycle and views
 
+Workspace diagnostic-resource registrations belong to their owning App and
+return disposal callbacks. Desktop conflict review composes its own view; the
+shared API retains ordinary vault-file navigation for unhandled resources.
+
 ## LN-PLUG-121 — Required native service admission
 
 <a id="ln-plug-121"></a>
