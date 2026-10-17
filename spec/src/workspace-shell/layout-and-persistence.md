@@ -185,3 +185,7 @@ projection does not enqueue a second save.
 <a id="ln-ws-100"></a>
 
 **Requirement.** Popup focus and commands MUST use the existing owned App and its document. Selecting a main tab while popups remain open MUST restore main-host command routing.
+
+Plugin registration now retains unadopted data under LN-PLUG-112; workspace layout,
+projection, guarded close and popup contracts remain unchanged. No host source
+change is required to consume the generic registration repair.

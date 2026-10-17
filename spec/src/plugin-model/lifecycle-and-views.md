@@ -136,3 +136,9 @@ Explorer activation now supplies the existing external-file import callback usin
 A plugin-created ItemView must survive an older queued controller projection.
 The API owns this ordering; plugins continue using their existing view creation,
 activation and reveal contracts without timers or consumer retry wrappers.
+
+## LN-PLUG-112 — Legacy plugin data adoption
+
+<a id="ln-plug-112"></a>
+
+**Requirement.** Registering a plugin MUST preserve an existing compatibility data file until `loadData()` adopts it into canonical configuration. An explicit canonical data removal MUST still remove the compatibility mirror.

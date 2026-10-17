@@ -96,3 +96,7 @@ Successful profile URL navigation dismisses owning Settings under
 <a id="ln-pkg-104"></a>
 
 **Requirement.** `@lapis-notes/api` MUST own a daily-document provider registry, the desktop and web hosts MUST register the shared default provider before configuration loads, and generated settings MUST persist `dailyNotes.folder` and Luxon `dailyNotes.dateFormat` with defaults `daily` and `yyyy-MM-dd`. The default provider MUST locate canonical `type: daily-note` plus `date: YYYY-MM-DD` front matter before deriving a path, MUST fail visibly on duplicate dates or occupied generated paths, and MUST never move an existing note after configuration changes.
+
+Registration does not itself express data removal. LN-PLUG-112 preserves unadopted
+compatibility files; confirmed canonical removals retain their existing mirror
+cleanup. Both paths keep LN-PKG-174 writer ownership and recovery unchanged.

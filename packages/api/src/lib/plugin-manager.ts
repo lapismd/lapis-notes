@@ -820,7 +820,10 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       if (event.origin === "plugin-save") {
         return;
       }
-      void this.syncLegacyPluginData(event.pluginId);
+      void this.syncLegacyPluginData(
+        event.pluginId,
+        event.value === undefined && event.prev !== undefined,
+      );
     });
   }
 
@@ -1988,14 +1991,20 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     return plugin;
   }
 
-  private syncLegacyPluginData(pluginId: string): Promise<void> {
-    const run = () => this.syncLegacyPluginDataNow(pluginId);
+  private syncLegacyPluginData(
+    pluginId: string,
+    removeMissing = false,
+  ): Promise<void> {
+    const run = () => this.syncLegacyPluginDataNow(pluginId, removeMissing);
     return this.app.vault.supportsConditionalTextWrites
       ? this.app.fileEditingSessions.track(run)
       : run();
   }
 
-  private async syncLegacyPluginDataNow(pluginId: string): Promise<void> {
+  private async syncLegacyPluginDataNow(
+    pluginId: string,
+    removeMissing: boolean,
+  ): Promise<void> {
     const plugin = this.plugins.get(pluginId);
     if (!plugin) {
       return;
@@ -2012,6 +2021,8 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
 
     try {
       if (!this.app.configuration.hasPluginData(pluginId)) {
+        // Registration is not a deletion: loadData still needs this legacy file.
+        if (!removeMissing) return;
         const file = this.app.vault.getFileByPath(path);
         if (file) {
           await this.app.vault.delete(file, true);

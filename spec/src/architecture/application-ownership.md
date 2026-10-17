@@ -105,3 +105,7 @@ the global writer guard and releasing views, plugins or the vault session.
 <a id="ln-arch-103"></a>
 
 **Requirement.** When Nostr registry discovery is enabled, App Profile MUST compose the Community NIP-29 source and shared proof verifier with API's transport-neutral adapter. Web and desktop sessions MUST share that composition and dispose the owned source after distribution teardown. While relay discovery is deferred, the concrete binding MUST remain outside active static-profile imports, build, and tests.
+
+Plugin registration preserves unadopted compatibility data under LN-PLUG-112.
+Its later adoption and explicit canonical removal retain existing App-owned
+writers, configuration serialization and host teardown responsibilities.

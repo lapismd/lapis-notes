@@ -687,3 +687,7 @@ comparison and baseline approval remain separate and deferred.
       qualified through native save/close/reload/restore and all affected consumers.
       Desktop M4 still requires external-edit conflict protection before its full
       everyday-use gate can complete.
+
+The Terminal handover also tracks API legacy-data adoption (LN-PLUG-112); see
+[the source record](spec/records/2026-10-17-plugin-legacy-data.md). Desktop
+qualification remains in its separate migration ledger.
