@@ -1,10 +1,11 @@
 # Migration Status
 
-Desktop M9.1 signed plugin lifecycle is in progress (LN-PLUG-116–121).
-The source foundation now protects static IDs, preserves plugin data, rolls back
-failed replacement, retires uninstall registrations and checks native services.
-Source qualification passes: 149 focused cases, 1,734 full tests, 259 catalog
-cases and 13 Web/server cases. Actual packaged installation remains pending; see [source evidence](spec/records/2026-10-17-safe-plugin-replacement.md).
+Desktop M9/M9.1 signed plugin lifecycle is complete (LN-PLUG-116–121).
+Source safety and the real retained Plugins/Settings flow pass all qualification:
+1,734 source tests, 259 source catalog cases, 13 Web/server cases, 113 cold native
+cases and 84 desktop catalog cases. The ordinary ARM64 app excludes acceptance
+trust/hooks and bundled Node/Deno. See [native evidence](spec/records/2026-10-17-native-plugin-lifecycle.md).
+Desktop continues with M10 native ACP/AI; signing and publication remain deferred.
 
 Public plugin Settings now retains App Shell source controls alongside Lapis
 static plugins (LN-PLUG-008). The exact regression, full source lanes, 259
