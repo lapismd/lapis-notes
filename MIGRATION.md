@@ -699,3 +699,8 @@ qualification remains in its separate migration ledger.
       preserves plugin data and saved layout. Source checks, 1,702 unique tests, 259 catalog cases and
       all 13 cold Web cases pass with the documented public-archive cohort. Deno desktop
       remains frozen. See the sibling `lapis-desktop/PLUGIN_MIGRATION.md` task ledger.
+
+- [x] M8.3 SDK foundation: explicitly select portable ESM for Tauri and use
+      locale-independent asset fingerprints. Exact runtime and fingerprint
+      regressions, complete source lanes and all 13 cold Web cases pass. Native
+      consumer qualification remains in the desktop task ledger. See [source record](spec/records/2026-10-17-tauri-plugin-runtime.md).

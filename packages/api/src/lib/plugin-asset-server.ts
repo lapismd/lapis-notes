@@ -149,7 +149,9 @@ export function getInstalledPluginAssetFingerprint(
       sha256: normalizePluginAssetSha256(file.sha256),
       size: file.size,
     }))
-    .sort((left, right) => left.path.localeCompare(right.path))
+    .sort((left, right) =>
+      left.path < right.path ? -1 : left.path > right.path ? 1 : 0,
+    )
     .map((file) => `${file.path}:${file.size}:${file.sha256}`)
     .join("|");
 }

@@ -2290,6 +2290,67 @@ describe("PluginManager", () => {
     });
   });
 
+  it("selects portable ESM explicitly on Tauri despite legacy plugin asset labels", async () => {
+    setNativeDesktopBridge({
+      runtime: "tauri-desktop",
+      capabilities: {
+        "plugin-assets": {
+          id: "plugin-assets",
+          status: "available",
+          provider: "test",
+        },
+      },
+      async invoke() {
+        return undefined as never;
+      },
+      toFileUrl(path: string) {
+        return `file://${path}`;
+      },
+    } as NativeDesktopBridge);
+    class PortablePlugin extends Plugin {}
+    (globalThis as any).__lapisTestTauriPortablePlugin = PortablePlugin;
+    const source = "export default globalThis.__lapisTestTauriPortablePlugin;";
+    const pluginAssetServer = createTestPluginAssetServer({
+      "tauri-portable/workspace.mjs": source,
+    });
+    const { app } = createTestApp({ pluginAssetServer });
+    await app.vault.load();
+    await seedCommunityPluginFiles(
+      app,
+      "tauri-portable",
+      {
+        "workspace.mjs": source,
+        "electron.mjs": 'throw new Error("Electron must never evaluate");',
+      },
+      {
+        lapis: {
+          manifestVersion: 1,
+          runtime: {
+            entries: {
+              workspace: { path: "workspace.mjs", format: "esm" },
+              electronRenderer: { path: "electron.mjs", format: "esm" },
+            },
+          },
+        },
+      },
+    );
+    await app.vault.create(
+      "/.lapis/community-plugins.json",
+      JSON.stringify(["tauri-portable"]),
+    );
+    await app.plugins.loadPlugins();
+    expect(pluginAssetServer.requests).toHaveLength(1);
+    expect(pluginAssetServer.requests[0]?.relativePath).toBe("workspace.mjs");
+    expect(
+      app.plugins.getCommunityPluginDiagnostics("tauri-portable"),
+    ).toMatchObject({
+      selectedRuntimeHost: "tauri-desktop",
+      selectedRuntimeEntry: "workspace.mjs",
+      state: "enabled",
+    });
+    await app.plugins.disablePlugin("tauri-portable");
+  });
+
   it("selects electron renderer ESM entries when plugin assets are available", async () => {
     setNativeDesktopBridge({
       runtime: "deno-desktop",

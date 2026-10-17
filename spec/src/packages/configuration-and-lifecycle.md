@@ -1,5 +1,7 @@
 # Packages / Configuration and lifecycle
 
+Tauri portable loading preserves the existing installed records and enabled preferences when rejecting unsupported entries. Installed asset identities use the locale-independent fingerprint in LN-PLUG-115; no second plugin configuration or data store is introduced.
+
 Web retirement removes dedicated connection tokens through the existing
 serialized configuration writer. LN-PLUG-113 does not reset plugin data,
 conversations, unrelated secrets or retained workspace state.

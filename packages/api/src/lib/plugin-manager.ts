@@ -3994,7 +3994,15 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     return selected?.path ?? null;
   }
 
+  private isTauriSession(): boolean {
+    return (
+      (this.app.session?.runtime ?? getNativeDesktopBridge()?.runtime) ===
+      "tauri-desktop"
+    );
+  }
+
   private getHostIdForManifest(manifest: PluginManifest): string {
+    if (this.isTauriSession()) return "tauri-desktop";
     return (
       this.#communityPluginHost.hostIdForManifest?.(manifest) ??
       this.#communityPluginHost.id
@@ -4004,6 +4012,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
   private getHostIdForIndexedExtension(
     indexedExtension: LapisIndexedExtension,
   ): string {
+    if (this.isTauriSession()) return "tauri-desktop";
     return isSidecarHost(this.#communityPluginHost.id) &&
       (indexedExtension.runtime?.desktop ||
         indexedExtension.runtime?.trustedDesktop ||
@@ -4093,6 +4102,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
   private getRequestedPluginExecutionHostForHostId(
     hostId: string,
   ): PluginExecutionHostId {
+    if (hostId === "tauri-desktop") return "tauri-desktop";
     if (isSidecarHost(hostId)) {
       return "electron-sidecar";
     }
@@ -4226,6 +4236,9 @@ function runtimeMatchesHost(runtime: string, hostId: string): boolean {
   if (runtime === hostId) {
     return true;
   }
+  if (hostId === "tauri-desktop") {
+    return ["renderer", "workspace", "browser", "pwa", "web"].includes(runtime);
+  }
   if (hostId === "renderer") {
     return ["renderer", "browser", "pwa", "web"].includes(runtime);
   }
@@ -4254,6 +4267,8 @@ function hostPlatformMatchesDependencyPlatform(
   platform: string,
 ): boolean {
   switch (host) {
+    case "tauri-desktop":
+      return platform === "web";
     case "electron-sidecar":
       return platform === "electron-sidecar";
     case "electron-renderer":

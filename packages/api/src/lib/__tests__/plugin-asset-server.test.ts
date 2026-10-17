@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createWebPluginAssetUrl,
   getInstalledPluginAssetHash,
+  getInstalledPluginAssetFingerprint,
   getInstalledPluginAssetVersion,
   getPluginAssetContentType,
   parseWebPluginAssetUrl,
@@ -12,6 +13,19 @@ import { sha256Hex, type InstalledPluginRecord } from "../plugin-distribution";
 import { InMemoryDataAdapter } from "./data-adapter-conformance";
 
 describe("plugin asset server helpers", () => {
+  it("sorts portable fingerprints independently of locale and input order", () => {
+    const record = createInstalledPluginRecord();
+    const paths = ["z.js", "a.js", "A.js", "Z.js", "\ue000.js", "😀.js"];
+    const hash = "a".repeat(64);
+    record.files = paths.map((path) => ({ path, size: 1, sha256: hash }));
+    const expected = ["A.js", "Z.js", "a.js", "z.js", "😀.js", "\ue000.js"]
+      .map((path) => `${path}:1:${hash}`)
+      .join("|");
+    expect(getInstalledPluginAssetFingerprint(record)).toBe(expected);
+    record.files.reverse();
+    expect(getInstalledPluginAssetFingerprint(record)).toBe(expected);
+  });
+
   it("builds and parses web plugin asset URLs", () => {
     const sha256 = "a".repeat(64);
     const url = createWebPluginAssetUrl({

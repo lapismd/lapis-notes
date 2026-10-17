@@ -1,5 +1,7 @@
 # Workspace Shell / Plugin management
 
+Tauri runtime diagnostics identify the explicit portable execution host. Unsupported Node, Electron-only and CommonJS entries fail before evaluation while their saved installation state remains available for existing recovery and management controls (LN-PLUG-114).
+
 Registry discovery consumes App-owned LN-PLUG-113 compatibility reasons. A
 desktop-only entry displays the existing disabled installation state with clear
 desktop guidance, including already installed older copies. Registry signatures,

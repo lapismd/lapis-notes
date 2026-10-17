@@ -1,5 +1,7 @@
 # Architecture / Application ownership
 
+Tauri plugin execution derives from the owning App vault session. The native bridge runtime supplies compatibility context only when that App has no session; legacy capability labels cannot select Electron execution (LN-PLUG-114).
+
 App host restrictions under LN-PLUG-113 remain constructor-owned and are not
 part of renderer-safe public properties. Notes API supplies the generic boundary;
 the Web host alone selects its desktop-only plugin identities.

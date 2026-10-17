@@ -1,5 +1,17 @@
 # Plugin Model / Lifecycle and views
 
+## LN-PLUG-115 — Portable asset fingerprints
+
+<a id="ln-plug-115"></a>
+
+**Requirement.** Installed-plugin asset fingerprints MUST use normalized supported paths sorted by ascending UTF-16 code units, together with each declared size and SHA-256. The fingerprint MUST be independent of locale and input order so native and browser hosts derive the same installation identity.
+
+## LN-PLUG-114 — Explicit Tauri runtime selection
+
+<a id="ln-plug-114"></a>
+
+**Requirement.** Tauri vault sessions MUST select `tauri-desktop` explicitly and load only portable workspace ESM entries through the supplied asset server. They MUST reject unsupported Node, Electron-only, native-service and CommonJS/fallback entries before evaluation. An available legacy plugin-assets bridge MUST NOT change that selection. Unsupported entries MUST retain installed state and actionable diagnostics.
+
 ## LN-PLUG-113 — Host-owned plugin restrictions
 
 <a id="ln-plug-113"></a>
