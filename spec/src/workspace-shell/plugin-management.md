@@ -1,5 +1,10 @@
 # Workspace Shell / Plugin management
 
+The public Core page retains all registered managed-plugin sources, including
+App Shell F-Mode and notifications. Source-qualified keys preserve owning
+lifecycle and guarded persistence while Lapis entries retain their version,
+Options, restart and runtime diagnostic details (LN-PLUG-008).
+
 Tauri runtime diagnostics identify the explicit portable execution host. Unsupported Node, Electron-only and CommonJS entries fail before evaluation while their saved installation state remains available for existing recovery and management controls (LN-PLUG-114).
 
 Registry discovery consumes App-owned LN-PLUG-113 compatibility reasons. A

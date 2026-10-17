@@ -12,6 +12,10 @@
 
 **Requirement.** Lapis MUST classify statically shipped plugins by distribution while retaining one API core lifecycle. Design Core MUST own only the managed-plugin settings source and grouped presentation; Lapis MUST own registration, persistence, failures, and workspace recovery policy.
 
+The public Workspace Core Settings page consumes all managed-plugin sources.
+App Shell entries retain source-qualified lifecycle routing alongside Lapis
+entries, with no duplicate persistence or direct App Shell implementation.
+
 ## LN-ARCH-048 — File-opening navigation: capture the initiating leaf state before constructing
 
 <a id="ln-arch-048"></a>

@@ -1,5 +1,9 @@
 # Packages / Host and plugin integration
 
+Workspace's exported plugin-management registration retains App Shell controls
+through Design Core's public managed-plugin registry. The consumer needs no
+private source import, replacement Settings page or additional export.
+
 The public editing-session registry exposes retained text conflicts under
 LN-ARCH-143 and explicit protected resolution under LN-ARCH-144. Host-owned
 presentation consumes those contracts; it must not create another save path.

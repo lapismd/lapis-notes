@@ -44,6 +44,11 @@ size, embedded signatures, runtime validation, and normal installation policy.
 
 **Requirement.** Core and Community plugin settings MUST subscribe to lifecycle changes and failures through the Design Core managed-plugin source contract while preserving the legacy row order, toggles, Options links, restart actions, trust controls, and diagnostic disclosures.
 
+The Core page and its search entries include registered App Shell sources as
+well as Lapis static plugins. Source-qualified keys route lifecycle actions to
+the owning manager; App Shell controls retain their guarded persistence and
+cannot disappear when the host registers the public plugin Settings pages.
+
 ## LN-PLUG-010 — Community installation, registry, signature, update, and enablement: use the verified installed-plugin distribution contract
 
 <a id="ln-plug-010"></a>

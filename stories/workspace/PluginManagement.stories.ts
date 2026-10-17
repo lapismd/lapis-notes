@@ -951,6 +951,30 @@ export const CoreTogglesOptionsRestartAndDiagnostics: Story = {
     await expect(
       canvas.getByRole("heading", { name: "Installed Core Plugins" }),
     ).toBeVisible();
+    const fmode = canvas.getByRole("switch", { name: "Enable F-Mode" });
+    await expect(fmode).toBeVisible();
+    await userEvent.click(fmode);
+    await expect(
+      await canvas.findByRole("switch", { name: "Disable F-Mode" }),
+    ).toBeVisible();
+    const app = (
+      canvas.getByTestId("plugin-management-story") as HTMLElement & {
+        __lapisApp: import("@lapis-notes/api").App;
+      }
+    ).__lapisApp;
+    expect(
+      getWorkspaceHostBinding(
+        app.workspace,
+      ).controller.managedPlugins.states.find(
+        (entry) => entry.key === "app-shell:fmode",
+      )?.enabled,
+    ).toBe(true);
+    await userEvent.click(
+      canvas.getByRole("switch", { name: "Disable F-Mode" }),
+    );
+    await expect(
+      await canvas.findByRole("switch", { name: "Enable F-Mode" }),
+    ).toBeVisible();
     await expect(
       canvas.getByRole("button", { name: "Options for Source Editor" }),
     ).toBeVisible();

@@ -1,5 +1,11 @@
 # Migration Status
 
+Public plugin Settings now retains App Shell source controls alongside Lapis
+static plugins (LN-PLUG-008). The exact regression, full source lanes, 259
+catalog cases and 13 cold Web/server cases pass; native archive acceptance
+remains separate. See
+[source evidence](spec/records/2026-10-17-managed-plugin-settings.md).
+
 Session popup workspace support (Desktop M7.2) is qualified. Live projection
 preserves leaves and editors, the shell accepts a host policy, and all 10
 workspace pointer cases plus 258 interaction/accessibility cases pass. Native
