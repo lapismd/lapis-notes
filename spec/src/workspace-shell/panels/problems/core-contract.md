@@ -1,5 +1,11 @@
 # Problems / Integration contracts
 
+Plugin load failures use canonical plugin IDs even when their messages include
+source paths. Successful external uninstall removes that owner's runtime
+failure through `plugin-unloaded` (LN-PLUG-119). Native-service admission failures
+retain their unsupported/disabled distinction (LN-PLUG-121). Problems presentation
+and diagnostic collection ownership remain unchanged.
+
 LN-PLUG-113 records rejected external plugin startup through existing runtime
 diagnostics before manifest contributions or code can activate. It adds no
 Problems presentation, document collection or diagnostic ownership boundary.

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { App } from "../context.svelte";
 import { ContextKeyService } from "../context-keys.svelte";
 import { EventDispatcher } from "../events";
@@ -511,6 +511,7 @@ async function seedCommunityPlugin(
     isDesktopOnly: boolean;
     supportedRuntimes: string[];
     requiredCapabilities: HostedPluginCapability[];
+    requiredNativeServices: string[];
     lapis: LapisExtensionManifest | Record<string, unknown>;
   }> = {},
 ) {
@@ -529,6 +530,7 @@ async function seedCommunityPlugin(
         isDesktopOnly: manifest.isDesktopOnly ?? false,
         supportedRuntimes: manifest.supportedRuntimes,
         requiredCapabilities: manifest.requiredCapabilities,
+        requiredNativeServices: manifest.requiredNativeServices,
         lapis: manifest.lapis,
       },
       null,
@@ -723,6 +725,257 @@ function getPluginStyle(pluginId: string): HTMLStyleElement | undefined {
 }
 
 describe("PluginManager", () => {
+  it.each([
+    {
+      status: "unsupported",
+      services: ["notifications"],
+      message: /unsupported native service: notifications/,
+    },
+    {
+      status: "unavailable",
+      services: ["notifications"],
+      message: /disabled native service: notifications/,
+    },
+    { status: "available", services: ["notifications"], message: null },
+    {
+      status: "available",
+      services: "notifications",
+      message: /invalid required native services/,
+    },
+    {
+      status: "available",
+      services: [""],
+      message: /invalid required native services/,
+    },
+  ])(
+    "checks required native services before evaluation: $status / $services",
+    async ({ status, services, message }) => {
+      const evaluate = vi.fn(async () => Plugin);
+      setNativeDesktopBridge({
+        runtime: "deno-desktop",
+        capabilities:
+          status === "unsupported"
+            ? {}
+            : { notifications: { id: "notifications", status } },
+        async invoke() {
+          return undefined as never;
+        },
+        toFileUrl(path: string) {
+          return path;
+        },
+      } as NativeDesktopBridge);
+      const { app } = createTestApp({
+        communityPluginHost: { id: "web", evaluate },
+      });
+      await app.vault.load();
+      await seedCommunityPlugin(
+        app,
+        "native-services",
+        "module.exports = {};",
+        { requiredNativeServices: services as string[] },
+      );
+      const result = await app.plugins.loadPlugin(
+        "/.lapis/plugins/native-services",
+      );
+      if (message) {
+        expect(result).toBeNull();
+        expect(evaluate).not.toHaveBeenCalled();
+        expect(
+          app.plugins.getCommunityPluginDiagnostics("native-services")
+            ?.lastFailureMessage,
+        ).toMatch(message);
+      } else {
+        expect(result).not.toBeNull();
+        expect(evaluate).toHaveBeenCalledOnce();
+      }
+    },
+  );
+
+  it("removes failed-load Problems diagnostics when the installation is unloaded", async () => {
+    const { app } = createTestApp({
+      communityPluginHost: {
+        id: "web",
+        evaluate: async () => {
+          throw new Error("Broken fixture");
+        },
+      },
+    });
+    await app.vault.load();
+    await seedCommunityPlugin(app, "failed-removal", "module.exports = {};");
+    await app.plugins.loadPlugin("/.lapis/plugins/failed-removal");
+    expect(app.workspace.diagnostics.snapshot().entries.length).toBe(1);
+    await app.plugins.unloadPlugin("failed-removal");
+    expect(app.workspace.diagnostics.snapshot().entries).toEqual([]);
+  });
+
+  it("clears a pending restart only after the installed version loads in a fresh owner", async () => {
+    class Current extends Plugin {}
+    const { app, adapter } = createTestApp({
+      communityPluginHost: { id: "web", evaluate: async () => Current },
+    });
+    await app.vault.load();
+    await seedCommunityPlugin(app, "restart-owner", "module.exports = {};");
+    await seedInstalledPluginRecord(app, "restart-owner");
+    const path = "/.lapis/installed-plugins.json";
+    const state = JSON.parse(await adapter.read(path));
+    state.plugins["restart-owner"].restartRequired = true;
+    await adapter.write(path, JSON.stringify(state));
+    await app.plugins.loadPlugin("/.lapis/plugins/restart-owner");
+    expect(
+      JSON.parse(await adapter.read(path)).plugins["restart-owner"]
+        .restartRequired,
+    ).toBe(false);
+  });
+
+  it.each(["evaluation failure", "invalid constructor", "version mismatch"])(
+    "retains pending restart after a fresh-owner %s",
+    async (failure) => {
+      const { app, adapter } = createTestApp({
+        communityPluginHost: {
+          id: "web",
+          evaluate: async () => {
+            if (failure === "evaluation failure")
+              throw new Error("Broken module");
+            return failure === "invalid constructor"
+              ? class Invalid {}
+              : class Valid extends Plugin {};
+          },
+        },
+      });
+      await app.vault.load();
+      await seedCommunityPlugin(
+        app,
+        "restart-failure",
+        "module.exports = {};",
+        {
+          version: failure === "version mismatch" ? "0.9.0" : "1.0.0",
+        },
+      );
+      await seedInstalledPluginRecord(app, "restart-failure");
+      const path = "/.lapis/installed-plugins.json";
+      const state = JSON.parse(await adapter.read(path));
+      state.plugins["restart-failure"].restartRequired = true;
+      await adapter.write(path, JSON.stringify(state));
+      await app.plugins.loadPlugin("/.lapis/plugins/restart-failure");
+      expect(
+        JSON.parse(await adapter.read(path)).plugins["restart-failure"]
+          .restartRequired,
+      ).toBe(true);
+    },
+  );
+
+  it("retains the reload barrier across external unload and reinstall in the same owner", async () => {
+    const evaluate = vi.fn(async () => class External extends Plugin {});
+    const { app, adapter } = createTestApp({
+      communityPluginHost: { id: "web", evaluate },
+    });
+    await app.vault.load();
+    await seedCommunityPlugin(app, "stale-owner", "module.exports = {};");
+    await seedInstalledPluginRecord(app, "stale-owner");
+    await app.plugins.loadPlugin("/.lapis/plugins/stale-owner");
+    await app.plugins.enablePlugin("stale-owner");
+    await expect(app.plugins.unloadPlugin("stale-owner")).resolves.toBe(true);
+    const path = "/.lapis/installed-plugins.json";
+    const state = JSON.parse(await adapter.read(path));
+    state.plugins["stale-owner"].restartRequired = true;
+    await adapter.write(path, JSON.stringify(state));
+    await expect(
+      app.plugins.loadPlugin("/.lapis/plugins/stale-owner"),
+    ).resolves.toBeNull();
+    await expect(app.plugins.enablePlugin("stale-owner")).resolves.toBe(false);
+    await expect(app.plugins.restartPlugin("stale-owner")).resolves.toBe(false);
+    expect(evaluate).toHaveBeenCalledOnce();
+    expect(
+      JSON.parse(await adapter.read(path)).plugins["stale-owner"]
+        .restartRequired,
+    ).toBe(true);
+  });
+
+  it("unloads an official external identity without leaving a core settings or diagnostic registration", async () => {
+    let closed = 0;
+    class External extends Plugin {
+      onload() {
+        this.register(() => {
+          closed++;
+        });
+      }
+    }
+    const { app } = createTestApp({
+      communityPluginHost: { id: "web", evaluate: async () => External },
+    });
+    await app.vault.load();
+    await seedCommunityPlugin(app, "external-owner", "module.exports = {};");
+    await app.plugins.loadPlugin("/.lapis/plugins/external-owner", {
+      provenance: "official",
+    });
+    await app.plugins.enablePlugin("external-owner");
+    expect(
+      app.plugins.corePluginEntries.some(
+        (entry) => entry.manifest.id === "external-owner",
+      ),
+    ).toBe(true);
+    expect(app.plugins.isStaticPlugin("external-owner")).toBe(false);
+    const unloaded: string[] = [];
+    app.plugins.on("plugin-unloaded", (id) => unloaded.push(id));
+    await expect(app.plugins.unloadPlugin("external-owner")).resolves.toBe(
+      true,
+    );
+    expect(closed).toBe(1);
+    expect(app.plugins.plugins.has("external-owner")).toBe(false);
+    expect(
+      app.plugins.corePluginEntries.some(
+        (entry) => entry.manifest.id === "external-owner",
+      ),
+    ).toBe(false);
+    expect(
+      app.plugins.getCommunityPluginDiagnostics("external-owner"),
+    ).toBeNull();
+    expect(unloaded).toEqual(["external-owner"]);
+  });
+
+  it("retires replacement resources without changing startup choices and restores the old runtime on rollback", async () => {
+    let closed = 0;
+    class Replaceable extends Plugin {
+      onload() {
+        this.register(() => {
+          closed++;
+        });
+        this.addCommand({
+          id: "alive",
+          name: "Alive",
+          callback: () => "original",
+        });
+      }
+    }
+    const { app, adapter } = createTestApp({
+      communityPluginHost: { id: "web", evaluate: async () => Replaceable },
+    });
+    await app.vault.load();
+    await seedCommunityPlugin(app, "replaceable", "module.exports = {};");
+    await app.vault.create("/.lapis/community-plugins.json", '["replaceable"]');
+    await app.plugins.loadPlugins();
+    await app.plugins.flushPendingConfigWrites();
+    const before = await adapter.read("/.lapis/community-plugins.json");
+    expect(app.plugins.isPluginEnabled("replaceable")).toBe(true);
+    const replacement =
+      await app.plugins.preparePluginReplacement("replaceable");
+    expect(replacement?.reloadRequired).toBe(true);
+    expect(closed).toBe(1);
+    expect(app.plugins.isPluginEnabled("replaceable")).toBe(false);
+    expect(await adapter.read("/.lapis/community-plugins.json")).toBe(before);
+    await expect(app.plugins.enablePlugin("replaceable")).resolves.toBe(false);
+    await expect(app.plugins.restartPlugin("replaceable")).resolves.toBe(false);
+    const repeated = await app.plugins.preparePluginReplacement("replaceable");
+    await repeated?.rollback();
+    await expect(app.plugins.enablePlugin("replaceable")).resolves.toBe(false);
+    await replacement?.rollback();
+    expect(app.plugins.isPluginEnabled("replaceable")).toBe(true);
+    await expect(
+      app.commands.executeCommand("replaceable:alive"),
+    ).resolves.toBe("original");
+    await app.plugins.disablePlugin("replaceable");
+  });
+
   it.each(["ai", "terminal"])(
     "host restriction rejects older web-compatible %s before evaluation and preserves data",
     async (pluginId) => {
@@ -4061,6 +4314,78 @@ describe("PluginManager", () => {
     expect(app.configuration.getPluginData("lapis-docs")).toEqual({
       theme: "current",
     });
+  });
+
+  it("preserves a dormant static registration before rejecting direct external load", async () => {
+    const evaluate = vi.fn(async () => Plugin);
+    const { app } = createTestApp({
+      communityPluginHost: { id: "web", evaluate },
+    });
+    await app.vault.load();
+    app.plugins.registerSystemExtensions([
+      {
+        manifest: {
+          id: "dormant-static",
+          name: "Dormant static owner",
+          version: "1.0.0",
+          lapis: {
+            manifestVersion: 1,
+            source: "system",
+            enabledByDefault: false,
+          },
+        },
+      },
+    ]);
+    const original = app.plugins.systemExtensions.find(
+      (entry) => entry.pluginId === "dormant-static",
+    );
+    expect(original).toBeDefined();
+    await seedCommunityPlugin(
+      app,
+      "dormant-static",
+      "module.exports = class Shadow {};",
+    );
+    await expect(
+      app.plugins.loadPlugin("/.lapis/plugins/dormant-static"),
+    ).resolves.toBeNull();
+    expect(evaluate).not.toHaveBeenCalled();
+    expect(
+      app.plugins.systemExtensions.find(
+        (entry) => entry.pluginId === "dormant-static",
+      ),
+    ).toEqual(original);
+  });
+
+  it("rejects a direct external load that collides with a registered static plugin", async () => {
+    const evaluate = vi.fn(async () => Plugin);
+    const { app } = createTestApp({
+      communityPluginHost: { id: "web", evaluate },
+    });
+    await app.vault.load();
+    class Bundled extends Plugin {
+      constructor(app: App) {
+        super(app, {
+          id: "static-owner",
+          name: "Bundled owner",
+          version: "1.0.0",
+          minAppVersion: "0.0.0",
+          description: "",
+          author: "test",
+        });
+      }
+    }
+    app.plugins.registerStaticPlugins([Bundled]);
+    const original = app.plugins.plugins.get("static-owner");
+    await seedCommunityPlugin(
+      app,
+      "static-owner",
+      "module.exports = class Shadow {};",
+    );
+    await expect(
+      app.plugins.loadPlugin("/.lapis/plugins/static-owner"),
+    ).resolves.toBeNull();
+    expect(evaluate).not.toHaveBeenCalled();
+    expect(app.plugins.plugins.get("static-owner")).toBe(original);
   });
 
   it("ignores bundled core plugin state folders during community discovery", async () => {

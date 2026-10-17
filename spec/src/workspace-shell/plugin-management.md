@@ -1,5 +1,10 @@
 # Workspace Shell / Plugin management
 
+External uninstall emits an App-owned `plugin-unloaded` event after runtime and
+registration cleanup (LN-PLUG-119). Managed Settings and shared registry surfaces
+observe that event so retired official plugins disappear from Core inventory.
+Each surface releases that subscription with its other lifecycle listeners.
+
 The public Core page retains all registered managed-plugin sources, including
 App Shell F-Mode and notifications. Source-qualified keys preserve owning
 lifecycle and guarded persistence while Lapis entries retain their version,

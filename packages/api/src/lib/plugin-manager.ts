@@ -740,6 +740,7 @@ export interface PluginEvents {
   "plugin-loaded": [plugin: Plugin];
   "plugin-enabled": [plugin: Plugin];
   "plugin-disabled": [plugin: Plugin];
+  "plugin-unloaded": [pluginId: string];
   "community-plugin-config-pruned": [pluginIds: string[]];
   "plugin-error": [id: string, message: string, error?: any];
 }
@@ -754,6 +755,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
   #defaultDisabledCorePlugins: Set<string> = new Set();
   #corePluginStyles: Map<string, CorePluginStyles> = new Map();
   #corePluginDistribution: Map<string, CorePluginDistribution> = new Map();
+  #pendingReloadPlugins = new Set<string>();
   #installedPluginProvenance: Map<string, PluginProvenance> = new Map();
   #installedPluginStateStore: InstalledPluginStateStore;
   #basesViewRegistrations: Map<string, BasesViewRegistrationEntry> = new Map();
@@ -851,6 +853,65 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
 
   isPluginEnabled(pluginId: string): boolean {
     return Boolean(this.plugins.get(pluginId)?.enabled);
+  }
+
+  /** Registered application profiles own their identities, even when disabled. */
+  isStaticPlugin(pluginId: string): boolean {
+    return (
+      this.#corePluginDistribution.has(pluginId) ||
+      this.#systemExtensionManifests.has(pluginId)
+    );
+  }
+
+  /** Release an external registration before the installer removes its code. */
+  async unloadPlugin(pluginId: string): Promise<boolean> {
+    if (this.isStaticPlugin(pluginId)) return false;
+    const plugin = this.plugins.get(pluginId);
+    if (plugin && !(await this.disablePlugin(pluginId))) return false;
+    this.disableManifestOnlyExtension(pluginId);
+    this.plugins.delete(pluginId);
+    this.#lapisExtensionIndex.delete(pluginId);
+    this.#communityPluginDiagnostics.delete(pluginId);
+    this.#communityPluginDependencyDiagnostics.delete(pluginId);
+    this.#communityPluginRuntimeExecutionDiagnostics.delete(pluginId);
+    this.#installedPluginProvenance.delete(pluginId);
+    if (plugin) this.#pendingReloadPlugins.add(pluginId);
+    if (this.#configuredCommunityPlugins.delete(pluginId))
+      this.saveCommunityPluginState();
+    await this.flushPendingConfigWrites();
+    this.emit("plugin-unloaded", pluginId);
+    return true;
+  }
+
+  /** Retire a loaded module while preserving its configured startup choice. */
+  async preparePluginReplacement(pluginId: string): Promise<
+    | {
+        reloadRequired: boolean;
+        rollback(): Promise<void>;
+      }
+    | undefined
+  > {
+    if (this.isStaticPlugin(pluginId))
+      throw new Error(`Plugin ${pluginId} is registered by the application`);
+    const plugin = this.plugins.get(pluginId);
+    if (!plugin) return undefined;
+    const wasEnabled = plugin.enabled;
+    const wasPendingReload = this.#pendingReloadPlugins.has(pluginId);
+    if (!(await this.disablePluginNow(pluginId, false)))
+      throw new Error(
+        `Plugin ${pluginId} could not finish replacement teardown`,
+      );
+    this.#pendingReloadPlugins.add(pluginId);
+    return {
+      reloadRequired: true,
+      rollback: async () => {
+        if (!wasPendingReload) this.#pendingReloadPlugins.delete(pluginId);
+        if (wasEnabled && !(await this.enablePlugin(pluginId)))
+          throw new Error(
+            `Plugin ${pluginId} could not restore its previous runtime`,
+          );
+      },
+    };
   }
 
   get corePluginEntries(): CorePluginListEntry[] {
@@ -1795,9 +1856,19 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
           const manifestContent = await this.adapter.read(manifestPath);
           manifest = JSON.parse(manifestContent) as PluginManifest;
           pluginId = manifest.id || pluginId;
+          if (this.isStaticPlugin(pluginId)) {
+            throw new Error(
+              `Plugin id ${pluginId} is registered by the application`,
+            );
+          }
           if (Object.hasOwn(this.#unavailablePlugins, manifest.id)) {
             throw new Error(
               `Plugin ${manifest.id} is unavailable: ${this.#unavailablePlugins[manifest.id]}`,
+            );
+          }
+          if (this.#pendingReloadPlugins.has(manifest.id)) {
+            throw new Error(
+              `Reload the app to load updated plugin ${manifest.id}`,
             );
           }
           span.setAttribute("plugin.id", manifest.id);
@@ -1902,6 +1973,19 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
             );
           }
 
+          const installed = await this.#installedPluginStateStore.get(
+            manifest.id,
+          );
+          if (
+            installed?.restartRequired &&
+            installed.installedVersion === manifest.version
+          ) {
+            await this.#installedPluginStateStore.upsert({
+              ...installed,
+              restartRequired: false,
+            });
+          }
+
           return this.registerPlugin(plugin, {
             source: runtimeSource.source,
             provenance: runtimeSource.provenance,
@@ -1909,8 +1993,9 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
           });
         } catch (error) {
           const message = `Failed to load plugin from ${pluginPath}: ${formatPluginError(error)}`;
-          this.recordCommunityPluginFailure(pluginId, manifest, message);
-          this.reportPluginError(pluginPath, message, error);
+          if (!this.isStaticPlugin(pluginId))
+            this.recordCommunityPluginFailure(pluginId, manifest, message);
+          this.reportPluginError(pluginId, message, error);
           return null;
         }
       },
@@ -2075,6 +2160,13 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
   }
 
   private async enablePluginNow(pluginId: string): Promise<boolean> {
+    if (this.#pendingReloadPlugins.has(pluginId)) {
+      this.reportPluginError(
+        pluginId,
+        `Reload the app to activate updated plugin ${pluginId}`,
+      );
+      return false;
+    }
     const plugin = this.plugins.get(pluginId);
     if (!plugin) {
       const indexedExtension = this.#lapisExtensionIndex.get(pluginId);
@@ -2226,7 +2318,10 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       : run();
   }
 
-  private async disablePluginNow(pluginId: string): Promise<boolean> {
+  private async disablePluginNow(
+    pluginId: string,
+    persist = true,
+  ): Promise<boolean> {
     const plugin = this.plugins.get(pluginId);
     if (!plugin) {
       const indexedExtension = this.#lapisExtensionIndex.get(pluginId);
@@ -2240,7 +2335,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         }
 
         this.disableManifestOnlyExtension(pluginId);
-        if (this.#loaded) {
+        if (this.#loaded && persist) {
           if (
             indexedExtension.source === "community" ||
             indexedExtension.source === "official"
@@ -2297,7 +2392,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
           this.unloadPluginCSS(pluginId);
           this.updatePluginDiagnosticsFromPlugin(plugin);
           this.emit("plugin-disabled", plugin);
-          if (this.#loaded) {
+          if (this.#loaded && persist) {
             if (plugin.source === "community" || plugin.source === "official") {
               this.#configuredCommunityPlugins.delete(pluginId);
               this.saveCommunityPluginState();
@@ -2333,6 +2428,8 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
   }
 
   async restartPlugin(pluginId: string): Promise<boolean> {
+    if (this.#pendingReloadPlugins.has(pluginId))
+      return this.enablePlugin(pluginId);
     let plugin = this.plugins.get(pluginId);
     if (!plugin) {
       plugin =
@@ -2563,6 +2660,29 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     }
 
     if (isExternalPluginSource(source)) {
+      const services = manifest.requiredNativeServices;
+      if (services !== undefined) {
+        if (
+          !Array.isArray(services) ||
+          services.some((id) => typeof id !== "string" || !id.trim())
+        )
+          throw new Error(
+            `Plugin ${manifest.id} declares invalid required native services`,
+          );
+        const capabilities = getNativeDesktopBridge()?.capabilities;
+        for (const id of services) {
+          const service =
+            capabilities?.[id as keyof NonNullable<typeof capabilities>];
+          if (!service)
+            throw new Error(
+              `Plugin ${manifest.id} requires unsupported native service: ${id}`,
+            );
+          if (service.status !== "available")
+            throw new Error(
+              `Plugin ${manifest.id} requires disabled native service: ${id}`,
+            );
+        }
+      }
       if (
         requiresWorkspaceTrust(manifest) &&
         !this.app.workspaceTrust.trusted

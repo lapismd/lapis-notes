@@ -89,12 +89,18 @@ describe("shared App registry state", () => {
       releaseB = controller.retain();
     await Promise.all([controller.refresh(false), controller.refresh(false)]);
     expect(distribution.refreshCatalog).toHaveBeenCalledTimes(1);
+    expect(app.plugins.on).toHaveBeenCalledWith(
+      "plugin-unloaded",
+      expect.any(Function),
+    );
     releaseA();
     expect(app.plugins.offref).not.toHaveBeenCalled();
     releaseB();
-    expect(app.plugins.offref).toHaveBeenCalledTimes(2);
+    expect(app.plugins.offref).toHaveBeenCalledTimes(3);
+    for (const result of vi.mocked(app.plugins.on).mock.results)
+      expect(app.plugins.offref).toHaveBeenCalledWith(result.value);
     releaseB();
-    expect(app.plugins.offref).toHaveBeenCalledTimes(2);
+    expect(app.plugins.offref).toHaveBeenCalledTimes(3);
   });
   it("keeps existing content when background refresh fails", async () => {
     const { app, distribution } = fixture();

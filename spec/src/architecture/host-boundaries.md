@@ -1,5 +1,15 @@
 # Architecture / Host boundaries
 
+Required native-service admission uses the host's existing capability registry
+(LN-PLUG-121). A missing entry is unsupported; an unavailable entry is a disabled
+supported service. Checking availability does not launch or authorize services.
+
+Signed plugin installation consults the owning App's static profile and runtime
+retirement boundary. The API keeps identities generic, preserves configured
+startup choices during retirement and blocks stale activation until a new App
+owns the updated module. Native and browser adapters keep their existing file
+authority; this adds no process or filesystem host permission.
+
 LN-PKG-184 keeps OS-trash authority in the native host. The shared adapter
 advertises the optional port and distinguishes unsupported fallback from
 provider failure; the existing Vault projection never deletes handled items twice.

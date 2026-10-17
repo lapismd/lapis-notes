@@ -1,5 +1,15 @@
 # Packages / Host and plugin integration
 
+Plugin manifests expose optional `requiredNativeServices` for host capability
+admission (LN-PLUG-121). It is distinct from brokered `requiredCapabilities`: no
+new native permission or implicit service activation follows from a declaration.
+
+The API installer uses optional static-identity and replacement-preparation
+operations from its owning PluginManager. Preparation exposes an awaitable
+rollback and reload decision without leaking app IDs or host-specific services.
+Existing plugin data survives signed replacement and obsolete static copies can
+be removed without changing the application-owned plugin lifecycle.
+
 Workspace's exported plugin-management registration retains App Shell controls
 through Design Core's public managed-plugin registry. The consumer needs no
 private source import, replacement Settings page or additional export.

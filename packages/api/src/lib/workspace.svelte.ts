@@ -3242,11 +3242,13 @@ export class Workspace extends EventDispatcher<{
         const loaded = manager.on("plugins-loaded", listener);
         const enabled = manager.on("plugin-enabled", listener);
         const disabled = manager.on("plugin-disabled", listener);
+        const unloaded = manager.on("plugin-unloaded", listener);
         const error = manager.on("plugin-error", listener);
         return () => {
           manager.offref(loaded);
           manager.offref(enabled);
           manager.offref(disabled);
+          manager.offref(unloaded);
           manager.offref(error);
         };
       },

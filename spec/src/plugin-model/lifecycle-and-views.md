@@ -1,5 +1,53 @@
 # Plugin Model / Lifecycle and views
 
+## LN-PLUG-121 — Required native service admission
+
+<a id="ln-plug-121"></a>
+
+**Requirement.** Plugin manifests MAY declare required native services. Loading MUST reject malformed declarations, unsupported services and supported services that are currently unavailable before code evaluation. Diagnostics MUST distinguish unsupported services from disabled supported services. Admission MUST NOT enable a service automatically or grant additional native permissions.
+
+## LN-PLUG-119 — External plugin uninstall
+
+<a id="ln-plug-119"></a>
+
+**Requirement.** External plugin uninstall MUST await owned runtime cleanup before removing code. Successful removal MUST retire its runtime registration, indexed contributions and diagnostics. Failed cleanup MUST preserve installed bytes and metadata for explicit recovery. Static application owners MUST remain unaffected by removal of obsolete installed copies.
+
+## LN-PLUG-120 — Installation restart confirmation
+
+<a id="ln-plug-120"></a>
+
+**Requirement.** A fresh application owner MUST clear an installation's pending-restart marker only after the installed version's runtime loads successfully. Failed or mismatched loads MUST retain the marker. The previous owner awaiting reload MUST NOT reactivate its stale module or clear that marker.
+
+## LN-PLUG-116 — Static plugin identity protection
+
+<a id="ln-plug-116"></a>
+
+**Requirement.** Registered static plugin identities MUST reject external installation, replacement and direct loading before code evaluation or vault modification. Removing an obsolete installed copy MUST preserve its data by default and MUST NOT disable the static instance or alter core preferences.
+
+Direct rejection precedes external contribution indexing, including dormant
+manifest-only system owners, so their original registrations remain intact.
+
+## LN-PLUG-117 — Plugin replacement lifetime
+
+<a id="ln-plug-117"></a>
+
+**Requirement.** Replacing a loaded plugin MUST await its owned teardown before publishing new code. A runtime requiring reload MUST remain inactive until a new application owner starts, without changing its saved enabled choice. Failed publication MUST restore the previous recoverable runtime and installed files.
+
+Hosts may conservatively require reload for every loaded module replacement.
+Verification and staging finish before retirement; retained data is read after
+teardown so the plugin's final save wins over archive defaults. Cancellation
+before publication rolls the retired runtime back without publishing code.
+Installed metadata participates in publication: a failed record write restores
+the previous code and record before runtime rollback. Once both are committed,
+backup cleanup cannot reactivate the old runtime.
+Rollback also retains any reload restriction that existed before the attempt.
+
+## LN-PLUG-118 — Plugin replacement data
+
+<a id="ln-plug-118"></a>
+
+**Requirement.** Signed plugin replacement MUST preserve existing plugin-owned `data.json` bytes, including when the release contains defaults. Verification and staging failures MUST leave existing installed code, metadata and data intact.
+
 ## LN-PLUG-115 — Portable asset fingerprints
 
 <a id="ln-plug-115"></a>

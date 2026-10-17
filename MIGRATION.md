@@ -1,5 +1,11 @@
 # Migration Status
 
+Desktop M9.1 signed plugin lifecycle is in progress (LN-PLUG-116–121).
+The source foundation now protects static IDs, preserves plugin data, rolls back
+failed replacement, retires uninstall registrations and checks native services.
+Source qualification passes: 149 focused cases, 1,734 full tests, 259 catalog
+cases and 13 Web/server cases. Actual packaged installation remains pending; see [source evidence](spec/records/2026-10-17-safe-plugin-replacement.md).
+
 Public plugin Settings now retains App Shell source controls alongside Lapis
 static plugins (LN-PLUG-008). The exact regression, full source lanes, 259
 catalog cases and 13 cold Web/server cases pass; native archive acceptance

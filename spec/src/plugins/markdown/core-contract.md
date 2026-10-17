@@ -1,5 +1,9 @@
 # Markdown Plugin / Integration contracts
 
+LN-PLUG-121 adds optional native-service declarations to the shared Plugin
+manifest. Markdown's portable runtime, authoring registries and document
+ownership remain unchanged; it acquires no native-service dependency.
+
 LN-PLUG-113 restricts retired Web service identities before plugin evaluation.
 Markdown rendering, shared application-tool contracts and document ownership
 remain unchanged; this host policy adds no Markdown runtime or wrapper.

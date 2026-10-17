@@ -180,6 +180,9 @@ export interface PluginManifest {
    */
   requiredCapabilities?: HostedPluginCapability[];
 
+  /** Native host services that must be available before module evaluation. */
+  requiredNativeServices?: string[];
+
   /**
    * Optional host-specific execution hints for future sidecar scheduling.
    *
