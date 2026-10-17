@@ -40,7 +40,11 @@ not enqueue a second operation from inside the protected shutdown callback.
 
 <a id="ln-arch-144"></a>
 
-**Requirement.** Keeping local text MUST condition replacement on the displayed external snapshot; accepting external text MUST revalidate that snapshot before discarding local text. Another external change or unavailable snapshot MUST retain the conflict and require a new decision. Resolution MUST protect the document, drain pending saves and update only its original context. Resolving a retired writer MUST release its barrier without changing another document.
+**Requirement.** Persisting local or reviewed merged text MUST condition replacement on the displayed external snapshot; accepting external text MUST revalidate that snapshot before discarding local text. Another external change or unavailable snapshot MUST retain the conflict and require a new decision. Resolution MUST protect the document, drain pending saves and update only its original context. Resolving a retired writer MUST release its barrier without changing another document.
+
+An explicit reviewed merge may replace the disk snapshot through the original
+FileTextPersistence owner. It resets only that document to the saved result;
+read failures, changed snapshots and rejected owner resets retain recovery.
 
 Host shutdown uses the pathless editing guard before destructive teardown. The
 API-owned layout flush under [LN-WS-095](../workspace-shell/layout-and-persistence.md#ln-ws-095)

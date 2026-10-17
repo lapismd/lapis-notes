@@ -71,6 +71,12 @@ rejected actions. A rejected recovery projection retains the writer barrier.
 
 **Requirement.** API MUST export a generic FileTextPersistence contract for document-owned conditional baselines and the owning App's text-conflict registry. Recovery MUST acquire protection before yielding and await asynchronous admission before resolving a conflict. Each concurrent operation MUST use its own acknowledgement, reset and release lease. Storage snapshots MUST remain independent of background cache reads; stale decisions MUST reject, and failed resets MUST retain the conflict.
 
+Captured conflicts also expose `resolveMerged(text)`. It uses the same exact
+snapshot, asynchronous protection and conditional replacement as keeping a draft.
+Only a successful owner reset acknowledges merged text. Stale disk bytes, unreadable
+snapshots and failed resets retain the conflict; a failed post-write reset may
+require refresh to display the already-persisted result before retry.
+
 Application-state recovery may restore runtime state outside the persistence
 queue while retaining its owner lease. It revalidates the displayed disk bytes
 after asynchronous restoration and acknowledges only after that check or the

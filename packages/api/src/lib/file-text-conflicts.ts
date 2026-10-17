@@ -10,6 +10,8 @@ export interface FileTextConflict {
   readonly external: string | null | undefined;
   readonly readError?: string;
   resolve(choice: FileTextResolution): Promise<void>;
+  /** Persist reviewed merge text against this exact disk snapshot. */
+  resolveMerged(contents: string): Promise<void>;
   refresh(): Promise<void>;
 }
 

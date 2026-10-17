@@ -141,6 +141,10 @@ export class FileTextPersistence {
       external,
       ...(readError === undefined ? {} : { readError }),
       resolve: (choice) => this.#recover(conflict, choice),
+      resolveMerged: (contents) =>
+        typeof contents === "string"
+          ? this.#recover(conflict, "keep-local", contents)
+          : Promise.reject(new Error("Merged file contents must be text")),
       refresh: () => this.#recover(conflict),
     };
     this.#conflict = conflict;
@@ -150,6 +154,7 @@ export class FileTextPersistence {
   async #recover(
     conflict: FileTextConflict,
     choice?: FileTextResolution,
+    merged?: string,
   ): Promise<void> {
     this.#assertCurrent(conflict);
     if (
@@ -158,11 +163,13 @@ export class FileTextPersistence {
       choice !== "use-external"
     )
       throw new Error("Invalid text conflict resolution");
+    if (merged !== undefined && typeof merged !== "string")
+      throw new Error("Merged file contents must be text");
     const lease = await this.options.protect();
     try {
       await this.options.settle?.();
       if (this.options.recoverOutsideQueue && choice !== undefined) {
-        await this.#recoverState(conflict, choice, lease);
+        await this.#recoverState(conflict, choice, lease, merged);
         return;
       }
       await this.options.serialize(async () => {
@@ -176,7 +183,7 @@ export class FileTextPersistence {
             "Read the disk version before resolving this conflict",
           );
         if (choice === "keep-local") {
-          const contents = this.options.local();
+          const contents = merged ?? this.options.local();
           try {
             await this.options.vault.modifyIfUnchanged(
               this.options.file,
@@ -190,9 +197,18 @@ export class FileTextPersistence {
             }
             throw error;
           }
+          const previousBaseline = this.#baseline;
           this.#baseline = contents;
+          if (merged !== undefined) {
+            try {
+              await lease.reset(contents);
+            } catch (error) {
+              this.#baseline = previousBaseline;
+              throw error;
+            }
+            lease.resetSaved?.(contents);
+          } else lease.saved();
           this.#clear();
-          lease.saved();
         } else {
           let external: string | null;
           try {
@@ -226,6 +242,7 @@ export class FileTextPersistence {
     conflict: FileTextConflict,
     choice: FileTextResolution,
     lease: FileTextRecoveryLease,
+    merged?: string,
   ): Promise<void> {
     let selected = "";
     await this.options.serialize(async () => {
@@ -238,7 +255,8 @@ export class FileTextPersistence {
         throw this.#error;
       }
       selected =
-        choice === "keep-local" ? this.options.local() : (actual ?? "");
+        merged ??
+        (choice === "keep-local" ? this.options.local() : (actual ?? ""));
     });
     // The owner lease remains held, but other owned files can use the queue.
     await lease.reset(selected);
@@ -264,7 +282,7 @@ export class FileTextPersistence {
       }
       this.#baseline = choice === "keep-local" ? selected : conflict.external!;
       this.#clear();
-      if (choice === "keep-local") lease.saved();
+      if (choice === "keep-local" && merged === undefined) lease.saved();
       else lease.resetSaved?.(selected);
     });
   }
