@@ -1,5 +1,9 @@
 # Packages / Host and plugin integration
 
+UI's existing public theme export supplies shared search-highlight defaults.
+Dark-mode contrast is qualified under LN-UI-020 on workspace/sidebar normal,
+hover and active rows, without a consumer override or an additional export.
+
 Plugin manifests expose optional `requiredNativeServices` for host capability
 admission (LN-PLUG-121). It is distinct from brokered `requiredCapabilities`: no
 new native permission or implicit service activation follows from a declaration.

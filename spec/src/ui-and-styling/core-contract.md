@@ -133,3 +133,6 @@ package boundary without adding utility classes to component markup.
 <a id="ln-ui-020"></a>
 
 **Requirement.** The alias-only Lapis theme MUST define public `--ui-search-highlight-background` and `--ui-search-highlight-foreground` defaults with WCAG AA text contrast so Search and other plugin-owned highlighted matches share accessible application paint.
+
+- Light and dark matches retain at least 4.5:1 text contrast on workspace and sidebar surfaces, including hover and active rows.
+- Dark yellow highlights preserve readable text without changing light-mode defaults or requiring consumer color overrides.

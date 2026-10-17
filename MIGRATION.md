@@ -1,5 +1,8 @@
 # Migration Status
 
+Shared dark search-highlight contrast is source-qualified with 1,734 unit cases
+and 261 catalog cases (LN-UI-020); see [source evidence](spec/records/2026-10-17-search-highlight-contrast.md).
+
 Desktop M9/M9.1 signed plugin lifecycle is complete (LN-PLUG-116–121).
 Source safety and the real retained Plugins/Settings flow pass all qualification:
 1,734 source tests, 259 source catalog cases, 13 Web/server cases, 113 cold native
