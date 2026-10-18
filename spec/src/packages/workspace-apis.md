@@ -40,7 +40,7 @@ button's existing accessible name and callback.
 
 <a id="ln-pkg-090"></a>
 
-**Requirement.** API `StatusBarManager.upsertItem` MUST notify subscribers only when a visible status field changes. Identical id, text, segments, icon, spin, tooltip, command, when, alignment, priority, and sourcePlugin MUST NOT notify. A `buildMenu` replacement alone MUST NOT count as a visible change.
+**Requirement.** API `StatusBarManager.upsertItem` MUST notify subscribers only when a visible status field changes. Identical id, text, segments, icon, spin, tooltip, command, when, alignment, priority, sourcePlugin, and custom mount identity MUST NOT notify. A `buildMenu` replacement alone MUST NOT count as a visible change.
 
 ## LN-PKG-020 — Editable FileEmbed: expose an imperative exit() that delegates
 

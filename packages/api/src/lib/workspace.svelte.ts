@@ -3353,6 +3353,7 @@ export class Workspace extends EventDispatcher<{
   ): void {
     controller.status.addItem({
       id: item.id,
+      mount: item.mount,
       align,
       priority: item.priority,
       label: item.text,

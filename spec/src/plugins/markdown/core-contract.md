@@ -39,3 +39,7 @@ before disable completes, including failed unloads (LN-ARCH-118).
 Markdown acceptance hosts use the shared `.lapis` configuration and layout
 default under LN-ARCH-140; plugin contributions retain their public API-owned
 persistence and editor lifecycle boundaries.
+
+The status-host repair preserves Markdown editor, file-surface and extension
+registration contracts. Only the shared Plugin status-element mount changes;
+Markdown contributes no replacement status host (LN-WS-054).

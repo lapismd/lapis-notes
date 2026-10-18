@@ -189,3 +189,12 @@ projection does not enqueue a second save.
 Plugin registration now retains unadopted data under LN-PLUG-112; workspace layout,
 projection, guarded close and popup contracts remain unchanged. No host source
 change is required to consume the generic registration repair.
+
+Custom `mount(host)` descriptors MUST retain callback identity through projection
+and dispose on replacement/removal. `Plugin.addStatusBarItem()` MUST register a
+visible plugin-owned element through this same path, without a hidden fallback.
+Plugins own their controls, CSS, accessibility and asynchronous resource lifetime.
+
+Status-bar hosts MUST keep custom content in the same item ordering and context
+visibility as standard descriptors. The mount callback is a rendering input;
+replacing it MUST notify the shell even when text/icon metadata is unchanged.

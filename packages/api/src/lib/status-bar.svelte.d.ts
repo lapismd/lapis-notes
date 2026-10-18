@@ -3,6 +3,7 @@ import type { Menu } from "./menu.svelte";
 export type StatusBarAlignment = "left" | "right";
 export interface StatusBarItemDescriptor {
     id: string;
+    mount?: (host: HTMLElement) => () => void;
     text?: string;
     segments?: string[];
     icon?: string;

@@ -572,34 +572,17 @@ export abstract class Plugin extends Component {
   }
 
   addStatusBarItem(): HTMLElement {
-    let parent: HTMLElement | null =
-      this.app.workspace.statusCompatEl ??
-      document.querySelector<HTMLElement>("#status-bar");
-
-    if (!parent) {
-      parent = document.querySelector<HTMLElement>(
-        "#lapis-status-bar-compat-fallback",
-      );
-    }
-
-    if (!parent) {
-      parent = document.body.createDiv({
-        attr: {
-          id: "lapis-status-bar-compat-fallback",
-          hidden: "true",
-          "aria-hidden": "true",
-        },
-      });
-    }
-
-    this.app.workspace.statusCompatEl = parent;
-
-    const statusEl = parent.createDiv({
-      cls: "status-bar-item plugin-" + this.manifest.id,
+    const statusEl = document.createElement("div");
+    statusEl.className = "status-bar-item plugin-" + this.manifest.id;
+    const dispose = this.app.statusBar.registerItem({
+      id: `${this.manifest.id}:compat-status:${crypto.randomUUID()}`,
+      sourcePlugin: this.manifest.id,
+      mount: (host) => {
+        host.append(statusEl);
+        return () => statusEl.remove();
+      },
     });
-    this.register(() => {
-      statusEl.detach();
-    });
+    this.register(dispose);
     return statusEl;
   }
 

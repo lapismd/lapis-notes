@@ -35,3 +35,7 @@
 <a id="ln-arch-079"></a>
 
 **Requirement.** Graph MUST persist portable slider positions while translating them to D3 force values only inside its renderer boundary. The renderer MUST derive link weighting from topology degree rather than persisted reference counts. Settings migration MUST remain plugin-owned and preserve unrelated presentation state.
+
+Custom status controls retain plugin domain ownership. The API projects the
+public status mount/disposer into Design Core without depending on the controls'
+implementation; desktop repository status remains downstream-owned (LN-WS-054).

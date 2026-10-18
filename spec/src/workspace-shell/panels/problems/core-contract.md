@@ -265,3 +265,7 @@ diagnostic snapshot rather than one provider's count.
 Problems and editor acceptance hosts seed `.lapis` configuration and layout
 through the shared application state default under LN-ARCH-140. Diagnostic
 registration, code-action ownership, and save failure contracts still apply.
+
+The status-host repair preserves diagnostic collections, Problems presentation
+and quick-fix lifetimes. Only the generic Plugin status-element mount changes;
+diagnostic content remains outside that mount (LN-WS-054).

@@ -216,3 +216,7 @@ activation and reveal contracts without timers or consumer retry wrappers.
 <a id="ln-plug-112"></a>
 
 **Requirement.** Registering a plugin MUST preserve an existing compatibility data file until `loadData()` adopts it into canonical configuration. An explicit canonical data removal MUST still remove the compatibility mirror.
+
+`addStatusBarItem()` returns a plugin-owned element in the shared status registry.
+Plugin teardown removes its contribution. Custom controls own their styles and
+resources; the shell mount disposer handles detachment (LN-WS-054).
