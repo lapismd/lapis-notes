@@ -45,7 +45,7 @@ Qualification:
   1489 requirements. Explicit `pnpm spec:first --file` for the slice passes
   3 protected files and 8 canonical chapters. Logs:
   `/tmp/notes-file-settings-stage-{spec,first}.log`.
-- Main `pnpm spec:check` was attempted and is blocked by the concurrent new
+- Initial main `pnpm spec:check` was blocked by the concurrent new
   Problems provider-boundaries page missing from inline Storybook order
   (SPEC-MIRROR-ORDER); `/tmp/notes-file-settings-spec.log`. No external edits
   or suppressions are included in this slice.
@@ -63,3 +63,15 @@ aggregate, native/provider/platform and release matrices deferred.
 Milestone review: this completes the visible control for LN-PKG-185; unrelated
 source migration, host and distribution gates remain unchanged. The original
 discovery implementation and explicit-resource authority remain intact.
+
+Final qualification: after the concurrent owner synchronized its specification
+mirror, main `pnpm spec:check` passes all 6 lanes, App ownership, metadata-query
+audit and all 38 specification tests; `/tmp/notes-file-settings-spec-retry.log`.
+Desktop public-archive checks pass 2 interaction/accessibility scenarios,
+including actual Workspace list edits, physical configuration persistence,
+close/reopen, remove-all, live Vault enumeration and unchanged raw file bytes
+without Repository History. E-CATALOG-015 records adoption and review refresh.
+Desktop types and both source-boundary audits pass. The API runtime source is
+commit `f828eaeba8411aa342d7ab4954393e84612af2f3`; staging source files match
+that exact commit and the disposable build directory is removed after packing.
+The verified archive and ignored manifest/evidence metadata remain available.
