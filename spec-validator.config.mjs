@@ -245,6 +245,10 @@ export default defineConfig(headingRequirements(), {
           ],
         },
         {
+          pattern: "^packages/host-services/",
+          chapterPatterns: ["^spec/src/architecture/host-boundaries\\.md$"],
+        },
+        {
           pattern: "^packages/deno-host-services/",
           chapterPatterns: [
             "^spec/src/server\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",

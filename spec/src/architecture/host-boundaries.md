@@ -167,7 +167,7 @@ operations; renderer/plugin code receives scoped crypto results.
 
 <a id="ln-arch-096"></a>
 
-**Requirement.** Deno desktop and server hosts MUST consume private reusable filesystem, watch, resource, plugin-asset, language-service, and native AppDatabase kernels without transferring host lifecycle, authentication, routing, window, or vault-selection policy into those kernels.
+**Requirement.** Native desktop and server hosts MUST consume private reusable filesystem, watch, resource, plugin-asset, language-service, and AppDatabase kernels without transferring host lifecycle, authentication, routing, window, or vault-selection policy into those kernels. Runtime-independent kernels MUST live in `@lapis-notes/host-services`; Deno compatibility subpaths MUST preserve the same implementations.
 
 ## LN-ARCH-098 — Verified renderer ESM plugins: share public API modules with the host
 

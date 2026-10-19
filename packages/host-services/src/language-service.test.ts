@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  DENO_LANGUAGE_SERVICE_PROTOCOL_VERSION,
+  HOST_LANGUAGE_SERVICE_PROTOCOL_VERSION,
   handleLanguageService,
   sanitizeVirtualDocument,
 } from "./language-service";
@@ -13,15 +13,15 @@ const document = {
   version: 1,
 };
 
-describe("Deno Markdown language service", () => {
-  it("runs markdownlint diagnostics in the Deno-owned runtime", () => {
+describe("Host Markdown language service", () => {
+  it("runs markdownlint diagnostics in the host runtime", () => {
     expect(
       handleLanguageService("desktop_ls_capabilities", {
-        protocolVersion: DENO_LANGUAGE_SERVICE_PROTOCOL_VERSION,
+        protocolVersion: HOST_LANGUAGE_SERVICE_PROTOCOL_VERSION,
       }),
     ).toEqual({ markdown: true, protocolVersion: 1 });
     const diagnostics = handleLanguageService("desktop_ls_diagnostics", {
-      protocolVersion: DENO_LANGUAGE_SERVICE_PROTOCOL_VERSION,
+      protocolVersion: HOST_LANGUAGE_SERVICE_PROTOCOL_VERSION,
       document,
     });
     expect(diagnostics).toEqual(
@@ -37,11 +37,11 @@ describe("Deno Markdown language service", () => {
       text: "The cheapest loft stilts are plastic raised joist extensions that cost more than eighty characters.\n",
     };
     const enabled = handleLanguageService("desktop_ls_diagnostics", {
-      protocolVersion: DENO_LANGUAGE_SERVICE_PROTOCOL_VERSION,
+      protocolVersion: HOST_LANGUAGE_SERVICE_PROTOCOL_VERSION,
       document: longLineDocument,
     }) as Array<{ code?: string }>;
     const disabled = handleLanguageService("desktop_ls_diagnostics", {
-      protocolVersion: DENO_LANGUAGE_SERVICE_PROTOCOL_VERSION,
+      protocolVersion: HOST_LANGUAGE_SERVICE_PROTOCOL_VERSION,
       document: longLineDocument,
       rules: { MD013: false },
     }) as Array<{ code?: string }>;

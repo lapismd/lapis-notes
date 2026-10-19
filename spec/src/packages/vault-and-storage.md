@@ -108,7 +108,7 @@ keeps sibling release preparation outside standalone CI.
 
 <a id="ln-pkg-144"></a>
 
-**Requirement.** Private `@lapis-notes/deno-host-services` MUST own reusable Deno filesystem, watch, resource, plugin-asset, language-service, native AppDatabase kernels, and durable opaque sync repositories governed by LN-ARCH-105. It MUST NOT own desktop windows, server authentication, HTTP routing, vault selection, or Web composition.
+**Requirement.** Private `@lapis-notes/deno-host-services` MUST own Deno filesystem, watch, resource, plugin-asset and durable opaque sync kernels governed by LN-ARCH-105. Private `@lapis-notes/host-services` MUST own runtime-independent path, language and native AppDatabase worker kernels, with retained Deno compatibility exports. Both packages MUST NOT own desktop windows, server authentication, HTTP routing, vault selection or Web composition.
 
 Its portable `test:sync-engine` script accepts a built engine path for development
 qualification with native storage and opaque host security capabilities. The

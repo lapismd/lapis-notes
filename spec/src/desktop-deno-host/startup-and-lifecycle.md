@@ -4,7 +4,7 @@
 
 <a id="ln-deno-008"></a>
 
-**Requirement.** Language, plugin, AI, and terminal host services MUST use public package boundaries and Deno-owned process lifecycles. Terminal sessions MUST use public `@lapismd/terminal-host/deno`; Deno code MUST NOT import another desktop host.
+**Requirement.** Language, plugin, AI, and terminal host services MUST use public package boundaries and Deno-owned process lifecycles. Terminal sessions MUST use public `@lapismd/terminal-host/deno`; Deno code MUST NOT import another desktop host. Retained host-service subpaths MUST forward portable kernels without changing the frozen desktop runtime.
 
 ## LN-DENO-015 — Production host: serve the built renderer from the launch
 

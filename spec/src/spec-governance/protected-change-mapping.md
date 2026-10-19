@@ -107,7 +107,7 @@ overlay teardown fix; test-signed fixtures never authorize public assets.
 
 <a id="ln-gov-045"></a>
 
-**Requirement.** The spec-first map MUST route Deno host-service kernels to Deno Server Host, Desktop Host, Packages, and Architecture. Server package and server-mode Web changes MUST additionally route through Deno Server Host.
+**Requirement.** The spec-first map MUST route Deno host-service kernels to Deno Server Host, Desktop Host, Packages, and Architecture. Server package and server-mode Web changes MUST additionally route through Deno Server Host. Runtime-independent `host-services` kernels MUST route to Architecture.
 
 ## LN-GOV-046 — Dependency-image pin automation: update the verified digest, lockfile tag,
 

@@ -544,6 +544,9 @@ importers:
       '@lapis-notes/api':
         specifier: workspace:*
         version: link:../api
+      '@lapis-notes/host-services':
+        specifier: workspace:*
+        version: link:../host-services
       '@lapis-notes/language-service':
         specifier: workspace:*
         version: link:../language-service
@@ -685,6 +688,31 @@ importers:
       vitest:
         specifier: 4.1.11
         version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@26.6.5)(@vitest/browser-playwright@4.1.11)(jsdom@29.1.1(@noble/hashes@2.4.0))(vite@6.4.3(@types/node@26.6.5)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0))
+
+  packages/host-services:
+    dependencies:
+      '@lapis-notes/api':
+        specifier: workspace:*
+        version: link:../api
+      '@lapis-notes/language-service':
+        specifier: workspace:*
+        version: link:../language-service
+      '@tursodatabase/database':
+        specifier: 0.7.2
+        version: 0.7.2
+    devDependencies:
+      esbuild:
+        specifier: ^0.28.2
+        version: 0.28.2
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.3.6
+        version: 7.3.6(@types/node@26.6.5)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0)
+      vitest:
+        specifier: 4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@26.6.5)(@vitest/browser-playwright@4.1.11)(jsdom@29.1.1(@noble/hashes@2.4.0))(vite@7.3.6(@types/node@26.6.5)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/language-service:
     dependencies:
@@ -16927,6 +16955,19 @@ snapshots:
       sade: 1.8.1
       svelte: 5.56.10
       typescript: 5.8.3
+    transitivePeerDependencies:
+      - picomatch
+
+  svelte-check@4.7.4(picomatch@4.0.7)(svelte@5.56.10)(typescript@5.9.3):
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.31
+      '@sveltejs/load-config': 0.2.1
+      chokidar: 4.0.3
+      fdir: 6.5.0(picomatch@4.0.7)
+      picocolors: 1.1.1
+      sade: 1.8.1
+      svelte: 5.56.10
+      typescript: 5.9.3
     transitivePeerDependencies:
       - picomatch
 

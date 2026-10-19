@@ -1,0 +1,55 @@
+{
+  "name": "@lapis-notes/host-services",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "deno": "./src/index.ts",
+      "import": "./dist/index.js"
+    },
+    "./paths": {
+      "types": "./dist/paths.d.ts",
+      "deno": "./src/paths.ts",
+      "import": "./dist/paths.js"
+    },
+    "./app-database-worker-protocol": {
+      "types": "./dist/app-database-worker-protocol.d.ts",
+      "deno": "./src/app-database-worker-protocol.ts",
+      "import": "./dist/app-database-worker-protocol.js"
+    },
+    "./app-database-worker-runtime": {
+      "types": "./dist/app-database-worker-runtime.d.ts",
+      "deno": "./src/app-database-worker-runtime.ts",
+      "import": "./dist/app-database-worker-runtime.js"
+    },
+    "./native-app-database": {
+      "types": "./dist/native-app-database.d.ts",
+      "deno": "./src/native-app-database.ts",
+      "import": "./dist/native-app-database.js"
+    },
+    "./language-service": {
+      "types": "./dist/language-service.d.ts",
+      "deno": "./src/language-service.ts",
+      "import": "./dist/language-service.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node build.mjs",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@lapis-notes/api": "workspace:*",
+    "@lapis-notes/language-service": "workspace:*",
+    "@tursodatabase/database": "0.7.2"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3",
+    "vite": "^7.3.6",
+    "vitest": "^4.1.10",
+    "esbuild": "^0.28.2"
+  },
+  "license": "Apache-2.0"
+}

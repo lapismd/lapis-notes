@@ -10,12 +10,12 @@ renames the private server to `@lapis-notes/server-node` and moves its runtime
 to Node 24 LTS. The existing API, browser, data and plugin contracts are retained.
 The frozen Deno desktop and separate sync tooling are outside this migration.
 
-| Slice                              | Status   | Evidence / next gate                                                                                     |
-| ---------------------------------- | -------- | -------------------------------------------------------------------------------------------------------- |
-| N0 — Plan and baseline             | Verified | Plan/spec validation, existing server 28/28, portable helpers 9/9 and original native server smoke pass. |
-| N1 — Portable shared services      | Planned  | Extract portable kernels with retained Deno compatibility exports.                                       |
-| N2 — Node server and rename        | Planned  | Native Node smoke and browser adapter contracts.                                                         |
-| N3 — Deployment and browser parity | Planned  | Fresh Deno-free container and retained-data browser acceptance.                                          |
+| Slice                              | Status   | Evidence / next gate                                                                                                           |
+| ---------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| N0 — Plan and baseline             | Verified | Plan/spec validation, existing server 28/28, portable helpers 9/9 and original native server smoke pass.                       |
+| N1 — Portable shared services      | Verified | Portable build/check, native Node round-trip, 9 portable and 90 retained-service tests; full check/test/build/spec lanes pass. |
+| N2 — Node server and rename        | Planned  | Native Node smoke and browser adapter contracts.                                                                               |
+| N3 — Deployment and browser parity | Planned  | Fresh Deno-free container and retained-data browser acceptance.                                                                |
 
 Statuses distinguish Planned, In progress, Implemented and Verified. Migration
 completion requires N3 acceptance; a package rename alone is not completion.

@@ -1,4 +1,4 @@
-import { MemoryAppDatabase } from "../../api/src/lib/storage/app-database.ts";
+import { MemoryAppDatabase } from "@lapis-notes/api/app-database";
 import { describe, expect, it } from "vitest";
 import type { AppDatabaseWorkerResponse } from "./app-database-worker-protocol";
 import { AppDatabaseWorkerRuntime } from "./app-database-worker-runtime";

@@ -120,3 +120,25 @@ commands, counts, limitations and commits are appended here during execution.
   currently has approximately 3 GiB RAM.
 - Canonical mappings: LN-ARCH-096, LN-SRV-001–019, shared AppDatabase and Web
   host requirements. Product status is unchanged by this planning slice.
+
+### N1 — Portable services
+
+- Extracted the five portable modules to the private host-services package.
+  Existing Deno source subpaths forward the canonical implementation, preserving
+  frozen desktop imports. Built Node ESM and declarations use public dependencies.
+- Portable build/check and 9 tests pass. The retained Deno package passes its
+  Deno check and 90 tests, including exact compatibility-export identity.
+- Plain Node imports of built portable services round-trip metadata through
+  native Turso. The original Deno server smoke and 28 server tests still pass.
+- `pnpm spec:check`: all six lanes and 38 validator tests pass.
+- `pnpm check`: 20 successful tasks. `pnpm build`: 11 successful tasks.
+- `pnpm test`: 20 successful tasks after a serial rerun. A first attempt
+  overlapped a separate build that was replacing API output; five unresolved
+  bundle imports and one workspace suite load failure were eliminated by
+  finishing builds before the exact aggregate rerun.
+- During extraction, the initial NodeNext declaration build reported 11 import
+  errors; Bundler resolution plus bundled ESM fixed the actual package boundary.
+  A new compatibility test initially compared built/source identities (1 failure);
+  it now verifies that both retained subpaths and canonical source share the
+  same implementation. No assertions were removed.
+- The lockfile retains unrelated existing resolutions; a frozen install passes.

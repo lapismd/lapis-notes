@@ -1,5 +1,9 @@
 # Deno Server Host / Integration contracts
 
+Portable paths, native database-worker dispatch and Markdown operations are
+owned by `@lapis-notes/host-services`. Existing Deno host-service subpaths
+forward those same implementations while the Node migration is qualified.
+
 The Design Core dependency refresh consumes released `0.5.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.
