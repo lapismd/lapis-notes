@@ -3796,6 +3796,15 @@ export class Workspace extends EventDispatcher<{
    * @public
    */
   async revealLeaf(leaf: WorkspaceLeaf): Promise<void> {
+    const wasActive = this.activeLeaf === leaf;
+    const revision = layoutMutationRevisions.get(this) ?? 0;
+    await this.#workspaceHostProjection;
+    if (
+      revision !== (layoutMutationRevisions.get(this) ?? 0) ||
+      !this.containsLeaf(leaf)
+    ) return;
+    recordLayoutMutation(this);
+    if (wasActive) this.activeLeaf = leaf;
     let child: WorkspaceItem = leaf;
     let parent: WorkspaceItem = leaf.parent;
     while (parent) {
@@ -3820,6 +3829,7 @@ export class Workspace extends EventDispatcher<{
     if (floatingWindow) {
       this.focusFloatingWindow(floatingWindow);
     }
+    this.requestSaveLayout({ source: "api", operation: "reveal-leaf" });
   }
 
   registerView(type: string, viewCreator: ViewCreator): void {

@@ -79,3 +79,7 @@ command, context and persistence authority (LN-WS-054, LN-WS-075).
 Responsive plugin-directory acceptance follows the shared PanelToggle public
 part/side markers and retains actual open, close and focus checks after the
 source shell composition update (LN-ARCH-040, LN-WS-054).
+
+LN-WS-005 reveal now drains an in-flight host projection before publishing its
+selection. Generic host ownership under LN-ARCH-003 and view-access composition
+under LN-ARCH-059 remain unchanged; plugins retain their routing policy.

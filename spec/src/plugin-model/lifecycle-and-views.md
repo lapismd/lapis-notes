@@ -220,3 +220,7 @@ activation and reveal contracts without timers or consumer retry wrappers.
 `addStatusBarItem()` returns a plugin-owned element in the shared status registry.
 Plugin teardown removes its contribution. Custom controls own their styles and
 resources; the shell mount disposer handles detachment (LN-WS-054).
+
+The LN-WS-005 reveal repair preserves this lifecycle and disabled-view policy.
+It retains the existing leaf and does not activate plugins, recreate views or
+introduce a second layout authority.

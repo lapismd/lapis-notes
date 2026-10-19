@@ -2792,6 +2792,29 @@ describe("Workspace compatibility", () => {
     expect(written.right.width).toBe(workspace.rightSplit.sidebar.width);
   });
 
+  it("reveals the requested sidebar view after an overlapping host projection", async () => {
+    const { workspace } = createWorkspaceHarness();
+    await workspace.loadLayout();
+    workspace.registerView("files-fixture", leaf => new MockItemView(leaf, "files-fixture", "Files"));
+    workspace.registerView("search-fixture", leaf => new MockItemView(leaf, "search-fixture", "Search"));
+    const files = workspace.getLeftLeaf(false)!;
+    await files.setViewState({ type: "files-fixture" });
+    const search = workspace.getLeftLeaf(false)!;
+    await search.setViewState({ type: "search-fixture" });
+    workspace.activateLeaf(files, { focusRootHost: false });
+    const { controller } = getWorkspaceHostBinding(workspace);
+    controller.renderer.setSidebarOpen("left", true);
+    await Promise.resolve();
+    await search.setViewState({ type: "search-fixture", state: { query: "history" } });
+    workspace.activateLeaf(search, { focusRootHost: false });
+    await workspace.revealLeaf(search);
+    await workspace.flushLayout();
+    const dock = controller.renderer.layout.left.root;
+    expect(dock.kind).toBe("tabs");
+    if (dock.kind === "tabs") expect(dock.activeItemId).toBe(search.id);
+    expect(workspace.activeLeaf).toBe(search);
+  });
+
   it("retains new ItemViews while sidebar projection and activation overlap", async () => {
     const { app, workspace } = createWorkspaceHarness();
     await workspace.loadLayout();

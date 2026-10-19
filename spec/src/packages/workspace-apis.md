@@ -112,3 +112,7 @@ queued older snapshots cannot discard a later live view or its selected leaf.
 
 The projection repair carries API patch intent and a verified public archive
 for Tauri intake. Publication remains at the migration release gate.
+
+The existing `Workspace.revealLeaf` promise joins in-flight host projection and
+publishes the requested selection under LN-WS-005. Package signatures and
+instance ownership remain unchanged; a superseding navigation fences the reveal.
