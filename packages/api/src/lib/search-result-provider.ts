@@ -20,6 +20,15 @@ export type SearchProviderHit = {
   extension?: string;
   timestamp?: number;
   version?: {
+    /** Domain-independent identity for deduplicating identical saved contents. */
+    contentId?: string;
+    references?: Array<{
+      id: string;
+      label: string;
+      author: string;
+      timestamp: number;
+      target: Readonly<Record<string, string>>;
+    }>;
     id: string;
     label: string;
     author: string;

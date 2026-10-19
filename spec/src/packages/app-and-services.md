@@ -1,5 +1,7 @@
 # Packages / App and services
 
+LN-SRCH-051 saved-version content identities and checkpoint references are additive presentation types. They preserve provider-owned navigation and introduce no database, Vault or repository authority.
+
 The API exports the result-provider types and registry under LN-SRCH-051. Each App owns its registry; this additive service does not change LN-PKG-001 or existing AppDatabase and Vault interfaces.
 
 The API-owned SyncHostService queues observed file changes behind initial

@@ -1,5 +1,7 @@
 # Architecture / Build and validation
 
+LN-SRCH-051 saved-version content identities and checkpoint references are additive presentation types. They preserve provider-owned navigation and introduce no database, Vault or repository authority.
+
 LN-SRCH-051 adds an App-owned result-provider registry. Provider targets remain opaque to Search; database projections, source authority and package ownership do not change.
 
 Candidate server images reconstruct the public pnpm hook before their frozen

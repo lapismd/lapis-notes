@@ -305,3 +305,5 @@
 <a id="ln-srch-051"></a>
 
 **Requirement.** The API MUST expose an App-owned, plugin-lifecycle search-result provider registry. Providers MUST declare query capabilities, return cancellable paginated results with stable identities and opaque navigation targets, and own activation and optional context expansion. Invalidations MUST be disposable and late callbacks MUST NOT revive removed providers. Existing search-document providers and current-file query contracts remain independent.
+
+Saved-version results may expose an immutable content identity and explicit checkpoint navigation references. Search groups identical contents only within the same source and file; author/date filtering remains provider-owned before grouping (LN-SRCH-051).
