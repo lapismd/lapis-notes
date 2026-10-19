@@ -3,6 +3,23 @@
 Living checklist for the minimal Lapis Notes monorepo. Update this file when
 intake or UI swap status changes.
 
+## Node server migration (2026-10-19)
+
+The approved [full plan](spec/records/2026-10-19-server-node-migration.md)
+renames the private server to `@lapis-notes/server-node` and moves its runtime
+to Node 24 LTS. The existing API, browser, data and plugin contracts are retained.
+The frozen Deno desktop and separate sync tooling are outside this migration.
+
+| Slice                              | Status   | Evidence / next gate                                                                                     |
+| ---------------------------------- | -------- | -------------------------------------------------------------------------------------------------------- |
+| N0 — Plan and baseline             | Verified | Plan/spec validation, existing server 28/28, portable helpers 9/9 and original native server smoke pass. |
+| N1 — Portable shared services      | Planned  | Extract portable kernels with retained Deno compatibility exports.                                       |
+| N2 — Node server and rename        | Planned  | Native Node smoke and browser adapter contracts.                                                         |
+| N3 — Deployment and browser parity | Planned  | Fresh Deno-free container and retained-data browser acceptance.                                          |
+
+Statuses distinguish Planned, In progress, Implemented and Verified. Migration
+completion requires N3 acceptance; a package rename alone is not completion.
+
 ## Specification readability and navigation (2026-10-13)
 
 - [x] Split the specification into 172 bounded topic and verification pages,
