@@ -121,7 +121,7 @@ macOS traffic-light alignment verifies:
 
 <a id="ln-deno-049"></a>
 
-**Requirement.** On macOS, development and packaged hosts MUST show `Lapis Notes` as the first application menu title. Because the shared Laufey bundle reports `Deno`, the pnpm launcher MUST prepare an ignored package-local backend bundle under `release/dev-laufey`, apply the declared identity, and select it through Deno's development-host boundary. A root Deno workspace MUST include every Deno host package and own cache-only npm resolution without changing `pnpm-workspace.yaml`. The launcher MUST NOT mutate Deno's shared cache or affect non-macOS hosts.
+**Requirement.** On macOS, development and packaged hosts MUST show `Lapis Notes` as the first application menu title. Because the shared Laufey bundle reports `Deno`, the pnpm launcher MUST prepare an ignored package-local backend bundle under `release/dev-laufey`, apply the declared identity, and select it through Deno's development-host boundary. A root Deno workspace MUST include Deno host packages, exclude the Node server and own cache-only npm resolution without changing `pnpm-workspace.yaml`. The launcher MUST NOT mutate Deno's shared cache or affect non-macOS hosts.
 
 ### Acceptance details
 

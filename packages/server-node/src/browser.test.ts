@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ServerVaultProfile } from "@lapis-notes/api/server-host";
 
 import {
+  ServerAppDatabaseProvider,
   ServerVaultAdapter,
   ServerVaultEventStream,
   createServerPluginDistributionFetch,
@@ -189,5 +190,24 @@ describe("ServerVaultEventStream", () => {
       { vaultId: profile.id, lastEventId: undefined },
       expect.any(Object),
     );
+  });
+});
+
+describe("server database runtime identity", () => {
+  it("selects the Node server transport without claiming local browser ownership", () => {
+    const provider = new ServerAppDatabaseProvider(
+      {} as LapisServerBrowserClient,
+      {} as ServerVaultEventStream,
+    );
+    expect(
+      provider.canOpen({
+        runtime: "node-server",
+      }),
+    ).toBe(true);
+    expect(
+      provider.canOpen({
+        runtime: "web-pwa",
+      }),
+    ).toBe(false);
   });
 });

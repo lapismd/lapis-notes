@@ -13,7 +13,7 @@ dependencies; each host supplies those policies through wrappers.
 
 Server-neutral runtime and transport types remain in API subpath exports.
 Desktop and server implementations consume the same remote AppDatabase
-catalogue, while tRPC and Deno server implementation types remain outside the
+catalogue, while tRPC and Node server implementation types remain outside the
 public API barrel and browser graph.
 
 - The server's hybrid boundary mounts the generated JSON control plane at `/api/trpc` and keeps file and resource bytes on authenticated Fetch routes.
@@ -26,7 +26,7 @@ public API barrel and browser graph.
 
 - The compile-time server Web profile reuses the application workspace shell but excludes local-vault, offline, AI-host, terminal-host, and PWA boot policy.
 
-- It marks the document runtime as `deno-server` before mounting so host-specific code never has to infer the online profile from missing desktop or PWA state.
+- It marks the document runtime as `node-server` before mounting so host-specific code never has to infer the online profile from missing desktop or PWA state.
 
 - Its pre-workspace login and managed-vault launcher remain Web-owned presentation: they compose Design Core with the Lapis theme, while server-owned authentication, membership, archive validation, and managed storage remain behind Fetch and tRPC.
 

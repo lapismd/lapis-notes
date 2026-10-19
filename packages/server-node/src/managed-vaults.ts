@@ -1,10 +1,12 @@
+import { isFsError } from "./fs-errors.ts";
+import * as fs from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 import { ServerHostError } from "@lapis-notes/api/server-host";
 import {
   mkdirWhenPathExists,
   normalizeVaultPath,
-} from "@lapis-notes/deno-host-services/paths";
+} from "@lapis-notes/host-services/paths";
 
 import { VaultEventHub } from "./events.ts";
 
@@ -63,23 +65,22 @@ export async function resolveManagedPath(
   mode: "read" | "write",
 ): Promise<string> {
   const normalized = normalizeManagedPath(relativePath);
-  const canonicalRoot = await Deno.realPath(contentRoot);
+  const canonicalRoot = await fs.realpath(contentRoot);
   const target = join(canonicalRoot, normalized);
   try {
-    const canonicalTarget = await Deno.realPath(target);
+    const canonicalTarget = await fs.realpath(target);
     if (!contained(canonicalRoot, canonicalTarget))
       invalidPath("Vault symlink escape");
     return canonicalTarget;
   } catch (error) {
-    if (!(error instanceof Deno.errors.NotFound) || mode === "read")
-      throw error;
+    if (!isFsError(error, "ENOENT") || mode === "read") throw error;
     let ancestor = dirname(target);
     let canonicalParent: string | undefined;
     while (!canonicalParent) {
       try {
-        canonicalParent = await Deno.realPath(ancestor);
+        canonicalParent = await fs.realpath(ancestor);
       } catch (parentError) {
-        if (!(parentError instanceof Deno.errors.NotFound)) throw parentError;
+        if (!isFsError(parentError, "ENOENT")) throw parentError;
         const parent = dirname(ancestor);
         if (parent === ancestor) invalidPath("Vault parent is unavailable");
         ancestor = parent;
@@ -116,23 +117,28 @@ export class ManagedVaultStore {
     readonly events: VaultEventHub,
   ) {}
 
+  async drain(): Promise<void> {
+    while (this.#queues.size)
+      await Promise.allSettled([...this.#queues.values()]);
+  }
+
   async initialize(): Promise<void> {
-    await Deno.mkdir(join(this.dataRoot, "control"), { recursive: true });
-    await Deno.mkdir(join(this.dataRoot, "vaults"), { recursive: true });
-    await Deno.mkdir(join(this.dataRoot, "imports"), { recursive: true });
+    await fs.mkdir(join(this.dataRoot, "control"), { recursive: true });
+    await fs.mkdir(join(this.dataRoot, "vaults"), { recursive: true });
+    await fs.mkdir(join(this.dataRoot, "imports"), { recursive: true });
   }
 
   async create(vaultId: string): Promise<ManagedVaultPaths> {
     const paths = managedVaultPaths(this.dataRoot, vaultId);
-    await Deno.mkdir(paths.content, { recursive: true });
-    await Deno.mkdir(paths.state, { recursive: true });
+    await fs.mkdir(paths.content, { recursive: true });
+    await fs.mkdir(paths.state, { recursive: true });
     return paths;
   }
 
   async removeCreated(vaultId: string): Promise<void> {
     const paths = managedVaultPaths(this.dataRoot, vaultId);
-    await Deno.remove(paths.root, { recursive: true }).catch((error) => {
-      if (!(error instanceof Deno.errors.NotFound)) throw error;
+    await fs.rm(paths.root, { recursive: true }).catch((error) => {
+      if (!isFsError(error, "ENOENT")) throw error;
     });
   }
 
@@ -151,13 +157,13 @@ export class ManagedVaultStore {
       "read",
     );
     const [bytes, stat] = await Promise.all([
-      Deno.readFile(absolute),
-      Deno.stat(absolute),
+      fs.readFile(absolute),
+      fs.stat(absolute),
     ]);
-    if (!stat.isFile)
+    if (!stat.isFile())
       throw new ServerHostError("NOT_FOUND", "Vault file not found");
     return {
-      bytes,
+      bytes: new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength),
       etag: await strongEtag(bytes),
       mtime: stat.mtime?.getTime() ?? 0,
     };
@@ -176,14 +182,14 @@ export class ManagedVaultStore {
     try {
       const absolute =
         !relativePath || relativePath === "/"
-          ? await Deno.realPath(paths.content)
+          ? await fs.realpath(paths.content)
           : await resolveManagedPath(paths.content, relativePath, "read");
-      const stat = await Deno.stat(absolute);
-      if (stat.isDirectory) {
+      const stat = await fs.stat(absolute);
+      if (stat.isDirectory()) {
         return { type: "folder", size: 0, mtime: stat.mtime?.getTime() ?? 0 };
       }
-      if (!stat.isFile) return null;
-      const bytes = await Deno.readFile(absolute);
+      if (!stat.isFile()) return null;
+      const bytes = await fs.readFile(absolute);
       return {
         type: "file",
         size: stat.size,
@@ -191,7 +197,7 @@ export class ManagedVaultStore {
         etag: await strongEtag(bytes),
       };
     } catch (error) {
-      if (error instanceof Deno.errors.NotFound) return null;
+      if (isFsError(error, "ENOENT")) return null;
       throw error;
     }
   }
@@ -203,13 +209,13 @@ export class ManagedVaultStore {
     const paths = managedVaultPaths(this.dataRoot, vaultId);
     const absolute =
       !relativePath || relativePath === "/"
-        ? await Deno.realPath(paths.content)
+        ? await fs.realpath(paths.content)
         : await resolveManagedPath(paths.content, relativePath, "read");
     const files: string[] = [];
     const folders: string[] = [];
-    for await (const entry of Deno.readDir(absolute)) {
-      if (entry.isDirectory) folders.push(entry.name);
-      else if (entry.isFile) files.push(entry.name);
+    for (const entry of await fs.readdir(absolute, { withFileTypes: true })) {
+      if (entry.isDirectory()) folders.push(entry.name);
+      else if (entry.isFile()) files.push(entry.name);
     }
     files.sort((left, right) => left.localeCompare(right));
     folders.sort((left, right) => left.localeCompare(right));
@@ -234,7 +240,7 @@ export class ManagedVaultStore {
         current = await this.read(vaultId, relativePath);
       } catch (error) {
         if (
-          !(error instanceof Deno.errors.NotFound) &&
+          !isFsError(error, "ENOENT") &&
           !(error instanceof ServerHostError && error.code === "NOT_FOUND")
         ) {
           throw error;
@@ -249,13 +255,13 @@ export class ManagedVaultStore {
       if (precondition.ifNoneMatch === "*" && current) {
         throw new ServerHostError("PRECONDITION_FAILED", "File already exists");
       }
-      await Deno.mkdir(dirname(absolute), { recursive: true });
+      await fs.mkdir(dirname(absolute), { recursive: true });
       const temp = join(dirname(absolute), `.${crypto.randomUUID()}.lapis-tmp`);
       try {
-        await Deno.writeFile(temp, bytes, { createNew: true });
-        await Deno.rename(temp, absolute);
+        await fs.writeFile(temp, bytes, { flag: "wx" });
+        await fs.rename(temp, absolute);
       } finally {
-        await Deno.remove(temp).catch(() => undefined);
+        await fs.rm(temp).catch(() => undefined);
       }
       const etag = await strongEtag(bytes);
       this.events.publish(vaultId, "file", {
@@ -279,17 +285,8 @@ export class ManagedVaultStore {
         relativePath,
         "write",
       );
-      await Deno.mkdir(dirname(absolute), { recursive: true });
-      const file = await Deno.open(absolute, {
-        append: true,
-        create: true,
-        write: true,
-      });
-      try {
-        await file.write(bytes);
-      } finally {
-        file.close();
-      }
+      await fs.mkdir(dirname(absolute), { recursive: true });
+      await fs.appendFile(absolute, bytes);
       const value = await this.read(vaultId, relativePath);
       this.events.publish(vaultId, "file", {
         type: "modify",
@@ -312,10 +309,11 @@ export class ManagedVaultStore {
         relativePath,
         "write",
       );
-      const existing = await Deno.stat(absolute)
-        .then((stat) => ({ isDirectory: stat.isDirectory }))
+      const existing = await fs
+        .stat(absolute)
+        .then((stat) => ({ isDirectory: stat.isDirectory() }))
         .catch((error) => {
-          if (error instanceof Deno.errors.NotFound) return null;
+          if (isFsError(error, "ENOENT")) return null;
           throw error;
         });
       const action = mkdirWhenPathExists(existing);
@@ -327,13 +325,14 @@ export class ManagedVaultStore {
         );
       }
       try {
-        await Deno.mkdir(absolute, { recursive });
+        await fs.mkdir(absolute, { recursive });
       } catch (error) {
-        if (error instanceof Deno.errors.AlreadyExists) {
-          const raced = await Deno.stat(absolute)
-            .then((stat) => ({ isDirectory: stat.isDirectory }))
+        if (isFsError(error, "EEXIST")) {
+          const raced = await fs
+            .stat(absolute)
+            .then((stat) => ({ isDirectory: stat.isDirectory() }))
             .catch((statError) => {
-              if (statError instanceof Deno.errors.NotFound) return null;
+              if (isFsError(statError, "ENOENT")) return null;
               throw statError;
             });
           if (mkdirWhenPathExists(raced) === "skip") return;
@@ -356,8 +355,8 @@ export class ManagedVaultStore {
       const paths = managedVaultPaths(this.dataRoot, vaultId);
       const source = await resolveManagedPath(paths.content, from, "read");
       const destination = await resolveManagedPath(paths.content, to, "write");
-      await Deno.mkdir(dirname(destination), { recursive: true });
-      await Deno.rename(source, destination);
+      await fs.mkdir(dirname(destination), { recursive: true });
+      await fs.rename(source, destination);
       this.events.publish(vaultId, "file", {
         type: "rename",
         from: normalizeManagedPath(from),
@@ -371,14 +370,14 @@ export class ManagedVaultStore {
       const paths = managedVaultPaths(this.dataRoot, vaultId);
       const source = await resolveManagedPath(paths.content, from, "read");
       const destination = await resolveManagedPath(paths.content, to, "write");
-      if (!(await Deno.stat(source)).isFile) {
+      if (!(await fs.stat(source)).isFile()) {
         throw new ServerHostError(
           "PRECONDITION_FAILED",
           "Only files can be copied",
         );
       }
-      await Deno.mkdir(dirname(destination), { recursive: true });
-      await Deno.copyFile(source, destination);
+      await fs.mkdir(dirname(destination), { recursive: true });
+      await fs.copyFile(source, destination);
       this.events.publish(vaultId, "file", {
         type: "create",
         path: normalizeManagedPath(to),
@@ -398,7 +397,11 @@ export class ManagedVaultStore {
         relativePath,
         "read",
       );
-      await Deno.remove(absolute, { recursive });
+      if (!recursive && (await fs.stat(absolute)).isDirectory()) {
+        await fs.rmdir(absolute);
+      } else {
+        await fs.rm(absolute, { recursive });
+      }
       this.events.publish(vaultId, "file", {
         type: "delete",
         path: normalizeManagedPath(relativePath),

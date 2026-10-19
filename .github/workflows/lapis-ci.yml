@@ -214,7 +214,7 @@ jobs:
       - name: Restore package builds
         run: node scripts/run-turbo.mjs build --summarize
       - name: Build the server-host acceptance image
-        run: docker build -f packages/server-deno/Dockerfile -t lapis-server:e2e .
+        run: docker build -f packages/server-node/Dockerfile -t lapis-server:e2e .
       - uses: actions/download-artifact@v8
         with:
           name: signed-registry-acceptance-fixture

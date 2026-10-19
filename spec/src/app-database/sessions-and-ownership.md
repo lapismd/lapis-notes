@@ -58,7 +58,7 @@
 
 <a id="ln-db-045"></a>
 
-**Requirement.** A `deno-server` vault session MUST use a server-owned native Turso provider over `http-rpc`. Remote access MUST use one shared typed method contract, preserve committed change revisions, reset consumers after an unavailable tracked cursor, and reconnect without the rejected cursor. It MUST expose neither raw SQL nor database paths.
+**Requirement.** A `node-server` vault session, including the deprecated `deno-server` compatibility value, MUST use a server-owned native Turso provider over `http-rpc`. Remote access MUST use one shared typed method contract, preserve committed change revisions, reset consumers after an unavailable tracked cursor, and reconnect without the rejected cursor. It MUST expose neither raw SQL nor database paths.
 
 ## LN-DB-053 — Identity and change contracts across providers
 

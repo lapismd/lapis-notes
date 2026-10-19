@@ -1,4 +1,4 @@
-# Deno Server Host / Integration contracts
+# Node Server Host / Integration contracts
 
 Portable paths, native database-worker dispatch and Markdown operations are
 owned by `@lapis-notes/host-services`. Existing Deno host-service subpaths
@@ -42,11 +42,11 @@ future participant to its managed directory. LN-ARCH-124 preserves expected
 authority outside encrypted protocol objects; server admission/serialization
 must enforce it when the participant is integrated.
 
-## LN-SRV-001 — Private @lapis-notes/server-deno: run on Deno.serve, serve the dedicated static
+## LN-SRV-001 — Private @lapis-notes/server-node: run on Node 24 LTS, serve the dedicated static
 
 <a id="ln-srv-001"></a>
 
-**Requirement.** Private `@lapis-notes/server-deno` MUST run on `Deno.serve`, serve the dedicated static Web build, and mount tRPC through the native Fetch adapter. It MUST NOT require SvelteKit, SSR, or another HTTP framework.
+**Requirement.** Private `@lapis-notes/server-node` MUST run on Node 24 LTS, serve the dedicated static Web build and mount tRPC through the Fetch adapter. A Node HTTP adapter MUST preserve streaming and cancellation. It MUST NOT require SvelteKit, SSR or another application routing framework.
 
 ## LN-SRV-002 — Server: keep Markdown files authoritative under managed vaults/&lt;id&gt;/content
 
@@ -122,7 +122,7 @@ mounted read-only, avoiding a dependency on the host runner's UID.
 
 <a id="ln-srv-013"></a>
 
-**Requirement.** The server MUST open vault runtimes lazily, serialize mutations per vault, close idle runtimes, and close databases, watches, subscriptions, and imports during ordered shutdown. Initial operation is one Deno process.
+**Requirement.** The server MUST open vault runtimes lazily, serialize mutations per vault, close idle runtimes, and close databases, watches, subscriptions, and imports during ordered shutdown. Initial operation is one Node process.
 
 Browser acceptance stops and recreates the serving container against its
 retained data volumes and requires clean shutdown. A separate test-owned
@@ -171,4 +171,10 @@ other network errors and application readiness failures still fail acceptance.
 
 <a id="ln-srv-019"></a>
 
-**Requirement.** A server-mode Web client MAY use the public build-configured Nostr plugin source directly. The Deno server MUST NOT become a registry database, relay trust root, curator, or proxy for the signed release evidence.
+**Requirement.** A server-mode Web client MAY use the public build-configured Nostr plugin source directly. The Node server MUST NOT become a registry database, relay trust root, curator, or proxy for the signed release evidence.
+
+## LN-SRV-020 — Server delivery without Deno
+
+<a id="ln-srv-020"></a>
+
+**Requirement.** Server builds, tests, executable output and production containers MUST run without Deno. The server MUST consume portable host-service kernels and retain compatible HTTP, authentication and data contracts. Runtime containers MUST use a non-root user, read-only application files, explicit writable storage and mounted bootstrap secrets.

@@ -1,4 +1,4 @@
-# Deno Server Host / Context
+# Node Server Host / Context
 
 The shared Deno dependency lock is refreshed against published Design Core `0.3.2` and the current controller/native imports. Package ranges and persistent dependency-age policy remain unchanged apart from the explicitly requested provider refresh.
 
@@ -9,24 +9,23 @@ verified configured-plugin loading remains available.
 Server-rendered application presentation resolves Design Core through the
 repository's portable npm range and committed lockfile.
 
-The Deno server host provides an authenticated, online Lapis runtime over the
+The Node server host provides an authenticated, online Lapis runtime over the
 same public vault-session and `AppDatabase` boundaries used by the desktop and
 browser hosts. It serves a dedicated Web build and managed vault directories;
 it does not expose arbitrary server filesystem roots or make generated database
 state authoritative over Markdown.
 
-The reusable Deno host-services dependency is established before the HTTP host:
-it owns root-bound filesystem execution, file watches, resource and plugin
-assets, Markdown language operations, and native database worker dispatch. The
-server layer will add managed-root resolution, authentication, membership, and
-HTTP policy around these kernels.
+The portable host-services package owns normalized paths, native AppDatabase
+worker dispatch and Markdown operations. The Node host owns filesystem execution,
+managed roots, authentication, membership, HTTP policy and process lifetime.
+Retained Deno compatibility subpaths serve the frozen desktop independently.
 
 ## Runtime topology
 
 ```text
 Browser server-mode build
   |-- tRPC JSON queries and mutations -----------+
-  |-- tRPC tracked SSE subscription -------------+--> Deno server host
+  |-- tRPC tracked SSE subscription -------------+--> Node server host
   `-- direct Fetch file and asset streams -------+        |
                                                           |-- control.turso
                                                           `-- managed vault
@@ -96,13 +95,14 @@ then provides login and managed-vault lifecycle UI. It ships without Workbox or
 a service worker and mounts the ordinary workspace shell only after the remote
 vault and application-database session are ready.
 
-The container builds that static profile and caches Deno dependencies in
-separate stages, then runs as a non-root user. Runtime permissions name the
-read, write, bind, environment, and FFI boundaries and grant no subprocess
-access. The data volume is the only writable persistent location; bootstrap
-credentials enter through a mounted password file.
+The container builds the static profile and executable Node ESM in separate
+stages, then runs as a non-root user. Application files are read-only, managed
+storage is writable and bootstrap credentials enter through a mounted password
+file. Node process APIs and worker threads own bounded shutdown; HTTP responses
+retain streamed cancellation and backpressure without a second routing framework.
+The service's dependency graph and executable output require no Deno runtime.
 
-The server profile marks the document runtime as `deno-server` before mounting
+The server profile marks the document runtime as `node-server` before mounting
 the application. It does not publish PWA-host attributes or register a service
 worker, which keeps host detection explicit for application and acceptance
 code.

@@ -17,7 +17,7 @@ App / plugins
      ↓ AppDatabase
 AppDatabaseProvider
      ├─ Deno desktop renderer → bounded bridge → native Turso
-     ├─ Deno server client → typed tRPC bridge → native Turso
+     ├─ Node server client → typed tRPC bridge → native Turso
      ├─ browser owner worker → Turso WASM + OPFS
      └─ browser proxy → BroadcastChannel RPC → owner
 ```
@@ -31,7 +31,7 @@ dispatching only catalogue methods to their generated domain procedures. It
 shares the vault event subscription with the remote vault adapter and projects
 database change sets through the ordinary `subscribeToChanges` contract.
 The server Web composition passes that provider explicitly to
-`createVaultSession` with runtime `deno-server`; it never opens browser Turso or
+`createVaultSession` with runtime `node-server`; it never opens browser Turso or
 participates in browser-owner election.
 Container packaging retains native Turso in the server process and scopes FFI
 to the cached dependency tree; database paths remain under the managed data
@@ -46,7 +46,7 @@ catalogue, typed argument and result schemas, message bounds, and domain
 classification used by both native hosts. Desktop compatibility names alias
 that catalogue rather than retaining another list.
 
-The reusable Deno host-services worker protocol and runtime own bounded native
+The reusable portable host-services worker protocol and runtime own bounded native
 database dispatch and change forwarding. Each concrete host owns its database
 path, provider descriptor, worker entry point, and lifecycle trigger.
 

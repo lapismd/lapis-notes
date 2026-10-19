@@ -240,9 +240,9 @@ async function createPreferredAppDatabase(
         });
     return { appDatabase: database, state: readyState(database, false) };
   }
-  if (runtime === "deno-server") {
+  if (runtime === "node-server" || runtime === "deno-server") {
     if (!provider) {
-      throw new Error("deno-server requires an AppDatabaseProvider");
+      throw new Error("server-hosted vaults require an AppDatabaseProvider");
     }
     const database = await provider.open({
       vaultId,

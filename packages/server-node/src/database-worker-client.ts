@@ -1,16 +1,21 @@
+import { Worker } from "node:worker_threads";
 import type {
   AppDatabaseWorkerRequest,
   AppDatabaseWorkerRequestInput,
   AppDatabaseWorkerResponse,
-} from "@lapis-notes/deno-host-services/app-database-worker-protocol";
-import { deserializeAppDatabaseWorkerError } from "@lapis-notes/deno-host-services/app-database-worker-protocol";
+} from "@lapis-notes/host-services/app-database-worker-protocol";
+import { deserializeAppDatabaseWorkerError } from "@lapis-notes/host-services/app-database-worker-protocol";
 
 type WorkerLike = {
-  onmessage: ((event: MessageEvent<AppDatabaseWorkerResponse>) => void) | null;
-  onerror: ((event: ErrorEvent) => void) | null;
-  onmessageerror: ((event: MessageEvent<unknown>) => void) | null;
-  postMessage(message: AppDatabaseWorkerRequest): void;
-  terminate(): void;
+  on(
+    event: "message",
+    listener: (message: AppDatabaseWorkerResponse) => void,
+  ): unknown;
+  on(event: "error", listener: (error: Error) => void): unknown;
+  on(event: "messageerror", listener: () => void): unknown;
+  on(event: "exit", listener: (code: number) => void): unknown;
+  postMessage(request: AppDatabaseWorkerRequest): void;
+  terminate(): Promise<number>;
 };
 
 type Pending = {
@@ -29,8 +34,7 @@ export class ServerDatabaseWorkerClient {
       change: Extract<AppDatabaseWorkerResponse, { type: "change" }>["change"],
     ) => void,
     private readonly createWorker: () => WorkerLike = () =>
-      new Worker(new URL("./database-worker.ts", import.meta.url).href, {
-        type: "module",
+      new Worker(new URL("./database-worker.js", import.meta.url), {
         name: "lapis-server-app-database",
       }),
   ) {}
@@ -62,8 +66,8 @@ export class ServerDatabaseWorkerClient {
     try {
       await this.#request({ type: "close-all" });
     } finally {
-      worker.terminate();
       this.#worker = undefined;
+      await worker.terminate();
       this.#rejectPending(new Error("Server database worker closed"));
     }
   }
@@ -85,21 +89,22 @@ export class ServerDatabaseWorkerClient {
   #ensureWorker(): WorkerLike {
     if (this.#worker) return this.#worker;
     const worker = this.createWorker();
-    worker.onmessage = (event) => this.#message(event.data);
-    worker.onerror = (event) => {
-      worker.terminate();
+    const fail = (error: Error) => {
+      if (this.#worker !== worker) return;
       this.#worker = undefined;
-      this.#rejectPending(
-        new Error(event.message || "Server database worker failed"),
-      );
+      this.#rejectPending(error);
+      void worker.terminate().catch(() => undefined);
     };
-    worker.onmessageerror = () => {
-      worker.terminate();
-      this.#worker = undefined;
-      this.#rejectPending(
-        new Error("Server database worker returned an invalid message"),
-      );
-    };
+    worker.on("message", (response: AppDatabaseWorkerResponse) => {
+      if (this.#worker === worker) this.#message(response);
+    });
+    worker.on("error", (error: Error) => fail(error));
+    worker.on("messageerror", () =>
+      fail(new Error("Server database worker returned an invalid message")),
+    );
+    worker.on("exit", (code: number) =>
+      fail(new Error(`Server database worker exited (${code})`)),
+    );
     this.#worker = worker;
     return worker;
   }

@@ -45,7 +45,7 @@ processable metadata file (LN-DB-035, LN-PLUG-030).
 
 - Installed metadata remains the asset authority in both Web profiles.
 
-- The profile is explicitly identified by the document runtime `deno-server`; plugins must not use the absence of PWA attributes as a substitute capability check.
+- The profile is explicitly identified by the document runtime `node-server`; plugins must not use the absence of PWA attributes as a substitute capability check.
 
 - Server login, vault selection, and local-folder import occur before plugin boot and remain host-owned.
 

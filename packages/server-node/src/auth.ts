@@ -261,7 +261,7 @@ export async function recordFailedLogin(
 
 export async function bootstrapFirstUser(
   control: ControlDatabase,
-  env: Record<string, string | undefined> = Deno.env.toObject(),
+  env: Record<string, string | undefined> = process.env,
   now = Date.now(),
 ): Promise<boolean> {
   if ((await control.userCount()) > 0) return false;

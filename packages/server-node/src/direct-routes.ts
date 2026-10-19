@@ -1,3 +1,4 @@
+import { isFsError } from "./fs-errors.ts";
 import { extname } from "node:path";
 
 import { ServerHostError } from "@lapis-notes/api/server-host";
@@ -183,10 +184,7 @@ export async function handlePluginBundleDownloadRoute(
       headers: { Accept: "application/octet-stream" },
     });
   } catch {
-    throw new ServerHostError(
-      "NOT_FOUND",
-      "Plugin bundle download failed",
-    );
+    throw new ServerHostError("NOT_FOUND", "Plugin bundle download failed");
   }
   if (!upstream.ok) {
     upstream.body?.cancel().catch(() => undefined);
@@ -317,14 +315,20 @@ export async function handlePluginAssetRoute(
   } catch {
     return null;
   }
-  if (!new URL(request.url).pathname.startsWith("/__lapis/plugins/")) return null;
+  if (!new URL(request.url).pathname.startsWith("/__lapis/plugins/"))
+    return null;
   if (request.method !== "GET" && request.method !== "HEAD") {
     return new Response("Method not allowed", { status: 405 });
   }
   await requireRole(services, session, parsed.vaultId, "viewer");
   const metadata = JSON.parse(
     new TextDecoder().decode(
-      (await services.store.read(parsed.vaultId, ".obsidian/installed-plugins.json")).bytes,
+      (
+        await services.store.read(
+          parsed.vaultId,
+          ".obsidian/installed-plugins.json",
+        )
+      ).bytes,
     ),
   ) as { plugins?: Record<string, InstalledPluginRecord> };
   const installed = metadata.plugins?.[parsed.pluginId];
@@ -337,7 +341,8 @@ export async function handlePluginAssetRoute(
   }
   const asset = await readInstalledPluginAsset({
     adapter: {
-      readBinary: async (path) => bytesBody((await services.store.read(parsed.vaultId, path)).bytes),
+      readBinary: async (path) =>
+        bytesBody((await services.store.read(parsed.vaultId, path)).bytes),
     },
     installedPlugin: installed,
     relativePath: parsed.path,
@@ -347,7 +352,10 @@ export async function handlePluginAssetRoute(
   if (request.headers.get("if-none-match") === etag) {
     return new Response(null, { status: 304, headers: { ETag: etag } });
   }
-  const requestedRange = range(request.headers.get("range"), asset.bytes.byteLength);
+  const requestedRange = range(
+    request.headers.get("range"),
+    asset.bytes.byteLength,
+  );
   const body = requestedRange
     ? asset.bytes.slice(requestedRange.start, requestedRange.end + 1)
     : asset.bytes;
@@ -373,7 +381,7 @@ export async function handlePluginAssetRoute(
 }
 
 export function directRouteError(error: unknown): Response {
-  if (error instanceof Deno.errors.NotFound) {
+  if (isFsError(error, "ENOENT")) {
     return new Response("Not found", { status: 404 });
   }
   if (error instanceof ServerHostError) {

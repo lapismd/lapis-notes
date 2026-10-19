@@ -45,3 +45,7 @@ behavior and plugin activation remain unchanged.
 <a id="ln-plug-109"></a>
 
 **Requirement.** Successful `plugins` App URL navigation MUST dismiss the owning App's Settings dialog so the selected plugin page is reachable. Rejected or disposed navigation MUST NOT close Settings after its owning registration is removed.
+
+The `node-server` hosted profile retains explicit App ownership and the existing
+compatibility lease lifecycle. Renaming its private transport package grants no
+new plugin authority.

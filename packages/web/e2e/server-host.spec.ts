@@ -346,7 +346,7 @@ test("server-hosted vault survives editing, sharing events, and restart", async 
     async () => {
       await expect(page.locator("html")).toHaveAttribute(
         "data-runtime",
-        "deno-server",
+        "node-server",
       );
       await expect(
         page.getByRole("heading", { name: "Sign in" }),

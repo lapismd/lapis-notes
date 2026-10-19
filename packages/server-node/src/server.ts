@@ -1,3 +1,5 @@
+import { Readable } from "node:stream";
+import * as fs from "node:fs/promises";
 import { join, normalize } from "node:path";
 
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
@@ -23,10 +25,11 @@ import { appRouter } from "./router.ts";
 import { VaultRuntimeManager } from "./vault-runtimes.ts";
 import { handleTransferRoute } from "./transfers.ts";
 
-export type LapisDenoServer = {
+export type LapisNodeServer = {
   config: ServerConfig;
   services: ServerServices;
-  handler: Deno.ServeHandler;
+  handler(request: Request, remoteAddress?: string): Promise<Response>;
+  stop(): void;
   ready(): boolean;
   close(): Promise<void>;
 };
@@ -47,14 +50,19 @@ async function staticResponse(
     return new Response("Not found", { status: 404 });
   }
   let path = join(config.staticRoot, relative || "index.html");
-  let stat = await Deno.stat(path).catch(() => undefined);
-  if (!stat?.isFile && !relative.includes(".")) {
+  let stat = await fs.stat(path).catch(() => undefined);
+  if (!stat?.isFile() && !relative.includes(".")) {
     path = join(config.staticRoot, "index.html");
-    stat = await Deno.stat(path).catch(() => undefined);
+    stat = await fs.stat(path).catch(() => undefined);
   }
-  if (!stat?.isFile) return new Response("Not found", { status: 404 });
-  const file = await Deno.open(path, { read: true });
-  return new Response(request.method === "HEAD" ? null : file.readable, {
+  if (!stat?.isFile()) return new Response("Not found", { status: 404 });
+  const body =
+    request.method === "HEAD"
+      ? null
+      : (Readable.toWeb(
+          (await fs.open(path, "r")).createReadStream(),
+        ) as ReadableStream<Uint8Array>);
+  return new Response(body, {
     headers: {
       "Cache-Control": /\.[a-f0-9]{8,}\./iu.test(relative)
         ? "public, max-age=31536000, immutable"
@@ -68,22 +76,27 @@ async function staticResponse(
   });
 }
 
-export async function createLapisDenoServer(
+export async function createLapisNodeServer(
   config = loadServerConfig(),
   env: Record<string, string | undefined> = readServerEnvironment(),
-): Promise<LapisDenoServer> {
+): Promise<LapisNodeServer> {
   const events = new VaultEventHub();
   const store = new ManagedVaultStore(config.dataRoot, events);
   await store.initialize();
   const readinessProbe = join(config.dataRoot, ".ready-probe");
-  await Deno.writeTextFile(readinessProbe, "ready", { create: true });
-  await Deno.remove(readinessProbe);
-  const index = await Deno.stat(join(config.staticRoot, "index.html"));
-  if (!index.isFile) throw new Error("Server static index is unavailable");
+  await fs.writeFile(readinessProbe, "ready");
+  await fs.rm(readinessProbe);
+  const index = await fs.stat(join(config.staticRoot, "index.html"));
+  if (!index.isFile()) throw new Error("Server static index is unavailable");
   const control = await ControlDatabase.open(
     join(config.dataRoot, "control", "control.turso"),
   );
-  await bootstrapFirstUser(control, env);
+  try {
+    await bootstrapFirstUser(control, env);
+  } catch (error) {
+    await control.close();
+    throw error;
+  }
   const runtimes = new VaultRuntimeManager(config.dataRoot, events);
   const services = {
     config,
@@ -93,14 +106,18 @@ export async function createLapisDenoServer(
     runtimes,
   } satisfies ServerServices;
   let ready = true;
-  let closed = false;
+  let closing: Promise<void> | undefined;
+  const active = new Set<Promise<Response>>();
   const idleCleanup = setInterval(() => {
     void runtimes
       .closeIdle()
       .catch((error) => console.error("idle vault cleanup failed", { error }));
   }, 60_000);
 
-  const handler: Deno.ServeHandler = async (request, info) => {
+  const dispatch = async (
+    request: Request,
+    peerAddress?: string,
+  ): Promise<Response> => {
     const url = new URL(request.url);
     if (url.pathname === "/healthz") return Response.json({ status: "ok" });
     if (url.pathname === "/readyz") {
@@ -111,12 +128,10 @@ export async function createLapisDenoServer(
     }
     const remoteAddress = config.trustForwardedHeaders
       ? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
-      : info.remoteAddr.transport === "tcp"
-        ? info.remoteAddr.hostname
-        : "local";
-    const headers = new Headers(request.headers);
-    headers.set("x-lapis-remote-address", remoteAddress || "unknown");
-    request = new Request(request, { headers });
+      : (peerAddress ?? "local");
+    // The Node Fetch adapter supplies a lazy Request. Preserve its body and
+    // abort signal instead of cloning it through a different Request class.
+    request.headers.set("x-lapis-remote-address", remoteAddress || "unknown");
     const session = await resolveRequestSession(
       request,
       control,
@@ -171,21 +186,44 @@ export async function createLapisDenoServer(
     return staticResponse(request, config);
   };
 
+  const stop = () => {
+    ready = false;
+    clearInterval(idleCleanup);
+    events.close();
+  };
+  const handler = (
+    request: Request,
+    peerAddress?: string,
+  ): Promise<Response> => {
+    const path = new URL(request.url).pathname;
+    if (!ready && path !== "/healthz" && path !== "/readyz")
+      return Promise.resolve(
+        new Response("Server is shutting down", { status: 503 }),
+      );
+    const pending = dispatch(request, peerAddress);
+    active.add(pending);
+    void pending.then(
+      () => active.delete(pending),
+      () => active.delete(pending),
+    );
+    return pending;
+  };
   return {
     config,
     services,
     handler,
+    stop,
     ready: () => ready,
-    async close() {
-      if (closed) return;
-      closed = true;
-      ready = false;
-      clearInterval(idleCleanup);
-      events.close();
-      console.log("Closing vault database runtimes");
-      await runtimes.closeAll();
-      console.log("Closing the server control database");
-      await control.close();
+    close() {
+      return (closing ??= (async () => {
+        stop();
+        while (active.size) await Promise.allSettled([...active]);
+        await store.drain();
+        console.log("Closing vault database runtimes");
+        await runtimes.closeAll();
+        console.log("Closing the server control database");
+        await control.close();
+      })());
     },
   };
 }

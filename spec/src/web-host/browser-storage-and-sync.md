@@ -143,16 +143,16 @@ Launcher copy progress verifies the startup surface:
 - The active `import` task `detail` MUST use the same `N of M` path string as in-session import.
 - The host MUST NOT construct App notifications before `WorkspaceShell` mounts.
 
-## LN-WEB-049 — Web package: provide a compile-time deno-server mode that uses
+## LN-WEB-049 — Web package: provide a compile-time node-server mode that uses
 
 <a id="ln-web-049"></a>
 
-**Requirement.** The Web package MUST provide a compile-time `deno-server` mode that uses explicit remote vault and AppDatabase adapters while retaining the existing PWA build unchanged. It MUST NOT emulate or populate `NativeDesktopBridge`.
+**Requirement.** The Web package MUST provide a compile-time `node-server` mode that uses explicit remote vault and AppDatabase adapters while retaining the existing PWA build unchanged. It MUST NOT emulate or populate `NativeDesktopBridge`.
 
 Server-mode browser acceptance verifies editing, shared events and persistence
 after clean container shutdown and recreation. Its test-owned network namespace
 remains alive across that restart under
-[LN-SRV-013](../server-deno-host/core-contract.md#ln-srv-013), while the serving
+[LN-SRV-013](../server-node-host/core-contract.md#ln-srv-013), while the serving
 process and startup module graph are recreated normally.
 The server case's dedicated browser worker starts after this network is ready,
 isolating initial navigation from preceding PWA acceptance cases.
@@ -167,7 +167,7 @@ and restart steps are not replayed.
 
 <a id="ln-web-050"></a>
 
-**Requirement.** The `deno-server` Web build MUST authenticate before vault selection, use only server-managed vault profiles, require the matching protocol major, and remain online-only without registering the PWA service worker.
+**Requirement.** The `node-server` Web build MUST authenticate before vault selection, use only server-managed vault profiles, require the matching protocol major, and remain online-only without registering the PWA service worker.
 
 ## LN-WEB-052 — Server managed-vault chooser: use the same branded header, Design Core
 

@@ -1,3 +1,4 @@
+import * as fs from "node:fs/promises";
 import { join } from "node:path";
 
 import { unzipSync, zipSync } from "fflate";
@@ -13,7 +14,9 @@ const MAX_ARCHIVE_BYTES = 512 * 1024 * 1024;
 const MAX_EXPANDED_BYTES = 2 * 1024 * 1024 * 1024;
 const MAX_ARCHIVE_ENTRIES = 100_000;
 
-async function requireSession(session?: ControlSession): Promise<ControlSession> {
+async function requireSession(
+  session?: ControlSession,
+): Promise<ControlSession> {
   if (!session) {
     throw new ServerHostError("UNAUTHENTICATED", "Authentication required");
   }
@@ -28,9 +31,9 @@ async function readUpload(
   if (Number.isFinite(length) && length > MAX_ARCHIVE_BYTES) {
     throw new ServerHostError("PRECONDITION_FAILED", "ZIP upload is too large");
   }
-  await Deno.mkdir(importsRoot, { recursive: true });
+  await fs.mkdir(importsRoot, { recursive: true });
   const path = join(importsRoot, `${crypto.randomUUID()}.zip.part`);
-  const file = await Deno.open(path, { createNew: true, write: true });
+  const file = await fs.open(path, "wx");
   let size = 0;
   try {
     if (!request.body) {
@@ -43,23 +46,26 @@ async function readUpload(
       size += value.byteLength;
       if (size > MAX_ARCHIVE_BYTES) {
         await reader.cancel();
-        throw new ServerHostError("PRECONDITION_FAILED", "ZIP upload is too large");
+        throw new ServerHostError(
+          "PRECONDITION_FAILED",
+          "ZIP upload is too large",
+        );
       }
-      await file.write(value);
+      await file.writeFile(value);
     }
   } catch (error) {
-    file.close();
-    await Deno.remove(path).catch(() => undefined);
+    await file.close();
+    await fs.rm(path).catch(() => undefined);
     throw error;
   }
-  file.close();
+  await file.close();
   if (!size) {
-    await Deno.remove(path).catch(() => undefined);
+    await fs.rm(path).catch(() => undefined);
     throw new ServerHostError("PRECONDITION_FAILED", "ZIP upload is empty");
   }
   return {
-    bytes: await Deno.readFile(path),
-    cleanup: () => Deno.remove(path).catch(() => undefined),
+    bytes: await fs.readFile(path),
+    cleanup: () => fs.rm(path).catch(() => undefined),
   };
 }
 
@@ -72,7 +78,10 @@ export function safeArchiveEntries(bytes: Uint8Array): Map<string, Uint8Array> {
   }
   const entries = Object.entries(archive);
   if (entries.length > MAX_ARCHIVE_ENTRIES) {
-    throw new ServerHostError("PRECONDITION_FAILED", "ZIP has too many entries");
+    throw new ServerHostError(
+      "PRECONDITION_FAILED",
+      "ZIP has too many entries",
+    );
   }
   const files = new Map<string, Uint8Array>();
   let expanded = 0;
@@ -81,22 +90,33 @@ export function safeArchiveEntries(bytes: Uint8Array): Map<string, Uint8Array> {
     const path = normalizeManagedPath(rawPath.replace(/\\/gu, "/"));
     expanded += contents.byteLength;
     if (expanded > MAX_EXPANDED_BYTES) {
-      throw new ServerHostError("PRECONDITION_FAILED", "ZIP expands beyond the limit");
+      throw new ServerHostError(
+        "PRECONDITION_FAILED",
+        "ZIP expands beyond the limit",
+      );
     }
     files.set(path, contents);
   }
   return files;
 }
 
-async function walkFiles(root: string, relative = ""): Promise<Record<string, Uint8Array>> {
+async function walkFiles(
+  root: string,
+  relative = "",
+): Promise<Record<string, Uint8Array>> {
   const files: Record<string, Uint8Array> = {};
-  for await (const entry of Deno.readDir(join(root, relative))) {
+  for (const entry of await fs.readdir(join(root, relative), {
+    withFileTypes: true,
+  })) {
     const path = relative ? `${relative}/${entry.name}` : entry.name;
-    if (entry.isSymlink) {
-      throw new ServerHostError("INVALID_PATH", "Vault export contains a symlink");
+    if (entry.isSymbolicLink()) {
+      throw new ServerHostError(
+        "INVALID_PATH",
+        "Vault export contains a symlink",
+      );
     }
-    if (entry.isDirectory) Object.assign(files, await walkFiles(root, path));
-    else if (entry.isFile) files[path] = await Deno.readFile(join(root, path));
+    if (entry.isDirectory()) Object.assign(files, await walkFiles(root, path));
+    else if (entry.isFile()) files[path] = await fs.readFile(join(root, path));
   }
   return files;
 }
@@ -108,14 +128,21 @@ export async function handleTransferRoute(
 ): Promise<Response | null> {
   const url = new URL(request.url);
   if (url.pathname === "/api/vaults/import") {
-    if (request.method !== "POST") return new Response("Method not allowed", { status: 405 });
+    if (request.method !== "POST")
+      return new Response("Method not allowed", { status: 405 });
     const active = await requireSession(session);
     assertCsrf(request, active, services.config.origin);
     const name = url.searchParams.get("name")?.trim();
     if (!name || name.length > 200) {
-      throw new ServerHostError("PRECONDITION_FAILED", "Vault name is required");
+      throw new ServerHostError(
+        "PRECONDITION_FAILED",
+        "Vault name is required",
+      );
     }
-    const upload = await readUpload(request, join(services.config.dataRoot, "imports"));
+    const upload = await readUpload(
+      request,
+      join(services.config.dataRoot, "imports"),
+    );
     const vaultId = crypto.randomUUID();
     try {
       const files = safeArchiveEntries(upload.bytes);
@@ -148,7 +175,9 @@ export async function handleTransferRoute(
   if (!(await services.control.membership(vaultId, active.userId))) {
     throw new ServerHostError("FORBIDDEN", "Vault access denied");
   }
-  const files = await walkFiles(managedVaultPaths(services.config.dataRoot, vaultId).content);
+  const files = await walkFiles(
+    managedVaultPaths(services.config.dataRoot, vaultId).content,
+  );
   const bytes = zipSync(files, { level: 6 });
   return new Response(request.method === "HEAD" ? null : bytes, {
     headers: {

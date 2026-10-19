@@ -33,3 +33,6 @@ remains visual-pending; functional checks do not approve or generate a baseline.
 <a id="ln-cat-010"></a>
 
 **Requirement.** Story / demo Svelte under `stories/` MAY use host Tailwind for layout; that usage MUST remain excluded from `pnpm check:no-tailwind`.
+
+The Node server chapter retains canonical requirement IDs and legacy relocation
+keys while its generated catalog mirrors adopt the Node host name.

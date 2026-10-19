@@ -11,7 +11,7 @@ import {
   REMOTE_APP_DATABASE_METHODS,
   type RemoteAppDatabaseMethod,
 } from "@lapis-notes/api/app-database";
-import { handleLanguageService } from "@lapis-notes/deno-host-services/language-service";
+import { handleLanguageService } from "@lapis-notes/host-services/language-service";
 
 import {
   CSRF_HEADER_NAME,

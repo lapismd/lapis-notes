@@ -63,7 +63,7 @@
     onReady(): void;
     onOpenRecent(profile: VaultProfile): Promise<void>;
     onManageVaults(): Promise<void>;
-    runtime?: "web-pwa" | "deno-server";
+    runtime?: "web-pwa" | "node-server";
     listProfiles?: () => Promise<VaultProfile[]>;
     pluginAssetServer?: PluginAssetServer;
     pluginDistributionOptions?: AppPluginDistributionOptions;
@@ -266,7 +266,7 @@
   }
 
   function registerDatabaseStatus(): void {
-    if (runtime === "deno-server") {
+    if (runtime === "node-server") {
       syncDatabaseStatus("server");
       return;
     }

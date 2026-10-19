@@ -142,3 +142,27 @@ commands, counts, limitations and commits are appended here during execution.
   it now verifies that both retained subpaths and canonical source share the
   same implementation. No assertions were removed.
 - The lockfile retains unrelated existing resolutions; a frozen install passes.
+
+### N2 — Node runtime and rename
+
+- Renamed the package and canonical server chapter, retaining requirement IDs
+  and old documentation relocations. Added LN-SRV-020 for Deno-free delivery.
+- Replaced Deno process/filesystem/server APIs with Node 24, the Hono Fetch
+  listener adapter and worker threads. Added correlated worker-failure handling,
+  streaming cancellation and ordered shutdown. The browser uses `node-server`;
+  deprecated `deno-server` remains accepted by the public API.
+- Initial native filesystem regression: 3 failures (`Deno is not defined`), now
+  3 passing. Worker lifecycle: 4 passing; HTTP lifecycle: 3 passing. Server total:
+  11 files / 39 passing tests. API provider compatibility: 4 passing; focused Web
+  identity/startup: 4 passing.
+- Built-output native server smoke passes on Node 24.15.0 and Node 26.9.0,
+  including bootstrap, login, files, ETags, remote database and worker shutdown.
+  An initial ad-hoc `--input-type=module` launcher passed an incompatible flag to
+  workers; invoking the actual emitted smoke file passes without a workaround.
+- Node 24.15.0 serial qualification: `pnpm check` (20 tasks), `pnpm test`
+  (1,557 passing tests, 1 existing skip; 20 tasks), `pnpm build` (11 tasks),
+  `pnpm test:storybook` (54 files / 249 passing interaction/accessibility tests)
+  and `pnpm spec:check` (all six lanes, 38 validator tests) pass.
+- Container delivery is deliberately tracked under N3. The first candidate
+  stopped at dependency installation because Docker's disk is full; no
+  container/browser acceptance is claimed by N2.

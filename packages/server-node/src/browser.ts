@@ -586,7 +586,7 @@ export class ServerAppDatabaseProvider implements AppDatabaseProvider {
   ) {}
 
   canOpen(context: { runtime: string }): boolean {
-    return context.runtime === "deno-server";
+    return context.runtime === "node-server";
   }
 
   async open(context: { vaultId: string }): Promise<AppDatabase> {

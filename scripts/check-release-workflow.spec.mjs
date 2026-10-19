@@ -256,7 +256,7 @@ test("Web acceptance provisions Docker and builds the server candidate", () => {
   const web = workflow.jobs["web-acceptance"];
   assert.equal(web.container, undefined);
   const server = web.steps.findIndex((step) =>
-    step.run?.includes("docker build -f packages/server-deno/Dockerfile"),
+    step.run?.includes("docker build -f packages/server-node/Dockerfile"),
   );
   const suite = web.steps.findIndex((step) => step.run === "pnpm test:web:e2e");
   assert.ok(server >= 0 && suite > server);

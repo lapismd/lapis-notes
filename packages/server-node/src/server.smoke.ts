@@ -1,3 +1,6 @@
+import * as fs from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { startLapisNodeServer } from "./http.ts";
 import { join } from "node:path";
 
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
@@ -8,23 +11,23 @@ import {
   ServerVaultAdapter,
   type ServerVaultEventStream,
 } from "./browser.ts";
-import { createLapisDenoServer } from "./server.ts";
+import { createLapisNodeServer } from "./server.ts";
 
-const root = await Deno.makeTempDir({ prefix: "lapis-server-smoke-" });
+const root = await fs.mkdtemp(join(tmpdir(), "lapis-server-smoke-"));
 const dataRoot = join(root, "data");
 const staticRoot = join(root, "static");
 const passwordFile = join(root, "bootstrap-password");
-await Deno.mkdir(staticRoot, { recursive: true });
-await Deno.writeTextFile(
+await fs.mkdir(staticRoot, { recursive: true });
+await fs.writeFile(
   join(staticRoot, "index.html"),
   "<!doctype html><title>Lapis</title>",
 );
-await Deno.writeTextFile(passwordFile, "correct horse battery staple\n", {
+await fs.writeFile(passwordFile, "correct horse battery staple\n", {
   mode: 0o600,
 });
 
 const origin = "http://localhost";
-const app = await createLapisDenoServer(
+const app = await createLapisNodeServer(
   {
     dataRoot,
     staticRoot,
@@ -41,25 +44,10 @@ const app = await createLapisDenoServer(
   },
 );
 
-const abort = new AbortController();
-let resolveBase!: (value: string) => void;
-const basePromise = new Promise<string>((resolve) => {
-  resolveBase = resolve;
-});
-const server = Deno.serve(
-  {
-    hostname: "127.0.0.1",
-    port: 0,
-    signal: abort.signal,
-    onListen({ port }) {
-      resolveBase(`http://127.0.0.1:${port}`);
-    },
-  },
-  app.handler,
-);
+const running = await startLapisNodeServer(app);
 
 try {
-  const baseUrl = await basePromise;
+  const baseUrl = running.url;
   let cookie = "";
   let csrfToken = "";
   const client = createTRPCClient<AppRouter>({
@@ -188,10 +176,8 @@ try {
     throw new Error("ServerAppDatabaseProvider round-trip failed");
   }
   await remoteDatabase.close();
-  console.log("Deno server smoke passed");
+  console.log("Node server smoke passed");
 } finally {
-  abort.abort();
-  await server.finished;
-  await app.close();
-  await Deno.remove(root, { recursive: true }).catch(() => undefined);
+  await running.close();
+  await fs.rm(root, { recursive: true }).catch(() => undefined);
 }

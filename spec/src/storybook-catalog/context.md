@@ -29,7 +29,7 @@ verifies Search, Markdown `notes_list`, and API file-tool enablement plus the
 disabled and newly enabled community-tool states.
 
 The Specification sidebar follows SUMMARY order, including Deno Desktop Host,
-Deno Desktop Parity Blockers, Web Host, and Deno Server Host in their canonical
+Deno Desktop Parity Blockers, Web Host, and Node Server Host in their canonical
 positions. Those pages are metadata-only raw-import mirrors.
 
 ## Show Code source contract

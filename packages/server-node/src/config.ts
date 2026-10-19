@@ -26,7 +26,7 @@ export const LAPIS_SERVER_ENV_NAMES = [
 
 export function readServerEnvironment(): Record<string, string | undefined> {
   return Object.fromEntries(
-    LAPIS_SERVER_ENV_NAMES.map((name) => [name, Deno.env.get(name)]),
+    LAPIS_SERVER_ENV_NAMES.map((name) => [name, process.env[name]]),
   );
 }
 
