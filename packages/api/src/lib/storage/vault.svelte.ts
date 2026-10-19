@@ -23,6 +23,10 @@ import {
   type TAbstractFile,
 } from "./fs";
 import { dirname, joinPath, normalizePath } from "./path";
+import {
+  createVaultListingFilter,
+  DEFAULT_VAULT_EXCLUDES,
+} from "./vault-listing";
 
 function Err(name: string) {
   return class extends Error {
@@ -40,6 +44,11 @@ function Err(name: string) {
 }
 
 export const ENOTDIR = Err("ENOTDIR");
+
+export interface VaultListingOptions {
+  /** Current discovery exclusions; defaults to Git and JJ metadata names. */
+  listingExclusions?: () => readonly string[];
+}
 
 export interface VaultGlobOptions {
   caseSensitive?: boolean;
@@ -95,11 +104,17 @@ export class Vault extends EventDispatcher<{
   public configDir: string = DEFAULT_APP_STATE_DIRECTORY;
   readonly cache = new FileCache(1024);
 
+  private readonly listingFilter: ReturnType<typeof createVaultListingFilter>;
+
   constructor(
     readonly adapter: DataAdapter,
     private readonly operations?: Pick<FileEditingSessionRegistry, "track">,
+    options: VaultListingOptions = {},
   ) {
     super();
+    this.listingFilter = createVaultListingFilter(
+      options.listingExclusions ?? (() => DEFAULT_VAULT_EXCLUDES),
+    );
     this.load();
   }
 
@@ -123,7 +138,13 @@ export class Vault extends EventDispatcher<{
   }
 
   list(path: string = "/") {
-    return this.adapter.list(this.getPath(path));
+    const base = this.getPath(path);
+    const included = this.listingFilter();
+    if (!included(base)) return Promise.resolve({ files: [], folders: [] });
+    return this.adapter.list(base).then(({ files, folders }) => ({
+      files: files.filter((entry) => included(joinPath(base, entry))),
+      folders: folders.filter((entry) => included(joinPath(base, entry))),
+    }));
   }
 
   #loaded: Promise<any> | null = null;
@@ -989,7 +1010,8 @@ export class Vault extends EventDispatcher<{
   }
 
   getAllLoadedFiles(): TAbstractFile[] {
-    return Object.values(this.files);
+    const included = this.listingFilter();
+    return Object.values(this.files).filter((file) => included(file.path));
   }
 
   /**
@@ -999,8 +1021,12 @@ export class Vault extends EventDispatcher<{
    * @public
    */
   getAllFolders(includeRoot?: boolean): TFolder[] {
+    const included = this.listingFilter();
     return Object.values(this.files).filter(
-      (it) => it instanceof TFolder && (includeRoot || it.path !== "/"),
+      (it) =>
+        it instanceof TFolder &&
+        included(it.path) &&
+        (includeRoot || it.path !== "/"),
     ) as TFolder[];
   }
 
@@ -1010,7 +1036,10 @@ export class Vault extends EventDispatcher<{
    * @public
    */
   getFiles(): TFile[] {
-    return Object.values(this.files).filter((it) => it instanceof TFile);
+    const included = this.listingFilter();
+    return Object.values(this.files).filter(
+      (it): it is TFile => it instanceof TFile && included(it.path),
+    );
   }
 
   /**
@@ -1023,9 +1052,11 @@ export class Vault extends EventDispatcher<{
   *iterateFiles(): IterableIterator<TFile> {
     const root = this.files["/"];
     if (!(root instanceof TFolder)) return;
+    const included = this.listingFilter();
 
     function* visit(folder: TFolder): IterableIterator<TFile> {
       for (const child of folder.children) {
+        if (!included(child.path)) continue;
         if (child instanceof TFile) yield child.copy();
         else if (child instanceof TFolder) yield* visit(child);
       }
@@ -1075,9 +1106,10 @@ export class Vault extends EventDispatcher<{
       }
     }
 
+    const included = this.listingFilter();
     return [...paths]
       .map((path) => this.getFileByPath(path))
-      .filter((file): file is TFile => Boolean(file))
+      .filter((file): file is TFile => Boolean(file) && included(file!.path))
       .sort((left, right) =>
         left.path < right.path ? -1 : left.path > right.path ? 1 : 0,
       );

@@ -1,5 +1,19 @@
 # Packages / Vault and storage
 
+## LN-PKG-185 — Core vault listing exclusions
+
+<a id="ln-pkg-185"></a>
+
+**Requirement.** The API MUST own `files.exclude` for vault discovery, defaulting to `.git` and `.jj` at any depth. File/folder enumeration, list and glob APIs MUST apply current patterns and excluded ancestors. Exclusions MUST NOT delete data or change explicit adapter access, native admission, backup selection or plugin lifetime.
+
+### Acceptance details
+
+Discovery follows these rules:
+
+- Patterns use the shared glob dialect with case-sensitive matching; an excluded folder hides all descendants while similarly named ordinary files remain visible.
+- Core settings MUST be available without a plugin. Updated patterns MUST refresh listing consumers without reloading or modifying vault contents.
+- Explicit resource lookup and adapter reads/writes MUST remain available to admitted metadata services; the setting is discovery policy, not an authorization boundary.
+
 ## LN-PKG-184 — Optional native system-trash port
 
 <a id="ln-pkg-184"></a>

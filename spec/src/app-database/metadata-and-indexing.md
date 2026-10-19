@@ -1,5 +1,9 @@
 # App Database / Metadata and indexing
 
+LN-PKG-185 filters the core Vault enumeration used by discovery consumers.
+The retained resource map, explicit metadata reads and database persistence
+formats remain unchanged; discovery exclusions are not backup or access policy.
+
 ## LN-DB-002 — Database: expose a descriptor with provider, engine, transport
 
 <a id="ln-db-002"></a>

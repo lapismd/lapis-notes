@@ -1,5 +1,9 @@
 # Problems / Integration contracts
 
+Core listing exclusions under LN-PKG-185 do not change diagnostics ownership
+under LN-WS-025 or explicit access to an already-open resource. Problems does
+not own discovery configuration or an additional file index.
+
 Plugin load failures use canonical plugin IDs even when their messages include
 source paths. Successful external uninstall removes that owner's runtime
 failure through `plugin-unloaded` (LN-PLUG-119). Native-service admission failures

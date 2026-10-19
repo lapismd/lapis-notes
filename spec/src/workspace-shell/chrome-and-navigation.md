@@ -1,5 +1,9 @@
 # Workspace Shell / Chrome and navigation
 
+LN-PKG-185 supplies common file/folder discovery exclusions to Explorer and
+pickers through Vault. The workspace keeps its existing App, chrome and settings
+presentation; no plugin-specific exclusion list is added to the shell.
+
 The shared Safe Mode banner uses an opaque workspace background and semantic
 fallback, with database, search and restart icons beside its accessible action
 names. Hosts retain recovery operations and failure status ownership.

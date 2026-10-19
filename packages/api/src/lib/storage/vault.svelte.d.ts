@@ -21,6 +21,9 @@ export declare const ENOTDIR: {
   prepareStackTrace(err: Error, stackTraces: NodeJS.CallSite[]): any;
   stackTraceLimit: number;
 };
+export interface VaultListingOptions {
+  listingExclusions?: () => readonly string[];
+}
 export interface VaultGlobOptions {
   caseSensitive?: boolean;
 }
@@ -50,9 +53,11 @@ export declare class Vault extends EventDispatcher<{
   private reconcileNow;
   configDir: string;
   readonly cache: FileCache;
+  private readonly listingFilter;
   constructor(
     adapter: DataAdapter,
     operations?: Pick<FileEditingSessionRegistry, "track">,
+    options?: VaultListingOptions,
   );
   private getPath;
   getName(): string;

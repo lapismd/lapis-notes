@@ -1,5 +1,9 @@
 # Markdown Plugin / Files and persistence
 
+Core listing exclusions under LN-PKG-185 filter Markdown discovery through the
+Vault without changing explicit document reads, saves or writer admission.
+LN-MD-001 package ownership and editor persistence contracts are unchanged.
+
 LN-PKG-183 and LN-WS-097 route external file changes through the owning App's
 existing view events. Clean editor refresh and dirty-draft recovery retain
 their original persistence owners; watching adds no replacement editor.

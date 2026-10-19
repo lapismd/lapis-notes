@@ -1,3 +1,5 @@
+import { FILES_CONFIGURATION_SCHEMA } from "./files-configuration";
+import { DEFAULT_VAULT_EXCLUDES } from "./storage/vault-listing";
 import { Workspace } from "./workspace.svelte";
 import {
   getAdapterVaultId,
@@ -408,8 +410,17 @@ export class App {
       options.setId("community-plugins").setTitle("Community plugins"),
     );
     this.configuration = new Configuration(this, this.props.configPath);
+    this.configuration.schema.register(FILES_CONFIGURATION_SCHEMA);
     this.workspace.bindConfiguration();
-    this.vault = new Vault(adapter, this.fileEditingSessions);
+    this.vault = new Vault(adapter, this.fileEditingSessions, {
+      listingExclusions: () =>
+        this.configuration
+          .getConfiguration()
+          .get<readonly string[]>("files.exclude", DEFAULT_VAULT_EXCLUDES),
+    });
+    this.configuration.on("updated", ({ key }) => {
+      if (key === "files.exclude") this.vault.trigger("load");
+    });
     this.#syncHost = new SyncHostService(
       this.appDatabase,
       this.vault,

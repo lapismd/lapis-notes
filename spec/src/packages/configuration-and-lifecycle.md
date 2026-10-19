@@ -1,5 +1,9 @@
 # Packages / Configuration and lifecycle
 
+LN-PKG-185 owns the plugin-independent `Files / Excluded paths` setting.
+Configuration updates refresh discovery projections; plugin configuration,
+direct metadata access and native admission keep their existing authority.
+
 Tauri portable loading preserves the existing installed records and enabled preferences when rejecting unsupported entries. Installed asset identities use the locale-independent fingerprint in LN-PLUG-115; no second plugin configuration or data store is introduced.
 
 Web retirement removes dedicated connection tokens through the existing

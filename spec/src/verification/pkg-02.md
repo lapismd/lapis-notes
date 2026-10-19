@@ -3,6 +3,7 @@
 <!-- prettier-ignore -->
 | ID | Chapter | Status | Evidence |
 | --- | --- | --- | --- |
+| LN-PKG-185 | [packages](../packages/vault-and-storage.md#ln-pkg-185) | Implemented | Core Vault cases 3/3 and affected cases 30/30 pass; compatible API check/build and spec pass; Desktop real-App folder picker verifies defaults, dynamic setting and unchanged bytes via the public archive. Broader teardown issue remains separately recorded in E-CATALOG-013; spec/records/2026-10-19-core-vault-exclusions.md. |
 | LN-PKG-119 | [packages](../packages/vault-and-storage.md#ln-pkg-119) | Implemented | Graph package checks cover shared coordinator lifetime, snapshot progress, stale-while-revalidate, debounced versioned settings writes, and force-only unversioned migration. |
 | LN-PKG-120 | [packages](../packages/core-contract.md#ln-pkg-120) | Implemented | Graph package checks and unit lanes cover package-owned layout, force transforms, degree normalization, camera, direct-pixel geometry, culling, exponential emphasis, reduced motion, semantic roles, and bounded telemetry. |
 | LN-PKG-121 | [packages](../packages/editor-apis.md#ln-pkg-121) | Implemented | Graph build/publint and focused Storybook import public Design Core SearchFilterInput, ColorPicker, and SortableArrayItem plus public Markdown FileEmbed, compose guttered handles, divider-free idle rows, token-driven whole-row focus paint with an outer trailing gap, and a visible row action in panel padding, preserve simplified public Graph settings, and contain no Search package dependency. |

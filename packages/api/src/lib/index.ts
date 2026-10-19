@@ -55,7 +55,16 @@ export * from "./configuration-option-source-registry";
 export * from "./configuration-option-source-providers";
 export * from "./plugin-settings";
 export * from "./editor-view-registry";
-export * from "./glob";
+export {
+  normalizeGlobPath,
+  normalizeEditorAssociationGlob,
+  validateEditorAssociationGlob,
+  matchesEditorAssociationGlob,
+  hasEditorAssociationGlobMagic,
+  compareEditorAssociationPatternSpecificity,
+  type EditorAssociationGlobOptions,
+  type EditorAssociationGlobValidation,
+} from "./glob";
 export * from "./platform";
 export * from "./suggest";
 export * from "./markdown";
