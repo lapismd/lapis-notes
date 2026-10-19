@@ -1,5 +1,7 @@
 # Architecture / Build and validation
 
+LN-SRCH-051 adds an App-owned result-provider registry. Provider targets remain opaque to Search; database projections, source authority and package ownership do not change.
+
 Candidate server images reconstruct the public pnpm hook before their frozen
 registry install. Ignored local archive overlays do not enter that build.
 [Fresh server qualification](../../records/2026-10-16-m7-server-qualification.md)

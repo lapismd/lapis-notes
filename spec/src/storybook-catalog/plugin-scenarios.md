@@ -1,5 +1,7 @@
 # Storybook Catalog / Plugin scenarios
 
+LN-SRCH-051 adds one metadata-only specification mirror for the Search/Problems provider boundary. Catalog runtime, harnesses, interaction setup and visual approval contracts are unchanged.
+
 ## LN-CAT-011 — Workspace/Shell: document the @lapis-notes/workspace integration with persisted desktop
 
 <a id="ln-cat-011"></a>

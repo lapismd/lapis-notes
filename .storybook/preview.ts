@@ -135,7 +135,11 @@ const preview: Preview = {
                 "Integration contracts",
                 "Context",
                 "Problems",
-                ["Integration contracts", "Context"],
+                [
+                  "Integration contracts",
+                  "Search result provider boundaries",
+                  "Context",
+                ],
               ],
             ],
             "Lapis Editor Demo",

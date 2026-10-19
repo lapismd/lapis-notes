@@ -1,3 +1,4 @@
+import { SearchResultProviderRegistry } from "../search-result-provider";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ConfigurationOptionSourceRegistry } from "../configuration-option-source-registry";
 import { Configuration } from "../configuration.svelte";
@@ -76,6 +77,7 @@ function createPluginApp() {
     commands,
     configurationOptionSources: new ConfigurationOptionSourceRegistry(),
     searchDocumentProviders: new SearchDocumentProviderRegistry(),
+    searchResultProviders: new SearchResultProviderRegistry(),
     indexProjections: new IndexProjectionRegistry(),
     metadataCache: {
       getFileCache: () => null,
@@ -375,6 +377,31 @@ describe("Plugin data persistence", () => {
     plugin.unload();
 
     expect(app.searchDocumentProviders.getAll()).toHaveLength(0);
+  });
+
+  it("owns query result sources without requiring a vault file", () => {
+    const { app } = createPluginApp();
+    const plugin = new TestPlugin(app, {
+      id: "fixture",
+      name: "Fixture",
+      version: "1.0.0",
+      minAppVersion: "0.0.0",
+      description: "",
+      author: "test",
+    });
+    plugin.load();
+    const registration = plugin.registerSearchResultProvider("history", {
+      label: "History",
+      scope: "history",
+      fields: ["content"],
+      modes: ["lexical"],
+      search: async () => ({ generation: "one", hits: [] }),
+      activate: async () => {},
+    });
+    expect(registration.id).toBe("fixture:history");
+    expect(app.searchResultProviders.getAll()).toHaveLength(1);
+    plugin.unload();
+    expect(app.searchResultProviders.getAll()).toHaveLength(0);
   });
 
   it("registers index projections with plugin-owned cleanup", async () => {

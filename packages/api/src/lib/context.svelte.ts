@@ -75,6 +75,7 @@ import type { Editor } from "./editor.svelte";
 import { flushWorkspaceEditors } from "./sync-editor-flush";
 import { FileEditingSessionRegistry } from "./file-editing-sessions";
 import { SearchDocumentProviderRegistry } from "./search-document-provider";
+import { SearchResultProviderRegistry } from "./search-result-provider";
 import { DailyDocumentProviderRegistry } from "./daily-document-provider";
 import { AppToolRegistry } from "./agent-tools";
 import { AppSkillRegistry, AppSlashCommandRegistry } from "./agent-skills";
@@ -324,6 +325,7 @@ export class App {
   embedRegistry: EmbedRegistry = new EmbedRegistry();
   readonly configurationOptionSources = new ConfigurationOptionSourceRegistry();
   readonly searchDocumentProviders = new SearchDocumentProviderRegistry();
+  readonly searchResultProviders = new SearchResultProviderRegistry();
   readonly dailyDocumentProviders = new DailyDocumentProviderRegistry();
   readonly indexProjections = new IndexProjectionRegistry();
   readonly agentTools = new AppToolRegistry();

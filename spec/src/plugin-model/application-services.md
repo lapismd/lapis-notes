@@ -1,5 +1,7 @@
 # Plugin Model / Application services
 
+LN-SRCH-051 gives plugins disposable result-source registrations. The Plugin helper namespaces their IDs and removes their invalidation subscriptions on unload; it grants no additional source access.
+
 The Sync flush port uses the owning App's complete workspace under LN-ARCH-128.
 Local mutation admission also owns source cancellation before provider calls
 and key teardown under LN-ARCH-122; a rejected guard cannot leave an input live.

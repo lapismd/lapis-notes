@@ -1,5 +1,7 @@
 # Workspace Shell / View lifecycle
 
+Search result registrations under LN-SRCH-051 belong to the owning App and Plugin lifecycle. Workspace leaf persistence, placement and diagnostic collections remain unchanged.
+
 ## LN-WS-097 — File change projection
 
 <a id="ln-ws-097"></a>

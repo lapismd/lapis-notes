@@ -1,5 +1,7 @@
 # Migration Status
 
+Unified history Search: the App-owned result-provider API is implemented and source-qualified (LN-SRCH-051). Search UI federation, native indexing and Desktop integration remain in progress; this does not complete the Desktop M14.6 native gate.
+
 Shared dark search-highlight contrast is source-qualified with 1,734 unit cases
 and 261 catalog cases (LN-UI-020); see [source evidence](spec/records/2026-10-17-search-highlight-contrast.md).
 

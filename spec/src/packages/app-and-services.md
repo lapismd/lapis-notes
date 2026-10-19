@@ -1,5 +1,7 @@
 # Packages / App and services
 
+The API exports the result-provider types and registry under LN-SRCH-051. Each App owns its registry; this additive service does not change LN-PKG-001 or existing AppDatabase and Vault interfaces.
+
 The API-owned SyncHostService queues observed file changes behind initial
 identity reconciliation (LN-DB-047), retaining durable sequence checks while
 preventing its own startup and event writers from competing.

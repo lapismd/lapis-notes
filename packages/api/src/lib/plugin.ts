@@ -1,3 +1,7 @@
+import type {
+  SearchResultProvider,
+  SearchResultProviderRegistration,
+} from "./search-result-provider";
 import { saveFileState } from "./file-state-store";
 import { appStatePath } from "./storage/path";
 import type { CachedMetadata, MetadataProcessor } from "./cache.svelte";
@@ -1209,6 +1213,21 @@ export abstract class Plugin extends Component {
     const registration = this.app.searchDocumentProviders.register({
       ...provider,
       id,
+    });
+    this.register(() => registration.dispose());
+    return registration;
+  }
+
+  /** Contribute query results whose navigation remains provider-owned. */
+  registerSearchResultProvider(
+    localId: string,
+    provider: Omit<SearchResultProvider, "id">,
+  ): SearchResultProviderRegistration {
+    if (!localId.trim())
+      throw new Error("Search result provider local id must not be empty.");
+    const registration = this.app.searchResultProviders.register({
+      ...provider,
+      id: `${this.id}:${localId.trim()}`,
     });
     this.register(() => registration.dispose());
     return registration;

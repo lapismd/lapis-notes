@@ -1,5 +1,7 @@
 # Markdown Plugin / Integration contracts
 
+LN-SRCH-051 adds provider-owned search targets. Markdown document extraction, extension contributions and current-file opening keep their existing contracts; historical activation belongs to its contributing provider.
+
 LN-PLUG-121 adds optional native-service declarations to the shared Plugin
 manifest. Markdown's portable runtime, authoring registries and document
 ownership remain unchanged; it acquires no native-service dependency.

@@ -67,6 +67,7 @@
     - [Workspace Shell / Panels / Context](./workspace-shell/panels/context.md)
     - [Workspace Shell / Panels / Problems](./workspace-shell/panels/problems.md)
       - [Workspace Shell / Panels / Problems / Integration contracts](./workspace-shell/panels/problems/core-contract.md)
+      - [Workspace Shell / Panels / Problems / Search result provider boundaries](./workspace-shell/panels/problems/provider-boundaries.md)
       - [Workspace Shell / Panels / Problems / Context](./workspace-shell/panels/problems/context.md)
 - [Lapis Editor Demo](./editor-demo.md)
   - [Lapis Editor Demo / Editor scenarios — Part 1](./editor-demo/core-contract-01.md)
