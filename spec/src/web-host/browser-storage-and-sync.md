@@ -163,7 +163,7 @@ assertions. Retry evidence is written to disk and attached by path, with passing
 test output retained by both Web Playwright configurations; later application, sharing
 and restart steps are not replayed.
 
-## LN-WEB-050 — Deno-server Web build: authenticate before vault selection, use only server-managed
+## LN-WEB-050 — Node-server Web build: authenticate before vault selection, use only server-managed
 
 <a id="ln-web-050"></a>
 

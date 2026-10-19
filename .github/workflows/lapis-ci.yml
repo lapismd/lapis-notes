@@ -213,8 +213,6 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium
       - name: Restore package builds
         run: node scripts/run-turbo.mjs build --summarize
-      - name: Build the server-host acceptance image
-        run: docker build -f packages/server-node/Dockerfile -t lapis-server:e2e .
       - uses: actions/download-artifact@v8
         with:
           name: signed-registry-acceptance-fixture
@@ -226,6 +224,30 @@ jobs:
         if: always()
         with:
           name: web-acceptance-diagnostics
+          path: packages/web/test-results
+          retention-days: 14
+
+  server-acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10.34.5
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24.15.0"
+      - run: pnpm install --frozen-lockfile --ignore-pnpmfile --ignore-scripts
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:server
+      - name: Build the Node server acceptance image
+        run: docker build -f packages/server-node/Dockerfile -t lapis-server:node-e2e .
+      - run: pnpm test:server:e2e
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: server-acceptance-diagnostics
           path: packages/web/test-results
           retention-days: 14
 
@@ -333,6 +355,7 @@ jobs:
       - storybook-static
       - storybook-interaction
       - web-acceptance
+      - server-acceptance
       - registry-fixture
       - desktop-packaged
       - release-artifacts
@@ -347,6 +370,7 @@ jobs:
           STORYBOOK_STATIC: ${{ needs.storybook-static.result }}
           STORYBOOK_INTERACTION: ${{ needs.storybook-interaction.result }}
           WEB_ACCEPTANCE: ${{ needs.web-acceptance.result }}
+          SERVER_ACCEPTANCE: ${{ needs.server-acceptance.result }}
           REGISTRY_FIXTURE: ${{ needs.registry-fixture.result }}
           DESKTOP_PACKAGED: ${{ needs.desktop-packaged.result }}
           RELEASE_ARTIFACTS: ${{ needs.release-artifacts.result }}
@@ -360,6 +384,7 @@ jobs:
             "$STORYBOOK_STATIC"
             "$STORYBOOK_INTERACTION"
             "$WEB_ACCEPTANCE"
+            "$SERVER_ACCEPTANCE"
             "$REGISTRY_FIXTURE"
             "$DESKTOP_PACKAGED"
             "$RELEASE_ARTIFACTS"

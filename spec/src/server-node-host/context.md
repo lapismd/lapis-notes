@@ -1,6 +1,6 @@
 # Node Server Host / Context
 
-The shared Deno dependency lock is refreshed against published Design Core `0.3.2` and the current controller/native imports. Package ranges and persistent dependency-age policy remain unchanged apart from the explicitly requested provider refresh.
+Node server installation and builds use the committed pnpm lockfile and published npm ranges. The frozen desktop Deno lock remains independent of server delivery.
 
 The dedicated Web client uses the shared four-plugin application profile from
 LN-WEB-004. Community is parked and does not become a server-host default;
@@ -142,3 +142,17 @@ schema under LN-PKG-150. Concrete Community NIP-29 composition remains deferred
 outside the active profile.
 
 Server-backed browser sessions inherit the default Plugins browser registration from the shared web workspace session (LN-PLUG-098–103). Production registry/trust configuration stays with the host; development fixture configuration remains ignored in server mode.
+
+## Node delivery and development
+
+The server-only CI job installs pnpm dependencies, builds the server dependency
+closure and runs native and hosted-browser acceptance on Node 24 without Deno
+setup or a dependency on desktop builds. Hosted acceptance uses a fresh image,
+read-only root filesystem, writable `/data`, temporary `/tmp`, and a read-only
+bootstrap secret. It checks persisted content after server recreation.
+
+Container service UID/GID remains 1993 to preserve existing managed-volume
+ownership. The Compose project name controls volume identity: existing operators
+retain their prior project name when switching the Compose file location.
+Node has no Deno-style per-API permission flags; container mounts, the non-root
+identity and existing application authorization/containment define this boundary.

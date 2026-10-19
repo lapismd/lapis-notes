@@ -1,104 +1,13 @@
-# Server rename and Node migration
+# Node server migration — verification record
 
-Approved implementation plan, 2026-10-19. Living status is maintained in
-[MIGRATION.md](../../MIGRATION.md#node-server-migration-2026-10-19).
-
-## Goal
-
-Rename `packages/server-deno` to `packages/server-node`, with private package
-identity `@lapis-notes/server-node`, in this repository. Run on Node 24 LTS.
-The server must build, test and deploy without an installed Deno executable.
-Keep TypeScript, pnpm, tRPC, Turso, the authentication model, all 68 remote
-AppDatabase methods and the existing browser application.
-
-The frozen Deno desktop and unrelated sync tooling remain separate consumers.
-No Rust service, repository extraction, public deployment or publication is
-part of this migration. Existing server data remains readable without schema
-conversion; `.lapis` remains the application state convention.
-
-## Package boundaries
-
-- Rename the server package, imports, scripts, Docker references and canonical
-  specification mappings together.
-- Extract the portable paths, database worker protocol, worker runtime, native
-  database factory and language-service adapter to private
-  `@lapis-notes/host-services`. It has Node-compatible build, check and test
-  commands and one implementation of each helper.
-- Retain the old Deno host-service subpaths as compatibility re-exports. Keep
-  frozen desktop application code unchanged and preserve its import resolution.
-- Add `node-server` to the shared runtime type and use it in the server browser
-  host, database provider and document marker. Retain deprecated `deno-server`
-  compatibility in the public API.
-
-## Runtime
-
-- Use `@hono/node-server` solely as a Fetch-to-Node adapter around the existing
-  handler and tRPC Fetch adapter; do not add Hono application routing.
-- Replace Deno file operations with `node:fs/promises` and preserve the existing
-  public errors, containment, serialized mutations, atomic replacement, strong
-  ETags, resources, plugin assets, ranges and bounded ZIP transfers.
-- Replace Deno environment and signals with Node process APIs. Use
-  `node:worker_threads` for database dispatch, preserving request ordering,
-  messages, change notifications and rejection of pending failed requests.
-- Emit ESM main and worker bundles with esbuild. Keep native dependencies
-  external so native Turso binaries load through their supported npm package.
-- Preserve streaming backpressure, cancellation, proxy trust and ordered
-  shutdown. Retain HTTP routes, tRPC procedures, protocol major, public errors,
-  environment names, port defaults, cookies, vault IDs and database schemas.
-- Keep the current native database and Markdown language implementations.
-
-## Deployment
-
-Use Node 24 build/runtime images, a non-root runtime user, read-only application
-files, explicit writable data storage and mounted bootstrap secrets. Retain
-application authorization, path containment and outbound plugin-source
-restrictions; document the replacement for Deno's runtime permission flags.
-Remove server-only Deno config, types, launch commands and CI dependencies.
-Historical records and compatibility documentation may still mention Deno.
-
-## Ordered slices
-
-| Slice | Deliverable                                                                                  | Completion gate                                                                                                  |
-| ----- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| N0    | Save this full plan and the migration ledger; identify baseline and mapped requirements.     | Documentation checks pass and implementation remains Planned.                                                    |
-| N1    | Extract portable host services and retain compatibility subpaths.                            | Contracts pass, the new package builds without Deno and retained imports resolve.                                |
-| N2    | Rename and port server, worker, file/process bindings, browser imports and runtime identity. | Node smoke proves bootstrap, login, vault/files/database/events and clean shutdown.                              |
-| N3    | Node Docker/Compose/CI/development commands, browser parity and dependency cleanup.          | A fresh container passes hosted browser acceptance, retains data across restart and contains no Deno executable. |
-
-Update canonical requirements and verification mappings before or with protected
-implementation changes. Preserve requirement IDs, enforce the spec-validator
-gates and commit each verified slice separately with Jujutsu. Record status,
-commit, exact commands, failure counts and remaining gaps. Status progression:
-Planned, In progress, Implemented, Verified. Complete the migration only after
-N3's acceptance gates pass.
-
-## Verification
-
-Record the original server unit and hosted-browser results before editing.
-Start each repair at its exact failing boundary, then widen by impact.
-
-- Bootstrap idempotency, sessions, logout, expiry, CSRF and all membership roles.
-- File/binary round trips, ranges, traversal and symlink rejection, atomic writes
-  and ETag conflicts. `process()` invokes its callback once and never retries it.
-- Native Turso, all database methods, worker errors, pending-request rejection,
-  shutdown and database closure.
-- Event ordering, replay, stale-cursor resync, reconnect and revoked sessions.
-- Static assets, Markdown diagnostics, plugin assets/downloads, bounded ZIP
-  import/export and cleanup of rejected or cancelled operations.
-- Actual browser create/open/edit/save/reopen flows, peer updates and retained
-  storage across server restart, using the ordinary workspace components.
-- Built-output startup/shutdown in a fresh Node container with Deno absent.
-
-After focused checks pass, run the required repository check, test, build,
-specification and affected interaction/accessibility lanes. Record pre-existing
-failures independently; never weaken assertions or refresh visual baselines to
-make the migration pass. Server acceptance is headless and does not raise
-desktop application windows.
+Completed 2026-10-19. The [full plan](../archive/2026-10-19-server-node-migration.md)
+is archived; [MIGRATION.md](../../MIGRATION.md#node-server-migration-2026-10-19)
+remains the living ledger.
 
 ## Evidence
 
-No product acceptance was claimed when the plan was authored. Per-slice
-commands, counts, limitations and commits are appended here during execution.
+The initial plan claimed no product acceptance. The completed slices below
+retain their commands, counts, failures, repairs and final verification.
 
 ### N0 — Plan and baseline
 
@@ -166,3 +75,79 @@ commands, counts, limitations and commits are appended here during execution.
 - Container delivery is deliberately tracked under N3. The first candidate
   stopped at dependency installation because Docker's disk is full; no
   container/browser acceptance is claimed by N2.
+
+### N3 — Delivery and browser parity
+
+- Node 24.15.0 multi-stage image builds the server dependency closure, runs
+  portable/server tests and the native worker smoke without Deno, then builds
+  the server-mode browser. Production files are read-only, data is explicit,
+  and UID/GID 1993 is retained for existing volumes.
+- Compose supplies a read-only root, temporary `/tmp`, a mounted secret and a
+  twenty-second stop allowance. The guide explains prior Compose project names
+  and the Node/container replacement for Deno permission flags.
+- Root build/start/dev/native/headless commands are present. Both live server
+  test tasks are uncached. A dedicated required CI job uses Node without Deno
+  setup; server browser coverage moves to its dedicated Playwright config.
+- Declared the externalized transformer dependency in both private packages.
+  Private package file lists and runtime staging exclude secrets; local
+  development data is excluded from Docker contexts. Frozen installation passes.
+- Workflow regression: 1 failure before the dedicated job, then 22 passing
+  workflow/setup tests. Root command-contract regression: 1 failure before the
+  bounded root task, then its exact target passes. No assertion was relaxed.
+- `pnpm test:server` on Node 24 passes 9 portable tests, 44 server tests and the
+  built native smoke. Full `pnpm check` and `pnpm test` pass (20 tasks each).
+  An initial concurrent dependency check/test run hit one existing FTS test's
+  five-second timeout; its exact test passed on rerun. The server command now
+  builds its dependencies before its focused checks; broader lanes run serially.
+- Initial image qualification hit Docker disk exhaustion. User-approved cache
+  cleanup left 19 GiB free. A second attempt built the server but exhausted the
+  renderer's 2 GiB heap. User approved a temporary Docker increase from 3 GiB to
+  8 GiB; the image reuses the existing Web command with its 8 GiB heap budget.
+  An overlapping host/image build was cancelled and rerun serially to avoid
+  memory contention on the 16 GiB host.
+- The image's initial `pnpm deploy --legacy` reached packaging but attempted to
+  fetch unpublished API 0.1.5 through a workspace dependency's registry range.
+  Runtime staging now copies the compiled bundle and selects only its two
+  declared externals from the frozen lockfile. It preserves root pnpm, integrity,
+  override and patch metadata without changing published package ranges.
+- Runtime packaging regression: one missing-module suite before implementation;
+  5 packaging tests now pass, including absent/unpinned toolchain rejection.
+  An initial standalone install selected the host's default pnpm because its
+  manifest lacked a package-manager pin; the generated package now copies the
+  root pin. An offline frozen install succeeds with pnpm 10.34.5, followed by
+  native server smoke and an actual transformer-runtime import outside the
+  workspace.
+
+- Fresh Node image `sha256:5f61f60a61eb6b210785e7135a2b777530fa1def47b5a3d8290241c89b6c08ff`
+  builds successfully. Its Deno-free build passes 9 portable tests, 44 server
+  tests and the compiled native worker smoke.
+- `pnpm test:server:e2e`: 1/1 hosted browser case passes against that image,
+  including Node 24/UID/GID 1993, absence of Deno, actual transformer import,
+  editing, peer events/Search, imports/exports, plugin loading, clean process
+  shutdown and retained data across container recreation. Temporary containers
+  and named/anonymous test volumes are removed.
+- Complete independent Web browser acceptance passes 11/11 against fresh output.
+  Final post-packaging qualification on Node 24.15.0 passes: `pnpm build`
+  (11 tasks), `pnpm check` (20 tasks), `pnpm test` (1,562 passed, 1 existing skip;
+  20 tasks), `pnpm packages:policy` (2 regressions), `pnpm release:test`
+  (101 tests), `pnpm test:server` (53 tests and native smoke), and
+  `pnpm spec:check` (six lanes and 38 validator tests).
+- Docker Desktop is restored to `MemoryMiB=3072`; the running daemon reports
+  3,052,138,496 bytes. No deployment, push or publication has been performed.
+
+- The spec-first gate initially found eight missing mapped chapters. Delivery
+  contracts and verification notes now cover the complete protected surface; the
+  bounded release chapter remains within 400 physical lines. The final gate
+  passes without exclusions or weakened rules.
+- Original workspace `default` remains clean at `9336837d`. The migration is
+  isolated in workspace `server-node`; no frozen desktop application code,
+  lapis-ai implementation, public deployment or publication was changed.
+
+## Local review stack
+
+| Slice | Jujutsu change | Result                                                               |
+| ----- | -------------- | -------------------------------------------------------------------- |
+| N0    | `vlmkrtxr`     | Save the approved plan and baseline.                                 |
+| N1    | `novloxzl`     | Extract portable host services with retained Deno compatibility.     |
+| N2    | `omxyklzr`     | Rename and port the server, worker and browser runtime identity.     |
+| N3    | `msxosqnx`     | Deliver and verify Node containers, commands, CI and browser parity. |

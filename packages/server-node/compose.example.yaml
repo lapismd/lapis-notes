@@ -1,8 +1,10 @@
+name: lapis-server
+
 services:
   lapis-server:
     build:
       context: ../..
-      dockerfile: packages/server-deno/Dockerfile
+      dockerfile: packages/server-node/Dockerfile
     ports:
       - "8787:8787"
     environment:
@@ -16,6 +18,10 @@ services:
       - lapis_bootstrap_password
     volumes:
       - lapis_data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=256m
+    stop_grace_period: 20s
     restart: unless-stopped
 
 secrets:

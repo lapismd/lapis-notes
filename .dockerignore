@@ -23,3 +23,10 @@ packages/web/playwright*.ts
 packages/server-node/Dockerfile
 packages/server-node/README.md
 packages/server-node/compose.example.yaml
+
+.local
+.cache
+**/secrets
+spec/book
+storybook.log
+.local-plugin-install.json

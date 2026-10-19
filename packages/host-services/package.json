@@ -43,7 +43,8 @@
   "dependencies": {
     "@lapis-notes/api": "workspace:*",
     "@lapis-notes/language-service": "workspace:*",
-    "@tursodatabase/database": "0.7.2"
+    "@tursodatabase/database": "0.7.2",
+    "@huggingface/transformers": "^4.2.0"
   },
   "devDependencies": {
     "typescript": "~5.9.3",
@@ -51,5 +52,10 @@
     "vitest": "^4.1.10",
     "esbuild": "^0.28.2"
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ]
 }

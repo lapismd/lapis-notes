@@ -691,6 +691,9 @@ importers:
 
   packages/host-services:
     dependencies:
+      '@huggingface/transformers':
+        specifier: ^4.2.0
+        version: 4.3.1(@types/node@26.6.5)
       '@lapis-notes/api':
         specifier: workspace:*
         version: link:../api
@@ -744,6 +747,9 @@ importers:
 
   packages/server-node:
     dependencies:
+      '@huggingface/transformers':
+        specifier: ^4.2.0
+        version: 4.3.1(@types/node@26.6.5)
       '@hono/node-server':
         specifier: ^2.1.5
         version: 2.1.5(hono@4.13.13)
@@ -784,6 +790,9 @@ importers:
       vitest:
         specifier: 4.1.11
         version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/browser-playwright@4.1.11)(jsdom@29.1.1(@noble/hashes@2.4.0))(vite@7.3.6(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0))
+      yaml:
+        specifier: ^2.9.0
+        version: 2.9.0
 
   packages/ui:
     dependencies:

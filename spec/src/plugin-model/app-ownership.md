@@ -48,4 +48,6 @@ behavior and plugin activation remain unchanged.
 
 The `node-server` hosted profile retains explicit App ownership and the existing
 compatibility lease lifecycle. Renaming its private transport package grants no
-new plugin authority.
+new plugin authority. Its deployed static client keeps the same shared module
+graph and verified plugin loading. Server package deployment excludes bootstrap
+secrets and local development fixtures.

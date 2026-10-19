@@ -5,7 +5,7 @@
 [![Storybook](https://img.shields.io/badge/storybook-live-ff4785?logo=storybook&logoColor=white)](https://lapismd.github.io/lapis-notes/)
 
 Lapis Notes monorepo for the application shell, reusable framework packages,
-an app-owned plugin profile, Deno desktop host, web host, spec-first governance,
+an app-owned plugin profile, frozen Deno desktop host, Node server host, web host, spec-first governance,
 and Storybook acceptance.
 
 ## Public packages
@@ -162,3 +162,12 @@ preparation remains an explicit local-development choice.
 The `:run` scripts are internal raw runners; use the public commands above for
 local caching. Direct `pnpm exec vitest` or `pnpm --filter <package> test` invokes
 the underlying runner directly; use the root Turbo commands for cached runs.
+
+## Node server
+
+The private [server-node package](packages/server-node/README.md) serves the
+existing Lapis browser application and managed vaults on Node 24 LTS.
+`pnpm build:server` builds its dependencies, executable and static client;
+`pnpm test:server` runs focused checks plus the real native worker smoke.
+`pnpm build:server:container && pnpm test:server:e2e` runs the isolated,
+headless container/browser acceptance without a Deno installation.

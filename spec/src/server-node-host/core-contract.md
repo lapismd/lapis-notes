@@ -178,3 +178,16 @@ other network errors and application readiness failures still fail acceptance.
 <a id="ln-srv-020"></a>
 
 **Requirement.** Server builds, tests, executable output and production containers MUST run without Deno. The server MUST consume portable host-service kernels and retain compatible HTTP, authentication and data contracts. Runtime containers MUST use a non-root user, read-only application files, explicit writable storage and mounted bootstrap secrets.
+
+The image builds with Node 24.15.0 and runs portable/server tests plus the native
+worker smoke before packaging. The runtime keeps UID/GID 1993 for existing data,
+read-only application files, writable `/data`, temporary `/tmp` and a mounted
+bootstrap secret. Compose grants twenty seconds for shutdown and retains prior
+volume identity when operators supply their existing project name.
+
+Standalone runtime packaging takes the external dependency list from the same
+module as esbuild, retains the repository's frozen registry resolutions and
+rejects missing or workspace resolutions. Bundled workspace code requires no
+intermediate npm publication. Runtime staging also retains the root
+package-manager pin. Only compiled output and its external dependency
+graph enter the runtime image.

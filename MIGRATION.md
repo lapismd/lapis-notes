@@ -5,20 +5,22 @@ intake or UI swap status changes.
 
 ## Node server migration (2026-10-19)
 
-The approved [full plan](spec/records/2026-10-19-server-node-migration.md)
+The approved [full plan](spec/archive/2026-10-19-server-node-migration.md)
 renames the private server to `@lapis-notes/server-node` and moves its runtime
 to Node 24 LTS. The existing API, browser, data and plugin contracts are retained.
 The frozen Deno desktop and separate sync tooling are outside this migration.
 
-| Slice                              | Status      | Evidence / next gate                                                                                                           |
-| ---------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| N0 — Plan and baseline             | Verified    | Plan/spec validation, existing server 28/28, portable helpers 9/9 and original native server smoke pass.                       |
-| N1 — Portable shared services      | Verified    | Portable build/check, native Node round-trip, 9 portable and 90 retained-service tests; full check/test/build/spec lanes pass. |
-| N2 — Node server and rename        | Verified    | Node 24 built-output smoke, 39 server tests, 1,557 repository tests and 249 Storybook interaction/axe tests pass.              |
-| N3 — Deployment and browser parity | In progress | Node container, Compose and CI delivery; fresh container and retained-data browser acceptance remain pending.                  |
+| Slice                              | Status   | Evidence / next gate                                                                                                           |
+| ---------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| N0 — Plan and baseline             | Verified | Plan/spec validation, existing server 28/28, portable helpers 9/9 and original native server smoke pass.                       |
+| N1 — Portable shared services      | Verified | Portable build/check, native Node round-trip, 9 portable and 90 retained-service tests; full check/test/build/spec lanes pass. |
+| N2 — Node server and rename        | Verified | Node 24 built-output smoke, 39 server tests, 1,557 repository tests and 249 Storybook interaction/axe tests pass.              |
+| N3 — Deployment and browser parity | Verified | 53 container tests, hosted restart and 11 Web cases pass; final check/test/build/release/spec lanes pass; Docker restored.     |
 
 Statuses distinguish Planned, In progress, Implemented and Verified. Migration
-completion requires N3 acceptance; a package rename alone is not completion.
+is complete in the isolated `server-node` workspace. The
+[verification record](spec/records/2026-10-19-server-node-migration.md) retains
+per-slice commands, counts and local Jujutsu changes.
 
 ## Specification readability and navigation (2026-10-13)
 

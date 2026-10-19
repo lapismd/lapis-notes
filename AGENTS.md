@@ -7,13 +7,14 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 
 - This is a pnpm + Turbo monorepo for a focused Lapis Notes slice.
 - Current packages include the API/runtime kernel, retained UI, workspace shell,
-  Deno desktop host, web host, internal language service, reusable File Explorer,
-  and the private Lapis Notes application profile.
+  frozen Deno desktop host, Node server host, web host, portable host services,
+  internal language service, reusable File Explorer, and the private Lapis Notes
+  application profile.
 - AI, Bases, Bookmarks, Graph, History, Markdown, Markdown Lint, Search, Source
   Editor, Spellcheck, and Word Count are owned by the sibling `lapis-plugins`
   repository and are consumed here through npm package boundaries.
 - Design Core F-Mode is optional default-disabled shell chrome.
-- Web/notebook hosts and unlisted plugins are not in this repo yet. Track intake
+- Unlisted hosts and plugins are not in this repo yet. Track intake
   in `MIGRATION.md` — do not invent them ahead of the spec.
 
 ## Package dependency policy

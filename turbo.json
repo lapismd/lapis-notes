@@ -278,7 +278,8 @@
         ".ci/dependency-image.Dockerfile",
         "!**/.DS_Store",
         ".pnpmfile.cjs",
-        ".local-plugin-install.json"
+        ".local-plugin-install.json",
+        "packages/web/playwright*.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -500,6 +501,17 @@
       ],
       "outputs": [],
       "outputLogs": "new-only"
+    },
+    "//#test:server:e2e:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
+    },
+    "//#test:server:run": {
+      "dependsOn": ["@lapis-notes/server-node#build"],
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
     }
   },
   "globalEnv": [

@@ -7,6 +7,10 @@ behavior and plugin activation remain unchanged.
 Complete CI browser acceptance under LN-PKG-161 includes the real server-host
 editing, sharing and restart scenario. Its private bootstrap fixture is seeded
 for the container user and retains the original browser assertions and deadlines.
+That scenario runs in the dedicated Node server browser config; the PWA config
+continues to execute its complete independent browser suite. Both jobs remain
+blocking, and server acceptance checks a read-only Node 24 container with no Deno
+executable before editing and retained-volume restart.
 
 ## LN-WEB-032 — Web host: persist terminal-host URL and token as web.terminalHost.url
 

@@ -30,7 +30,7 @@ const test = base.extend({
 });
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const image = process.env.LAPIS_SERVER_E2E_IMAGE ?? "lapis-server:e2e";
+const image = process.env.LAPIS_SERVER_E2E_IMAGE ?? "lapis-server:node-e2e";
 const suffix = `${process.pid}-${Date.now().toString(36)}`;
 const containerName = `lapis-server-e2e-${suffix}`;
 const networkContainerName = `lapis-server-e2e-network-${suffix}`;
@@ -121,6 +121,9 @@ async function startServer(): Promise<void> {
     containerName,
     "--network",
     `container:${networkContainerName}`,
+    "--read-only",
+    "--tmpfs",
+    "/tmp:rw,noexec,nosuid,size=256m",
     "--mount",
     `type=volume,source=${volumeName},target=/data`,
     "--mount",
@@ -143,7 +146,7 @@ async function startServer(): Promise<void> {
 
 async function stopServer(requireCleanExit: boolean): Promise<void> {
   if (!containerCreated) return;
-  await docker(["stop", "--time", "10", containerName]);
+  await docker(["stop", "--time", "20", containerName]);
   const exitCode = await docker([
     "inspect",
     "--format",
@@ -262,7 +265,7 @@ test.beforeAll(async () => {
       `type=volume,source=${secretVolumeName},target=/run/secrets`,
       image,
       "-c",
-      "umask 077; cat > /run/secrets/lapis_bootstrap_password; chown deno:deno /run/secrets/lapis_bootstrap_password",
+      "umask 077; cat > /run/secrets/lapis_bootstrap_password; chown node:node /run/secrets/lapis_bootstrap_password",
     ],
     `${password}\n`,
   );
@@ -296,7 +299,7 @@ test.afterAll(async () => {
     containerCreated = false;
   }
   if (networkContainerCreated) {
-    await docker(["rm", "--force", networkContainerName]).catch(
+    await docker(["rm", "--force", "--volumes", networkContainerName]).catch(
       () => undefined,
     );
     networkContainerCreated = false;
@@ -317,6 +320,22 @@ test("server-hosted vault survives editing, sharing events, and restart", async 
   page,
 }, testInfo) => {
   test.setTimeout(180_000);
+  await test.step("Node-only container retains the service identity", async () => {
+    await docker([
+      "exec",
+      containerName,
+      "node",
+      "--input-type=module",
+      "-e",
+      `import assert from "node:assert/strict";
+       import { spawnSync } from "node:child_process";
+       assert.equal(process.versions.node.split(".")[0], "24");
+       assert.equal(process.getuid(), 1993);
+       assert.equal(process.getgid(), 1993);
+       assert.equal(spawnSync("deno", ["--version"]).error?.code, "ENOENT");
+       await import("@huggingface/transformers");`,
+    ]);
+  });
   await page.addInitScript(() => {
     const pickedFile = new File(
       ["# Imported from a picked browser folder\n"],
