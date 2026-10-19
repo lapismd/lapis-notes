@@ -1,7 +1,7 @@
 import type { ContextKeyService } from "./context-keys.svelte";
 import type { Menu } from "./menu.svelte";
 
-export type StatusBarAlignment = "left" | "right";
+export type StatusBarAlignment = "left" | "center" | "right";
 
 export interface StatusBarItemDescriptor {
   id: string;

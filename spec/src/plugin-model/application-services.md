@@ -17,7 +17,7 @@ authority, and production Sync apply still requires every writer's integration.
 
 <a id="ln-plug-014"></a>
 
-**Requirement.** Plugin ribbon and status contributions MUST appear only while their owner is enabled, and their commands MUST reuse existing compatible leaves. Status descriptors MAY attach a click menu through the same projected item.
+**Requirement.** Plugin ribbon and status contributions MUST appear only while their owner is enabled, and their commands MUST reuse existing compatible leaves. Status descriptors MAY choose left, center or right placement and attach a click menu through the same projected item.
 
 ## LN-PLUG-016 — Explicit view-access classifications
 

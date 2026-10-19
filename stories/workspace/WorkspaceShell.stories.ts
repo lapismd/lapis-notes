@@ -454,7 +454,7 @@ export const NotificationCenter: Story = {
     try {
       await waitFor(() => {
         const busy = canvasElement.querySelector<HTMLButtonElement>(
-          '[data-status-bar-item-id="notifications:status"]',
+          '[data-status-bar-item-id="notifications:activity"]',
         );
         expect(busy).not.toBeNull();
         expect(busy).toHaveAttribute("aria-busy", "true");
@@ -462,11 +462,33 @@ export const NotificationCenter: Story = {
           /Loading metadata cache/,
         );
       });
+      const activity = canvasElement.querySelector<HTMLButtonElement>(
+        '[data-status-bar-item-id="notifications:activity"]',
+      )!;
+      const bell = canvasElement.querySelector<HTMLButtonElement>(
+        '[data-status-bar-item-id="notifications:status"]',
+      )!;
+      expect(activity.closest('[data-ui-part="center"]')).not.toBeNull();
+      expect(bell.closest('[data-ui-part="right"]')).not.toBeNull();
+      await userEvent.click(activity);
+      await expect(
+        canvas.getByRole("dialog", { name: "Notifications" }),
+      ).toBeVisible();
+      await userEvent.click(
+        canvas.getByRole("button", { name: "Close notification center" }),
+      );
     } finally {
       releaseProgress();
       await pendingProgress;
     }
 
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector(
+          '[data-status-bar-item-id="notifications:activity"]',
+        ),
+      ).toBeNull(),
+    );
     const notifications = canvasElement.querySelector<HTMLButtonElement>(
       '[data-status-bar-item-id="notifications:status"]',
     );

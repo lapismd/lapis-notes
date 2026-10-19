@@ -5049,6 +5049,24 @@ describe("Workspace compatibility", () => {
       "roles:open-actions",
     );
 
+    const removeCenter = app.statusBar.registerItem({
+      id: "demo:activity",
+      text: "Indexing notes",
+      alignment: "center",
+      priority: 10,
+    });
+    expect(
+      controller.status.items.find((item) => item.id === "demo:activity"),
+    ).toMatchObject({
+      align: "center",
+      label: "Indexing notes",
+      priority: 10,
+    });
+    removeCenter();
+    expect(
+      controller.status.items.some((item) => item.id === "demo:activity"),
+    ).toBe(false);
+
     removeStatus();
     removeRibbon();
     expect(

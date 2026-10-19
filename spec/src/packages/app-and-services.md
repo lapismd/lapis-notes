@@ -58,7 +58,7 @@ security RPC and dedicated wrapped-key storage (LN-DENO-079 through LN-DENO-081)
 
 <a id="ln-pkg-057"></a>
 
-**Requirement.** `@lapis-notes/api` MUST expose reactive status-item changes and project visible items plus compatibility ribbon actions into the active public workspace shell.
+**Requirement.** `@lapis-notes/api` MUST expose reactive status-item changes and project visible left, center and right items plus compatibility ribbon actions into the active public workspace shell, preserving custom mount lifecycle.
 
 ## LN-PKG-061 — @lapis-notes/api WorkspaceLeaf.openFile: snapshot history before target-view construction so eager
 

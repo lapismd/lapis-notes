@@ -3349,7 +3349,7 @@ export class Workspace extends EventDispatcher<{
   private projectStatusBarItem(
     controller: AppShellController,
     item: StatusBarItemDescriptor,
-    align: "left" | "right",
+    align: "left" | "center" | "right",
   ): void {
     controller.status.addItem({
       id: item.id,
@@ -3379,19 +3379,14 @@ export class Workspace extends EventDispatcher<{
     const sync = () => {
       for (const id of projectedIds) controller.status.removeItem(id);
       projectedIds.clear();
-      for (const item of this.app.statusBar.getVisibleItems(
-        "left",
-        this.app.contextKeys,
-      )) {
-        projectedIds.add(item.id);
-        this.projectStatusBarItem(controller, item, "left");
-      }
-      for (const item of this.app.statusBar.getVisibleItems(
-        "right",
-        this.app.contextKeys,
-      )) {
-        projectedIds.add(item.id);
-        this.projectStatusBarItem(controller, item, "right");
+      for (const align of ["left", "center", "right"] as const) {
+        for (const item of this.app.statusBar.getVisibleItems(
+          align,
+          this.app.contextKeys,
+        )) {
+          projectedIds.add(item.id);
+          this.projectStatusBarItem(controller, item, align);
+        }
       }
     };
     const unsubscribeStatus = this.app.statusBar.subscribe(sync);

@@ -4,6 +4,9 @@ Prepared Design Core CSS includes overlay entrance and exit transitions. The
 retained Notes chat and shell acceptance waits for visible menu state and
 released pointer handling, while preserving normal input guards and native
 animation. Tool summaries are selected through their public call-name part.
+Footer qualification retains LN-AI-125 tool identity and expanded details;
+accessible-name assertions allow the shared target/context suffix. Evidence:
+`spec/records/2026-10-19-status-footer-bridge.md`.
 
 ## LN-AI-096 — Open Chat action
 
@@ -21,7 +24,7 @@ animation. Tool summaries are selected through their public call-name part.
 
 <a id="ln-ai-027"></a>
 
-**Requirement.** The chat panel root MUST override the public workspace view paint tokens to body background and foreground and MUST NOT own bottom padding. The composer dock MUST own the workspace status-bar clearance below the composer so its lower border and shadow remain visible above the status bar.
+**Requirement.** The chat panel root MUST override the public workspace view paint tokens to body background and foreground and MUST NOT own bottom padding. The composer dock MUST retain ordinary content spacing without status-specific clearance; the workspace shell MUST reserve the footer track.
 
 ## LN-AI-030 — Workspace typography across chat surfaces
 

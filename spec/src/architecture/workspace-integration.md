@@ -70,3 +70,12 @@ entries, with no duplicate persistence or direct App Shell implementation.
 The workspace compatibility owner versions explicit API view transitions and
 activations against queued controller projections. Older queued snapshots yield
 before reconciliation so they cannot unload a newly opened plugin view.
+
+The status bridge forwards left, centre and right contributions to the shared
+footer, retaining plugin-owned mounts and disposal. Design Core owns footer
+geometry, overflow, Settings chrome and notification placement; API retains App,
+command, context and persistence authority (LN-WS-054, LN-WS-075).
+
+Responsive plugin-directory acceptance follows the shared PanelToggle public
+part/side markers and retains actual open, close and focus checks after the
+source shell composition update (LN-ARCH-040, LN-WS-054).

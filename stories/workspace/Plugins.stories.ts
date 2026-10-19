@@ -833,7 +833,7 @@ export const ResponsiveDirectory: Story = {
       });
       const nav = toggle.closest("nav") as HTMLElement;
       expect(toggle).toHaveAttribute(
-        "data-ui-component",
+        "data-ui-part",
         "workspace-sidebar-toggle",
       );
       expect(toggle.getBoundingClientRect().left).toBeCloseTo(
@@ -883,7 +883,7 @@ export const ResponsiveDirectory: Story = {
         exact: true,
       });
       expect(
-        filters.querySelector('[data-ui-component="workspace-sidebar-toggle"]'),
+        filters.querySelector("[data-workspace-sidebar-toggle]"),
       ).toBeNull();
       expect(toggle).toHaveAttribute("data-state", "expanded");
       await userEvent.click(

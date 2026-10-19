@@ -90,6 +90,8 @@
 
 **Requirement.** The Storybook browser project MUST retain a bounded 120-second per-story ceiling and run four deterministic Chromium shards sequentially, with files serialized inside each shard, so real-App database and linked-plugin scenarios remain reliable without retaining one browser across the entire catalog. Scenario-local waits MUST remain narrower and focused runs MUST still diagnose functional failures independently.
 
+Browser file serialization MUST be configured on the browser pool itself.
+
 ## LN-CAT-109 — Standalone first-party plugin Storybook: render Plugins/&lt;Plugin&gt;/Shell through a static @lapis-notes/workspace WorkspaceShell
 
 <a id="ln-cat-109"></a>

@@ -113,7 +113,7 @@ save, and the deferred presentation flush does not reenter a protected queue.
 
 <a id="ln-ws-054"></a>
 
-**Requirement.** API compatibility ribbon registrations and reactive status-bar descriptors MUST project into the API-owned Design Core shell registries. Projection MUST preserve identifiers, icons, labels, alignment, priority, commands, menus, updates, and plugin teardown without introducing a second plugin-facing registration contract.
+**Requirement.** API compatibility ribbon registrations and reactive status-bar descriptors MUST project into the API-owned Design Core shell registries. Projection MUST preserve identifiers, icons, labels, left/center/right alignment, priority, custom mounts, commands, menus, updates, and plugin teardown without introducing a second plugin-facing registration contract.
 
 ## LN-WS-075 — Status updates without layout writes
 

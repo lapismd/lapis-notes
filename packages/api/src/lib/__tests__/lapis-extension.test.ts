@@ -24,6 +24,27 @@ describe("lapis contribution registry", () => {
     );
   });
 
+  it("indexes all footer regions and rejects unknown status alignment", () => {
+    for (const alignment of ["left", "center", "right", "elsewhere"]) {
+      const index = buildLapisContributionIndex({
+        pluginId: "example",
+        manifestPath: "/.lapis/plugins/example/manifest.json",
+        classification: "lapis-extension",
+        source: "community",
+        grantedCapabilities: [],
+        lapis: {
+          manifestVersion: 1,
+          contributes: {
+            statusBarItems: [{ id: "activity", text: "Working", alignment }],
+          },
+        } as never,
+      });
+      expect(index.contributions[0].state).toBe(
+        alignment === "elsewhere" ? "invalid" : "valid",
+      );
+    }
+  });
+
   it("exposes built-in contribution point descriptors", () => {
     expect(getLapisContributionPointDescriptors().map((it) => it.kind)).toEqual(
       [

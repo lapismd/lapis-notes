@@ -123,7 +123,7 @@ export interface LapisStatusBarItemContribution {
   id: string;
   text?: string;
   icon?: string;
-  alignment?: "left" | "right";
+  alignment?: "left" | "center" | "right";
   priority?: number;
   tooltip?: string;
   command?: string;
@@ -169,7 +169,10 @@ export interface LapisExtensionManifest {
     };
   };
   database?: {
-    /** Query-native access avoids the one-release full MetadataCache snapshot lease. */
+    /**
+     * Query-native access avoids the one-release full MetadataCache snapshot
+     * lease.
+     */
     metadataAccess?: "queries" | "snapshot";
   };
   permissions?: LapisExtensionPermission[];
@@ -1102,6 +1105,7 @@ function isStatusBarItemContribution(
     (typeof value.text === "string" || typeof value.icon === "string") &&
     (value.alignment === undefined ||
       value.alignment === "left" ||
+      value.alignment === "center" ||
       value.alignment === "right") &&
     (value.priority === undefined || typeof value.priority === "number") &&
     (value.tooltip === undefined || typeof value.tooltip === "string") &&
