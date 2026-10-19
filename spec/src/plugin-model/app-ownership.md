@@ -1,7 +1,8 @@
 # Plugin Model / App ownership
 
 LN-PKG-185 registers core file-listing settings on the owned App before plugins.
-Enabling or disabling a plugin cannot own or remove that shared policy.
+Enabling or disabling a plugin cannot own or remove that shared policy or its
+Workspace settings list.
 
 Session popups inherit the owning shell context under LN-WS-055 and LN-WS-098.
 Their plugin views retain the same App and compatibility lease lifetime;

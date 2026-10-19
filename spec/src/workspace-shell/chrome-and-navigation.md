@@ -2,7 +2,8 @@
 
 LN-PKG-185 supplies common file/folder discovery exclusions to Explorer and
 pickers through Vault. The workspace keeps its existing App, chrome and settings
-presentation; no plugin-specific exclusion list is added to the shell.
+presentation, adding the shared editable list under Workspace / File discovery
+through the existing Design Core list control; no plugin-specific policy is added.
 
 The shared Safe Mode banner uses an opaque workspace background and semantic
 fallback, with database, search and restart icons beside its accessible action

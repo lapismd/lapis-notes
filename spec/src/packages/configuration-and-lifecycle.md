@@ -1,6 +1,6 @@
 # Packages / Configuration and lifecycle
 
-LN-PKG-185 owns the plugin-independent `Files / Excluded paths` setting.
+LN-PKG-185 owns the plugin-independent `Workspace / File discovery / Excluded paths` list, persisted through the existing App configuration writer as `files.exclude`.
 Configuration updates refresh discovery projections; plugin configuration,
 direct metadata access and native admission keep their existing authority.
 

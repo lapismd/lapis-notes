@@ -11,7 +11,7 @@
 Discovery follows these rules:
 
 - Patterns use the shared glob dialect with case-sensitive matching; an excluded folder hides all descendants while similarly named ordinary files remain visible.
-- Core settings MUST be available without a plugin. Updated patterns MUST refresh listing consumers without reloading or modifying vault contents.
+- Core settings MUST expose an editable string list at Workspace / File discovery / Excluded paths without a plugin, retain stored values through the App configuration bridge and allow an empty list to disable discovery exclusions. Updated patterns MUST refresh listing consumers without reloading or modifying vault contents.
 - Explicit resource lookup and adapter reads/writes MUST remain available to admitted metadata services; the setting is discovery policy, not an authorization boundary.
 
 ## LN-PKG-184 — Optional native system-trash port

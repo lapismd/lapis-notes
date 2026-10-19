@@ -2,7 +2,8 @@
 
 Core listing exclusions under LN-PKG-185 filter Markdown discovery through the
 Vault without changing explicit document reads, saves or writer admission.
-LN-MD-001 package ownership and editor persistence contracts are unchanged.
+LN-MD-001 package ownership and editor persistence contracts are unchanged;
+editing the core Workspace exclusion list does not change Markdown saves.
 
 LN-PKG-183 and LN-WS-097 route external file changes through the owning App's
 existing view events. Clean editor refresh and dirty-draft recovery retain

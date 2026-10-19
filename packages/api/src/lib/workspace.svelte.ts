@@ -35,6 +35,7 @@ import {
   type NamedWorkspaceStore,
 } from "./workspace-layouts";
 import { debounce, isEqual } from "lodash-es";
+import { registerWorkspaceFileSettings } from "./files-configuration";
 import { basename, dirname, joinPath } from "./storage";
 import { HistoryManager } from "./history.svelte";
 import type { TransactionSpec } from "@codemirror/state";
@@ -3176,6 +3177,7 @@ export class Workspace extends EventDispatcher<{
     if (!controller) return;
 
     let projecting = false;
+    registerWorkspaceFileSettings(controller.settings);
     const project = (values: Record<string, unknown>) => {
       projecting = true;
       try {

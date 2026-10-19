@@ -2,7 +2,8 @@
 
 Core `files.exclude` under LN-PKG-185 is owned by the App configuration and
 Vault listing projection; no plugin is required. Explicit resource access and
-App ownership under LN-ARCH-054 remain unchanged.
+App ownership under LN-ARCH-054 remain unchanged when the Workspace settings
+list edits this same core configuration value.
 
 Tauri plugin execution derives from the owning App vault session. The native bridge runtime supplies compatibility context only when that App has no session; legacy capability labels cannot select Electron execution (LN-PLUG-114).
 
