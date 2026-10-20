@@ -73,4 +73,91 @@ describe("owned shell close admission", () => {
     expect(close).not.toHaveBeenCalled();
     input.remove();
   });
+
+  it("closes an explicitly layout-only view while retaining unrelated failed writers", async () => {
+    const { registry, workspace, input, close } = fixture();
+    const protect = vi.fn(async () => {
+      throw new Error("unresolved note");
+    });
+    registry.register("note.txt", {
+      dirty: true,
+      flush: async () => {},
+      protect,
+    });
+    const view = { getClosePersistenceScope: () => "layout" };
+    const leaf = { view };
+    workspace.getLeafById = vi.fn(() => leaf as never);
+    await workspaceCloseGuard(workspace)(["review"], close);
+    expect(close).toHaveBeenCalledOnce();
+    expect(protect).not.toHaveBeenCalled();
+    expect(registry.hasDirty()).toBe(true);
+    await expect(registry.guard(undefined, async () => {})).rejects.toThrow(
+      "unresolved note",
+    );
+    input.remove();
+  });
+
+  it("retains application protection when a layout-only view is replaced while awaiting layout", async () => {
+    const { registry, workspace, input, close } = fixture();
+    registry.register("note.txt", {
+      dirty: true,
+      flush: async () => {},
+      protect: async () => {
+        throw new Error("retained editor");
+      },
+    });
+    const leaf = { view: { getClosePersistenceScope: () => "layout" } };
+    workspace.getLeafById = vi.fn(() => leaf as never);
+    vi.mocked(workspace.flushLayout).mockImplementation(async () => {
+      leaf.view = { getClosePersistenceScope: () => "application" };
+    });
+    await expect(
+      workspaceCloseGuard(workspace)(["review"], close),
+    ).rejects.toThrow("retained editor");
+    expect(close).not.toHaveBeenCalled();
+    input.remove();
+  });
+
+  it("retains full protection for mixed and unknown closure targets", async () => {
+    const { registry, workspace, input, close } = fixture();
+    registry.register("note.txt", {
+      dirty: true,
+      flush: async () => {},
+      protect: async () => {
+        throw new Error("retained editor");
+      },
+    });
+    workspace.getLeafById = vi.fn((id) =>
+      id === "review"
+        ? ({ view: { getClosePersistenceScope: () => "layout" } } as never)
+        : null,
+    );
+    await expect(
+      workspaceCloseGuard(workspace)(["review", "unknown"], close),
+    ).rejects.toThrow("retained editor");
+    expect(close).not.toHaveBeenCalled();
+    input.remove();
+  });
+
+  it("keeps the initial application policy when its getter changes during layout flush", async () => {
+    const { registry, workspace, input, close } = fixture();
+    registry.register("note.txt", {
+      dirty: true,
+      flush: async () => {},
+      protect: async () => {
+        throw new Error("retained editor");
+      },
+    });
+    let scope = "application";
+    const leaf = { view: { getClosePersistenceScope: () => scope } };
+    workspace.getLeafById = vi.fn(() => leaf as never);
+    vi.mocked(workspace.flushLayout).mockImplementation(async () => {
+      scope = "layout";
+    });
+    await expect(
+      workspaceCloseGuard(workspace)(["review"], close),
+    ).rejects.toThrow("retained editor");
+    expect(close).not.toHaveBeenCalled();
+    input.remove();
+  });
 });

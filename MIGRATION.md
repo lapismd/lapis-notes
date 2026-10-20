@@ -727,3 +727,8 @@ qualification remains in its separate migration ledger.
       locale-independent asset fingerprints. Exact runtime and fingerprint
       regressions, complete source lanes and all 13 cold Web cases pass. Native
       consumer qualification remains in the desktop task ledger. See [source record](spec/records/2026-10-17-tauri-plugin-runtime.md).
+
+The additive `View.getClosePersistenceScope()` contract (LN-WS-101) retains
+application-wide protection by default and enables explicitly declared views
+with externally retained state to close without flushing unrelated notes.
+Desktop owns its conflict-review opt-in; publication remains deferred.

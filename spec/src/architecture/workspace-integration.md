@@ -1,5 +1,10 @@
 # Architecture / Workspace integration
 
+LN-WS-101 keeps close policy generic and safe by default. A declared layout-only
+view still joins operation settlement and layout persistence; its App-owned
+staged state and unrelated failed writers survive removal. Desktop owns the
+conflict-review opt-in; shared code contains no consumer view-type exception.
+
 Same-type state transitions retain LN-WS-005/062 authority through in-flight
 projection, including Search query/scope state.
 Foreground file routing joins LN-WS-005's projection-aware reveal. LN-ARCH-048

@@ -1,5 +1,10 @@
 # Packages / Workspace APIs
 
+LN-WS-101 adds `View.getClosePersistenceScope()`, defaulting to `application`.
+Only views with no file writers and externally retained staged state may return
+`layout`; old plugins, mixed targets and application shutdown retain full
+protection. The host rechecks identity and policy after asynchronous admission.
+
 LN-WS-005/063 foreground file routing awaits the existing reveal contract.
 Public package exports, signatures and generic workspace ownership are unchanged.
 

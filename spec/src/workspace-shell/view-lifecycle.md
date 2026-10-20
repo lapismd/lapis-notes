@@ -1,5 +1,11 @@
 # Workspace Shell / View lifecycle
 
+## LN-WS-101 — Explicit close persistence scope
+
+<a id="ln-ws-101"></a>
+
+**Requirement.** Views MUST default to application-wide writer protection for shell closure. A view MAY declare layout-only closure when it owns no file writers and retains unsaved state outside its UI. The guard MUST flush layout, drain admitted operations and revalidate each view identity and policy after awaits; mixed or unknown closures MUST retain application protection. Application shutdown MUST always protect all writers.
+
 Search result registrations under LN-SRCH-051 belong to the owning App and Plugin lifecycle. Workspace leaf persistence, placement and diagnostic collections remain unchanged.
 
 ## LN-WS-097 — File change projection

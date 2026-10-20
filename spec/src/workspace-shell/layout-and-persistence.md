@@ -184,7 +184,7 @@ projection does not enqueue a second save.
 
 <a id="ln-ws-099"></a>
 
-**Requirement.** Shared tab and popup removal MUST await focused-control blur, pending file writers and layout persistence through the owning App before destroying views. Rejected saving MUST preserve reachable content.
+**Requirement.** Shared tab and popup removal MUST await focused-control blur, pending file writers and layout persistence through the owning App before destroying views, except when every closing view qualifies for the explicit layout-only policy in LN-WS-101. Rejected saving MUST preserve reachable content.
 
 ## LN-WS-100 — Focused popup command ownership
 

@@ -1,5 +1,10 @@
 # Plugin Model / Lifecycle and views
 
+LN-WS-101 allows an explicit layout-only close policy for views with no file
+writers and externally retained staged state. Existing plugin views keep full
+application writer protection unless they opt in; whole-host shutdown remains
+guarded. Registration, permissions and file-writer lifetimes are unchanged.
+
 LN-WS-005/062 in-flight replay retains newer plugin-owned view state and
 activation. Stale prepared candidates are retired before opening; ordinary
 registration, plugin activation, load/unload and saved-state contracts remain
