@@ -36,7 +36,7 @@ their complete lifetime boundary before releasing backing storage.
 
 <a id="ln-ws-063"></a>
 
-**Requirement.** `Workspace.getLeaf()` without a new-leaf flag and `App.openFile` MUST reuse an empty or file-backed main-area leaf, or create a new main tab. They MUST NOT replace a non-file main-area view and MUST NOT reuse a sidebar leaf.
+**Requirement.** `Workspace.getLeaf()` without a new-leaf flag and `App.openFile` MUST reuse an empty or file-backed main-area leaf, or create a new main tab. They MUST NOT replace a non-file main-area view and MUST NOT reuse a sidebar leaf. Foreground file opens MUST reveal their destination after queued host projection while preserving newer navigation.
 
 ## LN-WS-064 — Imperative view host: remount a Lapis view only
 

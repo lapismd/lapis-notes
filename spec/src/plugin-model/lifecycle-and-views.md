@@ -1,5 +1,9 @@
 # Plugin Model / Lifecycle and views
 
+LN-WS-005/063 reveal foreground file tabs through the original owned workspace.
+Plugin view construction, file state, activation policy and disposal stay owned
+by their existing registrations; no plugin or service is enabled by revealing.
+
 Workspace diagnostic-resource registrations belong to their owning App and
 return disposal callbacks. Desktop conflict review composes its own view; the
 shared API retains ordinary vault-file navigation for unhandled resources.

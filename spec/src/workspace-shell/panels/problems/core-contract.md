@@ -1,5 +1,9 @@
 # Problems / Integration contracts
 
+LN-WS-005/063 foreground file reveal retains Problems and its original owner
+while selecting a note tab. LN-WS-025 diagnostic collections, navigation
+openers, quick fixes and their access/persistence guards are unchanged.
+
 Core listing exclusions under LN-PKG-185 do not change diagnostics ownership
 under LN-WS-025 or explicit access to an already-open resource. Problems does
 not own discovery configuration or an additional file index; the Workspace

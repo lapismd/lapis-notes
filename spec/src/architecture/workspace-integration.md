@@ -1,5 +1,8 @@
 # Architecture / Workspace integration
 
+Foreground file routing joins LN-WS-005's projection-aware reveal. LN-ARCH-048
+history capture and the original App, leaf, view and writer owners are unchanged.
+
 Diagnostic navigation may register disposable App-owned resource openers before
 the existing vault-file fallback. The desktop routes conflict resources while
 retaining writer-owned persistence; the shared API grants no file authority.

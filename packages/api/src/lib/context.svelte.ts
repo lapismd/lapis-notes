@@ -657,17 +657,19 @@ export class App {
 
         if (existingLeaf) {
           span.setAttribute("workspace.file_already_open", true);
-          await applyOpenViewStateToLeaf(existingLeaf, openState);
           this.workspace.activateLeaf(existingLeaf, {
             operation: "open-existing-file",
           });
+          await this.workspace.revealLeaf(existingLeaf);
+          await applyOpenViewStateToLeaf(existingLeaf, openState);
           return;
         }
 
         const reusedRootLeaf = Boolean(this.workspace.activeRootLeaf);
         const leaf = this.workspace.getLeaf();
         span.setAttribute("workspace.reused_active_leaf", reusedRootLeaf);
-        this.workspace.activeLeaf = leaf;
+        this.workspace.activateLeaf(leaf, { operation: "open-file" });
+        await this.workspace.revealLeaf(leaf);
         if (leafFilePath(leaf) === file.path) {
           span.setAttribute("workspace.file_already_open", true);
           if (openState?.state) {

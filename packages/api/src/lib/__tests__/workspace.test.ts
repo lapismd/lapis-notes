@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { isEqual } from "lodash-es";
 import { effect_root } from "svelte/internal/client";
 import { APP_SHELL_SETTING_IDS } from "@lapismd/design-core/workspace/core";
-import type { App } from "../context.svelte";
+import { App } from "../context.svelte";
 import { FileEditingSessionRegistry } from "../file-editing-sessions";
 import { EventDispatcher } from "../events";
 import { Plugin } from "../plugin";
@@ -1251,6 +1251,75 @@ describe("Workspace compatibility", () => {
     expect(workspace.getLeaf()).toBe(leaf);
     expect((leaf.view as MockTextFileView).file).toBe(file);
   });
+
+  it.each([false, true])(
+    "foreground file navigation selects its %s existing note tab after another view",
+    async (existing) => {
+      const { app, workspace } = createWorkspaceHarness();
+      await workspace.loadLayout();
+      workspace.registerView("markdown", (leaf) => new MockTextFileView(leaf));
+      workspace.registerExtensions(["md"], "markdown");
+      workspace.registerView(
+        "history-fixture",
+        (leaf) => new MockItemView(leaf, "history-fixture", "History"),
+      );
+      const file = new TFile("Note.md", { ctime: 0, mtime: 0, size: 0 }, null);
+      if (existing) {
+        const note = workspace.getLeaf("tab");
+        await note.openFile(file);
+        workspace.activateLeaf(note);
+      }
+      const history = workspace.getLeaf("tab");
+      await history.setViewState({ type: "history-fixture" });
+      workspace.activateLeaf(history);
+      await workspace.flushLayout();
+      const { controller } = getWorkspaceHostBinding(workspace);
+      controller.renderer.setSidebarOpen("right", true);
+      await Promise.resolve();
+      await App.prototype.openFile.call(app, file);
+      await workspace.flushLayout();
+      const note = workspace.iterateAllLeaves((leaf) =>
+        (leaf.view as MockTextFileView).file === file ? leaf : undefined,
+      );
+      expect(note).toBeTruthy();
+      expect(workspace.activeLeaf).toBe(note);
+      expect(controller.renderer.layout.active.tabId).toBe(note!.id);
+      const main = controller.renderer.layout.main;
+      const tabs = main.kind === "tabs" ? main : main.children[0];
+      expect(tabs.kind).toBe("tabs");
+      if (tabs.kind === "tabs") expect(tabs.activeItemId).toBe(note!.id);
+      expect(history.view.getViewType()).toBe("history-fixture");
+    },
+  );
+
+  it.each([false, true])(
+    "foreground file navigation preserves a newer selection while revealing a %s existing note",
+    async (existing) => {
+      const { app, workspace } = createWorkspaceHarness();
+      await workspace.loadLayout();
+      workspace.registerView("markdown", (leaf) => new MockTextFileView(leaf));
+      workspace.registerExtensions(["md"], "markdown");
+      workspace.registerView(
+        "history-fixture",
+        (leaf) => new MockItemView(leaf, "history-fixture", "History"),
+      );
+      const file = new TFile("Note.md", { ctime: 0, mtime: 0, size: 0 }, null);
+      if (existing) await workspace.getLeaf("tab").openFile(file);
+      const history = workspace.getLeaf("tab");
+      await history.setViewState({ type: "history-fixture" });
+      workspace.activateLeaf(history);
+      await workspace.flushLayout();
+      const opening = App.prototype.openFile.call(app, file);
+      workspace.activateLeaf(history, { operation: "newer-navigation" });
+      await opening;
+      await workspace.flushLayout();
+      expect(workspace.activeLeaf).toBe(history);
+      expect(
+        getWorkspaceHostBinding(workspace).controller.renderer.layout.active
+          .tabId,
+      ).toBe(history.id);
+    },
+  );
 
   it("triggers file-open after onLoadFile succeeds", async () => {
     const { workspace } = createWorkspaceHarness();
@@ -2795,8 +2864,14 @@ describe("Workspace compatibility", () => {
   it("reveals the requested sidebar view after an overlapping host projection", async () => {
     const { workspace } = createWorkspaceHarness();
     await workspace.loadLayout();
-    workspace.registerView("files-fixture", leaf => new MockItemView(leaf, "files-fixture", "Files"));
-    workspace.registerView("search-fixture", leaf => new MockItemView(leaf, "search-fixture", "Search"));
+    workspace.registerView(
+      "files-fixture",
+      (leaf) => new MockItemView(leaf, "files-fixture", "Files"),
+    );
+    workspace.registerView(
+      "search-fixture",
+      (leaf) => new MockItemView(leaf, "search-fixture", "Search"),
+    );
     const files = workspace.getLeftLeaf(false)!;
     await files.setViewState({ type: "files-fixture" });
     const search = workspace.getLeftLeaf(false)!;
@@ -2805,7 +2880,10 @@ describe("Workspace compatibility", () => {
     const { controller } = getWorkspaceHostBinding(workspace);
     controller.renderer.setSidebarOpen("left", true);
     await Promise.resolve();
-    await search.setViewState({ type: "search-fixture", state: { query: "history" } });
+    await search.setViewState({
+      type: "search-fixture",
+      state: { query: "history" },
+    });
     workspace.activateLeaf(search, { focusRootHost: false });
     await workspace.revealLeaf(search);
     await workspace.flushLayout();

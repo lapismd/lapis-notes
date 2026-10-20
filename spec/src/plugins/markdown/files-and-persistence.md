@@ -1,5 +1,9 @@
 # Markdown Plugin / Files and persistence
 
+LN-WS-005/063 foreground file reveal selects the original Markdown leaf after
+queued host projection. LN-MD-001 ownership and existing editor state, save
+guards and persistence remain unchanged; no replacement editor is constructed.
+
 Core listing exclusions under LN-PKG-185 filter Markdown discovery through the
 Vault without changing explicit document reads, saves or writer admission.
 LN-MD-001 package ownership and editor persistence contracts are unchanged;

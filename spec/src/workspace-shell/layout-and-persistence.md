@@ -1,5 +1,9 @@
 # Workspace Shell / Layout and persistence
 
+Foreground App file navigation joins the same projection-aware reveal as
+explicit view navigation. LN-WS-005 retains its original revision fence;
+opening a note preserves a non-file tab and selects its intended main tab.
+
 ## LN-WS-001 — Design Core layout engine
 
 <a id="ln-ws-001"></a>
