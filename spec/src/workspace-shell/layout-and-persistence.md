@@ -3,6 +3,8 @@
 Foreground App file navigation joins the same projection-aware reveal as
 explicit view navigation. LN-WS-005 retains its original revision fence;
 opening a note preserves a non-file tab and selects its intended main tab.
+The same LN-WS-005/062 fence covers a projection already awaiting plugin/view
+activation when a later explicit same-type query/scope transition completes.
 
 ## LN-WS-001 — Design Core layout engine
 

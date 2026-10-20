@@ -1,5 +1,7 @@
 # Architecture / Workspace integration
 
+Same-type state transitions retain LN-WS-005/062 authority through in-flight
+projection, including Search query/scope state.
 Foreground file routing joins LN-WS-005's projection-aware reveal. LN-ARCH-048
 history capture and the original App, leaf, view and writer owners are unchanged.
 

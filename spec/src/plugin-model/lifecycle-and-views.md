@@ -1,5 +1,10 @@
 # Plugin Model / Lifecycle and views
 
+LN-WS-005/062 in-flight replay retains newer plugin-owned view state and
+activation. Stale prepared candidates are retired before opening; ordinary
+registration, plugin activation, load/unload and saved-state contracts remain
+unchanged. The same generic revision guard applies to every view type.
+
 LN-WS-005/063 reveal foreground file tabs through the original owned workspace.
 Plugin view construction, file state, activation policy and disposal stay owned
 by their existing registrations; no plugin or service is enabled by revealing.

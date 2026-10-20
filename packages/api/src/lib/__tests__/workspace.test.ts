@@ -2893,6 +2893,151 @@ describe("Workspace compatibility", () => {
     expect(workspace.activeLeaf).toBe(search);
   });
 
+  it("preserves explicit same-type state during an overlapping sidebar projection", async () => {
+    const { workspace } = createWorkspaceHarness();
+    await workspace.loadLayout();
+    workspace.registerView(
+      "search-fixture",
+      (leaf) => new MockItemView(leaf, "search-fixture", "Search"),
+    );
+    const search = workspace.getLeftLeaf(false)!;
+    await search.setViewState({
+      type: "search-fixture",
+      state: { query: "", scope: "files" },
+    });
+    const { controller } = getWorkspaceHostBinding(workspace);
+    controller.renderer.setSidebarOpen("left", true);
+    await Promise.resolve();
+    await search.setViewState({
+      type: "search-fixture",
+      state: { query: "retained search", scope: "history" },
+    });
+    workspace.activateLeaf(search, { focusRootHost: false });
+    await workspace.revealLeaf(search);
+    await workspace.flushLayout();
+    expect(search.view.getState()).toEqual({
+      query: "retained search",
+      scope: "history",
+    });
+    expect(JSON.stringify(controller.getLayout())).toContain("retained search");
+    expect(workspace.activeLeaf).toBe(search);
+  });
+
+  it("fences stale leaf replay after plugin activation yields to a newer transition", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    await workspace.loadLayout();
+    workspace.registerView(
+      "search-fixture",
+      (leaf) => new MockItemView(leaf, "search-fixture", "Search"),
+    );
+    const search = workspace.getLeftLeaf(false)!;
+    await search.setViewState({
+      type: "search-fixture",
+      state: { query: "initial", scope: "files" },
+    });
+    const { controller } = getWorkspaceHostBinding(workspace);
+    await search.view.setState({ query: "live draft", scope: "files" });
+    let release!: () => void;
+    let entered!: () => void;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const replayEntered = new Promise<void>((resolve) => {
+      entered = resolve;
+    });
+    let activations = 0;
+    vi.spyOn(app.plugins, "activateForViewType").mockImplementation(
+      async (type) => {
+        if (type === "search-fixture" && ++activations === 2) {
+          entered();
+          await held;
+        }
+      },
+    );
+    controller.renderer.setSidebarOpen("left", true);
+    await replayEntered;
+    try {
+      await search.setViewState({
+        type: "search-fixture",
+        state: { query: "latest", scope: "history" },
+      });
+      const latestView = search.view;
+      workspace.activateLeaf(search, { focusRootHost: false });
+      release();
+      await workspace.revealLeaf(search);
+      await workspace.flushLayout();
+      expect(search.view).toBe(latestView);
+      expect(search.view.getState()).toEqual({
+        query: "latest",
+        scope: "history",
+      });
+      expect(JSON.stringify(controller.getLayout())).toContain("latest");
+      expect(workspace.activeLeaf).toBe(search);
+    } finally {
+      release();
+    }
+  });
+
+  it("discards a stale prepared view without replacing the newer live view", async () => {
+    const { workspace } = createWorkspaceHarness();
+    await workspace.loadLayout();
+    let release!: () => void;
+    let entered!: () => void;
+    let hold = false;
+    let prepared: View | undefined;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const replayEntered = new Promise<void>((resolve) => {
+      entered = resolve;
+    });
+    class DelayedPanel extends MockItemView {
+      override async setState(state: Record<string, unknown>) {
+        if (hold && state.query === "initial") {
+          prepared = this;
+          entered();
+          await held;
+        }
+        await super.setState(state);
+      }
+    }
+    workspace.registerView(
+      "search-fixture",
+      (leaf) => new DelayedPanel(leaf, "search-fixture", "Search"),
+    );
+    const search = workspace.getLeftLeaf(false)!;
+    await search.setViewState({
+      type: "search-fixture",
+      state: { query: "initial", scope: "files" },
+    });
+    const { controller } = getWorkspaceHostBinding(workspace);
+    await search.view.setState({ query: "live draft", scope: "files" });
+    hold = true;
+    controller.renderer.setSidebarOpen("left", true);
+    await replayEntered;
+    try {
+      await search.setViewState({
+        type: "search-fixture",
+        state: { query: "latest", scope: "history" },
+      });
+      const latestView = search.view;
+      workspace.activateLeaf(search, { focusRootHost: false });
+      release();
+      await workspace.revealLeaf(search);
+      await workspace.flushLayout();
+      expect(search.view).toBe(latestView);
+      expect(search.view.getState()).toEqual({
+        query: "latest",
+        scope: "history",
+      });
+      expect(prepared?.loaded).toBe(false);
+      expect(JSON.stringify(controller.getLayout())).toContain("latest");
+      expect(workspace.activeLeaf).toBe(search);
+    } finally {
+      release();
+    }
+  });
+
   it("retains new ItemViews while sidebar projection and activation overlap", async () => {
     const { app, workspace } = createWorkspaceHarness();
     await workspace.loadLayout();

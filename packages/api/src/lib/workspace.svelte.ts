@@ -326,7 +326,9 @@ export abstract class WorkspaceParent<
   }
 }
 
-type WorkspaceProjectionItems = Map<string, WorkspaceItem>;
+type WorkspaceProjectionItems = Map<string, WorkspaceItem> & {
+  isCurrent?: () => boolean;
+};
 
 function collectWorkspaceProjectionItem(
   item: WorkspaceItem,
@@ -354,8 +356,9 @@ function collectWorkspaceProjectionItem(
 
 function beginWorkspaceProjection(
   workspace: Workspace,
+  isCurrent: () => boolean,
 ): WorkspaceProjectionItems {
-  const items = new Map<string, WorkspaceItem>();
+  const items = Object.assign(new Map<string, WorkspaceItem>(), { isCurrent });
   workspace.rootSplit.children.forEach((child) =>
     collectWorkspaceProjectionItem(child, items),
   );
@@ -391,8 +394,14 @@ function claimWorkspaceProjectionItem<T extends WorkspaceItem>(
 
 function finishWorkspaceProjection(
   projectionItems: WorkspaceProjectionItems,
+  workspace: Workspace,
 ): void {
+  const retained =
+    projectionItems.isCurrent?.() === false
+      ? beginWorkspaceProjection(workspace, () => true)
+      : undefined;
   for (const item of projectionItems.values()) {
+    if (retained?.get(item.id) === item) continue;
     if (item instanceof WorkspaceLeaf) {
       item.view.unload();
       if (hasDestroyableEditor(item.view)) item.view.editor.destroy();
@@ -527,6 +536,7 @@ export abstract class WorkspaceSplit<
     });
 
     return Promise.all(promises).then(() => {
+      if (projectionItems?.isCurrent?.() === false) return;
       this.id = layout.id;
       this.type = layout.direction;
     });
@@ -700,6 +710,7 @@ export class WorkspaceSidedock extends WorkspaceSplit<{
     projectionItems?: WorkspaceProjectionItems,
   ) {
     return super.loadJson(layout, projectionItems).then(() => {
+      if (projectionItems?.isCurrent?.() === false) return;
       if (/^0(?:px|rem|em|%)?$/.test(layout.width.trim())) {
         this.open = false;
       } else {
@@ -837,6 +848,7 @@ export class WorkspaceWindow extends WorkspaceContainer {
         projectionItems,
       )
       .then(() => {
+        if (projectionItems?.isCurrent?.() === false) return;
         this.id = layout.id;
         this.applyInitData({
           mode: layout.mode,
@@ -928,6 +940,7 @@ export class WorkspaceFloating extends WorkspaceParent {
       this.addChild(child);
       promises.push(
         child.loadWindowJson(layout, projectionItems).then(() => {
+          if (projectionItems?.isCurrent?.() === false) return;
           if (child.mode !== "popout") {
             return;
           }
@@ -1276,10 +1289,13 @@ export class WorkspaceSidebarGroup extends WorkspaceParent {
         () => new WorkspaceLeaf(),
       );
       this.addChild(leaf);
-      promises.push(leaf.loadJson(config));
+      promises.push(
+        loadWorkspaceLeafJson(leaf, config, projectionItems?.isCurrent),
+      );
     });
 
     return Promise.all(promises).then(() => {
+      if (projectionItems?.isCurrent?.() === false) return;
       this.id = layout.id;
       this.name = layout.name;
       this.icon = layout.icon;
@@ -1365,11 +1381,14 @@ export class WorkspaceTabs extends WorkspaceParent {
           () => new WorkspaceLeaf(),
         );
         this.addChild(leaf);
-        promises.push(leaf.loadJson(config));
+        promises.push(
+          loadWorkspaceLeafJson(leaf, config, projectionItems?.isCurrent),
+        );
       }
     });
 
     return Promise.all(promises).then(() => {
+      if (projectionItems?.isCurrent?.() === false) return;
       this.id = layout.id;
       this.stacked = layout.stacked;
       this.selected = layout.currentTab;
@@ -1559,6 +1578,7 @@ export class WorkspaceBottomPanel extends WorkspaceTabs {
     projectionItems?: WorkspaceProjectionItems,
   ) {
     return super.loadJson(layout, projectionItems).then(() => {
+      if (projectionItems?.isCurrent?.() === false) return;
       const collapsed = /^0(?:px|rem|em|%)?$/.test(layout.height.trim());
       this.open = !collapsed;
       if (!collapsed) this.height = layout.height;
@@ -2728,13 +2748,15 @@ export class Workspace extends EventDispatcher<{
   private async restoreLayoutJson(
     config: WorkspaceJson | unknown,
     live = false,
+    isCurrent: () => boolean = () => true,
   ): Promise<void> {
     if (!live) this.exitFocusMode();
     const normalized = normalizeWorkspaceJson(config, {
       preservePopouts: live,
     });
     await this.activateLayoutPlugins(normalized);
-    const projectionItems = beginWorkspaceProjection(this);
+    if (!isCurrent()) return;
+    const projectionItems = beginWorkspaceProjection(this, isCurrent);
     try {
       await Promise.all([
         this.rootSplit.loadJson(normalized.main, projectionItems),
@@ -2763,9 +2785,10 @@ export class Workspace extends EventDispatcher<{
         ),
       ]);
     } finally {
-      finishWorkspaceProjection(projectionItems);
+      finishWorkspaceProjection(projectionItems, this);
     }
 
+    if (!isCurrent()) return;
     if (!normalized.active) {
       if (!this.containsLeaf(this.activeLeaf)) this.activeLeaf = null;
       return;
@@ -3539,15 +3562,25 @@ export class Workspace extends EventDispatcher<{
     preserveSidebarWidth("right", this.rightSplit);
 
     const run = this.#workspaceHostProjection.then(async () => {
-      if (mutationRevision !== (layoutMutationRevisions.get(this) ?? 0)) return;
+      const isCurrent = () =>
+        mutationRevision === (layoutMutationRevisions.get(this) ?? 0);
+      if (!isCurrent()) return;
       await this.withoutLayoutPersistence(async () => {
-        await this.restoreLayoutJson(projected, true);
+        await this.restoreLayoutJson(projected, true, isCurrent);
+        if (!isCurrent()) return;
         this.focusedHostId = this.getCommandHostIdForLeaf(this.activeLeaf);
         // Sidedock compatibility effects flush after loadJson resolves. Keep
         // persistence suppressed through that flush so an older queued
         // projection cannot be committed back over a newer controller layout.
         await tick();
       });
+      if (!isCurrent()) {
+        this.requestSaveLayout({
+          source: "api",
+          operation: "superseded-projection",
+        });
+        return;
+      }
       this.emitLayoutChangeAndScheduleSave(
         compatibilityLayoutEventFromDesign(event),
       );
@@ -3802,7 +3835,8 @@ export class Workspace extends EventDispatcher<{
     if (
       revision !== (layoutMutationRevisions.get(this) ?? 0) ||
       !this.containsLeaf(leaf)
-    ) return;
+    )
+      return;
     recordLayoutMutation(this);
     if (wasActive) this.activeLeaf = leaf;
     let child: WorkspaceItem = leaf;
@@ -5566,6 +5600,34 @@ function isPoorerViewState(
   return liveEntries.some(([key]) => !(key in next));
 }
 
+function loadWorkspaceLeafJson(
+  leaf: WorkspaceLeaf,
+  layout: WorkspaceLeafJson,
+  isCurrent: () => boolean = () => true,
+): Promise<void> {
+  if (!isCurrent()) return Promise.resolve();
+  leaf.id = layout.id;
+  const liveState = leaf.view.getState();
+  if (
+    leaf.view.getViewType() === layout.state.type &&
+    (isEqual(liveState, layout.state.state) ||
+      isPoorerViewState(layout.state.state, liveState))
+  ) {
+    leaf.state = { type: layout.state.type, state: { ...liveState } };
+    return Promise.resolve();
+  }
+  return leaf.setViewState(
+    { type: layout.state.type, state: layout.state.state },
+    {
+      history: true,
+      layoutProjection: true,
+      projectionIsCurrent: isCurrent,
+      title: layout.state.title,
+      icon: layout.state.icon,
+    },
+  );
+}
+
 function collectLayoutViewTypes(
   node: WorkspaceSplitJson | WorkspaceTabsJson | WorkspaceWindowJson,
   target: Set<string>,
@@ -5926,6 +5988,8 @@ export class WorkspaceLeaf extends WorkspaceItem<{
 
   async setViewState(viewState: ViewState, eState?: any) {
     if (!eState?.layoutProjection) recordLayoutMutation(this.app.workspace);
+    const isCurrent: () => boolean =
+      eState?.projectionIsCurrent ?? (() => true);
     return this.app.telemetry.measureAsync(
       "workspace.leaf.set_view_state",
       async (span) => {
@@ -5951,13 +6015,18 @@ export class WorkspaceLeaf extends WorkspaceItem<{
               file,
               { confirm: false },
             );
+          if (!isCurrent()) return;
           if (promptView) {
-            this.state = viewState;
-            this.pinned = !!viewState.pinned;
             const result: ViewStateResult = {
               history: eState?.history === true,
             };
             await promptView.setState({ ...(viewState.state || {}) });
+            if (!isCurrent()) {
+              promptView.unload();
+              return;
+            }
+            this.state = viewState;
+            this.pinned = !!viewState.pinned;
             await this.open(promptView, result, viewState);
             return;
           }
@@ -5966,6 +6035,7 @@ export class WorkspaceLeaf extends WorkspaceItem<{
         if (eState?.activatePlugins !== false) {
           await this.app.plugins.activateForViewType(requestedViewType);
         }
+        if (!isCurrent()) return;
         let viewCreator = this.app.workspace.viewCreator(requestedViewType);
         let resolvedViewState = viewState;
 
@@ -6023,11 +6093,16 @@ export class WorkspaceLeaf extends WorkspaceItem<{
             this.app.workspace.viewCreator("empty") ||
             ((leaf: WorkspaceLeaf) => new EmptyView(leaf));
         }
-        this.state = resolvedViewState;
-        this.pinned = !!viewState.pinned;
         const view = viewCreator(this);
         const result: ViewStateResult = { history: eState?.history === true };
         await view.setState({ ...(resolvedViewState.state || {}) });
+        if (!isCurrent()) {
+          view.unload();
+          if (hasDestroyableEditor(view)) view.editor.destroy();
+          return;
+        }
+        this.state = resolvedViewState;
+        this.pinned = !!viewState.pinned;
         await this.open(view, result, resolvedViewState);
       },
       {
@@ -6100,31 +6175,7 @@ export class WorkspaceLeaf extends WorkspaceItem<{
   }
 
   loadJson(layout: WorkspaceLeafJson) {
-    this.id = layout.id;
-    const liveState = this.view.getState();
-    if (
-      this.view.getViewType() === layout.state.type &&
-      (isEqual(liveState, layout.state.state) ||
-        isPoorerViewState(layout.state.state, liveState))
-    ) {
-      this.state = {
-        type: layout.state.type,
-        state: { ...liveState },
-      };
-      return Promise.resolve();
-    }
-    return this.setViewState(
-      {
-        type: layout.state.type,
-        state: layout.state.state,
-      },
-      {
-        history: true,
-        layoutProjection: true,
-        title: layout.state.title,
-        icon: layout.state.icon,
-      },
-    );
+    return loadWorkspaceLeafJson(this, layout);
   }
 
   reload() {

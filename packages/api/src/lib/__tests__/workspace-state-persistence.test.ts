@@ -18,7 +18,11 @@ async function fixture() {
     removeEventListener() {},
   }));
   const adapter = new MemoryVaultAdapter({
-    [path]: JSON.stringify({ [key]: true, outside: "keep" }),
+    [path]: JSON.stringify({
+      [key]: true,
+      "files.exclude": [".git", ".jj"],
+      outside: "keep",
+    }),
   });
   const write = vi.fn(
     async (file: string, text: string, expected: string | null) => {
@@ -56,13 +60,18 @@ it("admits a shared Settings change before its debounce and immediate close guar
   });
   expect(JSON.parse(await adapter.read(path))).toEqual({
     [key]: false,
+    "files.exclude": [".git", ".jj"],
     outside: "keep",
   });
 });
 
 it("retains failed shared Settings writes and projects explicit recovery without feedback writes", async () => {
   const { app, controller, adapter, write } = await fixture();
-  const external = JSON.stringify({ [key]: false, outside: "external" });
+  const external = JSON.stringify({
+    [key]: false,
+    "files.exclude": [".git", ".jj"],
+    outside: "external",
+  });
   await adapter.write(path, external);
   controller.settings.update(key, false);
   await expect(
@@ -79,6 +88,7 @@ it("retains failed shared Settings writes and projects explicit recovery without
   });
   expect(JSON.parse(await adapter.read(path))).toEqual({
     [key]: true,
+    "files.exclude": [".git", ".jj"],
     outside: "external",
   });
   expect(write).toHaveBeenCalledTimes(2);
