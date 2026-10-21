@@ -203,3 +203,27 @@ rejects missing or workspace resolutions. Bundled workspace code requires no
 intermediate npm publication. Runtime staging also retains the root
 package-manager pin. Only compiled output and its external dependency
 graph enter the runtime image.
+
+## LN-SRV-021 — Private native companion
+
+<a id="ln-srv-021"></a>
+
+**Requirement.** The Node host MUST supervise its native companion over a versioned, bounded Unix socket in a private directory. Companion exit or an uncertain response MUST reject pending work without automatic replay. Shutdown MUST drain native history workers before confirming success; forced termination MUST remain distinguishable from graceful completion.
+
+## LN-SRV-022 — Hosted history admission
+
+<a id="ln-srv-022"></a>
+
+**Requirement.** Native history MUST resolve opaque managed-vault identities from the configured data root. Handles MUST bind the authenticated caller scope, vault, physical source and admission generation. Revocation MUST drain those scopes. Native request frames MUST NOT accept browser-supplied filesystem paths or caller authority.
+
+## LN-SRV-023 — Preserved history transport
+
+<a id="ln-srv-023"></a>
+
+**Requirement.** The hosted companion MUST reuse the transport-independent `jj-history-service` for operation-pinned reads. It MUST retain version-one inner frames as exact text through JavaScript, enforce request and response limits, and reject unknown methods and protocol versions. Reading history MUST NOT initialize or reconcile repository state.
+
+The first private bridge is not an HTTP feature. Authenticated browser routing,
+automatic backup, restore and shared UI integration are H03 acceptance gates.
+External history lives under the managed vault's persistent `history` directory,
+separate from disposable `state/app.turso`. Original colocated repositories are
+explicit read sources; absence never creates a repository.

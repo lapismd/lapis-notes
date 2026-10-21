@@ -258,7 +258,7 @@ export default defineConfig(headingRequirements(), {
           ],
         },
         {
-          pattern: "^packages/server-(?:deno|node)/",
+          pattern: "^packages/server-(?:deno|node|native)/",
           chapterPatterns: [
             "^spec/src/server\\-node\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
             "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",

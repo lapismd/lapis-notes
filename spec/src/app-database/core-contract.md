@@ -1,5 +1,10 @@
 # App Database / Database integration
 
+H02's private history companion implements LN-SRV-021–023 independently of
+AppDatabase. History source identity, operation pins and repository objects are
+not SQL projections. Existing database providers, remote method contracts,
+transaction policy and disposable-index lifetimes remain unchanged.
+
 Editor conflict baselines remain document-owned under LN-ARCH-142, separate from
 metadata reads and the vault cache. Conditional Vault projections under
 LN-PKG-169 update only after successful native persistence; database ownership

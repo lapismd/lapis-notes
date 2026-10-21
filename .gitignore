@@ -41,3 +41,4 @@ packages/desktop-deno/terminal-host
 
 # Local Node server bootstrap credentials.
 packages/server-node/secrets/
+packages/server-native/target/

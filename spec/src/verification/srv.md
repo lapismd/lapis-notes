@@ -3,6 +3,9 @@
 <!-- prettier-ignore -->
 | ID | Chapter | Status | Evidence |
 | --- | --- | --- | --- |
+| LN-SRV-021 | [server-node-host](../server-node-host/core-contract.md#ln-srv-021) | Implemented | [H02 evidence](../../records/2026-10-21-private-history-companion.md): five real native IPC tests, four supervisor tests and Node24 actual-binary smoke cover shutdown, bounded frames, exit and no replay. |
+| LN-SRV-022 | [server-node-host](../server-node-host/core-contract.md#ln-srv-022) | Implemented | [H02 evidence](../../records/2026-10-21-private-history-companion.md): real managed vaults retain caller/physical-source/generation fences, drained revocation and missing-source preservation. |
+| LN-SRV-023 | [server-node-host](../server-node-host/core-contract.md#ln-srv-023) | Implemented | [H02 evidence](../../records/2026-10-21-private-history-companion.md): exact inner text, shared service pins after source advancement and invalid-frame refusal pass; browser and restore remain H03. |
 | LN-SRV-018 | [server-node-host](../server-node-host/core-contract.md#ln-srv-018) | Implemented | Server-mode build output and live container acceptance serve the workspace-host import-map entry and activate the installed History plugin. |
 | LN-SRV-019 | [server-node-host, web-host](../server-node-host/core-contract.md#ln-srv-019) | Implemented | Web composition keeps Nostr relay access in the client-side source adapter and adds no server registry endpoint, persistence, curator, or proxy. |
 | LN-SRV-001 | [server-node-host](../server-node-host/core-contract.md#ln-srv-001) | Implemented | 44 Node server tests and the Node 24 built-output smoke cover Fetch tRPC handling, native filesystem/database workers, streaming cancellation, static delivery and absence of SvelteKit or SSR. |

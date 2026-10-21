@@ -1,5 +1,10 @@
 # Specification Governance / Protected change mapping
 
+The H02 map includes `packages/server-native` beside `server-node` so native
+history admission and IPC changes require the owning hosted contracts and
+cross-cutting architecture, package and database confirmations. LN-GOV-003 and
+LN-GOV-013 remain unchanged; native source is not excluded from spec-first.
+
 The approved `2026.10.14.1` shared-image refresh maps direct workflow pins,
 the dependency-only Docker base and its regenerated immutable digest to
 Architecture, Packages and this chapter. All existing CI and release gates

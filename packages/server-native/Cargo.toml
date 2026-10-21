@@ -1,0 +1,29 @@
+[package]
+name = "lapis-notes-native"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.99"
+license = "Apache-2.0"
+publish = false
+
+[dependencies]
+async-trait = "0.1"
+jj-history-service = { path = "../../../jj-store/crates/jj-history-service" }
+jj-store-jj = { path = "../../../jj-store/crates/jj-store-jj", default-features = false, features = ["local-history"] }
+jj-store-model = { path = "../../../jj-store/crates/jj-store-model" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "=0.10.9"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "net", "io-util", "time", "signal"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+
+[dev-dependencies]
+tempfile = "3"
+
+[profile.dev]
+debug = 0
+incremental = false
+
+[profile.test]
+debug = 0
+incremental = false

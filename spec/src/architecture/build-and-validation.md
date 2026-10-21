@@ -1,5 +1,11 @@
 # Architecture / Build and validation
 
+The private hosted native companion is grouped by history and IPC functionality
+under `packages/server-native`. It pins Rust 1.99 and consumes sibling JJ Store
+source at qualified extraction `f58b9363`. `pnpm server:native` uses a separate
+checkout-owned target, requires 30 GiB free and never cleans caches implicitly.
+This development slice does not package or enable a public native endpoint.
+
 Hosted parity reconciliation consumes released Design Core `^0.6.0` through
 registry ranges and a frozen lockfile. This aligns the current API's close guard,
 plugin flush and centered panel calls with their owning shared implementation;

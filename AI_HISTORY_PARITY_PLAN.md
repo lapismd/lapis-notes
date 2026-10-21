@@ -189,6 +189,23 @@ and paired-device qualification are distinct gates.
 | H10   | Full desktop/hosted parity qualification                      | Shared stories, accessibility, real providers/tools, Linux packaging and complete feature ledger                  |
 | H11   | Optional Docker backend                                       | Deferred; later require mounted-file parity, translated paths, credentials, modes and confirmed container cleanup |
 
+H03 lands in three independently testable parts:
+
+1. **H03.1 — authenticated immutable transport.** Resolve vault/session authority
+   in Node, bind private native scopes, preserve exact frames and qualify two
+   managed vaults, revocation and shutdown. Browser requests never admit uploaded
+   repository metadata or supply native roots.
+2. **H03.2 — shared presentation and backup.** Move the existing Desktop repository
+   presentation/controllers behind injected services into the owning History
+   plugin. Both hosts consume those components. Add the server-owned checkpoint
+   and automatic backup lifecycle outside disposable indexes.
+3. **H03.3 — guarded restore and recovery.** Coordinate saved writes and editor
+   protection, preserve safety checkpoints/receipts, and qualify conflicts,
+   two-browser behavior, disconnect and cold restart.
+
+These parts refine H03; its original completion gate stays open until all three
+pass. Docker and later AI/memory/Compute gates retain their existing order.
+
 Every code slice updates its owning canonical requirements, verification rows,
 source evidence and the ledger. Start with the exact failing boundary, then run
 all required affected checks/builds and consumer acceptance. Keep private leaf,

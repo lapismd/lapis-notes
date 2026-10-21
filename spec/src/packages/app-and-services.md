@@ -1,5 +1,10 @@
 # Packages / App and services
 
+The private `lapis-notes-native` executable and Node supervisor implement
+LN-SRV-021–023 without adding public npm exports or an App singleton. The host
+supplies trusted caller scopes; history remains independent of AI and indexes.
+Public package ranges and the existing vault/AppDatabase APIs are unchanged.
+
 LN-SRCH-051 saved-version content identities and checkpoint references are additive presentation types. They preserve provider-owned navigation and introduce no database, Vault or repository authority.
 
 The API exports the result-provider types and registry under LN-SRCH-051. Each App owns its registry; this additive service does not change LN-PKG-001 or existing AppDatabase and Vault interfaces.
