@@ -217,6 +217,10 @@ cannot disappear when the host registers the public plugin Settings pages.
 
 **Requirement.** Uninstall confirmation MUST use a compact, viewport-bounded destructive Alert Dialog that identifies the target with the same plugin row presentation, resolved name, version, provenance, description, and available status metadata. Cancel and destructive confirmation MUST preserve the existing uninstall lifecycle and clear the selected target when dismissed. Both actions MUST have explicit token-backed default, hover, visible-focus, disabled, and reduced-motion treatments.
 
+Consumer acceptance waits for the mounted confirmation to become visible before
+checking its contents or choosing Disable instead. The prepared entrance
+animation remains enabled.
+
 ## LN-PLUG-066 — Installed-plugin enablement switch: expose the next lifecycle action
 
 <a id="ln-plug-066"></a>
@@ -300,6 +304,10 @@ cannot disappear when the host registers the public plugin Settings pages.
 <a id="ln-plug-097"></a>
 
 **Requirement.** Registry media viewers MUST fit enlarged images within the viewport and support previous/next, keyboard image navigation, and Light/Dark/Split selection through shared controls. Closing the viewer MUST restore focus to its connected opener; reopening MUST select the requested image and initial theme.
+
+Consumer acceptance waits for visible dialog state after opening and reopening
+the viewer before asserting its image-status text. DOM insertion alone does not
+mean the prepared entrance animation has painted the viewer.
 
 ## LN-PLUG-098 — App-owned Plugins view registration
 

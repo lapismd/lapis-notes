@@ -352,10 +352,10 @@
     lastControllerOperation = event.operation ?? event.source;
   });
 
-  adapter.onWrite = (path, data, count) => {
+  adapter.onWrite = (path, data) => {
     if (path !== workspacePath) return;
     persistedLayout = data;
-    writeCount = count;
+    writeCount += 1;
   };
 
   onMount(() => {

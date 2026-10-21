@@ -223,7 +223,7 @@ keeps sibling release preparation outside standalone CI.
 
 <a id="ln-pkg-144"></a>
 
-**Requirement.** Private `@lapis-notes/deno-host-services` MUST own reusable Deno filesystem, watch, resource, plugin-asset, language-service, native AppDatabase kernels, and durable opaque sync repositories governed by LN-ARCH-105. It MUST NOT own desktop windows, server authentication, HTTP routing, vault selection, or Web composition.
+**Requirement.** Private `@lapis-notes/deno-host-services` MUST own Deno filesystem, watch, resource, plugin-asset and durable opaque sync kernels governed by LN-ARCH-105. Private `@lapis-notes/host-services` MUST own runtime-independent path, language and native AppDatabase worker kernels, with retained Deno compatibility exports. Both packages MUST NOT own desktop windows, server authentication, HTTP routing, vault selection or Web composition.
 
 Its portable `test:sync-engine` script accepts a built engine path for development
 qualification with native storage and opaque host security capabilities. The
@@ -247,11 +247,11 @@ LN-ARCH-123. LN-ARCH-124 adds optional expected-authority metadata to opaque
 ports; production native RPC requires it while trusted low-level stores remain
 compatible. Client engines must supply their captured fences before activation.
 
-## LN-PKG-145 — Private @lapis-notes/server-deno: own the authenticated Deno server, managed-vault control
+## LN-PKG-145 — Private @lapis-notes/server-node: own the authenticated Node server, managed-vault control
 
 <a id="ln-pkg-145"></a>
 
-**Requirement.** Private `@lapis-notes/server-deno` MUST own the authenticated Deno server, managed-vault control database, tRPC router, direct data routes, static server-mode Web delivery, lifecycle, deployment packaging, and the browser adapter that translates public vault semantics into managed server requests. It MUST consume public Lapis interfaces and private Deno host services.
+**Requirement.** Private `@lapis-notes/server-node` MUST own the authenticated Node server, managed-vault control database, tRPC router, direct data routes, static server-mode Web delivery, lifecycle, deployment packaging, and the browser adapter that translates public vault semantics into managed server requests. It MUST consume public Lapis interfaces and private portable host services.
 
 ## LN-PKG-151 — @lapis-notes/api/build/vite: own the reusable Turso browser-bundle transform used
 

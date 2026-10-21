@@ -4,6 +4,7 @@ const baseURL = "http://127.0.0.1:4174";
 
 export default defineConfig({
   testDir: "./e2e",
+  testIgnore: "server-host.spec.ts",
   timeout: 60_000,
   expect: { timeout: 20_000 },
   fullyParallel: false,

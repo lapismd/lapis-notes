@@ -384,19 +384,22 @@ export const BrowseSearchAndExpandableFilters: Story = {
       canvas.getByRole("button", { name: "Show browse filters" }),
     );
     await expect(
-      canvas.getByRole("button", { name: "Filter by platform" }),
+      canvas.getByRole("button", { name: "Filter by platform: All platforms" }),
     ).toBeVisible();
     await expect(
       canvas.getByRole("button", { name: "Hide browse filters" }),
     ).toBeVisible();
     const body = within(canvasElement.ownerDocument.body);
     await userEvent.click(
-      canvas.getByRole("button", { name: "Filter by channel" }),
+      canvas.getByRole("button", { name: "Filter by channel: All channels" }),
     );
     await userEvent.click(
       await body.findByRole("option", { name: /Community/ }),
     );
     await expect(canvas.getByText("2 active filters")).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "Filter by channel: Community" }),
+    ).toBeVisible();
     await expect(
       canvas.getByRole("heading", { name: "No plugins match" }),
     ).toBeVisible();
@@ -420,7 +423,7 @@ export const BrowseRecentlyUpdatedSort: Story = {
       canvas.getByRole("button", { name: "Show browse filters" }),
     );
     await userEvent.click(
-      canvas.getByRole("button", { name: "Sort Browse plugins" }),
+      canvas.getByRole("button", { name: "Sort Browse plugins: Name" }),
     );
     const body = within(canvasElement.ownerDocument.body);
     await userEvent.click(
@@ -440,7 +443,7 @@ export const BrowseMostDownloadedSort: Story = {
       canvas.getByRole("button", { name: "Show browse filters" }),
     );
     await userEvent.click(
-      canvas.getByRole("button", { name: "Sort Browse plugins" }),
+      canvas.getByRole("button", { name: "Sort Browse plugins: Name" }),
     );
     const body = within(canvasElement.ownerDocument.body);
     await userEvent.click(

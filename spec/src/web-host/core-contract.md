@@ -1,12 +1,16 @@
 # Web Host / Browser integration
 
-The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
+The Design Core dependency refresh consumes released `0.5.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.
 
 Complete CI browser acceptance under LN-PKG-161 includes the real server-host
 editing, sharing and restart scenario. Its private bootstrap fixture is seeded
 for the container user and retains the original browser assertions and deadlines.
+That scenario runs in the dedicated Node server browser config; the PWA config
+continues to execute its complete independent browser suite. Both jobs remain
+blocking, and server acceptance checks a read-only Node 24 container with no Deno
+executable before editing and retained-volume restart.
 
 ## LN-WEB-032 — Retired Terminal connection settings
 

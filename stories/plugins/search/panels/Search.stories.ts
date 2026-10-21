@@ -464,7 +464,7 @@ function placementStory(
         panel.getByRole("button", { name: "Expand filter options" }),
       );
       const fileTypePicker = panel.getByRole("button", {
-        name: "Filter by file type",
+        name: "Filter by file type: All",
       });
       await expect(fileTypePicker).toBeVisible();
       await userEvent.click(fileTypePicker);
@@ -474,6 +474,9 @@ function placementStory(
         }),
       );
       await expect(fileTypePicker).toHaveTextContent("Markdown");
+      await expect(fileTypePicker).toHaveAccessibleName(
+        "Filter by file type: Markdown",
+      );
       await expect(fileTypePicker).toHaveAttribute("data-active", "true");
       await expect(panel.getByText("Vault search syntax")).toBeVisible();
 
@@ -538,7 +541,7 @@ function placementStory(
         await userEvent.click(explainTerms);
         await expect(panel.getByText(/Matching filenames/)).toBeVisible();
         const retrievalPicker = panel.getByRole("button", {
-          name: "Filter by retrieval mode",
+          name: "Filter by retrieval mode: Auto",
         });
         await userEvent.click(retrievalPicker);
         await userEvent.click(

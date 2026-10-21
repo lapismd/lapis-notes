@@ -27,7 +27,7 @@
     createServerClientSession,
     createServerPluginDistributionFetch,
     createServerPluginAssetServer,
-  } from "@lapis-notes/server-deno/browser";
+  } from "@lapis-notes/server-node/browser";
   import * as Button from "@lapismd/design-core/shadcn/button";
   import * as Card from "@lapismd/design-core/shadcn/card";
   import * as CommandView from "@lapismd/design-core/shadcn/command-view";
@@ -210,7 +210,7 @@
         events,
       });
       const session = await createVaultSession(adapter, {
-        runtime: "deno-server",
+        runtime: "node-server",
         profile,
         appDatabaseProvider: new ServerAppDatabaseProvider(client, events),
       });
@@ -416,7 +416,7 @@
         adapter={prepared.adapter}
         profile={prepared.profile}
         session={prepared.session}
-        runtime="deno-server"
+        runtime="node-server"
         listProfiles={async () => activeProfiles()}
         pluginAssetServer={createServerPluginAssetServer(prepared.adapter)}
         pluginDistributionOptions={{

@@ -314,5 +314,5 @@ vault or editor types to Design Core.
 @lapis-notes/desktop-deno (native consumer host)
 @lapis-notes/web (browser/PWA consumer host)
 @lapis-notes/deno-host-services (private reusable Deno service kernels)
-@lapis-notes/server-deno (authenticated managed-vault server host)
+@lapis-notes/server-node (authenticated managed-vault server host)
 ```

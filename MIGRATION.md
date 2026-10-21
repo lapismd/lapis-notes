@@ -8,23 +8,24 @@ vault-visible. Docker execution is deferred behind a shared execution port.
 This is the single completion ledger; records distinguish source, native,
 browser, real-provider and platform qualification.
 
-| Slice                             | Status   | Next gate / evidence                                                                                                                  |
-| --------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| H00 Plan and ledger               | Complete | Saved full scope, architecture, invariants and ordered gates; [document evidence](spec/records/2026-10-21-hosted-ai-history-plan.md). |
-| H01 Current Node baseline         | Pending  | Integrate qualified `953d673b` while preserving newer main/API changes; rerun hosted acceptance.                                      |
-| H02 Shared history service / IPC  | Pending  | Reuse operation-pinned history and real native repositories.                                                                          |
-| H03 Hosted history / restore      | Pending  | Two vaults, conditional writes, dirty editors, backup and recovery.                                                                   |
-| H04 Shared ACP / host backend     | Pending  | Extract native service and qualify execution lifecycle without Tauri.                                                                 |
-| H05 Headless hosted conversations | Pending  | Real read-only turn survives disconnect; reconnect/restart never replay.                                                              |
-| H06 AI changes / mutation tools   | Pending  | Baselines, Changes, native receipts and guarded undo precede writes.                                                                  |
-| H07 Markdown memory               | Pending  | Share dated vault notes, provenance, forget, recall and move recovery.                                                                |
-| H08 Progressive imports           | Pending  | Codex/Cursor/OpenCode final fences, cancellation and dedup.                                                                           |
-| H09 Forge / transfer / Compute    | Pending  | Explicit upstream and model lifecycles with independent native gates.                                                                 |
-| H10 Parity qualification          | Pending  | Full affected desktop/hosted, accessibility and real-provider lanes.                                                                  |
-| H11 Docker execution              | Deferred | Add an adapter later; no initial container dependency.                                                                                |
+| Slice                             | Status      | Next gate / evidence                                                                                                                                                                               |
+| --------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| H00 Plan and ledger               | Complete    | Saved full scope, architecture, invariants and ordered gates; [document evidence](spec/records/2026-10-21-hosted-ai-history-plan.md).                                                              |
+| H01 Current Node baseline         | Complete    | [H01 evidence](spec/records/2026-10-21-node-current-integration.md): 20 check/test tasks, 11 build tasks, 261 catalog cases, 12 Web/PWA cases, Node24 hosted browser and native worker smoke pass. |
+| H02 Shared history service / IPC  | In progress | Neutral history source f58b9363 and private IPC are qualified; finish the separate hosted-services intake and integration.                                                                         |
+| H03 Hosted history / restore      | Pending     | Two vaults, conditional writes, dirty editors, backup and recovery.                                                                                                                                |
+| H04 Shared ACP / host backend     | Pending     | Extract native service and qualify execution lifecycle without Tauri.                                                                                                                              |
+| H05 Headless hosted conversations | Pending     | Real read-only turn survives disconnect; reconnect/restart never replay.                                                                                                                           |
+| H06 AI changes / mutation tools   | Pending     | Baselines, Changes, native receipts and guarded undo precede writes.                                                                                                                               |
+| H07 Markdown memory               | Pending     | Share dated vault notes, provenance, forget, recall and move recovery.                                                                                                                             |
+| H08 Progressive imports           | Pending     | Codex/Cursor/OpenCode final fences, cancellation and dedup.                                                                                                                                        |
+| H09 Forge / transfer / Compute    | Pending     | Explicit upstream and model lifecycles with independent native gates.                                                                                                                              |
+| H10 Parity qualification          | Pending     | Full affected desktop/hosted, accessibility and real-provider lanes.                                                                                                                               |
+| H11 Docker execution              | Deferred    | Add an adapter later; no initial container dependency.                                                                                                                                             |
 
-The previous Node port exists in a separate Jujutsu workspace. Current main
-still has the Deno server; H01 reconciles those histories before service work.
+The qualified Node port is reconciled with current Notes services. The Deno
+desktop remains superseded and frozen. Hosted history and AI continue through
+the ordered service slices above.
 The implementation request does not authorize release, signing or deployment.
 
 Unified history Search: the App-owned result-provider API is implemented and source-qualified (LN-SRCH-051). Search UI federation, native indexing and Desktop integration remain in progress; this does not complete the Desktop M14.6 native gate.

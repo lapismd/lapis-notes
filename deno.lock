@@ -7032,7 +7032,7 @@
         "npm:@lapis-notes/spellcheck@~0.1.3",
         "npm:@lapis-notes/wordcount@~0.1.2",
         "npm:@lapismd/ai-controller@0.1",
-        "npm:@lapismd/design-core@0.4",
+        "npm:@lapismd/design-core@0.6",
         "npm:@lapismd/mira-editor@~0.0.2",
         "npm:@lapismd/mira-plugin-ai@~0.0.2",
         "npm:@lapismd/mira-plugin-mermaid@~0.0.2",
@@ -7143,34 +7143,6 @@
             "npm:vite@^7.3.2",
             "npm:vitest@^4.1.8",
             "npm:ws@^8.18.3"
-          ]
-        }
-      },
-      "packages/server-deno": {
-        "dependencies": [
-          "npm:@codemirror/language@6.12.4",
-          "npm:@lezer/common@1.5.2",
-          "npm:@lezer/highlight@1.2.3",
-          "npm:@lezer/lr@1.4.10",
-          "npm:@trpc/client@11.18.0",
-          "npm:@trpc/server@11.18.0",
-          "npm:@tursodatabase/database@0.7.2",
-          "npm:fflate@0.8.3",
-          "npm:markdownlint@0.40.0",
-          "npm:zod@3.25.76"
-        ],
-        "packageJson": {
-          "dependencies": [
-            "npm:@trpc/client@11.18.0",
-            "npm:@trpc/server@11.18.0",
-            "npm:@tursodatabase/database@0.7.2",
-            "npm:@types/deno@2.7.0",
-            "npm:@types/node@^22.10.5",
-            "npm:fflate@0.8.3",
-            "npm:typescript@~5.9.3",
-            "npm:vite@^7.3.6",
-            "npm:vitest@^4.1.10",
-            "npm:zod@3.25.76"
           ]
         }
       }

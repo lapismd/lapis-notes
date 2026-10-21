@@ -245,18 +245,22 @@ export default defineConfig(headingRequirements(), {
           ],
         },
         {
+          pattern: "^packages/host-services/",
+          chapterPatterns: ["^spec/src/architecture/host-boundaries\\.md$"],
+        },
+        {
           pattern: "^packages/deno-host-services/",
           chapterPatterns: [
-            "^spec/src/server\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/server\\-node\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
             "^spec/src/desktop\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
             "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
             "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
           ],
         },
         {
-          pattern: "^packages/server-deno/",
+          pattern: "^packages/server-(?:deno|node)/",
           chapterPatterns: [
-            "^spec/src/server\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/server\\-node\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
             "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
             "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
             "^spec/src/app\\-database/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
@@ -265,7 +269,7 @@ export default defineConfig(headingRequirements(), {
         {
           pattern: "^packages/web/",
           chapterPatterns: [
-            "^spec/src/server\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/server\\-node\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
             "^spec/src/web\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
             "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
             "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",

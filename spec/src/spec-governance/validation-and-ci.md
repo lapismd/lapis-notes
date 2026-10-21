@@ -45,3 +45,8 @@ Chromium document or script `ERR_NETWORK_CHANGED` failures. Retry annotations
 and attachments remain visible in diagnostic artifacts after a successful
 recovery. Readiness, later application steps and a failed second attempt retain
 their original failure behavior.
+
+The Node server acceptance job is independent of Deno setup and desktop builds.
+Its native and container browser commands are uncached bounded root tasks.
+Workflow regressions verify job ordering and that removing either Web job's
+success still fails the aggregate; splitting execution cannot remove coverage.

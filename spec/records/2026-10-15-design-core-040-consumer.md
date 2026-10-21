@@ -137,3 +137,79 @@ six selected cases (29 unselected cases skipped), with zero interaction or axe
 failures. This closes the remaining published-package failure: one schema
 failure before, zero after. Audit passes with the existing documented QMD
 exception; specification validation and the complete-PR spec-first gate pass.
+
+## Design Core 0.5.0 target and remaining CI failures
+
+The user advanced the requested dependency target to the published Design Core
+0.5.0 release from Design Core PR #27. Its dependency and peer manifests match
+0.4.0; the new public feature is TagList. All seven direct Notes consumer
+manifests now require `^0.5.0`, and the four-package patch Changeset follows
+that target. The generated Design Core dependency snapshot and npm integrity
+are retained while unrelated peer resolutions stay unchanged. A frozen
+registry-only install confirms 0.5.0.
+
+Run `38823923583` passes the first two browser shards (90 + 65 cases), including
+all earlier Bases failures. Its third shard fails only WorkspaceShell Mobile
+(39 other cases pass): the story expects `Open tabs (5)`, while Design Core's
+published dock announces `Open 5 tabs`. The same stale selector exists in the
+retained AI, Bases and History Mobile shell stories. Update all four consumers
+to the actual count-bearing accessible name, preserving count, layout,
+persistence, plugin and pointer assertions.
+
+The exact cold regression reproduces one failure before the selector repair
+and passes after it against 0.4.0:
+
+```sh
+CI=1 pnpm exec vitest run --project storybook --no-file-parallelism stories/workspace/WorkspaceShell.stories.ts -t '^Mobile$'
+```
+
+The affected four-story command scopes the final 0.5.0 consumer regression:
+
+```sh
+CI=1 pnpm exec vitest run --project storybook --no-file-parallelism stories/workspace/WorkspaceShell.stories.ts stories/plugins/ai/shell/Shell.stories.ts stories/plugins/bases/shell/Shell.stories.ts stories/plugins/history/shell/Shell.stories.ts -t '^Mobile$'
+```
+
+Its local 0.5.0 attempt was stopped during prolonged cold startup before any
+assertion result. It is not a passing run. The user's request to minimize local
+testing leaves final four-family and full-catalog qualification with CI.
+The final registry install, audit under the existing QMD exception,
+specification validation (1439 requirements), complete-PR spec-first gate
+(15 protected files / 27 chapters) and release-workflow checks pass.
+
+Desktop run `38823923548` independently fails Linux x64 Homebrew-installed
+acceptance: the native process logs renderer readiness, shutdown and `exit:0`,
+then terminates with SIGSEGV. The clean-exit assertion correctly rejects that
+signal. macOS and Linux ARM64 native acceptance, both packaged host lanes and
+web acceptance pass. No native shutdown code changed in the preceding Bases
+refresh. One targeted diagnostic rerun of the failed Linux job is underway;
+the native failure is neither diagnosed nor waived. The final candidate still
+requires every native CI gate before merging or publishing.
+
+## Final-shard dialog readiness
+
+The fresh 0.5.0 Desktop run `38826900817` passes every native job, including
+Linux x64; the earlier shutdown signal does not recur. Lapis run `38826900861`
+also passes web, packaged hosts, quality, unit, static catalog and release
+artifacts. A single diagnostic browser rerun passes all Graph stories and the
+four Mobile consumers (90 + 65 + 40 cases in its first three shards). Its final
+shard has two failures and 52 passes in Plugin Management: the media viewer and
+uninstall confirmation are mounted before their entrance animation is visible.
+
+The exact cold consumer reproduction is:
+
+```sh
+CI=1 pnpm exec vitest run --project storybook --no-file-parallelism stories/workspace/PluginManagement.stories.ts -t 'Static Registry V 2 Media And Release Notes|Installed Updates Revocation And Confirmation'
+```
+
+It reports two failures before the repair, including a subsequent pointer-block
+failure after the first story leaves its dialog open. The same command passes
+both selected stories afterward, with 23 unselected cases skipped and axe
+enabled. Opening and reopening the media viewer now waits for visible dialog
+state before reading its status. Both uninstall stories wait for the visible
+confirmation before inspecting or using it. Existing assertions, animations,
+timeouts and product code remain unchanged.
+
+Formatting, audit under the existing QMD exception, specification validation
+(1439 requirements), and the complete-PR spec-first gate (15 protected files,
+28 chapters) pass. Full Plugin Management and catalog qualification remain in
+required CI under the user's memory-pressure constraint.

@@ -191,11 +191,15 @@ operations; renderer/plugin code receives scoped crypto results.
 
 **Requirement.** API MUST keep a stable per-vault Sync Identity in the same wrapped host key material as root, recovery, device, and epoch secrets. API owns purpose-scoped signing, owner-authorised identity transitions, and bounded encrypted pairing transfer of opaque plugin metadata; protocol plugins own outer transport schemas, non-secret endpoint configuration, remote authorization tests, provisioning UI, and provider-specific authentication policy.
 
-## LN-ARCH-096 — Deno desktop and server hosts: consume private reusable filesystem, watch, resource, plugin-asset
+## LN-ARCH-096 — Native desktop and server hosts: share private host kernels
 
 <a id="ln-arch-096"></a>
 
-**Requirement.** Deno desktop and server hosts MUST consume private reusable filesystem, watch, resource, plugin-asset, language-service, and native AppDatabase kernels without transferring host lifecycle, authentication, routing, window, or vault-selection policy into those kernels.
+**Requirement.** Native desktop and server hosts MUST consume private reusable filesystem, watch, resource, plugin-asset, language-service, and AppDatabase kernels without transferring host lifecycle, authentication, routing, window, or vault-selection policy into those kernels. Runtime-independent kernels MUST live in `@lapis-notes/host-services`; Deno compatibility subpaths MUST preserve the same implementations.
+
+The portable and server ESM packages declare their external native Turso and
+transformer dependencies explicitly, so deployed output resolves them without
+workspace-root module lookup. Their source file lists exclude deployment secrets.
 
 ## LN-ARCH-098 — Verified renderer ESM plugins: share public API modules with the host
 

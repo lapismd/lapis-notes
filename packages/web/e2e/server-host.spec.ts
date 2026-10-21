@@ -7,6 +7,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { chromium, expect, test as base, type Page } from "@playwright/test";
+import { HostServerRuntime } from "./host-server-runtime";
 import {
   navigateServerPage,
   recordServerNavigationRetry,
@@ -30,7 +31,7 @@ const test = base.extend({
 });
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const image = process.env.LAPIS_SERVER_E2E_IMAGE ?? "lapis-server:e2e";
+const image = process.env.LAPIS_SERVER_E2E_IMAGE ?? "lapis-server:node-e2e";
 const suffix = `${process.pid}-${Date.now().toString(36)}`;
 const containerName = `lapis-server-e2e-${suffix}`;
 const networkContainerName = `lapis-server-e2e-network-${suffix}`;
@@ -46,6 +47,8 @@ let networkContainerCreated = false;
 let volumeCreated = false;
 let secretVolumeCreated = false;
 let serverReady = false;
+const hostExecution = process.env.LAPIS_SERVER_E2E_RUNTIME === "host";
+let hostRuntime: HostServerRuntime | undefined;
 
 function docker(args: string[], input?: string): Promise<string> {
   return new Promise((resolvePromise, reject) => {
@@ -104,16 +107,23 @@ async function waitUntilReady(): Promise<void> {
     }
     await delay(250);
   }
-  const logs = containerCreated
-    ? await docker(["logs", "--tail", "100", containerName]).catch((error) =>
-        String(error),
-      )
-    : "container was not created";
+  const logs = hostRuntime
+    ? hostRuntime.logs
+    : containerCreated
+      ? await docker(["logs", "--tail", "100", containerName]).catch((error) =>
+          String(error),
+        )
+      : "container was not created";
   throw new Error(`Lapis server did not become ready\n${logs}`);
 }
 
 async function startServer(): Promise<void> {
   serverReady = false;
+  if (hostRuntime) {
+    await hostRuntime.start();
+    await waitUntilReady();
+    return;
+  }
   await docker([
     "run",
     "--detach",
@@ -121,6 +131,9 @@ async function startServer(): Promise<void> {
     containerName,
     "--network",
     `container:${networkContainerName}`,
+    "--read-only",
+    "--tmpfs",
+    "/tmp:rw,noexec,nosuid,size=256m",
     "--mount",
     `type=volume,source=${volumeName},target=/data`,
     "--mount",
@@ -142,8 +155,9 @@ async function startServer(): Promise<void> {
 }
 
 async function stopServer(requireCleanExit: boolean): Promise<void> {
+  if (hostRuntime) return hostRuntime.stop(requireCleanExit);
   if (!containerCreated) return;
-  await docker(["stop", "--time", "10", containerName]);
+  await docker(["stop", "--time", "20", containerName]);
   const exitCode = await docker([
     "inspect",
     "--format",
@@ -243,6 +257,16 @@ test.beforeAll(async () => {
   );
   const port = await unusedPort();
   baseUrl = `http://localhost:${port}`;
+  if (hostExecution) {
+    hostRuntime = new HostServerRuntime(
+      temporaryRoot,
+      repoRoot,
+      baseUrl,
+      password,
+    );
+    await startServer();
+    return;
+  }
   await docker(["volume", "create", volumeName]);
   volumeCreated = true;
   await docker(["volume", "create", secretVolumeName]);
@@ -262,7 +286,7 @@ test.beforeAll(async () => {
       `type=volume,source=${secretVolumeName},target=/run/secrets`,
       image,
       "-c",
-      "umask 077; cat > /run/secrets/lapis_bootstrap_password; chown deno:deno /run/secrets/lapis_bootstrap_password",
+      "umask 077; cat > /run/secrets/lapis_bootstrap_password; chown node:node /run/secrets/lapis_bootstrap_password",
     ],
     `${password}\n`,
   );
@@ -296,7 +320,7 @@ test.afterAll(async () => {
     containerCreated = false;
   }
   if (networkContainerCreated) {
-    await docker(["rm", "--force", networkContainerName]).catch(
+    await docker(["rm", "--force", "--volumes", networkContainerName]).catch(
       () => undefined,
     );
     networkContainerCreated = false;
@@ -317,6 +341,26 @@ test("server-hosted vault survives editing, sharing events, and restart", async 
   page,
 }, testInfo) => {
   test.setTimeout(180_000);
+  await test.step("Node-only runtime retains the service identity", async () => {
+    if (hostRuntime) {
+      expect(process.versions.node.split(".")[0]).toBe("24");
+      return;
+    }
+    await docker([
+      "exec",
+      containerName,
+      "node",
+      "--input-type=module",
+      "-e",
+      `import assert from "node:assert/strict";
+       import { spawnSync } from "node:child_process";
+       assert.equal(process.versions.node.split(".")[0], "24");
+       assert.equal(process.getuid(), 1993);
+       assert.equal(process.getgid(), 1993);
+       assert.equal(spawnSync("deno", ["--version"]).error?.code, "ENOENT");
+       await import("@huggingface/transformers");`,
+    ]);
+  });
   await page.addInitScript(() => {
     const pickedFile = new File(
       ["# Imported from a picked browser folder\n"],
@@ -346,7 +390,7 @@ test("server-hosted vault survives editing, sharing events, and restart", async 
     async () => {
       await expect(page.locator("html")).toHaveAttribute(
         "data-runtime",
-        "deno-server",
+        "node-server",
       );
       await expect(
         page.getByRole("heading", { name: "Sign in" }),

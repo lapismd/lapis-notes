@@ -14,7 +14,7 @@ The server build is selected by Vite's compile-time `server` mode and emits to
 `dist-server`. That profile omits the PWA plugin, manifest generation, offline
 cache, search-embedding worker registration, window-controls integration, and
 service-worker registration. The ordinary build retains each of those paths.
-Before mounting, the profile sets the root document runtime to `deno-server`
+Before mounting, the profile sets the root document runtime to `node-server`
 without setting PWA-host attributes, making runtime ownership observable and
 unambiguous.
 

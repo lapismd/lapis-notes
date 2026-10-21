@@ -1,5 +1,10 @@
 # Architecture / Build and validation
 
+Hosted parity reconciliation consumes released Design Core `^0.6.0` through
+registry ranges and a frozen lockfile. This aligns the current API's close guard,
+plugin flush and centered panel calls with their owning shared implementation;
+no local shim, source alias or package patch substitutes for those capabilities.
+
 LN-SRCH-051 saved-version content identities and checkpoint references are additive presentation types. They preserve provider-owned navigation and introduce no database, Vault or repository authority.
 
 LN-SRCH-051 adds an App-owned result-provider registry. Provider targets remain opaque to Search; database projections, source authority and package ownership do not change.
@@ -43,8 +48,9 @@ the version candidate containing AI 0.1.5, History 0.1.4, Markdown 0.1.6 and
 released Mira 0.0.4. Ephemeral fixture signatures establish acceptance evidence;
 production signing and publication retain their separate approval gate.
 Native acceptance provisions the separately installed controller CLI from its
-exact validation source based on the public release. Complete Web acceptance uses a native runner with
-Docker and builds the server image from the checked-out Notes candidate.
+exact validation source based on the public release. Complete Web acceptance retains both browser jobs: the PWA/registry lane and
+an independent Node server lane. The latter builds its Docker image from the
+checked-out Notes candidate and requires no Deno setup or desktop build job.
 The server fixture seeds its private bootstrap secret into a Docker volume owned
 by the image's service user, so host UID differences cannot prevent startup.
 That file-seeding container has no network. Initial server navigation retries

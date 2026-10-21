@@ -93,11 +93,11 @@ the global writer guard and releasing views, plugins or the vault session.
 
 **Requirement.** The App-owned conversation transcript MUST remain canonical across agent and model changes. Native sessions are resumable projections tracked by append-only verified cursors; providers receive only typed transcript context and MUST NOT exchange opaque state. Background summaries MAY optimize projection but MUST NOT replace transcript evidence.
 
-## LN-ARCH-097 — Deno server host: use tRPC for its typed JSON control
+## LN-ARCH-097 — Node server host: use tRPC for its typed JSON control
 
 <a id="ln-arch-097"></a>
 
-**Requirement.** The Deno server host MUST use tRPC for its typed JSON control plane and tracked subscriptions while direct Fetch routes retain streamed file and asset semantics, including bounded same-origin delivery of official plugin release bundles. Its browser boundary MUST translate Lapis virtual-root paths without weakening managed-route validation and MUST discard stale event cursors before reconnecting after resync. Public API contracts MUST describe remote transport without depending on tRPC types.
+**Requirement.** The Node server host MUST use tRPC for its typed JSON control plane and tracked subscriptions while direct Fetch routes retain streamed file and asset semantics, including bounded same-origin delivery of official plugin release bundles. Its browser boundary MUST translate Lapis virtual-root paths without weakening managed-route validation and MUST discard stale event cursors before reconnecting after resync. Public API contracts MUST describe remote transport without depending on tRPC types.
 
 ## LN-ARCH-100 — Signed Nostr events and content-addressed manifests: supply plugin catalog and release evidence
 

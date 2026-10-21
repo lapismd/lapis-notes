@@ -103,11 +103,11 @@ overlay teardown fix; test-signed fixtures never authorize public assets.
 
 **Requirement.** The spec-first map MUST route CI images, dependency-context helpers, signed Turbo cache configuration, local container runners, workflow orchestration, release packing, and environment examples to Architecture, Packages, and Specification Governance. Environment examples MUST document only public Nostr registry transport and trust configuration, never signer secrets. Storybook runtime-warning guards MUST remain mapped to Storybook Catalog.
 
-## LN-GOV-045 — Spec-first map: route Deno host-service kernels to Deno Server
+## LN-GOV-045 — Spec-first map: route Deno host-service kernels to Node Server
 
 <a id="ln-gov-045"></a>
 
-**Requirement.** The spec-first map MUST route Deno host-service kernels to Deno Server Host, Desktop Host, Packages, and Architecture. Server package and server-mode Web changes MUST additionally route through Deno Server Host.
+**Requirement.** The spec-first map MUST route Deno host-service kernels to Node Server Host, Desktop Host, Packages, and Architecture. Server package and server-mode Web changes MUST additionally route through Node Server Host. Runtime-independent `host-services` kernels MUST route to Architecture.
 
 ## LN-GOV-046 — Dependency-image pin automation: update the verified digest, lockfile tag,
 

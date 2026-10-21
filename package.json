@@ -112,7 +112,16 @@
     "test:package-boundaries:run": "node --test ./scripts/check-package-boundaries.spec.mjs",
     "storybook:installed": "WATCHPACK_POLLING=250 node scripts/with-storybook-env.mjs node scripts/storybook-run.mjs --no-open",
     "desktop:release:check": "node scripts/check-desktop-release-workflow.mjs",
-    "desktop:release:test": "node --test scripts/desktop-release.test.mjs scripts/desktop-release-workflow.test.mjs"
+    "desktop:release:test": "node --test scripts/desktop-release.test.mjs scripts/desktop-release-workflow.test.mjs",
+    "build:server": "node --env-file-if-exists=.env scripts/run-turbo.mjs build --filter=@lapis-notes/server-node... && pnpm --filter @lapis-notes/web build:server",
+    "build:server:container": "docker build -f packages/server-node/Dockerfile -t lapis-server:node-e2e .",
+    "start:server": "pnpm --filter @lapis-notes/server-node start",
+    "dev:server": "pnpm build:server && pnpm --filter @lapis-notes/server-node dev",
+    "test:server": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:server:run --task-args",
+    "test:server:e2e": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:server:e2e:run --task-args",
+    "test:server:e2e:host": "pnpm build:server && LAPIS_SERVER_E2E_RUNTIME=host pnpm test:server:e2e",
+    "test:server:e2e:run": "pnpm --filter @lapis-notes/web exec playwright test -c ./playwright.server.config.ts",
+    "test:server:run": "pnpm --filter @lapis-notes/host-services check && pnpm --filter @lapis-notes/host-services test && pnpm --filter @lapis-notes/server-node check && node packages/server-node/dist/server.smoke.js"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.7.0",
@@ -152,7 +161,7 @@
     "@lapis-notes/wordcount": "^0.1.2",
     "@lapis-notes/ui": "workspace:*",
     "@lapis-notes/workspace": "workspace:*",
-    "@lapismd/design-core": "^0.4.0",
+    "@lapismd/design-core": "^0.6.0",
     "@lapismd/mira": "~0.0.5",
     "@lapismd/mira-editor": "~0.0.2",
     "@lapismd/mira-plugin-ai": "~0.0.2",

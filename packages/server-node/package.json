@@ -1,0 +1,51 @@
+{
+  "name": "@lapis-notes/server-node",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/server.ts",
+      "import": "./dist/server.js"
+    },
+    "./browser": "./src/browser.ts",
+    "./client": "./src/client.ts",
+    "./router": "./src/router.ts"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json --noEmit && node build.mjs",
+    "check": "tsc -p tsconfig.json --noEmit && vitest run",
+    "test": "vitest run",
+    "start": "node dist/main.js",
+    "dev": "pnpm build && node --watch dist/main.js",
+    "test:smoke": "pnpm build && node dist/server.smoke.js"
+  },
+  "dependencies": {
+    "@lapis-notes/api": "workspace:*",
+    "@trpc/client": "11.18.0",
+    "@trpc/server": "11.18.0",
+    "@tursodatabase/database": "0.7.2",
+    "fflate": "0.8.3",
+    "zod": "3.25.76",
+    "@lapis-notes/host-services": "workspace:*",
+    "@hono/node-server": "^2.1.5",
+    "@huggingface/transformers": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.6",
+    "vitest": "^4.1.10",
+    "esbuild": "^0.28.2",
+    "yaml": "^2.9.0"
+  },
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ]
+}

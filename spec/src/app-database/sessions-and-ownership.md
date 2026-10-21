@@ -67,11 +67,16 @@ complete snapshot; no database provider or authority is introduced.
 
 **Requirement.** AppDatabase MUST expose typed memory source, candidate, origin, recall-signal, and job records through Memory and Turso providers plus browser and native allowlisted bridges. These records MUST remain derived state and MUST NOT become transcript or curated-memory authority.
 
-## LN-DB-045 — Deno-server vault session: use a server-owned native Turso provider over
+## LN-DB-045 — Node-server vault session: use a server-owned native Turso provider over
 
 <a id="ln-db-045"></a>
 
-**Requirement.** A `deno-server` vault session MUST use a server-owned native Turso provider over `http-rpc`. Remote access MUST use one shared typed method contract, preserve committed change revisions, reset consumers after an unavailable tracked cursor, and reconnect without the rejected cursor. It MUST expose neither raw SQL nor database paths.
+**Requirement.** A `node-server` vault session, including the deprecated `deno-server` compatibility value, MUST use a server-owned native Turso provider over `http-rpc`. Remote access MUST use one shared typed method contract, preserve committed change revisions, reset consumers after an unavailable tracked cursor, and reconnect without the rejected cursor. It MUST expose neither raw SQL nor database paths.
+
+The Node container retains the prior service UID/GID 1993 and managed database
+locations. Replacing the process does not introduce a schema conversion or
+change the typed remote method contract. Native worker smoke remains part of
+the Deno-free container build and CI acceptance.
 
 ## LN-DB-053 — Identity and change contracts across providers
 

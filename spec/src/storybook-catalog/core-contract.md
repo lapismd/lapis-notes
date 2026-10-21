@@ -1,5 +1,21 @@
 # Storybook Catalog / Catalog policy
 
+Search panel acceptance follows the shared command picker's accessible name,
+including its current selection: `Filter by file type: All` before selection
+and `Filter by file type: Markdown` afterward. All six placement stories retain
+the real filter interaction and selected-state assertions.
+
+API Date Setting acceptance also asserts full date-picker names, including
+`Choose date: Pick date` and the retained legacy date value. Selected values
+remain part of each control's accessible name.
+
+Workspace Shell persistence instrumentation counts only writes to its owned
+`.lapis/workspace.json`. Configuration writes must not inflate that counter;
+bottom-panel resize acceptance retains the exactly-one-workspace-write check.
+
+Plugin Management acceptance follows the same selected-value names for platform,
+channel and sort controls, and retains the real filtering and result ordering.
+
 `Workspace/Desktop Vault Launcher` and `Workspace/Desktop Startup` verify the
 public components shared by the Deno and Tauri hosts (LN-PKG-171). Their plays
 cover native-action callbacks, recent-project search, supported profile actions,

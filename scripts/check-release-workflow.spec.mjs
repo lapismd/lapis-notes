@@ -252,19 +252,61 @@ test("native acceptance provisions the released standalone controller CLI", () =
   assert.match(install.run, /GITHUB_ENV/);
 });
 
-test("Web acceptance provisions Docker and builds the server candidate", () => {
-  const web = workflow.jobs["web-acceptance"];
-  assert.equal(web.container, undefined);
-  const server = web.steps.findIndex((step) =>
-    step.run?.includes("docker build -f packages/server-deno/Dockerfile"),
+test("Node server acceptance builds and tests without Deno before aggregation", () => {
+  const server = workflow.jobs["server-acceptance"];
+  assert.ok(server, "dedicated server acceptance job");
+  assert.equal(server.container, undefined);
+  assert.equal(
+    server.needs,
+    undefined,
+    "Node gate must not depend on Deno builds",
   );
-  const suite = web.steps.findIndex((step) => step.run === "pnpm test:web:e2e");
-  assert.ok(server >= 0 && suite > server);
+  assert.equal(
+    server.steps.some((step) => step.uses?.includes("setup-deno")),
+    false,
+  );
+  assert.equal(
+    server.steps.find((step) => step.uses?.startsWith("actions/setup-node@"))
+      ?.with["node-version"],
+    "24.15.0",
+  );
   assert.ok(
-    web.steps.some((step) =>
+    server.steps.some(
+      (step) =>
+        step.run ===
+        "pnpm install --frozen-lockfile --ignore-pnpmfile --ignore-scripts",
+    ),
+  );
+  const smoke = server.steps.findIndex(
+    (step) => step.run === "pnpm test:server",
+  );
+  const image = server.steps.findIndex((step) =>
+    step.run?.includes(
+      "docker build -f packages/server-node/Dockerfile -t lapis-server:node-e2e",
+    ),
+  );
+  const browser = server.steps.findIndex(
+    (step) => step.run === "pnpm test:server:e2e",
+  );
+  assert.ok(smoke >= 0 && image > smoke && browser > image);
+  assert.ok(
+    server.steps.some((step) =>
       step.run?.includes("playwright install --with-deps chromium"),
     ),
   );
+  assert.ok(workflow.jobs.validate.needs.includes("server-acceptance"));
+  assert.equal(
+    workflow.jobs.validate.steps[0].env.SERVER_ACCEPTANCE,
+    "${{ needs.server-acceptance.result }}",
+  );
+  assert.match(workflow.jobs.validate.steps[0].run, /"\$SERVER_ACCEPTANCE"/);
+  const webConfig = readFileSync("packages/web/playwright.config.ts", "utf8");
+  assert.match(webConfig, /testIgnore: "server-host\.spec\.ts"/);
+  const dedicatedConfig = readFileSync(
+    "packages/web/playwright.server.config.ts",
+    "utf8",
+  );
+  assert.match(dedicatedConfig, /testMatch: "server-host\.spec\.ts"/);
 });
 
 test("fixture build uses the checked-out Plugins source instead of the host workflow SHA", () => {

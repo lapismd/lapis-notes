@@ -1,9 +1,11 @@
 # UI and Styling / Retained UI contracts
 
-The retained UI accepts Design Core `^0.4.0 || ^0.5.1`, including prepared
+Active API, retained UI, Workspace, Explorer and Web consumers require published
+Design Core `^0.6.0`, including prepared
 browser CSS and bundled font assets, through the existing public style exports.
-Its patch release intent updates dependency compatibility without adding a
-second component styling path.
+The minimum includes the close guard, asynchronous plugin flush and centered
+bottom-panel contracts already used by current source. Earlier supported ranges
+cannot advertise those required capabilities. The frozen Deno host is unchanged.
 
 UI 0.1.3 is the prepared packaging patch for the retained runtime dependency
 declarations. Its CSS, tokens, component markup and public exports are unchanged.

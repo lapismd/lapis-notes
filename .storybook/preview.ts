@@ -120,7 +120,7 @@ const preview: Preview = {
               "Browser integration",
               "Context",
             ],
-            "Deno Server Host",
+            "Node Server Host",
             ["Integration contracts", "Context"],
             "Workspace Shell",
             [
