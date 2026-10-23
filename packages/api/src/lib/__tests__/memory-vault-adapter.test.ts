@@ -22,6 +22,7 @@ describe("MemoryVaultAdapter", () => {
       nativeWatch: false,
       resourceUrls: false,
       systemTrash: false,
+      conditionalTextWrite: true,
     });
     await expect(adapter.list("/")).resolves.toEqual({
       files: ["README.md"],
@@ -151,4 +152,41 @@ describe("MemoryVaultAdapter", () => {
       code: "EPERM",
     });
   });
+});
+
+it("conditionally saves exact memory snapshots and refuses stale or binary baselines", async () => {
+  const adapter = new MemoryVaultAdapter({
+    "note.md": "before",
+    "raw.bin": new Uint8Array([255]).buffer,
+  });
+  expect(adapter.getCapabilities().conditionalTextWrite).toBe(true);
+  await adapter.writeTextIfUnchanged("note.md", "after", "before", {
+    mtime: 99,
+  });
+  await expect(
+    adapter.writeTextIfUnchanged("note.md", "lost", "before"),
+  ).rejects.toMatchObject({ code: "ECONFLICT" });
+  expect(await adapter.read("note.md")).toBe("after");
+  expect((await adapter.stat("note.md"))?.mtime).toBe(99);
+  await expect(
+    adapter.writeTextIfUnchanged("raw.bin", "lost", null),
+  ).rejects.toMatchObject({ code: "ECONFLICT" });
+  await adapter.writeTextIfUnchanged("new.md", "created", null);
+  await expect(
+    adapter.writeTextIfUnchanged("new.md", "lost", null),
+  ).rejects.toMatchObject({ code: "ECONFLICT" });
+});
+
+it("serializes competing memory snapshot writes without losing the winning value", async () => {
+  const adapter = new MemoryVaultAdapter({ "note.md": "before" });
+  const outcomes = await Promise.allSettled([
+    adapter.writeTextIfUnchanged("note.md", "first", "before"),
+    adapter.writeTextIfUnchanged("note.md", "second", "before"),
+  ]);
+  expect(outcomes.map((outcome) => outcome.status)).toEqual([
+    "fulfilled",
+    "rejected",
+  ]);
+  expect(await adapter.read("note.md")).toBe("first");
+  expect(adapter.writeCount).toBe(1);
 });

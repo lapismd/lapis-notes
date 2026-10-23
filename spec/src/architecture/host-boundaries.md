@@ -59,6 +59,11 @@ an admitted native profile/runtime session (LN-DENO-086 through LN-DENO-088).
 The native host owns wrapping material, durable key storage and serialized
 operations; renderer/plugin code receives scoped crypto results.
 
+Memory-backed application hosts advertise the existing conditional text-write
+capability. Comparing the exact snapshot and mutating it occurs before yielding,
+so competing writes cannot silently overwrite each other. Native host policy and
+persistence remain separate.
+
 ## LN-ARCH-009 — Api compatibility projection: preserve every persisted design-core V3 workspace region
 
 <a id="ln-arch-009"></a>

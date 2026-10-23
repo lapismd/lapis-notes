@@ -20,6 +20,10 @@ in the headless `@lapis-notes/api/metadata-store` contract (LN-ARCH-116).
 AppDatabase retains its existing type exports and inherits that contract;
 credential repositories can implement it independently of indexes (LN-ARCH-114).
 
+The in-memory vault adapter implements conditional text snapshots without database
+IO. This protects demo/plugin configuration just as admitted native adapters do;
+conflicts leave the existing memory bytes and modification count unchanged.
+
 ## LN-DB-050 — External file identity bindings: namespaced by the authenticated plugin context. One
 
 <a id="ln-db-050"></a>

@@ -107,7 +107,7 @@ original local draft, including when the next decision keeps that draft.
 
 <a id="ln-pkg-167"></a>
 
-**Requirement.** `VaultAdapter` MAY expose `writeTextIfUnchanged` with exact expected text or explicit expected absence. A supporting adapter MUST reject an observed mismatch without an unconditional-write fallback. The public package MUST expose the method's types.
+**Requirement.** `VaultAdapter` MAY expose `writeTextIfUnchanged` with exact expected text or explicit expected absence. A supporting adapter MUST reject an observed mismatch without an unconditional-write fallback. The public package MUST expose the method's types. `MemoryVaultAdapter` MUST advertise and implement this existing capability with an atomic in-memory comparison, including expected absence and competing writes.
 
 ## LN-PKG-168 — Native conditional text transport
 

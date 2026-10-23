@@ -130,7 +130,7 @@ describe("Text editor document loading", () => {
     const { app, view, first, second } = await fixture();
     await view.onLoadFile(first);
     edit(view, "first draft");
-    vi.spyOn(app.vault, "modify").mockRejectedValueOnce(
+    vi.spyOn(app.vault, "modifyIfUnchanged").mockRejectedValueOnce(
       new Error("save failed"),
     );
     try {
