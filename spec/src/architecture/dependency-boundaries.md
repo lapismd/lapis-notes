@@ -31,6 +31,10 @@ Development specification acceptance uses the
 [portable installed-graph startup](../storybook-catalog/build-and-process.md#ln-cat-117)
 so standalone CI needs no sibling release directory.
 
+The API accepts the Mira 0.1 public-export line alongside its existing 0.0.5
+range for isolated Lapis Desktop shared-screen acceptance. Package source and
+installed applications retain their existing ownership.
+
 ## LN-ARCH-001 — Repository: a pnpm workspace orchestrated by Turbo. Targeted
 
 <a id="ln-arch-001"></a>

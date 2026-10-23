@@ -1,5 +1,8 @@
 # Packages / Releases and exports
 
+API manifests admit the Mira 0.1 public-export line alongside 0.0.5 for
+Desktop shared-screen acceptance; registry dependency coordinates stay portable.
+
 Dependency-image pin publication selects only an open review under LN-GOV-050.
 Every fresh PR retains the complete validation graph required by LN-PKG-142.
 
