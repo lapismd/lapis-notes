@@ -1,6 +1,36 @@
 # Migration Status
 
+## Shared Rust application services (2026-10-23)
+
+The [shared Rust plan](RUST_CORE_MIGRATION_PLAN.md) supersedes future
+Node-specific parity implementation. The [desktop review](docs/rust-core-desktop-review.md)
+uses the latest shared public screens and retained teardown barriers. Notes owns
+the shared core; Tauri and Rust HTTP hosts consume the same services.
+
+| Slice                        | Status   | Next gate / evidence                                                                                                                     |
+| ---------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| R0 Plan and review           | Complete | [Plan/review evidence](spec/records/2026-10-23-rust-core-plan.md): current Desktop reviewed; full specification and 38 regressions pass. |
+| R1.1 Shared vault engine     | Planned  | Extract existing native engine; qualify source and direct Desktop consumer.                                                              |
+| R1.2 Vault/service ownership | Planned  | Coordinated writers, independent client lifetime and typed protocol.                                                                     |
+| R1.3 Both host adapters      | Planned  | Existing shell read/edit through Tauri and authenticated Rust HTTP; backup detach/Quit.                                                  |
+| R2 Durable conversation      | Planned  | Real accepted turn completes without clients; restart never replays.                                                                     |
+| R3 Indexed vault             | Planned  | Metadata, projections, semantic Search and history indexing without clients.                                                             |
+| R4 AI/tools/Changes          | Planned  | Existing queues, context, approvals, tools and guarded undo through both hosts.                                                          |
+| R5 Memory                    | Planned  | Native capture, recall, maintenance and recovery.                                                                                        |
+| R6 Native jobs               | Planned  | Imports, existing Forge/transfer/Compute, installation and terminal lifetime.                                                            |
+| R7 Cutover                   | Planned  | Complete Rust hosted journeys, Linux packaging and retirement of transitional Node paths.                                                |
+
+Default Desktop is `40a5d97c`; default Notes is `e159faad`. Committed hosted
+branch `593abc65` has additional H03/H04 and H05 foundation evidence not integrated
+in this default. Its unfinished accepted-work change `vlvosxvo` is preserved in
+the `hosted-services` workspace. Do not treat it as qualified production code.
+Desktop M15.1 remains In progress with the remaining matrix/bundle/catalog gates
+recorded in E-SHARED-007. Existing H/M completion claims are not widened here.
+
 ## Hosted AI and history parity (2026-10-21)
+
+This retained Node roadmap is superseded for future implementation by R0–R7.
+Its qualified serving baseline and reusable contracts remain retained evidence.
 
 The agreed [implementation plan](AI_HISTORY_PARITY_PLAN.md) targets one owner,
 multiple managed vaults and host agent execution first. All memory is

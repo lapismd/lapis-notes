@@ -30,6 +30,27 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 
 ## Application ownership
 
+### Shared Rust application services
+
+- Follow `RUST_CORE_MIGRATION_PLAN.md` and the canonical Rust application-services
+  chapter. Notes owns native application policy in `crates/lapis-app-core`;
+  `lapis-app-protocol` owns transport-neutral DTOs and `lapis-server` owns HTTP.
+- Group native code by feature. Keep new production Rust/scripts within 300
+  counted lines and separate tests within 500. Core code cannot depend on Tauri,
+  HTTP frameworks, renderer frameworks or browser globals.
+- Keep existing Agent and Repository screens. Windows/tabs observe services;
+  selected native services own durable work and writers. Do not add another
+  authoritative renderer scheduler or fall back after uncertain native writes.
+- Extract source implementations and update callers directly. Do not retain
+  copied engines or compatibility re-exports at their old desktop locations.
+- Keep generic native engines and plugin algorithms in their owning sibling
+  packages. Standalone local web retains its explicit browser implementation.
+- Record qualified source and consumer revisions separately. Private native
+  consumers may use documented temporary sibling dependencies during migration;
+  publication, deployment and installed-app replacement remain separate gates.
+
+### Explicit App ownership
+
 - First-party runtime and Storybook code must receive `App` explicitly, derive
   it from an owning `Workspace` or leaf, or read it from Svelte context.
 - Do not read or assign `globalThis.app` outside

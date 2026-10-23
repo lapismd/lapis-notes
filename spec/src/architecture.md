@@ -7,6 +7,7 @@ Defines runtime ownership, dependency boundaries, host integration, and build an
 - [Dependency boundaries](architecture/dependency-boundaries.md)
 - [Workspace integration](architecture/workspace-integration.md)
 - [Host boundaries](architecture/host-boundaries.md)
+- [Rust application services](architecture/rust-application-services.md)
 - [Editor integration](architecture/editor-integration.md)
 - [Build and validation](architecture/build-and-validation.md)
 - [Application ownership](architecture/application-ownership.md)

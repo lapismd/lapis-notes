@@ -1,5 +1,9 @@
 # Storybook Catalog / Documentation and navigation
 
+The shared Rust application-services chapter and CORE verification table remain
+browsable through generated Specification mirrors and navigation. Adding them
+does not change production stories or their interaction/visual gates.
+
 The optional development controller metadata bridge now lives in
 `scripts/lib/controller-connection-bridge.ts`, shared by catalog preview and
 live acceptance fixtures. It is excluded from the Web product; default stories

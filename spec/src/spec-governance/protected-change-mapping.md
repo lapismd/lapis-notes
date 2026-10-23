@@ -1,5 +1,11 @@
 # Specification Governance / Protected change mapping
 
+The shared Rust migration adds a Notes-owned application-service family under
+`crates/`. Its canonical authority is
+[Rust application services](../architecture/rust-application-services.md).
+Existing source-ownership and protected-change rules remain enforced; the
+first native extraction adds its explicit source mapping before implementation.
+
 The H02 map includes `packages/server-native` beside `server-node` so native
 history admission and IPC changes require the owning hosted contracts and
 cross-cutting architecture, package and database confirmations. LN-GOV-003 and

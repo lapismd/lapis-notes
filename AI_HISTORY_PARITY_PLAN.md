@@ -1,5 +1,9 @@
 # Hosted AI and repository history parity
 
+Future implementation follows the [shared Rust plan](RUST_CORE_MIGRATION_PLAN.md).
+This document retains the original Node roadmap and its qualified evidence;
+its reusable contracts and pending feature gates carry into R0–R7.
+
 Agreed implementation plan, 2026-10-21. The initial server has one authenticated
 owner and multiple managed vaults. It runs agents on its host; Docker execution
 is a later optional backend. Node remains the HTTP application. The desktop
