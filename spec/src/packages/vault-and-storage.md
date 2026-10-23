@@ -13,7 +13,8 @@ and negative client fixtures; normal native and canonical spec checks include
 that gate. The guarded native runner also executes protocol export without a
 second output directory or bypassing the disk guard. The protocol's portable file
 actions retain existing shell operations and result metadata; host-only OS
-commands are excluded.
+commands are excluded. Native admission can consume a retained root capability
+without reopening its path.
 
 ## LN-PKG-185 — Core vault listing exclusions
 

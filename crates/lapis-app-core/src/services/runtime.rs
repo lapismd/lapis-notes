@@ -26,7 +26,16 @@ impl Runtime {
                 "Vault identity is required",
             ));
         }
-        let root = VaultRoot::open(path)?;
+        self.admit_root(id, VaultRoot::open(path)?)
+    }
+    /// Consume a host's retained physical capability without reopening its path.
+    pub fn admit_root(&self, id: Uuid, root: VaultRoot) -> Result<Arc<VaultService>> {
+        if id.is_nil() {
+            return Err(Error::new(
+                ErrorCode::InvalidRequest,
+                "Vault identity is required",
+            ));
+        }
         root.verify_physical_root()?;
         let identity = root.physical_identity()?;
         let mut registry = self.registry.lock().map_err(|_| Error::closed())?;

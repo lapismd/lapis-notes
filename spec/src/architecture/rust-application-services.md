@@ -38,6 +38,9 @@ Reads retain their bounded text/binary/range contracts; mutations retain mtime,
 exclusive destinations and byte-conditional publication. Rename/removal fence dirty
 descendants, including aliases of an ancestor directory. OS open/reveal/trash,
 absolute-path conversion and native capability witnesses remain host policy.
+Native adapters hand their existing retained physical root to `admit_root`;
+service admission must not reopen a potentially replaced path. This capability
+is a native Rust value and never a transport field.
 The staged command contract does not itself qualify either adapter or backup
 lifetime; their acceptance remains required before R1.3 completes.
 
