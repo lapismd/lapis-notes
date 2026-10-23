@@ -70,3 +70,39 @@ fn explicit_typescript_annotations_match_serde_discriminants() {
     assert!(Outcome::decl(&cfg).contains("status"));
     assert!(ExpectedVersion::decl(&cfg).contains("missing"));
 }
+
+#[test]
+fn existing_file_frames_keep_camel_case_defaults_and_native_action_exclusion() {
+    use lapis_app_protocol::files::{FileCommand, FileValue};
+    let command: FileCommand = serde_json::from_value(
+        json!({"operation": "rename", "path": "old.md", "newPath": "new.md"}),
+    )
+    .unwrap();
+    assert!(matches!(command, FileCommand::Rename { .. }));
+    let command: FileCommand = serde_json::from_value(
+        json!({"operation": "write-text", "path": "note.md", "data": "new"}),
+    )
+    .unwrap();
+    let FileCommand::WriteText { options, .. } = command else {
+        panic!()
+    };
+    assert_eq!(options.mtime, None);
+    assert!(
+        serde_json::from_value::<FileCommand>(json!({"operation": "open-path", "path": "note.md"}))
+            .is_err()
+    );
+    assert!(
+        serde_json::from_value::<FileCommand>(
+            json!({"operation": "read-text", "path": "note.md", "root": "/tmp"})
+        )
+        .is_err()
+    );
+    let encoded = serde_json::to_value(FileValue::Done {}).unwrap();
+    assert_eq!(encoded, json!({"kind": "done"}));
+    assert!(
+        serde_json::from_value::<FileValue>(json!({"kind": "done", "unexpected": true})).is_err()
+    );
+    let cfg = Config::default();
+    assert!(FileCommand::decl(&cfg).contains("newPath"));
+    assert!(!FileCommand::decl(&cfg).contains("new_path"));
+}

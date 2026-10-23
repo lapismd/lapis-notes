@@ -22,6 +22,9 @@ impl Client {
                 return Err(Error::denied());
             }
             Ok(match request.command {
+                VaultCommand::Files { operation } => VaultValue::Files {
+                    value: self.files(operation)?,
+                },
                 VaultCommand::ReadText { path } => VaultValue::Text {
                     snapshot: self.read_text(&path)?,
                 },

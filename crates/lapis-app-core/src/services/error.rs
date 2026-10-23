@@ -41,7 +41,21 @@ impl From<io::Error> for Error {
             return Self::new(ErrorCode::Conflict, "File changed since it was read");
         }
         match error.kind() {
-            io::ErrorKind::AlreadyExists => Self::new(ErrorCode::Conflict, "File already exists"),
+            io::ErrorKind::AlreadyExists => {
+                Self::new(ErrorCode::AlreadyExists, "File already exists")
+            }
+            io::ErrorKind::DirectoryNotEmpty => {
+                Self::new(ErrorCode::DirectoryNotEmpty, "Directory is not empty")
+            }
+            io::ErrorKind::IsADirectory => {
+                Self::new(ErrorCode::IsDirectory, "Operation requires a file")
+            }
+            io::ErrorKind::NotADirectory => {
+                Self::new(ErrorCode::NotDirectory, "Operation requires a directory")
+            }
+            io::ErrorKind::Unsupported => {
+                Self::new(ErrorCode::Unsupported, "Operation is unavailable")
+            }
             io::ErrorKind::NotFound => Self::new(ErrorCode::NotFound, "File does not exist"),
             io::ErrorKind::PermissionDenied => Self::denied(),
             io::ErrorKind::InvalidInput | io::ErrorKind::InvalidData => {

@@ -36,3 +36,17 @@ function result(reply: Reply) {
   return value.kind;
 }
 void [request, unknown, unsafe, discard, result];
+
+const fileAction: VaultCommand = {
+  kind: "files",
+  operation: { operation: "rename", path: "old.md", newPath: "new.md" },
+};
+const escape: VaultCommand = {
+  kind: "files",
+  operation: {
+    // @ts-expect-error Native destinations are never portable file commands.
+    operation: "open-path",
+    path: "/tmp/other",
+  },
+};
+void [fileAction, escape];

@@ -33,6 +33,14 @@ host adapters qualify in R1.3. Rust types generate the JSON schema and TypeScrip
 bindings. R1.2 establishes in-process ownership and transport conformance, not
 durable ACP recovery, an HTTP endpoint or the final hosted cutover.
 
+R1.3 stages the existing portable shell file actions through that same owner.
+Reads retain their bounded text/binary/range contracts; mutations retain mtime,
+exclusive destinations and byte-conditional publication. Rename/removal fence dirty
+descendants, including aliases of an ancestor directory. OS open/reveal/trash,
+absolute-path conversion and native capability witnesses remain host policy.
+The staged command contract does not itself qualify either adapter or backup
+lifetime; their acceptance remains required before R1.3 completes.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

@@ -1,4 +1,4 @@
-use lapis_app_protocol::*;
+use lapis_app_protocol::{files::*, *};
 use schemars::JsonSchema;
 use serde_json::json;
 use ts_rs::{Config, TS};
@@ -12,6 +12,11 @@ pub struct Contracts {
 fn main() {
     let config = Config::default();
     let declarations = [
+        FileOptions::decl(&config),
+        FileCommand::decl(&config),
+        EntryStat::decl(&config),
+        FileListing::decl(&config),
+        FileValue::decl(&config),
         ExpectedVersion::decl(&config),
         VaultCommand::decl(&config),
         Request::decl(&config),

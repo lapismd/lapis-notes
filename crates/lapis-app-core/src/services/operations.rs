@@ -28,28 +28,18 @@ pub(super) fn write(
             "Text exceeds the file limit",
         ));
     }
-    let target = state.root.entry_metadata(path).ok();
-    let blocked = state.editors.values().any(|editor| {
-        if !editor.dirty || (!editor.detached && Some(editor.client) == writer) {
-            return false;
-        }
-        use cap_std::fs::MetadataExt;
-        editor.path == path
-            || target.as_ref().is_some_and(|target| {
-                state.root.entry_metadata(&editor.path).is_ok_and(|source| {
-                    source.dev() == target.dev() && source.ino() == target.ino()
-                })
-            })
-    });
-    if blocked {
-        return Err(Error::busy());
-    }
+    super::guards::write(state, path, writer, false)?;
     match expected {
-        ExpectedVersion::Missing {} => {
-            state
-                .root
-                .create_file(path, text.as_bytes(), &WriteOptions::default())?
-        }
+        ExpectedVersion::Missing {} => state
+            .root
+            .create_file(path, text.as_bytes(), &WriteOptions::default())
+            .map_err(|error| {
+                if error.kind() == io::ErrorKind::AlreadyExists {
+                    Error::new(ErrorCode::Conflict, "File already exists")
+                } else {
+                    error.into()
+                }
+            })?,
         ExpectedVersion::Version { version } => {
             if version.len() != 64
                 || !version

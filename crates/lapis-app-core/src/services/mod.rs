@@ -2,6 +2,8 @@
 mod client;
 mod editors;
 mod error;
+mod files;
+mod guards;
 mod operations;
 mod protocol;
 mod runtime;

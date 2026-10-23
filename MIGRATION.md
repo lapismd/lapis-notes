@@ -7,21 +7,21 @@ Node-specific parity implementation. The [desktop review](docs/rust-core-desktop
 uses the latest shared public screens and retained teardown barriers. Notes owns
 the shared core; Tauri and Rust HTTP hosts consume the same services.
 
-| Slice                        | Status   | Next gate / evidence                                                                                                                                                                            |
-| ---------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| R0 Plan and review           | Complete | [Plan/review evidence](spec/records/2026-10-23-rust-core-plan.md): current Desktop reviewed; full specification and 38 regressions pass.                                                        |
-| R1.1 Shared vault engine     | Complete | [R1.1 evidence](spec/records/2026-10-23-rust-core-vault.md): 5 source cases, 4 boundary regressions, 52 exact Desktop cases and 228 full native cases pass; both native configurations qualify. |
-| R1.2 Vault/service ownership | Complete | [R1.2 evidence](spec/records/2026-10-23-rust-core-ownership.md): 24 Rust cases, 5 boundary regressions, schema/type drift and strict native checks pass.                                        |
-| R1.3 Both host adapters      | Planned  | Existing shell read/edit through Tauri and authenticated Rust HTTP; backup detach/Quit.                                                                                                         |
-| R2 Durable conversation      | Planned  | Real accepted turn completes without clients; restart never replays.                                                                                                                            |
-| R3 Indexed vault             | Planned  | Metadata, projections, semantic Search and history indexing without clients.                                                                                                                    |
-| R4 AI/tools/Changes          | Planned  | Existing queues, context, approvals, tools and guarded undo through both hosts.                                                                                                                 |
-| R5 Memory                    | Planned  | Native capture, recall, maintenance and recovery.                                                                                                                                               |
-| R6 Native jobs               | Planned  | Imports, existing Forge/transfer/Compute, installation and terminal lifetime.                                                                                                                   |
-| R7 Cutover                   | Planned  | Complete Rust hosted journeys, Linux packaging and retirement of transitional Node paths.                                                                                                       |
+| Slice                        | Status      | Next gate / evidence                                                                                                                                                                            |
+| ---------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R0 Plan and review           | Complete    | [Plan/review evidence](spec/records/2026-10-23-rust-core-plan.md): current Desktop reviewed; full specification and 38 regressions pass.                                                        |
+| R1.1 Shared vault engine     | Complete    | [R1.1 evidence](spec/records/2026-10-23-rust-core-vault.md): 5 source cases, 4 boundary regressions, 52 exact Desktop cases and 228 full native cases pass; both native configurations qualify. |
+| R1.2 Vault/service ownership | Complete    | [R1.2 evidence](spec/records/2026-10-23-rust-core-ownership.md): 24 Rust cases, 5 boundary regressions, schema/type drift and strict native checks pass.                                        |
+| R1.3 Both host adapters      | In progress | [Portable file source](spec/records/2026-10-23-rust-core-file-actions.md) qualifies existing operations; Tauri/HTTP shell and backup detach/Quit remain.                                        |
+| R2 Durable conversation      | Planned     | Real accepted turn completes without clients; restart never replays.                                                                                                                            |
+| R3 Indexed vault             | Planned     | Metadata, projections, semantic Search and history indexing without clients.                                                                                                                    |
+| R4 AI/tools/Changes          | Planned     | Existing queues, context, approvals, tools and guarded undo through both hosts.                                                                                                                 |
+| R5 Memory                    | Planned     | Native capture, recall, maintenance and recovery.                                                                                                                                               |
+| R6 Native jobs               | Planned     | Imports, existing Forge/transfer/Compute, installation and terminal lifetime.                                                                                                                   |
+| R7 Cutover                   | Planned     | Complete Rust hosted journeys, Linux packaging and retirement of transitional Node paths.                                                                                                       |
 
-Default Desktop includes shared vault intake `6700f104`; Notes vault extraction
-is `0e95da98` and service ownership is recorded in the enclosing change. Committed hosted
+Default Desktop includes shared vault intake `6700f104` and dependency refresh
+`ebcadc34`; Notes vault extraction is `0e95da98` and service ownership `c5ffe1b9`. Committed hosted
 branch `593abc65` has additional H03/H04 and H05 foundation evidence not integrated
 in this default. Its unfinished accepted-work change `vlvosxvo` is preserved in
 the `hosted-services` workspace. Do not treat it as qualified production code.

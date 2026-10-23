@@ -21,6 +21,17 @@
       "required": ["editor_id", "path", "revision", "detached"],
       "type": "object"
     },
+    "EntryStat": {
+      "additionalProperties": false,
+      "properties": {
+        "ctime": { "format": "double", "type": "number" },
+        "mtime": { "format": "double", "type": "number" },
+        "size": { "format": "uint64", "minimum": 0, "type": "integer" },
+        "type": { "type": "string" }
+      },
+      "required": ["type", "size", "ctime", "mtime"],
+      "type": "object"
+    },
     "ErrorCode": {
       "enum": [
         "INVALID_REQUEST",
@@ -28,6 +39,11 @@
         "PERMISSION_DENIED",
         "NOT_FOUND",
         "CONFLICT",
+        "ALREADY_EXISTS",
+        "DIRECTORY_NOT_EMPTY",
+        "IS_DIRECTORY",
+        "NOT_DIRECTORY",
+        "UNSUPPORTED",
         "BUSY",
         "CLOSED",
         "IO"
@@ -49,6 +65,286 @@
             "version": { "type": "string" }
           },
           "required": ["kind", "version"],
+          "type": "object"
+        }
+      ]
+    },
+    "FileCommand": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "items": {
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "operation": { "const": "create-file", "type": "string" },
+            "options": {
+              "$ref": "#/$defs/FileOptions",
+              "default": { "mtime": null }
+            },
+            "path": { "type": "string" }
+          },
+          "required": ["operation", "path", "data"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "newPath": { "type": "string" },
+            "operation": { "const": "rename", "type": "string" },
+            "path": { "type": "string" }
+          },
+          "required": ["operation", "path", "newPath"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "newPath": { "type": "string" },
+            "operation": { "const": "copy", "type": "string" },
+            "path": { "type": "string" }
+          },
+          "required": ["operation", "path", "newPath"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operation": { "const": "remove", "type": "string" },
+            "path": { "type": "string" }
+          },
+          "required": ["operation", "path"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operation": { "const": "rmdir", "type": "string" },
+            "path": { "type": "string" },
+            "recursive": { "default": false, "type": "boolean" }
+          },
+          "required": ["operation", "path"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operation": { "const": "stat", "type": "string" },
+            "path": { "type": "string" }
+          },
+          "required": ["operation", "path"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operation": { "const": "exists", "type": "string" },
+            "path": { "type": "string" }
+          },
+          "required": ["operation", "path"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operation": { "const": "list", "type": "string" },
+            "path": { "type": "string" }
+          },
+          "required": ["operation", "path"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operation": { "const": "read-text", "type": "string" },
+            "path": { "type": "string" }
+          },
+          "required": ["operation", "path"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operation": { "const": "read-binary", "type": "string" },
+            "path": { "type": "string" }
+          },
+          "required": ["operation", "path"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "length": { "format": "uint", "minimum": 0, "type": "integer" },
+            "offset": { "format": "uint64", "minimum": 0, "type": "integer" },
+            "operation": { "const": "read-range", "type": "string" },
+            "path": { "type": "string" }
+          },
+          "required": ["operation", "path", "offset", "length"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "data": { "type": "string" },
+            "operation": { "const": "write-text", "type": "string" },
+            "options": {
+              "$ref": "#/$defs/FileOptions",
+              "default": { "mtime": null }
+            },
+            "path": { "type": "string" }
+          },
+          "required": ["operation", "path", "data"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "data": { "type": "string" },
+            "expected": { "type": ["string", "null"] },
+            "operation": {
+              "const": "write-text-if-unchanged",
+              "type": "string"
+            },
+            "options": {
+              "$ref": "#/$defs/FileOptions",
+              "default": { "mtime": null }
+            },
+            "path": { "type": "string" }
+          },
+          "required": ["operation", "path", "data"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "items": {
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "operation": { "const": "write-binary", "type": "string" },
+            "options": {
+              "$ref": "#/$defs/FileOptions",
+              "default": { "mtime": null }
+            },
+            "path": { "type": "string" }
+          },
+          "required": ["operation", "path", "data"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "data": { "type": "string" },
+            "operation": { "const": "append-text", "type": "string" },
+            "options": {
+              "$ref": "#/$defs/FileOptions",
+              "default": { "mtime": null }
+            },
+            "path": { "type": "string" }
+          },
+          "required": ["operation", "path", "data"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operation": { "const": "mkdir", "type": "string" },
+            "path": { "type": "string" },
+            "recursive": { "default": false, "type": "boolean" }
+          },
+          "required": ["operation", "path"],
+          "type": "object"
+        }
+      ]
+    },
+    "FileListing": {
+      "additionalProperties": false,
+      "properties": {
+        "files": { "items": { "type": "string" }, "type": "array" },
+        "folders": { "items": { "type": "string" }, "type": "array" }
+      },
+      "required": ["files", "folders"],
+      "type": "object"
+    },
+    "FileOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "mtime": { "format": "double", "type": ["number", "null"] }
+      },
+      "type": "object"
+    },
+    "FileValue": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "data": { "type": "string" },
+            "kind": { "const": "text", "type": "string" }
+          },
+          "required": ["kind", "data"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "items": {
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "kind": { "const": "binary", "type": "string" }
+          },
+          "required": ["kind", "data"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "stat", "type": "string" },
+            "stat": {
+              "anyOf": [{ "$ref": "#/$defs/EntryStat" }, { "type": "null" }]
+            }
+          },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "exists": { "type": "boolean" },
+            "kind": { "const": "exists", "type": "string" }
+          },
+          "required": ["kind", "exists"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "list", "type": "string" },
+            "listing": { "$ref": "#/$defs/FileListing" }
+          },
+          "required": ["kind", "listing"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "done", "type": "string" } },
+          "required": ["kind"],
           "type": "object"
         }
       ]
@@ -132,6 +428,15 @@
     },
     "VaultCommand": {
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "files", "type": "string" },
+            "operation": { "$ref": "#/$defs/FileCommand" }
+          },
+          "required": ["kind", "operation"],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "properties": {
@@ -248,6 +553,15 @@
     },
     "VaultValue": {
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "files", "type": "string" },
+            "value": { "$ref": "#/$defs/FileValue" }
+          },
+          "required": ["kind", "value"],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "properties": {

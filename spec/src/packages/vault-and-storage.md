@@ -11,7 +11,9 @@ replies and editor claims. `pnpm protocol:generate` emits the JSON schema and
 TypeScript client types. `pnpm check:protocol` verifies drift and compiles positive
 and negative client fixtures; normal native and canonical spec checks include
 that gate. The guarded native runner also executes protocol export without a
-second output directory or bypassing the disk guard.
+second output directory or bypassing the disk guard. The protocol's portable file
+actions retain existing shell operations and result metadata; host-only OS
+commands are excluded.
 
 ## LN-PKG-185 — Core vault listing exclusions
 

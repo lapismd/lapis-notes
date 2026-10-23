@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 use uuid::Uuid;
 
+pub mod files;
+
 pub const PROTOCOL_MAJOR: u32 = 3;
 
 #[derive(Clone, Debug, Deserialize, Serialize, JsonSchema, TS)]
@@ -19,6 +21,9 @@ pub enum ExpectedVersion {
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 #[ts(tag = "kind", rename_all = "snake_case")]
 pub enum VaultCommand {
+    Files {
+        operation: files::FileCommand,
+    },
     ReadText {
         path: String,
     },
@@ -111,6 +116,7 @@ pub struct TextSnapshot {
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 #[ts(tag = "kind", rename_all = "snake_case")]
 pub enum VaultValue {
+    Files { value: files::FileValue },
     Text { snapshot: TextSnapshot },
     Written { version: String },
     Status { status: VaultStatus },
@@ -129,6 +135,11 @@ pub enum ErrorCode {
     PermissionDenied,
     NotFound,
     Conflict,
+    AlreadyExists,
+    DirectoryNotEmpty,
+    IsDirectory,
+    NotDirectory,
+    Unsupported,
     Busy,
     Closed,
     Io,
