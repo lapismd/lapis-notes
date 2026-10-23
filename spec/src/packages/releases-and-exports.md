@@ -1,10 +1,7 @@
 # Packages / Releases and exports
 
-API manifests admit the Mira 0.1 public-export line alongside 0.0.5 for
-Desktop shared-screen acceptance; registry dependency coordinates stay portable.
-
-Dependency-image pin publication selects only an open review under LN-GOV-050.
-Every fresh PR retains the complete validation graph required by LN-PKG-142.
+Dependency-image reviews follow LN-GOV-050 and LN-PKG-142. API Mira
+compatibility uses portable registry ranges and public exports.
 
 Release and validation containers consume shared image `2026.10.14.1` by
 digest. GitHub CLI 2.102.0 is supplied upstream so approved npm publication can
