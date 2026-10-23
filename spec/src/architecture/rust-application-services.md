@@ -44,6 +44,17 @@ is a native Rust value and never a transport field.
 The staged command contract does not itself qualify either adapter or backup
 lifetime; their acceptance remains required before R1.3 completes.
 
+R1.3 HTTP staging adds a private Axum adapter around the same service owner.
+An operator-owned startup configuration admits opaque vault IDs and roots;
+requests cannot select native paths. A required owner bearer token and exact
+protocol-major header protect every API route. Browser Origin requests must
+match the configured public origin; no cross-origin permission is granted.
+Client attachments survive separate requests, and explicit detach retains dirty
+claims and accepted work. Core errors remain typed and omit native paths.
+Blocking file operations run outside the async executor. Bounded JSON commands
+qualify the initial adapter only; streamed bodies/resources, existing browser
+login/shell intake, SSE and native backup lifetime remain later R1.3/R7 gates.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

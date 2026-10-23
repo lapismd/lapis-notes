@@ -1,5 +1,17 @@
 {
   "$defs": {
+    "AttachClient": {
+      "additionalProperties": false,
+      "properties": {
+        "protocol_version": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": ["protocol_version"],
+      "type": "object"
+    },
     "ClientDescriptor": {
       "additionalProperties": false,
       "properties": {
@@ -349,6 +361,15 @@
         }
       ]
     },
+    "ManagedVault": {
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "vault_id": { "format": "uuid", "type": "string" }
+      },
+      "required": ["vault_id", "name"],
+      "type": "object"
+    },
     "Outcome": {
       "oneOf": [
         {
@@ -630,11 +651,13 @@
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "properties": {
+    "attach": { "$ref": "#/$defs/AttachClient" },
     "client": { "$ref": "#/$defs/ClientDescriptor" },
     "reply": { "$ref": "#/$defs/Reply" },
-    "request": { "$ref": "#/$defs/Request" }
+    "request": { "$ref": "#/$defs/Request" },
+    "vault": { "$ref": "#/$defs/ManagedVault" }
   },
-  "required": ["request", "reply", "client"],
+  "required": ["request", "reply", "client", "vault", "attach"],
   "title": "Contracts",
   "type": "object"
 }

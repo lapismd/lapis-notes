@@ -10,6 +10,19 @@ pub mod files;
 pub const PROTOCOL_MAJOR: u32 = 3;
 
 #[derive(Clone, Debug, Deserialize, Serialize, JsonSchema, TS)]
+#[serde(deny_unknown_fields)]
+pub struct ManagedVault {
+    pub vault_id: Uuid,
+    pub name: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, JsonSchema, TS)]
+#[serde(deny_unknown_fields)]
+pub struct AttachClient {
+    pub protocol_version: u32,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, JsonSchema, TS)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 #[ts(tag = "kind", rename_all = "snake_case")]
 pub enum ExpectedVersion {

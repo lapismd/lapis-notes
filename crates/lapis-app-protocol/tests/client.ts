@@ -3,6 +3,8 @@ import {
   type Request,
   type Reply,
   type VaultCommand,
+  type AttachClient,
+  type ManagedVault,
 } from "../bindings/protocol.js";
 const command = {
   kind: "write_text",
@@ -50,3 +52,12 @@ const escape: VaultCommand = {
   },
 };
 void [fileAction, escape];
+
+const attach: AttachClient = { protocol_version: PROTOCOL_MAJOR };
+const vault: ManagedVault = { vault_id: "vault", name: "Notes" };
+const remoteRoot: AttachClient = {
+  protocol_version: PROTOCOL_MAJOR,
+  // @ts-expect-error Only the operator may configure native roots.
+  root: "/tmp/other",
+};
+void [attach, vault, remoteRoot];

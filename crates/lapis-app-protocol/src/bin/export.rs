@@ -8,10 +8,14 @@ pub struct Contracts {
     pub request: Request,
     pub reply: Reply,
     pub client: ClientDescriptor,
+    pub vault: ManagedVault,
+    pub attach: AttachClient,
 }
 fn main() {
     let config = Config::default();
     let declarations = [
+        ManagedVault::decl(&config),
+        AttachClient::decl(&config),
         FileOptions::decl(&config),
         FileCommand::decl(&config),
         EntryStat::decl(&config),
