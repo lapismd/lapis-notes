@@ -50,3 +50,16 @@ test("checks Cargo dependency identities even when aliases or target tables hide
   assert.ok(errors.some((error) => error.includes("tauri")));
   assert.ok(errors.some((error) => error.includes("lapis-desktop")));
 });
+
+test("protocol cannot acquire core, host or aliased transport dependencies", () => {
+  const errors = auditDependencies([
+    {
+      name: "lapis-app-protocol",
+      dependencies: [
+        { name: "axum", rename: "web" },
+        { name: "lapis-app-core" },
+      ],
+    },
+  ]);
+  assert.equal(errors.length, 2);
+});

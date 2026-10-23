@@ -6,6 +6,13 @@ Existing TypeScript Vault and AppDatabase interfaces remain intact. Root
 check/test/build include the independently qualified native lanes; this does not
 replace the standalone browser backend or enable a hosted Rust adapter.
 
+The private `lapis-app-protocol` crate owns transport-neutral service commands,
+replies and editor claims. `pnpm protocol:generate` emits the JSON schema and
+TypeScript client types. `pnpm check:protocol` verifies drift and compiles positive
+and negative client fixtures; normal native and canonical spec checks include
+that gate. The guarded native runner also executes protocol export without a
+second output directory or bypassing the disk guard.
+
 ## LN-PKG-185 — Core vault listing exclusions
 
 <a id="ln-pkg-185"></a>

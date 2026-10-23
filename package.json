@@ -126,9 +126,11 @@
     "test:server:native": "pnpm server:native -- test --locked && node packages/server-node/src/native/companion.smoke.ts",
     "rust:core": "node scripts/rust-core.mjs",
     "check:rust-boundaries": "node scripts/check-rust-boundaries.mjs",
-    "check:rust-core": "pnpm check:rust-boundaries && pnpm rust:core -- fmt --all -- --check && pnpm rust:core -- clippy --workspace --all-targets --locked -- -D warnings",
+    "check:rust-core": "pnpm check:rust-boundaries && pnpm check:protocol && pnpm rust:core -- fmt --all -- --check && pnpm rust:core -- clippy --workspace --all-targets --locked -- -D warnings",
     "test:rust-core": "node --test scripts/check-rust-boundaries.test.mjs && pnpm rust:core -- test --workspace --locked",
-    "build:rust-core": "pnpm rust:core -- build --workspace --locked"
+    "build:rust-core": "pnpm rust:core -- build --workspace --locked",
+    "protocol:generate": "node scripts/rust-protocol.mjs --write",
+    "check:protocol": "node scripts/rust-protocol.mjs --check && tsc -p crates/lapis-app-protocol/tsconfig.json"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.7.0",

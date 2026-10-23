@@ -1,0 +1,38 @@
+import {
+  PROTOCOL_MAJOR,
+  type Request,
+  type Reply,
+  type VaultCommand,
+} from "../bindings/protocol.js";
+const command = {
+  kind: "write_text",
+  path: "note.md",
+  text: "hello",
+  expected: { kind: "missing" },
+} satisfies VaultCommand;
+const request: Request = {
+  protocol_version: PROTOCOL_MAJOR,
+  request_id: "request",
+  vault_id: "vault",
+  generation: "generation",
+  command,
+};
+// @ts-expect-error Unknown commands cannot enter a typed client.
+const unknown: VaultCommand = { kind: "save_anything" };
+// @ts-expect-error Conditional writes require an expected version.
+const unsafe: VaultCommand = {
+  kind: "write_text",
+  path: "note.md",
+  text: "lost",
+};
+// @ts-expect-error Discard requires a specific editor.
+const discard: VaultCommand = { kind: "discard_editor" };
+function result(reply: Reply) {
+  if (reply.outcome.status === "error") return reply.outcome.error.code;
+  const value = reply.outcome.value;
+  if (value.kind === "editor_claims")
+    return value.claims.map((claim) => claim.editor_id);
+  if (value.kind === "text") return value.snapshot.version;
+  return value.kind;
+}
+void [request, unknown, unsafe, discard, result];

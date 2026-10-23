@@ -5,7 +5,10 @@ The shared Rust migration adds a Notes-owned application-service family under
 [Rust application services](../architecture/rust-application-services.md).
 Existing source-ownership and protected-change rules remain enforced; the
 native source, manifests, toolchain and boundary/build scripts map explicitly to
-that chapter. Native `crates/*/src` joins the fail-closed protected source set.
+that chapter, including `rust-protocol.mjs` for generated schema/type drift.
+Native `crates/*/src` joins the fail-closed protected source set. The configured
+protocol-contract lane checks generation and client type fixtures alongside the
+core boundary audit and its regressions.
 
 The H02 map includes `packages/server-native` beside `server-node` so native
 history admission and IPC changes require the owning hosted contracts and

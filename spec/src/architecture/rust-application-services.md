@@ -17,6 +17,22 @@ It rejects transport dependencies/source references, host source routing and new
 oversized source/test files. Native builds retain checkout-owned output and the
 30 GiB free-space preflight, without automatic cache cleanup.
 
+R1.2 adds one service owner for each admitted vault ID and physical directory.
+Clients attach with fresh IDs and a service generation; their removal leaves
+admitted work alive. The owner serializes conditional writes, rejects foreign or
+stale generations, and fences new work before draining closure. Explicit close
+refuses unresolved dirty editors without retiring the original service. Detached
+dirty claims remain blockers until explicitly recovered or discarded. Saved
+editor acknowledgements cannot clear a newer edit generation. Reconnecting clients
+can discover retained dirty claims and explicitly take ownership before resolving
+them. Client saves cannot bypass another client's claim; native writes also
+check file identity so hard-link aliases cannot bypass that guard.
+
+Protocol major three replaces the previous hosted control plane only when both
+host adapters qualify in R1.3. Rust types generate the JSON schema and TypeScript
+bindings. R1.2 establishes in-process ownership and transport conformance, not
+durable ACP recovery, an HTTP endpoint or the final hosted cutover.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

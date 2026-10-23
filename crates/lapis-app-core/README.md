@@ -2,13 +2,19 @@
 
 Transport-independent native application services for Lapis Notes. The first
 slice extracts the existing Desktop vault file engine; Tauri consumes this crate
-directly. Hosted adapters and independent job ownership remain later gates in
-the [migration plan](../../RUST_CORE_MIGRATION_PLAN.md).
+directly. The service layer adds admitted ownership and independent client/work
+lifetimes; hosted adapters and durable ACP jobs remain later gates in the
+[migration plan](../../RUST_CORE_MIGRATION_PLAN.md).
 
 `vault` owns checked relative-path IO, bounded reads, atomic and conditional
 publication, exclusive create/rename/copy and native action targets. Hosts still
 own root admission and mutation serialization. Native capability handles never
 cross into renderer or HTTP values.
+
+`services` owns one writer per physical vault, conditional text saves, dirty editor
+claims, detach/recovery and fenced drain. Hosts derive caller authority and attach
+clients; a work lease survives client detachment but is not a durable job receipt.
+`lapis-app-protocol` supplies the common commands and generated client contracts.
 
 Run `pnpm test:rust-core`, `pnpm check:rust-core` and `pnpm build:rust-core` from
 the Notes root. Each checkout owns `.local/rust-core-target`; the build wrapper

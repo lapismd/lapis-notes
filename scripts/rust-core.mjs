@@ -5,9 +5,13 @@ import { fileURLToPath } from "node:url";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const args = process.argv.slice(2);
 if (args[0] === "--") args.shift();
-if (!new Set(["build", "check", "test", "clippy", "fmt", "tree"]).has(args[0]))
+if (
+  !new Set(["build", "check", "test", "clippy", "fmt", "tree", "run"]).has(
+    args[0],
+  )
+)
   throw new Error(
-    "Use pnpm rust:core -- build|check|test|clippy|fmt|tree [arguments]",
+    "Use pnpm rust:core -- build|check|test|clippy|fmt|tree|run [arguments]",
   );
 if (
   process.env.CARGO_TARGET_DIR ||

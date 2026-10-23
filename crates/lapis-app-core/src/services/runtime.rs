@@ -1,0 +1,99 @@
+use super::{Error, Result, VaultService};
+use crate::vault::VaultRoot;
+use lapis_app_protocol::ErrorCode;
+use std::{
+    collections::HashMap,
+    path::Path,
+    sync::{Arc, Mutex},
+};
+use uuid::Uuid;
+
+#[derive(Default)]
+pub struct Runtime {
+    registry: Mutex<Registry>,
+}
+#[derive(Default)]
+struct Registry {
+    closing: bool,
+    vaults: HashMap<Uuid, Arc<VaultService>>,
+    roots: HashMap<(u64, u64), Uuid>,
+}
+impl Runtime {
+    pub fn admit(&self, id: Uuid, path: &Path) -> Result<Arc<VaultService>> {
+        if id.is_nil() {
+            return Err(Error::new(
+                ErrorCode::InvalidRequest,
+                "Vault identity is required",
+            ));
+        }
+        let root = VaultRoot::open(path)?;
+        root.verify_physical_root()?;
+        let identity = root.physical_identity()?;
+        let mut registry = self.registry.lock().map_err(|_| Error::closed())?;
+        if registry.closing {
+            return Err(Error::closed());
+        }
+        if let Some(existing) = registry.vaults.get(&id) {
+            let state = existing.lock()?;
+            state.require_open()?;
+            state.root.verify_physical_root()?;
+            if state.root.physical_identity()? != identity {
+                return Err(Error::denied());
+            }
+            return Ok(existing.clone());
+        }
+        if registry.roots.contains_key(&identity) {
+            return Err(Error::busy());
+        }
+        let vault = Arc::new(VaultService::new(id, root));
+        registry.roots.insert(identity, id);
+        registry.vaults.insert(id, vault.clone());
+        Ok(vault)
+    }
+    pub fn get(&self, id: Uuid) -> Result<Arc<VaultService>> {
+        let registry = self.registry.lock().map_err(|_| Error::closed())?;
+        if registry.closing {
+            return Err(Error::closed());
+        }
+        registry.vaults.get(&id).cloned().ok_or_else(Error::denied)
+    }
+    pub fn close_vault(&self, id: Uuid) -> Result<()> {
+        let vault = self.get(id)?;
+        vault.close()?;
+        let mut registry = self.registry.lock().map_err(|_| Error::closed())?;
+        if registry
+            .vaults
+            .get(&id)
+            .is_some_and(|current| Arc::ptr_eq(current, &vault))
+        {
+            registry.vaults.remove(&id);
+            registry.roots.retain(|_, owner| *owner != id);
+        }
+        Ok(())
+    }
+    pub fn shutdown(&self) -> Result<()> {
+        let mut registry = self.registry.lock().map_err(|_| Error::closed())?;
+        let vaults: Vec<_> = registry.vaults.values().cloned().collect();
+        // Hold every vault state through preflight: a failed leave keeps all owners live.
+        let mut states = Vec::new();
+        for vault in &vaults {
+            states.push(vault.lock()?);
+        }
+        if states.iter().any(|state| state.dirty(None)) {
+            return Err(Error::busy());
+        }
+        registry.closing = true;
+        for state in &mut states {
+            state.begin_close();
+        }
+        drop(states);
+        drop(registry);
+        for vault in vaults {
+            vault.close()?;
+        }
+        let mut registry = self.registry.lock().map_err(|_| Error::closed())?;
+        registry.vaults.clear();
+        registry.roots.clear();
+        Ok(())
+    }
+}

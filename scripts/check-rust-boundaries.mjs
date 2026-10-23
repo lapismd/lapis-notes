@@ -7,16 +7,21 @@ const forbidden =
   "(?:tauri(?:-[\\w-]+)?|axum|hyper|tower|warp|actix-web|web-sys|js-sys|wasm-bindgen)";
 export function auditDependencies(packages) {
   return packages
-    .filter((entry) => entry.name === "lapis-app-core")
-    .flatMap((entry) => entry.dependencies)
     .filter((entry) =>
-      new RegExp(`^(?:${forbidden}|lapis-desktop|lapis-server)$`, "u").test(
-        entry.name,
-      ),
+      ["lapis-app-core", "lapis-app-protocol"].includes(entry.name),
     )
-    .map(
-      (entry) =>
-        `lapis-app-core: LN-CORE-001 forbidden host dependency ${entry.name}`,
+    .flatMap((owner) =>
+      owner.dependencies
+        .filter((entry) =>
+          new RegExp(
+            `^(?:${forbidden}|lapis-desktop|lapis-server${owner.name === "lapis-app-protocol" ? "|lapis-app-core" : ""})$`,
+            "u",
+          ).test(entry.name),
+        )
+        .map(
+          (entry) =>
+            `${owner.name}: LN-CORE-001 forbidden dependency ${entry.name}`,
+        ),
     );
 }
 export function auditRustSources(files) {
@@ -78,7 +83,11 @@ if (
     ),
   );
   const errors = [
-    ...auditRustSources(sources("crates/lapis-app-core")),
+    ...auditRustSources(
+      ["lapis-app-core", "lapis-app-protocol"].flatMap((name) =>
+        sources(`crates/${name}`),
+      ),
+    ),
     ...auditDependencies(metadata.packages),
   ];
   for (const error of errors) console.error(error);

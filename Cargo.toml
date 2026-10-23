@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/lapis-app-core"]
+members = ["crates/lapis-app-core", "crates/lapis-app-protocol"]
 exclude = ["packages/server-native"]
 resolver = "3"
 

@@ -1,0 +1,326 @@
+{
+  "$defs": {
+    "ClientDescriptor": {
+      "additionalProperties": false,
+      "properties": {
+        "client_id": { "format": "uuid", "type": "string" },
+        "generation": { "format": "uuid", "type": "string" },
+        "vault_id": { "format": "uuid", "type": "string" }
+      },
+      "required": ["client_id", "vault_id", "generation"],
+      "type": "object"
+    },
+    "EditorClaim": {
+      "additionalProperties": false,
+      "properties": {
+        "detached": { "type": "boolean" },
+        "editor_id": { "format": "uuid", "type": "string" },
+        "path": { "type": "string" },
+        "revision": { "format": "uint32", "minimum": 0, "type": "integer" }
+      },
+      "required": ["editor_id", "path", "revision", "detached"],
+      "type": "object"
+    },
+    "ErrorCode": {
+      "enum": [
+        "INVALID_REQUEST",
+        "PROTOCOL_MISMATCH",
+        "PERMISSION_DENIED",
+        "NOT_FOUND",
+        "CONFLICT",
+        "BUSY",
+        "CLOSED",
+        "IO"
+      ],
+      "type": "string"
+    },
+    "ExpectedVersion": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "missing", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "version", "type": "string" },
+            "version": { "type": "string" }
+          },
+          "required": ["kind", "version"],
+          "type": "object"
+        }
+      ]
+    },
+    "Outcome": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "status": { "const": "ok", "type": "string" },
+            "value": { "$ref": "#/$defs/VaultValue" }
+          },
+          "required": ["status", "value"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "error": { "$ref": "#/$defs/ServiceError" },
+            "status": { "const": "error", "type": "string" }
+          },
+          "required": ["status", "error"],
+          "type": "object"
+        }
+      ]
+    },
+    "Reply": {
+      "additionalProperties": false,
+      "properties": {
+        "outcome": { "$ref": "#/$defs/Outcome" },
+        "protocol_version": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "request_id": { "format": "uuid", "type": "string" }
+      },
+      "required": ["protocol_version", "request_id", "outcome"],
+      "type": "object"
+    },
+    "Request": {
+      "additionalProperties": false,
+      "properties": {
+        "command": { "$ref": "#/$defs/VaultCommand" },
+        "generation": { "format": "uuid", "type": "string" },
+        "protocol_version": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "request_id": { "format": "uuid", "type": "string" },
+        "vault_id": { "format": "uuid", "type": "string" }
+      },
+      "required": [
+        "protocol_version",
+        "request_id",
+        "vault_id",
+        "generation",
+        "command"
+      ],
+      "type": "object"
+    },
+    "ServiceError": {
+      "additionalProperties": false,
+      "properties": {
+        "code": { "$ref": "#/$defs/ErrorCode" },
+        "message": { "type": "string" }
+      },
+      "required": ["code", "message"],
+      "type": "object"
+    },
+    "TextSnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string" },
+        "text": { "type": "string" },
+        "version": { "type": "string" }
+      },
+      "required": ["path", "text", "version"],
+      "type": "object"
+    },
+    "VaultCommand": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "read_text", "type": "string" },
+            "path": { "type": "string" }
+          },
+          "required": ["kind", "path"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "expected": { "$ref": "#/$defs/ExpectedVersion" },
+            "kind": { "const": "write_text", "type": "string" },
+            "path": { "type": "string" },
+            "text": { "type": "string" }
+          },
+          "required": ["kind", "path", "text", "expected"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "status", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "open_editor", "type": "string" },
+            "path": { "type": "string" }
+          },
+          "required": ["kind", "path"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "editor_id": { "format": "uuid", "type": "string" },
+            "kind": { "const": "mark_dirty", "type": "string" },
+            "revision": { "format": "uint32", "minimum": 0, "type": "integer" }
+          },
+          "required": ["kind", "editor_id", "revision"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "editor_id": { "format": "uuid", "type": "string" },
+            "kind": { "const": "mark_saved", "type": "string" },
+            "revision": { "format": "uint32", "minimum": 0, "type": "integer" },
+            "version": { "type": "string" }
+          },
+          "required": ["kind", "editor_id", "revision", "version"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "editor_id": { "format": "uuid", "type": "string" },
+            "kind": { "const": "close_editor", "type": "string" }
+          },
+          "required": ["kind", "editor_id"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "editor_id": { "format": "uuid", "type": "string" },
+            "kind": { "const": "discard_editor", "type": "string" }
+          },
+          "required": ["kind", "editor_id"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "editor_id": { "format": "uuid", "type": "string" },
+            "kind": { "const": "recover_editor", "type": "string" }
+          },
+          "required": ["kind", "editor_id"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "editor_claims", "type": "string" }
+          },
+          "required": ["kind"],
+          "type": "object"
+        }
+      ]
+    },
+    "VaultPhase": { "enum": ["open", "closing", "closed"], "type": "string" },
+    "VaultStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "clients": { "format": "uint", "minimum": 0, "type": "integer" },
+        "dirty_editors": { "format": "uint", "minimum": 0, "type": "integer" },
+        "generation": { "format": "uuid", "type": "string" },
+        "phase": { "$ref": "#/$defs/VaultPhase" },
+        "vault_id": { "format": "uuid", "type": "string" },
+        "work": { "format": "uint", "minimum": 0, "type": "integer" }
+      },
+      "required": [
+        "vault_id",
+        "generation",
+        "phase",
+        "clients",
+        "work",
+        "dirty_editors"
+      ],
+      "type": "object"
+    },
+    "VaultValue": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "text", "type": "string" },
+            "snapshot": { "$ref": "#/$defs/TextSnapshot" }
+          },
+          "required": ["kind", "snapshot"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "written", "type": "string" },
+            "version": { "type": "string" }
+          },
+          "required": ["kind", "version"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "status", "type": "string" },
+            "status": { "$ref": "#/$defs/VaultStatus" }
+          },
+          "required": ["kind", "status"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "editor_id": { "format": "uuid", "type": "string" },
+            "kind": { "const": "editor", "type": "string" }
+          },
+          "required": ["kind", "editor_id"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "cleared": { "type": "boolean" },
+            "kind": { "const": "saved", "type": "string" }
+          },
+          "required": ["kind", "cleared"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "claims": {
+              "items": { "$ref": "#/$defs/EditorClaim" },
+              "type": "array"
+            },
+            "kind": { "const": "editor_claims", "type": "string" }
+          },
+          "required": ["kind", "claims"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "done", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        }
+      ]
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "client": { "$ref": "#/$defs/ClientDescriptor" },
+    "reply": { "$ref": "#/$defs/Reply" },
+    "request": { "$ref": "#/$defs/Request" }
+  },
+  "required": ["request", "reply", "client"],
+  "title": "Contracts",
+  "type": "object"
+}

@@ -123,7 +123,7 @@ export default defineConfig(headingRequirements(), {
       rules: [
         {
           pattern:
-            "^(?:crates/|\\.cargo/config\\.toml$|Cargo\\.(?:toml|lock)$|rust-toolchain\\.toml$|scripts/(?:rust-core|check-rust-boundaries)(?:\\.test)?\\.mjs$)",
+            "^(?:crates/|\\.cargo/config\\.toml$|Cargo\\.(?:toml|lock)$|rust-toolchain\\.toml$|scripts/(?:rust-core|rust-protocol|check-rust-boundaries)(?:\\.test)?\\.mjs$)",
           chapterPatterns: [
             "^spec/src/architecture/rust-application-services\\.md$",
           ],
@@ -391,6 +391,11 @@ export default defineConfig(headingRequirements(), {
   ],
   check: {
     lanes: [
+      {
+        name: "rust-protocol-contract",
+        command: "pnpm",
+        args: ["check:protocol"],
+      },
       {
         name: "rust-core-boundaries",
         command: "node",
