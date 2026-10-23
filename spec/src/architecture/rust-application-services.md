@@ -5,6 +5,18 @@ Node-specific hosted parity implementation. Existing hosts remain supported
 until their replacement gates pass. Current migration status is in
 [MIGRATION.md](../../../MIGRATION.md).
 
+R1.1 extracts Desktop's existing vault file engine into `lapis-app-core` and
+updates native callers directly. The low-level engine retains the caller-owned
+IO gate; extracting it does not claim cross-client serialization or new job
+lifetime. R1.2/R1.3 retain those gates. Native directory witnesses are explicit
+capability handles, never renderer or HTTP values. Watch/resource/profile policy
+remains in Desktop while the common engine owns checked IO and publication.
+
+The core boundary audit runs in normal checks and canonical specification checks.
+It rejects transport dependencies/source references, host source routing and new
+oversized source/test files. Native builds retain checkout-owned output and the
+30 GiB free-space preflight, without automatic cache cleanup.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

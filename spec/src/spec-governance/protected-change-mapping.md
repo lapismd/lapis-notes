@@ -4,7 +4,8 @@ The shared Rust migration adds a Notes-owned application-service family under
 `crates/`. Its canonical authority is
 [Rust application services](../architecture/rust-application-services.md).
 Existing source-ownership and protected-change rules remain enforced; the
-first native extraction adds its explicit source mapping before implementation.
+native source, manifests, toolchain and boundary/build scripts map explicitly to
+that chapter. Native `crates/*/src` joins the fail-closed protected source set.
 
 The H02 map includes `packages/server-native` beside `server-node` so native
 history admission and IPC changes require the owning hosted contracts and

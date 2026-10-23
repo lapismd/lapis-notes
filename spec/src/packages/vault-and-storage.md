@@ -1,5 +1,11 @@
 # Packages / Vault and storage
 
+The private `lapis-app-core` Rust crate owns the extracted native vault file
+engine under the [shared service contract](../architecture/rust-application-services.md).
+Existing TypeScript Vault and AppDatabase interfaces remain intact. Root
+check/test/build include the independently qualified native lanes; this does not
+replace the standalone browser backend or enable a hosted Rust adapter.
+
 ## LN-PKG-185 — Core vault listing exclusions
 
 <a id="ln-pkg-185"></a>

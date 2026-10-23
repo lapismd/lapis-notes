@@ -123,6 +123,13 @@ export default defineConfig(headingRequirements(), {
       rules: [
         {
           pattern:
+            "^(?:crates/|\\.cargo/config\\.toml$|Cargo\\.(?:toml|lock)$|rust-toolchain\\.toml$|scripts/(?:rust-core|check-rust-boundaries)(?:\\.test)?\\.mjs$)",
+          chapterPatterns: [
+            "^spec/src/architecture/rust-application-services\\.md$",
+          ],
+        },
+        {
+          pattern:
             "^(?:\\.ci/(?:dependency-image\\.Dockerfile|images\\.json)|\\.env\\.example|\\.github/actions/ci-setup/action\\.yml|\\.github/workflows/(?:dependency-image|lapis-ci|publish-storybook-pages|release)\\.yml|\\.changeset/(?:config\\.json|README\\.md)|RELEASING\\.md|scripts/(?:run-web-registry-acceptance|public-packages|release-plan|release-manifest|prepare-release|publish-release|verify-release|create-github-releases|check-package-boundaries|check-package-tarballs|check-release-config|check-release-workflow|check-release-intent|prepare-local-plugin-consumer|pack-packages|prepare-ci-dependency-context|update-ci-image-manifest|run-ci-container|run-turbo|report-turbo-cache|lib/(?:local-plugin-consumer|concurrency|turbo-invocation|ci-images|ci-container))\\.mjs|scripts/local-plugin-pnpmfile(?:\\.test)?\\.(?:cjs|mjs))$",
           chapterPatterns: [
             "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
@@ -373,7 +380,9 @@ export default defineConfig(headingRequirements(), {
           ],
         },
       ],
-      protected: ["^(?:packages/[^/]+/src/|\\.storybook/|stories/catalog/)"],
+      protected: [
+        "^(?:packages/[^/]+/src/|crates/[^/]+/src/|\\.storybook/|stories/catalog/)",
+      ],
     },
   },
   plugins: [
@@ -382,6 +391,16 @@ export default defineConfig(headingRequirements(), {
   ],
   check: {
     lanes: [
+      {
+        name: "rust-core-boundaries",
+        command: "node",
+        args: ["scripts/check-rust-boundaries.mjs"],
+      },
+      {
+        name: "rust-core-boundary-regressions",
+        command: "node",
+        args: ["--test", "scripts/check-rust-boundaries.test.mjs"],
+      },
       {
         name: "specification-docs",
         command: "pnpm",

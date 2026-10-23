@@ -1,5 +1,13 @@
 # Architecture / Build and validation
 
+The shared application core has a separate root Cargo workspace and pinned
+Rust 1.99 toolchain. `pnpm rust:core` uses checkout-owned
+`.local/rust-core-target`, rejects target/manifest/config overrides and requires
+30 GiB free before compilation. Normal check/test/build include the core lanes;
+canonical specification checks also run native source/dependency boundaries and
+their regressions. The transitional native companion remains an excluded,
+independently built package until the hosted cutover.
+
 The private hosted native companion is grouped by history and IPC functionality
 under `packages/server-native`. It pins Rust 1.99 and consumes sibling JJ Store
 source at qualified extraction `f58b9363`. `pnpm server:native` uses a separate

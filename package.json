@@ -8,11 +8,11 @@
     "node": ">=22.11"
   },
   "scripts": {
-    "build": "node --env-file-if-exists=.env scripts/run-turbo.mjs build",
+    "build": "pnpm build:rust-core && node --env-file-if-exists=.env scripts/run-turbo.mjs build",
     "build:desktop": "node --env-file-if-exists=.env scripts/run-turbo.mjs build --filter=@lapis-notes/desktop-deno...",
     "build:web": "node --env-file-if-exists=.env scripts/run-turbo.mjs build --filter=@lapis-notes/web...",
     "changeset": "changeset",
-    "check": "pnpm spec:validate && pnpm check:specification-docs && pnpm check:no-tailwind && pnpm check:app-ownership && pnpm check:metadata-queries && node --env-file-if-exists=.env scripts/run-turbo.mjs check",
+    "check": "pnpm spec:validate && pnpm check:rust-core && pnpm check:specification-docs && pnpm check:no-tailwind && pnpm check:app-ownership && pnpm check:metadata-queries && node --env-file-if-exists=.env scripts/run-turbo.mjs check",
     "check:all": "pnpm check && pnpm test && pnpm build",
     "check:app-ownership": "tsx scripts/check-ambient-app-ownership.ts",
     "check:metadata-queries": "tsx scripts/check-first-party-metadata-queries.ts",
@@ -55,7 +55,7 @@
     "spec:validate": "spec-validator validate",
     "test:spec-validation": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:spec-validation:run --task-args",
     "spec:serve": "spec-validator serve",
-    "test": "node --env-file-if-exists=.env scripts/run-turbo.mjs test",
+    "test": "pnpm test:rust-core && node --env-file-if-exists=.env scripts/run-turbo.mjs test",
     "packages:policy": "node ./scripts/check-package-boundaries.mjs && pnpm test:package-boundaries",
     "packages:check": "pnpm packages:policy && pnpm test:local-plugin-consumer && pnpm release:check && pnpm release:test",
     "packages:pack": "node --env-file-if-exists=.env scripts/pack-packages.mjs",
@@ -123,7 +123,12 @@
     "test:server:e2e:run": "pnpm --filter @lapis-notes/web exec playwright test -c ./playwright.server.config.ts",
     "test:server:run": "pnpm --filter @lapis-notes/host-services check && pnpm --filter @lapis-notes/host-services test && pnpm --filter @lapis-notes/server-node check && node packages/server-node/dist/server.smoke.js",
     "server:native": "node scripts/server-native.mjs",
-    "test:server:native": "pnpm server:native -- test --locked && node packages/server-node/src/native/companion.smoke.ts"
+    "test:server:native": "pnpm server:native -- test --locked && node packages/server-node/src/native/companion.smoke.ts",
+    "rust:core": "node scripts/rust-core.mjs",
+    "check:rust-boundaries": "node scripts/check-rust-boundaries.mjs",
+    "check:rust-core": "pnpm check:rust-boundaries && pnpm rust:core -- fmt --all -- --check && pnpm rust:core -- clippy --workspace --all-targets --locked -- -D warnings",
+    "test:rust-core": "node --test scripts/check-rust-boundaries.test.mjs && pnpm rust:core -- test --workspace --locked",
+    "build:rust-core": "pnpm rust:core -- build --workspace --locked"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.7.0",
