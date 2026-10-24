@@ -57,6 +57,7 @@ enum Operation {
     StoreHistory(StoreHistory),
     Indexed(indexed::Action),
     Projection(projections::Action),
+    ProjectionRead(projections::ReadAction),
 }
 enum Output {
     Meta(Option<Value>),
@@ -69,6 +70,7 @@ enum Output {
     History(Option<FileHistory>),
     StoredHistory(StoredHistory),
     Indexed(indexed::Value),
+    ProjectionRead(projections::ReadValue),
 }
 impl Database {
     /// Native installation input only; callers derive this from admitted policy.

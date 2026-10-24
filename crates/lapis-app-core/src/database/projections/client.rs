@@ -1,9 +1,27 @@
-use super::{Action, write_access};
-use crate::database::{Database, Operation, invalid};
+use super::{Action, ReadAction, ReadValue, write_access};
+use crate::database::{Database, Operation, Output, invalid};
 use crate::services::Result;
 use lapis_app_protocol::database::projections::*;
 
 impl Database {
+    pub async fn get_projection_row(
+        &self,
+        id: &str,
+        row: &str,
+        reader: Option<&str>,
+    ) -> Result<Option<serde_json::Value>> {
+        match self
+            .submit(Operation::ProjectionRead(ReadAction::Get(
+                id.into(),
+                row.into(),
+                reader.map(str::to_owned),
+            )))
+            .await?
+        {
+            Output::ProjectionRead(ReadValue::Row(value)) => Ok(value),
+            _ => unreachable!("worker output matches operation"),
+        }
+    }
     pub async fn register_projection_definition(
         &self,
         definition: ProjectionDefinition,

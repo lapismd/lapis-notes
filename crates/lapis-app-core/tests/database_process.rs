@@ -87,16 +87,11 @@ async fn metadata_process_fixture() {
         )
         .await
         .unwrap();
-        db.replace_projection_source(
-            serde_json::from_value(projection_support::source(
-                "books/book",
-                "cold.md",
-                "cold-row",
-            ))
-            .unwrap(),
-        )
-        .await
-        .unwrap();
+        let mut projection = projection_support::source("books/book", "cold.md", "cold-row");
+        projection["sourceHash"] = json!("cold-indexed");
+        db.replace_projection_source(serde_json::from_value(projection).unwrap())
+            .await
+            .unwrap();
         println!("METADATA_COMMITTED");
         std::future::pending::<()>().await;
     } else {
@@ -121,16 +116,14 @@ async fn metadata_process_fixture() {
                 .parser_version,
             "cold-1"
         );
-        db.close().await.unwrap();
         assert_eq!(
-            projection_support::inspect(
-                std::path::Path::new(&directory),
-                id,
-                "SELECT row_id,source_path FROM index_projection_rows"
-            )
-            .await,
-            vec![vec![json!("cold-row"), json!("cold.md")]]
+            db.get_projection_row("books/book", "cold-row", None)
+                .await
+                .unwrap()
+                .unwrap()["title"],
+            json!("native 🪨")
         );
+        db.close().await.unwrap();
         println!("METADATA_RESTORED");
     }
 }

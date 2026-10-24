@@ -124,8 +124,10 @@ definitions, atomic source replacement and error/delete/unregister cleanup.
 Each source keeps at most 64 rows; typed indexed values retain the first 64
 indexed/sortable fields in JavaScript property order and the 4096 UTF-16-unit
 text bound. Definition, source, row, value, edge and change-journal updates share
-the native writer. Query/read authorization, task composition and unattended
-projection scheduling remain separate gates until their conformance qualifies.
+the native writer. Single-row reads retain explicit private-owner checks,
+identity/path aliases and source hash/schema/config freshness without writing.
+Projection AST/relationship queries, task composition and unattended scheduling
+remain separate gates until their conformance qualifies.
 
 ## LN-CORE-001 — Native application service independence
 

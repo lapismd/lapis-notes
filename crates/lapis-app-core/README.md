@@ -47,8 +47,10 @@ integration.
 `database::projections` retains namespaced definition registration, atomic
 source replacement and error/delete/unregister cleanup. Rows, typed indexed
 values, relationships and post-commit events share the native worker. Shared
-browser/native fixtures check scalar conversion and limits. Projection reads,
-task composition and background scheduling remain later catalogue work.
+browser/native fixtures check scalar conversion and limits. Single-row reads
+retain identity/path aliases, explicit private-owner access and source
+hash/schema/config freshness without writing. Projection AST/relationship
+queries, task composition and background scheduling remain later catalogue work.
 
 This foundation does not migrate the complete AppDatabase schema or connect a
 browser/desktop database adapter yet. Remaining catalogue methods and service

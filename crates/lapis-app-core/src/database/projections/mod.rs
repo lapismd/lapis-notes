@@ -1,5 +1,6 @@
 mod client;
 mod definitions;
+mod reads;
 mod values;
 mod writes;
 
@@ -15,6 +16,13 @@ pub(super) enum Action {
     Replace(ProjectionSource),
     Error(ProjectionSourceError),
     Delete(String, String),
+}
+#[derive(Serialize)]
+pub(super) enum ReadAction {
+    Get(String, String, Option<String>),
+}
+pub(super) enum ReadValue {
+    Row(Option<serde_json::Value>),
 }
 impl Store {
     pub async fn projection(&mut self, action: Action) -> Result<()> {

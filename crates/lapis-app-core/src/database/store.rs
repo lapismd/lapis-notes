@@ -99,6 +99,10 @@ impl Store {
             }
             Operation::Indexed(action) => self.indexed(action).await.map(Output::Indexed),
             Operation::Projection(action) => self.projection(action).await.map(|_| Output::Done),
+            Operation::ProjectionRead(action) => self
+                .read_projection(action)
+                .await
+                .map(Output::ProjectionRead),
         }
     }
     pub async fn revision(&self) -> Result<u64> {
