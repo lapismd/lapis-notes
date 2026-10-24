@@ -20,8 +20,9 @@ the shared core; Tauri and Rust HTTP hosts consume the same services.
 | R6 Native jobs               | Planned     | Imports, existing Forge/transfer/Compute, installation and terminal lifetime.                                                                                                                                                                                                                                                                                                                                                                                                   |
 | R7 Cutover                   | Planned     | Complete Rust hosted journeys, Linux packaging and retirement of transitional Node paths.                                                                                                                                                                                                                                                                                                                                                                                       |
 
-Default Desktop includes shared vault intake `6700f104` and dependency refresh
-`ebcadc34`; Notes vault extraction is `0e95da98` and service ownership `c5ffe1b9`. Committed hosted
+Default Desktop `f043d1b9` qualifies Notes `67a57aa9` through 230 native cases
+and three rebuilt cold hidden-native checks; [consumer evidence](spec/records/2026-10-24-rust-core-database-desktop.md)
+records E-CORE-005 and the unchanged Desktop database adapter. Committed hosted
 branch `593abc65` has additional H03/H04 and H05 foundation evidence not integrated
 in this default. Its unfinished accepted-work change `vlvosxvo` is preserved in
 the `hosted-services` workspace. Do not treat it as qualified production code.
