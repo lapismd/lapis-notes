@@ -151,6 +151,13 @@ all retained commit stages even after its waiter detaches. The publisher drains
 every committed stage in revision order, including stages committed before a
 later projection failure; a rolled-back stage never publishes.
 
+Native memory storage retains source checkpoints, candidates with exact origins,
+salted daily recall aggregates and renewable job leases. Claims and updates
+check and mutate inside one native transaction; rejected claims do not advance
+revisions. Bounded attempts, same-owner renewal, exact expiry boundaries and
+terminal completion retain the existing provider behavior. These derived tables
+remain separate from R5 scheduling and durable transcript/Markdown authority.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

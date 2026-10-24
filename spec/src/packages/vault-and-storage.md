@@ -28,6 +28,8 @@ bounded selected pages and generate their DTOs through the protocol drift gate.
 This does not change either host's existing database-adapter selection.
 API task-record fixtures independently qualify the retained providers and native
 facade, including full recurrence/structure data and effective view membership.
+Memory storage fixtures also qualify retained and native records, candidate
+queries, exact origins, daily recall totals and renewable job transitions.
 
 ## LN-PKG-185 — Core vault listing exclusions
 

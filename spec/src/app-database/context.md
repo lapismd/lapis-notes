@@ -82,7 +82,10 @@ Search path-prefix filtering uses exact directory boundaries and runs on the
 shared candidate set before score calculation, ranking, and limiting. Turso
 applies provider and exact-or-descendant path predicates in SQL before its
 candidate limit, then uses the shared evaluator for ranking; native and browser
-proxies forward the same typed option. A completed memory job is terminal and
+proxies forward the same typed option. Native Core retains these typed storage operations on its serialized writer,
+including atomic claim/update checks and post-commit revisions. Storage
+qualification does not complete R5 scheduling or maintenance.
+A completed memory job is terminal and
 cannot be reclaimed as a new lease, while expired running jobs remain eligible
 for owner takeover.
 

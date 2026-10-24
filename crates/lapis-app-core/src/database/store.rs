@@ -66,6 +66,10 @@ impl Store {
             .execute_batch(include_str!("tasks/schema.sql"))
             .await
             .map_err(engine)?;
+        connection
+            .execute_batch(include_str!("memory/schema.sql"))
+            .await
+            .map_err(engine)?;
         let store = Self {
             connection,
             _database: database,
@@ -104,6 +108,7 @@ impl Store {
             }
             Operation::Indexed(action) => self.indexed(action).await.map(Output::Indexed),
             Operation::Tasks(action) => self.tasks(action).await.map(Output::Tasks),
+            Operation::Memory(action) => self.memory(action).await.map(Output::Memory),
             Operation::Projection(action) => self.projection(action).await.map(|_| Output::Done),
             Operation::ProjectionRead(action) => self
                 .read_projection(action)

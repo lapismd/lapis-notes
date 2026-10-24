@@ -21,6 +21,11 @@ import {
   type ProjectionRelatedQuery,
   type TaskRecord,
   type TaskQuery,
+  type MemorySource,
+  type MemoryCandidate,
+  type MemoryJobClaim,
+  type MemoryJobUpdate,
+  type MemoryRecallSignal,
 } from "../bindings/protocol.js";
 const command = {
   kind: "write_text",
@@ -254,3 +259,52 @@ const invalidTaskQuery: TaskQuery = {
   sql: "SELECT * FROM task_records",
 };
 void [task, taskQuery, invalidTask, invalidTaskQuery];
+
+const memorySource = {
+  sourceKey: "conversation",
+  sourcePath: "Memory/User",
+  sourceHash: "hash",
+  status: "ready",
+  indexedAt: 1,
+} satisfies MemorySource;
+const memoryClaim = {
+  job: {
+    id: "ingest:1",
+    kind: "ingest",
+    scopeKey: "workspace",
+    status: "queued",
+    attempts: 0,
+    maxAttempts: 2,
+    createdAt: 1,
+  },
+  ownerId: "service",
+  now: 2,
+  leaseMs: 100,
+} satisfies MemoryJobClaim;
+const memoryUpdate = {
+  jobId: "ingest:1",
+  ownerId: "service",
+  now: 3,
+  patch: { status: "completed", finishedAt: 3 },
+} satisfies MemoryJobUpdate;
+const memorySignal = {
+  targetRef: "curated:1",
+  queryFingerprint: "salted",
+  day: "2026-10-24",
+  bestScore: 0.8,
+  hitCount: 1,
+} satisfies MemoryRecallSignal;
+void [memorySource, memoryClaim, memoryUpdate, memorySignal];
+// @ts-expect-error Memory candidate importance retains the literal source range.
+const badImportance: MemoryCandidate["importance"] = 0;
+const badMemoryPatch: MemoryJobUpdate["patch"] = {
+  status: "completed",
+  // @ts-expect-error Job patches cannot replace owner authority.
+  ownerId: "other",
+};
+const badMemorySignal: MemoryRecallSignal = {
+  ...memorySignal,
+  // @ts-expect-error Recall records never include raw query text.
+  query: "sensitive",
+};
+void [badImportance, badMemoryPatch, badMemorySignal];

@@ -370,6 +370,112 @@ export type ProjectionQueryResult = {
   complete: boolean;
   indexStatus: ProjectionIndexStatus;
 };
+export type MemoryScope = "user" | "workspace" | "project";
+export type MemoryOrigin = "owner" | "agent" | "untrusted" | "system";
+export type MemorySourceStatus =
+  | "ready"
+  | "inconsistent"
+  | "error"
+  | "excluded";
+export type MemoryKind =
+  | "preference"
+  | "fact"
+  | "decision"
+  | "procedure"
+  | "constraint";
+export type MemoryCandidateState =
+  | "staged"
+  | "review"
+  | "promoted"
+  | "rejected";
+export type MemoryJobKind = "ingest" | "consolidate" | "rebuild" | "forget";
+export type MemoryJobStatus = "queued" | "running" | "completed" | "failed";
+export type MemorySource = {
+  sourceKey: string;
+  sourcePath: string;
+  sourceHash: string;
+  lastEntryId?: string;
+  lastEntryHash?: string;
+  status: MemorySourceStatus;
+  indexedAt: number;
+  errorCode?: string;
+};
+export type MemoryCandidate = {
+  id: string;
+  scopeKind: MemoryScope;
+  scopePath: string;
+  kind: MemoryKind;
+  normalizedClaim: string;
+  claimHash: string;
+  supersessionKey?: string;
+  originClass: MemoryOrigin;
+  importance: 1 | 2 | 3 | 4 | 5;
+  triggers: Array<string>;
+  state: MemoryCandidateState;
+  firstSeenAt: number;
+  lastSeenAt: number;
+  recurrenceCount: number;
+  conversationCount: number;
+  promotedMemoryId?: string;
+};
+export type MemoryCandidateOrigin = {
+  candidateId: string;
+  conversationId: string;
+  entryId: string;
+  entryHash: string;
+  observedAt: number;
+};
+export type MemoryCandidateInput = {
+  candidate: MemoryCandidate;
+  origins: Array<MemoryCandidateOrigin>;
+};
+export type MemoryCandidateQuery = {
+  scopeKind?: MemoryScope;
+  scopePath?: string;
+  states?: Array<MemoryCandidateState>;
+  limit?: number;
+};
+export type MemoryRecallSignal = {
+  targetRef: string;
+  queryFingerprint: string;
+  day: string;
+  bestScore: number;
+  hitCount: number;
+};
+export type MemoryJob = {
+  id: string;
+  kind: MemoryJobKind;
+  scopeKey: string;
+  status: MemoryJobStatus;
+  cursor?: string;
+  attempts: number;
+  maxAttempts: number;
+  ownerId?: string;
+  leaseUntil?: number;
+  createdAt: number;
+  startedAt?: number;
+  finishedAt?: number;
+  errorCode?: string;
+};
+export type MemoryJobPatch = {
+  status: MemoryJobStatus;
+  cursor?: string;
+  leaseUntil?: number;
+  finishedAt?: number;
+  errorCode?: string;
+};
+export type MemoryJobClaim = {
+  job: MemoryJob;
+  ownerId: string;
+  now: number;
+  leaseMs: number;
+};
+export type MemoryJobUpdate = {
+  jobId: string;
+  ownerId: string;
+  now: number;
+  patch: MemoryJobPatch;
+};
 export type TaskKind = "task" | "task-list";
 export type TaskStatus =
   | "open"

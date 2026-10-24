@@ -5,6 +5,7 @@ mod history_client;
 mod history_reads;
 mod history_writes;
 mod indexed;
+mod memory;
 mod notifications;
 mod projections;
 mod reads;
@@ -60,6 +61,7 @@ enum Operation {
     Projection(projections::Action),
     ProjectionRead(projections::ReadAction),
     Tasks(tasks::Action),
+    Memory(memory::Action),
 }
 enum Output {
     Meta(Option<Value>),
@@ -74,6 +76,7 @@ enum Output {
     Indexed(indexed::Value),
     ProjectionRead(projections::ReadValue),
     Tasks(tasks::Value),
+    Memory(memory::Value),
 }
 impl Database {
     /// Native installation input only; callers derive this from admitted policy.

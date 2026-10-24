@@ -669,6 +669,223 @@
       },
       "type": "object"
     },
+    "MemoryCandidate": {
+      "additionalProperties": false,
+      "properties": {
+        "claimHash": { "type": "string" },
+        "conversationCount": { "format": "double", "type": "number" },
+        "firstSeenAt": { "format": "double", "type": "number" },
+        "id": { "type": "string" },
+        "importance": {
+          "format": "uint8",
+          "maximum": 5,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "kind": { "$ref": "#/$defs/MemoryKind" },
+        "lastSeenAt": { "format": "double", "type": "number" },
+        "normalizedClaim": { "type": "string" },
+        "originClass": { "$ref": "#/$defs/MemoryOrigin" },
+        "promotedMemoryId": { "type": ["string", "null"] },
+        "recurrenceCount": { "format": "double", "type": "number" },
+        "scopeKind": { "$ref": "#/$defs/MemoryScope" },
+        "scopePath": { "type": "string" },
+        "state": { "$ref": "#/$defs/MemoryCandidateState" },
+        "supersessionKey": { "type": ["string", "null"] },
+        "triggers": { "items": { "type": "string" }, "type": "array" }
+      },
+      "required": [
+        "id",
+        "scopeKind",
+        "scopePath",
+        "kind",
+        "normalizedClaim",
+        "claimHash",
+        "originClass",
+        "importance",
+        "triggers",
+        "state",
+        "firstSeenAt",
+        "lastSeenAt",
+        "recurrenceCount",
+        "conversationCount"
+      ],
+      "type": "object"
+    },
+    "MemoryCandidateInput": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate": { "$ref": "#/$defs/MemoryCandidate" },
+        "origins": {
+          "items": { "$ref": "#/$defs/MemoryCandidateOrigin" },
+          "type": "array"
+        }
+      },
+      "required": ["candidate", "origins"],
+      "type": "object"
+    },
+    "MemoryCandidateOrigin": {
+      "additionalProperties": false,
+      "properties": {
+        "candidateId": { "type": "string" },
+        "conversationId": { "type": "string" },
+        "entryHash": { "type": "string" },
+        "entryId": { "type": "string" },
+        "observedAt": { "format": "double", "type": "number" }
+      },
+      "required": [
+        "candidateId",
+        "conversationId",
+        "entryId",
+        "entryHash",
+        "observedAt"
+      ],
+      "type": "object"
+    },
+    "MemoryCandidateQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "limit": { "format": "double", "type": ["number", "null"] },
+        "scopeKind": {
+          "anyOf": [{ "$ref": "#/$defs/MemoryScope" }, { "type": "null" }]
+        },
+        "scopePath": { "type": ["string", "null"] },
+        "states": {
+          "items": { "$ref": "#/$defs/MemoryCandidateState" },
+          "type": ["array", "null"]
+        }
+      },
+      "type": "object"
+    },
+    "MemoryCandidateState": {
+      "enum": ["staged", "review", "promoted", "rejected"],
+      "type": "string"
+    },
+    "MemoryJob": {
+      "additionalProperties": false,
+      "properties": {
+        "attempts": { "format": "double", "type": "number" },
+        "createdAt": { "format": "double", "type": "number" },
+        "cursor": { "type": ["string", "null"] },
+        "errorCode": { "type": ["string", "null"] },
+        "finishedAt": { "format": "double", "type": ["number", "null"] },
+        "id": { "type": "string" },
+        "kind": { "$ref": "#/$defs/MemoryJobKind" },
+        "leaseUntil": { "format": "double", "type": ["number", "null"] },
+        "maxAttempts": { "format": "double", "type": "number" },
+        "ownerId": { "type": ["string", "null"] },
+        "scopeKey": { "type": "string" },
+        "startedAt": { "format": "double", "type": ["number", "null"] },
+        "status": { "$ref": "#/$defs/MemoryJobStatus" }
+      },
+      "required": [
+        "id",
+        "kind",
+        "scopeKey",
+        "status",
+        "attempts",
+        "maxAttempts",
+        "createdAt"
+      ],
+      "type": "object"
+    },
+    "MemoryJobClaim": {
+      "additionalProperties": false,
+      "properties": {
+        "job": { "$ref": "#/$defs/MemoryJob" },
+        "leaseMs": { "format": "double", "type": "number" },
+        "now": { "format": "double", "type": "number" },
+        "ownerId": { "type": "string" }
+      },
+      "required": ["job", "ownerId", "now", "leaseMs"],
+      "type": "object"
+    },
+    "MemoryJobKind": {
+      "enum": ["ingest", "consolidate", "rebuild", "forget"],
+      "type": "string"
+    },
+    "MemoryJobPatch": {
+      "additionalProperties": false,
+      "properties": {
+        "cursor": { "type": ["string", "null"] },
+        "errorCode": { "type": ["string", "null"] },
+        "finishedAt": { "format": "double", "type": ["number", "null"] },
+        "leaseUntil": { "format": "double", "type": ["number", "null"] },
+        "status": { "$ref": "#/$defs/MemoryJobStatus" }
+      },
+      "required": ["status"],
+      "type": "object"
+    },
+    "MemoryJobStatus": {
+      "enum": ["queued", "running", "completed", "failed"],
+      "type": "string"
+    },
+    "MemoryJobUpdate": {
+      "additionalProperties": false,
+      "properties": {
+        "jobId": { "type": "string" },
+        "now": { "format": "double", "type": "number" },
+        "ownerId": { "type": "string" },
+        "patch": { "$ref": "#/$defs/MemoryJobPatch" }
+      },
+      "required": ["jobId", "ownerId", "now", "patch"],
+      "type": "object"
+    },
+    "MemoryKind": {
+      "enum": ["preference", "fact", "decision", "procedure", "constraint"],
+      "type": "string"
+    },
+    "MemoryOrigin": {
+      "enum": ["owner", "agent", "untrusted", "system"],
+      "type": "string"
+    },
+    "MemoryRecallSignal": {
+      "additionalProperties": false,
+      "properties": {
+        "bestScore": { "format": "double", "type": "number" },
+        "day": { "type": "string" },
+        "hitCount": { "format": "double", "type": "number" },
+        "queryFingerprint": { "type": "string" },
+        "targetRef": { "type": "string" }
+      },
+      "required": [
+        "targetRef",
+        "queryFingerprint",
+        "day",
+        "bestScore",
+        "hitCount"
+      ],
+      "type": "object"
+    },
+    "MemoryScope": {
+      "enum": ["user", "workspace", "project"],
+      "type": "string"
+    },
+    "MemorySource": {
+      "additionalProperties": false,
+      "properties": {
+        "errorCode": { "type": ["string", "null"] },
+        "indexedAt": { "format": "double", "type": "number" },
+        "lastEntryHash": { "type": ["string", "null"] },
+        "lastEntryId": { "type": ["string", "null"] },
+        "sourceHash": { "type": "string" },
+        "sourceKey": { "type": "string" },
+        "sourcePath": { "type": "string" },
+        "status": { "$ref": "#/$defs/MemorySourceStatus" }
+      },
+      "required": [
+        "sourceKey",
+        "sourcePath",
+        "sourceHash",
+        "status",
+        "indexedAt"
+      ],
+      "type": "object"
+    },
+    "MemorySourceStatus": {
+      "enum": ["ready", "inconsistent", "error", "excluded"],
+      "type": "string"
+    },
     "MetaCheck": {
       "additionalProperties": false,
       "properties": {
@@ -1938,6 +2155,12 @@
     "indexed_manifest_query": { "$ref": "#/$defs/ManifestQuery" },
     "login": { "$ref": "#/$defs/LoginRequest" },
     "logout": { "$ref": "#/$defs/LogoutReply" },
+    "memory_candidate": { "$ref": "#/$defs/MemoryCandidateInput" },
+    "memory_candidate_query": { "$ref": "#/$defs/MemoryCandidateQuery" },
+    "memory_job_claim": { "$ref": "#/$defs/MemoryJobClaim" },
+    "memory_job_update": { "$ref": "#/$defs/MemoryJobUpdate" },
+    "memory_signal": { "$ref": "#/$defs/MemoryRecallSignal" },
+    "memory_source": { "$ref": "#/$defs/MemorySource" },
     "meta_page": { "$ref": "#/$defs/MetaPage" },
     "meta_scan": { "$ref": "#/$defs/MetaScan" },
     "meta_transaction": { "$ref": "#/$defs/MetaTransaction" },
@@ -2003,6 +2226,12 @@
     "projection_query",
     "projection_related",
     "projection_result",
+    "memory_source",
+    "memory_candidate",
+    "memory_candidate_query",
+    "memory_signal",
+    "memory_job_claim",
+    "memory_job_update",
     "task_record",
     "task_query",
     "task_lookup",

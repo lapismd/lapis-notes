@@ -6,6 +6,7 @@ use ts_rs::TS;
 pub mod changes;
 pub mod history;
 pub mod indexed;
+pub mod memory;
 pub mod projections;
 pub mod state;
 pub mod tasks;

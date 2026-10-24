@@ -1,4 +1,5 @@
 use lapis_app_protocol::database::indexed::{queries::*, records::*};
+use lapis_app_protocol::database::memory::{enums::*, jobs::*, records::*};
 use lapis_app_protocol::database::projections::queries::*;
 use lapis_app_protocol::database::projections::*;
 use lapis_app_protocol::database::tasks::{enums::*, record::*, recurrence::*, structure::*, *};
@@ -43,6 +44,12 @@ pub struct Contracts {
     pub projection_query: ProjectionQuery,
     pub projection_related: ProjectionRelatedQuery,
     pub projection_result: ProjectionQueryResult,
+    pub memory_source: MemorySource,
+    pub memory_candidate: MemoryCandidateInput,
+    pub memory_candidate_query: MemoryCandidateQuery,
+    pub memory_signal: MemoryRecallSignal,
+    pub memory_job_claim: MemoryJobClaim,
+    pub memory_job_update: MemoryJobUpdate,
     pub task_record: TaskRecord,
     pub task_query: TaskQuery,
     pub task_lookup: TaskLookup,
@@ -125,6 +132,23 @@ fn main() {
         ProjectionRelatedQuery::decl(&config),
         ProjectionIndexStatus::decl(&config),
         ProjectionQueryResult::decl(&config),
+        MemoryScope::decl(&config),
+        MemoryOrigin::decl(&config),
+        MemorySourceStatus::decl(&config),
+        MemoryKind::decl(&config),
+        MemoryCandidateState::decl(&config),
+        MemoryJobKind::decl(&config),
+        MemoryJobStatus::decl(&config),
+        MemorySource::decl(&config),
+        MemoryCandidate::decl(&config),
+        MemoryCandidateOrigin::decl(&config),
+        MemoryCandidateInput::decl(&config),
+        MemoryCandidateQuery::decl(&config),
+        MemoryRecallSignal::decl(&config),
+        MemoryJob::decl(&config),
+        MemoryJobPatch::decl(&config),
+        MemoryJobClaim::decl(&config),
+        MemoryJobUpdate::decl(&config),
         TaskKind::decl(&config),
         TaskStatus::decl(&config),
         TaskStartKind::decl(&config),
