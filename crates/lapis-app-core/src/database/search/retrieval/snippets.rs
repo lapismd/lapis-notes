@@ -99,7 +99,7 @@ fn content(input: &str, ranges: Vec<SearchRange>, limit: usize) -> Vec<SearchSni
         })
         .collect()
 }
-pub(super) fn build(
+fn matching(
     doc: &SearchDocumentRecord,
     query: &Query,
     options: &SearchOptions,
@@ -156,8 +156,41 @@ pub(super) fn build(
         evaluation::ranges(query, meta, SearchField::Metadata, sensitive),
         limit,
     ));
+    result
+}
+pub(super) fn build(
+    doc: &SearchDocumentRecord,
+    query: &Query,
+    options: &SearchOptions,
+) -> Vec<SearchSnippet> {
+    semantic(doc, query, options, 1., &[])
+}
+pub(super) fn semantic(
+    doc: &SearchDocumentRecord,
+    query: &Query,
+    options: &SearchOptions,
+    lexical: f64,
+    preferred: &[String],
+) -> Vec<SearchSnippet> {
+    let mut result = matching(doc, query, options);
+    if result.is_empty() && lexical > 0. {
+        result.push(snippet(SearchField::Name, doc.name.clone(), vec![], 0));
+    }
     if result.is_empty() {
-        result.push(snippet(SearchField::Name, doc.name.clone(), vec![], 0))
+        for id in preferred.iter().take(3) {
+            if let Some(chunk) = doc.chunks.iter().flatten().find(|c| &c.id == id) {
+                let mut preview = snippet(
+                    SearchField::Content,
+                    text::slice(&chunk.text, 0, options.snippet_length.unwrap_or(160)),
+                    vec![],
+                    0,
+                );
+                preview.offset = chunk.start_offset;
+                preview.chunk_id = Some(chunk.id.clone());
+                preview.chunk_label = chunk.heading.clone();
+                result.push(preview);
+            }
+        }
     }
     result
 }

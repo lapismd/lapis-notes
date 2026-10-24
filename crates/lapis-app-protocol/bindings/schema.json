@@ -1626,6 +1626,12 @@
         },
         "modelId": { "type": ["string", "null"] },
         "modelReady": { "type": "boolean" },
+        "providerKind": {
+          "anyOf": [
+            { "$ref": "#/$defs/SearchEmbeddingProviderKind" },
+            { "type": "null" }
+          ]
+        },
         "requestedMode": { "$ref": "#/$defs/SearchMode" },
         "totalCandidateCount": {
           "format": "uint",

@@ -135,6 +135,9 @@ pub struct SearchDiagnostics {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[ts(optional)]
     pub model_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub provider_kind: Option<super::embedding::SearchEmbeddingProviderKind>,
     pub model_ready: bool,
 }
 #[derive(Clone, Debug, Deserialize, Serialize, JsonSchema, TS)]

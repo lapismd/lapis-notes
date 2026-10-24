@@ -5,6 +5,7 @@ mod parser;
 mod properties;
 mod query;
 mod scopes;
+mod semantic;
 mod snippets;
 mod text;
 use super::{Value, text as sql_text};
@@ -22,6 +23,10 @@ impl Store {
         options: SearchOptions,
         paths: bool,
     ) -> Result<Value> {
+        let query = query::Query::new(raw)?;
+        if self.embedding.config.is_some() {
+            return self.semantic_search(&query, &options, paths).await;
+        }
         if !matches!(options.mode, Some(SearchMode::Lexical))
             && self
                 .get("search.embeddingProvider")
@@ -33,7 +38,6 @@ impl Store {
                 "Native semantic Search is not configured",
             ));
         }
-        let query = query::Query::new(raw)?;
         let mut page = page::Page::new(options.limit.unwrap_or(100), paths)?;
         let mut clauses = vec![];
         let mut args = vec![];
@@ -54,6 +58,9 @@ impl Store {
         }
         let table =
             options.case_sensitive.unwrap_or(false) || query.structured() || !clauses.is_empty();
+        if !table && matches!(options.mode, Some(SearchMode::Vector)) {
+            return page.finish(&query, &options, 0);
+        }
         let terms = query.collected().unwrap_or_default();
         let (sql, args) = if !table && !terms.is_empty() {
             let fts = terms

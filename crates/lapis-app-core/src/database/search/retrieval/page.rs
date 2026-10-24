@@ -167,6 +167,7 @@ impl Page {
                         .include_diagnostics
                         .unwrap_or(false)
                         .then(|| SearchDiagnostics {
+                            provider_kind: None,
                             requested_mode: options.mode.unwrap_or_default(),
                             applied_mode: SearchRetrievalMode::Lexical,
                             backend_kind: "turso-native".into(),

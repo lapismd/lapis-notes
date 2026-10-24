@@ -12,11 +12,17 @@ fn hash(units: impl IntoIterator<Item = u16>) -> u32 {
 pub(super) fn fingerprint(text: &str) -> String {
     format!("{:x}", hash(normalized(text).encode_utf16()))
 }
-pub(super) fn vector(text: &str, dimensions: usize) -> Vec<f64> {
+fn words() -> &'static regress::Regex {
     static WORDS: OnceLock<regress::Regex> = OnceLock::new();
-    let words = WORDS.get_or_init(|| {
+    WORDS.get_or_init(|| {
         regress::Regex::with_flags(r"[\p{L}\p{N}_-]+", "u").expect("retained feature expression")
-    });
+    })
+}
+pub(super) fn has_features(text: &str) -> bool {
+    words().find_iter(text).next().is_some()
+}
+pub(super) fn vector(text: &str, dimensions: usize) -> Vec<f64> {
+    let words = words();
     let text = normalized(text);
     let mut features = HashSet::<Vec<u16>>::new();
     for word in words.find_iter(&text) {

@@ -130,6 +130,8 @@ const result = spawnSync(
     "embedding_model",
     "--test",
     "database_search_provider_model",
+    "--test",
+    "database_search_semantic_model",
     "--locked",
     "--",
     "--ignored",

@@ -127,16 +127,15 @@ async fn invalid_or_unconfigured_queries_preserve_the_owner_and_closed_admission
             ErrorCode::InvalidRequest
         );
     }
-    for mode in ["vector", "hybrid"] {
+    for (mode, expected) in [("vector", vec![]), ("hybrid", vec!["Projects/Daily.md"])] {
         assert_eq!(
-            db.search_documents(
+            db.search_document_paths(
                 "Alpha",
                 serde_json::from_value(json!({"mode":mode})).unwrap()
             )
             .await
-            .unwrap_err()
-            .code(),
-            ErrorCode::Unsupported
+            .unwrap(),
+            expected
         );
     }
     assert_eq!(

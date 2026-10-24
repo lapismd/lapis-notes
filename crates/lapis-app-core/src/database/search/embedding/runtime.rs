@@ -11,6 +11,20 @@ use lapis_app_protocol::{
 };
 
 impl Provider {
+    pub(in crate::database) async fn query_vector(&self, query: &str) -> Option<Vec<f64>> {
+        let config = self.config.as_ref()?;
+        if super::fingerprint::normalized(query).is_empty()
+            || (config.kind == Kind::TokenHash && !super::fingerprint::has_features(query))
+        {
+            return None;
+        }
+        self.vectors(vec![query.into()])
+            .await
+            .ok()?
+            .into_iter()
+            .next()
+    }
+
     fn phase(&self, phase: Phase, message: &str) {
         self.status.send_modify(|status| {
             if let Some(status) = status {

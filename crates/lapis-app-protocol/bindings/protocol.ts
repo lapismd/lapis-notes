@@ -790,6 +790,7 @@ export type SearchDiagnostics = {
   vectorCandidateCount: number;
   totalCandidateCount: number;
   modelId?: string;
+  providerKind?: SearchEmbeddingProviderKind;
   modelReady: boolean;
 };
 export type SearchResult = {

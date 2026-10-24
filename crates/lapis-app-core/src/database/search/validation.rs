@@ -42,7 +42,6 @@ pub(super) fn record(record: &SearchDocumentRecord) -> Result<()> {
 pub(super) fn query_options(
     options: &lapis_app_protocol::database::search::retrieval::SearchOptions,
 ) -> Result<()> {
-    use lapis_app_protocol::database::search::retrieval::SearchMode;
     if options.limit.is_some_and(|n| n > 100_000)
         || options.snippet_length.is_some_and(|n| n > 32 * 1024 * 1024)
         || options
@@ -51,12 +50,6 @@ pub(super) fn query_options(
             .is_some_and(|v| v.len() > 400)
     {
         return Err(crate::database::invalid("Search options exceed bounds"));
-    }
-    if matches!(options.mode, Some(SearchMode::Vector | SearchMode::Hybrid)) {
-        return Err(crate::services::Error::new(
-            lapis_app_protocol::ErrorCode::Unsupported,
-            "Native semantic Search is not configured",
-        ));
     }
     Ok(())
 }

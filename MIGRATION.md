@@ -2,7 +2,7 @@
 
 ## Shared Rust application services (2026-10-23)
 
-Last updated **2026-10-24 19:47:43 UTC**. This is the active migration tracker for the
+Last updated **2026-10-24 20:21:22 UTC**. This is the active migration tracker for the
 [shared Rust plan](RUST_CORE_MIGRATION_PLAN.md). The older Node parity roadmap
 below is superseded; its remaining rows are historical references, not another
 set of current migration tasks.
@@ -16,8 +16,8 @@ host.
 are source complete at `e6de56ef`: real model inference survives client detach,
 configuration invalidates stale vectors atomically, and cold reopen remains
 lazy. [Source and serving-baseline qualification](spec/records/2026-10-24-rust-core-search-provider.md)
-passes. Native asset installation/download and vector/hybrid retrieval remain
-waiting. Native batch/rebuild is source complete at `cfb369f7`: five focused
+passes. Native asset installation/download remains waiting. Native vector/hybrid
+retrieval is now source complete; its source receipt is linked below. Native batch/rebuild is source complete at `cfb369f7`: five focused
 cases, all 185 ordinary Rust cases and sequential root check/test/build pass. R1.3/R3 remains
 active; neither host has
 selected the facade. Desktop native/API intake passes; full catalog acceptance
@@ -31,7 +31,7 @@ service tests and the full catalog remain running.
 Desktop's [live tracker and task navigation](spec/records/2026-10-24-migration-tracker.md)
 are qualified at `733bb679`; native provider intake remains separate.
 
-**Next:** finish native semantic Search and model/cache installation,
+**Next:** complete model/cache installation and the native facade,
 qualify the complete facade, connect both hosts, then qualify the retained hosted
 shell and backup lifetime. R2–R7 follows the agreed order; this adds no feature scope.
 
@@ -101,10 +101,10 @@ or the hosted browser is already using the new database implementation.**
 | Native Search provider control and embedding publication            | Source complete | [Native provider intake](spec/records/2026-10-24-rust-core-search-provider.md): lazy configuration/status, atomic invalidation, actual model inference after detach and cold reopen. Full source and serving-baseline acceptance passes; Desktop intake remains separate.                                                                                                                                                                                                              |
 | Desktop provider/archive/SQL intake                                 | Working         | [Current tracker](spec/records/2026-10-24-migration-tracker.md): five Notes archives refreshed; four rebuilt hidden API cases and exact native SQL pass. Initial catalog passes 499/500; the attachment disclosure timing repair passes 16 focused cases. Both light configurations pass 500/500; desktop/dark passes 498/500 and finds two startup races. Both exact cases and all 32 affected-family cases pass after owned readiness joins; fresh full acceptance remains required. |
 | Native model/cache installation and runtime admission               | Waiting         | Register ordinary-host runtime/model caches, on-demand downloads and progress. Current source admission accepts native-registered files; it does not install assets.                                                                                                                                                                                                                                                                                                                   |
-| Native vector/hybrid Search retrieval                               | Working         | [Retained semantic reference](spec/records/2026-10-24-search-semantic-reference.md): 32 Memory/Turso cases pass; the native baseline rejects vector mode. Full source check/test/build and specification lanes pass. Native float-vector retrieval, reciprocal-rank fusion, filters and document/path conformance remain required.                                                                                                                                                     |
+| Native vector/hybrid Search retrieval                               | Source complete | [Native semantic intake](spec/records/2026-10-24-rust-core-search-semantic.md): all 16 retained query envelopes/path results, five edge cases (111/300 records), bounded candidate buffers and three real-model cases pass. Full source check/test/build/spec pass. [Retained reference](spec/records/2026-10-24-search-semantic-reference.md) stays separate; both host adapters still await adoption.                                                                                |
 | Native Search batch and rebuild controls                            | Source complete | [Batch/rebuild controls](spec/records/2026-10-24-rust-core-search-rebuild.md): admitted barriers, bounded 100-record pages, selected inference, detach/drain, ordered committed changes and rollback. Five exact / 185 full Rust cases pass; source check/test/build pass. Host adoption remains waiting.                                                                                                                                                                              |
 | Complete indexed-file upsert, rename and delete                     | Source complete | [Native indexed-file intake](spec/records/2026-10-24-rust-core-indexed-mutations.md): ten-case retained reference, staged task commits, atomic rename/delete and persisted rename notifications; seven exact native cases, 169 full Rust cases, 1,489 API cases and all source check/test/build/spec lanes pass.                                                                                                                                                                       |
-| Complete native AppDatabase facade                                  | Waiting         | Finish the remaining Search controls/modes and qualify all 68 existing allowlisted methods, including schema/revision aliases and transport return shapes, before host adoption.                                                                                                                                                                                                                                                                                                       |
+| Complete native AppDatabase facade                                  | Waiting         | Qualify all 68 existing allowlisted methods, including migrate/schema lifecycle, revision aliases, optional/default arguments and exact transport return shapes, before host adoption. Search modes and rebuild controls are source complete.                                                                                                                                                                                                                                          |
 
 ### Remaining R3 service ownership
 

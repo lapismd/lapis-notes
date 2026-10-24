@@ -386,9 +386,9 @@ Native AppDatabase indexed-file intake retains LN-DB-061/062/063 through the
 shared database owner; low-level core publication remains independent of plugin
 projection work. The existing browser implementation remains explicit.
 
-The native Search encoder is a Notes-owned independent component under
-`lapis-app-core::embedding`. ONNX Runtime/tokenizer inputs are native host
-authority; model-math qualification under LN-DB-007 precedes database integration.
+The native Search encoder is an independent Notes-owned component under
+`lapis-app-core::embedding`; runtime/tokenizer files remain native host authority.
+`test:search:onnx` qualifies model math, publication and retrieval under LN-DB-007.
 
 AppDatabase owns portable Search configuration and invalidation. Memory and
 Turso reuse the API's pending-record policy; native publication uses its actor.
@@ -396,4 +396,4 @@ Native model/cache file registration stays outside serialized configuration.
 
 The semantic retrieval fixture retains 16 complete result envelopes in Memory
 and native Turso before Rust intake, including fusion ranks, scope filters,
-preferred chunks and diagnostics; native semantic qualification remains separate.
+preferred chunks and diagnostics; native intake retains provider-kind diagnostics.

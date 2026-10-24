@@ -308,3 +308,11 @@ result envelopes before Rust intake: configured vector/hybrid/auto modes,
 reciprocal-rank fusion, full-scope filters, chunk previews and diagnostics. The
 reference uses explicitly selected token-hash data for deterministic ranking; it
 does not replace the separate real ONNX model or qualify native semantic queries.
+
+Native semantic retrieval uses the selected admitted encoder, native Turso
+float-vector candidates and retained complete evaluation before final ranking.
+Vector scores, threshold, preferred chunks and reciprocal-rank fusion retain
+the shared reference. Candidate scores and selected records remain bounded;
+path-only reads do not retain bodies. Query inference failure retains the
+existing lexical degradation without substituting a model. Accepted queries
+share the database owner and close/drain boundary; queries do not journal writes.
