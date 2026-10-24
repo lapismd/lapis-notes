@@ -117,6 +117,17 @@ queries retain their existing defaults. The method set is checked against the
 retained public allowlist. Adapter selection and vault-lifetime adoption remain
 separate gates.
 
+Native database selection is installation policy. An admitted vault lazily opens
+one database worker under its opaque identity in the host's retained profile;
+clients share that owner and cannot select storage or model paths. Client detach
+does not close it. Vault close and Quit fence its queue and wait for accepted
+operations, checkpoint and lock release before retiring the service generation.
+Unpolled client replies cannot hold that drain open.
+Dirty-editor preflight leaves every database live when Quit is refused. Cancelled
+initialization cannot strand close, and replaced physical roots fail admission.
+File-only service profiles report an unavailable database without a fallback.
+The R1.3.7 source gate does not itself switch either application adapter.
+
 Search call conformance retains the existing optional query-enhancement request
 and skip diagnostics. Unsupported runtime, strong-signal and unavailable-provider
 outcomes keep their prior order and complete-result signals before final limits.

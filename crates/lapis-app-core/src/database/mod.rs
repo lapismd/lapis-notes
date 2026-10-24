@@ -40,6 +40,18 @@ use uuid::Uuid;
 const MAX_BYTES: usize = 32 * 1024 * 1024;
 type Completion = Option<std::result::Result<(), lapis_app_protocol::ServiceError>>;
 
+pub(crate) struct DatabaseCompletion(watch::Receiver<Completion>);
+impl DatabaseCompletion {
+    pub(crate) async fn wait(mut self) -> Result<()> {
+        loop {
+            if let Some(result) = self.0.borrow_and_update().clone() {
+                return result.map_err(Error);
+            }
+            self.0.changed().await.map_err(|_| closed())?;
+        }
+    }
+}
+
 /// Clones observe one worker. Dropping a waiter never cancels accepted work.
 #[derive(Clone)]
 pub struct Database {
@@ -194,14 +206,17 @@ impl Database {
     }
     /// Fence admission across all clones, drain accepted work, then checkpoint.
     pub async fn close(&self) -> Result<()> {
-        self.admission.lock().map_err(|_| closed())?.take();
-        let mut finished = self.finished.clone();
-        loop {
-            if let Some(result) = finished.borrow_and_update().clone() {
-                return result.map_err(Error);
-            }
-            finished.changed().await.map_err(|_| closed())?;
-        }
+        self.fence();
+        self.completion().wait().await
+    }
+    pub(crate) fn fence(&self) {
+        self.admission
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .take();
+    }
+    pub(crate) fn completion(&self) -> DatabaseCompletion {
+        DatabaseCompletion(self.finished.clone())
     }
 }
 fn closed() -> Error {

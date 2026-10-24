@@ -1,9 +1,10 @@
-use super::{Error, Result};
+use super::{DatabaseStorage, Error, Result};
+use crate::database::Database;
 use crate::vault::VaultRoot;
 use lapis_app_protocol::{ErrorCode, VaultPhase, VaultStatus};
 use std::{
     collections::{HashMap, HashSet},
-    sync::{Condvar, Mutex, MutexGuard},
+    sync::{Arc, Condvar, Mutex, MutexGuard},
 };
 use uuid::Uuid;
 
@@ -12,6 +13,8 @@ pub struct VaultService {
     pub(super) generation: Uuid,
     pub(super) state: Mutex<State>,
     pub(super) changed: Condvar,
+    pub(super) storage: Option<Arc<DatabaseStorage>>,
+    pub(super) database_open: tokio::sync::Mutex<()>,
 }
 pub(super) struct Editor {
     pub client: Uuid,
@@ -26,6 +29,9 @@ pub(super) struct State {
     pub clients: HashSet<Uuid>,
     pub work: usize,
     pub editors: HashMap<Uuid, Editor>,
+    pub database: Option<Database>,
+    pub database_starting: bool,
+    pub database_error: Option<lapis_app_protocol::ServiceError>,
 }
 impl State {
     pub fn require_open(&self) -> Result<()> {
@@ -47,15 +53,24 @@ impl State {
             .any(|e| e.dirty && path.is_none_or(|path| e.path == path))
     }
     pub fn begin_close(&mut self) {
-        self.phase = if self.work == 0 {
-            VaultPhase::Closed
-        } else {
-            VaultPhase::Closing
-        };
+        if let Some(database) = &self.database {
+            database.fence();
+        }
+        self.phase = VaultPhase::Closing;
+        self.advance_close();
+    }
+    pub fn advance_close(&mut self) {
+        if self.phase == VaultPhase::Closing
+            && self.work == 0
+            && self.database.is_none()
+            && !self.database_starting
+        {
+            self.phase = VaultPhase::Closed;
+        }
     }
 }
 impl VaultService {
-    pub(super) fn new(id: Uuid, root: VaultRoot) -> Self {
+    pub(super) fn new(id: Uuid, root: VaultRoot, storage: Option<Arc<DatabaseStorage>>) -> Self {
         Self {
             id,
             generation: Uuid::new_v4(),
@@ -65,8 +80,13 @@ impl VaultService {
                 clients: HashSet::new(),
                 work: 0,
                 editors: HashMap::new(),
+                database: None,
+                database_starting: false,
+                database_error: None,
             }),
             changed: Condvar::new(),
+            storage,
+            database_open: tokio::sync::Mutex::new(()),
         }
     }
     pub fn id(&self) -> Uuid {
@@ -88,6 +108,7 @@ impl VaultService {
             dirty_editors: state.editors.values().filter(|e| e.dirty).count(),
         })
     }
+    /// Blocking drain; async hosts call this outside their worker executor.
     pub fn close(&self) -> Result<()> {
         let mut state = self.lock()?;
         if state.dirty(None) {
@@ -100,6 +121,9 @@ impl VaultService {
                 .wait(state)
                 .map_err(|_| Error::new(ErrorCode::Io, "Vault drain is unavailable"))?;
         }
-        Ok(())
+        match state.database_error.clone() {
+            Some(error) => Err(Error(error)),
+            None => Ok(()),
+        }
     }
 }

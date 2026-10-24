@@ -1,4 +1,4 @@
-use super::{Error, Result, VaultService};
+use super::{DatabaseStorage, Error, Result, VaultService};
 use crate::vault::VaultRoot;
 use lapis_app_protocol::ErrorCode;
 use std::{
@@ -11,6 +11,7 @@ use uuid::Uuid;
 #[derive(Default)]
 pub struct Runtime {
     registry: Mutex<Registry>,
+    storage: Option<Arc<DatabaseStorage>>,
 }
 #[derive(Default)]
 struct Registry {
@@ -19,6 +20,13 @@ struct Registry {
     roots: HashMap<(u64, u64), Uuid>,
 }
 impl Runtime {
+    /// Select shared database ownership using native installation policy.
+    pub fn with_database(storage: DatabaseStorage) -> Self {
+        Self {
+            storage: Some(Arc::new(storage)),
+            ..Self::default()
+        }
+    }
     pub fn admit(&self, id: Uuid, path: &Path) -> Result<Arc<VaultService>> {
         if id.is_nil() {
             return Err(Error::new(
@@ -37,6 +45,9 @@ impl Runtime {
             ));
         }
         root.verify_physical_root()?;
+        if let Some(storage) = &self.storage {
+            storage.validate_vault(&root)?;
+        }
         let identity = root.physical_identity()?;
         let mut registry = self.registry.lock().map_err(|_| Error::closed())?;
         if registry.closing {
@@ -54,7 +65,7 @@ impl Runtime {
         if registry.roots.contains_key(&identity) {
             return Err(Error::busy());
         }
-        let vault = Arc::new(VaultService::new(id, root));
+        let vault = Arc::new(VaultService::new(id, root, self.storage.clone()));
         registry.roots.insert(identity, id);
         registry.vaults.insert(id, vault.clone());
         Ok(vault)

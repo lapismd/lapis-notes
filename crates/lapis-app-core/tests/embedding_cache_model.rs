@@ -152,3 +152,98 @@ fn seed_qualified_assets(cache: &Path, fixture: &Value) {
     let name = runtime.file_name().unwrap().to_str().unwrap();
     std::fs::write(cache.join(format!("{hash}-{name}")), bytes).unwrap();
 }
+
+#[tokio::test]
+#[ignore = "Requires qualified ONNX files; run pnpm test:search:onnx"]
+async fn service_owned_database_drains_actual_inference_after_client_detach_and_quit() {
+    use lapis_app_core::services::{DatabaseStorage, Runtime};
+    use lapis_app_protocol::database::call::{DatabaseCall, DatabaseMethod, DatabaseValue};
+    use std::sync::Arc;
+
+    // An installation's ONNX runtime is process-owned. This independent cache
+    // scenario must not change the other test's admitted installation path.
+    if std::env::var_os("LAPIS_TEST_SERVICE_CACHE_PROCESS").is_none() {
+        let child = std::process::Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--ignored",
+                "--exact",
+                "service_owned_database_drains_actual_inference_after_client_detach_and_quit",
+            ])
+            .env("LAPIS_TEST_SERVICE_CACHE_PROCESS", "1")
+            .status()
+            .unwrap();
+        assert!(child.success(), "independent native installation must pass");
+        return;
+    }
+    let fixture = fixture();
+    let child_root = std::env::var_os("LAPIS_TEST_SERVICE_CACHE_CHILD");
+    let temporary = child_root.is_none().then(|| tempfile::tempdir().unwrap());
+    let root = child_root
+        .map(PathBuf::from)
+        .unwrap_or_else(|| temporary.as_ref().unwrap().path().to_path_buf());
+    if temporary.is_some() {
+        for name in ["profile", "cache", "vault"] {
+            std::fs::create_dir(root.join(name)).unwrap();
+        }
+        seed_qualified_assets(&root.join("cache"), &fixture);
+    }
+    let id = std::env::var("LAPIS_TEST_SERVICE_CACHE_VAULT")
+        .map(|value| Uuid::parse_str(&value).unwrap())
+        .unwrap_or_else(|_| Uuid::new_v4());
+    let host = NativeEmbeddingHost::managed(&root.join("cache")).unwrap();
+    let runtime = Arc::new(Runtime::with_database(
+        DatabaseStorage::new(&root.join("profile"), host).unwrap(),
+    ));
+    let vault = runtime.admit(id, &root.join("vault")).unwrap();
+    let client = vault.attach().unwrap();
+    let call = |method, args: Vec<Value>| DatabaseCall {
+        method,
+        args: args
+            .into_iter()
+            .map(|value| DatabaseValue::Value { value })
+            .collect(),
+    };
+    client.call_database(call(DatabaseMethod::ConfigureSearchEmbeddingProvider, vec![json!({
+        "kind":"transformers-js", "modelId":fixture["modelId"], "revision":fixture["revision"],
+        "dtype":"q8", "dimensions":384, "normalize":true, "allowRemoteModels":false,
+    })])).await.unwrap();
+    let mut indexing = Box::pin(client.call_database(call(
+        DatabaseMethod::UpsertSearchDocument,
+        vec![serde_json::to_value(document(&fixture)).unwrap()],
+    )));
+    std::future::poll_fn(|context| {
+        assert!(indexing.as_mut().poll(context).is_pending());
+        Poll::Ready(())
+    })
+    .await;
+    drop(indexing);
+    drop(client);
+    assert_eq!(vault.status().unwrap().clients, 0);
+    tokio::time::timeout(
+        Duration::from_secs(60),
+        tokio::task::spawn_blocking(move || runtime.shutdown()),
+    )
+    .await
+    .unwrap()
+    .unwrap()
+    .unwrap();
+    let database = Database::open(&root.join("profile"), id).await.unwrap();
+    assert_vector(&database, &fixture).await;
+    database.close().await.unwrap();
+    if temporary.is_some() {
+        let child = std::process::Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--ignored",
+                "--exact",
+                "service_owned_database_drains_actual_inference_after_client_detach_and_quit",
+            ])
+            .env("LAPIS_TEST_SERVICE_CACHE_CHILD", &root)
+            .env("LAPIS_TEST_SERVICE_CACHE_VAULT", id.to_string())
+            .status()
+            .unwrap();
+        assert!(
+            child.success(),
+            "service cache must work after a cold offline restart"
+        );
+    }
+}

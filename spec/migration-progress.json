@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-24 22:53:24 UTC",
+  "updated": "2026-10-24 23:10:51 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -47,7 +47,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native database and model/cache source are qualified. Host adoption and unattended metadata/projection/Search/history indexing remain."
+      "detail": "Native database, model/cache and vault-owned database lifetime are source-qualified. Host adoption and unattended metadata/projection/Search/history indexing remain."
     },
     {
       "id": "R4",
@@ -133,9 +133,9 @@
       "id": "R1.3.7",
       "area": "Host adapters",
       "work": "Database facade bound to admitted vault lifetime",
-      "status": "Waiting",
+      "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "Bind the completed native facade to admitted vault/profile lifetime with installation-owned model caches and fenced close/drain."
+      "detail": "[Vault/database lifetime](spec/records/2026-10-24-rust-core-vault-database.md): eleven lifetime cases, 227 ordinary Rust cases, five actual-model parent cases with cold offline children and full source check/test/build pass. Desktop df16e136 passes both file-service cases and strict normal/e2e checks; application adoption remains R1.3.8."
     },
     {
       "id": "R1.3.8",

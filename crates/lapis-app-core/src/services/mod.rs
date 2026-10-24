@@ -1,6 +1,7 @@
 //! One vault owns IO and admitted work; clients only hold scoped attachments.
 mod byte_writes;
 mod client;
+mod database;
 mod editors;
 mod error;
 mod files;
@@ -13,6 +14,7 @@ mod streams;
 mod work;
 
 pub use client::Client;
+pub use database::DatabaseStorage;
 pub use error::{Error, Result};
 pub use runtime::Runtime;
 pub use state::VaultService;

@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 /// Native ownership lease. Ending it is not proof that a durable job succeeded.
 pub struct Work {
-    vault: Arc<VaultService>,
+    pub(super) vault: Arc<VaultService>,
 }
 impl VaultService {
     pub fn begin_work(self: &Arc<Self>) -> Result<Work> {
@@ -45,9 +45,7 @@ impl Drop for Work {
     fn drop(&mut self) {
         let mut state = self.vault.state.lock().unwrap_or_else(|e| e.into_inner());
         state.work -= 1;
-        if state.work == 0 && state.phase == VaultPhase::Closing {
-            state.phase = VaultPhase::Closed;
-        }
+        state.advance_close();
         self.vault.changed.notify_all();
     }
 }
