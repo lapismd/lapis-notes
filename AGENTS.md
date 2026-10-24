@@ -458,6 +458,8 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   completed, active and waiting work. Its last-updated stamp includes the date,
   time and explicit UTC timezone. Refresh the shared tracker after related
   consumer commits too; keep source qualification and host adoption separate.
+  Refresh the current activity checkpoint when validation or remaining work
+  changes during a slice; do not wait for the next commit.
 - Keep changes scoped to the package or surface needed for the request. Do not
   add broad refactors or metadata churn unless required to complete the task.
 

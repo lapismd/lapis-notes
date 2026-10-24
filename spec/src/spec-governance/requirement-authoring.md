@@ -107,3 +107,7 @@
 <a id="ln-gov-051"></a>
 
 **Requirement.** Every verified slice commit MUST refresh root `MIGRATION.md` with current statuses, evidence and an explicit UTC date/time. Related consumer commits MUST be followed by a master-tracker refresh that distinguishes source qualification from host adoption. `AGENTS.md` MUST document this workflow.
+
+While a slice is running, refresh its verified, running and waiting checkpoint
+when validation or remaining work changes. Keep the visible timestamp current;
+a generated milestone table alone does not describe active work.
