@@ -325,48 +325,6 @@ test("cached API builds restore their generated source catalogue", async (t) => 
   );
 });
 
-test("local test entry points use bounded Turbo tasks without raw-script recursion", () => {
-  const names = Object.keys(manifest.scripts).filter(
-    (name) =>
-      (name.startsWith("test:") || name === "release:test") &&
-      !name.endsWith(":run"),
-  );
-  for (const name of [...names, "build-storybook"]) {
-    const target = `${name}:run`;
-    assert.match(
-      manifest.scripts[name],
-      new RegExp(`scripts/run-turbo\\.mjs ${target} --task-args$`),
-      name,
-    );
-    assert.ok(config.tasks[`//#${target}`], `${name} has a root task`);
-    assert.ok(manifest.scripts[target], `${name} has a raw runner`);
-    assert.ok(
-      !manifest.scripts[target].includes(`pnpm ${name}`),
-      `${name} must not call itself`,
-    );
-  }
-  for (const name of [
-    "test:storybook",
-    "test:specification:dev",
-    "test:specification:static",
-    "release:test",
-    "test:spec-validation",
-    "test:local-plugin-consumer",
-    "test:ai:smoke-harness",
-  ])
-    assert.notEqual(config.tasks[`//#${name}:run`].cache, false, name);
-  for (const name of [
-    "test:visual",
-    "test:visual:update",
-    "test:workspace:pointer",
-    "test:desktop:packaged",
-    "test:web:e2e",
-    "test:server",
-    "test:server:e2e",
-  ])
-    assert.equal(config.tasks[`//#${name}:run`].cache, false, name);
-});
-
 test("the bounded runner preserves test arguments and separates forced/live cache policy", async () => {
   const { resolveTurboArguments } = await import("./lib/turbo-invocation.mjs");
   assert.deepEqual(

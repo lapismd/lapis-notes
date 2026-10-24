@@ -277,3 +277,12 @@ atomic rename/delete effects under LN-DB-061/062/063. It reuses existing native
 writers and committed rename notifications across metadata, Search, notebook,
 task and projection relationships. Host adoption and unattended indexing remain
 separate gates.
+
+Native semantic inference intake first qualifies the actual ONNX encoder against
+the retained model/tokenizer and mean-pooling/normalization contract. Model and
+runtime file inputs are native host authority, never deserialized renderer or
+HTTP fields. The inference component does not select a database adapter or
+qualify model download/configuration, vector/hybrid retrieval or scheduling.
+The installed ONNX environment is process-owned and shared by independent model
+sessions. Reopening a session must retain inference after earlier sessions close;
+a different runtime installation cannot silently replace an initialized library.

@@ -2,7 +2,7 @@
 
 ## Shared Rust application services (2026-10-23)
 
-Last updated **2026-10-24 16:10:26 UTC**. This is the active migration tracker for the
+Last updated **2026-10-24 16:48:46 UTC**. This is the active migration tracker for the
 [shared Rust plan](RUST_CORE_MIGRATION_PLAN.md). The older Node parity roadmap
 below is superseded; its remaining rows are historical references, not another
 set of current migration tasks.
@@ -15,8 +15,10 @@ host.
 **Current checkpoint:** indexed-file upsert/rename/delete is source complete at
 Notes `68f9c02e`, with [Desktop dependency qualification](spec/records/2026-10-24-rust-core-indexed-mutations-desktop.md)
 committed at `39fba424`. Lexical/structured Search is also source complete.
-Semantic provider/inference, vector/hybrid retrieval and batch/rebuild controls
-are still waiting. R1.3/R3 remains active; neither host has selected the facade.
+The [native ONNX encoder](spec/records/2026-10-24-rust-core-onnx.md) is source
+complete against real retained model outputs; Desktop dependency intake is next.
+Provider/cache integration, vector/hybrid retrieval and batch/rebuild controls
+remain waiting. R1.3/R3 remains active; neither host has selected the facade.
 
 **Next:** finish native semantic Search and the existing batch/rebuild controls,
 qualify the complete facade, connect both hosts, then qualify the retained hosted
@@ -84,7 +86,8 @@ or the hosted browser is already using the new database implementation.**
 | Native prepared Search storage                                      | Source complete | [Native Search storage](spec/records/2026-10-24-rust-core-search-storage.md): prepared rows, vectors, manifests and statistics. [Desktop dependency compatibility](spec/records/2026-10-24-rust-core-search-desktop.md) passes; host adoption remains waiting.                                                                       |
 | Native Search document preparation and chunking                     | Source complete | [Native preparation](spec/records/2026-10-24-rust-core-search-preparation.md): shared 17-record reference, scored chunks, tags/frontmatter and UTF-16-safe cutoffs. Semantic inference and host intake remain separate.                                                                                                              |
 | Native lexical/structured Search retrieval                          | Source complete | [Native retrieval intake](spec/records/2026-10-24-rust-core-search-retrieval.md): 76 full-result/path queries, retained FTS weights, complete table ranking, UTF-16 snippets, bounded selection and cold reopen. Full source check/test/build/spec and 261 catalog cases pass; semantic inference and host adoption remain separate. |
-| Native semantic provider and embeddings                             | Waiting         | Lazy provider configuration/status, ONNX Runtime, current model/tokenizer, pooling/normalization, identity/dimension invalidation and model-output acceptance.                                                                                                                                                                       |
+| Native ONNX encoder                                                 | Source complete | [Native model inference](spec/records/2026-10-24-rust-core-onnx.md): real MiniLM outputs, exact tokenization/truncation, normalized/raw vectors and session reopen pass. Full source check/test/build/spec passes; provider and host integration remain separate.                                                                    |
+| Native semantic provider and embeddings                             | Waiting         | After encoder qualification: lazy configuration, admitted model/cache integration, status, identity invalidation and database embedding publication.                                                                                                                                                                                 |
 | Native vector/hybrid Search retrieval                               | Waiting         | Turso float-vector retrieval, retained reciprocal-rank fusion, structured filtering and document/path conformance.                                                                                                                                                                                                                   |
 | Native Search batch and rebuild controls                            | Waiting         | Retain begin/end indexing batches and rebuild behavior through the shared owner; these remain part of the existing Search facade scope.                                                                                                                                                                                              |
 | Complete indexed-file upsert, rename and delete                     | Source complete | [Native indexed-file intake](spec/records/2026-10-24-rust-core-indexed-mutations.md): ten-case retained reference, staged task commits, atomic rename/delete and persisted rename notifications; seven exact native cases, 169 full Rust cases, 1,489 API cases and all source check/test/build/spec lanes pass.                     |

@@ -512,6 +512,26 @@
       "cache": false,
       "envMode": "loose",
       "outputs": []
+    },
+    "//#test:search:onnx:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
+    },
+    "//#test:rust-core:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
+    },
+    "//#test:server:native:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
+    },
+    "//#test:server:e2e:host:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
     }
   },
   "globalEnv": [

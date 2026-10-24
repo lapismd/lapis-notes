@@ -372,6 +372,10 @@ compatible. Client engines must supply their captured fences before activation.
 
 **Requirement.** Tests of live servers, installed native executables, external dependency staging, or baseline mutation MUST remain uncached while running through Turbo. Supplying live controller, terminal, or external Storybook configuration MUST disable result reuse and writes. Cold acceptance MUST use a forced run; cache-service credentials MUST NOT affect functional result identity.
 
+Native core, companion and host acceptance use uncached root tasks. The opt-in
+`test:search:onnx` lane also runs uncached: its default is offline, and only
+`--download` admits missing pinned model assets after digest verification.
+
 Managed FileManager trash follows LN-ARCH-145: the originally selected path
 remains protected through writer drain and removal, including failed descendant
 writes. Explorer uses this shared owner instead of low-level Vault trash.
@@ -381,3 +385,7 @@ The existing FileManager new-file intent under LN-PKG-179 also accepts Explorer 
 Native AppDatabase indexed-file intake retains LN-DB-061/062/063 through the
 shared database owner; low-level core publication remains independent of plugin
 projection work. The existing browser implementation remains explicit.
+
+The native Search encoder is a Notes-owned independent component under
+`lapis-app-core::embedding`. ONNX Runtime/tokenizer inputs are native host
+authority; model-math qualification under LN-DB-007 precedes database integration.

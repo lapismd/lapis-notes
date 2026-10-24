@@ -104,6 +104,14 @@ state and revision.
 
 **Requirement.** Document and query embeddings MUST be generated locally through the provider-neutral embedding contract. Configuration MUST remain lazy until the first semantic index or query, and changing model identity or dimensions MUST invalidate affected vectors.
 
+Native inference qualification under LN-DB-007 uses real model outputs and exact
+retained tokenization, padding and truncation. CPU floating-point comparisons
+retain an explicit tolerance; a fake encoder or token-hash fallback cannot
+qualify the current model. Native host-supplied runtime/model assets remain
+separate from portable configuration and host adoption.
+Reference acceptance includes Unicode, mixed padded batches, configured
+truncation, normalized and unnormalized vectors, and explicit unavailable errors.
+
 ## LN-DB-008 — Hybrid retrieval: combine lexical and vector candidates
 
 <a id="ln-db-008"></a>
