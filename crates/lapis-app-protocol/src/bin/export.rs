@@ -1,4 +1,5 @@
 use lapis_app_protocol::database::indexed::{queries::*, records::*};
+use lapis_app_protocol::database::projections::queries::*;
 use lapis_app_protocol::database::projections::*;
 use lapis_app_protocol::database::{changes::*, history::*, state::*};
 use lapis_app_protocol::{browser::*, database::*, files::*, *};
@@ -38,6 +39,9 @@ pub struct Contracts {
     pub projection_definition: ProjectionDefinition,
     pub projection_source: ProjectionSource,
     pub projection_error: ProjectionSourceError,
+    pub projection_query: ProjectionQuery,
+    pub projection_related: ProjectionRelatedQuery,
+    pub projection_result: ProjectionQueryResult,
 }
 fn main() {
     let config = Config::default();
@@ -106,6 +110,16 @@ fn main() {
         ProjectionEdge::decl(&config),
         ProjectionSource::decl(&config),
         ProjectionSourceError::decl(&config),
+        ProjectionComparison::decl(&config),
+        ProjectionFilter::decl(&config),
+        ProjectionSortDirection::decl(&config),
+        ProjectionNulls::decl(&config),
+        ProjectionOrder::decl(&config),
+        ProjectionQuery::decl(&config),
+        ProjectionRelationDirection::decl(&config),
+        ProjectionRelatedQuery::decl(&config),
+        ProjectionIndexStatus::decl(&config),
+        ProjectionQueryResult::decl(&config),
         ManagedVault::decl(&config),
         AttachClient::decl(&config),
         FileOptions::decl(&config),

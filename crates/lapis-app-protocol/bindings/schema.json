@@ -990,6 +990,10 @@
       ]
     },
     "ProjectionCardinality": { "enum": ["one", "many"], "type": "string" },
+    "ProjectionComparison": {
+      "enum": ["eq", "ne", "lt", "lte", "gt", "gte"],
+      "type": "string"
+    },
     "ProjectionDefinition": {
       "additionalProperties": false,
       "properties": {
@@ -1065,6 +1069,162 @@
       ],
       "type": "string"
     },
+    "ProjectionFilter": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "op": { "const": "and", "type": "string" },
+            "operands": {
+              "items": { "$ref": "#/$defs/ProjectionFilter" },
+              "type": "array"
+            }
+          },
+          "required": ["op", "operands"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "op": { "const": "or", "type": "string" },
+            "operands": {
+              "items": { "$ref": "#/$defs/ProjectionFilter" },
+              "type": "array"
+            }
+          },
+          "required": ["op", "operands"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "op": { "const": "not", "type": "string" },
+            "operand": { "$ref": "#/$defs/ProjectionFilter" }
+          },
+          "required": ["op", "operand"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "comparison": { "$ref": "#/$defs/ProjectionComparison" },
+            "field": { "type": "string" },
+            "op": { "const": "compare", "type": "string" },
+            "value": { "$ref": "#/$defs/MetadataScalar" }
+          },
+          "required": ["op", "field", "comparison", "value"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "field": { "type": "string" },
+            "op": { "const": "in", "type": "string" },
+            "values": {
+              "items": { "$ref": "#/$defs/MetadataScalar" },
+              "type": "array"
+            }
+          },
+          "required": ["op", "field", "values"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "field": { "type": "string" },
+            "op": { "const": "exists", "type": "string" }
+          },
+          "required": ["op", "field"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "field": { "type": "string" },
+            "op": { "const": "not-exists", "type": "string" }
+          },
+          "required": ["op", "field"],
+          "type": "object"
+        }
+      ]
+    },
+    "ProjectionIndexStatus": {
+      "enum": ["ready", "building", "error"],
+      "type": "string"
+    },
+    "ProjectionNulls": { "enum": ["first", "last"], "type": "string" },
+    "ProjectionOrder": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "anyOf": [
+            { "$ref": "#/$defs/ProjectionSortDirection" },
+            { "type": "null" }
+          ]
+        },
+        "field": { "type": "string" },
+        "nulls": {
+          "anyOf": [{ "$ref": "#/$defs/ProjectionNulls" }, { "type": "null" }]
+        }
+      },
+      "required": ["field"],
+      "type": "object"
+    },
+    "ProjectionQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "after": { "type": ["string", "null"] },
+        "includeStale": { "default": false, "type": "boolean" },
+        "limit": { "format": "double", "type": ["number", "null"] },
+        "orderBy": {
+          "default": [],
+          "items": { "$ref": "#/$defs/ProjectionOrder" },
+          "type": "array"
+        },
+        "select": {
+          "default": [],
+          "items": { "type": "string" },
+          "type": "array"
+        },
+        "where": {
+          "anyOf": [{ "$ref": "#/$defs/ProjectionFilter" }, { "type": "null" }]
+        }
+      },
+      "type": "object"
+    },
+    "ProjectionQueryResult": {
+      "additionalProperties": false,
+      "properties": {
+        "complete": { "type": "boolean" },
+        "indexStatus": { "$ref": "#/$defs/ProjectionIndexStatus" },
+        "nextCursor": { "type": ["string", "null"] },
+        "revision": { "format": "uint64", "minimum": 0, "type": "integer" },
+        "rows": { "items": true, "type": "array" }
+      },
+      "required": ["rows", "revision", "complete", "indexStatus"],
+      "type": "object"
+    },
+    "ProjectionRelatedQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "anyOf": [
+            { "$ref": "#/$defs/ProjectionRelationDirection" },
+            { "type": "null" }
+          ]
+        },
+        "limit": { "format": "double", "type": ["number", "null"] },
+        "projectionId": { "type": "string" },
+        "relation": { "type": "string" },
+        "rowId": { "type": "string" },
+        "targetWhere": {
+          "anyOf": [{ "$ref": "#/$defs/ProjectionFilter" }, { "type": "null" }]
+        }
+      },
+      "required": ["projectionId", "rowId", "relation"],
+      "type": "object"
+    },
+    "ProjectionRelationDirection": { "enum": ["in", "out"], "type": "string" },
     "ProjectionRow": {
       "additionalProperties": false,
       "properties": {
@@ -1076,6 +1236,7 @@
       "required": ["id", "kind", "data"],
       "type": "object"
     },
+    "ProjectionSortDirection": { "enum": ["asc", "desc"], "type": "string" },
     "ProjectionSource": {
       "additionalProperties": false,
       "properties": {
@@ -1489,6 +1650,9 @@
     "notification": { "$ref": "#/$defs/NotificationRecord" },
     "projection_definition": { "$ref": "#/$defs/ProjectionDefinition" },
     "projection_error": { "$ref": "#/$defs/ProjectionSourceError" },
+    "projection_query": { "$ref": "#/$defs/ProjectionQuery" },
+    "projection_related": { "$ref": "#/$defs/ProjectionRelatedQuery" },
+    "projection_result": { "$ref": "#/$defs/ProjectionQueryResult" },
     "projection_source": { "$ref": "#/$defs/ProjectionSource" },
     "reply": { "$ref": "#/$defs/Reply" },
     "request": { "$ref": "#/$defs/Request" },
@@ -1527,7 +1691,10 @@
     "metadata_link_query",
     "projection_definition",
     "projection_source",
-    "projection_error"
+    "projection_error",
+    "projection_query",
+    "projection_related",
+    "projection_result"
   ],
   "title": "Contracts",
   "type": "object"

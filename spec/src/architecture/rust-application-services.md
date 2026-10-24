@@ -126,8 +126,9 @@ indexed/sortable fields in JavaScript property order and the 4096 UTF-16-unit
 text bound. Definition, source, row, value, edge and change-journal updates share
 the native writer. Single-row reads retain explicit private-owner checks,
 identity/path aliases and source hash/schema/config freshness without writing.
-Projection AST/relationship queries, task composition and unattended scheduling
-remain separate gates until their conformance qualifies.
+Projection AST/relationship source qualification is recorded in the
+[native query intake](../../records/2026-10-24-rust-core-projection-queries.md).
+Task composition, host adoption and unattended scheduling remain separate gates.
 
 The retained API providers first qualify the shared projection-query fixture.
 Their complete evaluator owns scalar/null comparison, own-field selection,

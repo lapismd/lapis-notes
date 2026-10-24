@@ -23,6 +23,9 @@ retain field ordering, cardinality and text/row limits under LN-DB-017.
 The API-owned projection-query fixture checks complete AST filtering, ordering,
 selection and cursor continuation through both retained providers. Turso narrows
 only provable SQL candidates before the shared evaluator cuts the final page.
+Native projection readers consume that same query fixture independently, retain
+bounded selected pages and generate their DTOs through the protocol drift gate.
+This does not change either host's existing database-adapter selection.
 
 ## LN-PKG-185 — Core vault listing exclusions
 

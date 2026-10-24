@@ -1,9 +1,37 @@
 use super::{Action, ReadAction, ReadValue, write_access};
 use crate::database::{Database, Operation, Output, invalid};
 use crate::services::Result;
+use lapis_app_protocol::database::projections::queries::*;
 use lapis_app_protocol::database::projections::*;
 
 impl Database {
+    pub async fn query_projection(
+        &self,
+        id: &str,
+        query: ProjectionQuery,
+        reader: Option<&str>,
+    ) -> Result<ProjectionQueryResult> {
+        self.projection_query(ReadAction::Query(
+            id.into(),
+            query,
+            reader.map(str::to_owned),
+        ))
+        .await
+    }
+    pub async fn query_related(
+        &self,
+        query: ProjectionRelatedQuery,
+        reader: Option<&str>,
+    ) -> Result<ProjectionQueryResult> {
+        self.projection_query(ReadAction::Related(query, reader.map(str::to_owned)))
+            .await
+    }
+    async fn projection_query(&self, action: ReadAction) -> Result<ProjectionQueryResult> {
+        match self.submit(Operation::ProjectionRead(action)).await? {
+            Output::ProjectionRead(ReadValue::Query(value)) => Ok(value),
+            _ => unreachable!("worker output matches operation"),
+        }
+    }
     pub async fn get_projection_row(
         &self,
         id: &str,

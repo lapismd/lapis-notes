@@ -126,7 +126,7 @@ fn radix(s: &str, base: u32) -> Option<f64> {
         c.to_digit(base).map(|v| n * f64::from(base) + f64::from(v))
     })
 }
-fn js_string(value: &Value) -> String {
+pub(super) fn js_string(value: &Value) -> String {
     match value {
         Value::Null => "null".into(),
         Value::String(s) => s.clone(),

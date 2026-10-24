@@ -17,6 +17,8 @@ import {
   type MetadataPageQuery,
   type ProjectionDefinition,
   type ProjectionSource,
+  type ProjectionQuery,
+  type ProjectionRelatedQuery,
 } from "../bindings/protocol.js";
 const command = {
   kind: "write_text",
@@ -191,3 +193,33 @@ const projectionSql: ProjectionSource = {
   sql: "DELETE FROM index_projection_rows",
 };
 void [projection, projectionSource, unknownProjection, projectionSql];
+
+const projectionQuery: ProjectionQuery = {
+  where: {
+    op: "and",
+    operands: [
+      { op: "in", field: "optional", values: [null, "value"] },
+      { op: "compare", field: "rank", comparison: "gte", value: 2 },
+    ],
+  },
+  orderBy: [{ field: "rank", direction: "asc", nulls: "last" }],
+  select: ["id", "rank"],
+  limit: 2,
+};
+const relatedQuery: ProjectionRelatedQuery = {
+  projectionId: "books/book",
+  rowId: "a",
+  relation: "child",
+  direction: "in",
+  targetWhere: { op: "not-exists", field: "archived" },
+};
+const querySql: ProjectionQuery = {
+  // @ts-expect-error Native query callers cannot select raw SQL.
+  sql: "SELECT * FROM index_projection_rows",
+};
+const invalidProjectionDirection: ProjectionRelatedQuery = {
+  ...relatedQuery,
+  // @ts-expect-error The retained edge direction catalogue is explicit.
+  direction: "both",
+};
+void [projectionQuery, relatedQuery, querySql, invalidProjectionDirection];

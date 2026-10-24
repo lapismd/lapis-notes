@@ -324,6 +324,52 @@ export type ProjectionSourceError = {
   error: string;
   writerPluginId?: string;
 };
+export type ProjectionComparison = "eq" | "ne" | "lt" | "lte" | "gt" | "gte";
+export type ProjectionFilter =
+  | { op: "and"; operands: Array<ProjectionFilter> }
+  | { op: "or"; operands: Array<ProjectionFilter> }
+  | { op: "not"; operand: ProjectionFilter }
+  | {
+      op: "compare";
+      field: string;
+      comparison: ProjectionComparison;
+      value: MetadataScalar;
+    }
+  | { op: "in"; field: string; values: Array<MetadataScalar> }
+  | { op: "exists"; field: string }
+  | { op: "not-exists"; field: string };
+export type ProjectionSortDirection = "asc" | "desc";
+export type ProjectionNulls = "first" | "last";
+export type ProjectionOrder = {
+  field: string;
+  direction?: ProjectionSortDirection;
+  nulls?: ProjectionNulls;
+};
+export type ProjectionQuery = {
+  where?: ProjectionFilter;
+  select?: Array<string>;
+  orderBy?: Array<ProjectionOrder>;
+  limit?: number;
+  after?: string;
+  includeStale?: boolean;
+};
+export type ProjectionRelationDirection = "in" | "out";
+export type ProjectionRelatedQuery = {
+  projectionId: string;
+  rowId: string;
+  relation: string;
+  direction?: ProjectionRelationDirection;
+  targetWhere?: ProjectionFilter;
+  limit?: number;
+};
+export type ProjectionIndexStatus = "ready" | "building" | "error";
+export type ProjectionQueryResult = {
+  rows: Array<{ [key: string]: unknown }>;
+  nextCursor?: string;
+  revision: number;
+  complete: boolean;
+  indexStatus: ProjectionIndexStatus;
+};
 export type ManagedVault = { vault_id: string; name: string };
 export type AttachClient = { protocol_version: number };
 export type FileOptions = { mtime: number | null };
