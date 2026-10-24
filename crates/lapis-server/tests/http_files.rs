@@ -2,6 +2,7 @@ mod admission;
 mod attachments;
 mod lifetime;
 mod physical;
+mod streams;
 mod support;
 
 use lapis_app_protocol::{

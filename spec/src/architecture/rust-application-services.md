@@ -62,6 +62,15 @@ cannot renew itself after expiry. Native maintenance reaps idle clients without
 waiting for an HTTP subscriber, and clients can attach afresh to discover
 retained claims. Shutdown stops maintenance after the service leave gate passes.
 
+Raw HTTP file bodies use the same native writer guard and atomic publication.
+Uploads spool bounded bytes outside the vault lock and publish only after the
+body completes; interrupted or oversized bodies cannot replace a note. Strong
+ETags select missing/exact-version writes. Read responses stream an immutable,
+bounded native snapshot with a matching ETag, content length and byte ranges.
+Resource routes retain restrictive MIME/CSP policy. Slow network consumers do
+not own vault jobs, and HTTP shutdown has a bounded drain after the native leave
+gate passes. Native paths and file handles never become protocol fields.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

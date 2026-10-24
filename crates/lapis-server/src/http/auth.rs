@@ -44,7 +44,8 @@ pub(super) async fn authorize(
     let mut response = next.run(request).await;
     response
         .headers_mut()
-        .insert("cache-control", "no-store".parse().unwrap());
+        .entry("cache-control")
+        .or_insert("no-store".parse().unwrap());
     response
         .headers_mut()
         .insert("x-content-type-options", "nosniff".parse().unwrap());

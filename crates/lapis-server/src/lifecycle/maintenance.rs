@@ -4,10 +4,10 @@ use std::{
     time::{Duration, Instant},
 };
 
-pub struct Maintenance(tokio::task::JoinHandle<()>);
+pub struct Maintenance(Option<tokio::task::JoinHandle<()>>);
 impl Maintenance {
     pub fn start(host: Arc<Host>) -> Self {
-        Self(tokio::spawn(async move {
+        Self(Some(tokio::spawn(async move {
             let mut interval = tokio::time::interval(Duration::from_secs(30));
             loop {
                 interval.tick().await;
@@ -20,10 +20,19 @@ impl Maintenance {
                     return;
                 }
             }
-        }))
+        })))
     }
-    pub async fn stop(self) {
-        self.0.abort();
-        let _ = self.0.await;
+    pub async fn stop(mut self) {
+        if let Some(task) = self.0.take() {
+            task.abort();
+            let _ = task.await;
+        }
+    }
+}
+impl Drop for Maintenance {
+    fn drop(&mut self) {
+        if let Some(task) = &self.0 {
+            task.abort();
+        }
     }
 }

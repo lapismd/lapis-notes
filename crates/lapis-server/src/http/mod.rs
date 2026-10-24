@@ -1,5 +1,6 @@
 mod auth;
 mod errors;
+mod files;
 mod routes;
 
 use crate::host::Host;
@@ -58,6 +59,14 @@ pub fn router(host: Arc<Host>, token: &str, origin: &str) -> std::io::Result<Rou
             post(routes::heartbeat),
         )
         .route("/api/v3/clients/{client}", delete(routes::detach))
+        .route(
+            "/api/v3/clients/{client}/files/{*path}",
+            get(files::read).put(files::write),
+        )
+        .route(
+            "/api/v3/clients/{client}/resources/{*path}",
+            get(files::resource),
+        )
         .layer(DefaultBodyLimit::max(JSON_LIMIT))
         .layer(middleware::from_fn_with_state(
             state.clone(),

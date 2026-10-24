@@ -36,14 +36,16 @@ Every API request requires `Authorization: Bearer <owner-token>` and
 `x-lapis-protocol: 3`. Requests with a browser `Origin` must match the configured
 public origin. Routes:
 
-| Method | Route                                | Result                                      |
-| ------ | ------------------------------------ | ------------------------------------------- |
-| GET    | `/api/v3/vaults`                     | Opaque vault IDs and names                  |
-| POST   | `/api/v3/vaults/{vault}/clients`     | Attach with `{ "protocol_version": 3 }`     |
-| POST   | `/api/v3/clients/{client}/commands`  | Generated protocol `Request` and `Reply`    |
-| POST   | `/api/v3/clients/{client}/heartbeat` | Renew the current client attachment         |
-| DELETE | `/api/v3/clients/{client}`           | Detach, retaining accepted work/dirty state |
-| DELETE | `/api/v3/vaults/{vault}`             | Explicitly close; unresolved edits block    |
+| Method       | Route                                       | Result                                           |
+| ------------ | ------------------------------------------- | ------------------------------------------------ |
+| GET          | `/api/v3/vaults`                            | Opaque vault IDs and names                       |
+| POST         | `/api/v3/vaults/{vault}/clients`            | Attach with `{ "protocol_version": 3 }`          |
+| POST         | `/api/v3/clients/{client}/commands`         | Generated protocol `Request` and `Reply`         |
+| POST         | `/api/v3/clients/{client}/heartbeat`        | Renew the current client attachment              |
+| GET/HEAD/PUT | `/api/v3/clients/{client}/files/{path}`     | Streamed file bodies and conditional replacement |
+| GET/HEAD     | `/api/v3/clients/{client}/resources/{path}` | Scoped media/PDF with range and sandbox policy   |
+| DELETE       | `/api/v3/clients/{client}`                  | Detach, retaining accepted work/dirty state      |
+| DELETE       | `/api/v3/vaults/{vault}`                    | Explicitly close; unresolved edits block         |
 
 The operator configuration is never an HTTP input. Command bodies are limited
 to 2 MiB in this staging adapter. Non-success HTTP statuses carry `ServiceError`,
@@ -62,7 +64,14 @@ dirty editor keeps the server available for explicit recovery; resolve it and
 send the signal again. File bytes survive a cold restart. Dirty editor claims
 and jobs do not yet have the durable restart journal required by later slices.
 
-Streamed file/resource bodies, browser login/session integration, existing
-App/Vault adapters and shell acceptance, SSE jobs and native backup ownership
-remain required. This private adapter is not a hosted cutover or distribution
+File/resource bodies stream through native temporary snapshots; raw uploads are
+bounded to 64 MiB and cannot publish an incomplete body. PUT accepts a quoted
+SHA-256 `If-Match` or `If-None-Match: *`, and optional `x-lapis-mtime` milliseconds.
+GET/HEAD support strong ETags and single/suffix byte ranges. Resources permit
+images, audio/video and PDF with a sandbox CSP; ordinary file reads download as
+attachments. After native shutdown succeeds, network drain is limited to ten
+seconds.
+
+Browser login/session integration, existing App/Vault adapters and shell
+acceptance, raw append, SSE jobs and native backup ownership remain required. This private adapter is not a hosted cutover or distribution
 qualification. See [the migration plan](../../RUST_CORE_MIGRATION_PLAN.md).

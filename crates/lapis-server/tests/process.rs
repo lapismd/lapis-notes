@@ -7,7 +7,7 @@ use lapis_app_protocol::{
 use lapis_server::http::VERSION_HEADER;
 use std::{path::Path, process::Stdio, time::Duration};
 use tokio::{
-    io::{AsyncBufReadExt, BufReader},
+    io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader},
     process::{Child, Command},
     time::timeout,
 };
@@ -36,6 +36,51 @@ async fn start(config: &Path) -> (Child, String) {
         .strip_prefix("Lapis file service listening on ")
         .unwrap();
     (child, format!("http://{address}"))
+}
+
+#[tokio::test]
+async fn sigterm_has_a_bounded_network_drain_for_a_stalled_file_consumer() {
+    let root = tempfile::tempdir().unwrap();
+    let vault = root.path().join("vault");
+    std::fs::create_dir(&vault).unwrap();
+    let file = std::fs::File::create(vault.join("large.bin")).unwrap();
+    file.set_len(64 * 1024 * 1024).unwrap();
+    let id = Uuid::new_v4();
+    let config = root.path().join("server.json");
+    std::fs::write(
+        &config,
+        serde_json::to_vec(
+            &serde_json::json!({"vaults": [{"id": id, "name": "Slow reader", "root": vault}]}),
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    let client = reqwest::Client::new();
+    let (mut child, base) = start(&config).await;
+    let attached = attach(&client, &base, id).await;
+    let mut socket = tokio::net::TcpStream::connect(base.strip_prefix("http://").unwrap())
+        .await
+        .unwrap();
+    socket.write_all(format!("GET /api/v3/clients/{}/files/large.bin HTTP/1.1\r\nHost: localhost\r\nAuthorization: Bearer {TOKEN}\r\nx-lapis-protocol: 3\r\n\r\n", attached.client_id).as_bytes()).await.unwrap();
+    let mut headers = Vec::new();
+    timeout(Duration::from_secs(10), async {
+        while !headers.ends_with(b"\r\n\r\n") {
+            headers.push(socket.read_u8().await.unwrap());
+        }
+    })
+    .await
+    .unwrap();
+    assert!(headers.starts_with(b"HTTP/1.1 200"));
+    // Retain the socket without consuming the large response body.
+    signal(&child).await;
+    assert!(
+        timeout(Duration::from_secs(12), child.wait())
+            .await
+            .expect("server waited for the network consumer after its native leave gate passed")
+            .unwrap()
+            .success()
+    );
+    drop(socket);
 }
 async fn signal(child: &Child) {
     let status = Command::new("kill")

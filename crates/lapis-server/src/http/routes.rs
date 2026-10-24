@@ -1,4 +1,7 @@
-use super::{State, errors::Failure};
+use super::{
+    State,
+    errors::{Failure, blocking},
+};
 use axum::{
     Json,
     extract::{Path, State as AxumState, rejection::JsonRejection},
@@ -9,14 +12,6 @@ use lapis_app_protocol::{
 };
 use uuid::Uuid;
 
-async fn blocking<T: Send + 'static>(
-    action: impl FnOnce() -> crate::host::Result<T> + Send + 'static,
-) -> Result<T, Failure> {
-    tokio::task::spawn_blocking(action)
-        .await
-        .map_err(|_| Failure::new(ErrorCode::Io, "Host operation did not complete"))?
-        .map_err(Into::into)
-}
 fn body<T>(body: Result<Json<T>, JsonRejection>) -> Result<T, Failure> {
     body.map(|Json(value)| value).map_err(|rejection| {
         Failure(

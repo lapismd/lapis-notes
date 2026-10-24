@@ -7,6 +7,14 @@ use axum::{
 use lapis_app_protocol::{ErrorCode, ServiceError};
 
 pub(super) struct Failure(pub StatusCode, pub ServiceError);
+pub(super) async fn blocking<T: Send + 'static>(
+    action: impl FnOnce() -> crate::host::Result<T> + Send + 'static,
+) -> Result<T, Failure> {
+    tokio::task::spawn_blocking(action)
+        .await
+        .map_err(|_| Failure::new(ErrorCode::Io, "Host operation did not complete"))?
+        .map_err(Into::into)
+}
 impl Failure {
     pub fn new(code: ErrorCode, message: &str) -> Self {
         error(code, message).into()

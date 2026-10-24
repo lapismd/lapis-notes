@@ -127,7 +127,7 @@ impl VaultRoot {
         }))
     }
 
-    fn open_file(&self, path: &str) -> io::Result<cap_std::fs::File> {
+    pub(crate) fn open_file(&self, path: &str) -> io::Result<cap_std::fs::File> {
         let mut options = cap_std::fs::OpenOptions::new();
         options.read(true);
         #[cfg(unix)]
