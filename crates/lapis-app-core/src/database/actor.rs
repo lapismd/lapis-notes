@@ -17,7 +17,7 @@ pub(super) async fn run(
     while let Some(request) = receiver.recv().await {
         // There is intentionally no select on the response receiver's lifetime.
         let result = store.execute(request.operation).await;
-        if let Some(change) = store.committed.take() {
+        while let Some(change) = store.committed.pop_front() {
             let _ = changes.send(change);
         }
         let _ = request.reply.send(result);

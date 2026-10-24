@@ -11,13 +11,20 @@ pub(super) fn now_ms() -> Result<i64> {
 }
 impl Store {
     pub async fn journal(&self, domain: ChangeDomain, paths: Vec<String>) -> Result<ChangeSet> {
+        self.journal_domains(vec![domain], paths).await
+    }
+    pub(super) async fn journal_domains(
+        &self,
+        domains: Vec<ChangeDomain>,
+        paths: Vec<String>,
+    ) -> Result<ChangeSet> {
         if self.connection.execute("UPDATE app_revision SET revision=revision+1 WHERE id=1 AND revision<9007199254740991", ()).await.map_err(engine)? != 1 {
             return Err(invalid("Application database revision is exhausted"));
         }
         let revision = self.revision().await?;
         let mut change = ChangeSet {
             revision,
-            domains: vec![domain],
+            domains,
             paths,
             renamed: None,
             reset: None,

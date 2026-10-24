@@ -79,7 +79,7 @@ impl Store {
         }
         Ok(())
     }
-    pub(super) async fn delete_projection(&self, id: &str, path: &str) -> Result<()> {
+    pub(in crate::database) async fn delete_projection(&self, id: &str, path: &str) -> Result<()> {
         for (table, column) in [
             ("index_projection_edges", "source_row_id"),
             ("index_projection_values", "row_id"),

@@ -23,7 +23,7 @@ impl Store {
                 .map(ReadValue::Query),
         }
     }
-    pub(super) async fn projection_row(
+    pub(in crate::database) async fn projection_row(
         &self,
         id: &str,
         row_id: &str,

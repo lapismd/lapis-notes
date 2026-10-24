@@ -118,6 +118,12 @@ result limit.
 
 **Requirement.** `queryTasks` and `getTaskRow` MAY wrap the public `tasks/task` projection. `listTaskDescendants` MUST follow resolved `task-entry` and `list-entry` projection edges rather than infer structure from generic indexed links.
 
+The retained Turso facade uses current projection reads for ID lookup and task
+view queries. Its path lookup reads the compatibility `task_records` table;
+descendant traversal retains breadth-first edge-ordinal order, path-only targets
+and cycle deduplication. Native staging keeps this boundary while general
+`queryRelated` retains its explicit private/current-target checks.
+
 ## LN-DB-024 — Public tasks/task projection version 4: retain the complete RRULE and tracking contracts
 
 <a id="ln-db-024"></a>

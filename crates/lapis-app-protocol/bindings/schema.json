@@ -1410,6 +1410,310 @@
       "required": ["path", "tag", "parts", "hierarchy"],
       "type": "object"
     },
+    "TaskChildQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "anyOf": [{ "$ref": "#/$defs/LinkKind" }, { "type": "null" }]
+        },
+        "sourcePath": { "type": "string" }
+      },
+      "required": ["sourcePath"],
+      "type": "object"
+    },
+    "TaskKind": { "enum": ["task", "task-list"], "type": "string" },
+    "TaskLookup": {
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": ["string", "null"] },
+        "path": { "type": ["string", "null"] }
+      },
+      "type": "object"
+    },
+    "TaskOccurrenceState": {
+      "enum": [
+        "current",
+        "overdue",
+        "future",
+        "exhausted",
+        "paused",
+        "unsupported"
+      ],
+      "type": "string"
+    },
+    "TaskPauseRange": {
+      "additionalProperties": false,
+      "properties": {
+        "end": { "type": "string" },
+        "start": { "type": "string" }
+      },
+      "required": ["start", "end"],
+      "type": "object"
+    },
+    "TaskPlanKind": {
+      "enum": ["anytime", "morning", "afternoon", "evening", "time"],
+      "type": "string"
+    },
+    "TaskPriority": { "enum": ["low", "medium", "high"], "type": "string" },
+    "TaskQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "documentId": { "type": ["string", "null"] },
+        "documentPath": { "type": ["string", "null"] },
+        "kind": {
+          "anyOf": [{ "$ref": "#/$defs/TaskKind" }, { "type": "null" }]
+        },
+        "limit": { "format": "double", "type": ["number", "null"] },
+        "today": { "type": ["string", "null"] },
+        "view": {
+          "anyOf": [{ "$ref": "#/$defs/TaskView" }, { "type": "null" }]
+        }
+      },
+      "type": "object"
+    },
+    "TaskRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "checklistCompleted": { "format": "double", "type": "number" },
+        "checklistTotal": { "format": "double", "type": "number" },
+        "commentCount": { "format": "double", "type": "number" },
+        "completedAt": { "type": ["string", "null"] },
+        "deadline": { "type": ["string", "null"] },
+        "documentId": { "type": "string" },
+        "documentPath": { "type": "string" },
+        "durationMinutes": { "format": "double", "type": ["number", "null"] },
+        "effectiveForDate": { "type": ["string", "null"] },
+        "effectiveOccurrenceDate": { "type": ["string", "null"] },
+        "effectiveOccurrenceState": {
+          "anyOf": [
+            { "$ref": "#/$defs/TaskOccurrenceState" },
+            { "type": "null" }
+          ]
+        },
+        "inbox": { "type": "boolean" },
+        "kind": { "$ref": "#/$defs/TaskKind" },
+        "planDate": { "type": ["string", "null"] },
+        "planKind": {
+          "anyOf": [{ "$ref": "#/$defs/TaskPlanKind" }, { "type": "null" }]
+        },
+        "planTime": { "type": ["string", "null"] },
+        "priority": {
+          "anyOf": [{ "$ref": "#/$defs/TaskPriority" }, { "type": "null" }]
+        },
+        "projectionVersion": { "format": "double", "type": "number" },
+        "repeat": {
+          "anyOf": [{ "$ref": "#/$defs/TaskRepeat" }, { "type": "null" }]
+        },
+        "repeatAnchor": { "type": ["string", "null"] },
+        "repeatFrequency": { "type": ["string", "null"] },
+        "repeatInterval": { "format": "double", "type": ["number", "null"] },
+        "repeatStrategy": { "type": ["string", "null"] },
+        "startDate": { "type": ["string", "null"] },
+        "startKind": { "$ref": "#/$defs/TaskStartKind" },
+        "status": { "$ref": "#/$defs/TaskStatus" },
+        "structure": {
+          "anyOf": [{ "$ref": "#/$defs/TaskStructure" }, { "type": "null" }]
+        },
+        "title": { "type": "string" },
+        "tracking": {
+          "anyOf": [{ "$ref": "#/$defs/TaskTracking" }, { "type": "null" }]
+        }
+      },
+      "required": [
+        "documentPath",
+        "documentId",
+        "kind",
+        "title",
+        "status",
+        "inbox",
+        "startKind",
+        "checklistTotal",
+        "checklistCompleted",
+        "commentCount",
+        "projectionVersion"
+      ],
+      "type": "object"
+    },
+    "TaskRepeat": {
+      "additionalProperties": false,
+      "properties": {
+        "anchor": { "$ref": "#/$defs/TaskRepeatAnchor" },
+        "completionCount": { "format": "double", "type": ["number", "null"] },
+        "exdate": { "items": { "type": "string" }, "type": ["array", "null"] },
+        "lastCompletedAt": { "type": ["string", "null"] },
+        "missed": { "$ref": "#/$defs/TaskRepeatMissed" },
+        "pauseRanges": {
+          "items": { "$ref": "#/$defs/TaskPauseRange" },
+          "type": ["array", "null"]
+        },
+        "paused": { "type": ["boolean", "null"] },
+        "pausedSince": { "type": ["string", "null"] },
+        "rdate": { "items": { "type": "string" }, "type": ["array", "null"] },
+        "resetChecklist": { "type": ["boolean", "null"] },
+        "rrule": { "type": "string" },
+        "start": { "type": ["string", "null"] }
+      },
+      "required": ["rrule", "anchor", "missed"],
+      "type": "object"
+    },
+    "TaskRepeatAnchor": {
+      "enum": ["schedule", "completion"],
+      "type": "string"
+    },
+    "TaskRepeatMissed": { "enum": ["carry", "skip"], "type": "string" },
+    "TaskRun": {
+      "additionalProperties": false,
+      "properties": {
+        "documentId": { "type": "string" },
+        "documentPath": { "type": "string" },
+        "endOffset": { "format": "double", "type": "number" },
+        "entryCount": { "format": "double", "type": "number" },
+        "headingLevel": { "format": "double", "type": ["number", "null"] },
+        "headingPath": { "items": { "type": "string" }, "type": "array" },
+        "headingText": { "type": ["string", "null"] },
+        "id": { "type": "string" },
+        "listDepth": { "format": "double", "type": "number" },
+        "startOffset": { "format": "double", "type": "number" }
+      },
+      "required": [
+        "id",
+        "documentId",
+        "documentPath",
+        "headingPath",
+        "listDepth",
+        "startOffset",
+        "endOffset",
+        "entryCount"
+      ],
+      "type": "object"
+    },
+    "TaskStartKind": {
+      "enum": ["anytime", "someday", "date"],
+      "type": "string"
+    },
+    "TaskStatus": {
+      "enum": ["open", "completed", "canceled", "active", "archived"],
+      "type": "string"
+    },
+    "TaskStructuralEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "authoredHref": { "type": "string" },
+        "authoredLabel": { "type": "string" },
+        "headingLevel": { "format": "double", "type": ["number", "null"] },
+        "headingPath": { "items": { "type": "string" }, "type": "array" },
+        "headingText": { "type": ["string", "null"] },
+        "kind": { "$ref": "#/$defs/TaskStructuralKind" },
+        "positionInRun": { "format": "double", "type": "number" },
+        "runId": { "type": "string" },
+        "sourceDocumentId": { "type": "string" },
+        "sourceDocumentPath": { "type": "string" },
+        "sourceEnd": { "format": "double", "type": "number" },
+        "sourceStart": { "format": "double", "type": "number" },
+        "targetDocumentId": { "type": "string" },
+        "targetDocumentPath": { "type": "string" }
+      },
+      "required": [
+        "sourceDocumentId",
+        "sourceDocumentPath",
+        "targetDocumentId",
+        "targetDocumentPath",
+        "kind",
+        "headingPath",
+        "runId",
+        "positionInRun",
+        "sourceStart",
+        "sourceEnd",
+        "authoredLabel",
+        "authoredHref"
+      ],
+      "type": "object"
+    },
+    "TaskStructuralKind": {
+      "enum": ["task-entry", "list-entry"],
+      "type": "string"
+    },
+    "TaskStructure": {
+      "additionalProperties": false,
+      "properties": {
+        "diagnostics": {
+          "items": { "$ref": "#/$defs/TaskStructureDiagnostic" },
+          "type": "array"
+        },
+        "entries": {
+          "items": { "$ref": "#/$defs/TaskStructuralEntry" },
+          "type": "array"
+        },
+        "runs": { "items": { "$ref": "#/$defs/TaskRun" }, "type": "array" },
+        "sourceHash": { "type": "string" },
+        "version": { "format": "double", "type": "number" }
+      },
+      "required": ["version", "sourceHash", "entries", "runs", "diagnostics"],
+      "type": "object"
+    },
+    "TaskStructureDiagnostic": {
+      "additionalProperties": false,
+      "properties": {
+        "code": { "type": "string" },
+        "message": { "type": "string" },
+        "sourceEnd": { "format": "double", "type": ["number", "null"] },
+        "sourceStart": { "format": "double", "type": ["number", "null"] },
+        "target": { "type": ["string", "null"] }
+      },
+      "required": ["code", "message"],
+      "type": "object"
+    },
+    "TaskTracking": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": { "type": { "const": "boolean", "type": "string" } },
+          "required": ["type"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "target": { "format": "double", "type": ["number", "null"] },
+            "type": { "const": "count", "type": "string" },
+            "unit": { "type": "string" }
+          },
+          "required": ["type", "unit"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "target": { "type": ["string", "null"] },
+            "type": { "const": "duration", "type": "string" }
+          },
+          "required": ["type"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "target": { "format": "double", "type": ["number", "null"] },
+            "type": { "const": "number", "type": "string" },
+            "unit": { "type": "string" }
+          },
+          "required": ["type", "unit"],
+          "type": "object"
+        }
+      ]
+    },
+    "TaskView": {
+      "enum": [
+        "inbox",
+        "today",
+        "anytime",
+        "upcoming",
+        "someday",
+        "completed",
+        "review"
+      ],
+      "type": "string"
+    },
     "TextSnapshot": {
       "additionalProperties": false,
       "properties": {
@@ -1659,6 +1963,10 @@
     "session": { "$ref": "#/$defs/SessionInfo" },
     "store_history": { "$ref": "#/$defs/StoreHistory" },
     "stored_history": { "$ref": "#/$defs/StoredHistory" },
+    "task_children": { "$ref": "#/$defs/TaskChildQuery" },
+    "task_lookup": { "$ref": "#/$defs/TaskLookup" },
+    "task_query": { "$ref": "#/$defs/TaskQuery" },
+    "task_record": { "$ref": "#/$defs/TaskRecord" },
     "vault": { "$ref": "#/$defs/ManagedVault" }
   },
   "required": [
@@ -1694,7 +2002,11 @@
     "projection_error",
     "projection_query",
     "projection_related",
-    "projection_result"
+    "projection_result",
+    "task_record",
+    "task_query",
+    "task_lookup",
+    "task_children"
   ],
   "title": "Contracts",
   "type": "object"

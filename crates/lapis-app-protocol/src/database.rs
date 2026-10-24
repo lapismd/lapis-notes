@@ -8,6 +8,7 @@ pub mod history;
 pub mod indexed;
 pub mod projections;
 pub mod state;
+pub mod tasks;
 
 // A missing JS value means delete/no check; explicit JSON null remains a value.
 fn present<'de, D: Deserializer<'de>>(input: D) -> Result<Option<Value>, D::Error> {

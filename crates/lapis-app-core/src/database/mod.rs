@@ -11,6 +11,7 @@ mod reads;
 mod saved_state;
 mod state_client;
 mod store;
+mod tasks;
 mod transactions;
 
 use crate::services::{Error, Result};
@@ -58,6 +59,7 @@ enum Operation {
     Indexed(indexed::Action),
     Projection(projections::Action),
     ProjectionRead(projections::ReadAction),
+    Tasks(tasks::Action),
 }
 enum Output {
     Meta(Option<Value>),
@@ -71,6 +73,7 @@ enum Output {
     StoredHistory(StoredHistory),
     Indexed(indexed::Value),
     ProjectionRead(projections::ReadValue),
+    Tasks(tasks::Value),
 }
 impl Database {
     /// Native installation input only; callers derive this from admitted policy.

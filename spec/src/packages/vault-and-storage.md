@@ -26,6 +26,8 @@ only provable SQL candidates before the shared evaluator cuts the final page.
 Native projection readers consume that same query fixture independently, retain
 bounded selected pages and generate their DTOs through the protocol drift gate.
 This does not change either host's existing database-adapter selection.
+API task-record fixtures independently qualify the retained providers and native
+facade, including full recurrence/structure data and effective view membership.
 
 ## LN-PKG-185 — Core vault listing exclusions
 

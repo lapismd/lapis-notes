@@ -370,6 +370,142 @@ export type ProjectionQueryResult = {
   complete: boolean;
   indexStatus: ProjectionIndexStatus;
 };
+export type TaskKind = "task" | "task-list";
+export type TaskStatus =
+  | "open"
+  | "completed"
+  | "canceled"
+  | "active"
+  | "archived";
+export type TaskStartKind = "anytime" | "someday" | "date";
+export type TaskPlanKind =
+  | "anytime"
+  | "morning"
+  | "afternoon"
+  | "evening"
+  | "time";
+export type TaskOccurrenceState =
+  | "current"
+  | "overdue"
+  | "future"
+  | "exhausted"
+  | "paused"
+  | "unsupported";
+export type TaskView =
+  | "inbox"
+  | "today"
+  | "anytime"
+  | "upcoming"
+  | "someday"
+  | "completed"
+  | "review";
+export type TaskRepeatAnchor = "schedule" | "completion";
+export type TaskRepeatMissed = "carry" | "skip";
+export type TaskStructuralKind = "task-entry" | "list-entry";
+export type TaskPriority = "low" | "medium" | "high";
+export type TaskRecord = {
+  documentPath: string;
+  documentId: string;
+  kind: TaskKind;
+  title: string;
+  status: TaskStatus;
+  inbox: boolean;
+  startKind: TaskStartKind;
+  checklistTotal: number;
+  checklistCompleted: number;
+  commentCount: number;
+  projectionVersion: number;
+  priority?: TaskPriority | null;
+  startDate?: string | null;
+  planDate?: string | null;
+  planKind?: TaskPlanKind | null;
+  planTime?: string | null;
+  durationMinutes?: number | null;
+  deadline?: string | null;
+  completedAt?: string | null;
+  repeat?: TaskRepeat | null;
+  tracking?: TaskTracking | null;
+  effectiveOccurrenceDate?: string | null;
+  effectiveOccurrenceState?: TaskOccurrenceState | null;
+  effectiveForDate?: string | null;
+  repeatStrategy?: string | null;
+  repeatFrequency?: string | null;
+  repeatInterval?: number | null;
+  repeatAnchor?: string | null;
+  structure?: TaskStructure | null;
+};
+export type TaskRepeat = {
+  rrule: string;
+  anchor: TaskRepeatAnchor;
+  missed: TaskRepeatMissed;
+  start?: string;
+  rdate?: Array<string>;
+  exdate?: Array<string>;
+  resetChecklist?: boolean;
+  paused?: boolean;
+  pausedSince?: string;
+  pauseRanges?: Array<TaskPauseRange>;
+  lastCompletedAt?: string;
+  completionCount?: number;
+};
+export type TaskPauseRange = { start: string; end: string };
+export type TaskTracking =
+  | { type: "boolean" }
+  | { type: "count"; unit: string; target?: number }
+  | { type: "duration"; target?: string }
+  | { type: "number"; unit: string; target?: number };
+export type TaskStructuralEntry = {
+  sourceDocumentId: string;
+  sourceDocumentPath: string;
+  targetDocumentId: string;
+  targetDocumentPath: string;
+  kind: TaskStructuralKind;
+  headingPath: Array<string>;
+  headingLevel: number | null;
+  headingText: string | null;
+  runId: string;
+  positionInRun: number;
+  sourceStart: number;
+  sourceEnd: number;
+  authoredLabel: string;
+  authoredHref: string;
+};
+export type TaskRun = {
+  id: string;
+  documentId: string;
+  documentPath: string;
+  headingPath: Array<string>;
+  headingLevel: number | null;
+  headingText: string | null;
+  listDepth: number;
+  startOffset: number;
+  endOffset: number;
+  entryCount: number;
+};
+export type TaskStructureDiagnostic = {
+  code: string;
+  message: string;
+  sourceStart?: number;
+  sourceEnd?: number;
+  target?: string;
+};
+export type TaskStructure = {
+  version: number;
+  sourceHash: string;
+  entries: Array<TaskStructuralEntry>;
+  runs: Array<TaskRun>;
+  diagnostics: Array<TaskStructureDiagnostic>;
+};
+export type TaskQuery = {
+  view?: TaskView;
+  today?: string;
+  documentId?: string;
+  documentPath?: string;
+  kind?: TaskKind;
+  limit?: number;
+};
+export type TaskLookup = { path?: string; id?: string };
+export type TaskChildQuery = { sourcePath: string; kind?: LinkKind };
 export type ManagedVault = { vault_id: string; name: string };
 export type AttachClient = { protocol_version: number };
 export type FileOptions = { mtime: number | null };

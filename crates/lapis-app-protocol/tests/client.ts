@@ -19,6 +19,8 @@ import {
   type ProjectionSource,
   type ProjectionQuery,
   type ProjectionRelatedQuery,
+  type TaskRecord,
+  type TaskQuery,
 } from "../bindings/protocol.js";
 const command = {
   kind: "write_text",
@@ -223,3 +225,32 @@ const invalidProjectionDirection: ProjectionRelatedQuery = {
   direction: "both",
 };
 void [projectionQuery, relatedQuery, querySql, invalidProjectionDirection];
+
+const task: TaskRecord = {
+  documentPath: "task.md",
+  documentId: "task",
+  kind: "task",
+  title: "Task",
+  status: "open",
+  inbox: false,
+  startKind: "anytime",
+  checklistTotal: 0,
+  checklistCompleted: 0,
+  commentCount: 0,
+  projectionVersion: 4,
+  startDate: null,
+  repeat: { rrule: "FREQ=DAILY", anchor: "schedule", missed: "carry" },
+  tracking: { type: "count", unit: "pages", target: 20 },
+  structure: null,
+};
+const taskQuery: TaskQuery = { view: "review", today: "2026-10-24", limit: 20 };
+const invalidTask: TaskRecord = {
+  ...task,
+  // @ts-expect-error Task status is the retained closed catalogue.
+  status: "paused",
+};
+const invalidTaskQuery: TaskQuery = {
+  // @ts-expect-error Task queries never carry SQL.
+  sql: "SELECT * FROM task_records",
+};
+void [task, taskQuery, invalidTask, invalidTaskQuery];

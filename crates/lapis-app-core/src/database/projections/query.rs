@@ -5,7 +5,7 @@ use lapis_app_protocol::database::projections::queries::*;
 use serde_json::{Map, Value};
 
 impl Store {
-    pub(super) async fn query_projection(
+    pub(in crate::database) async fn query_projection(
         &self,
         id: &str,
         query: ProjectionQuery,

@@ -31,7 +31,7 @@ impl Store {
                     self.rollback().await?;
                     return Err(engine(error));
                 }
-                self.committed = change;
+                self.committed.extend(change);
                 Ok(value)
             }
             Err(error) => {

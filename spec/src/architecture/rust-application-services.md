@@ -144,6 +144,13 @@ rows and sort keys; result messages remain below 32 MiB and at most 100,000 rows
 Relationship reads retain target registration, private-reader authority and
 freshness, including incoming path-only edges and filtering before limits.
 
+Task facade intake retains the public v4 record, full recurrence/tracking and
+structural JSON, effective-occurrence view predicates, legacy path lookup and
+resolved task/list descendant traversal. One accepted actor operation completes
+all retained commit stages even after its waiter detaches. The publisher drains
+every committed stage in revision order, including stages committed before a
+later projection failure; a rolled-back stage never publishes.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

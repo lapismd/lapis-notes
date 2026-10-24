@@ -1,6 +1,7 @@
 use lapis_app_protocol::database::indexed::{queries::*, records::*};
 use lapis_app_protocol::database::projections::queries::*;
 use lapis_app_protocol::database::projections::*;
+use lapis_app_protocol::database::tasks::{enums::*, record::*, recurrence::*, structure::*, *};
 use lapis_app_protocol::database::{changes::*, history::*, state::*};
 use lapis_app_protocol::{browser::*, database::*, files::*, *};
 use schemars::JsonSchema;
@@ -42,6 +43,10 @@ pub struct Contracts {
     pub projection_query: ProjectionQuery,
     pub projection_related: ProjectionRelatedQuery,
     pub projection_result: ProjectionQueryResult,
+    pub task_record: TaskRecord,
+    pub task_query: TaskQuery,
+    pub task_lookup: TaskLookup,
+    pub task_children: TaskChildQuery,
 }
 fn main() {
     let config = Config::default();
@@ -120,6 +125,27 @@ fn main() {
         ProjectionRelatedQuery::decl(&config),
         ProjectionIndexStatus::decl(&config),
         ProjectionQueryResult::decl(&config),
+        TaskKind::decl(&config),
+        TaskStatus::decl(&config),
+        TaskStartKind::decl(&config),
+        TaskPlanKind::decl(&config),
+        TaskOccurrenceState::decl(&config),
+        TaskView::decl(&config),
+        TaskRepeatAnchor::decl(&config),
+        TaskRepeatMissed::decl(&config),
+        TaskStructuralKind::decl(&config),
+        TaskPriority::decl(&config),
+        TaskRecord::decl(&config),
+        TaskRepeat::decl(&config),
+        TaskPauseRange::decl(&config),
+        TaskTracking::decl(&config),
+        TaskStructuralEntry::decl(&config),
+        TaskRun::decl(&config),
+        TaskStructureDiagnostic::decl(&config),
+        TaskStructure::decl(&config),
+        TaskQuery::decl(&config),
+        TaskLookup::decl(&config),
+        TaskChildQuery::decl(&config),
         ManagedVault::decl(&config),
         AttachClient::decl(&config),
         FileOptions::decl(&config),

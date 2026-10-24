@@ -3,6 +3,7 @@ use crate::services::{Error, Result};
 use lapis_app_protocol::ErrorCode;
 use lapis_app_protocol::database::changes::ChangeSet;
 use std::{
+    collections::VecDeque,
     fs::{File, OpenOptions},
     path::Path,
 };
@@ -13,7 +14,7 @@ pub(super) struct Store {
     _database: turso::Database,
     _lease: File,
     pub poisoned: bool,
-    pub committed: Option<ChangeSet>,
+    pub committed: VecDeque<ChangeSet>,
 }
 impl Store {
     pub async fn open(directory: &Path, vault: Uuid) -> Result<Self> {
@@ -61,12 +62,16 @@ impl Store {
             .execute_batch(include_str!("projections/schema.sql"))
             .await
             .map_err(engine)?;
+        connection
+            .execute_batch(include_str!("tasks/schema.sql"))
+            .await
+            .map_err(engine)?;
         let store = Self {
             connection,
             _database: database,
             _lease: lease,
             poisoned: false,
-            committed: None,
+            committed: VecDeque::new(),
         };
         store.revision().await?;
         Ok(store)
@@ -98,6 +103,7 @@ impl Store {
                 self.store_history(input).await.map(Output::StoredHistory)
             }
             Operation::Indexed(action) => self.indexed(action).await.map(Output::Indexed),
+            Operation::Tasks(action) => self.tasks(action).await.map(Output::Tasks),
             Operation::Projection(action) => self.projection(action).await.map(|_| Output::Done),
             Operation::ProjectionRead(action) => self
                 .read_projection(action)
