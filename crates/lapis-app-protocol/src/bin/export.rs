@@ -1,3 +1,4 @@
+use lapis_app_protocol::database::{changes::*, state::*};
 use lapis_app_protocol::{browser::*, database::*, files::*, *};
 use schemars::JsonSchema;
 use serde_json::json;
@@ -17,6 +18,10 @@ pub struct Contracts {
     pub meta_transaction: MetaTransaction,
     pub meta_scan: MetaScan,
     pub meta_page: MetaPage,
+    pub notebook: NotebookState,
+    pub metadata_snapshot: MetadataSnapshot,
+    pub notification: NotificationRecord,
+    pub database_change: ChangeSet,
 }
 fn main() {
     let config = Config::default();
@@ -31,6 +36,16 @@ fn main() {
         MetaScan::decl(&config),
         MetaEntry::decl(&config),
         MetaPage::decl(&config),
+        NotebookPhase::decl(&config),
+        NotebookCell::decl(&config),
+        NotebookState::decl(&config),
+        SnapshotFile::decl(&config),
+        MetadataSnapshot::decl(&config),
+        NotificationSeverity::decl(&config),
+        NotificationRecord::decl(&config),
+        ChangeDomain::decl(&config),
+        ChangedPath::decl(&config),
+        ChangeSet::decl(&config),
         ManagedVault::decl(&config),
         AttachClient::decl(&config),
         FileOptions::decl(&config),

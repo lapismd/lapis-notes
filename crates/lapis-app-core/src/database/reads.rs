@@ -47,7 +47,7 @@ impl Store {
         Ok(page)
     }
 }
-fn parse(text: String) -> Result<Value> {
+pub(super) fn parse(text: String) -> Result<Value> {
     if text.len() >= MAX_BYTES {
         return Err(invalid("Application metadata value exceeds 32 MiB"));
     }

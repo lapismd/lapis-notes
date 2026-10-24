@@ -9,6 +9,9 @@ import {
   type SessionInfo,
   type MetaTransaction,
   type MetaPage,
+  type NotebookState,
+  type NotificationRecord,
+  type ChangeSet,
 } from "../bindings/protocol.js";
 const command = {
   kind: "write_text",
@@ -91,3 +94,31 @@ const metadataSql: MetaTransaction = {
   sql: "DROP TABLE app_meta",
 };
 void [metadata, page, metadataSql];
+
+const notebook: NotebookState = {
+  sourcePath: "note.md",
+  mtime: 12.5,
+  updatedAt: 20,
+  cells: { first: { state: "complete", outputs: [{ text: "done" }] } },
+};
+const notice: NotificationRecord = {
+  id: "notice",
+  message: "Saved",
+  severity: "info",
+  createdAt: 1,
+  updatedAt: 2,
+  read: false,
+  cleared: false,
+};
+const change: ChangeSet = {
+  revision: 1,
+  domains: ["notebook"],
+  paths: ["note.md"],
+  committedAt: 2,
+};
+const invalidNotice: NotificationRecord = {
+  ...notice,
+  // @ts-expect-error Only the existing severity catalogue is admitted.
+  severity: "debug",
+};
+void [notebook, notice, change, invalidNotice];

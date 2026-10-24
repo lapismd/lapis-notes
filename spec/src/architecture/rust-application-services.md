@@ -92,6 +92,16 @@ checks, mutations and their change revision commit in one native transaction.
 No browser endpoint exposes SQL or a database path. The full catalogue and its
 vault-lifetime integration remain prerequisites for the R1.3 hosted shell.
 
+The facade also retains notebook state and notification records in their
+existing domains. Deprecated metadata-snapshot methods remain explicit
+compatibility operations and must never become startup or normalized-storage
+fallbacks. Mutations journal their domain/path detail atomically and publish
+bounded native change notifications only after commit. Missing notification
+updates produce no change; clearing all notifications retains its existing
+single committed revision. Slow or absent subscribers never own database work.
+Native change buffers hold 128 entries. Path detail above 64 KiB or 500 paths
+becomes a complete-domain reset; a lagged subscriber must refresh before resuming.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

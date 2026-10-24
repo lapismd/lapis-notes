@@ -2,6 +2,14 @@ CREATE TABLE IF NOT EXISTS app_meta (
   key TEXT PRIMARY KEY,
   value_json TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS app_state (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  state_json TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS notifications (
+  id TEXT PRIMARY KEY,
+  data_json TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS app_revision (
   id INTEGER PRIMARY KEY CHECK (id = 1),
   revision INTEGER NOT NULL

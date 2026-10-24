@@ -1,6 +1,7 @@
 use super::{Operation, Output, closed, engine, invalid};
 use crate::services::{Error, Result};
 use lapis_app_protocol::ErrorCode;
+use lapis_app_protocol::database::changes::ChangeSet;
 use std::{
     fs::{File, OpenOptions},
     path::Path,
@@ -12,6 +13,7 @@ pub(super) struct Store {
     _database: turso::Database,
     _lease: File,
     pub poisoned: bool,
+    pub committed: Option<ChangeSet>,
 }
 impl Store {
     pub async fn open(directory: &Path, vault: Uuid) -> Result<Self> {
@@ -56,6 +58,7 @@ impl Store {
             _database: database,
             _lease: lease,
             poisoned: false,
+            committed: None,
         };
         store.revision().await?;
         Ok(store)
@@ -74,6 +77,14 @@ impl Store {
                 self.transact(transaction).await.map(Output::Applied)
             }
             Operation::Revision => self.revision().await.map(Output::Revision),
+            Operation::SaveNotebook(path, state) => {
+                self.save_notebook(path, state).await.map(|_| Output::Done)
+            }
+            Operation::LoadSnapshot => self.load_snapshot().await.map(Output::Snapshot),
+            Operation::SaveSnapshot(snapshot) => {
+                self.save_snapshot(snapshot).await.map(|_| Output::Done)
+            }
+            Operation::Notifications(action) => self.notifications(action).await,
         }
     }
     pub async fn revision(&self) -> Result<u64> {

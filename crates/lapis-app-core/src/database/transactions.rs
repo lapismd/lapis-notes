@@ -1,24 +1,42 @@
 use super::{MetaTransaction, encoded, engine, invalid, store::Store};
 use crate::services::Result;
+use lapis_app_protocol::database::changes::{ChangeDomain, ChangeSet};
 
 impl Store {
     pub async fn transact(&mut self, transaction: MetaTransaction) -> Result<bool> {
+        self.transact_domain(transaction, ChangeDomain::Meta, vec![])
+            .await
+    }
+    pub async fn transact_domain(
+        &mut self,
+        transaction: MetaTransaction,
+        domain: ChangeDomain,
+        paths: Vec<String>,
+    ) -> Result<bool> {
+        self.begin().await?;
+        let result = self.apply(transaction, domain, paths).await;
+        self.finish(result).await
+    }
+    pub async fn begin(&self) -> Result<()> {
         self.connection
             .execute("BEGIN IMMEDIATE", ())
             .await
             .map_err(engine)?;
-        let result = self.apply(transaction).await;
+        Ok(())
+    }
+    pub async fn finish<T>(&mut self, result: Result<(T, Option<ChangeSet>)>) -> Result<T> {
         match result {
-            Ok(true) => {
+            Ok((value, change)) => {
                 if let Err(error) = self.connection.execute("COMMIT", ()).await {
                     self.rollback().await?;
                     return Err(engine(error));
                 }
-                Ok(true)
+                self.committed = change;
+                Ok(value)
             }
-            other => {
+            Err(error) => {
                 self.rollback().await?;
-                other
+                Err(error)
             }
         }
     }
@@ -29,20 +47,25 @@ impl Store {
         }
         Ok(())
     }
-    async fn apply(&self, transaction: MetaTransaction) -> Result<bool> {
+    async fn apply(
+        &self,
+        transaction: MetaTransaction,
+        domain: ChangeDomain,
+        paths: Vec<String>,
+    ) -> Result<(bool, Option<ChangeSet>)> {
         for check in transaction.checks {
             let value = self.get(&check.key).await?;
             if check.exists.is_some_and(|exists| exists != value.is_some()) {
-                return Ok(false);
+                return Ok((false, None));
             }
             if let Some(expected) = check.value
                 && value.as_ref().map(encoded).transpose()? != Some(encoded(&expected)?)
             {
-                return Ok(false);
+                return Ok((false, None));
             }
         }
         if transaction.mutations.is_empty() {
-            return Ok(true);
+            return Ok((true, None));
         }
         for mutation in transaction.mutations {
             if mutation.delete || mutation.value.is_none() {
@@ -56,16 +79,6 @@ impl Store {
                 self.connection.execute("INSERT INTO app_meta(key,value_json) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value_json=excluded.value_json", turso::params![mutation.key,json]).await.map_err(engine)?;
             }
         }
-        if self.connection.execute("UPDATE app_revision SET revision=revision+1 WHERE id=1 AND revision<9007199254740991", ()).await.map_err(engine)? != 1 {
-            return Err(invalid("Application database revision is exhausted"));
-        }
-        let revision = self.revision().await? as i64;
-        let now = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map_err(|_| invalid("Invalid application database clock"))?
-            .as_millis();
-        let now = i64::try_from(now).map_err(|_| invalid("Invalid application database clock"))?;
-        self.connection.execute("INSERT INTO app_changes(revision,domains_json,paths_json,renamed_json,committed_at) VALUES(?,'[\"meta\"]','[]','null',?)", turso::params![revision,now]).await.map_err(engine)?;
-        Ok(true)
+        Ok((true, Some(self.journal(domain, paths).await?)))
     }
 }

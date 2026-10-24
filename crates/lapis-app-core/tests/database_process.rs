@@ -75,6 +75,8 @@ async fn metadata_process_fixture() {
         db.set_meta("cold", Some(json!({"value":"native 🪨"})))
             .await
             .unwrap();
+        let notice = serde_json::from_value(json!({"id":"cold-notice","message":"native notice","severity":"warning","createdAt":1,"updatedAt":1,"read":false,"cleared":false})).unwrap();
+        db.upsert_notification(notice).await.unwrap();
         println!("METADATA_COMMITTED");
         std::future::pending::<()>().await;
     } else {
@@ -82,7 +84,10 @@ async fn metadata_process_fixture() {
             db.get_meta("cold").await.unwrap(),
             Some(json!({"value":"native 🪨"}))
         );
-        assert_eq!(db.revision().await.unwrap(), 1);
+        assert_eq!(db.revision().await.unwrap(), 2);
+        let notices = db.list_notifications().await.unwrap();
+        assert_eq!(notices.len(), 1);
+        assert_eq!(notices[0].id, "cold-notice");
         db.close().await.unwrap();
         println!("METADATA_RESTORED");
     }

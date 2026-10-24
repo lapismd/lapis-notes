@@ -12,6 +12,48 @@
       "required": ["protocol_version"],
       "type": "object"
     },
+    "ChangeDomain": {
+      "enum": [
+        "metadata",
+        "search",
+        "history",
+        "notification",
+        "notebook",
+        "task",
+        "projection",
+        "memory",
+        "meta"
+      ],
+      "type": "string"
+    },
+    "ChangeSet": {
+      "additionalProperties": false,
+      "properties": {
+        "committedAt": { "format": "int64", "type": "integer" },
+        "domains": {
+          "items": { "$ref": "#/$defs/ChangeDomain" },
+          "type": "array"
+        },
+        "paths": { "items": { "type": "string" }, "type": "array" },
+        "renamed": {
+          "items": { "$ref": "#/$defs/ChangedPath" },
+          "type": ["array", "null"]
+        },
+        "reset": { "type": ["boolean", "null"] },
+        "revision": { "format": "uint64", "minimum": 0, "type": "integer" }
+      },
+      "required": ["revision", "domains", "paths", "committedAt"],
+      "type": "object"
+    },
+    "ChangedPath": {
+      "additionalProperties": false,
+      "properties": {
+        "newPath": { "type": "string" },
+        "oldPath": { "type": "string" }
+      },
+      "required": ["oldPath", "newPath"],
+      "type": "object"
+    },
     "ClientDescriptor": {
       "additionalProperties": false,
       "properties": {
@@ -468,6 +510,111 @@
       "required": ["mutations"],
       "type": "object"
     },
+    "MetadataSnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "fileCache": {
+          "additionalProperties": { "$ref": "#/$defs/SnapshotFile" },
+          "type": "object"
+        },
+        "metadataCache": { "additionalProperties": true, "type": "object" },
+        "resolvedLinks": {
+          "additionalProperties": {
+            "additionalProperties": { "format": "double", "type": "number" },
+            "type": "object"
+          },
+          "type": "object"
+        },
+        "unresolvedLinks": {
+          "additionalProperties": {
+            "additionalProperties": { "format": "double", "type": "number" },
+            "type": "object"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "fileCache",
+        "metadataCache",
+        "resolvedLinks",
+        "unresolvedLinks"
+      ],
+      "type": "object"
+    },
+    "NotebookCell": {
+      "additionalProperties": false,
+      "properties": {
+        "durationMs": { "format": "double", "type": ["number", "null"] },
+        "error": { "type": ["string", "null"] },
+        "inputValues": {
+          "additionalProperties": true,
+          "type": ["object", "null"]
+        },
+        "outputs": { "items": true, "type": "array" },
+        "setupPhases": {
+          "items": { "$ref": "#/$defs/NotebookPhase" },
+          "type": ["array", "null"]
+        },
+        "sourceHash": { "type": ["string", "null"] },
+        "state": { "type": "string" }
+      },
+      "required": ["state", "outputs"],
+      "type": "object"
+    },
+    "NotebookPhase": {
+      "additionalProperties": false,
+      "properties": {
+        "detail": { "type": ["string", "null"] },
+        "durationMs": { "format": "double", "type": ["number", "null"] },
+        "key": { "type": "string" },
+        "label": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["key", "label", "status"],
+      "type": "object"
+    },
+    "NotebookState": {
+      "additionalProperties": false,
+      "properties": {
+        "cells": {
+          "additionalProperties": { "$ref": "#/$defs/NotebookCell" },
+          "type": "object"
+        },
+        "mtime": { "format": "double", "type": "number" },
+        "sourcePath": { "type": "string" },
+        "updatedAt": { "format": "double", "type": "number" }
+      },
+      "required": ["sourcePath", "mtime", "updatedAt", "cells"],
+      "type": "object"
+    },
+    "NotificationRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "cleared": { "type": "boolean" },
+        "createdAt": { "format": "double", "type": "number" },
+        "id": { "type": "string" },
+        "message": { "type": "string" },
+        "read": { "type": "boolean" },
+        "severity": { "$ref": "#/$defs/NotificationSeverity" },
+        "source": { "type": ["string", "null"] },
+        "title": { "type": ["string", "null"] },
+        "updatedAt": { "format": "double", "type": "number" }
+      },
+      "required": [
+        "id",
+        "message",
+        "severity",
+        "createdAt",
+        "updatedAt",
+        "read",
+        "cleared"
+      ],
+      "type": "object"
+    },
+    "NotificationSeverity": {
+      "enum": ["info", "warning", "error"],
+      "type": "string"
+    },
     "Outcome": {
       "oneOf": [
         {
@@ -543,6 +690,16 @@
         "username": { "type": "string" }
       },
       "required": ["username", "csrf_token", "expires_at"],
+      "type": "object"
+    },
+    "SnapshotFile": {
+      "additionalProperties": false,
+      "properties": {
+        "hash": { "type": "string" },
+        "mtime": { "format": "double", "type": "number" },
+        "size": { "format": "double", "type": "number" }
+      },
+      "required": ["mtime", "size", "hash"],
       "type": "object"
     },
     "TextSnapshot": {
@@ -761,12 +918,16 @@
   "properties": {
     "attach": { "$ref": "#/$defs/AttachClient" },
     "client": { "$ref": "#/$defs/ClientDescriptor" },
+    "database_change": { "$ref": "#/$defs/ChangeSet" },
     "host": { "$ref": "#/$defs/HostInfo" },
     "login": { "$ref": "#/$defs/LoginRequest" },
     "logout": { "$ref": "#/$defs/LogoutReply" },
     "meta_page": { "$ref": "#/$defs/MetaPage" },
     "meta_scan": { "$ref": "#/$defs/MetaScan" },
     "meta_transaction": { "$ref": "#/$defs/MetaTransaction" },
+    "metadata_snapshot": { "$ref": "#/$defs/MetadataSnapshot" },
+    "notebook": { "$ref": "#/$defs/NotebookState" },
+    "notification": { "$ref": "#/$defs/NotificationRecord" },
     "reply": { "$ref": "#/$defs/Reply" },
     "request": { "$ref": "#/$defs/Request" },
     "session": { "$ref": "#/$defs/SessionInfo" },
@@ -784,7 +945,11 @@
     "logout",
     "meta_transaction",
     "meta_scan",
-    "meta_page"
+    "meta_page",
+    "notebook",
+    "metadata_snapshot",
+    "notification",
+    "database_change"
   ],
   "title": "Contracts",
   "type": "object"

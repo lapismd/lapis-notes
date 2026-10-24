@@ -1,6 +1,10 @@
 //! Native high-level AppDatabase operations; SQL and paths never enter requests.
 mod actor;
+mod changes;
+mod notifications;
 mod reads;
+mod saved_state;
+mod state_client;
 mod store;
 mod transactions;
 
@@ -9,13 +13,17 @@ use lapis_app_protocol::ErrorCode;
 pub use lapis_app_protocol::database::{
     MetaCheck, MetaEntry, MetaMutation, MetaPage, MetaScan, MetaTransaction,
 };
+use lapis_app_protocol::database::{
+    changes::ChangeSet,
+    state::{MetadataSnapshot, NotebookState, NotificationRecord},
+};
 use serde::Serialize;
 use serde_json::Value;
 use std::{
     path::Path,
     sync::{Arc, Mutex},
 };
-use tokio::sync::{Semaphore, mpsc, oneshot, watch};
+use tokio::sync::{Semaphore, broadcast, mpsc, oneshot, watch};
 use uuid::Uuid;
 
 const MAX_BYTES: usize = 32 * 1024 * 1024;
@@ -27,6 +35,7 @@ pub struct Database {
     admission: Arc<Mutex<Option<mpsc::Sender<actor::Envelope>>>>,
     bytes: Arc<Semaphore>,
     finished: watch::Receiver<Completion>,
+    changes: Arc<broadcast::Receiver<ChangeSet>>,
 }
 #[derive(Serialize)]
 enum Operation {
@@ -34,12 +43,19 @@ enum Operation {
     Scan(MetaScan),
     Transact(MetaTransaction),
     Revision,
+    SaveNotebook(String, Option<NotebookState>),
+    LoadSnapshot,
+    SaveSnapshot(MetadataSnapshot),
+    Notifications(notifications::Action),
 }
 enum Output {
     Meta(Option<Value>),
     Page(MetaPage),
     Applied(bool),
     Revision(u64),
+    Snapshot(Option<MetadataSnapshot>),
+    Notifications(Vec<NotificationRecord>),
+    Done,
 }
 impl Database {
     /// Native installation input only; callers derive this from admitted policy.
@@ -47,11 +63,13 @@ impl Database {
         let store = store::Store::open(directory, vault).await?;
         let (sender, receiver) = mpsc::channel(64);
         let (done, finished) = watch::channel(None);
-        tokio::spawn(actor::run(store, receiver, done));
+        let (publisher, changes) = broadcast::channel(128);
+        tokio::spawn(actor::run(store, receiver, done, publisher));
         Ok(Self {
             admission: Arc::new(Mutex::new(Some(sender))),
             bytes: Arc::new(Semaphore::new(MAX_BYTES)),
             finished,
+            changes: Arc::new(changes),
         })
     }
     pub async fn get_meta(&self, key: &str) -> Result<Option<Value>> {
@@ -94,6 +112,10 @@ impl Database {
             Output::Revision(value) => Ok(value),
             _ => unreachable!("worker output matches operation"),
         }
+    }
+    /// A lagged receiver must refresh its affected domains before resuming.
+    pub fn subscribe_to_changes(&self) -> broadcast::Receiver<ChangeSet> {
+        self.changes.resubscribe()
     }
     async fn submit(&self, operation: Operation) -> Result<Output> {
         let size = encoded(&operation)?.len().saturating_add(1);

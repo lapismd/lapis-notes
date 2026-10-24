@@ -16,13 +16,19 @@ claims, detach/recovery and fenced drain. Hosts derive caller authority and atta
 clients; a work lease survives client detachment but is not a durable job receipt.
 `lapis-app-protocol` supplies the common commands and generated client contracts.
 
-`database` starts the native high-level AppDatabase facade with metadata get/set,
-prefix scans, conditional transactions and change revisions. An installation
+`database` supplies high-level metadata get/set, prefix scans, conditional
+transactions, change revisions, notebook state and notifications. An installation
 selects a private database directory and admitted vault UUID; no operation accepts
 SQL or a path. One bounded worker owns `<uuid>.db`, retaining the existing Turso
 metadata/change tables and JSON comparison order. Clones share admission; a
 cancelled waiter does not cancel an accepted transaction. Close fences all clones,
 drains admitted work, checkpoints and releases its native ownership lock.
+
+Native change receivers observe commits without owning them. Their 128-event
+buffer reports lag explicitly; path detail above 64 KiB or 500 paths becomes a
+complete-domain reset. Notification updates preserve durable read/clear state
+and bulk clearing uses one revision. Deprecated metadata-snapshot access remains
+an explicit compatibility operation, never a startup or normalized-index fallback.
 
 This foundation does not migrate the complete AppDatabase schema or connect a
 browser/desktop database adapter yet. Remaining catalogue methods and service

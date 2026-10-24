@@ -3,6 +3,9 @@ use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 use ts_rs::TS;
 
+pub mod changes;
+pub mod state;
+
 // A missing JS value means delete/no check; explicit JSON null remains a value.
 fn present<'de, D: Deserializer<'de>>(input: D) -> Result<Option<Value>, D::Error> {
     Value::deserialize(input).map(Some)

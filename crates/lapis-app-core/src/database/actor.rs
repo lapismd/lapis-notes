@@ -1,6 +1,7 @@
 use super::{Completion, Operation, Output, engine, store::Store};
 use crate::services::Result;
-use tokio::sync::{OwnedSemaphorePermit, mpsc, oneshot, watch};
+use lapis_app_protocol::database::changes::ChangeSet;
+use tokio::sync::{OwnedSemaphorePermit, broadcast, mpsc, oneshot, watch};
 
 pub(super) struct Envelope {
     pub operation: Operation,
@@ -11,10 +12,14 @@ pub(super) async fn run(
     mut store: Store,
     mut receiver: mpsc::Receiver<Envelope>,
     done: watch::Sender<Completion>,
+    changes: broadcast::Sender<ChangeSet>,
 ) {
     while let Some(request) = receiver.recv().await {
         // There is intentionally no select on the response receiver's lifetime.
         let result = store.execute(request.operation).await;
+        if let Some(change) = store.committed.take() {
+            let _ = changes.send(change);
+        }
         let _ = request.reply.send(result);
     }
     let result = async {
@@ -36,5 +41,6 @@ pub(super) async fn run(
     .await;
     // Releasing the connection and native lock precedes the completion signal.
     drop(store);
+    drop(changes);
     done.send_replace(Some(result.map_err(|error| error.0)));
 }

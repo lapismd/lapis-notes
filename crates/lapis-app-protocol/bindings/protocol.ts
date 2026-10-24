@@ -21,6 +21,66 @@ export type MetaTransaction = {
 export type MetaScan = { prefix: string; after?: string; limit?: number };
 export type MetaEntry = { key: string; value: unknown };
 export type MetaPage = { entries: Array<MetaEntry>; nextCursor?: string };
+export type NotebookPhase = {
+  key: string;
+  label: string;
+  status: string;
+  durationMs?: number;
+  detail?: string;
+};
+export type NotebookCell = {
+  state: string;
+  sourceHash?: string;
+  outputs: Array<unknown>;
+  inputValues?: Record<string, unknown>;
+  error?: string;
+  durationMs?: number;
+  setupPhases?: Array<NotebookPhase>;
+};
+export type NotebookState = {
+  sourcePath: string;
+  mtime: number;
+  updatedAt: number;
+  cells: { [key in string]: NotebookCell };
+};
+export type SnapshotFile = { mtime: number; size: number; hash: string };
+export type MetadataSnapshot = {
+  fileCache: { [key in string]: SnapshotFile };
+  metadataCache: Record<string, unknown>;
+  resolvedLinks: { [key in string]: { [key in string]: number } };
+  unresolvedLinks: { [key in string]: { [key in string]: number } };
+};
+export type NotificationSeverity = "info" | "warning" | "error";
+export type NotificationRecord = {
+  id: string;
+  title?: string;
+  message: string;
+  severity: NotificationSeverity;
+  source?: string;
+  createdAt: number;
+  updatedAt: number;
+  read: boolean;
+  cleared: boolean;
+};
+export type ChangeDomain =
+  | "metadata"
+  | "search"
+  | "history"
+  | "notification"
+  | "notebook"
+  | "task"
+  | "projection"
+  | "memory"
+  | "meta";
+export type ChangedPath = { oldPath: string; newPath: string };
+export type ChangeSet = {
+  revision: number;
+  domains: Array<ChangeDomain>;
+  paths: Array<string>;
+  renamed?: Array<ChangedPath>;
+  reset?: boolean;
+  committedAt: number;
+};
 export type ManagedVault = { vault_id: string; name: string };
 export type AttachClient = { protocol_version: number };
 export type FileOptions = { mtime: number | null };
