@@ -281,6 +281,7 @@ async fn interrupted_and_oversized_uploads_cannot_publish_partial_bytes() {
         .await
         .unwrap();
     assert_eq!(response.status(), 413);
+    assert_eq!(response.headers()["connection"], "close");
     assert_eq!(
         std::fs::read_to_string(f.roots[0].path().join("note.md")).unwrap(),
         "original"

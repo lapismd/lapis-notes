@@ -70,6 +70,9 @@ bounded native snapshot with a matching ETag, content length and byte ranges.
 Resource routes retain restrictive MIME/CSP policy. Slow network consumers do
 not own vault jobs, and HTTP shutdown has a bounded drain after the native leave
 gate passes. Native paths and file handles never become protocol fields.
+When the file-write adapter rejects an HTTP/1 upload it closes the connection,
+since rejected/interrupted bodies may have unread bytes. Clients must not reuse
+an uncertain upload connection.
 
 Rust hosted browser authentication retains LN-SRV-004/005: idempotent owner
 bootstrap from a private password file, bounded scrypt, hashed opaque sessions,
