@@ -2,7 +2,7 @@
 
 ## Shared Rust application services (2026-10-23)
 
-Last updated **2026-10-24 21:35:24 UTC**. This is the active migration tracker for the
+Last updated **2026-10-24 21:42:33 UTC**. This is the active migration tracker for the
 [shared Rust plan](RUST_CORE_MIGRATION_PLAN.md). The older Node parity roadmap
 below is superseded; its remaining rows are historical references, not another
 set of current migration tasks.
@@ -13,7 +13,7 @@ uses Node. The new shared Rust database facade has not been selected by either
 host.
 
 **Current checkpoint:** the [native AppDatabase call boundary](spec/records/2026-10-24-rust-core-database-calls.md)
-is source complete: all 68 methods, 85 retained calls, explicit JavaScript value
+is source complete at `77ae786b`: all 68 methods, 85 retained calls, explicit JavaScript value
 shapes and five semantic enhancement scenarios pass. Full source qualification
 passes 205 ordinary Rust cases, 1,532 API cases and three actual-model cases.
 Schema lifecycle (`3d5a0fcb`), Search provider control (`e6de56ef`), batch/rebuild
@@ -28,10 +28,11 @@ all 2,000 catalog cases pass. Source `8fd7b926` also passes the exact Desktop
 file-service target and strict normal/e2e native checks. These gates qualify
 library/SQL/catalog intake; neither host selects the new database facade.
 
-**Working now:** commit the qualified call boundary, then qualify Desktop's
-native dependency compatibility. The source passes check/test/build, all three
-real-model targets and all nine specification lanes. This does not select the
-new facade in either application.
+**Working now:** [Desktop call-boundary compatibility](spec/records/2026-10-24-rust-core-database-calls-desktop.md)
+is qualified against Notes `77ae786b`: both service cases and strict normal/e2e
+all-target Clippy pass. All 19 existing archive checksums verify. The next
+implementation is native runtime/model cache admission and installation, then
+selected host adapters. Neither application has selected the new database.
 
 **Next:** register native model/cache assets, connect both hosts, then
 qualify the retained hosted shell and backup lifetime. R2–R7 follows the agreed
@@ -127,7 +128,7 @@ hosted application acceptance.
 | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Cold Desktop native WebView gate            | Desktop `f043d1b9` with Notes `67a57aa9`: three rebuilt cold hidden-native cases; [E-CORE-005 intake](spec/records/2026-10-24-rust-core-database-desktop.md).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | Complete Desktop Rust suite                 | Latest fresh intake at Desktop `074dee3a`: all 230 native service cases pass with Notes `cfb369f7`; [provider/SQL/catalog receipt](spec/records/2026-10-24-rust-core-search-provider-desktop.md) retains its artifact scope. Later `8fd7b926` library compatibility is separate.                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| Latest native core dependency compatibility | Desktop `074dee3a` with Notes `3d5a0fcb`: both exact file-service cases and strict normal/e2e all-target Clippy pass. [Schema compatibility receipt](spec/records/2026-10-24-rust-core-database-schema-desktop.md); all 19 existing archive checksums verify, five Notes archives remain at `e6de56ef`. This is library compatibility, not selected native database or semantic-query adoption.                                                                                                                                                                                                                                                                                                                                                     |
+| Latest native core dependency compatibility | Desktop `074dee3a` with Notes `77ae786b`: both exact shared-file service cases and strict normal/e2e all-target Clippy pass. [Call-boundary compatibility receipt](spec/records/2026-10-24-rust-core-database-calls-desktop.md); all 19 archive checksums verify and five Notes archives remain at `e6de56ef`. This is library compatibility, not selected native database or semantic-query adoption.                                                                                                                                                                                                                                                                                                                                              |
 | Earlier database compatibility              | [State/history](spec/records/2026-10-24-rust-core-database-catalogue-desktop.md), [indexed metadata](spec/records/2026-10-24-rust-core-database-indexed-desktop.md), [projection writes](spec/records/2026-10-24-rust-core-projection-desktop.md), [single-row reads](spec/records/2026-10-24-rust-core-projection-row-desktop.md), [projection queries](spec/records/2026-10-24-rust-core-projection-query-desktop.md), [memory storage](spec/records/2026-10-24-rust-core-memory-storage-desktop.md), [Search storage/preparation](spec/records/2026-10-24-rust-core-search-desktop.md) and [Search retrieval](spec/records/2026-10-24-rust-core-search-retrieval-desktop.md) retain their exact source/consumer revisions in the linked records. |
 
 The [desktop review](docs/rust-core-desktop-review.md) retains existing public
