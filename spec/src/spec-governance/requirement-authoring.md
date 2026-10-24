@@ -111,3 +111,11 @@
 While a slice is running, refresh its verified, running and waiting checkpoint
 when validation or remaining work changes. Keep the visible timestamp current;
 a generated milestone table alone does not describe active work.
+
+The active Rust task tables are generated from `spec/migration-progress.json`
+with `pnpm progress:generate`. Each nonempty gate status has its own table,
+active gates come first and Complete comes last. Task IDs sort naturally and
+link to their owning canonical spec. `pnpm check:progress` rejects stale tables,
+invalid task metadata and broken spec links; normal and specification checks
+run it. Update the ledger timestamp and the authored activity checkpoint before
+regenerating. Historical intake remains outside the generated block.

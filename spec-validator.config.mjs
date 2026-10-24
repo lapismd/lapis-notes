@@ -123,6 +123,13 @@ export default defineConfig(headingRequirements(), {
       rules: [
         {
           pattern:
+            "^(?:scripts/migration-progress\\.mjs|spec/migration-progress\\.json)$",
+          chapterPatterns: [
+            "^spec/src/spec-governance/requirement-authoring\\.md$",
+          ],
+        },
+        {
+          pattern:
             "^(?:crates/|\\.cargo/config\\.toml$|Cargo\\.(?:toml|lock)$|rust-toolchain\\.toml$|scripts/(?:rust-core|rust-protocol|check-rust-boundaries)(?:\\.test)?\\.mjs$)",
           chapterPatterns: [
             "^spec/src/architecture/rust-application-services\\.md$",
@@ -391,6 +398,11 @@ export default defineConfig(headingRequirements(), {
   ],
   check: {
     lanes: [
+      {
+        name: "migration-progress",
+        command: "pnpm",
+        args: ["check:progress"],
+      },
       {
         name: "rust-protocol-contract",
         command: "pnpm",

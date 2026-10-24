@@ -1,5 +1,11 @@
 # Architecture / Build and validation
 
+The root migration tracker projects gate-status tables from its owned JSON
+ledger through `pnpm progress:generate`. `pnpm check:progress` runs in normal
+and specification validation to reject stale status groups and invalid task
+links. The authored activity checkpoint and historical intake remain separate
+from the generated task block; LN-GOV-051 governs their freshness.
+
 The shared application core has a separate root Cargo workspace and pinned
 Rust 1.99 toolchain. `pnpm rust:core` uses checkout-owned
 `.local/rust-core-target`, rejects target/manifest/config overrides and requires

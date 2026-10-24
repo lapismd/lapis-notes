@@ -1,5 +1,10 @@
 # Packages / Host and plugin integration
 
+The private root package exposes `progress:generate` and `check:progress` for
+the master migration tracker. These development-only commands consume
+`spec/migration-progress.json` and do not enter published package exports or
+application runtime dependencies. Normal check includes the drift gate.
+
 UI's existing public theme export supplies shared search-highlight defaults.
 Dark-mode contrast is qualified under LN-UI-020 on workspace/sidebar normal,
 hover and active rows, without a consumer override or an additional export.

@@ -460,6 +460,11 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   consumer commits too; keep source qualification and host adoption separate.
   Refresh the current activity checkpoint when validation or remaining work
   changes during a slice; do not wait for the next commit.
+- Keep active Rust task statuses/evidence and the UTC timestamp in
+  `spec/migration-progress.json`. Update the authored activity checkpoint in
+  `MIGRATION.md`, run `pnpm progress:generate`, then `pnpm check:progress`.
+  Do not hand-edit the generated gate-status tables. Keep task IDs stable and
+  link them to their owning canonical specification; preserve historical intake.
 - Keep changes scoped to the package or surface needed for the request. Do not
   add broad refactors or metadata churn unless required to complete the task.
 

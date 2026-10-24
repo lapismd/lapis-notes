@@ -1,0 +1,373 @@
+{
+  "updated": "2026-10-24 21:50:25 UTC",
+  "tasks": [
+    {
+      "id": "R0",
+      "area": "Roadmap",
+      "work": "Plan and review",
+      "status": "Complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-001",
+      "detail": "[Saved plan and reviewed Desktop baseline](spec/records/2026-10-23-rust-core-plan.md)."
+    },
+    {
+      "id": "R1.1",
+      "area": "Roadmap",
+      "work": "Shared vault engine",
+      "status": "Complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-002",
+      "detail": "[Extracted engine and qualified Desktop intake](spec/records/2026-10-23-rust-core-vault.md)."
+    },
+    {
+      "id": "R1.2",
+      "area": "Roadmap",
+      "work": "Vault/service ownership",
+      "status": "Complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Qualified ownership, detach, dirty claims, serialization and drain](spec/records/2026-10-23-rust-core-ownership.md)."
+    },
+    {
+      "id": "R1.3",
+      "area": "Roadmap",
+      "work": "Both host adapters",
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "Database adoption, existing hosted shell and backup detach/Quit acceptance. See the host checklist."
+    },
+    {
+      "id": "R2",
+      "area": "Roadmap",
+      "work": "Durable conversation",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "After R1.3: a real accepted turn completes without a client and recovers after restart without replay."
+    },
+    {
+      "id": "R3",
+      "area": "Roadmap",
+      "work": "Indexed vault",
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "The complete native database facade is source-qualified. Host adoption and unattended metadata/projection/Search/history indexing remain."
+    },
+    {
+      "id": "R4",
+      "area": "Roadmap",
+      "work": "AI/tools/Changes",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "After R2/R3: existing queues, participants/context, approvals, native tools and guarded undo through both hosts."
+    },
+    {
+      "id": "R5",
+      "area": "Roadmap",
+      "work": "Memory",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-007",
+      "detail": "After R4: native capture/recall, Markdown authority, maintenance, relocation and cold recovery. Derived database storage alone does not complete this."
+    },
+    {
+      "id": "R6",
+      "area": "Roadmap",
+      "work": "Native jobs",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "After R5: imports/capture, existing Forge/transfer/Compute, installation transactions and terminal lifetime."
+    },
+    {
+      "id": "R7",
+      "area": "Roadmap",
+      "work": "Rust cutover",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
+      "detail": "After the feature slices: full hosted/desktop journeys, HTTP/SSE, Linux packaging, standalone-browser regression checks and Node/companion retirement."
+    },
+    {
+      "id": "R1.3.1",
+      "area": "Host adapters",
+      "work": "Shared portable file operations",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "[File action service](spec/records/2026-10-23-rust-core-file-actions.md)."
+    },
+    {
+      "id": "R1.3.2",
+      "area": "Host adapters",
+      "work": "Desktop file adapter intake",
+      "status": "Complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "Desktop M16.2/E-CORE-003/004 qualifies the original native file/admission gate. Later database additions are separate."
+    },
+    {
+      "id": "R1.3.3",
+      "area": "Host adapters",
+      "work": "Rust HTTP command adapter",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "[Owner authentication, protocol version and admitted clients](spec/records/2026-10-24-rust-core-http.md)."
+    },
+    {
+      "id": "R1.3.4",
+      "area": "Host adapters",
+      "work": "Hosted client leases and expiry",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "[Heartbeat, expiry and retained dirty claims](spec/records/2026-10-24-rust-core-attachments.md)."
+    },
+    {
+      "id": "R1.3.5",
+      "area": "Host adapters",
+      "work": "File/resource streaming",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "[Conditional uploads, snapshots and ranges](spec/records/2026-10-24-rust-core-streams.md); [rejected upload connection handling](spec/records/2026-10-24-rust-http-upload-connections.md)."
+    },
+    {
+      "id": "R1.3.6",
+      "area": "Host adapters",
+      "work": "Browser owner login and sessions",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "[Bootstrap, cookies, Origin/CSRF, expiry and revocation](spec/records/2026-10-24-rust-core-auth.md)."
+    },
+    {
+      "id": "R1.3.7",
+      "area": "Host adapters",
+      "work": "Database facade bound to admitted vault lifetime",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "Finish the database catalogue below, then attach and close its owner through the vault service."
+    },
+    {
+      "id": "R1.3.8",
+      "area": "Host adapters",
+      "work": "Tauri and HTTP database adapters",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "The complete native facade; retain the existing high-level allowlist and expose no raw SQL."
+    },
+    {
+      "id": "R1.3.9",
+      "area": "Host adapters",
+      "work": "Existing browser login/vault/workspace UI on Rust",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "Native database and HTTP adapters, then real retained-shell read/edit acceptance."
+    },
+    {
+      "id": "R1.3.10",
+      "area": "Host adapters",
+      "work": "Automatic backup after client detach and controlled Quit",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "Reuse the existing engine with service ownership; qualify the original detach/drain gate."
+    },
+    {
+      "id": "R1.3.11",
+      "area": "Host adapters",
+      "work": "Same existing file actions through both application shells",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "Final native/hosted UI acceptance after the integrations above."
+    },
+    {
+      "id": "R3.1.1",
+      "area": "Database catalogue",
+      "work": "Metadata get/set, scans, conditional transactions and revisions",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Native database foundation](spec/records/2026-10-24-rust-core-database.md)."
+    },
+    {
+      "id": "R3.1.2",
+      "area": "Database catalogue",
+      "work": "Notebook state, notifications and committed change events",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Saved state and events](spec/records/2026-10-24-rust-core-database-state.md)."
+    },
+    {
+      "id": "R3.1.3",
+      "area": "Database catalogue",
+      "work": "Database-only file history",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Revisions, lineage, retention and rollback](spec/records/2026-10-24-rust-core-database-history.md)."
+    },
+    {
+      "id": "R3.1.4",
+      "area": "Database catalogue",
+      "work": "Core indexed metadata storage, reads, manifests, filters and facets",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Independent indexed publication and queries](spec/records/2026-10-24-rust-core-database-indexed.md)."
+    },
+    {
+      "id": "R3.1.5",
+      "area": "Database catalogue",
+      "work": "Projection definitions and atomic source writes",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Projection storage](spec/records/2026-10-24-rust-core-projection-storage.md)."
+    },
+    {
+      "id": "R3.1.6",
+      "area": "Database catalogue",
+      "work": "Projection single-row reads",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Aliases, privacy, freshness and cold reads](spec/records/2026-10-24-rust-core-projection-rows.md)."
+    },
+    {
+      "id": "R3.1.7",
+      "area": "Database catalogue",
+      "work": "Projection AST and relationship queries",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Retained reference conformance](spec/records/2026-10-24-projection-query-reference.md); [native query intake](spec/records/2026-10-24-rust-core-projection-queries.md)."
+    },
+    {
+      "id": "R3.1.8",
+      "area": "Database catalogue",
+      "work": "Task facade",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Six task methods and ordered staged commits](spec/records/2026-10-24-rust-core-tasks.md)."
+    },
+    {
+      "id": "R3.1.9",
+      "area": "Database catalogue",
+      "work": "Derived memory records and job leases",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Thirteen storage/lease methods](spec/records/2026-10-24-rust-core-memory-storage.md). Capture and maintenance remain R5."
+    },
+    {
+      "id": "R3.1.10",
+      "area": "Database catalogue",
+      "work": "Retained Search storage reference",
+      "status": "Complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Prepared documents, manifests and corrected Memory statistics](spec/records/2026-10-24-search-storage-reference.md), committed as `89acf34f`."
+    },
+    {
+      "id": "R3.1.11",
+      "area": "Database catalogue",
+      "work": "Retained Search retrieval candidate reference",
+      "status": "Complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Complete table evaluation](spec/records/2026-10-24-search-candidate-reference.md): 22 exact regression cases pass after repairing 15 failures; full source check/test/build, 261 catalog cases and specification lanes pass. Native retrieval remains separate."
+    },
+    {
+      "id": "R3.1.12",
+      "area": "Database catalogue",
+      "work": "Native prepared Search storage",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Native Search storage](spec/records/2026-10-24-rust-core-search-storage.md): prepared rows, vectors, manifests and statistics. [Desktop dependency compatibility](spec/records/2026-10-24-rust-core-search-desktop.md) passes; host adoption remains waiting."
+    },
+    {
+      "id": "R3.1.13",
+      "area": "Database catalogue",
+      "work": "Native Search document preparation and chunking",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Native preparation](spec/records/2026-10-24-rust-core-search-preparation.md): shared 17-record reference, scored chunks, tags/frontmatter and UTF-16-safe cutoffs. Semantic inference and host intake remain separate."
+    },
+    {
+      "id": "R3.1.14",
+      "area": "Database catalogue",
+      "work": "Native lexical/structured Search retrieval",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Native retrieval intake](spec/records/2026-10-24-rust-core-search-retrieval.md): 76 full-result/path queries, retained FTS weights, complete table ranking, UTF-16 snippets, bounded selection and cold reopen. Full source check/test/build/spec and 261 catalog cases pass; semantic inference and host adoption remain separate."
+    },
+    {
+      "id": "R3.1.15",
+      "area": "Database catalogue",
+      "work": "Native ONNX encoder",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Real MiniLM inference](spec/records/2026-10-24-rust-core-onnx.md) at `6e56d581`; [Desktop compatibility](spec/records/2026-10-24-rust-core-onnx-desktop.md) at `a9ce8d9a`. Encoder source/dependency gates pass; ordinary runtime and host adoption remain waiting."
+    },
+    {
+      "id": "R3.1.16",
+      "area": "Database catalogue",
+      "work": "Native Search provider control and embedding publication",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Native provider intake](spec/records/2026-10-24-rust-core-search-provider.md): lazy configuration/status, atomic invalidation, actual model inference after detach and cold reopen. Full source and serving-baseline acceptance passes; Desktop intake remains separate."
+    },
+    {
+      "id": "R3.1.17",
+      "area": "Database catalogue",
+      "work": "Desktop provider/archive/SQL intake",
+      "status": "Complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Desktop `074dee3a` / E-CORE-014](spec/records/2026-10-24-rust-core-search-provider-desktop.md): five archives and four rebuilt hidden API cases; fresh 411 renderer/governance, 744 AI, 230 native service and all 2,000 catalog cases pass. Strict native/type checks and both builds pass; unchanged E-AI-109 format exception remains explicitly accepted. Latest core `8fd7b926` passes separate service/normal/e2e compatibility."
+    },
+    {
+      "id": "R3.1.18",
+      "area": "Database catalogue",
+      "work": "Native model/cache installation and runtime admission",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "Register ordinary-host runtime/model caches, on-demand downloads and progress. Current source admission accepts native-registered files; it does not install assets."
+    },
+    {
+      "id": "R3.1.19",
+      "area": "Database catalogue",
+      "work": "Native vector/hybrid Search retrieval",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Native semantic intake](spec/records/2026-10-24-rust-core-search-semantic.md): all 16 retained query envelopes/path results, five edge cases (111/300 records), bounded candidate buffers and three real-model cases pass. Full source check/test/build/spec pass. [Retained reference](spec/records/2026-10-24-search-semantic-reference.md) stays separate; both host adapters still await adoption."
+    },
+    {
+      "id": "R3.1.20",
+      "area": "Database catalogue",
+      "work": "Native Search batch and rebuild controls",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Batch/rebuild controls](spec/records/2026-10-24-rust-core-search-rebuild.md): admitted barriers, bounded 100-record pages, selected inference, detach/drain, ordered committed changes and rollback. Five exact / 185 full Rust cases pass; source check/test/build pass. Host adoption remains waiting."
+    },
+    {
+      "id": "R3.1.21",
+      "area": "Database catalogue",
+      "work": "Complete indexed-file upsert, rename and delete",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Native indexed-file intake](spec/records/2026-10-24-rust-core-indexed-mutations.md): ten-case retained reference, staged task commits, atomic rename/delete and persisted rename notifications; seven exact native cases, 169 full Rust cases, 1,489 API cases and all source check/test/build/spec lanes pass."
+    },
+    {
+      "id": "R3.1.22",
+      "area": "Database catalogue",
+      "work": "Complete native AppDatabase facade",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Native call conformance](spec/records/2026-10-24-rust-core-database-calls.md): all 68 methods / 85 retained calls, explicit undefined/null/void, optional defaults, conditional transaction results and query-enhancement diagnostics pass. Eight exact native / 39 retained API cases and complete source check/test/build/model/spec lanes pass. Host adoption is separate."
+    },
+    {
+      "id": "R3.2.1",
+      "area": "Service ownership",
+      "work": "Unattended metadata and projection reconciliation",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "Adopt the native database and move the existing processor/scheduler ownership into the service. External changes must index without clients."
+    },
+    {
+      "id": "R3.2.2",
+      "area": "Service ownership",
+      "work": "Search index reconciliation and scheduling",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "Native preparation/retrieval and service-owned lifetime; qualify equivalent results and derived-cache rebuilds."
+    },
+    {
+      "id": "R3.2.3",
+      "area": "Service ownership",
+      "work": "History-index scheduling",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "Reuse the existing history engine and move its scheduler into the vault service."
+    }
+  ]
+}
