@@ -127,6 +127,145 @@ export type StoredHistory = {
   deduplicated: boolean;
   revision?: HistoryRevision;
 };
+export type FileRecord = {
+  path: string;
+  normalizedPath: string;
+  extension: string;
+  mtime: number;
+  size: number;
+  hash: string;
+  parserVersion?: string;
+  indexed: boolean;
+  deleted?: boolean;
+};
+export type MetadataRecord = {
+  path: string;
+  hash: string;
+  parserVersion: string;
+  metadata: unknown;
+};
+export type LinkType = "link" | "embed";
+export type LinkKind =
+  | "reference"
+  | "task-entry"
+  | "list-entry"
+  | "navigation-item";
+export type LinkRecord = {
+  sourcePath: string;
+  targetText: string;
+  original?: string;
+  resolvedTargetPath: string | null;
+  type: LinkType;
+  position?: unknown;
+  count: number;
+  heading?: string | null;
+  kind?: LinkKind;
+  ordinal?: number;
+};
+export type TagRecord = {
+  path: string;
+  tag: string;
+  parts: Array<string>;
+  hierarchy: Array<string>;
+  position?: unknown;
+};
+export type PropertyRecord = {
+  path: string;
+  name: string;
+  inferredType: string;
+  declaredType?: string;
+  value: unknown;
+};
+export type CoreIndexedFile = {
+  file: FileRecord;
+  metadata: MetadataRecord;
+  links: Array<LinkRecord>;
+  tags: Array<TagRecord>;
+  properties: Array<PropertyRecord>;
+};
+export type IndexedRow = {
+  file: FileRecord;
+  metadata: MetadataRecord | null;
+  properties: Array<PropertyRecord>;
+  tags: Array<TagRecord>;
+  links: Array<LinkRecord>;
+};
+export type ManifestPage = { rows: Array<FileRecord>; nextCursor?: string };
+export type MetadataPage = { rows: Array<IndexedRow>; nextCursor?: string };
+export type MetadataScalar = null | boolean | number | string;
+export type PropertyOp =
+  | "exists"
+  | "not-exists"
+  | "="
+  | "!="
+  | ">"
+  | ">="
+  | "<"
+  | "<=";
+export type PropertyFilter = {
+  name: string;
+  op: PropertyOp;
+  value?: MetadataScalar;
+};
+export type FileSortField = "path" | "extension" | "mtime" | "size";
+export type MetadataSortField =
+  | { kind: "file"; field: FileSortField }
+  | { kind: "property"; name: string };
+export type SortDirection = "ASC" | "DESC";
+export type MetadataSort = {
+  field: MetadataSortField;
+  direction: SortDirection;
+};
+export type MetadataQuery = {
+  extensions?: Array<string>;
+  pathPrefixes?: Array<string>;
+  excludeHiddenPaths?: boolean;
+  propertyFilters?: Array<PropertyFilter>;
+  requiredTags?: Array<string>;
+  resolvedTargetPaths?: Array<string>;
+  sort?: Array<MetadataSort>;
+  limit?: number;
+};
+export type ManifestQuery = {
+  after?: string;
+  limit?: number;
+  paths?: Array<string>;
+};
+export type MetadataDomain = "metadata" | "properties" | "tags" | "links";
+export type MetadataPageQuery = {
+  query?: MetadataQuery;
+  after?: string;
+  limit?: number;
+  include?: Array<MetadataDomain>;
+};
+export type FacetKind =
+  | "tag"
+  | "property-name"
+  | "property-path"
+  | "property-value";
+export type FacetQuery = {
+  kind: FacetKind;
+  propertyName?: string;
+  pathPrefixes?: Array<string>;
+  limit?: number;
+};
+export type ScalarKind = "null" | "string" | "number" | "boolean" | "date";
+export type FacetRow = {
+  value: MetadataScalar;
+  valueType: ScalarKind;
+  count: number;
+  metadataTypes?: Array<string>;
+  topLevel?: boolean;
+};
+export type LinkDirection = "incoming" | "outgoing";
+export type LinkResolution = "resolved" | "unresolved" | "all";
+export type LinkQuery = {
+  direction: LinkDirection;
+  path?: string;
+  paths?: Array<string>;
+  resolution?: LinkResolution;
+  limit?: number;
+};
 export type ManagedVault = { vault_id: string; name: string };
 export type AttachClient = { protocol_version: number };
 export type FileOptions = { mtime: number | null };

@@ -4,6 +4,7 @@ mod changes;
 mod history_client;
 mod history_reads;
 mod history_writes;
+mod indexed;
 mod notifications;
 mod reads;
 mod saved_state;
@@ -53,6 +54,7 @@ enum Operation {
     Notifications(notifications::Action),
     GetHistory(String),
     StoreHistory(StoreHistory),
+    Indexed(indexed::Action),
 }
 enum Output {
     Meta(Option<Value>),
@@ -64,6 +66,7 @@ enum Output {
     Done,
     History(Option<FileHistory>),
     StoredHistory(StoredHistory),
+    Indexed(indexed::Value),
 }
 impl Database {
     /// Native installation input only; callers derive this from admitted policy.

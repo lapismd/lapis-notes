@@ -108,6 +108,14 @@ contracts. Its native mutations journal and publish through the same transaction
 owner. This compatibility storage is distinct from the existing JJ repository
 engine and does not qualify repository scheduling, restore or backup lifetime.
 
+Native core metadata publication stores per-file records and normalized
+tag/property/link columns independently of plugin projections (LN-DB-020).
+Native reads retain per-file/materialized-domain selection, bounded manifests,
+typed indexed filters/sorts, facets and incoming/outgoing link queries. Core
+publication is a lower-level processor boundary; the complete AppDatabase
+upsert and rename/delete operations must also retain their separate task,
+projection, Search and notebook effects before host intake.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

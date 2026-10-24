@@ -79,6 +79,8 @@ async fn metadata_process_fixture() {
         db.upsert_notification(notice).await.unwrap();
         let history=serde_json::from_value(json!({"path":"cold.md","eventType":"create","createdAt":1,"content":"history 🪨","contentHash":"cold-hash"})).unwrap();
         db.store_file_history_revision(history).await.unwrap();
+        let indexed=serde_json::from_value(json!({"file":{"path":"cold.md","normalizedPath":"cold.md","extension":"md","mtime":1,"size":10,"hash":"cold-indexed","indexed":true},"metadata":{"path":"cold.md","hash":"cold-indexed","parserVersion":"cold-1","metadata":{"heading":"native"}},"properties":[],"tags":[],"links":[]})).unwrap();
+        db.upsert_indexed_metadata(indexed).await.unwrap();
         println!("METADATA_COMMITTED");
         std::future::pending::<()>().await;
     } else {
@@ -86,13 +88,23 @@ async fn metadata_process_fixture() {
             db.get_meta("cold").await.unwrap(),
             Some(json!({"value":"native 🪨"}))
         );
-        assert_eq!(db.revision().await.unwrap(), 3);
+        assert_eq!(db.revision().await.unwrap(), 4);
         let notices = db.list_notifications().await.unwrap();
         assert_eq!(notices.len(), 1);
         assert_eq!(notices[0].id, "cold-notice");
         let history = db.get_file_history("cold.md").await.unwrap().unwrap();
         assert_eq!(history.revisions[0].content, "history 🪨");
         assert_eq!(history.revisions[0].content_hash, "cold-hash");
+        assert_eq!(
+            db.get_indexed_file("cold.md")
+                .await
+                .unwrap()
+                .unwrap()
+                .metadata
+                .unwrap()
+                .parser_version,
+            "cold-1"
+        );
         db.close().await.unwrap();
         println!("METADATA_RESTORED");
     }

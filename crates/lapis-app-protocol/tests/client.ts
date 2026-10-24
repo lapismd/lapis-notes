@@ -13,6 +13,8 @@ import {
   type NotificationRecord,
   type ChangeSet,
   type StoreHistory,
+  type CoreIndexedFile,
+  type MetadataPageQuery,
 } from "../bindings/protocol.js";
 const command = {
   kind: "write_text",
@@ -139,3 +141,23 @@ const invalidHistory: StoreHistory = {
   eventType: "overwrite",
 };
 void [history, invalidHistory];
+
+const metadataQuery: MetadataPageQuery = {
+  query: {
+    propertyFilters: [{ name: "team.members[].active", op: "=", value: true }],
+    sort: [{ field: { kind: "file", field: "mtime" }, direction: "DESC" }],
+  },
+  include: ["properties", "tags"],
+  limit: 20,
+};
+const unknownDomain: MetadataPageQuery = {
+  // @ts-expect-error Selective reads use the retained typed domain catalogue.
+  include: ["sql"],
+};
+const corePublication = {} as CoreIndexedFile;
+const projectionInCore: CoreIndexedFile = {
+  ...corePublication,
+  // @ts-expect-error Core file publication is independent of plugin projections.
+  task: {},
+};
+void [metadataQuery, unknownDomain, projectionInCore];

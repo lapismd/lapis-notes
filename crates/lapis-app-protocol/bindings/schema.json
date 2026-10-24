@@ -64,6 +64,22 @@
       "required": ["client_id", "vault_id", "generation"],
       "type": "object"
     },
+    "CoreIndexedFile": {
+      "additionalProperties": false,
+      "description": "Core publication is independent of optional plugin projection work.",
+      "properties": {
+        "file": { "$ref": "#/$defs/FileRecord" },
+        "links": { "items": { "$ref": "#/$defs/LinkRecord" }, "type": "array" },
+        "metadata": { "$ref": "#/$defs/MetadataRecord" },
+        "properties": {
+          "items": { "$ref": "#/$defs/PropertyRecord" },
+          "type": "array"
+        },
+        "tags": { "items": { "$ref": "#/$defs/TagRecord" }, "type": "array" }
+      },
+      "required": ["file", "metadata", "links", "tags", "properties"],
+      "type": "object"
+    },
     "EditorClaim": {
       "additionalProperties": false,
       "properties": {
@@ -122,6 +138,44 @@
           "type": "object"
         }
       ]
+    },
+    "FacetKind": {
+      "enum": ["tag", "property-name", "property-path", "property-value"],
+      "type": "string"
+    },
+    "FacetQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "$ref": "#/$defs/FacetKind" },
+        "limit": {
+          "format": "uint",
+          "minimum": 0,
+          "type": ["integer", "null"]
+        },
+        "pathPrefixes": {
+          "default": [],
+          "items": { "type": "string" },
+          "type": "array"
+        },
+        "propertyName": { "type": ["string", "null"] }
+      },
+      "required": ["kind"],
+      "type": "object"
+    },
+    "FacetRow": {
+      "additionalProperties": false,
+      "properties": {
+        "count": { "format": "uint64", "minimum": 0, "type": "integer" },
+        "metadataTypes": {
+          "items": { "type": "string" },
+          "type": ["array", "null"]
+        },
+        "topLevel": { "type": ["boolean", "null"] },
+        "value": { "$ref": "#/$defs/MetadataScalar" },
+        "valueType": { "$ref": "#/$defs/ScalarKind" }
+      },
+      "required": ["value", "valueType", "count"],
+      "type": "object"
     },
     "FileCommand": {
       "oneOf": [
@@ -350,6 +404,34 @@
       },
       "type": "object"
     },
+    "FileRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "deleted": { "type": ["boolean", "null"] },
+        "extension": { "type": "string" },
+        "hash": { "type": "string" },
+        "indexed": { "type": "boolean" },
+        "mtime": { "format": "double", "type": "number" },
+        "normalizedPath": { "type": "string" },
+        "parserVersion": { "type": ["string", "null"] },
+        "path": { "type": "string" },
+        "size": { "format": "double", "type": "number" }
+      },
+      "required": [
+        "path",
+        "normalizedPath",
+        "extension",
+        "mtime",
+        "size",
+        "hash",
+        "indexed"
+      ],
+      "type": "object"
+    },
+    "FileSortField": {
+      "enum": ["path", "extension", "mtime", "size"],
+      "type": "string"
+    },
     "FileValue": {
       "oneOf": [
         {
@@ -469,6 +551,74 @@
       "required": ["protocol_major", "build_id", "browser_auth"],
       "type": "object"
     },
+    "IndexedRow": {
+      "additionalProperties": false,
+      "properties": {
+        "file": { "$ref": "#/$defs/FileRecord" },
+        "links": { "items": { "$ref": "#/$defs/LinkRecord" }, "type": "array" },
+        "metadata": {
+          "anyOf": [{ "$ref": "#/$defs/MetadataRecord" }, { "type": "null" }]
+        },
+        "properties": {
+          "items": { "$ref": "#/$defs/PropertyRecord" },
+          "type": "array"
+        },
+        "tags": { "items": { "$ref": "#/$defs/TagRecord" }, "type": "array" }
+      },
+      "required": ["file", "properties", "tags", "links"],
+      "type": "object"
+    },
+    "LinkDirection": { "enum": ["incoming", "outgoing"], "type": "string" },
+    "LinkKind": {
+      "enum": ["reference", "task-entry", "list-entry", "navigation-item"],
+      "type": "string"
+    },
+    "LinkQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": { "$ref": "#/$defs/LinkDirection" },
+        "limit": {
+          "format": "uint",
+          "minimum": 0,
+          "type": ["integer", "null"]
+        },
+        "path": { "type": ["string", "null"] },
+        "paths": {
+          "default": [],
+          "items": { "type": "string" },
+          "type": "array"
+        },
+        "resolution": {
+          "anyOf": [{ "$ref": "#/$defs/LinkResolution" }, { "type": "null" }]
+        }
+      },
+      "required": ["direction"],
+      "type": "object"
+    },
+    "LinkRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "count": { "format": "double", "type": "number" },
+        "heading": { "type": ["string", "null"] },
+        "kind": {
+          "anyOf": [{ "$ref": "#/$defs/LinkKind" }, { "type": "null" }]
+        },
+        "ordinal": { "format": "double", "type": ["number", "null"] },
+        "original": { "type": ["string", "null"] },
+        "position": true,
+        "resolvedTargetPath": { "type": ["string", "null"] },
+        "sourcePath": { "type": "string" },
+        "targetText": { "type": "string" },
+        "type": { "$ref": "#/$defs/LinkType" }
+      },
+      "required": ["sourcePath", "targetText", "type", "count"],
+      "type": "object"
+    },
+    "LinkResolution": {
+      "enum": ["resolved", "unresolved", "all"],
+      "type": "string"
+    },
+    "LinkType": { "enum": ["link", "embed"], "type": "string" },
     "LoginRequest": {
       "additionalProperties": false,
       "properties": {
@@ -491,6 +641,32 @@
         "vault_id": { "format": "uuid", "type": "string" }
       },
       "required": ["vault_id", "name"],
+      "type": "object"
+    },
+    "ManifestPage": {
+      "additionalProperties": false,
+      "properties": {
+        "nextCursor": { "type": ["string", "null"] },
+        "rows": { "items": { "$ref": "#/$defs/FileRecord" }, "type": "array" }
+      },
+      "required": ["rows"],
+      "type": "object"
+    },
+    "ManifestQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "after": { "type": ["string", "null"] },
+        "limit": {
+          "format": "uint",
+          "minimum": 0,
+          "type": ["integer", "null"]
+        },
+        "paths": {
+          "default": [],
+          "items": { "type": "string" },
+          "type": "array"
+        }
+      },
       "type": "object"
     },
     "MetaCheck": {
@@ -562,6 +738,99 @@
       "required": ["mutations"],
       "type": "object"
     },
+    "MetadataDomain": {
+      "enum": ["metadata", "properties", "tags", "links"],
+      "type": "string"
+    },
+    "MetadataPage": {
+      "additionalProperties": false,
+      "properties": {
+        "nextCursor": { "type": ["string", "null"] },
+        "rows": { "items": { "$ref": "#/$defs/IndexedRow" }, "type": "array" }
+      },
+      "required": ["rows"],
+      "type": "object"
+    },
+    "MetadataPageQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "after": { "type": ["string", "null"] },
+        "include": {
+          "items": { "$ref": "#/$defs/MetadataDomain" },
+          "type": ["array", "null"]
+        },
+        "limit": {
+          "format": "uint",
+          "minimum": 0,
+          "type": ["integer", "null"]
+        },
+        "query": {
+          "anyOf": [{ "$ref": "#/$defs/MetadataQuery" }, { "type": "null" }]
+        }
+      },
+      "type": "object"
+    },
+    "MetadataQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "excludeHiddenPaths": { "default": false, "type": "boolean" },
+        "extensions": {
+          "default": [],
+          "items": { "type": "string" },
+          "type": "array"
+        },
+        "limit": {
+          "format": "uint",
+          "minimum": 0,
+          "type": ["integer", "null"]
+        },
+        "pathPrefixes": {
+          "default": [],
+          "items": { "type": "string" },
+          "type": "array"
+        },
+        "propertyFilters": {
+          "default": [],
+          "items": { "$ref": "#/$defs/PropertyFilter" },
+          "type": "array"
+        },
+        "requiredTags": {
+          "default": [],
+          "items": { "type": "string" },
+          "type": "array"
+        },
+        "resolvedTargetPaths": {
+          "default": [],
+          "items": { "type": "string" },
+          "type": "array"
+        },
+        "sort": {
+          "default": [],
+          "items": { "$ref": "#/$defs/MetadataSort" },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "MetadataRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "hash": { "type": "string" },
+        "metadata": true,
+        "parserVersion": { "type": "string" },
+        "path": { "type": "string" }
+      },
+      "required": ["path", "hash", "parserVersion", "metadata"],
+      "type": "object"
+    },
+    "MetadataScalar": {
+      "anyOf": [
+        { "type": "null" },
+        { "type": "boolean" },
+        { "format": "double", "type": "number" },
+        { "type": "string" }
+      ]
+    },
     "MetadataSnapshot": {
       "additionalProperties": false,
       "properties": {
@@ -592,6 +861,37 @@
         "unresolvedLinks"
       ],
       "type": "object"
+    },
+    "MetadataSort": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": { "$ref": "#/$defs/SortDirection" },
+        "field": { "$ref": "#/$defs/MetadataSortField" }
+      },
+      "required": ["field", "direction"],
+      "type": "object"
+    },
+    "MetadataSortField": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "field": { "$ref": "#/$defs/FileSortField" },
+            "kind": { "const": "file", "type": "string" }
+          },
+          "required": ["kind", "field"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "property", "type": "string" },
+            "name": { "type": "string" }
+          },
+          "required": ["kind", "name"],
+          "type": "object"
+        }
+      ]
     },
     "NotebookCell": {
       "additionalProperties": false,
@@ -689,6 +989,34 @@
         }
       ]
     },
+    "PropertyFilter": {
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "op": { "$ref": "#/$defs/PropertyOp" },
+        "value": {
+          "anyOf": [{ "$ref": "#/$defs/MetadataScalar" }, { "type": "null" }]
+        }
+      },
+      "required": ["name", "op"],
+      "type": "object"
+    },
+    "PropertyOp": {
+      "enum": ["exists", "not-exists", "=", "!=", ">", ">=", "<", "<="],
+      "type": "string"
+    },
+    "PropertyRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "declaredType": { "type": ["string", "null"] },
+        "inferredType": { "type": "string" },
+        "name": { "type": "string" },
+        "path": { "type": "string" },
+        "value": true
+      },
+      "required": ["path", "name", "inferredType", "value"],
+      "type": "object"
+    },
     "Reply": {
       "additionalProperties": false,
       "properties": {
@@ -725,6 +1053,10 @@
       ],
       "type": "object"
     },
+    "ScalarKind": {
+      "enum": ["null", "string", "number", "boolean", "date"],
+      "type": "string"
+    },
     "ServiceError": {
       "additionalProperties": false,
       "properties": {
@@ -754,6 +1086,7 @@
       "required": ["mtime", "size", "hash"],
       "type": "object"
     },
+    "SortDirection": { "enum": ["ASC", "DESC"], "type": "string" },
     "StoreHistory": {
       "additionalProperties": false,
       "properties": {
@@ -782,6 +1115,18 @@
         "stored": { "type": "boolean" }
       },
       "required": ["fileId", "stored", "deduplicated"],
+      "type": "object"
+    },
+    "TagRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "hierarchy": { "items": { "type": "string" }, "type": "array" },
+        "parts": { "items": { "type": "string" }, "type": "array" },
+        "path": { "type": "string" },
+        "position": true,
+        "tag": { "type": "string" }
+      },
+      "required": ["path", "tag", "parts", "hierarchy"],
       "type": "object"
     },
     "TextSnapshot": {
@@ -1000,14 +1345,25 @@
   "properties": {
     "attach": { "$ref": "#/$defs/AttachClient" },
     "client": { "$ref": "#/$defs/ClientDescriptor" },
+    "core_indexed_file": { "$ref": "#/$defs/CoreIndexedFile" },
     "database_change": { "$ref": "#/$defs/ChangeSet" },
     "file_history": { "$ref": "#/$defs/FileHistory" },
     "host": { "$ref": "#/$defs/HostInfo" },
+    "indexed_manifest_page": { "$ref": "#/$defs/ManifestPage" },
+    "indexed_manifest_query": { "$ref": "#/$defs/ManifestQuery" },
     "login": { "$ref": "#/$defs/LoginRequest" },
     "logout": { "$ref": "#/$defs/LogoutReply" },
     "meta_page": { "$ref": "#/$defs/MetaPage" },
     "meta_scan": { "$ref": "#/$defs/MetaScan" },
     "meta_transaction": { "$ref": "#/$defs/MetaTransaction" },
+    "metadata_facet_query": { "$ref": "#/$defs/FacetQuery" },
+    "metadata_facets": {
+      "items": { "$ref": "#/$defs/FacetRow" },
+      "type": "array"
+    },
+    "metadata_link_query": { "$ref": "#/$defs/LinkQuery" },
+    "metadata_page": { "$ref": "#/$defs/MetadataPage" },
+    "metadata_page_query": { "$ref": "#/$defs/MetadataPageQuery" },
     "metadata_snapshot": { "$ref": "#/$defs/MetadataSnapshot" },
     "notebook": { "$ref": "#/$defs/NotebookState" },
     "notification": { "$ref": "#/$defs/NotificationRecord" },
@@ -1037,7 +1393,15 @@
     "database_change",
     "file_history",
     "store_history",
-    "stored_history"
+    "stored_history",
+    "core_indexed_file",
+    "indexed_manifest_query",
+    "indexed_manifest_page",
+    "metadata_page_query",
+    "metadata_page",
+    "metadata_facet_query",
+    "metadata_facets",
+    "metadata_link_query"
   ],
   "title": "Contracts",
   "type": "object"

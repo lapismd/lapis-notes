@@ -5,6 +5,7 @@ use ts_rs::TS;
 
 pub mod changes;
 pub mod history;
+pub mod indexed;
 pub mod state;
 
 // A missing JS value means delete/no check; explicit JSON null remains a value.

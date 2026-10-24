@@ -36,6 +36,14 @@ deduplication, rename/delete/restore, coalescing and retention. Their mutations
 use the same transaction/change owner. This storage contract is separate from
 the JJ repository engine, backup capture and repository scheduling.
 
+`database::indexed` publishes core per-file metadata independently of plugin
+projections. Normalized columns support typed filters/sorts, selective domain
+materialization in 400-path batches, bounded manifests, facets and link queries.
+Large prefix sets use bound value rows to keep native expression depth bounded.
+Core publication is a processor boundary; the full AppDatabase upsert still
+needs its separate projection stage, and rename/delete retain pending cross-domain
+integration.
+
 This foundation does not migrate the complete AppDatabase schema or connect a
 browser/desktop database adapter yet. Remaining catalogue methods and service
 intake gate the hosted shell; native indexing/Search remain R3.
