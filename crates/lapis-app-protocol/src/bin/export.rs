@@ -2,6 +2,7 @@ use lapis_app_protocol::database::indexed::{queries::*, records::*};
 use lapis_app_protocol::database::memory::{enums::*, jobs::*, records::*};
 use lapis_app_protocol::database::projections::queries::*;
 use lapis_app_protocol::database::projections::*;
+use lapis_app_protocol::database::search::{records::*, source::*, *};
 use lapis_app_protocol::database::tasks::{enums::*, record::*, recurrence::*, structure::*, *};
 use lapis_app_protocol::database::{changes::*, history::*, state::*};
 use lapis_app_protocol::{browser::*, database::*, files::*, *};
@@ -54,6 +55,10 @@ pub struct Contracts {
     pub task_query: TaskQuery,
     pub task_lookup: TaskLookup,
     pub task_children: TaskChildQuery,
+    pub search_document: SearchDocumentRecord,
+    pub search_manifest_query: SearchManifestQuery,
+    pub search_manifest: SearchManifestPage,
+    pub search_stats: SearchIndexStats,
 }
 fn main() {
     let config = Config::default();
@@ -170,6 +175,21 @@ fn main() {
         TaskQuery::decl(&config),
         TaskLookup::decl(&config),
         TaskChildQuery::decl(&config),
+        SearchDocumentRecord::decl(&config),
+        SearchDocumentChunk::decl(&config),
+        SearchChunkKind::decl(&config),
+        SearchEmbeddingStatus::decl(&config),
+        SearchChunkEmbedding::decl(&config),
+        SearchSourceMetadata::decl(&config),
+        SearchChunkingSettings::decl(&config),
+        SearchSourcePosition::decl(&config),
+        SearchSourceRange::decl(&config),
+        SearchSourceHeading::decl(&config),
+        SearchSourceSection::decl(&config),
+        SearchManifestQuery::decl(&config),
+        SearchManifestRecord::decl(&config),
+        SearchManifestPage::decl(&config),
+        SearchIndexStats::decl(&config),
         ManagedVault::decl(&config),
         AttachClient::decl(&config),
         FileOptions::decl(&config),

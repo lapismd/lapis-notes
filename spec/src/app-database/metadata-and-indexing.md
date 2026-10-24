@@ -25,6 +25,10 @@ pending or error, treating missing or unknown embedding status as pending.
 Nullable error strings MUST retain empty strings, including after replacing or
 deleting an error-owning document. Memory and Turso MUST retain this classification.
 
+The shared native storage owner retains LN-DB-004/057 through the same prepared
+document/chunk fixture. Publication, rollback, cold reopen and body-free manifest
+reads qualify storage independently of native embedding generation and retrieval.
+
 ## LN-DB-005 — Lexical retrieval: use Turso full-text search when available. Unsupported
 
 <a id="ln-db-005"></a>

@@ -8,6 +8,7 @@ pub mod history;
 pub mod indexed;
 pub mod memory;
 pub mod projections;
+pub mod search;
 pub mod state;
 pub mod tasks;
 

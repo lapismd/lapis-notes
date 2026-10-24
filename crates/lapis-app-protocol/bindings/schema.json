@@ -1555,6 +1555,232 @@
       "enum": ["null", "string", "number", "boolean", "date"],
       "type": "string"
     },
+    "SearchChunkEmbedding": {
+      "additionalProperties": false,
+      "properties": {
+        "dimensions": { "format": "double", "type": ["number", "null"] },
+        "dirty": { "type": ["boolean", "null"] },
+        "error": { "type": ["string", "null"] },
+        "fingerprint": { "type": ["string", "null"] },
+        "modelId": { "type": "string" },
+        "modelVersion": { "type": ["string", "null"] },
+        "status": { "$ref": "#/$defs/SearchEmbeddingStatus" },
+        "updatedAt": { "format": "double", "type": ["number", "null"] },
+        "vector": {
+          "items": { "format": "double", "type": "number" },
+          "type": ["array", "null"]
+        }
+      },
+      "required": ["status", "modelId"],
+      "type": "object"
+    },
+    "SearchChunkKind": {
+      "enum": [
+        "frontmatter",
+        "heading",
+        "paragraph",
+        "list",
+        "blockquote",
+        "code",
+        "fallback"
+      ],
+      "type": "string"
+    },
+    "SearchChunkingSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "breakpointDecay": { "format": "double", "type": "number" },
+        "breakpointWindowChars": { "format": "double", "type": "number" },
+        "targetChars": { "format": "double", "type": "number" }
+      },
+      "required": ["targetChars", "breakpointWindowChars", "breakpointDecay"],
+      "type": "object"
+    },
+    "SearchDocumentChunk": {
+      "additionalProperties": false,
+      "properties": {
+        "embedding": {
+          "anyOf": [
+            { "$ref": "#/$defs/SearchChunkEmbedding" },
+            { "type": "null" }
+          ]
+        },
+        "endOffset": { "format": "double", "type": "number" },
+        "heading": { "type": ["string", "null"] },
+        "id": { "type": "string" },
+        "kind": {
+          "anyOf": [{ "$ref": "#/$defs/SearchChunkKind" }, { "type": "null" }]
+        },
+        "startOffset": { "format": "double", "type": "number" },
+        "text": { "type": "string" }
+      },
+      "required": ["id", "text", "startOffset", "endOffset"],
+      "type": "object"
+    },
+    "SearchDocumentRecord": {
+      "additionalProperties": false,
+      "description": "The retained, prepared Search record. Preparation/inference precedes storage.",
+      "properties": {
+        "checksum": { "type": "string" },
+        "chunks": {
+          "items": { "$ref": "#/$defs/SearchDocumentChunk" },
+          "type": ["array", "null"]
+        },
+        "content": { "type": "string" },
+        "extension": { "type": "string" },
+        "metadataText": { "type": ["string", "null"] },
+        "name": { "type": "string" },
+        "path": { "type": "string" },
+        "sourceMetadata": {
+          "anyOf": [
+            { "$ref": "#/$defs/SearchSourceMetadata" },
+            { "type": "null" }
+          ]
+        },
+        "sourceProviderId": { "type": ["string", "null"] },
+        "tagHierarchy": { "items": { "type": "string" }, "type": "array" },
+        "tagParts": { "items": { "type": "string" }, "type": "array" },
+        "tags": { "items": { "type": "string" }, "type": "array" }
+      },
+      "required": [
+        "path",
+        "name",
+        "extension",
+        "checksum",
+        "content",
+        "tags",
+        "tagParts",
+        "tagHierarchy"
+      ],
+      "type": "object"
+    },
+    "SearchEmbeddingStatus": {
+      "enum": ["pending", "ready", "error"],
+      "type": "string"
+    },
+    "SearchIndexStats": {
+      "additionalProperties": false,
+      "properties": {
+        "chunkCount": { "format": "uint", "minimum": 0, "type": "integer" },
+        "documentCount": { "format": "uint", "minimum": 0, "type": "integer" },
+        "errorChunkCount": {
+          "format": "uint",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "lastError": { "type": ["string", "null"] },
+        "pendingChunkCount": {
+          "format": "uint",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "readyChunkCount": { "format": "uint", "minimum": 0, "type": "integer" }
+      },
+      "required": [
+        "documentCount",
+        "chunkCount",
+        "readyChunkCount",
+        "pendingChunkCount",
+        "errorChunkCount"
+      ],
+      "type": "object"
+    },
+    "SearchManifestPage": {
+      "additionalProperties": false,
+      "properties": {
+        "nextCursor": { "type": ["string", "null"] },
+        "rows": {
+          "items": { "$ref": "#/$defs/SearchManifestRecord" },
+          "type": "array"
+        }
+      },
+      "required": ["rows"],
+      "type": "object"
+    },
+    "SearchManifestQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "after": { "type": ["string", "null"] },
+        "limit": { "format": "uint", "minimum": 0, "type": ["integer", "null"] }
+      },
+      "type": "object"
+    },
+    "SearchManifestRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "checksum": { "type": "string" },
+        "metadataHash": { "type": ["string", "null"] },
+        "path": { "type": "string" },
+        "projectionSignature": { "type": ["string", "null"] },
+        "providerVersion": { "type": ["string", "null"] },
+        "sourceMtime": { "format": "double", "type": ["number", "null"] },
+        "sourceProviderId": { "type": ["string", "null"] },
+        "sourceSize": { "format": "double", "type": ["number", "null"] }
+      },
+      "required": ["path", "checksum"],
+      "type": "object"
+    },
+    "SearchSourceHeading": {
+      "additionalProperties": false,
+      "properties": {
+        "heading": { "type": "string" },
+        "level": { "format": "double", "type": "number" },
+        "position": { "$ref": "#/$defs/SearchSourceRange" }
+      },
+      "required": ["heading", "level", "position"],
+      "type": "object"
+    },
+    "SearchSourceMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "chunking": { "$ref": "#/$defs/SearchChunkingSettings" },
+        "frontmatter": true,
+        "frontmatterEndOffset": {
+          "format": "double",
+          "type": ["number", "null"]
+        },
+        "headings": {
+          "items": { "$ref": "#/$defs/SearchSourceHeading" },
+          "type": "array"
+        },
+        "metadataHash": { "type": ["string", "null"] },
+        "projectionSignature": { "type": ["string", "null"] },
+        "providerVersion": { "type": ["string", "null"] },
+        "rawTags": { "items": { "type": "string" }, "type": "array" },
+        "sections": {
+          "items": { "$ref": "#/$defs/SearchSourceSection" },
+          "type": "array"
+        },
+        "sourceMtime": { "format": "double", "type": ["number", "null"] },
+        "sourceSize": { "format": "double", "type": ["number", "null"] }
+      },
+      "required": ["rawTags", "headings", "sections", "chunking"],
+      "type": "object"
+    },
+    "SearchSourcePosition": {
+      "additionalProperties": false,
+      "properties": { "offset": { "format": "double", "type": "number" } },
+      "required": ["offset"],
+      "type": "object"
+    },
+    "SearchSourceRange": {
+      "additionalProperties": false,
+      "properties": {
+        "end": { "$ref": "#/$defs/SearchSourcePosition" },
+        "start": { "$ref": "#/$defs/SearchSourcePosition" }
+      },
+      "required": ["start", "end"],
+      "type": "object"
+    },
+    "SearchSourceSection": {
+      "additionalProperties": false,
+      "properties": {
+        "position": { "$ref": "#/$defs/SearchSourceRange" },
+        "type": { "type": "string" }
+      },
+      "required": ["type", "position"],
+      "type": "object"
+    },
     "ServiceError": {
       "additionalProperties": false,
       "properties": {
@@ -2183,6 +2409,10 @@
     "projection_source": { "$ref": "#/$defs/ProjectionSource" },
     "reply": { "$ref": "#/$defs/Reply" },
     "request": { "$ref": "#/$defs/Request" },
+    "search_document": { "$ref": "#/$defs/SearchDocumentRecord" },
+    "search_manifest": { "$ref": "#/$defs/SearchManifestPage" },
+    "search_manifest_query": { "$ref": "#/$defs/SearchManifestQuery" },
+    "search_stats": { "$ref": "#/$defs/SearchIndexStats" },
     "session": { "$ref": "#/$defs/SessionInfo" },
     "store_history": { "$ref": "#/$defs/StoreHistory" },
     "stored_history": { "$ref": "#/$defs/StoredHistory" },
@@ -2235,7 +2465,11 @@
     "task_record",
     "task_query",
     "task_lookup",
-    "task_children"
+    "task_children",
+    "search_document",
+    "search_manifest_query",
+    "search_manifest",
+    "search_stats"
   ],
   "title": "Contracts",
   "type": "object"

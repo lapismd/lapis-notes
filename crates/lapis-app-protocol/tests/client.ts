@@ -26,6 +26,10 @@ import {
   type MemoryJobClaim,
   type MemoryJobUpdate,
   type MemoryRecallSignal,
+  type SearchDocumentRecord,
+  type SearchManifestPage,
+  type SearchManifestQuery,
+  type SearchIndexStats,
 } from "../bindings/protocol.js";
 const command = {
   kind: "write_text",
@@ -308,3 +312,73 @@ const badMemorySignal: MemoryRecallSignal = {
   query: "sensitive",
 };
 void [badImportance, badMemoryPatch, badMemorySignal];
+
+const searchDocument = {
+  path: "A.md",
+  name: "A",
+  extension: "md",
+  checksum: "hash",
+  content: "hello🪨",
+  tags: [],
+  tagParts: [],
+  tagHierarchy: [],
+  chunks: [
+    {
+      id: "A#0",
+      text: "hello🪨",
+      startOffset: 0,
+      endOffset: 7,
+      kind: "paragraph",
+      embedding: {
+        status: "ready",
+        modelId: "model",
+        vector: [1, 0],
+        dimensions: 2,
+      },
+    },
+  ],
+  sourceMetadata: {
+    rawTags: [],
+    frontmatter: null,
+    headings: [],
+    sections: [
+      {
+        type: "paragraph",
+        position: { start: { offset: 0 }, end: { offset: 7 } },
+      },
+    ],
+    chunking: {
+      targetChars: 100,
+      breakpointWindowChars: 10,
+      breakpointDecay: 0.5,
+    },
+  },
+} satisfies SearchDocumentRecord;
+const searchManifest = {
+  rows: [{ path: "A.md", checksum: "hash" }],
+  nextCursor: "A.md",
+} satisfies SearchManifestPage;
+const searchStats = {
+  documentCount: 1,
+  chunkCount: 1,
+  readyChunkCount: 1,
+  pendingChunkCount: 0,
+  errorChunkCount: 0,
+  lastError: null,
+} satisfies SearchIndexStats;
+const badSearchQuery: SearchManifestQuery = {
+  // @ts-expect-error The public Search query cannot expose SQL.
+  sql: "SELECT * FROM search_docs",
+};
+const badSearchDocument: SearchDocumentRecord = {
+  ...searchDocument,
+  // @ts-expect-error Search bodies cannot choose native storage paths.
+  databasePath: "/tmp/other.db",
+};
+void [
+  searchDocument,
+  searchManifest,
+  searchStats,
+  badSearchQuery,
+  badSearchDocument,
+];

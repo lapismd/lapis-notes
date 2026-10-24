@@ -1,0 +1,56 @@
+use super::{Action, Value, validation};
+use crate::database::{Database, Operation, Output};
+use crate::services::Result;
+use lapis_app_protocol::database::search::{records::SearchDocumentRecord, *};
+
+impl Database {
+    /// Native processor boundary. Callers finish normalization and inference first.
+    pub async fn upsert_prepared_search_document(
+        &self,
+        record: SearchDocumentRecord,
+    ) -> Result<()> {
+        validation::record(&record)?;
+        self.submit(Operation::Search(Action::Put(Box::new(record))))
+            .await
+            .map(|_| ())
+    }
+    pub async fn delete_search_document(&self, path: &str) -> Result<()> {
+        self.submit(Operation::Search(Action::Delete(path.into())))
+            .await
+            .map(|_| ())
+    }
+    pub async fn get_search_document(&self, path: &str) -> Result<Option<SearchDocumentRecord>> {
+        match self
+            .submit(Operation::Search(Action::Get(path.into())))
+            .await?
+        {
+            Output::Search(Value::Document(row)) => Ok(row.map(|r| *r)),
+            _ => unreachable!("matching worker output"),
+        }
+    }
+    pub async fn list_search_documents(&self) -> Result<Vec<SearchDocumentRecord>> {
+        match self.submit(Operation::Search(Action::List)).await? {
+            Output::Search(Value::Documents(rows)) => Ok(rows),
+            _ => unreachable!("matching worker output"),
+        }
+    }
+    pub async fn list_search_document_manifest(
+        &self,
+        query: SearchManifestQuery,
+    ) -> Result<SearchManifestPage> {
+        crate::database::indexed::limit(query.limit, 500, 1)?;
+        match self
+            .submit(Operation::Search(Action::Manifest(query)))
+            .await?
+        {
+            Output::Search(Value::Manifest(page)) => Ok(page),
+            _ => unreachable!("matching worker output"),
+        }
+    }
+    pub async fn get_search_index_stats(&self) -> Result<SearchIndexStats> {
+        match self.submit(Operation::Search(Action::Stats)).await? {
+            Output::Search(Value::Stats(stats)) => Ok(stats),
+            _ => unreachable!("matching worker output"),
+        }
+    }
+}

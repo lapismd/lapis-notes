@@ -7,6 +7,7 @@ use std::{
 };
 use uuid::Uuid;
 mod projection_support;
+mod search_support;
 
 #[test]
 fn metadata_survives_a_killed_native_owner_and_reopens_in_a_fresh_process() {
@@ -92,6 +93,7 @@ async fn metadata_process_fixture() {
         db.replace_projection_source(serde_json::from_value(projection).unwrap())
             .await
             .unwrap();
+        search_support::seed(&db).await;
         println!("METADATA_COMMITTED");
         std::future::pending::<()>().await;
     } else {
@@ -99,7 +101,7 @@ async fn metadata_process_fixture() {
             db.get_meta("cold").await.unwrap(),
             Some(json!({"value":"native 🪨"}))
         );
-        assert_eq!(db.revision().await.unwrap(), 6);
+        assert_eq!(db.revision().await.unwrap(), 10);
         let notices = db.list_notifications().await.unwrap();
         assert_eq!(notices.len(), 1);
         assert_eq!(notices[0].id, "cold-notice");
@@ -122,6 +124,22 @@ async fn metadata_process_fixture() {
                 .unwrap()
                 .unwrap()["title"],
             json!("native 🪨")
+        );
+        let search = search_support::fixture();
+        search_support::assert_json(
+            serde_json::to_value(db.list_search_documents().await.unwrap()).unwrap(),
+            serde_json::Value::Array(
+                search["records"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .map(|r| r["stored"].clone())
+                    .collect(),
+            ),
+        );
+        search_support::assert_json(
+            serde_json::to_value(db.get_search_index_stats().await.unwrap()).unwrap(),
+            search["stats"].clone(),
         );
         db.close().await.unwrap();
         println!("METADATA_RESTORED");

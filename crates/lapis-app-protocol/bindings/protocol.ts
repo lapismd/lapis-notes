@@ -612,6 +612,101 @@ export type TaskQuery = {
 };
 export type TaskLookup = { path?: string; id?: string };
 export type TaskChildQuery = { sourcePath: string; kind?: LinkKind };
+export type SearchDocumentRecord = {
+  path: string;
+  sourceProviderId?: string;
+  name: string;
+  extension: string;
+  checksum: string;
+  content: string;
+  tags: Array<string>;
+  tagParts: Array<string>;
+  tagHierarchy: Array<string>;
+  metadataText?: string;
+  chunks?: Array<SearchDocumentChunk>;
+  sourceMetadata?: SearchSourceMetadata;
+};
+export type SearchDocumentChunk = {
+  id: string;
+  text: string;
+  startOffset: number;
+  endOffset: number;
+  heading?: string;
+  kind?: SearchChunkKind;
+  embedding?: SearchChunkEmbedding;
+};
+export type SearchChunkKind =
+  | "frontmatter"
+  | "heading"
+  | "paragraph"
+  | "list"
+  | "blockquote"
+  | "code"
+  | "fallback";
+export type SearchEmbeddingStatus = "pending" | "ready" | "error";
+export type SearchChunkEmbedding = {
+  status: SearchEmbeddingStatus;
+  modelId: string;
+  modelVersion?: string;
+  dimensions?: number;
+  vector?: Array<number>;
+  fingerprint?: string;
+  dirty?: boolean;
+  updatedAt?: number;
+  error?: string;
+};
+export type SearchSourceMetadata = {
+  metadataHash?: string;
+  providerVersion?: string;
+  projectionSignature?: string;
+  sourceMtime?: number;
+  sourceSize?: number;
+  rawTags: Array<string>;
+  frontmatter?: unknown;
+  frontmatterEndOffset?: number;
+  headings: Array<SearchSourceHeading>;
+  sections: Array<SearchSourceSection>;
+  chunking: SearchChunkingSettings;
+};
+export type SearchChunkingSettings = {
+  targetChars: number;
+  breakpointWindowChars: number;
+  breakpointDecay: number;
+};
+export type SearchSourcePosition = { offset: number };
+export type SearchSourceRange = {
+  start: SearchSourcePosition;
+  end: SearchSourcePosition;
+};
+export type SearchSourceHeading = {
+  heading: string;
+  level: number;
+  position: SearchSourceRange;
+};
+export type SearchSourceSection = { type: string; position: SearchSourceRange };
+export type SearchManifestQuery = { after?: string; limit?: number };
+export type SearchManifestRecord = {
+  path: string;
+  checksum: string;
+  sourceProviderId?: string;
+  metadataHash?: string;
+  providerVersion?: string;
+  projectionSignature?: string;
+  sourceMtime?: number;
+  sourceSize?: number;
+};
+export type SearchManifestPage = {
+  rows: Array<SearchManifestRecord>;
+  nextCursor?: string;
+};
+export type SearchIndexStats = {
+  documentCount: number;
+  chunkCount: number;
+  readyChunkCount: number;
+  pendingChunkCount: number;
+  errorChunkCount: number;
+  lastError: string | null;
+};
 export type ManagedVault = { vault_id: string; name: string };
 export type AttachClient = { protocol_version: number };
 export type FileOptions = { mtime: number | null };

@@ -44,6 +44,7 @@ impl Store {
             path.to_str()
                 .ok_or_else(|| invalid("Database profile must be UTF-8"))?,
         )
+        .experimental_index_method(true)
         .experimental_attach(false)
         .experimental_vacuum(false)
         .build()
@@ -68,6 +69,10 @@ impl Store {
             .map_err(engine)?;
         connection
             .execute_batch(include_str!("memory/schema.sql"))
+            .await
+            .map_err(engine)?;
+        connection
+            .execute_batch(include_str!("search/schema.sql"))
             .await
             .map_err(engine)?;
         let store = Self {
@@ -109,6 +114,7 @@ impl Store {
             Operation::Indexed(action) => self.indexed(action).await.map(Output::Indexed),
             Operation::Tasks(action) => self.tasks(action).await.map(Output::Tasks),
             Operation::Memory(action) => self.memory(action).await.map(Output::Memory),
+            Operation::Search(action) => self.search(action).await.map(Output::Search),
             Operation::Projection(action) => self.projection(action).await.map(|_| Output::Done),
             Operation::ProjectionRead(action) => self
                 .read_projection(action)

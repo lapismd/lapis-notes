@@ -164,6 +164,16 @@ LN-DB-057 governs their shared statistics, including absent embedding state and
 empty error strings. This reference does not select native storage, inference or
 retrieval, or qualify unattended indexing and host adoption.
 
+Native Search storage retains those prepared records, normalized document/chunk
+columns, float-vector blobs, manifests and totals through the existing database
+actor. Replacement/deletion and their Search revision commit together; failures
+roll back the complete publication. Manifest/statistics reads avoid document
+bodies. This lower-level publication boundary accepts already prepared records;
+native preparation, semantic inference/retrieval and host intake remain required
+before the full AppDatabase Search facade is selected.
+The pinned Turso engine includes FTS and enables its existing index-method
+feature so previously indexed databases retain their lexical index on writes.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

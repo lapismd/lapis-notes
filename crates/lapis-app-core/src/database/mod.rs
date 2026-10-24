@@ -10,6 +10,7 @@ mod notifications;
 mod projections;
 mod reads;
 mod saved_state;
+mod search;
 mod state_client;
 mod store;
 mod tasks;
@@ -62,6 +63,7 @@ enum Operation {
     ProjectionRead(projections::ReadAction),
     Tasks(tasks::Action),
     Memory(memory::Action),
+    Search(search::Action),
 }
 enum Output {
     Meta(Option<Value>),
@@ -77,6 +79,7 @@ enum Output {
     ProjectionRead(projections::ReadValue),
     Tasks(tasks::Value),
     Memory(memory::Value),
+    Search(search::Value),
 }
 impl Database {
     /// Native installation input only; callers derive this from admitted policy.
