@@ -1,4 +1,5 @@
 mod client;
+mod controls;
 pub(in crate::database) mod embedding;
 mod preparation;
 mod provider;
@@ -13,6 +14,8 @@ use serde::Serialize;
 
 #[derive(Serialize)]
 pub(super) enum Action {
+    Barrier,
+    Rebuild,
     Configure(Option<embedding_config::SearchEmbeddingProviderConfig>),
     ProviderConfig,
     PutSource(Box<SearchDocumentRecord>),
@@ -41,6 +44,8 @@ pub(super) enum Value {
 impl Store {
     pub(super) async fn search(&mut self, action: Action) -> Result<Value> {
         match action {
+            Action::Barrier => Ok(Value::Done),
+            Action::Rebuild => self.rebuild_search().await.map(|_| Value::Done),
             Action::Configure(config) => self
                 .configure_search_provider(config)
                 .await

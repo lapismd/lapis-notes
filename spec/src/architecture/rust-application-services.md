@@ -293,3 +293,12 @@ clients cannot nominate filesystem roots or libraries. Configuration and vector
 invalidation commit together before the runtime selection changes. Accepted
 indexing owns inference through publication and close drains it. Public status
 is an observation of that owner, including errors, without a second scheduler.
+
+Native Search batch controls retain the direct-Turso no-op begin/end contract
+through admitted owner barriers. Rebuild re-prepares stored documents in bounded
+100-record pages, uses the selected provider, and atomically commits each
+page and its Search revision. The existing actor emits committed page changes
+in revision order when the operation returns, including on later-page failure.
+Empty rebuild still publishes one change. A
+detached waiter does not cancel accepted pages; a later failure retains earlier
+commits and rolls back its current page. Close drains the accepted operation.
