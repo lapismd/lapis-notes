@@ -2,7 +2,7 @@
 
 ## Shared Rust application services (2026-10-23)
 
-Last updated **2026-10-24 19:32:00 UTC**. This is the active migration tracker for the
+Last updated **2026-10-24 19:47:43 UTC**. This is the active migration tracker for the
 [shared Rust plan](RUST_CORE_MIGRATION_PLAN.md). The older Node parity roadmap
 below is superseded; its remaining rows are historical references, not another
 set of current migration tasks.
@@ -24,7 +24,9 @@ selected the facade. Desktop native/API intake passes; full catalog acceptance
 passes 500/500 in both light configurations. Desktop/dark passes 498/500 and
 finds two fixture-startup races. Their owned readiness repairs pass both exact
 cases and all 32 affected-family combinations. A fresh full catalog run and
-remaining intake checks are still required.
+remaining intake checks are still required. Fresh Desktop strict native and
+type checks, 411 renderer/governance and 744 AI cases now pass; rebuilt native
+service tests and the full catalog remain running.
 
 Desktop's [live tracker and task navigation](spec/records/2026-10-24-migration-tracker.md)
 are qualified at `733bb679`; native provider intake remains separate.
@@ -99,7 +101,7 @@ or the hosted browser is already using the new database implementation.**
 | Native Search provider control and embedding publication            | Source complete | [Native provider intake](spec/records/2026-10-24-rust-core-search-provider.md): lazy configuration/status, atomic invalidation, actual model inference after detach and cold reopen. Full source and serving-baseline acceptance passes; Desktop intake remains separate.                                                                                                                                                                                                              |
 | Desktop provider/archive/SQL intake                                 | Working         | [Current tracker](spec/records/2026-10-24-migration-tracker.md): five Notes archives refreshed; four rebuilt hidden API cases and exact native SQL pass. Initial catalog passes 499/500; the attachment disclosure timing repair passes 16 focused cases. Both light configurations pass 500/500; desktop/dark passes 498/500 and finds two startup races. Both exact cases and all 32 affected-family cases pass after owned readiness joins; fresh full acceptance remains required. |
 | Native model/cache installation and runtime admission               | Waiting         | Register ordinary-host runtime/model caches, on-demand downloads and progress. Current source admission accepts native-registered files; it does not install assets.                                                                                                                                                                                                                                                                                                                   |
-| Native vector/hybrid Search retrieval                               | Waiting         | Turso float-vector retrieval, retained reciprocal-rank fusion, structured filtering and document/path conformance.                                                                                                                                                                                                                                                                                                                                                                     |
+| Native vector/hybrid Search retrieval                               | Working         | [Retained semantic reference](spec/records/2026-10-24-search-semantic-reference.md): 32 Memory/Turso cases pass; the native baseline rejects vector mode. Full source check/test/build and specification lanes pass. Native float-vector retrieval, reciprocal-rank fusion, filters and document/path conformance remain required.                                                                                                                                                     |
 | Native Search batch and rebuild controls                            | Source complete | [Batch/rebuild controls](spec/records/2026-10-24-rust-core-search-rebuild.md): admitted barriers, bounded 100-record pages, selected inference, detach/drain, ordered committed changes and rollback. Five exact / 185 full Rust cases pass; source check/test/build pass. Host adoption remains waiting.                                                                                                                                                                              |
 | Complete indexed-file upsert, rename and delete                     | Source complete | [Native indexed-file intake](spec/records/2026-10-24-rust-core-indexed-mutations.md): ten-case retained reference, staged task commits, atomic rename/delete and persisted rename notifications; seven exact native cases, 169 full Rust cases, 1,489 API cases and all source check/test/build/spec lanes pass.                                                                                                                                                                       |
 | Complete native AppDatabase facade                                  | Waiting         | Finish the remaining Search controls/modes and qualify all 68 existing allowlisted methods, including schema/revision aliases and transport return shapes, before host adoption.                                                                                                                                                                                                                                                                                                       |

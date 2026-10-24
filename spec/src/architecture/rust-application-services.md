@@ -302,3 +302,9 @@ in revision order when the operation returns, including on later-page failure.
 Empty rebuild still publishes one change. A
 detached waiter does not cancel accepted pages; a later failure retains earlier
 commits and rolls back its current page. Close drains the accepted operation.
+
+The semantic retrieval reference fixes the retained Memory and native Turso
+result envelopes before Rust intake: configured vector/hybrid/auto modes,
+reciprocal-rank fusion, full-scope filters, chunk previews and diagnostics. The
+reference uses explicitly selected token-hash data for deterministic ranking; it
+does not replace the separate real ONNX model or qualify native semantic queries.

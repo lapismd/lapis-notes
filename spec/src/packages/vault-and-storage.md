@@ -393,3 +393,7 @@ authority; model-math qualification under LN-DB-007 precedes database integratio
 AppDatabase owns portable Search configuration and invalidation. Memory and
 Turso reuse the API's pending-record policy; native publication uses its actor.
 Native model/cache file registration stays outside serialized configuration.
+
+The semantic retrieval fixture retains 16 complete result envelopes in Memory
+and native Turso before Rust intake, including fusion ranks, scope filters,
+preferred chunks and diagnostics; native semantic qualification remains separate.
