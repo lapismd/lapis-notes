@@ -377,3 +377,7 @@ remains protected through writer drain and removal, including failed descendant
 writes. Explorer uses this shared owner instead of low-level Vault trash.
 
 The existing FileManager new-file intent under LN-PKG-179 also accepts Explorer attachment bytes. File Explorer admits asynchronous reading before calling it and retains the operation through projection. Native exclusive publication remains source-owned; import does not retry collisions through low-level overwrite APIs.
+
+Native AppDatabase indexed-file intake retains LN-DB-061/062/063 through the
+shared database owner; low-level core publication remains independent of plugin
+projection work. The existing browser implementation remains explicit.

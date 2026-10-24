@@ -551,6 +551,24 @@
       "required": ["protocol_major", "build_id", "browser_auth"],
       "type": "object"
     },
+    "IndexedFile": {
+      "additionalProperties": false,
+      "properties": {
+        "file": { "$ref": "#/$defs/FileRecord" },
+        "links": { "items": { "$ref": "#/$defs/LinkRecord" }, "type": "array" },
+        "metadata": { "$ref": "#/$defs/MetadataRecord" },
+        "properties": {
+          "items": { "$ref": "#/$defs/PropertyRecord" },
+          "type": "array"
+        },
+        "tags": { "items": { "$ref": "#/$defs/TagRecord" }, "type": "array" },
+        "task": {
+          "anyOf": [{ "$ref": "#/$defs/TaskRecord" }, { "type": "null" }]
+        }
+      },
+      "required": ["file", "metadata", "links", "tags", "properties"],
+      "type": "object"
+    },
     "IndexedRow": {
       "additionalProperties": false,
       "properties": {
@@ -2545,6 +2563,7 @@
     "database_change": { "$ref": "#/$defs/ChangeSet" },
     "file_history": { "$ref": "#/$defs/FileHistory" },
     "host": { "$ref": "#/$defs/HostInfo" },
+    "indexed_file": { "$ref": "#/$defs/IndexedFile" },
     "indexed_manifest_page": { "$ref": "#/$defs/ManifestPage" },
     "indexed_manifest_query": { "$ref": "#/$defs/ManifestQuery" },
     "login": { "$ref": "#/$defs/LoginRequest" },
@@ -2616,6 +2635,7 @@
     "store_history",
     "stored_history",
     "core_indexed_file",
+    "indexed_file",
     "indexed_manifest_query",
     "indexed_manifest_page",
     "metadata_page_query",

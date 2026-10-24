@@ -183,6 +183,14 @@ export type CoreIndexedFile = {
   tags: Array<TagRecord>;
   properties: Array<PropertyRecord>;
 };
+export type IndexedFile = {
+  file: FileRecord;
+  metadata: MetadataRecord;
+  links: Array<LinkRecord>;
+  tags: Array<TagRecord>;
+  properties: Array<PropertyRecord>;
+  task?: TaskRecord | null;
+};
 export type IndexedRow = {
   file: FileRecord;
   metadata: MetadataRecord | null;

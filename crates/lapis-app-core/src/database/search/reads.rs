@@ -4,7 +4,7 @@ use crate::services::Result;
 use lapis_app_protocol::database::search::{records::SearchDocumentRecord, *};
 
 impl Store {
-    pub(super) async fn search_rows(
+    pub(in crate::database) async fn search_rows(
         &self,
         sql: &str,
         args: Vec<turso::Value>,

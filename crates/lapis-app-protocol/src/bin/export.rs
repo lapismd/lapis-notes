@@ -1,4 +1,4 @@
-use lapis_app_protocol::database::indexed::{queries::*, records::*};
+use lapis_app_protocol::database::indexed::{mutations::IndexedFile, queries::*, records::*};
 use lapis_app_protocol::database::memory::{enums::*, jobs::*, records::*};
 use lapis_app_protocol::database::projections::queries::*;
 use lapis_app_protocol::database::projections::*;
@@ -33,6 +33,7 @@ pub struct Contracts {
     pub store_history: StoreHistory,
     pub stored_history: StoredHistory,
     pub core_indexed_file: CoreIndexedFile,
+    pub indexed_file: IndexedFile,
     pub indexed_manifest_query: ManifestQuery,
     pub indexed_manifest_page: ManifestPage,
     pub metadata_page_query: MetadataPageQuery,
@@ -100,6 +101,7 @@ fn main() {
         TagRecord::decl(&config),
         PropertyRecord::decl(&config),
         CoreIndexedFile::decl(&config),
+        IndexedFile::decl(&config),
         IndexedRow::decl(&config),
         ManifestPage::decl(&config),
         MetadataPage::decl(&config),

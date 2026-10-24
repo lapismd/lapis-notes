@@ -1,18 +1,25 @@
 use super::{normalize, write_domains};
 use crate::database::{encoded, engine, invalid, store::Store};
 use crate::services::Result;
-use lapis_app_protocol::database::{
-    changes::{ChangeDomain, ChangeSet},
-    indexed::records::CoreIndexedFile,
-};
+use lapis_app_protocol::database::{changes::ChangeDomain, indexed::records::CoreIndexedFile};
 
 impl Store {
     pub async fn put_indexed(&mut self, record: CoreIndexedFile) -> Result<()> {
         self.begin().await?;
-        let result = self.write_indexed(&record).await;
+        let result = async {
+            self.write_indexed_record(&record).await?;
+            Ok((
+                (),
+                Some(
+                    self.journal(ChangeDomain::Metadata, vec![record.file.path.clone()])
+                        .await?,
+                ),
+            ))
+        }
+        .await;
         self.finish(result).await
     }
-    async fn write_indexed(&self, record: &CoreIndexedFile) -> Result<((), Option<ChangeSet>)> {
+    pub(super) async fn write_indexed_record(&self, record: &CoreIndexedFile) -> Result<()> {
         let file = &record.file;
         let metadata = &record.metadata;
         self.connection.execute("INSERT INTO files(path,normalized_path,extension,mtime,size,hash,indexed,deleted) VALUES(?,?,?,?,?,?,?,0) ON CONFLICT(path) DO UPDATE SET normalized_path=excluded.normalized_path,extension=excluded.extension,mtime=excluded.mtime,size=excluded.size,hash=excluded.hash,indexed=excluded.indexed,deleted=0",turso::params![file.path.as_str(),file.normalized_path.as_str(),normalize::extension(&file.extension),file.mtime,file.size,file.hash.as_str(),i64::from(file.indexed)]).await.map_err(engine)?;
@@ -38,13 +45,7 @@ impl Store {
         write_domains::links(&self.connection, &file.path, &record.links).await?;
         write_domains::tags(&self.connection, &file.path, &record.tags).await?;
         write_domains::properties(&self.connection, &file.path, &record.properties).await?;
-        Ok((
-            (),
-            Some(
-                self.journal(ChangeDomain::Metadata, vec![file.path.clone()])
-                    .await?,
-            ),
-        ))
+        Ok(())
     }
 }
 pub(super) fn json(value: &impl serde::Serialize) -> Result<String> {

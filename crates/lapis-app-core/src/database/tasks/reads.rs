@@ -8,7 +8,7 @@ use lapis_app_protocol::database::{
 use serde_json::Value;
 use std::collections::{HashSet, VecDeque};
 impl Store {
-    pub(super) async fn task_row(&self, lookup: TaskLookup) -> Result<Option<Value>> {
+    pub(in crate::database) async fn task_row(&self, lookup: TaskLookup) -> Result<Option<Value>> {
         if let Some(id) = lookup.id.filter(|s| !s.is_empty()) {
             return self.projection_row(ID, &id, None).await;
         }

@@ -13,14 +13,7 @@ impl Store {
                     record.path
                 }
                 Action::Delete(path) => {
-                    self.connection
-                        .execute("DELETE FROM search_chunks WHERE path=?", [path.as_str()])
-                        .await
-                        .map_err(engine)?;
-                    self.connection
-                        .execute("DELETE FROM search_docs WHERE path=?", [path.as_str()])
-                        .await
-                        .map_err(engine)?;
+                    self.delete_search_rows(&path).await?;
                     path
                 }
                 _ => unreachable!("reads handled before transaction"),
@@ -33,7 +26,19 @@ impl Store {
         .await;
         self.finish(result).await
     }
-    async fn write_search(&self, record: &SearchDocumentRecord) -> Result<()> {
+    pub(in crate::database) async fn delete_search_rows(&self, path: &str) -> Result<()> {
+        for table in ["search_chunks", "search_docs"] {
+            self.connection
+                .execute(&format!("DELETE FROM {table} WHERE path=?"), [path])
+                .await
+                .map_err(engine)?;
+        }
+        Ok(())
+    }
+    pub(in crate::database) async fn write_search(
+        &self,
+        record: &SearchDocumentRecord,
+    ) -> Result<()> {
         let source = record.source_metadata.as_ref();
         self.connection
             .execute(

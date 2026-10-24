@@ -1,8 +1,11 @@
 mod client;
+mod deletion;
 mod facets;
 mod filter_sql;
+mod mutation_client;
 mod normalize;
 mod reads;
+mod rename;
 mod write_domains;
 mod writes;
 
@@ -14,6 +17,12 @@ use serde::Serialize;
 #[derive(Serialize)]
 pub(super) enum Action {
     Put(Box<CoreIndexedFile>),
+    Upsert(
+        Box<CoreIndexedFile>,
+        Option<Option<Box<lapis_app_protocol::database::tasks::record::TaskRecord>>>,
+    ),
+    Delete(String),
+    Rename(String, String),
     Get(String),
     Manifest(ManifestQuery),
     Page(MetadataPageQuery),
@@ -31,6 +40,21 @@ pub(super) enum Value {
 impl Store {
     pub async fn indexed(&mut self, action: Action) -> Result<Value> {
         match action {
+            Action::Upsert(record, task) => {
+                let path = record.file.path.clone();
+                self.put_indexed(*record).await?;
+                if let Some(task) = task {
+                    let action = if let Some(task) = task {
+                        crate::database::tasks::Action::Put(task)
+                    } else {
+                        crate::database::tasks::Action::Delete(path)
+                    };
+                    self.tasks(action).await?;
+                }
+                Ok(Value::Done)
+            }
+            Action::Delete(path) => self.delete_indexed(&path).await.map(|_| Value::Done),
+            Action::Rename(old, new) => self.rename_indexed(&old, &new).await.map(|_| Value::Done),
             Action::Put(record) => self.put_indexed(*record).await.map(|_| Value::Done),
             Action::Get(path) => self
                 .read_indexed(&[path], None, false)

@@ -56,6 +56,36 @@ both boundaries. Offsets and match ranges MUST remain UTF-16-based and refer to
 the retained source text. Retained and native implementations MUST share
 conformance evidence for this boundary.
 
+## LN-DB-061 — Native indexed-file upsert stages
+
+<a id="ln-db-061"></a>
+
+**Requirement.** Native indexed-file upsert MUST commit core metadata before
+optional task projection work, retaining LN-DB-020. An omitted task MUST leave
+existing task state unchanged; explicit null MUST delete it; a task record MUST
+upsert it. A later projection failure MUST preserve and publish earlier committed
+stages under LN-CORE-003.
+
+## LN-DB-062 — Native indexed-file rename
+
+<a id="ln-db-062"></a>
+
+**Requirement.** Native indexed-file rename MUST preserve the retained direct-Turso
+metadata, incoming links, notebook, task, projection and Search effects in one
+transaction. An absent indexed source MUST remain a no-op. Successful publication
+MUST include both paths and their rename pair; failure MUST roll back every
+domain and revision.
+
+## LN-DB-063 — Native indexed-file deletion
+
+<a id="ln-db-063"></a>
+
+**Requirement.** Native indexed-file deletion MUST atomically tombstone the file
+and clear its source-owned metadata, notebook, task, projection and Search state
+as retained by direct Turso. Its committed notification MUST identify every
+affected domain, including notebook. Failed publication MUST retain the previous
+state and revision.
+
 ## LN-DB-005 — Lexical retrieval: use Turso full-text search when available. Unsupported
 
 <a id="ln-db-005"></a>

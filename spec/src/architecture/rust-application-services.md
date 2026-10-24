@@ -271,3 +271,9 @@ native conversation-store experiment MUST NOT become migration prerequisites.
 browser-owned implementation and plugins. Desktop and hosted clients using native
 services MUST NOT construct duplicate authoritative schedulers. Shared conformance
 fixtures MUST verify the retained browser and native contracts independently.
+
+Native indexed-file facade intake composes the retained core/task stages and
+atomic rename/delete effects under LN-DB-061/062/063. It reuses existing native
+writers and committed rename notifications across metadata, Search, notebook,
+task and projection relationships. Host adoption and unattended indexing remain
+separate gates.

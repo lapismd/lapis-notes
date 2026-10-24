@@ -2,7 +2,7 @@
 
 ## Shared Rust application services (2026-10-23)
 
-Last updated **2026-10-24 15:35:05 UTC**. This is the active migration tracker for the
+Last updated **2026-10-24 16:05:30 UTC**. This is the active migration tracker for the
 [shared Rust plan](RUST_CORE_MIGRATION_PLAN.md). The older Node parity roadmap
 below is superseded; its remaining rows are historical references, not another
 set of current migration tasks.
@@ -14,13 +14,15 @@ host.
 
 **Current checkpoint:** lexical/structured Search is source complete at
 `77398e4e`, with [Desktop dependency qualification](spec/records/2026-10-24-rust-core-search-retrieval-desktop.md)
-committed at `790e0b23`. Native semantic Search, remaining indexed-file operations
-and host adoption are still waiting. R1.3/R3 remains the active workstream.
+committed at `790e0b23`. Native indexed-file upsert/rename/delete is source complete against the retained
+direct-Turso contract; Desktop compatibility checks pass and their record is
+being finalized. Semantic Search and host adoption are still waiting.
+R1.3/R3 remains the active workstream.
 Neither application has selected the new database facade.
 
-**Next:** finish native semantic Search and remaining indexed-file operations,
-connect the shared facade to both hosts, then qualify the existing hosted shell
-and backup lifetime. R2–R7 follows the agreed order; this adds no feature scope.
+**Next:** finish native semantic Search and the existing batch/rebuild controls,
+qualify the complete facade, connect both hosts, then qualify the retained hosted
+shell and backup lifetime. R2–R7 follows the agreed order; this adds no feature scope.
 
 ### Status meanings
 
@@ -84,9 +86,11 @@ or the hosted browser is already using the new database implementation.**
 | Native prepared Search storage                                      | Source complete | [Native Search storage](spec/records/2026-10-24-rust-core-search-storage.md): prepared rows, vectors, manifests and statistics. [Desktop dependency compatibility](spec/records/2026-10-24-rust-core-search-desktop.md) passes; host adoption remains waiting.                                                                       |
 | Native Search document preparation and chunking                     | Source complete | [Native preparation](spec/records/2026-10-24-rust-core-search-preparation.md): shared 17-record reference, scored chunks, tags/frontmatter and UTF-16-safe cutoffs. Semantic inference and host intake remain separate.                                                                                                              |
 | Native lexical/structured Search retrieval                          | Source complete | [Native retrieval intake](spec/records/2026-10-24-rust-core-search-retrieval.md): 76 full-result/path queries, retained FTS weights, complete table ranking, UTF-16 snippets, bounded selection and cold reopen. Full source check/test/build/spec and 261 catalog cases pass; semantic inference and host adoption remain separate. |
-| Native semantic embeddings and retrieval                            | Waiting         | ONNX Runtime plus the current model, tokenizer, pooling/normalization and model-output/retrieval acceptance.                                                                                                                                                                                                                         |
-| Complete indexed-file upsert, rename and delete                     | Waiting         | Preserve all cross-domain task, projection, Search and notebook effects.                                                                                                                                                                                                                                                             |
-| Complete native AppDatabase facade                                  | Waiting         | Finish the remaining catalogue and cross-domain operations, then qualify host intake under R1.3.                                                                                                                                                                                                                                     |
+| Native semantic provider and embeddings                             | Waiting         | Lazy provider configuration/status, ONNX Runtime, current model/tokenizer, pooling/normalization, identity/dimension invalidation and model-output acceptance.                                                                                                                                                                       |
+| Native vector/hybrid Search retrieval                               | Waiting         | Turso float-vector retrieval, retained reciprocal-rank fusion, structured filtering and document/path conformance.                                                                                                                                                                                                                   |
+| Native Search batch and rebuild controls                            | Waiting         | Retain begin/end indexing batches and rebuild behavior through the shared owner; these remain part of the existing Search facade scope.                                                                                                                                                                                              |
+| Complete indexed-file upsert, rename and delete                     | Source complete | [Native indexed-file intake](spec/records/2026-10-24-rust-core-indexed-mutations.md): ten-case retained reference, staged task commits, atomic rename/delete and persisted rename notifications; seven exact native cases, 169 full Rust cases, 1,489 API cases and all source check/test/build/spec lanes pass.                     |
+| Complete native AppDatabase facade                                  | Waiting         | Finish the remaining Search controls/modes and qualify all 68 existing allowlisted methods, including schema/revision aliases and transport return shapes, before host adoption.                                                                                                                                                     |
 
 ### Remaining R3 service ownership
 

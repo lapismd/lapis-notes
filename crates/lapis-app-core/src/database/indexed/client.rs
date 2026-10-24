@@ -6,22 +6,7 @@ use lapis_app_protocol::database::indexed::{queries::*, records::*};
 impl Database {
     /// Core file metadata only; plugin projections commit separately.
     pub async fn upsert_indexed_metadata(&self, record: CoreIndexedFile) -> Result<()> {
-        let path = &record.file.path;
-        if !record.file.mtime.is_finite()
-            || !record.file.size.is_finite()
-            || record.metadata.path != *path
-            || record.links.iter().any(|l| {
-                l.source_path != *path
-                    || !l.count.is_finite()
-                    || l.ordinal.is_some_and(|n| !n.is_finite())
-            })
-            || record.tags.iter().any(|t| t.path != *path)
-            || record.properties.iter().any(|p| p.path != *path)
-        {
-            return Err(invalid(
-                "Invalid core indexed file identity or numeric data",
-            ));
-        }
+        validate_record(&record)?;
         self.submit(Operation::Indexed(Action::Put(Box::new(record))))
             .await
             .map(|_| ())
@@ -88,4 +73,24 @@ impl Database {
             _ => unreachable!("worker output matches operation"),
         }
     }
+}
+
+pub(super) fn validate_record(record: &CoreIndexedFile) -> Result<()> {
+    let path = &record.file.path;
+    if !record.file.mtime.is_finite()
+        || !record.file.size.is_finite()
+        || record.metadata.path != *path
+        || record.links.iter().any(|l| {
+            l.source_path != *path
+                || !l.count.is_finite()
+                || l.ordinal.is_some_and(|n| !n.is_finite())
+        })
+        || record.tags.iter().any(|t| t.path != *path)
+        || record.properties.iter().any(|p| p.path != *path)
+    {
+        return Err(invalid(
+            "Invalid core indexed file identity or numeric data",
+        ));
+    }
+    Ok(())
 }

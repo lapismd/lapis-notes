@@ -14,6 +14,7 @@ import {
   type ChangeSet,
   type StoreHistory,
   type CoreIndexedFile,
+  type IndexedFile,
   type MetadataPageQuery,
   type ProjectionDefinition,
   type ProjectionSource,
@@ -407,3 +408,21 @@ void [
   badMode,
   resultPath,
 ];
+
+function indexedTaskSelection(
+  input: CoreIndexedFile,
+  task: TaskRecord,
+): IndexedFile[] {
+  return [input, { ...input, task: null }, { ...input, task }];
+}
+const invalidIndexedTask: IndexedFile = {
+  ...({} as CoreIndexedFile),
+  // @ts-expect-error Task selection admits a record or null, never a command.
+  task: "execute",
+};
+const invalidIndexedSql: IndexedFile = {
+  ...({} as CoreIndexedFile),
+  // @ts-expect-error Indexed operations cannot carry raw SQL.
+  sql: "DELETE FROM files",
+};
+void [indexedTaskSelection, invalidIndexedTask, invalidIndexedSql];

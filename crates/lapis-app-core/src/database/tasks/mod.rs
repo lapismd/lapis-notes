@@ -1,4 +1,5 @@
 mod client;
+pub(super) use client::valid;
 mod query;
 mod reads;
 mod writes;

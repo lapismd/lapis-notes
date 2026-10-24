@@ -51,7 +51,7 @@ impl Database {
         }
     }
 }
-fn valid(row: &TaskRecord) -> bool {
+pub(in crate::database) fn valid(row: &TaskRecord) -> bool {
     let mut numbers = vec![
         row.checklist_total,
         row.checklist_completed,
