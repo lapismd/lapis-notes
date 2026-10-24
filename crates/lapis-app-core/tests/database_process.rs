@@ -6,6 +6,7 @@ use std::{
     time::{Duration, Instant},
 };
 use uuid::Uuid;
+mod projection_support;
 
 #[test]
 fn metadata_survives_a_killed_native_owner_and_reopens_in_a_fresh_process() {
@@ -81,6 +82,21 @@ async fn metadata_process_fixture() {
         db.store_file_history_revision(history).await.unwrap();
         let indexed=serde_json::from_value(json!({"file":{"path":"cold.md","normalizedPath":"cold.md","extension":"md","mtime":1,"size":10,"hash":"cold-indexed","indexed":true},"metadata":{"path":"cold.md","hash":"cold-indexed","parserVersion":"cold-1","metadata":{"heading":"native"}},"properties":[],"tags":[],"links":[]})).unwrap();
         db.upsert_indexed_metadata(indexed).await.unwrap();
+        db.register_projection_definition(
+            serde_json::from_value(projection_support::definition("books/book")).unwrap(),
+        )
+        .await
+        .unwrap();
+        db.replace_projection_source(
+            serde_json::from_value(projection_support::source(
+                "books/book",
+                "cold.md",
+                "cold-row",
+            ))
+            .unwrap(),
+        )
+        .await
+        .unwrap();
         println!("METADATA_COMMITTED");
         std::future::pending::<()>().await;
     } else {
@@ -88,7 +104,7 @@ async fn metadata_process_fixture() {
             db.get_meta("cold").await.unwrap(),
             Some(json!({"value":"native 🪨"}))
         );
-        assert_eq!(db.revision().await.unwrap(), 4);
+        assert_eq!(db.revision().await.unwrap(), 6);
         let notices = db.list_notifications().await.unwrap();
         assert_eq!(notices.len(), 1);
         assert_eq!(notices[0].id, "cold-notice");
@@ -106,6 +122,15 @@ async fn metadata_process_fixture() {
             "cold-1"
         );
         db.close().await.unwrap();
+        assert_eq!(
+            projection_support::inspect(
+                std::path::Path::new(&directory),
+                id,
+                "SELECT row_id,source_path FROM index_projection_rows"
+            )
+            .await,
+            vec![vec![json!("cold-row"), json!("cold.md")]]
+        );
         println!("METADATA_RESTORED");
     }
 }

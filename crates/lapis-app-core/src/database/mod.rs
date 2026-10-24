@@ -6,6 +6,7 @@ mod history_reads;
 mod history_writes;
 mod indexed;
 mod notifications;
+mod projections;
 mod reads;
 mod saved_state;
 mod state_client;
@@ -55,6 +56,7 @@ enum Operation {
     GetHistory(String),
     StoreHistory(StoreHistory),
     Indexed(indexed::Action),
+    Projection(projections::Action),
 }
 enum Output {
     Meta(Option<Value>),

@@ -15,6 +15,8 @@ import {
   type StoreHistory,
   type CoreIndexedFile,
   type MetadataPageQuery,
+  type ProjectionDefinition,
+  type ProjectionSource,
 } from "../bindings/protocol.js";
 const command = {
   kind: "write_text",
@@ -161,3 +163,31 @@ const projectionInCore: CoreIndexedFile = {
   task: {},
 };
 void [metadataQuery, unknownDomain, projectionInCore];
+
+const projection: ProjectionDefinition = {
+  projectionId: "books/book",
+  ownerPluginId: "books",
+  schemaVersion: 2,
+  configHash: "config-2",
+  visibility: "public",
+  fields: { title: { type: "string", indexed: true } },
+  active: true,
+  updatedAt: 1,
+};
+const projectionSource: ProjectionSource = {
+  projectionId: projection.projectionId,
+  sourcePath: "book.md",
+  sourceHash: "hash",
+  rows: [{ id: "book", kind: "book", data: { title: "Book" } }],
+};
+const unknownProjection: ProjectionDefinition = {
+  ...projection,
+  // @ts-expect-error The retained visibility catalogue is explicit.
+  visibility: "shared",
+};
+const projectionSql: ProjectionSource = {
+  ...projectionSource,
+  // @ts-expect-error The native facade never receives raw SQL.
+  sql: "DELETE FROM index_projection_rows",
+};
+void [projection, projectionSource, unknownProjection, projectionSql];

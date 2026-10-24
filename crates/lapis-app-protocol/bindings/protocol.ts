@@ -266,6 +266,64 @@ export type LinkQuery = {
   resolution?: LinkResolution;
   limit?: number;
 };
+export type ProjectionFieldType =
+  | "string"
+  | "number"
+  | "boolean"
+  | "date"
+  | "datetime"
+  | "path"
+  | "json";
+export type ProjectionVisibility = "public" | "private";
+export type ProjectionCardinality = "one" | "many";
+export type ProjectionField = {
+  type: ProjectionFieldType;
+  indexed?: boolean;
+  sortable?: boolean;
+  unique?: boolean;
+  cardinality?: ProjectionCardinality;
+};
+export type ProjectionDefinition = {
+  projectionId: string;
+  ownerPluginId: string;
+  schemaVersion: number;
+  configHash: string;
+  visibility: ProjectionVisibility;
+  fields: { [key in string]: ProjectionField };
+  active: boolean;
+  updatedAt: number;
+};
+export type ProjectionRow = {
+  id: string;
+  kind: string;
+  ordinal?: number;
+  data: { [key: string]: unknown };
+};
+export type ProjectionEdge = {
+  sourceRowId: string;
+  relation: string;
+  targetProjectionId?: string;
+  targetRowId?: string;
+  targetPath?: string;
+  targetText?: string;
+  ordinal: number;
+  data?: { [key: string]: unknown } | null;
+};
+export type ProjectionSource = {
+  projectionId: string;
+  sourcePath: string;
+  sourceHash: string;
+  rows: Array<ProjectionRow>;
+  edges?: Array<ProjectionEdge>;
+  writerPluginId?: string;
+};
+export type ProjectionSourceError = {
+  projectionId: string;
+  sourcePath: string;
+  sourceHash: string;
+  error: string;
+  writerPluginId?: string;
+};
 export type ManagedVault = { vault_id: string; name: string };
 export type AttachClient = { protocol_version: number };
 export type FileOptions = { mtime: number | null };

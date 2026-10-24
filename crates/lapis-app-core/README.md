@@ -44,6 +44,12 @@ Core publication is a processor boundary; the full AppDatabase upsert still
 needs its separate projection stage, and rename/delete retain pending cross-domain
 integration.
 
+`database::projections` retains namespaced definition registration, atomic
+source replacement and error/delete/unregister cleanup. Rows, typed indexed
+values, relationships and post-commit events share the native worker. Shared
+browser/native fixtures check scalar conversion and limits. Projection reads,
+task composition and background scheduling remain later catalogue work.
+
 This foundation does not migrate the complete AppDatabase schema or connect a
 browser/desktop database adapter yet. Remaining catalogue methods and service
 intake gate the hosted shell; native indexing/Search remain R3.

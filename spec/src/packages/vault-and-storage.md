@@ -16,6 +16,11 @@ actions retain existing shell operations and result metadata; host-only OS
 commands are excluded. Native admission can consume a retained root capability
 without reopening its path.
 
+The retained API projection-value implementation and native database storage
+share the API-owned `__tests__/fixtures/projection-values.json`. Their independent tests verify
+scalar conversion, missing values, arrays and typed columns; companion cases
+retain field ordering, cardinality and text/row limits under LN-DB-017.
+
 ## LN-PKG-185 — Core vault listing exclusions
 
 <a id="ln-pkg-185"></a>

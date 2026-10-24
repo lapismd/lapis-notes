@@ -989,6 +989,126 @@
         }
       ]
     },
+    "ProjectionCardinality": { "enum": ["one", "many"], "type": "string" },
+    "ProjectionDefinition": {
+      "additionalProperties": false,
+      "properties": {
+        "active": { "type": "boolean" },
+        "configHash": { "type": "string" },
+        "fields": {
+          "additionalProperties": { "$ref": "#/$defs/ProjectionField" },
+          "type": "object"
+        },
+        "ownerPluginId": { "type": "string" },
+        "projectionId": { "type": "string" },
+        "schemaVersion": { "format": "double", "type": "number" },
+        "updatedAt": { "format": "double", "type": "number" },
+        "visibility": { "$ref": "#/$defs/ProjectionVisibility" }
+      },
+      "required": [
+        "projectionId",
+        "ownerPluginId",
+        "schemaVersion",
+        "configHash",
+        "visibility",
+        "fields",
+        "active",
+        "updatedAt"
+      ],
+      "type": "object"
+    },
+    "ProjectionEdge": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "additionalProperties": true,
+          "default": null,
+          "type": ["object", "null"]
+        },
+        "ordinal": { "format": "double", "type": "number" },
+        "relation": { "type": "string" },
+        "sourceRowId": { "type": "string" },
+        "targetPath": { "default": null, "type": ["string", "null"] },
+        "targetProjectionId": { "default": null, "type": ["string", "null"] },
+        "targetRowId": { "default": null, "type": ["string", "null"] },
+        "targetText": { "default": null, "type": ["string", "null"] }
+      },
+      "required": ["sourceRowId", "relation", "ordinal"],
+      "type": "object"
+    },
+    "ProjectionField": {
+      "additionalProperties": false,
+      "properties": {
+        "cardinality": {
+          "anyOf": [
+            { "$ref": "#/$defs/ProjectionCardinality" },
+            { "type": "null" }
+          ]
+        },
+        "indexed": { "default": false, "type": "boolean" },
+        "sortable": { "default": false, "type": "boolean" },
+        "type": { "$ref": "#/$defs/ProjectionFieldType" },
+        "unique": { "default": false, "type": "boolean" }
+      },
+      "required": ["type"],
+      "type": "object"
+    },
+    "ProjectionFieldType": {
+      "enum": [
+        "string",
+        "number",
+        "boolean",
+        "date",
+        "datetime",
+        "path",
+        "json"
+      ],
+      "type": "string"
+    },
+    "ProjectionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "data": { "additionalProperties": true, "type": "object" },
+        "id": { "type": "string" },
+        "kind": { "type": "string" },
+        "ordinal": { "format": "double", "type": ["number", "null"] }
+      },
+      "required": ["id", "kind", "data"],
+      "type": "object"
+    },
+    "ProjectionSource": {
+      "additionalProperties": false,
+      "properties": {
+        "edges": {
+          "default": [],
+          "items": { "$ref": "#/$defs/ProjectionEdge" },
+          "type": "array"
+        },
+        "projectionId": { "type": "string" },
+        "rows": {
+          "items": { "$ref": "#/$defs/ProjectionRow" },
+          "type": "array"
+        },
+        "sourceHash": { "type": "string" },
+        "sourcePath": { "type": "string" },
+        "writerPluginId": { "type": ["string", "null"] }
+      },
+      "required": ["projectionId", "sourcePath", "sourceHash", "rows"],
+      "type": "object"
+    },
+    "ProjectionSourceError": {
+      "additionalProperties": false,
+      "properties": {
+        "error": { "type": "string" },
+        "projectionId": { "type": "string" },
+        "sourceHash": { "type": "string" },
+        "sourcePath": { "type": "string" },
+        "writerPluginId": { "type": ["string", "null"] }
+      },
+      "required": ["projectionId", "sourcePath", "sourceHash", "error"],
+      "type": "object"
+    },
+    "ProjectionVisibility": { "enum": ["public", "private"], "type": "string" },
     "PropertyFilter": {
       "additionalProperties": false,
       "properties": {
@@ -1367,6 +1487,9 @@
     "metadata_snapshot": { "$ref": "#/$defs/MetadataSnapshot" },
     "notebook": { "$ref": "#/$defs/NotebookState" },
     "notification": { "$ref": "#/$defs/NotificationRecord" },
+    "projection_definition": { "$ref": "#/$defs/ProjectionDefinition" },
+    "projection_error": { "$ref": "#/$defs/ProjectionSourceError" },
+    "projection_source": { "$ref": "#/$defs/ProjectionSource" },
     "reply": { "$ref": "#/$defs/Reply" },
     "request": { "$ref": "#/$defs/Request" },
     "session": { "$ref": "#/$defs/SessionInfo" },
@@ -1401,7 +1524,10 @@
     "metadata_page",
     "metadata_facet_query",
     "metadata_facets",
-    "metadata_link_query"
+    "metadata_link_query",
+    "projection_definition",
+    "projection_source",
+    "projection_error"
   ],
   "title": "Contracts",
   "type": "object"

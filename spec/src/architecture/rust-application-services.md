@@ -119,6 +119,14 @@ publication is a lower-level processor boundary; the complete AppDatabase
 upsert and rename/delete operations must also retain their separate task,
 projection, Search and notebook effects before host intake.
 
+Native projection storage retains the existing plugin namespaces, active
+definitions, atomic source replacement and error/delete/unregister cleanup.
+Each source keeps at most 64 rows; typed indexed values retain the first 64
+indexed/sortable fields in JavaScript property order and the 4096 UTF-16-unit
+text bound. Definition, source, row, value, edge and change-journal updates share
+the native writer. Query/read authorization, task composition and unattended
+projection scheduling remain separate gates until their conformance qualifies.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

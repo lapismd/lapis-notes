@@ -1,0 +1,60 @@
+use super::{Action, write_access};
+use crate::database::{Database, Operation, invalid};
+use crate::services::Result;
+use lapis_app_protocol::database::projections::*;
+
+impl Database {
+    pub async fn register_projection_definition(
+        &self,
+        definition: ProjectionDefinition,
+    ) -> Result<()> {
+        if !definition.schema_version.is_finite() || !definition.updated_at.is_finite() {
+            return Err(invalid("Invalid projection definition number"));
+        }
+        self.submit(Operation::Projection(Action::Register(definition)))
+            .await
+            .map(|_| ())
+    }
+    pub async fn unregister_projection_definition(&self, id: &str) -> Result<()> {
+        self.submit(Operation::Projection(Action::Unregister(id.into())))
+            .await
+            .map(|_| ())
+    }
+    pub async fn replace_projection_source(&self, input: ProjectionSource) -> Result<()> {
+        write_access(&input.projection_id, input.writer_plugin_id.as_deref())?;
+        if input.rows.len() > 64 {
+            return Err(invalid("Projection source exceeds 64 rows"));
+        }
+        if input
+            .rows
+            .iter()
+            .any(|r| r.ordinal.is_some_and(|n| !n.is_finite()))
+            || input.edges.iter().any(|e| !e.ordinal.is_finite())
+        {
+            return Err(invalid("Invalid projection ordinal"));
+        }
+        self.submit(Operation::Projection(Action::Replace(input)))
+            .await
+            .map(|_| ())
+    }
+    pub async fn mark_projection_source_error(&self, input: ProjectionSourceError) -> Result<()> {
+        write_access(&input.projection_id, input.writer_plugin_id.as_deref())?;
+        self.submit(Operation::Projection(Action::Error(input)))
+            .await
+            .map(|_| ())
+    }
+    pub async fn delete_projection_source(
+        &self,
+        id: &str,
+        path: &str,
+        writer: Option<&str>,
+    ) -> Result<()> {
+        write_access(id, writer)?;
+        self.submit(Operation::Projection(Action::Delete(
+            id.into(),
+            path.into(),
+        )))
+        .await
+        .map(|_| ())
+    }
+}

@@ -57,6 +57,10 @@ impl Store {
             .execute_batch(include_str!("indexed/schema.sql"))
             .await
             .map_err(engine)?;
+        connection
+            .execute_batch(include_str!("projections/schema.sql"))
+            .await
+            .map_err(engine)?;
         let store = Self {
             connection,
             _database: database,
@@ -94,6 +98,7 @@ impl Store {
                 self.store_history(input).await.map(Output::StoredHistory)
             }
             Operation::Indexed(action) => self.indexed(action).await.map(Output::Indexed),
+            Operation::Projection(action) => self.projection(action).await.map(|_| Output::Done),
         }
     }
     pub async fn revision(&self) -> Result<u64> {

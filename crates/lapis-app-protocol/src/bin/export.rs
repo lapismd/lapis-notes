@@ -1,4 +1,5 @@
 use lapis_app_protocol::database::indexed::{queries::*, records::*};
+use lapis_app_protocol::database::projections::*;
 use lapis_app_protocol::database::{changes::*, history::*, state::*};
 use lapis_app_protocol::{browser::*, database::*, files::*, *};
 use schemars::JsonSchema;
@@ -34,6 +35,9 @@ pub struct Contracts {
     pub metadata_facet_query: FacetQuery,
     pub metadata_facets: Vec<FacetRow>,
     pub metadata_link_query: LinkQuery,
+    pub projection_definition: ProjectionDefinition,
+    pub projection_source: ProjectionSource,
+    pub projection_error: ProjectionSourceError,
 }
 fn main() {
     let config = Config::default();
@@ -93,6 +97,15 @@ fn main() {
         LinkDirection::decl(&config),
         LinkResolution::decl(&config),
         LinkQuery::decl(&config),
+        ProjectionFieldType::decl(&config),
+        ProjectionVisibility::decl(&config),
+        ProjectionCardinality::decl(&config),
+        ProjectionField::decl(&config),
+        ProjectionDefinition::decl(&config),
+        ProjectionRow::decl(&config),
+        ProjectionEdge::decl(&config),
+        ProjectionSource::decl(&config),
+        ProjectionSourceError::decl(&config),
         ManagedVault::decl(&config),
         AttachClient::decl(&config),
         FileOptions::decl(&config),
