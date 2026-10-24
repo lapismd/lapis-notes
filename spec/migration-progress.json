@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-24 21:50:25 UTC",
+  "updated": "2026-10-24 22:00:10 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -309,9 +309,9 @@
       "id": "R3.1.18",
       "area": "Database catalogue",
       "work": "Native model/cache installation and runtime admission",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Register ordinary-host runtime/model caches, on-demand downloads and progress. Current source admission accepts native-registered files; it does not install assets."
+      "detail": "Acceptance test authored; initial run stopped at the 30 GiB build guard before compilation. Implement verified native runtime/model caches, downloads and progress. Neither host has adopted this service."
     },
     {
       "id": "R3.1.19",

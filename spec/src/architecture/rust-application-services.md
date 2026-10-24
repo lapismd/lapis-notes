@@ -5,6 +5,12 @@ Node-specific hosted parity implementation. Existing hosts remain supported
 until their replacement gates pass. Current migration status is in
 [MIGRATION.md](../../../MIGRATION.md).
 
+The main Notes `default` workspace owns that R0–R7 master tracker. Desktop's
+separate M-series tracker points here for shared-core activity. R3.1.18 native
+runtime/model installation is underway; its new acceptance test is not yet
+qualified. Source database conformance is complete, but both hosts still await
+database adoption. Retained migration workspaces are not this thread's checkout.
+
 R1.1 extracts Desktop's existing vault file engine into `lapis-app-core` and
 updates native callers directly. The low-level engine retains the caller-owned
 IO gate; extracting it does not claim cross-client serialization or new job

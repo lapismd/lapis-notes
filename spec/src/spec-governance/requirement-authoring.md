@@ -119,3 +119,7 @@ link to their owning canonical spec. `pnpm check:progress` rejects stale tables,
 invalid task metadata and broken spec links; normal and specification checks
 run it. Update the ledger timestamp and the authored activity checkpoint before
 regenerating. Historical intake remains outside the generated block.
+
+The main Notes `default` workspace owns this master R0–R7 tracker. Desktop's
+separate tracker owns M-series gates and directs shared-core activity here;
+retained historical workspaces are not the active implementation checkout.

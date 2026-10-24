@@ -2,7 +2,13 @@
 
 ## Shared Rust application services (2026-10-23)
 
-Last updated **2026-10-24 21:50:25 UTC**. This is the active migration tracker for the
+**Authoritative master tracker:** this file in the main Notes repository,
+`/Users/stevejuma/code/lapismd/lapis-notes` (Jujutsu workspace `default`).
+The sibling Desktop tracker owns its M-series milestones; the active shared
+Rust work is tracked here as R0–R7. Other migration workspaces are retained
+history, not the current implementation checkout.
+
+Last updated **2026-10-24 22:00:10 UTC**. This is the active migration tracker for the
 [shared Rust plan](RUST_CORE_MIGRATION_PLAN.md). The older Node parity roadmap
 below is superseded; its remaining rows are historical references, not another
 set of current migration tasks.
@@ -34,12 +40,13 @@ all-target Clippy pass. All 19 existing archive checksums verify. The next
 implementation is native runtime/model cache admission and installation, then
 selected host adapters. Neither application has selected the new database.
 
-**Current activity:** [generated master status groups](spec/records/2026-10-24-master-migration-groups.md)
-are complete: all 46 existing tasks have stable IDs and owning-spec links;
-ten generator cases and all 48 specification regressions pass. Normal and
-specification checks reject stale generated tables. This tracking change does
-not advance a product gate. Native runtime/model installation remains the next
-implementation slice.
+**Current activity:** R3.1.18 native runtime/model cache installation has started.
+The first acceptance test is authored; its initial run stopped at the existing
+30 GiB free-space guard before compilation. No installation implementation or
+new model qualification has landed. The
+[generated master status groups](spec/records/2026-10-24-master-migration-groups.md)
+are complete at `9788a6bf`: ten generator cases and all 48 specification
+regressions pass. Both hosts still await native database selection.
 
 **Next:** register native model/cache assets, connect both hosts, then
 qualify the retained hosted shell and backup lifetime. R2–R7 follows the agreed
@@ -71,29 +78,29 @@ not host adoption or native/hosted application acceptance.
 
 ### Gate status: Working
 
-| Task ID                                                                | Area    | Work               | Evidence or next gate                                                                                                                     |
-| ---------------------------------------------------------------------- | ------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| [R1.3](spec/src/architecture/rust-application-services.md#ln-core-004) | Roadmap | Both host adapters | Database adoption, existing hosted shell and backup detach/Quit acceptance. See the host checklist.                                       |
-| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)   | Roadmap | Indexed vault      | The complete native database facade is source-qualified. Host adoption and unattended metadata/projection/Search/history indexing remain. |
+| Task ID                                                                   | Area               | Work                                                  | Evidence or next gate                                                                                                                                                                                      |
+| ------------------------------------------------------------------------- | ------------------ | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [R1.3](spec/src/architecture/rust-application-services.md#ln-core-004)    | Roadmap            | Both host adapters                                    | Database adoption, existing hosted shell and backup detach/Quit acceptance. See the host checklist.                                                                                                        |
+| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)      | Roadmap            | Indexed vault                                         | The complete native database facade is source-qualified. Host adoption and unattended metadata/projection/Search/history indexing remain.                                                                  |
+| [R3.1.18](spec/src/architecture/rust-application-services.md#ln-core-003) | Database catalogue | Native model/cache installation and runtime admission | Acceptance test authored; initial run stopped at the 30 GiB build guard before compilation. Implement verified native runtime/model caches, downloads and progress. Neither host has adopted this service. |
 
 ### Gate status: Waiting
 
-| Task ID                                                                   | Area               | Work                                                       | Evidence or next gate                                                                                                                                                |
-| ------------------------------------------------------------------------- | ------------------ | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [R1.3.7](spec/src/architecture/rust-application-services.md#ln-core-004)  | Host adapters      | Database facade bound to admitted vault lifetime           | Finish the database catalogue below, then attach and close its owner through the vault service.                                                                      |
-| [R1.3.8](spec/src/architecture/rust-application-services.md#ln-core-004)  | Host adapters      | Tauri and HTTP database adapters                           | The complete native facade; retain the existing high-level allowlist and expose no raw SQL.                                                                          |
-| [R1.3.9](spec/src/architecture/rust-application-services.md#ln-core-004)  | Host adapters      | Existing browser login/vault/workspace UI on Rust          | Native database and HTTP adapters, then real retained-shell read/edit acceptance.                                                                                    |
-| [R1.3.10](spec/src/architecture/rust-application-services.md#ln-core-004) | Host adapters      | Automatic backup after client detach and controlled Quit   | Reuse the existing engine with service ownership; qualify the original detach/drain gate.                                                                            |
-| [R1.3.11](spec/src/architecture/rust-application-services.md#ln-core-004) | Host adapters      | Same existing file actions through both application shells | Final native/hosted UI acceptance after the integrations above.                                                                                                      |
-| [R2](spec/src/architecture/rust-application-services.md#ln-core-003)      | Roadmap            | Durable conversation                                       | After R1.3: a real accepted turn completes without a client and recovers after restart without replay.                                                               |
-| [R3.1.18](spec/src/architecture/rust-application-services.md#ln-core-003) | Database catalogue | Native model/cache installation and runtime admission      | Register ordinary-host runtime/model caches, on-demand downloads and progress. Current source admission accepts native-registered files; it does not install assets. |
-| [R3.2.1](spec/src/architecture/rust-application-services.md#ln-core-003)  | Service ownership  | Unattended metadata and projection reconciliation          | Adopt the native database and move the existing processor/scheduler ownership into the service. External changes must index without clients.                         |
-| [R3.2.2](spec/src/architecture/rust-application-services.md#ln-core-003)  | Service ownership  | Search index reconciliation and scheduling                 | Native preparation/retrieval and service-owned lifetime; qualify equivalent results and derived-cache rebuilds.                                                      |
-| [R3.2.3](spec/src/architecture/rust-application-services.md#ln-core-003)  | Service ownership  | History-index scheduling                                   | Reuse the existing history engine and move its scheduler into the vault service.                                                                                     |
-| [R4](spec/src/architecture/rust-application-services.md#ln-core-005)      | Roadmap            | AI/tools/Changes                                           | After R2/R3: existing queues, participants/context, approvals, native tools and guarded undo through both hosts.                                                     |
-| [R5](spec/src/architecture/rust-application-services.md#ln-core-007)      | Roadmap            | Memory                                                     | After R4: native capture/recall, Markdown authority, maintenance, relocation and cold recovery. Derived database storage alone does not complete this.               |
-| [R6](spec/src/architecture/rust-application-services.md#ln-core-003)      | Roadmap            | Native jobs                                                | After R5: imports/capture, existing Forge/transfer/Compute, installation transactions and terminal lifetime.                                                         |
-| [R7](spec/src/architecture/rust-application-services.md#ln-core-008)      | Roadmap            | Rust cutover                                               | After the feature slices: full hosted/desktop journeys, HTTP/SSE, Linux packaging, standalone-browser regression checks and Node/companion retirement.               |
+| Task ID                                                                   | Area              | Work                                                       | Evidence or next gate                                                                                                                                  |
+| ------------------------------------------------------------------------- | ----------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [R1.3.7](spec/src/architecture/rust-application-services.md#ln-core-004)  | Host adapters     | Database facade bound to admitted vault lifetime           | Finish the database catalogue below, then attach and close its owner through the vault service.                                                        |
+| [R1.3.8](spec/src/architecture/rust-application-services.md#ln-core-004)  | Host adapters     | Tauri and HTTP database adapters                           | The complete native facade; retain the existing high-level allowlist and expose no raw SQL.                                                            |
+| [R1.3.9](spec/src/architecture/rust-application-services.md#ln-core-004)  | Host adapters     | Existing browser login/vault/workspace UI on Rust          | Native database and HTTP adapters, then real retained-shell read/edit acceptance.                                                                      |
+| [R1.3.10](spec/src/architecture/rust-application-services.md#ln-core-004) | Host adapters     | Automatic backup after client detach and controlled Quit   | Reuse the existing engine with service ownership; qualify the original detach/drain gate.                                                              |
+| [R1.3.11](spec/src/architecture/rust-application-services.md#ln-core-004) | Host adapters     | Same existing file actions through both application shells | Final native/hosted UI acceptance after the integrations above.                                                                                        |
+| [R2](spec/src/architecture/rust-application-services.md#ln-core-003)      | Roadmap           | Durable conversation                                       | After R1.3: a real accepted turn completes without a client and recovers after restart without replay.                                                 |
+| [R3.2.1](spec/src/architecture/rust-application-services.md#ln-core-003)  | Service ownership | Unattended metadata and projection reconciliation          | Adopt the native database and move the existing processor/scheduler ownership into the service. External changes must index without clients.           |
+| [R3.2.2](spec/src/architecture/rust-application-services.md#ln-core-003)  | Service ownership | Search index reconciliation and scheduling                 | Native preparation/retrieval and service-owned lifetime; qualify equivalent results and derived-cache rebuilds.                                        |
+| [R3.2.3](spec/src/architecture/rust-application-services.md#ln-core-003)  | Service ownership | History-index scheduling                                   | Reuse the existing history engine and move its scheduler into the vault service.                                                                       |
+| [R4](spec/src/architecture/rust-application-services.md#ln-core-005)      | Roadmap           | AI/tools/Changes                                           | After R2/R3: existing queues, participants/context, approvals, native tools and guarded undo through both hosts.                                       |
+| [R5](spec/src/architecture/rust-application-services.md#ln-core-007)      | Roadmap           | Memory                                                     | After R4: native capture/recall, Markdown authority, maintenance, relocation and cold recovery. Derived database storage alone does not complete this. |
+| [R6](spec/src/architecture/rust-application-services.md#ln-core-003)      | Roadmap           | Native jobs                                                | After R5: imports/capture, existing Forge/transfer/Compute, installation transactions and terminal lifetime.                                           |
+| [R7](spec/src/architecture/rust-application-services.md#ln-core-008)      | Roadmap           | Rust cutover                                               | After the feature slices: full hosted/desktop journeys, HTTP/SSE, Linux packaging, standalone-browser regression checks and Node/companion retirement. |
 
 ### Gate status: Source complete
 
