@@ -8,8 +8,8 @@ until their replacement gates pass. Current migration status is in
 The main Notes `default` workspace owns that R0–R7 master tracker. Desktop's
 separate M-series tracker points here for shared-core activity. R3.1.18 native
 runtime/model installation has [independent source evidence](../../records/2026-10-24-rust-core-model-cache.md).
-Source database conformance is complete, but both hosts still await
-database adoption. Retained migration workspaces are not this thread's checkout.
+Source database conformance and vault lifetime are qualified. The HTTP half of R1.3.8 is qualified; Tauri and retained Web application
+adoption remain. Retained migration workspaces are not this thread's checkout.
 
 R1.1 extracts Desktop's existing vault file engine into `lapis-app-core` and
 updates native callers directly. The low-level engine retains the caller-owned
@@ -127,6 +127,15 @@ Dirty-editor preflight leaves every database live when Quit is refused. Cancelle
 initialization cannot strand close, and replaced physical roots fail admission.
 File-only service profiles report an unavailable database without a fallback.
 The R1.3.7 source gate does not itself switch either application adapter.
+
+R1.3.8 HTTP database calls use the same authenticated, leased client attachment,
+protocol version, exact Origin and mutation CSRF policy as file commands. Native
+startup selects database/model directories outside vault content from installation
+policy. Calls retain the high-level method catalogue and tagged JavaScript values,
+with a 32 MiB request bound; ordinary JSON commands keep their 2 MiB bound.
+Detaching a browser client does not close its shared database. Neither SQL nor
+storage/model paths become request inputs. Existing shell and Tauri adoption
+remain separate acceptance gates.
 
 Search call conformance retains the existing optional query-enhancement request
 and skip diagnostics. Unsupported runtime, strong-signal and unavailable-provider
@@ -337,8 +346,10 @@ Managed native Search assets use a host-admitted, installation-owned cache
 outside vault authority. The built-in MiniLM q8 model and CPU ONNX runtime have
 pinned byte lengths and SHA-256 digests. Portable configuration selects only
 admitted model/revision/dtype identities, never download URLs or cache paths.
-The accepted embedding worker verifies cached files, serializes installers,
-streams bounded HTTPS downloads into private staging files and atomically
+The accepted embedding worker verifies cached files and serializes installers. It
+creates its persistent lease exclusively and reopens an existing lease without
+creation, truncation or symlink following. Competing initial installers share it.
+It streams bounded HTTPS downloads into private staging files and atomically
 publishes verified assets. Partial downloads never become loadable assets.
 Offline configuration forbids downloads and retains explicit missing/corrupt
 asset errors; verified cache files work after a cold reopen. Download progress

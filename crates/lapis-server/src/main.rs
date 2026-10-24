@@ -46,7 +46,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         };
     let origin =
         std::env::var("LAPIS_SERVER_ORIGIN").unwrap_or_else(|_| format!("http://{address}"));
-    let host = Arc::new(Host::new(config)?);
+    let host = Arc::new(match std::env::var_os("LAPIS_SERVER_DATA_ROOT") {
+        Some(profile) => Host::with_profile(config, std::path::Path::new(&profile))?,
+        None => Host::new(config)?,
+    });
     let listener = tokio::net::TcpListener::bind(address).await?;
     let origin = if address.port() == 0 && std::env::var_os("LAPIS_SERVER_ORIGIN").is_none() {
         format!("http://{}", listener.local_addr()?)

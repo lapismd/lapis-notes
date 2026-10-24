@@ -28,18 +28,23 @@ impl BrowserFixture {
         let root = tempfile::tempdir().unwrap();
         let vault = root.path().join("vault");
         std::fs::create_dir(&vault).unwrap();
+        let profile = root.path().join("profile");
+        std::fs::create_dir(&profile).unwrap();
         let id = Uuid::new_v4();
         let host = Arc::new(
-            Host::new(Config {
-                vaults: vec![VaultConfig {
-                    id,
-                    name: "Private Notes".into(),
-                    root: vault.clone(),
-                }],
-            })
+            Host::with_profile(
+                Config {
+                    vaults: vec![VaultConfig {
+                        id,
+                        name: "Private Notes".into(),
+                        root: vault.clone(),
+                    }],
+                },
+                &profile,
+            )
             .unwrap(),
         );
-        let control = Arc::new(Control::open(&root.path().join("profile")).await.unwrap());
+        let control = Arc::new(Control::open(&profile).await.unwrap());
         control.initialize("Owner", HASH, NOW).await.unwrap();
         let origin = if insecure {
             "http://localhost:29999"
@@ -157,7 +162,11 @@ impl BrowserFixture {
     pub async fn finish(&mut self) {
         self.server.abort();
         let _ = (&mut self.server).await;
-        self.host.shutdown().unwrap();
+        let host = self.host.clone();
+        tokio::task::spawn_blocking(move || host.shutdown())
+            .await
+            .unwrap()
+            .unwrap();
         self.control.close().await.unwrap();
     }
 }

@@ -18,10 +18,17 @@ pub struct Fixture {
     pub host: Arc<Host>,
     pub base: String,
     pub client: Client,
+    pub profile: Option<TempDir>,
     server: tokio::task::JoinHandle<()>,
 }
 impl Fixture {
     pub async fn start() -> Self {
+        Self::start_with_database(false).await
+    }
+    pub async fn with_database() -> Self {
+        Self::start_with_database(true).await
+    }
+    async fn start_with_database(selected: bool) -> Self {
         let roots = [tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap()];
         let ids = [Uuid::new_v4(), Uuid::new_v4()];
         let config = Config {
@@ -33,7 +40,11 @@ impl Fixture {
                 })
                 .collect(),
         };
-        let host = Arc::new(Host::new(config).unwrap());
+        let profile = selected.then(|| tempfile::tempdir().unwrap());
+        let host = Arc::new(match &profile {
+            Some(profile) => Host::with_profile(config, profile.path()).unwrap(),
+            None => Host::new(config).unwrap(),
+        });
         let app = router(
             host.clone(),
             lapis_server::http::Authentication::token(TOKEN).unwrap(),
@@ -51,6 +62,7 @@ impl Fixture {
             host,
             base,
             client: Client::new(),
+            profile,
             server,
         }
     }

@@ -1,4 +1,5 @@
 use super::support::Fixture;
+mod database;
 mod guards;
 mod ownership;
 mod support;

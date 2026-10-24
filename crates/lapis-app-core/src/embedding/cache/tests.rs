@@ -120,41 +120,43 @@ fn incomplete_excess_and_wrong_digest_bodies_never_publish() {
 
 #[test]
 fn competing_installers_download_once_and_expired_lock_wait_is_explicit() {
-    let root = tempfile::tempdir().unwrap();
-    let barrier = Arc::new(Barrier::new(2));
-    let calls = Arc::new(AtomicUsize::new(0));
-    std::thread::scope(|scope| {
-        let mut workers = vec![];
-        for _ in 0..2 {
-            let barrier = barrier.clone();
-            let calls = calls.clone();
-            let path = root.path();
-            workers.push(scope.spawn(move || {
-                let cache = Cache::open(path).unwrap();
-                barrier.wait();
-                let mut fetch = Fixture {
-                    body: b"model".into(),
-                    calls,
-                    delay: true,
-                };
-                cache
-                    .install(&[asset(b"model")], true, &mut fetch, &mut |_| {})
-                    .unwrap();
-            }));
-        }
-        for worker in workers {
-            worker.join().unwrap();
-        }
-    });
-    assert_eq!(calls.load(Ordering::SeqCst), 1);
-    let cache = Cache::open(root.path()).unwrap();
-    let _lease = cache.lease(Duration::ZERO).unwrap();
-    assert!(
-        Cache::open(root.path())
-            .unwrap()
-            .lease(Duration::ZERO)
-            .is_err()
-    );
+    for _ in 0..8 {
+        let root = tempfile::tempdir().unwrap();
+        let barrier = Arc::new(Barrier::new(2));
+        let calls = Arc::new(AtomicUsize::new(0));
+        std::thread::scope(|scope| {
+            let mut workers = vec![];
+            for _ in 0..2 {
+                let barrier = barrier.clone();
+                let calls = calls.clone();
+                let path = root.path();
+                workers.push(scope.spawn(move || {
+                    let cache = Cache::open(path).unwrap();
+                    barrier.wait();
+                    let mut fetch = Fixture {
+                        body: b"model".into(),
+                        calls,
+                        delay: true,
+                    };
+                    cache
+                        .install(&[asset(b"model")], true, &mut fetch, &mut |_| {})
+                        .unwrap();
+                }));
+            }
+            for worker in workers {
+                worker.join().unwrap();
+            }
+        });
+        assert_eq!(calls.load(Ordering::SeqCst), 1);
+        let cache = Cache::open(root.path()).unwrap();
+        let _lease = cache.lease(Duration::ZERO).unwrap();
+        assert!(
+            Cache::open(root.path())
+                .unwrap()
+                .lease(Duration::ZERO)
+                .is_err()
+        );
+    }
 }
 
 #[test]

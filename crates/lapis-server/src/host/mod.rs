@@ -1,4 +1,5 @@
 mod attachments;
+mod database;
 
 use crate::config::Config;
 use lapis_app_core::services::{Client, Runtime};
@@ -33,8 +34,10 @@ pub fn error(code: ErrorCode, message: &str) -> ServiceError {
 
 impl Host {
     pub fn new(config: Config) -> std::io::Result<Self> {
+        Self::with_runtime(config, Runtime::default())
+    }
+    fn with_runtime(config: Config, runtime: Runtime) -> std::io::Result<Self> {
         config.validate()?;
-        let runtime = Runtime::default();
         let mut vaults = Vec::new();
         for vault in config.vaults {
             runtime

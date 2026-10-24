@@ -2,6 +2,7 @@ mod admission;
 mod attachments;
 mod browser_auth;
 mod credentials;
+mod database;
 mod lifetime;
 mod physical;
 mod streams;

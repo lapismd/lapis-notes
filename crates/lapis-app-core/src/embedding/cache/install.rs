@@ -13,8 +13,24 @@ impl Cache {
         self.root.verify_physical_root()?;
         let name = self.root.checked("install.lock", false)?;
         let mut options = cap_std::fs::OpenOptions::new();
-        options.read(true).write(true).create(true).truncate(false);
-        let lease = self.root.dir.open_with(name, &options)?.into_std();
+        options.read(true).write(true).create_new(true);
+        #[cfg(unix)]
+        {
+            use cap_std::fs::OpenOptionsExt;
+            options.custom_flags(libc::O_NOFOLLOW);
+        }
+        // Two first-time installers must create one persistent lease atomically.
+        // Reopen an existing lease without O_CREAT or truncation: concurrent
+        // O_CREAT opens can report ENOENT on the supported macOS filesystem.
+        let lease = match self.root.dir.open_with(&name, &options) {
+            Ok(lease) => lease,
+            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {
+                options.create_new(false);
+                self.root.dir.open_with(name, &options)?
+            }
+            Err(error) => return Err(error.into()),
+        }
+        .into_std();
         if !lease.metadata()?.is_file() {
             return Err(unavailable("Native embedding cache lease is invalid"));
         }

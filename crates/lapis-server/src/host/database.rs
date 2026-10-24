@@ -1,0 +1,74 @@
+use super::{Host, Principal, Result};
+use crate::config::Config;
+use lapis_app_core::{
+    embedding::host::NativeEmbeddingHost,
+    services::{DatabaseStorage, Runtime},
+    vault::VaultRoot,
+};
+use lapis_app_protocol::database::call::{DatabaseCall, DatabaseValue};
+use std::{io, path::Path};
+use uuid::Uuid;
+
+impl Host {
+    /// Installation-only selection; HTTP callers never supply this profile.
+    pub fn with_profile(config: Config, profile: &Path) -> io::Result<Self> {
+        config.validate()?;
+        let storage = storage(profile, &config)?;
+        Self::with_runtime(config, Runtime::with_database(storage))
+    }
+    pub async fn database(
+        &self,
+        client: Uuid,
+        principal: Principal,
+        call: DatabaseCall,
+    ) -> Result<DatabaseValue> {
+        self.client(client, principal)?
+            .call_database(call)
+            .await
+            .map_err(|error| error.0)
+    }
+}
+
+fn storage(profile: &Path, config: &Config) -> io::Result<DatabaseStorage> {
+    if !profile.is_absolute()
+        || !std::fs::symlink_metadata(profile).is_ok_and(|entry| entry.is_dir())
+    {
+        return Err(io::Error::other(
+            "Server profile requires an existing physical directory",
+        ));
+    }
+    let root = VaultRoot::open(profile)?;
+    let database = root.path().join("databases");
+    let models = root.path().join("models");
+    for vault in &config.vaults {
+        let vault = vault.root.canonicalize()?;
+        if root.path().starts_with(&vault)
+            || [&database, &models]
+                .iter()
+                .any(|storage| storage.starts_with(&vault) || vault.starts_with(storage))
+        {
+            return Err(io::Error::other(
+                "Server database/cache storage must stay outside vault content",
+            ));
+        }
+    }
+    for name in ["databases", "models"] {
+        if let Err(error) = root.mkdir(name, false)
+            && error.kind() != io::ErrorKind::AlreadyExists
+        {
+            return Err(error);
+        }
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            root.open_directory(name)?
+                .into_std_file()
+                .set_permissions(std::fs::Permissions::from_mode(0o700))?;
+        }
+    }
+    root.verify_physical_root()?;
+    let embeddings = NativeEmbeddingHost::managed(&models).map_err(io::Error::other)?;
+    let storage = DatabaseStorage::new(&database, embeddings).map_err(io::Error::other)?;
+    root.verify_physical_root()?;
+    Ok(storage)
+}

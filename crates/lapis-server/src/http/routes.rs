@@ -13,7 +13,7 @@ use lapis_app_protocol::{
 };
 use uuid::Uuid;
 
-fn body<T>(body: Result<Json<T>, JsonRejection>) -> Result<T, Failure> {
+pub(super) fn body<T>(body: Result<Json<T>, JsonRejection>) -> Result<T, Failure> {
     body.map(|Json(value)| value).map_err(|rejection| {
         Failure(
             rejection.status(),

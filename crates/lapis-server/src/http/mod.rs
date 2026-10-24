@@ -1,6 +1,7 @@
 mod auth;
 mod browser;
 mod cookies;
+mod database;
 mod identity;
 pub use identity::Authentication;
 mod errors;
@@ -61,6 +62,10 @@ pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::R
         .route("/api/v3/vaults/{vault}/clients", post(routes::attach))
         .route("/api/v3/vaults/{vault}", delete(routes::close))
         .route("/api/v3/clients/{client}/commands", post(routes::execute))
+        .route(
+            "/api/v3/clients/{client}/database",
+            post(database::call).layer(DefaultBodyLimit::max(database::JSON_LIMIT)),
+        )
         .route(
             "/api/v3/clients/{client}/heartbeat",
             post(routes::heartbeat),

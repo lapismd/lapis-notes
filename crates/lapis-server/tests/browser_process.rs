@@ -187,9 +187,31 @@ async fn real_rust_host_bootstraps_once_and_restores_cookie_sessions_and_notes_a
     )
     .await;
     assert!(matches!(saved.outcome, Outcome::Ok { .. }));
+    let stored = authorize(
+        client.post(format!("{base}/api/v3/clients/{}/database", original.client_id)),
+        &cookie,
+        &info,
+    )
+    .json(&serde_json::json!({"method":"setMeta","args":[{"kind":"value","value":"cold"},{"kind":"value","value":"retained"}]}))
+    .send().await.unwrap();
+    assert_eq!(stored.status(), 200);
+    assert_eq!(
+        stored.json::<serde_json::Value>().await.unwrap(),
+        serde_json::json!({"kind":"undefined"})
+    );
     stop(&mut child).await;
     std::fs::remove_file(&password).unwrap();
     use std::os::unix::fs::PermissionsExt;
+    for name in ["databases", "models"] {
+        assert_eq!(
+            std::fs::metadata(profile.join(name))
+                .unwrap()
+                .permissions()
+                .mode()
+                & 0o777,
+            0o700
+        );
+    }
     assert_eq!(
         std::fs::metadata(profile.join("control"))
             .unwrap()
@@ -222,6 +244,23 @@ async fn real_rust_host_bootstraps_once_and_restores_cookie_sessions_and_notes_a
     );
     let fresh = attach(&client, &base, id, &cookie, &info).await;
     assert_ne!(fresh.generation, original.generation);
+    let stored = authorize(
+        client.post(format!(
+            "{base}/api/v3/clients/{}/database",
+            fresh.client_id
+        )),
+        &cookie,
+        &info,
+    )
+    .json(&serde_json::json!({"method":"getMeta","args":[{"kind":"value","value":"cold"}]}))
+    .send()
+    .await
+    .unwrap();
+    assert_eq!(stored.status(), 200);
+    assert_eq!(
+        stored.json::<serde_json::Value>().await.unwrap(),
+        serde_json::json!({"kind":"value","value":"retained"})
+    );
     let read = execute(
         &client,
         &base,

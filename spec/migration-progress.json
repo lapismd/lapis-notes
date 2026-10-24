@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-24 23:10:51 UTC",
+  "updated": "2026-10-24 23:50:49 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -141,9 +141,9 @@
       "id": "R1.3.8",
       "area": "Host adapters",
       "work": "Tauri and HTTP database adapters",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "Connect Tauri and authenticated HTTP to the qualified high-level call boundary; retain its allowlist and expose no raw SQL."
+      "detail": "[HTTP half qualified](spec/records/2026-10-24-rust-http-database.md): seven focused cases, all thirty shared HTTP cases, real cold-process persistence and complete source check/test/build pass (234 Rust cases). Tauri high-level database adoption is next; retained Web shell acceptance remains R1.3.9."
     },
     {
       "id": "R1.3.9",
@@ -287,7 +287,7 @@
       "work": "Native ONNX encoder",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Real MiniLM inference](spec/records/2026-10-24-rust-core-onnx.md) at `6e56d581`; [Desktop compatibility](spec/records/2026-10-24-rust-core-onnx-desktop.md) at `a9ce8d9a`. Encoder source/dependency gates pass; ordinary runtime and host adoption remain waiting."
+      "detail": "[Real MiniLM inference](spec/records/2026-10-24-rust-core-onnx.md) at 6e56d581 and [Desktop compatibility](spec/records/2026-10-24-rust-core-onnx-desktop.md) at a9ce8d9a are qualified. Runtime/model-cache source is now R3.1.18; HTTP intake is R1.3.8, with retained application acceptance separate."
     },
     {
       "id": "R3.1.16",
@@ -311,7 +311,7 @@
       "work": "Native model/cache installation and runtime admission",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Native model/cache source gate](spec/records/2026-10-24-rust-core-model-cache.md) at a18c84bb; [Desktop compatibility](spec/records/2026-10-24-rust-core-model-cache-desktop.md) at df16e136 passes two service cases and strict normal/e2e checks. Both host adapters still await adoption."
+      "detail": "[Native model/cache source](spec/records/2026-10-24-rust-core-model-cache.md) plus [installer lease repair and HTTP factory selection](spec/records/2026-10-24-rust-http-database.md): eight fresh contention rounds, all five real-model cases and full source/consumer qualification pass. Tauri and retained Web intake remain."
     },
     {
       "id": "R3.1.19",
@@ -319,7 +319,7 @@
       "work": "Native vector/hybrid Search retrieval",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Native semantic intake](spec/records/2026-10-24-rust-core-search-semantic.md): all 16 retained query envelopes/path results, five edge cases (111/300 records), bounded candidate buffers and three real-model cases pass. Full source check/test/build/spec pass. [Retained reference](spec/records/2026-10-24-search-semantic-reference.md) stays separate; both host adapters still await adoption."
+      "detail": "[Native semantic intake](spec/records/2026-10-24-rust-core-search-semantic.md): all 16 retained query envelopes/path results, five edge cases (111/300 records), bounded candidate buffers and three real-model cases pass. Full source check/test/build/spec pass. [Retained reference](spec/records/2026-10-24-search-semantic-reference.md) stays separate; HTTP facade intake is R1.3.8; Tauri and retained Web acceptance remain separate."
     },
     {
       "id": "R3.1.20",
