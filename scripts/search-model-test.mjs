@@ -132,6 +132,8 @@ const result = spawnSync(
     "database_search_provider_model",
     "--test",
     "database_search_semantic_model",
+    "--test",
+    "embedding_cache_model",
     "--locked",
     "--",
     "--ignored",
@@ -144,6 +146,7 @@ const result = spawnSync(
       CARGO_BUILD_JOBS: process.env.CARGO_BUILD_JOBS ?? "2",
       LAPIS_TEST_ONNX_RUNTIME: runtime,
       LAPIS_TEST_ONNX_MODEL: folder,
+      LAPIS_TEST_ONNX_CACHE_DOWNLOAD: fetchAssets ? "1" : "0",
     },
   },
 );

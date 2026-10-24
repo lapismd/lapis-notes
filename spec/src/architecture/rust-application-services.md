@@ -7,8 +7,8 @@ until their replacement gates pass. Current migration status is in
 
 The main Notes `default` workspace owns that R0–R7 master tracker. Desktop's
 separate M-series tracker points here for shared-core activity. R3.1.18 native
-runtime/model installation is underway; its new acceptance test is not yet
-qualified. Source database conformance is complete, but both hosts still await
+runtime/model installation has [independent source evidence](../../records/2026-10-24-rust-core-model-cache.md).
+Source database conformance is complete, but both hosts still await
 database adoption. Retained migration workspaces are not this thread's checkout.
 
 R1.1 extracts Desktop's existing vault file engine into `lapis-app-core` and
@@ -321,6 +321,19 @@ clients cannot nominate filesystem roots or libraries. Configuration and vector
 invalidation commit together before the runtime selection changes. Accepted
 indexing owns inference through publication and close drains it. Public status
 is an observation of that owner, including errors, without a second scheduler.
+
+Managed native Search assets use a host-admitted, installation-owned cache
+outside vault authority. The built-in MiniLM q8 model and CPU ONNX runtime have
+pinned byte lengths and SHA-256 digests. Portable configuration selects only
+admitted model/revision/dtype identities, never download URLs or cache paths.
+The accepted embedding worker verifies cached files, serializes installers,
+streams bounded HTTPS downloads into private staging files and atomically
+publishes verified assets. Partial downloads never become loadable assets.
+Offline configuration forbids downloads and retains explicit missing/corrupt
+asset errors; verified cache files work after a cold reopen. Download progress
+uses the existing observable Search status, and detach/close retain the same
+accepted-work/drain boundary. This source gate does not select either host or
+qualify another operating system's runtime.
 
 Native Search batch controls retain the direct-Turso no-op begin/end contract
 through admitted owner barriers. Rebuild re-prepares stored documents in bounded

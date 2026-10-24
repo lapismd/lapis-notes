@@ -52,6 +52,7 @@ impl Provider {
             }
             let encoder = self.encoder.clone();
             let host = self.host.clone();
+            let status = self.status.clone();
             tokio::task::spawn_blocking(move || {
                 let vectors = if config.kind == Kind::TokenHash {
                     texts
@@ -63,8 +64,21 @@ impl Provider {
                         .lock()
                         .map_err(|_| invalid("Embedding session is unavailable"))?;
                     if encoder.is_none() {
-                        *encoder = Some(host.open(&config)?);
+                        *encoder = Some(host.open(&config, &mut |progress| {
+                            update_status(
+                                &status,
+                                Phase::Downloading,
+                                "Preparing verified local embedding assets",
+                                progress,
+                            );
+                        })?);
                     }
+                    update_status(
+                        &status,
+                        Phase::Embedding,
+                        "Generating local embeddings",
+                        0.0,
+                    );
                     encoder.as_mut().unwrap().embed(&texts)?
                 };
                 let values: usize = vectors.iter().map(Vec::len).sum();
@@ -92,4 +106,22 @@ impl Provider {
         }
         result
     }
+}
+
+fn update_status(
+    status: &tokio::sync::watch::Sender<
+        Option<lapis_app_protocol::database::search::embedding::SearchEmbeddingRuntimeStatus>,
+    >,
+    phase: Phase,
+    message: &str,
+    progress: f64,
+) {
+    status.send_modify(|status| {
+        if let Some(status) = status {
+            status.phase = phase;
+            status.message = Some(message.into());
+            status.progress = Some(progress.clamp(0.0, 1.0));
+            status.updated_at = super::now();
+        }
+    });
 }

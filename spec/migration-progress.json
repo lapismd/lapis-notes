@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-24 22:00:10 UTC",
+  "updated": "2026-10-24 22:26:17 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -309,9 +309,9 @@
       "id": "R3.1.18",
       "area": "Database catalogue",
       "work": "Native model/cache installation and runtime admission",
-      "status": "Working",
+      "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Acceptance test authored; initial run stopped at the 30 GiB build guard before compilation. Implement verified native runtime/model caches, downloads and progress. Neither host has adopted this service."
+      "detail": "[Native model/cache source gate](spec/records/2026-10-24-rust-core-model-cache.md): eleven focused cache cases, 216 ordinary Rust cases, four live and four offline model targets, full source check/build and ten spec lanes/49 regressions pass. Desktop compatibility and both host adapters remain separate."
     },
     {
       "id": "R3.1.19",

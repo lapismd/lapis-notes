@@ -118,19 +118,19 @@ export default defineConfig(headingRequirements(), {
         "\\.stories\\.(?:svelte|[cm]?[jt]sx?)$",
         "^stories/(?!catalog/)",
         "^MIGRATION\\.md$",
+        "^spec/migration-progress\\.json$",
         "^README\\.md$",
       ],
       rules: [
         {
-          pattern:
-            "^(?:scripts/migration-progress\\.mjs|spec/migration-progress\\.json)$",
+          pattern: "^scripts/migration-progress\\.mjs$",
           chapterPatterns: [
             "^spec/src/spec-governance/requirement-authoring\\.md$",
           ],
         },
         {
           pattern:
-            "^(?:crates/|\\.cargo/config\\.toml$|Cargo\\.(?:toml|lock)$|rust-toolchain\\.toml$|scripts/(?:rust-core|rust-protocol|check-rust-boundaries)(?:\\.test)?\\.mjs$)",
+            "^(?:crates/|\\.cargo/config\\.toml$|Cargo\\.(?:toml|lock)$|rust-toolchain\\.toml$|scripts/(?:rust-core|rust-protocol|check-rust-boundaries|search-model-test)(?:\\.test)?\\.mjs$)",
           chapterPatterns: [
             "^spec/src/architecture/rust-application-services\\.md$",
           ],

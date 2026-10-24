@@ -8,7 +8,7 @@ The sibling Desktop tracker owns its M-series milestones; the active shared
 Rust work is tracked here as R0–R7. Other migration workspaces are retained
 history, not the current implementation checkout.
 
-Last updated **2026-10-24 22:00:10 UTC**. This is the active migration tracker for the
+Last updated **2026-10-24 22:26:17 UTC**. This is the active migration tracker for the
 [shared Rust plan](RUST_CORE_MIGRATION_PLAN.md). The older Node parity roadmap
 below is superseded; its remaining rows are historical references, not another
 set of current migration tasks.
@@ -24,8 +24,9 @@ shapes and five semantic enhancement scenarios pass. Full source qualification
 passes 205 ordinary Rust cases, 1,532 API cases and three actual-model cases.
 Schema lifecycle (`3d5a0fcb`), Search provider control (`e6de56ef`), batch/rebuild
 (`cfb369f7`) and [semantic retrieval](spec/records/2026-10-24-rust-core-search-semantic.md)
-(`8fd7b926`) retain their source receipts. Native asset installation and both
-host adapters remain waiting.
+(`8fd7b926`) retain their source receipts. The
+[native model/runtime cache](spec/records/2026-10-24-rust-core-model-cache.md) is
+also source-qualified; both host adapters remain waiting.
 
 [Desktop provider/archive/SQL intake](spec/records/2026-10-24-rust-core-search-provider-desktop.md)
 is Complete at `074dee3a`: all four rebuilt hidden API cases, 230 native service
@@ -37,18 +38,18 @@ library/SQL/catalog intake; neither host selects the new database facade.
 **Latest consumer compatibility:** [Desktop call-boundary compatibility](spec/records/2026-10-24-rust-core-database-calls-desktop.md)
 is qualified against Notes `77ae786b`: both service cases and strict normal/e2e
 all-target Clippy pass. All 19 existing archive checksums verify. The next
-implementation is native runtime/model cache admission and installation, then
-selected host adapters. Neither application has selected the new database.
+step is Desktop cache-dependency compatibility, then selected host adapters.
+Neither host selects the new database.
 
-**Current activity:** R3.1.18 native runtime/model cache installation has started.
-The first acceptance test is authored; its initial run stopped at the existing
-30 GiB free-space guard before compilation. No installation implementation or
-new model qualification has landed. The
-[generated master status groups](spec/records/2026-10-24-master-migration-groups.md)
-are complete at `9788a6bf`: ten generator cases and all 48 specification
-regressions pass. Both hosts still await native database selection.
+**Current activity:** R3.1.18 native runtime/model cache installation is Source
+complete. Eleven focused cache cases, all 216 ordinary Rust cases, four live
+model targets and four offline model targets pass, including detached native
+downloads and cold-process inference. Full source check/build and all ten
+specification lanes / 49 regressions pass. Desktop dependency compatibility is
+next; both hosts still await native database selection.
 
-**Next:** register native model/cache assets, connect both hosts, then
+**Next:** complete Desktop cache-dependency intake, bind the database to vault
+lifetime and connect both hosts, then
 qualify the retained hosted shell and backup lifetime. R2–R7 follows the agreed
 order; this adds no feature scope. Desktop's
 [live task navigation](spec/records/2026-10-24-migration-tracker.md) remains qualified
@@ -78,11 +79,10 @@ not host adoption or native/hosted application acceptance.
 
 ### Gate status: Working
 
-| Task ID                                                                   | Area               | Work                                                  | Evidence or next gate                                                                                                                                                                                      |
-| ------------------------------------------------------------------------- | ------------------ | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [R1.3](spec/src/architecture/rust-application-services.md#ln-core-004)    | Roadmap            | Both host adapters                                    | Database adoption, existing hosted shell and backup detach/Quit acceptance. See the host checklist.                                                                                                        |
-| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)      | Roadmap            | Indexed vault                                         | The complete native database facade is source-qualified. Host adoption and unattended metadata/projection/Search/history indexing remain.                                                                  |
-| [R3.1.18](spec/src/architecture/rust-application-services.md#ln-core-003) | Database catalogue | Native model/cache installation and runtime admission | Acceptance test authored; initial run stopped at the 30 GiB build guard before compilation. Implement verified native runtime/model caches, downloads and progress. Neither host has adopted this service. |
+| Task ID                                                                | Area    | Work               | Evidence or next gate                                                                                                                     |
+| ---------------------------------------------------------------------- | ------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| [R1.3](spec/src/architecture/rust-application-services.md#ln-core-004) | Roadmap | Both host adapters | Database adoption, existing hosted shell and backup detach/Quit acceptance. See the host checklist.                                       |
+| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)   | Roadmap | Indexed vault      | The complete native database facade is source-qualified. Host adoption and unattended metadata/projection/Search/history indexing remain. |
 
 ### Gate status: Waiting
 
@@ -125,6 +125,7 @@ not host adoption or native/hosted application acceptance.
 | [R3.1.14](spec/src/architecture/rust-application-services.md#ln-core-003) | Database catalogue | Native lexical/structured Search retrieval                          | [Native retrieval intake](spec/records/2026-10-24-rust-core-search-retrieval.md): 76 full-result/path queries, retained FTS weights, complete table ranking, UTF-16 snippets, bounded selection and cold reopen. Full source check/test/build/spec and 261 catalog cases pass; semantic inference and host adoption remain separate.                                                                    |
 | [R3.1.15](spec/src/architecture/rust-application-services.md#ln-core-003) | Database catalogue | Native ONNX encoder                                                 | [Real MiniLM inference](spec/records/2026-10-24-rust-core-onnx.md) at `6e56d581`; [Desktop compatibility](spec/records/2026-10-24-rust-core-onnx-desktop.md) at `a9ce8d9a`. Encoder source/dependency gates pass; ordinary runtime and host adoption remain waiting.                                                                                                                                    |
 | [R3.1.16](spec/src/architecture/rust-application-services.md#ln-core-003) | Database catalogue | Native Search provider control and embedding publication            | [Native provider intake](spec/records/2026-10-24-rust-core-search-provider.md): lazy configuration/status, atomic invalidation, actual model inference after detach and cold reopen. Full source and serving-baseline acceptance passes; Desktop intake remains separate.                                                                                                                               |
+| [R3.1.18](spec/src/architecture/rust-application-services.md#ln-core-003) | Database catalogue | Native model/cache installation and runtime admission               | [Native model/cache source gate](spec/records/2026-10-24-rust-core-model-cache.md): eleven focused cache cases, 216 ordinary Rust cases, four live and four offline model targets, full source check/build and ten spec lanes/49 regressions pass. Desktop compatibility and both host adapters remain separate.                                                                                        |
 | [R3.1.19](spec/src/architecture/rust-application-services.md#ln-core-003) | Database catalogue | Native vector/hybrid Search retrieval                               | [Native semantic intake](spec/records/2026-10-24-rust-core-search-semantic.md): all 16 retained query envelopes/path results, five edge cases (111/300 records), bounded candidate buffers and three real-model cases pass. Full source check/test/build/spec pass. [Retained reference](spec/records/2026-10-24-search-semantic-reference.md) stays separate; both host adapters still await adoption. |
 | [R3.1.20](spec/src/architecture/rust-application-services.md#ln-core-003) | Database catalogue | Native Search batch and rebuild controls                            | [Batch/rebuild controls](spec/records/2026-10-24-rust-core-search-rebuild.md): admitted barriers, bounded 100-record pages, selected inference, detach/drain, ordered committed changes and rollback. Five exact / 185 full Rust cases pass; source check/test/build pass. Host adoption remains waiting.                                                                                               |
 | [R3.1.21](spec/src/architecture/rust-application-services.md#ln-core-003) | Database catalogue | Complete indexed-file upsert, rename and delete                     | [Native indexed-file intake](spec/records/2026-10-24-rust-core-indexed-mutations.md): ten-case retained reference, staged task commits, atomic rename/delete and persisted rename notifications; seven exact native cases, 169 full Rust cases, 1,489 API cases and all source check/test/build/spec lanes pass.                                                                                        |

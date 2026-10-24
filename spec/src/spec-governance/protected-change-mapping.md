@@ -5,7 +5,8 @@ The shared Rust migration adds a Notes-owned application-service family under
 [Rust application services](../architecture/rust-application-services.md).
 Existing source-ownership and protected-change rules remain enforced; the
 native source, manifests, toolchain and boundary/build scripts map explicitly to
-that chapter, including `rust-protocol.mjs` for generated schema/type drift.
+that chapter, including `rust-protocol.mjs` for generated schema/type drift and
+`search-model-test.mjs` for actual model, download and offline-cache acceptance.
 Native `crates/*/src` joins the fail-closed protected source set. The configured
 protocol-contract lane checks generation and client type fixtures alongside the
 core boundary audit and its regressions.

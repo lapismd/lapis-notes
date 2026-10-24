@@ -18,6 +18,40 @@ import {
 } from "../migration-progress.mjs";
 
 const root = new URL("../../", import.meta.url);
+
+test("routine migration ledger updates do not require a canonical policy rewrite", async () => {
+  const { default: config } = await import(
+    new URL("spec-validator.config.mjs", root)
+  );
+  const policy = config.validators.specFirst;
+  const ignored = (file) =>
+    policy.ignore.some((pattern) => new RegExp(pattern, "u").test(file));
+  assert.equal(ignored("spec/migration-progress.json"), true);
+  assert.equal(ignored("scripts/migration-progress.mjs"), false);
+  assert.equal(
+    ignored("crates/lapis-app-core/src/embedding/cache/install.rs"),
+    false,
+  );
+  for (const [file, chapter] of [
+    [
+      "scripts/migration-progress.mjs",
+      "spec/src/spec-governance/requirement-authoring.md",
+    ],
+    [
+      "crates/lapis-app-core/src/embedding/cache/install.rs",
+      "spec/src/architecture/rust-application-services.md",
+    ],
+  ])
+    assert.ok(
+      policy.rules.some(
+        (rule) =>
+          new RegExp(rule.pattern, "u").test(file) &&
+          rule.chapterPatterns.some((pattern) =>
+            new RegExp(pattern, "u").test(chapter),
+          ),
+      ),
+    );
+});
 const spec = "spec/src/architecture/rust-application-services.md#ln-core-001";
 const task = (id, status = "Waiting") => ({
   id,
