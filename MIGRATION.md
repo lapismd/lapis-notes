@@ -8,7 +8,7 @@ The sibling Desktop tracker owns its M-series milestones; the active shared
 Rust work is tracked here as R0–R7. Other migration workspaces are retained
 history, not the current implementation checkout.
 
-Last updated **2026-10-24 22:26:17 UTC**. This is the active migration tracker for the
+Last updated **2026-10-24 22:53:24 UTC**. This is the active migration tracker for the
 [shared Rust plan](RUST_CORE_MIGRATION_PLAN.md). The older Node parity roadmap
 below is superseded; its remaining rows are historical references, not another
 set of current migration tasks.
@@ -35,25 +35,25 @@ all 2,000 catalog cases pass. Source `8fd7b926` also passes the exact Desktop
 file-service target and strict normal/e2e native checks. These gates qualify
 library/SQL/catalog intake; neither host selects the new database facade.
 
-**Latest consumer compatibility:** [Desktop call-boundary compatibility](spec/records/2026-10-24-rust-core-database-calls-desktop.md)
-is qualified against Notes `77ae786b`: both service cases and strict normal/e2e
-all-target Clippy pass. All 19 existing archive checksums verify. The next
-step is Desktop cache-dependency compatibility, then selected host adapters.
-Neither host selects the new database.
+**Latest consumer compatibility:** [Desktop model/cache intake](spec/records/2026-10-24-rust-core-model-cache-desktop.md)
+is qualified at `df16e136` against Notes `a18c84bb`: both service cases and strict
+normal/e2e all-target Clippy pass, and all nineteen archive hashes verify. The
+native lock changes only two required edges. This is library compatibility;
+no host has selected the new database or model/cache factory.
 
-**Current activity:** R3.1.18 native runtime/model cache installation is Source
-complete. Eleven focused cache cases, all 216 ordinary Rust cases, four live
-model targets and four offline model targets pass, including detached native
-downloads and cold-process inference. Full source check/build and all ten
-specification lanes / 49 regressions pass. Desktop dependency compatibility is
-next; both hosts still await native database selection.
+**Current activity:** native model/cache source `a18c84bb` and Desktop
+compatibility `df16e136` are committed. Source qualification passes eleven
+focused cache cases, 216 ordinary Rust cases, four live and four offline model
+targets, full check/build and ten spec lanes / 49 regressions. Desktop passes
+both native service cases and strict normal/e2e checks with only two required
+lock edges changed; all nineteen archives remain intact.
+[Source/consumer receipt](spec/records/2026-10-24-rust-core-model-cache-desktop.md).
+Neither application has selected the new database facade.
 
-**Next:** complete Desktop cache-dependency intake, bind the database to vault
-lifetime and connect both hosts, then
-qualify the retained hosted shell and backup lifetime. R2–R7 follows the agreed
-order; this adds no feature scope. Desktop's
-[live task navigation](spec/records/2026-10-24-migration-tracker.md) remains qualified
-at `733bb679`; M11 stays Deferred.
+**Next:** bind the qualified database to admitted vault lifetime, then connect
+Tauri and authenticated Rust HTTP adapters. Qualify the existing hosted shell
+and backup after detach/controlled Quit before completing R1.3. R2–R7 retains
+the agreed order; M11 remains Deferred.
 
 ### Status meanings
 
@@ -79,17 +79,17 @@ not host adoption or native/hosted application acceptance.
 
 ### Gate status: Working
 
-| Task ID                                                                | Area    | Work               | Evidence or next gate                                                                                                                     |
-| ---------------------------------------------------------------------- | ------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| [R1.3](spec/src/architecture/rust-application-services.md#ln-core-004) | Roadmap | Both host adapters | Database adoption, existing hosted shell and backup detach/Quit acceptance. See the host checklist.                                       |
-| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)   | Roadmap | Indexed vault      | The complete native database facade is source-qualified. Host adoption and unattended metadata/projection/Search/history indexing remain. |
+| Task ID                                                                | Area    | Work               | Evidence or next gate                                                                                                                  |
+| ---------------------------------------------------------------------- | ------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| [R1.3](spec/src/architecture/rust-application-services.md#ln-core-004) | Roadmap | Both host adapters | Database adoption, existing hosted shell and backup detach/Quit acceptance. See the host checklist.                                    |
+| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)   | Roadmap | Indexed vault      | Native database and model/cache source are qualified. Host adoption and unattended metadata/projection/Search/history indexing remain. |
 
 ### Gate status: Waiting
 
 | Task ID                                                                   | Area              | Work                                                       | Evidence or next gate                                                                                                                                  |
 | ------------------------------------------------------------------------- | ----------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [R1.3.7](spec/src/architecture/rust-application-services.md#ln-core-004)  | Host adapters     | Database facade bound to admitted vault lifetime           | Finish the database catalogue below, then attach and close its owner through the vault service.                                                        |
-| [R1.3.8](spec/src/architecture/rust-application-services.md#ln-core-004)  | Host adapters     | Tauri and HTTP database adapters                           | The complete native facade; retain the existing high-level allowlist and expose no raw SQL.                                                            |
+| [R1.3.7](spec/src/architecture/rust-application-services.md#ln-core-004)  | Host adapters     | Database facade bound to admitted vault lifetime           | Bind the completed native facade to admitted vault/profile lifetime with installation-owned model caches and fenced close/drain.                       |
+| [R1.3.8](spec/src/architecture/rust-application-services.md#ln-core-004)  | Host adapters     | Tauri and HTTP database adapters                           | Connect Tauri and authenticated HTTP to the qualified high-level call boundary; retain its allowlist and expose no raw SQL.                            |
 | [R1.3.9](spec/src/architecture/rust-application-services.md#ln-core-004)  | Host adapters     | Existing browser login/vault/workspace UI on Rust          | Native database and HTTP adapters, then real retained-shell read/edit acceptance.                                                                      |
 | [R1.3.10](spec/src/architecture/rust-application-services.md#ln-core-004) | Host adapters     | Automatic backup after client detach and controlled Quit   | Reuse the existing engine with service ownership; qualify the original detach/drain gate.                                                              |
 | [R1.3.11](spec/src/architecture/rust-application-services.md#ln-core-004) | Host adapters     | Same existing file actions through both application shells | Final native/hosted UI acceptance after the integrations above.                                                                                        |
@@ -125,7 +125,7 @@ not host adoption or native/hosted application acceptance.
 | [R3.1.14](spec/src/architecture/rust-application-services.md#ln-core-003) | Database catalogue | Native lexical/structured Search retrieval                          | [Native retrieval intake](spec/records/2026-10-24-rust-core-search-retrieval.md): 76 full-result/path queries, retained FTS weights, complete table ranking, UTF-16 snippets, bounded selection and cold reopen. Full source check/test/build/spec and 261 catalog cases pass; semantic inference and host adoption remain separate.                                                                    |
 | [R3.1.15](spec/src/architecture/rust-application-services.md#ln-core-003) | Database catalogue | Native ONNX encoder                                                 | [Real MiniLM inference](spec/records/2026-10-24-rust-core-onnx.md) at `6e56d581`; [Desktop compatibility](spec/records/2026-10-24-rust-core-onnx-desktop.md) at `a9ce8d9a`. Encoder source/dependency gates pass; ordinary runtime and host adoption remain waiting.                                                                                                                                    |
 | [R3.1.16](spec/src/architecture/rust-application-services.md#ln-core-003) | Database catalogue | Native Search provider control and embedding publication            | [Native provider intake](spec/records/2026-10-24-rust-core-search-provider.md): lazy configuration/status, atomic invalidation, actual model inference after detach and cold reopen. Full source and serving-baseline acceptance passes; Desktop intake remains separate.                                                                                                                               |
-| [R3.1.18](spec/src/architecture/rust-application-services.md#ln-core-003) | Database catalogue | Native model/cache installation and runtime admission               | [Native model/cache source gate](spec/records/2026-10-24-rust-core-model-cache.md): eleven focused cache cases, 216 ordinary Rust cases, four live and four offline model targets, full source check/build and ten spec lanes/49 regressions pass. Desktop compatibility and both host adapters remain separate.                                                                                        |
+| [R3.1.18](spec/src/architecture/rust-application-services.md#ln-core-003) | Database catalogue | Native model/cache installation and runtime admission               | [Native model/cache source gate](spec/records/2026-10-24-rust-core-model-cache.md) at a18c84bb; [Desktop compatibility](spec/records/2026-10-24-rust-core-model-cache-desktop.md) at df16e136 passes two service cases and strict normal/e2e checks. Both host adapters still await adoption.                                                                                                           |
 | [R3.1.19](spec/src/architecture/rust-application-services.md#ln-core-003) | Database catalogue | Native vector/hybrid Search retrieval                               | [Native semantic intake](spec/records/2026-10-24-rust-core-search-semantic.md): all 16 retained query envelopes/path results, five edge cases (111/300 records), bounded candidate buffers and three real-model cases pass. Full source check/test/build/spec pass. [Retained reference](spec/records/2026-10-24-search-semantic-reference.md) stays separate; both host adapters still await adoption. |
 | [R3.1.20](spec/src/architecture/rust-application-services.md#ln-core-003) | Database catalogue | Native Search batch and rebuild controls                            | [Batch/rebuild controls](spec/records/2026-10-24-rust-core-search-rebuild.md): admitted barriers, bounded 100-record pages, selected inference, detach/drain, ordered committed changes and rollback. Five exact / 185 full Rust cases pass; source check/test/build pass. Host adoption remains waiting.                                                                                               |
 | [R3.1.21](spec/src/architecture/rust-application-services.md#ln-core-003) | Database catalogue | Complete indexed-file upsert, rename and delete                     | [Native indexed-file intake](spec/records/2026-10-24-rust-core-indexed-mutations.md): ten-case retained reference, staged task commits, atomic rename/delete and persisted rename notifications; seven exact native cases, 169 full Rust cases, 1,489 API cases and all source check/test/build/spec lanes pass.                                                                                        |
@@ -154,7 +154,7 @@ hosted application acceptance.
 | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Cold Desktop native WebView gate            | Desktop `f043d1b9` with Notes `67a57aa9`: three rebuilt cold hidden-native cases; [E-CORE-005 intake](spec/records/2026-10-24-rust-core-database-desktop.md).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | Complete Desktop Rust suite                 | Latest fresh intake at Desktop `074dee3a`: all 230 native service cases pass with Notes `cfb369f7`; [provider/SQL/catalog receipt](spec/records/2026-10-24-rust-core-search-provider-desktop.md) retains its artifact scope. Later `8fd7b926` library compatibility is separate.                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| Latest native core dependency compatibility | Desktop `074dee3a` with Notes `77ae786b`: both exact shared-file service cases and strict normal/e2e all-target Clippy pass. [Call-boundary compatibility receipt](spec/records/2026-10-24-rust-core-database-calls-desktop.md); all 19 archive checksums verify and five Notes archives remain at `e6de56ef`. This is library compatibility, not selected native database or semantic-query adoption.                                                                                                                                                                                                                                                                                                                                              |
+| Latest native core dependency compatibility | Desktop `df16e136` with Notes `a18c84bb`: both exact shared-file service cases and strict normal/e2e all-target Clippy pass. [Model/cache compatibility receipt](spec/records/2026-10-24-rust-core-model-cache-desktop.md); all 19 archive checksums verify and only two required native lock edges change. This is library compatibility; neither host selects the new database facade or model/cache factory.                                                                                                                                                                                                                                                                                                                                     |
 | Earlier database compatibility              | [State/history](spec/records/2026-10-24-rust-core-database-catalogue-desktop.md), [indexed metadata](spec/records/2026-10-24-rust-core-database-indexed-desktop.md), [projection writes](spec/records/2026-10-24-rust-core-projection-desktop.md), [single-row reads](spec/records/2026-10-24-rust-core-projection-row-desktop.md), [projection queries](spec/records/2026-10-24-rust-core-projection-query-desktop.md), [memory storage](spec/records/2026-10-24-rust-core-memory-storage-desktop.md), [Search storage/preparation](spec/records/2026-10-24-rust-core-search-desktop.md) and [Search retrieval](spec/records/2026-10-24-rust-core-search-retrieval-desktop.md) retain their exact source/consumer revisions in the linked records. |
 
 The [desktop review](docs/rust-core-desktop-review.md) retains existing public
