@@ -55,6 +55,13 @@ Blocking file operations run outside the async executor. Bounded JSON commands
 qualify the initial adapter only; streamed bodies/resources, existing browser
 login/shell intake, SSE and native backup lifetime remain later R1.3/R7 gates.
 
+Hosted attachment leases expire after five minutes without an admitted command,
+byte transfer or explicit heartbeat. Expiry detaches only the client; the vault,
+accepted jobs and unresolved dirty claims remain service-owned. A stale client
+cannot renew itself after expiry. Native maintenance reaps idle clients without
+waiting for an HTTP subscriber, and clients can attach afresh to discover
+retained claims. Shutdown stops maintenance after the service leave gate passes.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

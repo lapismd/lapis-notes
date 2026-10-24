@@ -1,4 +1,5 @@
 mod admission;
+mod attachments;
 mod lifetime;
 mod physical;
 mod support;

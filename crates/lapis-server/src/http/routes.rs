@@ -61,6 +61,13 @@ pub(super) async fn detach(
     blocking(move || state.host.detach(client)).await?;
     Ok(StatusCode::NO_CONTENT)
 }
+pub(super) async fn heartbeat(
+    AxumState(state): AxumState<State>,
+    Path(client): Path<Uuid>,
+) -> Result<StatusCode, Failure> {
+    blocking(move || state.host.heartbeat(client)).await?;
+    Ok(StatusCode::NO_CONTENT)
+}
 pub(super) async fn close(
     AxumState(state): AxumState<State>,
     Path(vault): Path<Uuid>,

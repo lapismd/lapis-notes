@@ -1,6 +1,11 @@
 #![forbid(unsafe_code)]
 
-use lapis_server::{config::Config, host::Host, http, lifecycle::Shutdown};
+use lapis_server::{
+    config::Config,
+    host::Host,
+    http,
+    lifecycle::{Shutdown, maintenance::Maintenance},
+};
 use std::{net::SocketAddr, sync::Arc};
 
 #[tokio::main]
@@ -30,9 +35,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     let router = http::router(host.clone(), &token, &origin)?;
     let shutdown = Shutdown::new()?;
+    let maintenance = Maintenance::start(host.clone());
     println!("Lapis file service listening on {}", listener.local_addr()?);
     axum::serve(listener, router)
-        .with_graceful_shutdown(shutdown.wait(host))
+        .with_graceful_shutdown(async move {
+            shutdown.wait(host).await;
+            maintenance.stop().await;
+        })
         .await?;
     Ok(())
 }

@@ -53,6 +53,10 @@ pub fn router(host: Arc<Host>, token: &str, origin: &str) -> std::io::Result<Rou
         .route("/api/v3/vaults/{vault}/clients", post(routes::attach))
         .route("/api/v3/vaults/{vault}", delete(routes::close))
         .route("/api/v3/clients/{client}/commands", post(routes::execute))
+        .route(
+            "/api/v3/clients/{client}/heartbeat",
+            post(routes::heartbeat),
+        )
         .route("/api/v3/clients/{client}", delete(routes::detach))
         .layer(DefaultBodyLimit::max(JSON_LIMIT))
         .layer(middleware::from_fn_with_state(

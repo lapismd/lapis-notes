@@ -1,18 +1,21 @@
+mod attachments;
+
 use crate::config::Config;
 use lapis_app_core::services::{Client, Runtime};
 use lapis_app_protocol::{ClientDescriptor, ErrorCode, ManagedVault, Reply, Request, ServiceError};
 use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex},
+    sync::Arc,
+    time::{Duration, Instant},
 };
 use uuid::Uuid;
 
 pub type Result<T> = std::result::Result<T, ServiceError>;
+pub const CLIENT_IDLE_TIMEOUT: Duration = Duration::from_secs(5 * 60);
 
 pub struct Host {
     runtime: Runtime,
     vaults: Vec<ManagedVault>,
-    clients: Mutex<HashMap<Uuid, Arc<Client>>>,
+    clients: attachments::Attachments,
 }
 
 pub fn error(code: ErrorCode, message: &str) -> ServiceError {
@@ -39,7 +42,7 @@ impl Host {
         Ok(Self {
             runtime,
             vaults,
-            clients: Mutex::new(HashMap::new()),
+            clients: attachments::Attachments::default(),
         })
     }
 
@@ -48,65 +51,50 @@ impl Host {
     }
 
     pub fn attach(&self, vault: Uuid) -> Result<ClientDescriptor> {
+        self.expire_idle(Instant::now())?;
         let client = self
             .runtime
             .get(vault)
             .and_then(|owner| owner.attach())
             .map_err(|e| e.0)?;
         let descriptor = client.descriptor();
-        self.clients
-            .lock()
-            .map_err(|_| error(ErrorCode::Closed, "Host is unavailable"))?
-            .insert(descriptor.client_id, Arc::new(client));
+        self.clients.insert(Arc::new(client))?;
         Ok(descriptor)
     }
 
     pub fn execute(&self, client: Uuid, request: Request) -> Result<Reply> {
         // Do not hold the attachment registry during file IO or service drain.
-        let client = self
-            .clients
-            .lock()
-            .map_err(|_| error(ErrorCode::Closed, "Host is unavailable"))?
-            .get(&client)
-            .cloned()
-            .ok_or_else(|| {
-                error(
-                    ErrorCode::PermissionDenied,
-                    "Client attachment is not valid",
-                )
-            })?;
+        let client = self.client(client)?;
         Ok(client.execute(request))
     }
 
     pub fn detach(&self, client: Uuid) -> Result<()> {
-        self.clients
-            .lock()
-            .map_err(|_| error(ErrorCode::Closed, "Host is unavailable"))?
-            .remove(&client)
-            .ok_or_else(|| {
-                error(
-                    ErrorCode::PermissionDenied,
-                    "Client attachment is not valid",
-                )
-            })?;
+        self.expire_idle(Instant::now())?;
+        self.clients.remove(client)
+    }
+
+    pub fn heartbeat(&self, client: Uuid) -> Result<()> {
+        self.client(client)?;
         Ok(())
+    }
+
+    pub fn expire_idle(&self, now: Instant) -> Result<usize> {
+        self.clients.expire(now)
+    }
+
+    pub(super) fn client(&self, id: Uuid) -> Result<Arc<Client>> {
+        self.clients.get(id)
     }
 
     pub fn close(&self, vault: Uuid) -> Result<()> {
         self.runtime.close_vault(vault).map_err(|e| e.0)?;
-        self.clients
-            .lock()
-            .map_err(|_| error(ErrorCode::Closed, "Host is unavailable"))?
-            .retain(|_, client| client.descriptor().vault_id != vault);
+        self.clients.retire(Some(vault))?;
         Ok(())
     }
 
     pub fn shutdown(&self) -> Result<()> {
         self.runtime.shutdown().map_err(|e| e.0)?;
-        self.clients
-            .lock()
-            .map_err(|_| error(ErrorCode::Closed, "Host is unavailable"))?
-            .clear();
+        self.clients.retire(None)?;
         Ok(())
     }
 }
