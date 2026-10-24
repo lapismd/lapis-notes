@@ -39,6 +39,10 @@ Desktop `26989b92` has [native query dependency compatibility](spec/records/2026
 with Notes `5deb28b0`: both exact service cases, all 230 Rust cases and strict
 normal/e2e Clippy pass. Its database adapter is still unchanged; original
 R1.3/R3, cold-native, provider and platform gates remain separate.
+Desktop `889121c6` also has [task facade dependency compatibility](spec/records/2026-10-24-rust-core-tasks-desktop.md)
+with Notes `fa9581f0`: two exact service cases, 230 native cases and both strict
+Clippy configurations pass. Only the already-selected Chrono edge is added;
+database adoption and the original service-lifetime gates remain open.
 
 Retained-provider qualification also repaired the existing
 [Problems quick-fix writer](spec/records/2026-10-24-problems-quick-fix-persistence.md).
