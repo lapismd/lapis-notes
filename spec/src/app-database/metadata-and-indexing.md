@@ -16,6 +16,15 @@ formats remain unchanged; discovery exclusions are not backup or access policy.
 
 **Requirement.** Turso storage MUST persist indexed files, metadata, links, tags, properties, plugin projections, notifications, history, search documents, chunks, embedding state, and application metadata in normalized tables. Metadata and other durable domains MUST NOT depend on a whole-database compatibility snapshot.
 
+## LN-DB-057 — Complete Search index statistics
+
+<a id="ln-db-057"></a>
+
+**Requirement.** Search index statistics MUST count each stored chunk as ready,
+pending or error, treating missing or unknown embedding status as pending.
+Nullable error strings MUST retain empty strings, including after replacing or
+deleting an error-owning document. Memory and Turso MUST retain this classification.
+
 ## LN-DB-005 — Lexical retrieval: use Turso full-text search when available. Unsupported
 
 <a id="ln-db-005"></a>

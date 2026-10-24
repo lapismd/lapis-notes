@@ -158,6 +158,12 @@ revisions. Bounded attempts, same-owner renewal, exact expiry boundaries and
 terminal completion retain the existing provider behavior. These derived tables
 remain separate from R5 scheduling and durable transcript/Markdown authority.
 
+Search storage intake first qualifies prepared document/chunk JSON, body-free
+manifests and complete index totals against retained Memory and Turso providers.
+LN-DB-057 governs their shared statistics, including absent embedding state and
+empty error strings. This reference does not select native storage, inference or
+retrieval, or qualify unattended indexing and host adoption.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

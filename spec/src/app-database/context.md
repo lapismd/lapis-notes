@@ -66,6 +66,9 @@ the Memory provider's maps. Markdown remains authoritative for rebuildable note
 metadata, Search documents, tasks, and plugin projections. Migration must retain
 database-only History and other non-rebuildable application state.
 
+Search index statistics follow [LN-DB-057](metadata-and-indexing.md#ln-db-057)
+across explicitly injected Memory fixtures and direct Turso.
+
 Memory-derived state follows that same provider contract. The in-memory and
 direct-Turso implementations expose source checkpoints, normalized candidates
 with exact origins, salted daily recall aggregates, and renewable jobs through

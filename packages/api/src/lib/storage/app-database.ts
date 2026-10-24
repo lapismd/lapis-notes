@@ -4189,6 +4189,9 @@ export class MemoryAppDatabase implements AppDatabase {
           errorChunkCount += 1;
           lastError ??= embedding.error ?? null;
           break;
+        default:
+          pendingChunkCount += 1;
+          break;
       }
     }
 
@@ -4235,7 +4238,7 @@ export class MemoryAppDatabase implements AppDatabase {
     this.searchIndexStats.readyChunkCount += stats.readyChunkCount;
     this.searchIndexStats.pendingChunkCount += stats.pendingChunkCount;
     this.searchIndexStats.errorChunkCount += stats.errorChunkCount;
-    if (stats.lastError) {
+    if (stats.lastError !== null) {
       this.searchIndexStats.lastError = stats.lastError;
       this.searchIndexLastErrorPath = path;
     }
@@ -4255,7 +4258,7 @@ export class MemoryAppDatabase implements AppDatabase {
       this.searchIndexStats.lastError = null;
       this.searchIndexLastErrorPath = null;
       for (const [nextPath, nextStats] of this.searchIndexStatsByPath) {
-        if (nextPath === path || !nextStats.lastError) {
+        if (nextPath === path || nextStats.lastError === null) {
           continue;
         }
         this.searchIndexStats.lastError = nextStats.lastError;

@@ -31,6 +31,10 @@ facade, including full recurrence/structure data and effective view membership.
 Memory storage fixtures also qualify retained and native records, candidate
 queries, exact origins, daily recall totals and renewable job transitions.
 
+The Search-storage reference fixture retains prepared documents, manifests,
+embedding states and statistics through Memory and Turso. Its counts and error
+values are qualified before the native storage intake.
+
 ## LN-PKG-185 — Core vault listing exclusions
 
 <a id="ln-pkg-185"></a>
