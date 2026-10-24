@@ -80,6 +80,113 @@
       "required": ["file", "metadata", "links", "tags", "properties"],
       "type": "object"
     },
+    "DatabaseCall": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "default": [],
+          "items": { "$ref": "#/$defs/DatabaseValue" },
+          "maxItems": 4,
+          "type": "array"
+        },
+        "method": { "$ref": "#/$defs/DatabaseMethod" }
+      },
+      "required": ["method"],
+      "type": "object"
+    },
+    "DatabaseMethod": {
+      "enum": [
+        "migrate",
+        "beginSearchIndexingBatch",
+        "endSearchIndexingBatch",
+        "configureSearchEmbeddingProvider",
+        "getSearchEmbeddingProvider",
+        "getSearchEmbeddingRuntimeStatus",
+        "getSearchIndexStats",
+        "getMeta",
+        "setMeta",
+        "scanMeta",
+        "transactMeta",
+        "getNotebookState",
+        "setNotebookState",
+        "deleteNotebookState",
+        "loadMetadataSnapshot",
+        "saveMetadataSnapshot",
+        "getFileHistory",
+        "storeFileHistoryRevision",
+        "listNotifications",
+        "upsertNotification",
+        "markNotificationRead",
+        "clearNotification",
+        "clearAllNotifications",
+        "getMemorySourceState",
+        "listMemorySourceStates",
+        "upsertMemorySourceState",
+        "deleteMemorySourceState",
+        "upsertMemoryCandidate",
+        "queryMemoryCandidates",
+        "deleteMemoryCandidatesByConversation",
+        "recordMemoryRecallSignal",
+        "listMemoryRecallSignals",
+        "claimMemoryJob",
+        "updateMemoryJob",
+        "listMemoryJobs",
+        "clearMemoryDerivedState",
+        "getChangeRevision",
+        "upsertIndexedFile",
+        "getIndexedFile",
+        "listIndexedFileManifest",
+        "queryIndexedMetadata",
+        "queryIndexedMetadataPage",
+        "queryMetadataFacets",
+        "queryMetadataLinks",
+        "deleteIndexedFile",
+        "renameIndexedFile",
+        "upsertSearchDocument",
+        "deleteSearchDocument",
+        "getSearchDocument",
+        "listSearchDocumentManifest",
+        "listSearchDocuments",
+        "rebuildSearchIndex",
+        "searchDocuments",
+        "searchDocumentPaths",
+        "upsertTaskProjection",
+        "deleteTaskProjection",
+        "queryTasks",
+        "getTaskRow",
+        "listChildLinks",
+        "listTaskDescendants",
+        "registerProjectionDefinition",
+        "unregisterProjectionDefinition",
+        "replaceProjectionSource",
+        "markProjectionSourceError",
+        "deleteProjectionSource",
+        "queryProjection",
+        "getProjectionRow",
+        "queryRelated"
+      ],
+      "type": "string"
+    },
+    "DatabaseValue": {
+      "description": "Explicit tags preserve undefined array slots and undefined results over JSON.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "undefined", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "value", "type": "string" },
+            "value": true
+          },
+          "required": ["kind", "value"],
+          "type": "object"
+        }
+      ]
+    },
     "EditorClaim": {
       "additionalProperties": false,
       "properties": {
@@ -1632,6 +1739,12 @@
             { "type": "null" }
           ]
         },
+        "queryEnhancement": {
+          "anyOf": [
+            { "$ref": "#/$defs/SearchEnhancementDiagnostics" },
+            { "type": "null" }
+          ]
+        },
         "requestedMode": { "$ref": "#/$defs/SearchMode" },
         "totalCandidateCount": {
           "format": "uint",
@@ -1772,6 +1885,100 @@
       "enum": ["pending", "ready", "error"],
       "type": "string"
     },
+    "SearchEnhancementDiagnostics": {
+      "additionalProperties": false,
+      "properties": {
+        "applied": { "type": "boolean" },
+        "expandQuery": { "type": "boolean" },
+        "providerKind": { "$ref": "#/$defs/SearchEnhancementProviderKind" },
+        "rerankResults": { "type": "boolean" },
+        "runtimeTarget": { "$ref": "#/$defs/SearchEnhancementRuntime" },
+        "signal": { "$ref": "#/$defs/SearchEnhancementSignal" },
+        "skipReason": {
+          "anyOf": [
+            { "$ref": "#/$defs/SearchEnhancementSkipReason" },
+            { "type": "null" }
+          ]
+        }
+      },
+      "required": [
+        "runtimeTarget",
+        "providerKind",
+        "expandQuery",
+        "rerankResults",
+        "applied",
+        "signal"
+      ],
+      "type": "object"
+    },
+    "SearchEnhancementProvider": {
+      "additionalProperties": false,
+      "properties": {
+        "allowRemoteModels": { "type": ["boolean", "null"] },
+        "kind": { "$ref": "#/$defs/SearchEnhancementProviderKind" },
+        "localModelPath": { "type": ["string", "null"] },
+        "maxExpandedQueries": { "format": "double", "type": "number" },
+        "maxRerankCandidates": { "format": "double", "type": "number" },
+        "queryExpansionModelId": { "type": "string" },
+        "rerankerModelId": { "type": "string" }
+      },
+      "required": [
+        "kind",
+        "queryExpansionModelId",
+        "rerankerModelId",
+        "maxExpandedQueries",
+        "maxRerankCandidates"
+      ],
+      "type": "object"
+    },
+    "SearchEnhancementProviderKind": {
+      "enum": ["local-model"],
+      "type": "string"
+    },
+    "SearchEnhancementRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "expandQuery": { "type": "boolean" },
+        "provider": { "$ref": "#/$defs/SearchEnhancementProvider" },
+        "rerankResults": { "type": "boolean" },
+        "runtimeTarget": { "$ref": "#/$defs/SearchEnhancementRuntime" }
+      },
+      "required": ["runtimeTarget", "provider", "expandQuery", "rerankResults"],
+      "type": "object"
+    },
+    "SearchEnhancementRuntime": {
+      "enum": [
+        "web-pwa",
+        "deno-desktop",
+        "tauri-desktop",
+        "node-server",
+        "deno-server",
+        "test"
+      ],
+      "type": "string"
+    },
+    "SearchEnhancementSignal": {
+      "additionalProperties": false,
+      "properties": {
+        "requestedMode": { "$ref": "#/$defs/SearchMode" },
+        "resultCount": { "format": "uint", "minimum": 0, "type": "integer" },
+        "topFusedScore": { "format": "double", "type": "number" },
+        "topLexicalScore": { "format": "double", "type": "number" },
+        "topVectorScore": { "format": "double", "type": "number" }
+      },
+      "required": [
+        "requestedMode",
+        "topLexicalScore",
+        "topVectorScore",
+        "topFusedScore",
+        "resultCount"
+      ],
+      "type": "object"
+    },
+    "SearchEnhancementSkipReason": {
+      "enum": ["unsupported-runtime", "strong-signal", "provider-unavailable"],
+      "type": "string"
+    },
     "SearchField": {
       "enum": ["content", "path", "name", "tags", "metadata"],
       "type": "string"
@@ -1887,6 +2094,12 @@
           "anyOf": [{ "$ref": "#/$defs/SearchMode" }, { "type": "null" }]
         },
         "pathPrefix": { "type": ["string", "null"] },
+        "queryEnhancement": {
+          "anyOf": [
+            { "$ref": "#/$defs/SearchEnhancementRequest" },
+            { "type": "null" }
+          ]
+        },
         "snippetLength": {
           "format": "uint",
           "minimum": 0,
@@ -2621,7 +2834,9 @@
     "attach": { "$ref": "#/$defs/AttachClient" },
     "client": { "$ref": "#/$defs/ClientDescriptor" },
     "core_indexed_file": { "$ref": "#/$defs/CoreIndexedFile" },
+    "database_call": { "$ref": "#/$defs/DatabaseCall" },
     "database_change": { "$ref": "#/$defs/ChangeSet" },
+    "database_value": { "$ref": "#/$defs/DatabaseValue" },
     "file_history": { "$ref": "#/$defs/FileHistory" },
     "host": { "$ref": "#/$defs/HostInfo" },
     "indexed_file": { "$ref": "#/$defs/IndexedFile" },
@@ -2682,6 +2897,8 @@
     "vault": { "$ref": "#/$defs/ManagedVault" }
   },
   "required": [
+    "database_call",
+    "database_value",
     "request",
     "reply",
     "client",

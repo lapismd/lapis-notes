@@ -2,7 +2,7 @@
 
 ## Shared Rust application services (2026-10-23)
 
-Last updated **2026-10-24 20:55:38 UTC**. This is the active migration tracker for the
+Last updated **2026-10-24 21:35:24 UTC**. This is the active migration tracker for the
 [shared Rust plan](RUST_CORE_MIGRATION_PLAN.md). The older Node parity roadmap
 below is superseded; its remaining rows are historical references, not another
 set of current migration tasks.
@@ -12,13 +12,14 @@ still use their existing database adapters, and the hosted application still
 uses Node. The new shared Rust database facade has not been selected by either
 host.
 
-**Current checkpoint:** [native schema lifecycle](spec/records/2026-10-24-rust-core-database-schema.md)
-is source complete at `3d5a0fcb`, with 198 ordinary Rust cases, three actual-model
-cases and full source qualification passing. Search provider control (`e6de56ef`),
-batch/rebuild (`cfb369f7`) and
-[vector/hybrid retrieval](spec/records/2026-10-24-rust-core-search-semantic.md)
-(`8fd7b926`) remain source complete. Native asset installation/download remains
-waiting.
+**Current checkpoint:** the [native AppDatabase call boundary](spec/records/2026-10-24-rust-core-database-calls.md)
+is source complete: all 68 methods, 85 retained calls, explicit JavaScript value
+shapes and five semantic enhancement scenarios pass. Full source qualification
+passes 205 ordinary Rust cases, 1,532 API cases and three actual-model cases.
+Schema lifecycle (`3d5a0fcb`), Search provider control (`e6de56ef`), batch/rebuild
+(`cfb369f7`) and [semantic retrieval](spec/records/2026-10-24-rust-core-search-semantic.md)
+(`8fd7b926`) retain their source receipts. Native asset installation and both
+host adapters remain waiting.
 
 [Desktop provider/archive/SQL intake](spec/records/2026-10-24-rust-core-search-provider-desktop.md)
 is Complete at `074dee3a`: all four rebuilt hidden API cases, 230 native service
@@ -27,17 +28,12 @@ all 2,000 catalog cases pass. Source `8fd7b926` also passes the exact Desktop
 file-service target and strict normal/e2e native checks. These gates qualify
 library/SQL/catalog intake; neither host selects the new database facade.
 
-**Working now:** exact argument/default and transport-result conformance for the
-complete native facade. [Schema lifecycle](spec/records/2026-10-24-rust-core-database-schema.md)
-is source complete at `3d5a0fcb`: six exact cases, 198 ordinary Rust cases,
-three real-model cases and full source check/test/build/specification lanes pass.
-[Desktop compatibility](spec/records/2026-10-24-rust-core-database-schema-desktop.md)
-passes both exact service cases and strict normal/e2e all-target Clippy.
-All 68 method names/known aliases exist, but query-enhancement shape, defaults
-and missing/null/void transport results still require conformance. Neither host
-has selected the facade.
+**Working now:** commit the qualified call boundary, then qualify Desktop's
+native dependency compatibility. The source passes check/test/build, all three
+real-model targets and all nine specification lanes. This does not select the
+new facade in either application.
 
-**Next:** finish facade and model/cache installation, connect both hosts, then
+**Next:** register native model/cache assets, connect both hosts, then
 qualify the retained hosted shell and backup lifetime. R2–R7 follows the agreed
 order; this adds no feature scope. Desktop's
 [live task navigation](spec/records/2026-10-24-migration-tracker.md) remains qualified
@@ -62,7 +58,7 @@ at `733bb679`; M11 stays Deferred.
 | R1.2 Vault/service ownership | Complete | [Qualified ownership, detach, dirty claims, serialization and drain](spec/records/2026-10-23-rust-core-ownership.md).                                  |
 | R1.3 Both host adapters      | Working  | Database adoption, existing hosted shell and backup detach/Quit acceptance. See the host checklist.                                                    |
 | R2 Durable conversation      | Waiting  | After R1.3: a real accepted turn completes without a client and recovers after restart without replay.                                                 |
-| R3 Indexed vault             | Working  | Database catalogue work is brought forward for R1.3. Facade conformance, host adoption and unattended indexing remain.                                 |
+| R3 Indexed vault             | Working  | The complete native database facade is source-qualified. Host adoption and unattended metadata/projection/Search/history indexing remain.              |
 | R4 AI/tools/Changes          | Waiting  | After R2/R3: existing queues, participants/context, approvals, native tools and guarded undo through both hosts.                                       |
 | R5 Memory                    | Waiting  | After R4: native capture/recall, Markdown authority, maintenance, relocation and cold recovery. Derived database storage alone does not complete this. |
 | R6 Native jobs               | Waiting  | After R5: imports/capture, existing Forge/transfer/Compute, installation transactions and terminal lifetime.                                           |
@@ -112,7 +108,7 @@ or the hosted browser is already using the new database implementation.**
 | Native vector/hybrid Search retrieval                               | Source complete | [Native semantic intake](spec/records/2026-10-24-rust-core-search-semantic.md): all 16 retained query envelopes/path results, five edge cases (111/300 records), bounded candidate buffers and three real-model cases pass. Full source check/test/build/spec pass. [Retained reference](spec/records/2026-10-24-search-semantic-reference.md) stays separate; both host adapters still await adoption.                                 |
 | Native Search batch and rebuild controls                            | Source complete | [Batch/rebuild controls](spec/records/2026-10-24-rust-core-search-rebuild.md): admitted barriers, bounded 100-record pages, selected inference, detach/drain, ordered committed changes and rollback. Five exact / 185 full Rust cases pass; source check/test/build pass. Host adoption remains waiting.                                                                                                                               |
 | Complete indexed-file upsert, rename and delete                     | Source complete | [Native indexed-file intake](spec/records/2026-10-24-rust-core-indexed-mutations.md): ten-case retained reference, staged task commits, atomic rename/delete and persisted rename notifications; seven exact native cases, 169 full Rust cases, 1,489 API cases and all source check/test/build/spec lanes pass.                                                                                                                        |
-| Complete native AppDatabase facade                                  | Working         | All 68 method names/known aliases exist. [Schema lifecycle](spec/records/2026-10-24-rust-core-database-schema.md) passes six exact cases and full source lanes. Optional/default arguments, query-enhancement shape and exact undefined/null/void transport results still require conformance before host adoption.                                                                                                                     |
+| Complete native AppDatabase facade                                  | Source complete | [Native call conformance](spec/records/2026-10-24-rust-core-database-calls.md): all 68 methods / 85 retained calls, explicit undefined/null/void, optional defaults, conditional transaction results and query-enhancement diagnostics pass. Eight exact native / 39 retained API cases and complete source check/test/build/model/spec lanes pass. Host adoption is separate.                                                          |
 
 ### Remaining R3 service ownership
 

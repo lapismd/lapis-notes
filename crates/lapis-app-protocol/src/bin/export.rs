@@ -1,8 +1,10 @@
+use lapis_app_protocol::database::call::*;
 use lapis_app_protocol::database::indexed::{mutations::IndexedFile, queries::*, records::*};
 use lapis_app_protocol::database::memory::{enums::*, jobs::*, records::*};
 use lapis_app_protocol::database::projections::queries::*;
 use lapis_app_protocol::database::projections::*;
 use lapis_app_protocol::database::search::embedding::*;
+use lapis_app_protocol::database::search::enhancement::*;
 use lapis_app_protocol::database::search::retrieval::*;
 use lapis_app_protocol::database::search::{records::*, source::*, *};
 use lapis_app_protocol::database::tasks::{enums::*, record::*, recurrence::*, structure::*, *};
@@ -14,6 +16,8 @@ use ts_rs::{Config, TS};
 
 #[derive(JsonSchema)]
 pub struct Contracts {
+    pub database_call: DatabaseCall,
+    pub database_value: DatabaseValue,
     pub request: Request,
     pub reply: Reply,
     pub client: ClientDescriptor,
@@ -70,6 +74,9 @@ pub struct Contracts {
 fn main() {
     let config = Config::default();
     let declarations = [
+        DatabaseMethod::decl(&config),
+        DatabaseValue::decl(&config),
+        DatabaseCall::decl(&config),
         LoginRequest::decl(&config),
         SessionInfo::decl(&config),
         HostInfo::decl(&config),
@@ -205,6 +212,13 @@ fn main() {
         SearchEmbeddingRuntimePhase::decl(&config),
         SearchEmbeddingRuntimeStatus::decl(&config),
         SearchMode::decl(&config),
+        SearchEnhancementRuntime::decl(&config),
+        SearchEnhancementProviderKind::decl(&config),
+        SearchEnhancementProvider::decl(&config),
+        SearchEnhancementRequest::decl(&config),
+        SearchEnhancementSignal::decl(&config),
+        SearchEnhancementSkipReason::decl(&config),
+        SearchEnhancementDiagnostics::decl(&config),
         SearchRetrievalMode::decl(&config),
         SearchField::decl(&config),
         SearchOptions::decl(&config),

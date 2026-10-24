@@ -394,6 +394,7 @@ AppDatabase owns portable Search configuration and invalidation. Memory and
 Turso reuse the API's pending-record policy; native publication uses its actor.
 Native model/cache file registration stays outside serialized configuration.
 
-The semantic retrieval fixture retains 16 complete result envelopes in Memory
-and native Turso before Rust intake, including fusion ranks, scope filters,
-preferred chunks and diagnostics; native intake retains provider-kind diagnostics.
+The semantic reference retains 16 Memory/Turso envelopes before Rust intake:
+fusion ranks, scope filters, preferred chunks and provider-kind diagnostics. Five
+extra cases qualify enhancement signals before limits; the call reference covers
+85 requests, all 68 methods, defaults and undefined/null/void without host adoption.

@@ -58,5 +58,29 @@ for (const native of [false, true])
           );
         },
       );
+      if (native)
+        it.each(input.enhancementCases)(
+          "retains enhancement diagnostics: $name",
+          async (entry) => {
+            const base = input.cases[entry.caseIndex];
+            const options = {
+              ...base.options,
+              ...("limit" in entry ? { limit: entry.limit } : {}),
+              queryEnhancement: entry.request,
+            } as AppDatabaseSearchOptions;
+            const expected = base.turso
+              .slice(0, options.limit ?? 100)
+              .map((row) => ({
+                ...row,
+                diagnostics: {
+                  ...row.diagnostics,
+                  queryEnhancement: entry.expected,
+                },
+              }));
+            expect(
+              project(await db.searchDocuments(base.query, options)),
+            ).toEqual(expected);
+          },
+        );
     },
   );

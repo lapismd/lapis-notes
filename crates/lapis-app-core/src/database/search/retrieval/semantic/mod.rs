@@ -74,6 +74,17 @@ impl Store {
             SearchRetrievalMode::Lexical => e.lexical > 0.,
         });
         entries.sort_by(|a, b| ranking::compare(a, b, mode, &locale));
+        let enhancement = super::enhancement::resolve(
+            options,
+            lapis_app_protocol::database::search::enhancement::SearchEnhancementSignal {
+                requested_mode: options.mode.unwrap_or_default(),
+                top_lexical_score: entries.iter().map(|e| e.lexical).fold(0., f64::max),
+                top_vector_score: entries.iter().map(|e| e.vector).fold(0., f64::max),
+                top_fused_score: entries.first().map(|e| e.score(mode).fused).unwrap_or(0.),
+                result_count: entries.len(),
+            },
+            mode,
+        );
         entries.truncate(options.limit.unwrap_or(100));
         if paths {
             let paths = entries.into_iter().map(|e| e.path).collect::<Vec<_>>();
@@ -98,6 +109,7 @@ impl Store {
                 query,
                 options,
                 result::Context {
+                    enhancement: enhancement.as_ref(),
                     mode,
                     lexical_candidates,
                     vector_candidates,

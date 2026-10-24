@@ -3,6 +3,7 @@ use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 use ts_rs::TS;
 
+pub mod call;
 pub mod changes;
 pub mod history;
 pub mod indexed;

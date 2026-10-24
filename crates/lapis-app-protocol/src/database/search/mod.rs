@@ -1,4 +1,5 @@
 pub mod embedding;
+pub mod enhancement;
 pub mod records;
 pub mod retrieval;
 pub mod source;

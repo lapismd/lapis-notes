@@ -101,6 +101,22 @@ checks, mutations and their change revision commit in one native transaction.
 No browser endpoint exposes SQL or a database path. The full catalogue and its
 vault-lifetime integration remain prerequisites for the R1.3 hosted shell.
 
+The native call boundary retains the complete AppDatabase method allowlist and
+four-argument/32 MiB bounds. Tagged JavaScript values preserve omitted/undefined
+slots independently of explicit JSON null, including optional middle arguments.
+Dispatch decodes existing domain DTOs and calls the same owned operations;
+it introduces no SQL, root selection or alternate engine. Missing getters and
+void results remain undefined; nullable domain results remain null. Omitted
+queries retain their existing defaults. The method set is checked against the
+retained public allowlist. Adapter selection and vault-lifetime adoption remain
+separate gates.
+
+Search call conformance retains the existing optional query-enhancement request
+and skip diagnostics. Unsupported runtime, strong-signal and unavailable-provider
+outcomes keep their prior order and complete-result signals before final limits.
+The request does not admit model files, install assets or add an expansion/rerank
+engine; portable provider paths are never native execution authority.
+
 The facade also retains notebook state and notification records in their
 existing domains. Deprecated metadata-snapshot methods remain explicit
 compatibility operations and must never become startup or normalized-storage

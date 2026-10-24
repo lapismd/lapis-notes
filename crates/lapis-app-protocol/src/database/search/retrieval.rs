@@ -37,6 +37,9 @@ pub enum SearchField {
 pub struct SearchOptions {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[ts(optional)]
+    pub query_enhancement: Option<super::enhancement::SearchEnhancementRequest>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub limit: Option<usize>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[ts(optional)]
@@ -126,6 +129,9 @@ pub struct SearchScore {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 #[ts(rename_all = "camelCase")]
 pub struct SearchDiagnostics {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub query_enhancement: Option<super::enhancement::SearchEnhancementDiagnostics>,
     pub requested_mode: SearchMode,
     pub applied_mode: SearchRetrievalMode,
     pub backend_kind: String,

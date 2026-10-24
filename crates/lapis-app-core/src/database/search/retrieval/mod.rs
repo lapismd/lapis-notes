@@ -1,3 +1,4 @@
+mod enhancement;
 mod evaluation;
 mod lexer;
 mod page;

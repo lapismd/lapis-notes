@@ -24,6 +24,7 @@ pub(super) struct Page {
     limit: usize,
     paths: bool,
     seen: usize,
+    max_score: f64,
 }
 impl Page {
     pub fn new(limit: usize, paths: bool) -> Result<Self> {
@@ -35,6 +36,7 @@ impl Page {
             limit,
             paths,
             seen: 0,
+            max_score: 0.,
         })
     }
     fn compare(&self, a: &Entry, b: &Entry) -> Ordering {
@@ -55,6 +57,7 @@ impl Page {
             bytes: 0,
         };
         self.seen += 1;
+        self.max_score = self.max_score.max(score);
         let full = self.entries.len() == self.limit;
         if full && !self.compare(&entry, &self.entries[0]).is_lt() {
             return Ok(());
@@ -139,6 +142,17 @@ impl Page {
             encoded(&paths)?;
             return Ok(super::super::Value::Paths(paths));
         }
+        let enhancement = super::enhancement::resolve(
+            options,
+            lapis_app_protocol::database::search::enhancement::SearchEnhancementSignal {
+                requested_mode: options.mode.unwrap_or_default(),
+                top_lexical_score: self.max_score,
+                top_vector_score: 0.,
+                top_fused_score: self.max_score,
+                result_count: self.seen,
+            },
+            SearchRetrievalMode::Lexical,
+        );
         let result = self
             .entries
             .into_iter()
@@ -167,6 +181,7 @@ impl Page {
                         .include_diagnostics
                         .unwrap_or(false)
                         .then(|| SearchDiagnostics {
+                            query_enhancement: enhancement.clone(),
                             provider_kind: None,
                             requested_mode: options.mode.unwrap_or_default(),
                             applied_mode: SearchRetrievalMode::Lexical,

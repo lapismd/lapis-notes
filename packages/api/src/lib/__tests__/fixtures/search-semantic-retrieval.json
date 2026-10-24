@@ -6440,5 +6440,164 @@
         }
       ]
     }
+  ],
+  "enhancementCases": [
+    {
+      "name": "vector deno-desktop",
+      "caseIndex": 0,
+      "request": {
+        "runtimeTarget": "deno-desktop",
+        "provider": {
+          "kind": "local-model",
+          "queryExpansionModelId": "test/expand",
+          "rerankerModelId": "test/rerank",
+          "maxExpandedQueries": 3,
+          "maxRerankCandidates": 20
+        },
+        "expandQuery": true,
+        "rerankResults": true
+      },
+      "expected": {
+        "runtimeTarget": "deno-desktop",
+        "providerKind": "local-model",
+        "expandQuery": true,
+        "rerankResults": true,
+        "applied": false,
+        "skipReason": "provider-unavailable",
+        "signal": {
+          "requestedMode": "vector",
+          "topLexicalScore": 25,
+          "topVectorScore": 0.7559289460184544,
+          "topFusedScore": 75.59289460184544,
+          "resultCount": 6
+        }
+      }
+    },
+    {
+      "name": "hybrid deno-desktop",
+      "caseIndex": 1,
+      "request": {
+        "runtimeTarget": "deno-desktop",
+        "provider": {
+          "kind": "local-model",
+          "queryExpansionModelId": "test/expand",
+          "rerankerModelId": "test/rerank",
+          "maxExpandedQueries": 3,
+          "maxRerankCandidates": 20
+        },
+        "expandQuery": true,
+        "rerankResults": true
+      },
+      "expected": {
+        "runtimeTarget": "deno-desktop",
+        "providerKind": "local-model",
+        "expandQuery": true,
+        "rerankResults": true,
+        "applied": false,
+        "skipReason": "provider-unavailable",
+        "signal": {
+          "requestedMode": "hybrid",
+          "topLexicalScore": 25,
+          "topVectorScore": 0.7559289460184544,
+          "topFusedScore": 0.03177805800756621,
+          "resultCount": 7
+        }
+      }
+    },
+    {
+      "name": "lexical selected deno-desktop",
+      "caseIndex": 3,
+      "request": {
+        "runtimeTarget": "deno-desktop",
+        "provider": {
+          "kind": "local-model",
+          "queryExpansionModelId": "test/expand",
+          "rerankerModelId": "test/rerank",
+          "maxExpandedQueries": 3,
+          "maxRerankCandidates": 20
+        },
+        "expandQuery": true,
+        "rerankResults": true
+      },
+      "expected": {
+        "runtimeTarget": "deno-desktop",
+        "providerKind": "local-model",
+        "expandQuery": true,
+        "rerankResults": true,
+        "applied": false,
+        "skipReason": "strong-signal",
+        "signal": {
+          "requestedMode": "lexical",
+          "topLexicalScore": 25,
+          "topVectorScore": 0,
+          "topFusedScore": 25,
+          "resultCount": 7
+        }
+      }
+    },
+    {
+      "name": "rank ties tauri-desktop",
+      "caseIndex": 9,
+      "request": {
+        "runtimeTarget": "tauri-desktop",
+        "provider": {
+          "kind": "local-model",
+          "queryExpansionModelId": "test/expand",
+          "rerankerModelId": "test/rerank",
+          "maxExpandedQueries": 3,
+          "maxRerankCandidates": 20
+        },
+        "expandQuery": true,
+        "rerankResults": true
+      },
+      "expected": {
+        "runtimeTarget": "tauri-desktop",
+        "providerKind": "local-model",
+        "expandQuery": true,
+        "rerankResults": true,
+        "applied": false,
+        "skipReason": "unsupported-runtime",
+        "signal": {
+          "requestedMode": "vector",
+          "topLexicalScore": 20,
+          "topVectorScore": 0.9999999999999999,
+          "topFusedScore": 99.99999999999999,
+          "resultCount": 4
+        }
+      },
+      "limit": 1
+    },
+    {
+      "name": "rank ties deno-desktop",
+      "caseIndex": 9,
+      "request": {
+        "runtimeTarget": "deno-desktop",
+        "provider": {
+          "kind": "local-model",
+          "queryExpansionModelId": "test/expand",
+          "rerankerModelId": "test/rerank",
+          "maxExpandedQueries": 3,
+          "maxRerankCandidates": 20
+        },
+        "expandQuery": true,
+        "rerankResults": true
+      },
+      "expected": {
+        "runtimeTarget": "deno-desktop",
+        "providerKind": "local-model",
+        "expandQuery": true,
+        "rerankResults": true,
+        "applied": false,
+        "skipReason": "provider-unavailable",
+        "signal": {
+          "requestedMode": "vector",
+          "topLexicalScore": 20,
+          "topVectorScore": 0.9999999999999999,
+          "topFusedScore": 99.99999999999999,
+          "resultCount": 4
+        }
+      },
+      "limit": 1
+    }
   ]
 }

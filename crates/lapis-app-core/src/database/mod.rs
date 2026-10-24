@@ -1,5 +1,6 @@
 //! Native high-level AppDatabase operations; SQL and paths never enter requests.
 mod actor;
+mod call;
 mod changes;
 mod history_client;
 mod history_reads;

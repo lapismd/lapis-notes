@@ -8,6 +8,8 @@ use lapis_app_protocol::database::search::{
     retrieval::*,
 };
 pub(super) struct Context<'a> {
+    pub enhancement:
+        Option<&'a lapis_app_protocol::database::search::enhancement::SearchEnhancementDiagnostics>,
     pub mode: SearchRetrievalMode,
     pub lexical_candidates: usize,
     pub vector_candidates: usize,
@@ -21,6 +23,7 @@ pub(super) fn build(
     context: Context<'_>,
 ) -> SearchResult {
     let Context {
+        enhancement,
         mode,
         lexical_candidates,
         vector_candidates,
@@ -47,6 +50,7 @@ pub(super) fn build(
         .include_diagnostics
         .unwrap_or(false)
         .then(|| SearchDiagnostics {
+            query_enhancement: enhancement.cloned(),
             requested_mode: options.mode.unwrap_or_default(),
             applied_mode: mode,
             backend_kind: "turso-native".into(),
