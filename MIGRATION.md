@@ -25,7 +25,7 @@ and three rebuilt cold hidden-native checks; [consumer evidence](spec/records/20
 records E-CORE-005 and the unchanged Desktop database adapter. Later state/history
 extensions have [focused Desktop compatibility](spec/records/2026-10-24-rust-core-database-catalogue-desktop.md);
 the [indexed extension check](spec/records/2026-10-24-rust-core-database-indexed-desktop.md)
-also passes both native service cases. Current Desktop `14a07f6b` has
+also passes both native service cases. Desktop `14a07f6b` has
 [focused projection compatibility](spec/records/2026-10-24-rust-core-projection-desktop.md)
 with Notes `65a6c0e0`; its [single-row-read check](spec/records/2026-10-24-rust-core-projection-row-desktop.md)
 also passes against `c028f4f6`, without widening the complete-native qualification. Committed hosted
@@ -34,6 +34,11 @@ in this default. Its unfinished accepted-work change `vlvosxvo` is preserved in
 the `hosted-services` workspace. Do not treat it as qualified production code.
 Desktop M15.1 remains In progress with the remaining matrix/bundle/catalog gates
 recorded in E-SHARED-007. Existing H/M completion claims are not widened here.
+
+Desktop `26989b92` has [native query dependency compatibility](spec/records/2026-10-24-rust-core-projection-query-desktop.md)
+with Notes `5deb28b0`: both exact service cases, all 230 Rust cases and strict
+normal/e2e Clippy pass. Its database adapter is still unchanged; original
+R1.3/R3, cold-native, provider and platform gates remain separate.
 
 Retained-provider qualification also repaired the existing
 [Problems quick-fix writer](spec/records/2026-10-24-problems-quick-fix-persistence.md).
