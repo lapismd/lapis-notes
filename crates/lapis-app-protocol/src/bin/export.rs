@@ -1,4 +1,4 @@
-use lapis_app_protocol::database::{changes::*, state::*};
+use lapis_app_protocol::database::{changes::*, history::*, state::*};
 use lapis_app_protocol::{browser::*, database::*, files::*, *};
 use schemars::JsonSchema;
 use serde_json::json;
@@ -22,6 +22,9 @@ pub struct Contracts {
     pub metadata_snapshot: MetadataSnapshot,
     pub notification: NotificationRecord,
     pub database_change: ChangeSet,
+    pub file_history: FileHistory,
+    pub store_history: StoreHistory,
+    pub stored_history: StoredHistory,
 }
 fn main() {
     let config = Config::default();
@@ -46,6 +49,12 @@ fn main() {
         ChangeDomain::decl(&config),
         ChangedPath::decl(&config),
         ChangeSet::decl(&config),
+        HistoryEvent::decl(&config),
+        HistoryFile::decl(&config),
+        HistoryRevision::decl(&config),
+        FileHistory::decl(&config),
+        StoreHistory::decl(&config),
+        StoredHistory::decl(&config),
         ManagedVault::decl(&config),
         AttachClient::decl(&config),
         FileOptions::decl(&config),

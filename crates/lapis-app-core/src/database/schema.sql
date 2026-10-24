@@ -10,6 +10,20 @@ CREATE TABLE IF NOT EXISTS notifications (
   id TEXT PRIMARY KEY,
   data_json TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS history_files (
+  file_id TEXT PRIMARY KEY,
+  data_json TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS history_file_paths (
+  path TEXT PRIMARY KEY,
+  file_id TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS history_revisions (
+  file_id TEXT NOT NULL,
+  ordinal INTEGER NOT NULL,
+  data_json TEXT NOT NULL,
+  PRIMARY KEY (file_id, ordinal)
+);
 CREATE TABLE IF NOT EXISTS app_revision (
   id INTEGER PRIMARY KEY CHECK (id = 1),
   revision INTEGER NOT NULL

@@ -1,6 +1,9 @@
 //! Native high-level AppDatabase operations; SQL and paths never enter requests.
 mod actor;
 mod changes;
+mod history_client;
+mod history_reads;
+mod history_writes;
 mod notifications;
 mod reads;
 mod saved_state;
@@ -15,6 +18,7 @@ pub use lapis_app_protocol::database::{
 };
 use lapis_app_protocol::database::{
     changes::ChangeSet,
+    history::{FileHistory, StoreHistory, StoredHistory},
     state::{MetadataSnapshot, NotebookState, NotificationRecord},
 };
 use serde::Serialize;
@@ -47,6 +51,8 @@ enum Operation {
     LoadSnapshot,
     SaveSnapshot(MetadataSnapshot),
     Notifications(notifications::Action),
+    GetHistory(String),
+    StoreHistory(StoreHistory),
 }
 enum Output {
     Meta(Option<Value>),
@@ -56,6 +62,8 @@ enum Output {
     Snapshot(Option<MetadataSnapshot>),
     Notifications(Vec<NotificationRecord>),
     Done,
+    History(Option<FileHistory>),
+    StoredHistory(StoredHistory),
 }
 impl Database {
     /// Native installation input only; callers derive this from admitted policy.

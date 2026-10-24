@@ -85,6 +85,10 @@ impl Store {
                 self.save_snapshot(snapshot).await.map(|_| Output::Done)
             }
             Operation::Notifications(action) => self.notifications(action).await,
+            Operation::GetHistory(path) => self.history(&path).await.map(Output::History),
+            Operation::StoreHistory(input) => {
+                self.store_history(input).await.map(Output::StoredHistory)
+            }
         }
     }
     pub async fn revision(&self) -> Result<u64> {

@@ -81,6 +81,52 @@ export type ChangeSet = {
   reset?: boolean;
   committedAt: number;
 };
+export type HistoryEvent =
+  | "baseline"
+  | "create"
+  | "modify"
+  | "rename"
+  | "delete"
+  | "restore";
+export type HistoryFile = {
+  fileId: string;
+  currentPath: string;
+  deleted: boolean;
+};
+export type HistoryRevision = {
+  revisionId: string;
+  fileId: string;
+  currentPath: string;
+  capturedPath: string;
+  eventType: HistoryEvent;
+  createdAt: number;
+  sourceMtime?: number;
+  sourceSize?: number;
+  contentHash: string;
+  content: string;
+};
+export type FileHistory = {
+  file: HistoryFile;
+  revisions: Array<HistoryRevision>;
+};
+export type StoreHistory = {
+  path: string;
+  previousPath?: string;
+  eventType: HistoryEvent;
+  createdAt: number;
+  sourceMtime?: number;
+  sourceSize?: number;
+  contentHash?: string;
+  content?: string;
+  maxRevisions?: number;
+  replaceLatest?: boolean;
+};
+export type StoredHistory = {
+  fileId: string;
+  stored: boolean;
+  deduplicated: boolean;
+  revision?: HistoryRevision;
+};
 export type ManagedVault = { vault_id: string; name: string };
 export type AttachClient = { protocol_version: number };
 export type FileOptions = { mtime: number | null };

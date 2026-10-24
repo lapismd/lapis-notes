@@ -12,6 +12,7 @@ import {
   type NotebookState,
   type NotificationRecord,
   type ChangeSet,
+  type StoreHistory,
 } from "../bindings/protocol.js";
 const command = {
   kind: "write_text",
@@ -122,3 +123,19 @@ const invalidNotice: NotificationRecord = {
   severity: "debug",
 };
 void [notebook, notice, change, invalidNotice];
+
+const history: StoreHistory = {
+  path: "note.md",
+  eventType: "modify",
+  createdAt: 1,
+  content: "new",
+  contentHash: "hash",
+  replaceLatest: true,
+  maxRevisions: 10,
+};
+const invalidHistory: StoreHistory = {
+  ...history,
+  // @ts-expect-error Native history retains the existing event catalogue.
+  eventType: "overwrite",
+};
+void [history, invalidHistory];

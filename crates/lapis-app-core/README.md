@@ -17,7 +17,8 @@ clients; a work lease survives client detachment but is not a durable job receip
 `lapis-app-protocol` supplies the common commands and generated client contracts.
 
 `database` supplies high-level metadata get/set, prefix scans, conditional
-transactions, change revisions, notebook state and notifications. An installation
+transactions, change revisions, notebook state, notifications and file-history
+storage. An installation
 selects a private database directory and admitted vault UUID; no operation accepts
 SQL or a path. One bounded worker owns `<uuid>.db`, retaining the existing Turso
 metadata/change tables and JSON comparison order. Clones share admission; a
@@ -29,6 +30,11 @@ buffer reports lag explicitly; path detail above 64 KiB or 500 paths becomes a
 complete-domain reset. Notification updates preserve durable read/clear state
 and bulk clearing uses one revision. Deprecated metadata-snapshot access remains
 an explicit compatibility operation, never a startup or normalized-index fallback.
+
+File-history methods preserve the existing database-only revisions and IDs,
+deduplication, rename/delete/restore, coalescing and retention. Their mutations
+use the same transaction/change owner. This storage contract is separate from
+the JJ repository engine, backup capture and repository scheduling.
 
 This foundation does not migrate the complete AppDatabase schema or connect a
 browser/desktop database adapter yet. Remaining catalogue methods and service

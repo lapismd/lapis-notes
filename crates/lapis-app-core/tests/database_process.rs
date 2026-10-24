@@ -77,6 +77,8 @@ async fn metadata_process_fixture() {
             .unwrap();
         let notice = serde_json::from_value(json!({"id":"cold-notice","message":"native notice","severity":"warning","createdAt":1,"updatedAt":1,"read":false,"cleared":false})).unwrap();
         db.upsert_notification(notice).await.unwrap();
+        let history=serde_json::from_value(json!({"path":"cold.md","eventType":"create","createdAt":1,"content":"history 🪨","contentHash":"cold-hash"})).unwrap();
+        db.store_file_history_revision(history).await.unwrap();
         println!("METADATA_COMMITTED");
         std::future::pending::<()>().await;
     } else {
@@ -84,10 +86,13 @@ async fn metadata_process_fixture() {
             db.get_meta("cold").await.unwrap(),
             Some(json!({"value":"native 🪨"}))
         );
-        assert_eq!(db.revision().await.unwrap(), 2);
+        assert_eq!(db.revision().await.unwrap(), 3);
         let notices = db.list_notifications().await.unwrap();
         assert_eq!(notices.len(), 1);
         assert_eq!(notices[0].id, "cold-notice");
+        let history = db.get_file_history("cold.md").await.unwrap().unwrap();
+        assert_eq!(history.revisions[0].content, "history 🪨");
+        assert_eq!(history.revisions[0].content_hash, "cold-hash");
         db.close().await.unwrap();
         println!("METADATA_RESTORED");
     }

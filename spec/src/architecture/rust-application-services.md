@@ -102,6 +102,12 @@ single committed revision. Slow or absent subscribers never own database work.
 Native change buffers hold 128 entries. Path detail above 64 KiB or 500 paths
 becomes a complete-domain reset; a lagged subscriber must refresh before resuming.
 
+AppDatabase file-history storage retains its database-only revisions, lineage,
+deduplication, rename/delete/restore, latest-revision replacement and retention
+contracts. Its native mutations journal and publish through the same transaction
+owner. This compatibility storage is distinct from the existing JJ repository
+engine and does not qualify repository scheduling, restore or backup lifetime.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

@@ -322,6 +322,18 @@
         }
       ]
     },
+    "FileHistory": {
+      "additionalProperties": false,
+      "properties": {
+        "file": { "$ref": "#/$defs/HistoryFile" },
+        "revisions": {
+          "items": { "$ref": "#/$defs/HistoryRevision" },
+          "type": "array"
+        }
+      },
+      "required": ["file", "revisions"],
+      "type": "object"
+    },
     "FileListing": {
       "additionalProperties": false,
       "properties": {
@@ -402,6 +414,46 @@
           "type": "object"
         }
       ]
+    },
+    "HistoryEvent": {
+      "enum": ["baseline", "create", "modify", "rename", "delete", "restore"],
+      "type": "string"
+    },
+    "HistoryFile": {
+      "additionalProperties": false,
+      "properties": {
+        "currentPath": { "type": "string" },
+        "deleted": { "type": "boolean" },
+        "fileId": { "type": "string" }
+      },
+      "required": ["fileId", "currentPath", "deleted"],
+      "type": "object"
+    },
+    "HistoryRevision": {
+      "additionalProperties": false,
+      "properties": {
+        "capturedPath": { "type": "string" },
+        "content": { "type": "string" },
+        "contentHash": { "type": "string" },
+        "createdAt": { "format": "double", "type": "number" },
+        "currentPath": { "type": "string" },
+        "eventType": { "$ref": "#/$defs/HistoryEvent" },
+        "fileId": { "type": "string" },
+        "revisionId": { "type": "string" },
+        "sourceMtime": { "format": "double", "type": ["number", "null"] },
+        "sourceSize": { "format": "double", "type": ["number", "null"] }
+      },
+      "required": [
+        "revisionId",
+        "fileId",
+        "currentPath",
+        "capturedPath",
+        "eventType",
+        "createdAt",
+        "contentHash",
+        "content"
+      ],
+      "type": "object"
     },
     "HostInfo": {
       "additionalProperties": false,
@@ -702,6 +754,36 @@
       "required": ["mtime", "size", "hash"],
       "type": "object"
     },
+    "StoreHistory": {
+      "additionalProperties": false,
+      "properties": {
+        "content": { "type": ["string", "null"] },
+        "contentHash": { "type": ["string", "null"] },
+        "createdAt": { "format": "double", "type": "number" },
+        "eventType": { "$ref": "#/$defs/HistoryEvent" },
+        "maxRevisions": { "format": "double", "type": ["number", "null"] },
+        "path": { "type": "string" },
+        "previousPath": { "type": ["string", "null"] },
+        "replaceLatest": { "default": false, "type": "boolean" },
+        "sourceMtime": { "format": "double", "type": ["number", "null"] },
+        "sourceSize": { "format": "double", "type": ["number", "null"] }
+      },
+      "required": ["path", "eventType", "createdAt"],
+      "type": "object"
+    },
+    "StoredHistory": {
+      "additionalProperties": false,
+      "properties": {
+        "deduplicated": { "type": "boolean" },
+        "fileId": { "type": "string" },
+        "revision": {
+          "anyOf": [{ "$ref": "#/$defs/HistoryRevision" }, { "type": "null" }]
+        },
+        "stored": { "type": "boolean" }
+      },
+      "required": ["fileId", "stored", "deduplicated"],
+      "type": "object"
+    },
     "TextSnapshot": {
       "additionalProperties": false,
       "properties": {
@@ -919,6 +1001,7 @@
     "attach": { "$ref": "#/$defs/AttachClient" },
     "client": { "$ref": "#/$defs/ClientDescriptor" },
     "database_change": { "$ref": "#/$defs/ChangeSet" },
+    "file_history": { "$ref": "#/$defs/FileHistory" },
     "host": { "$ref": "#/$defs/HostInfo" },
     "login": { "$ref": "#/$defs/LoginRequest" },
     "logout": { "$ref": "#/$defs/LogoutReply" },
@@ -931,6 +1014,8 @@
     "reply": { "$ref": "#/$defs/Reply" },
     "request": { "$ref": "#/$defs/Request" },
     "session": { "$ref": "#/$defs/SessionInfo" },
+    "store_history": { "$ref": "#/$defs/StoreHistory" },
+    "stored_history": { "$ref": "#/$defs/StoredHistory" },
     "vault": { "$ref": "#/$defs/ManagedVault" }
   },
   "required": [
@@ -949,7 +1034,10 @@
     "notebook",
     "metadata_snapshot",
     "notification",
-    "database_change"
+    "database_change",
+    "file_history",
+    "store_history",
+    "stored_history"
   ],
   "title": "Contracts",
   "type": "object"
