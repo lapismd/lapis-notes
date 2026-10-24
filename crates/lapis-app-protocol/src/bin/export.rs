@@ -1,4 +1,4 @@
-use lapis_app_protocol::{files::*, *};
+use lapis_app_protocol::{browser::*, files::*, *};
 use schemars::JsonSchema;
 use serde_json::json;
 use ts_rs::{Config, TS};
@@ -10,10 +10,18 @@ pub struct Contracts {
     pub client: ClientDescriptor,
     pub vault: ManagedVault,
     pub attach: AttachClient,
+    pub login: LoginRequest,
+    pub session: SessionInfo,
+    pub host: HostInfo,
+    pub logout: LogoutReply,
 }
 fn main() {
     let config = Config::default();
     let declarations = [
+        LoginRequest::decl(&config),
+        SessionInfo::decl(&config),
+        HostInfo::decl(&config),
+        LogoutReply::decl(&config),
         ManagedVault::decl(&config),
         AttachClient::decl(&config),
         FileOptions::decl(&config),

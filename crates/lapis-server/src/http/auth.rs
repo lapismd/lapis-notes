@@ -1,46 +1,106 @@
-use super::{State, VERSION_HEADER, errors::Failure};
+use super::{State, VERSION_HEADER, browser, cookies, errors::Failure};
+use crate::{control::now_ms, host::Principal};
 use axum::{
     extract::{Request, State as AxumState},
+    http::{HeaderMap, Method},
     middleware::Next,
     response::{IntoResponse, Response},
 };
 use lapis_app_protocol::ErrorCode;
-use sha2::{Digest, Sha256};
 use subtle::ConstantTimeEq;
 
 pub(super) async fn authorize(
     AxumState(state): AxumState<State>,
-    request: Request,
+    mut request: Request,
     next: Next,
 ) -> Response {
-    let headers = request.headers();
-    let token = headers
-        .get("authorization")
-        .and_then(|value| value.to_str().ok())
-        .and_then(|value| value.strip_prefix("Bearer "));
-    let valid = token.is_some_and(|token| {
-        let digest: [u8; 32] = Sha256::digest(token.as_bytes()).into();
-        bool::from(digest.ct_eq(&state.token_hash))
-    });
-    if !valid {
-        return Failure::unauthorized().into_response();
+    match authenticate(&state, &mut request).await {
+        Ok(()) => next.run(request).await,
+        Err(error) => error.into_response(),
     }
+}
+async fn authenticate(state: &State, request: &mut Request) -> Result<(), Failure> {
+    let (principal, session) = if let Some(presented) = request.headers().get("authorization") {
+        let token = presented
+            .to_str()
+            .ok()
+            .and_then(|value| value.strip_prefix("Bearer "));
+        if !token.is_some_and(|token| state.auth.matches(token)) {
+            return Err(Failure::unauthorized());
+        }
+        origin(request.headers(), &state.origin, false)?;
+        version(request.headers(), false)?;
+        (Principal::Token, None)
+    } else {
+        let control = state
+            .auth
+            .control
+            .as_ref()
+            .ok_or_else(Failure::unauthorized)?;
+        let token = cookies::read(request.headers(), state.auth.insecure_cookie)
+            .ok_or_else(Failure::unauthorized)?;
+        let session = control
+            .resolve(token, now_ms().map_err(browser::store)?)
+            .await
+            .map_err(browser::store)?
+            .ok_or_else(Failure::unauthorized)?;
+        let readonly = matches!(*request.method(), Method::GET | Method::HEAD);
+        origin(request.headers(), &state.origin, !readonly)?;
+        let byte_route = request
+            .uri()
+            .path()
+            .strip_prefix("/api/v3/clients/")
+            .and_then(|tail| tail.split_once('/'))
+            .is_some_and(|(_, route)| {
+                route.starts_with("files/") || route.starts_with("resources/")
+            });
+        version(request.headers(), readonly && byte_route)?;
+        if !readonly {
+            let csrf = request
+                .headers()
+                .get("x-lapis-csrf")
+                .map_or(&[][..], |value| value.as_bytes());
+            if !bool::from(csrf.ct_eq(session.csrf_token.as_bytes())) {
+                return Err(Failure::new(
+                    ErrorCode::PermissionDenied,
+                    "Invalid CSRF token",
+                ));
+            }
+        }
+        (Principal::Session(session.id), Some(session))
+    };
+    request.extensions_mut().insert(principal);
+    if let Some(session) = session {
+        request.extensions_mut().insert(session);
+    }
+    Ok(())
+}
+pub(super) fn origin(headers: &HeaderMap, allowed: &str, required: bool) -> Result<(), Failure> {
     if headers
         .get("origin")
-        .is_some_and(|value| value.as_bytes() != state.origin.as_bytes())
+        .is_some_and(|value| value.as_bytes() != allowed.as_bytes())
+        || (required && !headers.contains_key("origin"))
     {
-        return Failure::new(ErrorCode::PermissionDenied, "Origin is not admitted").into_response();
+        return Err(Failure::new(
+            ErrorCode::PermissionDenied,
+            "Origin is not admitted",
+        ));
     }
+    Ok(())
+}
+pub(super) fn version(headers: &HeaderMap, allow_missing: bool) -> Result<(), Failure> {
     if headers
         .get(VERSION_HEADER)
-        .is_none_or(|value| value.as_bytes() != b"3")
+        .map_or(!allow_missing, |value| value.as_bytes() != b"3")
     {
-        return Failure::new(
+        return Err(Failure::new(
             ErrorCode::ProtocolMismatch,
             "Reload the matching application client",
-        )
-        .into_response();
+        ));
     }
+    Ok(())
+}
+pub(super) async fn response_headers(request: Request, next: Next) -> Response {
     let mut response = next.run(request).await;
     response
         .headers_mut()

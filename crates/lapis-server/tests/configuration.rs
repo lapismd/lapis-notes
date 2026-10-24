@@ -56,7 +56,7 @@ fn invalid_managed_configuration_rejects_before_serving() {
         })
         .unwrap(),
     );
-    assert!(router(host.clone(), "short", "http://localhost:8787").is_err());
+    assert!(lapis_server::http::Authentication::token("short").is_err());
     let token = "0123456789abcdef0123456789abcdef";
     for origin in [
         "*",
@@ -64,7 +64,14 @@ fn invalid_managed_configuration_rejects_before_serving() {
         "http://localhost:8787/extra",
         "http://localhost:8787/",
     ] {
-        assert!(router(host.clone(), token, origin).is_err());
+        assert!(
+            router(
+                host.clone(),
+                lapis_server::http::Authentication::token(token).unwrap(),
+                origin
+            )
+            .is_err()
+        );
     }
     host.shutdown().unwrap();
 }

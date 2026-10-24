@@ -12,13 +12,16 @@ pub async fn serve(
 ) -> io::Result<()> {
     let maintenance = Maintenance::start(host.clone());
     let (started, draining) = tokio::sync::oneshot::channel();
-    let server = axum::serve(listener, router)
-        .with_graceful_shutdown(async move {
-            shutdown.wait(host).await;
-            maintenance.stop().await;
-            let _ = started.send(());
-        })
-        .into_future();
+    let server = axum::serve(
+        listener,
+        router.into_make_service_with_connect_info::<std::net::SocketAddr>(),
+    )
+    .with_graceful_shutdown(async move {
+        shutdown.wait(host).await;
+        maintenance.stop().await;
+        let _ = started.send(());
+    })
+    .into_future();
     tokio::pin!(server);
     tokio::select! {
         result = &mut server => result,

@@ -2,8 +2,9 @@ use super::{
     State,
     errors::{Failure, blocking},
 };
+use crate::host::Principal;
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, State as AxumState, rejection::JsonRejection},
     http::StatusCode,
 };
@@ -26,6 +27,7 @@ pub(super) async fn vaults(AxumState(state): AxumState<State>) -> Json<Vec<Manag
 pub(super) async fn attach(
     AxumState(state): AxumState<State>,
     Path(vault): Path<Uuid>,
+    Extension(principal): Extension<Principal>,
     input: Result<Json<AttachClient>, JsonRejection>,
 ) -> Result<Json<ClientDescriptor>, Failure> {
     if body(input)?.protocol_version != lapis_app_protocol::PROTOCOL_MAJOR {
@@ -34,15 +36,18 @@ pub(super) async fn attach(
             "Reload the matching application client",
         ));
     }
-    blocking(move || state.host.attach(vault)).await.map(Json)
+    blocking(move || state.host.attach(vault, principal))
+        .await
+        .map(Json)
 }
 pub(super) async fn execute(
     AxumState(state): AxumState<State>,
     Path(client): Path<Uuid>,
+    Extension(principal): Extension<Principal>,
     input: Result<Json<Request>, JsonRejection>,
 ) -> Result<(StatusCode, Json<Reply>), Failure> {
     let request = body(input)?;
-    let reply = blocking(move || state.host.execute(client, request)).await?;
+    let reply = blocking(move || state.host.execute(client, principal, request)).await?;
     let status = match &reply.outcome {
         Outcome::Ok { .. } => StatusCode::OK,
         Outcome::Error { error } => Failure::from(error.clone()).0,
@@ -52,15 +57,17 @@ pub(super) async fn execute(
 pub(super) async fn detach(
     AxumState(state): AxumState<State>,
     Path(client): Path<Uuid>,
+    Extension(principal): Extension<Principal>,
 ) -> Result<StatusCode, Failure> {
-    blocking(move || state.host.detach(client)).await?;
+    blocking(move || state.host.detach(client, principal)).await?;
     Ok(StatusCode::NO_CONTENT)
 }
 pub(super) async fn heartbeat(
     AxumState(state): AxumState<State>,
     Path(client): Path<Uuid>,
+    Extension(principal): Extension<Principal>,
 ) -> Result<StatusCode, Failure> {
-    blocking(move || state.host.heartbeat(client)).await?;
+    blocking(move || state.host.heartbeat(client, principal)).await?;
     Ok(StatusCode::NO_CONTENT)
 }
 pub(super) async fn close(

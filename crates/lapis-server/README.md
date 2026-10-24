@@ -1,4 +1,4 @@
-# Rust file-service adapter
+# Rust hosted-service adapter
 
 Private R1.3 staging for the shared application-service migration. This executable
 embeds `lapis-app-core`; it contains no JavaScript application runtime. It has
@@ -19,8 +19,9 @@ Create an operator-owned configuration **outside every admitted vault**:
 }
 ```
 
-Set `LAPIS_SERVER_TOKEN` to a private random owner token of at least 32 printable
-ASCII characters. Keep that secret in the host environment. Start the service:
+For operator-only access, set `LAPIS_SERVER_TOKEN` to a private random owner token
+of at least 32 printable ASCII characters. Keep that secret in the host
+environment. Start the service:
 
 ```sh
 pnpm rust:core -- run -p lapis-server -- /path/to/server.json
@@ -32,12 +33,42 @@ HTTP(S) origin when using a reverse proxy. Terminate TLS at that proxy before
 exposing a non-loopback listener. No CORS permission is granted. The native file
 engine currently targets the qualified Unix platform boundary.
 
-Every API request requires `Authorization: Bearer <owner-token>` and
-`x-lapis-protocol: 3`. Requests with a browser `Origin` must match the configured
-public origin. Routes:
+For browser sessions, configure these installation-owned environment variables:
+
+- `LAPIS_SERVER_DATA_ROOT`: absolute private profile outside admitted vaults.
+- `LAPIS_SERVER_ORIGIN`: exact public HTTPS origin.
+- `LAPIS_SERVER_BOOTSTRAP_USERNAME` and
+  `LAPIS_SERVER_BOOTSTRAP_PASSWORD_FILE`: first owner credentials. The private
+  password file must be outside admitted vaults and contain 12–1024 characters.
+
+Bootstrap creates the owner once. Later starts need no bootstrap credentials or
+password file. Native authentication data lives in `control/auth.turso` beneath
+the profile (directory mode 0700, database mode 0600 on Unix). This is separate
+from Node's control database; importing its owners or sessions is not claimed.
+The optional operator token can coexist with browser authentication. Explicit
+local development may set `LAPIS_SERVER_INSECURE_COOKIE=1` only with an
+`http://localhost` origin. Production cookies require HTTPS.
+
+Login uses bounded scrypt and username/peer throttling. Opaque session tokens are
+stored only as SHA-256 hashes. Cookies are HttpOnly, SameSite=Lax, Path=/ and
+Secure; production uses the `__Host-` prefix. Sessions expire after seven idle
+days or thirty absolute days. Login requires the exact Origin and protocol
+header. Cookie mutations additionally require the returned `x-lapis-csrf` token.
+Logout revokes the session and detaches only its clients, preserving dirty claims
+and accepted work. All configured vaults belong to the single installation owner.
+
+API requests use `x-lapis-protocol: 3` and either the session cookie or
+`Authorization: Bearer <owner-token>`. Cookie file/resource GET/HEAD requests may
+omit that custom header for browser media loading; a supplied stale header is
+always rejected. Any browser `Origin` must match the configured public origin.
+Routes:
 
 | Method       | Route                                       | Result                                           |
 | ------------ | ------------------------------------------- | ------------------------------------------------ |
+| GET          | `/api/v3/system/info`                       | Public protocol/build/auth availability          |
+| POST         | `/api/v3/auth/login`                        | Public owner login; sets cookie and returns CSRF |
+| GET          | `/api/v3/auth/current`                      | Current browser session and CSRF token           |
+| POST         | `/api/v3/auth/logout`                       | Revoke browser session and clear its cookie      |
 | GET          | `/api/v3/vaults`                            | Opaque vault IDs and names                       |
 | POST         | `/api/v3/vaults/{vault}/clients`            | Attach with `{ "protocol_version": 3 }`          |
 | POST         | `/api/v3/clients/{client}/commands`         | Generated protocol `Request` and `Reply`         |
@@ -72,6 +103,6 @@ images, audio/video and PDF with a sandbox CSP; ordinary file reads download as
 attachments. After native shutdown succeeds, network drain is limited to ten
 seconds.
 
-Browser login/session integration, existing App/Vault adapters and shell
+Existing browser login UI integration, App/Vault/database adapters and shell
 acceptance, raw append, SSE jobs and native backup ownership remain required. This private adapter is not a hosted cutover or distribution
 qualification. See [the migration plan](../../RUST_CORE_MIGRATION_PLAN.md).

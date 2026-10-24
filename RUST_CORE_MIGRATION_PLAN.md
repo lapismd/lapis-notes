@@ -98,6 +98,11 @@ without claiming the whole vault or server slice has shipped.
 | R6    | Imports/capture, existing Forge/transfer and Compute jobs, installation transactions, terminal lifetime | Qualify each operation's detach/progress/cancel/interrupted-publication behaviour                                       |
 | R7    | Complete Rust hosted access and retire Node/companion/obsolete desktop orchestration                    | Complete hosted/desktop journeys, Linux packaging and standalone-browser regression checks                              |
 
+R1.3 shell acceptance depends on the existing high-level AppDatabase method
+catalogue. Bring that native database facade portion of R3 forward to connect
+the retained hosted shell; do not expose raw SQL or add a browser fallback. R3's
+unattended indexing, Search and history-scheduling gates remain unchanged.
+
 R3 includes native semantic Search using ONNX Runtime and the current model,
 tokenizer, pooling and normalization contracts. Keep the browser implementation
 for local web. Qualify model output/retrieval before switching; token-hash

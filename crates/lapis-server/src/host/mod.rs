@@ -12,6 +12,12 @@ use uuid::Uuid;
 pub type Result<T> = std::result::Result<T, ServiceError>;
 pub const CLIENT_IDLE_TIMEOUT: Duration = Duration::from_secs(5 * 60);
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Principal {
+    Token,
+    Session(Uuid),
+}
+
 pub struct Host {
     runtime: Runtime,
     vaults: Vec<ManagedVault>,
@@ -50,7 +56,7 @@ impl Host {
         &self.vaults
     }
 
-    pub fn attach(&self, vault: Uuid) -> Result<ClientDescriptor> {
+    pub fn attach(&self, vault: Uuid, principal: Principal) -> Result<ClientDescriptor> {
         self.expire_idle(Instant::now())?;
         let client = self
             .runtime
@@ -58,23 +64,23 @@ impl Host {
             .and_then(|owner| owner.attach())
             .map_err(|e| e.0)?;
         let descriptor = client.descriptor();
-        self.clients.insert(Arc::new(client))?;
+        self.clients.insert(Arc::new(client), principal)?;
         Ok(descriptor)
     }
 
-    pub fn execute(&self, client: Uuid, request: Request) -> Result<Reply> {
+    pub fn execute(&self, client: Uuid, principal: Principal, request: Request) -> Result<Reply> {
         // Do not hold the attachment registry during file IO or service drain.
-        let client = self.client(client)?;
+        let client = self.client(client, principal)?;
         Ok(client.execute(request))
     }
 
-    pub fn detach(&self, client: Uuid) -> Result<()> {
+    pub fn detach(&self, client: Uuid, principal: Principal) -> Result<()> {
         self.expire_idle(Instant::now())?;
-        self.clients.remove(client)
+        self.clients.remove(client, principal)
     }
 
-    pub fn heartbeat(&self, client: Uuid) -> Result<()> {
-        self.client(client)?;
+    pub fn heartbeat(&self, client: Uuid, principal: Principal) -> Result<()> {
+        self.client(client, principal)?;
         Ok(())
     }
 
@@ -82,8 +88,12 @@ impl Host {
         self.clients.expire(now)
     }
 
-    pub(super) fn client(&self, id: Uuid) -> Result<Arc<Client>> {
-        self.clients.get(id)
+    pub(super) fn client(&self, id: Uuid, principal: Principal) -> Result<Arc<Client>> {
+        self.clients.get(id, principal)
+    }
+
+    pub fn detach_principal(&self, principal: Principal) -> Result<()> {
+        self.clients.retire_principal(principal)
     }
 
     pub fn close(&self, vault: Uuid) -> Result<()> {

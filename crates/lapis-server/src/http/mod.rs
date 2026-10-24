@@ -1,4 +1,8 @@
 mod auth;
+mod browser;
+mod cookies;
+mod identity;
+pub use identity::Authentication;
 mod errors;
 mod files;
 mod routes;
@@ -10,7 +14,6 @@ use axum::{
     middleware,
     routing::{delete, get, post},
 };
-use sha2::{Digest, Sha256};
 use std::sync::Arc;
 
 pub const JSON_LIMIT: usize = 2 * 1024 * 1024;
@@ -19,16 +22,12 @@ pub const VERSION_HEADER: &str = "x-lapis-protocol";
 #[derive(Clone)]
 struct State {
     host: Arc<Host>,
-    token_hash: [u8; 32],
+    auth: Authentication,
+    build_id: String,
     origin: String,
 }
 
-pub fn router(host: Arc<Host>, token: &str, origin: &str) -> std::io::Result<Router> {
-    if token.len() < 32 || token.bytes().any(|b| !b.is_ascii_graphic()) {
-        return Err(std::io::Error::other(
-            "Owner token requires at least 32 non-whitespace ASCII characters",
-        ));
-    }
+pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::Result<Router> {
     let uri: axum::http::Uri = origin
         .parse()
         .map_err(|_| std::io::Error::other("Invalid public origin"))?;
@@ -44,13 +43,21 @@ pub fn router(host: Arc<Host>, token: &str, origin: &str) -> std::io::Result<Rou
             "Configure an exact HTTP(S) public origin",
         ));
     }
+    auth.validate(&uri)?;
     let state = State {
         host,
-        token_hash: Sha256::digest(token.as_bytes()).into(),
+        auth,
+        build_id: std::env::var("LAPIS_SERVER_BUILD_ID")
+            .unwrap_or_else(|_| "development".into())
+            .chars()
+            .take(256)
+            .collect(),
         origin: origin.into(),
     };
     Ok(Router::new()
         .route("/api/v3/vaults", get(routes::vaults))
+        .route("/api/v3/auth/current", get(browser::current))
+        .route("/api/v3/auth/logout", post(browser::logout))
         .route("/api/v3/vaults/{vault}/clients", post(routes::attach))
         .route("/api/v3/vaults/{vault}", delete(routes::close))
         .route("/api/v3/clients/{client}/commands", post(routes::execute))
@@ -72,5 +79,8 @@ pub fn router(host: Arc<Host>, token: &str, origin: &str) -> std::io::Result<Rou
             state.clone(),
             auth::authorize,
         ))
+        .route("/api/v3/system/info", get(browser::info))
+        .route("/api/v3/auth/login", post(browser::login))
+        .layer(middleware::from_fn(auth::response_headers))
         .with_state(state))
 }

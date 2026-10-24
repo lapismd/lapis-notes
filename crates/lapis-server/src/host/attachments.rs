@@ -1,4 +1,4 @@
-use super::{CLIENT_IDLE_TIMEOUT, Result, error};
+use super::{CLIENT_IDLE_TIMEOUT, Principal, Result, error};
 use lapis_app_core::services::Client;
 use lapis_app_protocol::ErrorCode;
 use std::{
@@ -11,6 +11,7 @@ use uuid::Uuid;
 struct Attachment {
     client: Arc<Client>,
     last_seen: Instant,
+    principal: Principal,
 }
 #[derive(Default)]
 pub(super) struct Attachments(Mutex<HashMap<Uuid, Attachment>>);
@@ -21,28 +22,41 @@ impl Attachments {
             .lock()
             .map_err(|_| error(ErrorCode::Closed, "Host is unavailable"))
     }
-    pub fn insert(&self, client: Arc<Client>) -> Result<()> {
+    pub fn insert(&self, client: Arc<Client>, principal: Principal) -> Result<()> {
         self.lock()?.insert(
             client.descriptor().client_id,
             Attachment {
                 client,
                 last_seen: Instant::now(),
+                principal,
             },
         );
         Ok(())
     }
-    pub fn get(&self, id: Uuid) -> Result<Arc<Client>> {
+    pub fn get(&self, id: Uuid, principal: Principal) -> Result<Arc<Client>> {
         let now = Instant::now();
         self.expire(now)?;
         let mut clients = self.lock()?;
         let entry = clients.get_mut(&id).ok_or_else(denied)?;
+        if entry.principal != principal {
+            return Err(denied());
+        }
         entry.last_seen = entry.last_seen.max(now);
         Ok(entry.client.clone())
     }
-    pub fn remove(&self, id: Uuid) -> Result<()> {
+    pub fn remove(&self, id: Uuid, principal: Principal) -> Result<()> {
         // Release native clients outside the registry lock: their Drop marks
         // dirty claims detached under the shared vault's own lock.
-        let client = { self.lock()?.remove(&id).ok_or_else(denied)? };
+        let client = {
+            let mut clients = self.lock()?;
+            if clients
+                .get(&id)
+                .is_none_or(|entry| entry.principal != principal)
+            {
+                return Err(denied());
+            }
+            clients.remove(&id).ok_or_else(denied)?
+        };
         drop(client);
         Ok(())
     }
@@ -72,6 +86,21 @@ impl Attachments {
                 .filter(|(_, entry)| {
                     vault.is_none_or(|id| entry.client.descriptor().vault_id == id)
                 })
+                .map(|(id, _)| *id)
+                .collect();
+            ids.into_iter()
+                .filter_map(|id| clients.remove(&id))
+                .collect::<Vec<_>>()
+        };
+        drop(retired);
+        Ok(())
+    }
+    pub fn retire_principal(&self, principal: Principal) -> Result<()> {
+        let retired = {
+            let mut clients = self.lock()?;
+            let ids: Vec<_> = clients
+                .iter()
+                .filter(|(_, entry)| entry.principal == principal)
                 .map(|(id, _)| *id)
                 .collect();
             ids.into_iter()

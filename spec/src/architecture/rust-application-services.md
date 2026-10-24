@@ -71,6 +71,17 @@ Resource routes retain restrictive MIME/CSP policy. Slow network consumers do
 not own vault jobs, and HTTP shutdown has a bounded drain after the native leave
 gate passes. Native paths and file handles never become protocol fields.
 
+Rust hosted browser authentication retains LN-SRV-004/005: idempotent owner
+bootstrap from a private password file, bounded scrypt, hashed opaque sessions,
+seven-day idle/thirty-day absolute expiry, exact Origin/CSRF checks, login
+throttling and revocation. The initial host has one installation owner. A private
+control Turso database stays outside admitted vaults; raw credentials/tokens are
+never persisted or logged. Client attachments bind to their authenticated
+session, and logout detaches them without clearing retained dirty claims or
+cancelling accepted work. Bearer access remains an explicit operator option.
+The existing hosted AppDatabase method allowlist remains required; browser
+intake must not replace it with a raw SQL interface.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

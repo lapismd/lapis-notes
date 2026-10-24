@@ -5,6 +5,7 @@ use super::{
     },
     conditions, ranges,
 };
+use crate::host::Principal;
 use axum::{
     body::Body,
     extract::Request,
@@ -21,10 +22,11 @@ pub(super) async fn serve(
     state: State,
     id: Uuid,
     path: String,
+    principal: Principal,
     request: Request,
     resource: bool,
 ) -> Result<Response, Failure> {
-    let client = state.host.client(id)?;
+    let client = state.host.client(id, principal)?;
     let mime = mime_guess::from_path(&path).first_or_octet_stream();
     if resource
         && !matches!(mime.type_().as_str(), "image" | "audio" | "video")

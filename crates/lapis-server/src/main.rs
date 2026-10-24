@@ -2,6 +2,7 @@
 
 use lapis_server::{
     config::Config,
+    control::bootstrap,
     host::Host,
     http,
     lifecycle::{Shutdown, server::serve},
@@ -22,8 +23,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Err("Unexpected server argument".into());
     }
     let config: Config = serde_json::from_slice(&std::fs::read(config_path)?)?;
-    let token = std::env::var("LAPIS_SERVER_TOKEN")
-        .map_err(|_| "Set LAPIS_SERVER_TOKEN to a private owner token")?;
+    let token = std::env::var("LAPIS_SERVER_TOKEN").ok();
+    let roots = config
+        .vaults
+        .iter()
+        .map(|vault| vault.root.clone())
+        .collect::<Vec<_>>();
+    let control = bootstrap::from_environment(&roots).await?;
+    if control.is_some() && std::env::var_os("LAPIS_SERVER_ORIGIN").is_none() {
+        return Err("Set LAPIS_SERVER_ORIGIN for browser authentication".into());
+    }
+    let authentication =
+        match &control {
+            Some(control) => http::Authentication::browser(
+                control.clone(),
+                token.as_deref(),
+                std::env::var("LAPIS_SERVER_INSECURE_COOKIE").as_deref() == Ok("1"),
+            )?,
+            None => http::Authentication::token(token.as_deref().ok_or(
+                "Set LAPIS_SERVER_TOKEN or configure the browser authentication profile",
+            )?)?,
+        };
     let origin =
         std::env::var("LAPIS_SERVER_ORIGIN").unwrap_or_else(|_| format!("http://{address}"));
     let host = Arc::new(Host::new(config)?);
@@ -33,9 +53,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else {
         origin
     };
-    let router = http::router(host.clone(), &token, &origin)?;
+    let router = http::router(host.clone(), authentication, &origin)?;
     let shutdown = Shutdown::new()?;
     println!("Lapis file service listening on {}", listener.local_addr()?);
-    serve(listener, router, host, shutdown).await?;
+    let result = serve(listener, router, host, shutdown).await;
+    if let Some(control) = control {
+        control.close().await?;
+    }
+    result?;
     Ok(())
 }

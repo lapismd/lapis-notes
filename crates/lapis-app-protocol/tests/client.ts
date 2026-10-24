@@ -5,6 +5,8 @@ import {
   type VaultCommand,
   type AttachClient,
   type ManagedVault,
+  type LoginRequest,
+  type SessionInfo,
 } from "../bindings/protocol.js";
 const command = {
   kind: "write_text",
@@ -61,3 +63,17 @@ const remoteRoot: AttachClient = {
   root: "/tmp/other",
 };
 void [attach, vault, remoteRoot];
+
+const login: LoginRequest = { username: "owner", password: "disposable" };
+const session: SessionInfo = {
+  username: "owner",
+  csrf_token: "csrf",
+  expires_at: 1_700_000_000_000,
+};
+const claimedIdentity: LoginRequest = {
+  username: "owner",
+  password: "disposable",
+  // @ts-expect-error Session identity is derived from the authenticated cookie.
+  session_id: "untrusted",
+};
+void [login, session, claimedIdentity];

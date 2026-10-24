@@ -136,9 +136,20 @@ async fn expired_attachments_release_the_native_client_limit() {
     let f = Fixture::start().await;
     let mut generation = None;
     for _ in 0..128 {
-        generation = Some(f.host.attach(f.ids[0]).unwrap().generation);
+        generation = Some(
+            f.host
+                .attach(f.ids[0], lapis_server::host::Principal::Token)
+                .unwrap()
+                .generation,
+        );
     }
-    assert_eq!(f.host.attach(f.ids[0]).unwrap_err().code, ErrorCode::Busy);
+    assert_eq!(
+        f.host
+            .attach(f.ids[0], lapis_server::host::Principal::Token)
+            .unwrap_err()
+            .code,
+        ErrorCode::Busy
+    );
     assert_eq!(
         f.host
             .expire_idle(Instant::now() + CLIENT_IDLE_TIMEOUT)

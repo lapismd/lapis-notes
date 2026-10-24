@@ -361,6 +361,35 @@
         }
       ]
     },
+    "HostInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "browser_auth": { "type": "boolean" },
+        "build_id": { "type": "string" },
+        "protocol_major": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": ["protocol_major", "build_id", "browser_auth"],
+      "type": "object"
+    },
+    "LoginRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "password": { "type": "string" },
+        "username": { "type": "string" }
+      },
+      "required": ["username", "password"],
+      "type": "object"
+    },
+    "LogoutReply": {
+      "additionalProperties": false,
+      "properties": { "ok": { "type": "boolean" } },
+      "required": ["ok"],
+      "type": "object"
+    },
     "ManagedVault": {
       "additionalProperties": false,
       "properties": {
@@ -435,6 +464,16 @@
         "message": { "type": "string" }
       },
       "required": ["code", "message"],
+      "type": "object"
+    },
+    "SessionInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "csrf_token": { "type": "string" },
+        "expires_at": { "format": "int64", "type": "integer" },
+        "username": { "type": "string" }
+      },
+      "required": ["username", "csrf_token", "expires_at"],
       "type": "object"
     },
     "TextSnapshot": {
@@ -653,11 +692,25 @@
   "properties": {
     "attach": { "$ref": "#/$defs/AttachClient" },
     "client": { "$ref": "#/$defs/ClientDescriptor" },
+    "host": { "$ref": "#/$defs/HostInfo" },
+    "login": { "$ref": "#/$defs/LoginRequest" },
+    "logout": { "$ref": "#/$defs/LogoutReply" },
     "reply": { "$ref": "#/$defs/Reply" },
     "request": { "$ref": "#/$defs/Request" },
+    "session": { "$ref": "#/$defs/SessionInfo" },
     "vault": { "$ref": "#/$defs/ManagedVault" }
   },
-  "required": ["request", "reply", "client", "vault", "attach"],
+  "required": [
+    "request",
+    "reply",
+    "client",
+    "vault",
+    "attach",
+    "login",
+    "session",
+    "host",
+    "logout"
+  ],
   "title": "Contracts",
   "type": "object"
 }

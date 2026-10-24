@@ -1,5 +1,7 @@
 mod admission;
 mod attachments;
+mod browser_auth;
+mod credentials;
 mod lifetime;
 mod physical;
 mod streams;

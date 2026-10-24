@@ -5,6 +5,7 @@ use super::{
     },
     conditions,
 };
+use crate::host::Principal;
 use axum::{
     extract::Request,
     http::StatusCode,
@@ -20,9 +21,10 @@ pub(super) async fn receive(
     state: State,
     id: Uuid,
     path: String,
+    principal: Principal,
     request: Request,
 ) -> Result<Response, Failure> {
-    let client = state.host.client(id)?;
+    let client = state.host.client(id, principal)?;
     let expected = conditions::write(request.headers())?;
     let options = conditions::options(request.headers())?;
     if request

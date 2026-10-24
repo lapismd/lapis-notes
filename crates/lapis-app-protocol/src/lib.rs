@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 use uuid::Uuid;
 
+pub mod browser;
 pub mod files;
 
 pub const PROTOCOL_MAJOR: u32 = 3;
