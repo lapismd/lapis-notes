@@ -1,4 +1,3 @@
-BEGIN IMMEDIATE;
 CREATE TABLE IF NOT EXISTS search_docs (
   path TEXT PRIMARY KEY, source_provider_id TEXT, metadata_hash TEXT,
   provider_version TEXT, projection_signature TEXT,
@@ -12,4 +11,3 @@ CREATE TABLE IF NOT EXISTS search_chunks (
   embedding_json TEXT, embedding BLOB
 );
 CREATE INDEX IF NOT EXISTS search_chunks_path_idx ON search_chunks(path);
-COMMIT;

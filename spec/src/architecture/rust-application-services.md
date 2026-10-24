@@ -88,8 +88,14 @@ intake must not replace it with a raw SQL interface.
 The native AppDatabase facade starts with the existing high-level metadata
 catalogue: get/set, bounded prefix scans, conditional transactions and change
 revisions. It retains the existing `app_meta`, `app_revision` and `app_changes`
-tables without marking the full database schema migrated. One bounded native
-worker owns each opened database. Accepted operations outlive their waiters;
+tables. Native open and explicit `migrate` initialize the current normalized
+Turso v5 schema and both version markers in one transaction, preserving stored
+payloads and the change revision without publishing a user mutation. Explicit
+migration shares the bounded worker's admission and drain. Failed schema initialization
+rolls back schema and markers. Unsupported versioned formats fail without
+rewriting or importing them; the pre-release unversioned native schema remains
+admissible. Full legacy migration remains in the retained provider.
+One bounded native worker owns each opened database. Accepted operations outlive their waiters;
 close fences admission, drains accepted operations and checkpoints. Conditional
 checks, mutations and their change revision commit in one native transaction.
 No browser endpoint exposes SQL or a database path. The full catalogue and its

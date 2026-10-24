@@ -1,4 +1,3 @@
-BEGIN IMMEDIATE;
 CREATE TABLE IF NOT EXISTS memory_source_state (
   source_key TEXT PRIMARY KEY, source_path TEXT NOT NULL,
   source_hash TEXT NOT NULL, status TEXT NOT NULL,
@@ -28,4 +27,3 @@ CREATE TABLE IF NOT EXISTS memory_jobs (
 );
 CREATE INDEX IF NOT EXISTS memory_jobs_scope_created
   ON memory_jobs(scope_key, created_at DESC);
-COMMIT;

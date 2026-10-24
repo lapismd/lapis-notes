@@ -56,31 +56,6 @@ impl Store {
         .await
         .map_err(engine)?;
         let connection = database.connect().map_err(engine)?;
-        connection
-            .execute_batch(include_str!("schema.sql"))
-            .await
-            .map_err(engine)?;
-        connection
-            .execute_batch(include_str!("indexed/schema.sql"))
-            .await
-            .map_err(engine)?;
-        connection
-            .execute_batch(include_str!("projections/schema.sql"))
-            .await
-            .map_err(engine)?;
-        connection
-            .execute_batch(include_str!("tasks/schema.sql"))
-            .await
-            .map_err(engine)?;
-        connection
-            .execute_batch(include_str!("memory/schema.sql"))
-            .await
-            .map_err(engine)?;
-        connection
-            .execute_batch(include_str!("search/schema.sql"))
-            .await
-            .map_err(engine)?;
-        connection.execute_batch("CREATE INDEX IF NOT EXISTS search_docs_fts ON search_docs USING fts (name,path,content,tags,metadata_text) WITH (weights = 'name=2.0,path=1.5,content=1.0,tags=1.5,metadata_text=1.0')").await.map_err(engine)?;
         let mut store = Self {
             embedding: super::search::embedding::Provider::new(embeddings),
             connection,
@@ -89,6 +64,7 @@ impl Store {
             poisoned: false,
             committed: VecDeque::new(),
         };
+        store.migrate().await?;
         store.revision().await?;
         let config = store
             .get("search.embeddingProvider")
@@ -109,6 +85,7 @@ impl Store {
             ));
         }
         match operation {
+            Operation::Migrate => self.migrate().await.map(|_| Output::Done),
             Operation::Get(key) => self.get(&key).await.map(Output::Meta),
             Operation::Scan(query) => self.scan(query).await.map(Output::Page),
             Operation::Transact(transaction) => {

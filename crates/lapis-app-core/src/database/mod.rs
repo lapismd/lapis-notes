@@ -10,6 +10,7 @@ mod notifications;
 mod projections;
 mod reads;
 mod saved_state;
+mod schema;
 mod search;
 mod state_client;
 mod store;
@@ -51,6 +52,7 @@ pub struct Database {
 }
 #[derive(Serialize)]
 enum Operation {
+    Migrate,
     Get(String),
     Scan(MetaScan),
     Transact(MetaTransaction),
