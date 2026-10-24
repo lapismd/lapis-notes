@@ -43,6 +43,10 @@ Desktop `889121c6` also has [task facade dependency compatibility](spec/records/
 with Notes `fa9581f0`: two exact service cases, 230 native cases and both strict
 Clippy configurations pass. Only the already-selected Chrono edge is added;
 database adoption and the original service-lifetime gates remain open.
+Desktop `4b775fdb` has [memory storage dependency compatibility](spec/records/2026-10-24-rust-core-memory-storage-desktop.md)
+with Notes `575bef1f`: both exact service cases and strict normal/e2e Clippy pass
+with no lockfile change. This does not select the new database adapter or
+complete R5 scheduling and maintenance.
 
 Retained-provider qualification also repaired the existing
 [Problems quick-fix writer](spec/records/2026-10-24-problems-quick-fix-persistence.md).
