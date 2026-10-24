@@ -7,3 +7,5 @@ Problems, diagnostic collections, editor markers, fixes or permissions.
 The diagnostic integration contracts in [Integration contracts](core-contract.md)
 remain unchanged. This boundary confirmation accompanies the additive Plugin and
 App registry exports; it does not qualify any new diagnostic behavior.
+Declinable Markdown embedders register on `EmbedRegistry` and do not contribute
+Problems, diagnostic collections, editor markers, or fixes.

@@ -39,6 +39,8 @@ second writer to that path.
 
 **Requirement.** `Plugin.registerSearchDocumentProvider` MUST namespace provider IDs and dispose registrations with the owning plugin lifecycle. It MUST NOT grant providers direct generated-index ownership.
 
+`Plugin.registerMarkdownEmbedder` appends one declinable full-file Markdown embedder and removes that registration when the plugin unloads.
+
 ## LN-PLUG-015 — History-enabled navigation into a plugin-owned file view: preserve the initiating leaf state before constructing
 
 <a id="ln-plug-015"></a>

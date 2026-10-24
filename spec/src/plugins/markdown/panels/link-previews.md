@@ -33,7 +33,7 @@ indexed.
 
 <a id="ln-md-026"></a>
 
-**Requirement.** The Markdown package MUST adapt the Lapis vault, metadata cache, workspace navigation, and `EmbedRegistry` to Mira's public `MiraFileAdapter`. One App MUST reuse one adapter instance so preview effects do not churn.
+**Requirement.** The Markdown package MUST adapt the Lapis vault, metadata cache, workspace navigation, and `EmbedRegistry` to Mira's public `MiraFileAdapter`, and MUST ask registered Markdown embedders in order for `md` and `markdown`, retaining the portable preview when every embedder declines. One App MUST reuse one adapter instance so preview effects do not churn.
 
 ## LN-MD-027 — Mira-owned internal-link previews
 

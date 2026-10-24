@@ -12,7 +12,10 @@ remain unchanged; this host policy adds no Markdown runtime or wrapper.
 
 Markdown uses the shared Plugin disable boundary. Its registered contribution
 cleanup runs through component unload; host security revocation then drains
-before disable completes, including failed unloads (LN-ARCH-118).
+before disable completes, including failed unloads (LN-ARCH-118). Full-file
+Markdown embeds ask registered Markdown embedders in order for `md` and
+`markdown`. The first acceptance owns the embed, and a complete decline keeps
+the portable Markdown preview.
 
 ## LN-MD-015 — Storybook and demo hosts that load Markdown: call metadataTypeManager.trackChanges() or an equivalent watchMetadata helper
 

@@ -19,6 +19,11 @@ API builds also compile public editing-session usage against emitted declaration
 through `check:pack-types`; source-aliased Storybook alone does not prove the
 handwritten App declaration consumed by installed plugins.
 
+`EmbedRegistry` keeps one renderer per file extension and a separate declinable
+Markdown embedder list. The first embedder that accepts a file owns that
+full-file embed, and `Plugin.registerMarkdownEmbedder` removes its registration
+on unload.
+
 ## LN-PKG-004 — Specification before new package intake
 
 <a id="ln-pkg-004"></a>

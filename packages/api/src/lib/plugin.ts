@@ -27,6 +27,7 @@ import type {
   LapisServiceProviderRegistration,
   LapisSystemExtensionRegistration,
 } from "./lapis-extension";
+import type { MarkdownEmbedder } from "./embed-registry";
 import type { EditorViewContribution } from "./editor-view-registry";
 import type {
   ConfigurationOptionSourceProvider,
@@ -1097,6 +1098,10 @@ export abstract class Plugin extends Component {
     this.register(() => {
       this.app.unregisterMarkdownViewMenuItem(provider);
     });
+  }
+
+  registerMarkdownEmbedder(embedder: MarkdownEmbedder): void {
+    this.register(this.app.embedRegistry.registerMarkdownEmbedder(embedder));
   }
 
   registerMetadataProcessor(processor: MetadataProcessor, ext: string = "md") {

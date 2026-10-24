@@ -216,11 +216,11 @@ the production apply guard.
 
 **Requirement.** Bases MUST own advanced-filter draft validation inside its query workflow. CodeMirror presents and describes the draft's accessible invalid state, while only a valid expression may cross into the applied document filter; API and Design Core contracts remain unchanged.
 
-## LN-ARCH-065 — API: own plugin-scoped Markdown extension and file-surface registries
+## LN-ARCH-065 — API: own plugin-scoped Markdown extension, file-surface, and embedder registries
 
 <a id="ln-arch-065"></a>
 
-**Requirement.** API MUST own plugin-scoped Markdown extension and file-surface registries. Domain plugins MAY contribute CodeMirror and rendered-Markdown behavior through public contracts, while the bundled Markdown plugin remains the sole Mira adapter and full-file surface provider. Contributions and providers MUST be disposed with their registering plugin.
+**Requirement.** API MUST own plugin-scoped Markdown extension, file-surface, and declinable Markdown embedder registries. Domain plugins MAY contribute CodeMirror and rendered-Markdown behavior, including a full-file Markdown embedder that declines any file it does not own, through public contracts, while the bundled Markdown plugin remains the sole Mira adapter and full-file surface provider. Contributions and providers MUST be disposed with their registering plugin.
 
 ## LN-ARCH-080 — Graph: cross the AppDatabase boundary through bounded metadata
 
