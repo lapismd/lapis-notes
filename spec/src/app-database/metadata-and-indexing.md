@@ -94,6 +94,18 @@ formats remain unchanged; discovery exclusions are not backup or access policy.
 
 **Requirement.** The query AST MUST support and, or, not, compare, in, exists, select, orderBy, limit, and cursor after. Default queries MUST return only current ready rows.
 
+Projection fields name direct own properties, including literal dots. The shared
+evaluator defines scalar/null comparisons and locale ordering. SQL candidate
+planning can retain extra rows but cannot discard a possible evaluator match or
+cut a page before that complete ordering. Cursor continuation follows the same
+null policy and row-ID tie ordering. Selection retains own JSON fields without
+changing the result object's prototype.
+
+Related queries apply the same target registration, private-read authority and
+current-source checks as direct row reads. Incoming queries resolve path-only
+edges against the queried row's source path. Target filtering precedes the final
+result limit.
+
 ## LN-DB-022 — Plugin namespaces for projection IDs
 
 <a id="ln-db-022"></a>

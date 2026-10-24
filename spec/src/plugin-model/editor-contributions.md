@@ -17,6 +17,9 @@ alignment assertions resolve the same DOM snapshot under
 [LN-WS-038](../workspace-shell/panels/problems/core-contract.md#ln-ws-038).
 The Problems badge reflects all active diagnostic providers under LN-WS-046;
 the two required Markdownlint codes remain independently verified.
+Contributed Problems fixes use the owning API editor's save queue for open
+resources before diagnostics refresh (LN-WS-034). Plugin providers do not add a
+second writer to that path.
 
 ## LN-PLUG-007 — Disabling a plugin with open owned views: replace those leaves with persisted missing-view placeholders
 

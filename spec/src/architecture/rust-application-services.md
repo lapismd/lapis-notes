@@ -129,6 +129,20 @@ identity/path aliases and source hash/schema/config freshness without writing.
 Projection AST/relationship queries, task composition and unattended scheduling
 remain separate gates until their conformance qualifies.
 
+The retained API providers first qualify the shared projection-query fixture.
+Their complete evaluator owns scalar/null comparison, own-field selection,
+locale ordering and cursor/page cuts; SQL narrows only provable candidates.
+Native query intake uses that reference rather than reproducing provider
+prefilter or cursor-order mismatches. This reference repair does not adopt a
+native database adapter or complete the R1.3/R3 gates.
+
+Native projection query intake retains the serializable AST and complete
+filter/order/cursor semantics of that reference. Locale collation and explicit
+null placement apply before page cuts. Limited queries retain bounded selected
+rows and sort keys; result messages remain below 32 MiB and at most 100,000 rows.
+Relationship reads retain target registration, private-reader authority and
+freshness, including incoming path-only edges and filtering before limits.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

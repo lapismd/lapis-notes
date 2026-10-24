@@ -31,6 +31,9 @@ security cleanup failures propagate through the plugin failure state
 Editor persistence/refresh failures under LN-ARCH-125 and LN-ARCH-127 remain
 observable through the editor boundary. This does not add a diagnostic cache
 or move file, buffer or Sync authority into Problems presentation.
+Quick fixes in an open editor drain that editor's captured save queue before
+refreshing diagnostics. They do not issue a competing direct vault write that
+would invalidate the editor's conditional-write baseline.
 Independent editing-session admission and cleanup failures remain observable
 through LN-ARCH-129 through LN-ARCH-131. The registry does not create diagnostics
 or alter Problems ownership.

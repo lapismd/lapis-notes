@@ -1152,7 +1152,8 @@ export const MarkdownProblems: Story = {
     });
     const activeFile = runtimeApp.workspace.getActiveFile();
     if (!activeFile) throw new Error("The Problems story has no active file");
-    await runtimeApp.vault.modify(activeFile, invalidFixture);
+    await editor.flushChanges();
+    expect(await runtimeApp.vault.read(activeFile)).toBe(invalidFixture);
     await waitFor(
       () => {
         expect(
@@ -1196,6 +1197,8 @@ export const MarkdownProblems: Story = {
       },
       { timeout: 3_000 },
     );
+    await editor.flushChanges();
+    expect(runtimeApp.fileEditingSessions.textConflicts.entries).toHaveLength(0);
     canvasElement.dataset.markdownProblemsAcceptanceReady = "true";
   },
 };
@@ -1286,6 +1289,9 @@ export const MarkdownSpellcheck: Story = {
       expect(editor.getValue()).not.toContain("sentense");
       expect(editor.getValue()).toContain("mispelled");
     });
+    await editor.flushChanges();
+    expect(await runtimeApp.vault.read(editor.file!)).toBe(editor.getValue());
+    expect(runtimeApp.fileEditingSessions.textConflicts.entries).toHaveLength(0);
   },
 };
 

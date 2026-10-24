@@ -1,5 +1,9 @@
 # Workspace Shell / Catalog acceptance
 
+Problems editor-demo acceptance under LN-WS-034/037 drains corrected edits and
+fixture restoration through the editor writer. Spellcheck also verifies vault
+content and absence of a retained file conflict before the story completes.
+
 ## LN-WS-010 — New workspace stories: include interaction and accessibility assertions, including theme-sensitive
 
 <a id="ln-ws-010"></a>

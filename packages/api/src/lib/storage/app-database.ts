@@ -3670,6 +3670,8 @@ export class MemoryAppDatabase implements AppDatabase {
         query.direction === "in"
           ? edge.projectionId
           : (edge.targetProjectionId ?? query.projectionId);
+      const targetDefinition = this.projections.get(targetProjection);
+      assertProjectionReadAccess(targetDefinition, readerPluginId);
       const row =
         query.direction === "in"
           ? this.projectionRows.get(
@@ -3684,7 +3686,7 @@ export class MemoryAppDatabase implements AppDatabase {
                   candidate.projectionId === targetProjection &&
                   candidate.sourcePath === edge.targetPath,
               );
-      if (!row) continue;
+      if (!row || !this.currentProjectionData(row, targetDefinition)) continue;
       if (
         query.targetWhere &&
         !evaluateProjectionQuery(

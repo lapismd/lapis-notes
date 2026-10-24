@@ -17,6 +17,9 @@ API editor documents now register under LN-ARCH-132 through LN-ARCH-135. Native
 CodeMirror protection covers Markdown transactions in that editor shell.
 Independent Mira writers still require their public adapter registration hook;
 view loading, renaming and application shutdown remain separate integration.
+Problems quick fixes in API-backed Markdown editors drain the existing captured
+save queue under LN-WS-034. The direct vault fallback remains for resources
+without an open API editor; the plugin does not own another persistence path.
 
 Properties mutations retain their admitted transform through initial read
 failures under LN-PKG-172. Attachment creation joins the owning App's admitted

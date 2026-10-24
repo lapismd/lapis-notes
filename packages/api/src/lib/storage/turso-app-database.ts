@@ -84,6 +84,7 @@ import {
   type MarkProjectionSourceErrorInput,
   type ReplaceProjectionSourceInput,
 } from "./index-projection";
+import { projectionQueryCandidates } from "./projection-query-candidates";
 import type {
   AppDatabaseTaskChildQuery,
   AppDatabaseTaskQuery,
@@ -487,7 +488,11 @@ const MAX_BOUND_PATHS_PER_QUERY = 400;
 
 function chunkPaths(paths: string[]): string[][] {
   const chunks: string[][] = [];
-  for (let index = 0; index < paths.length; index += MAX_BOUND_PATHS_PER_QUERY) {
+  for (
+    let index = 0;
+    index < paths.length;
+    index += MAX_BOUND_PATHS_PER_QUERY
+  ) {
     chunks.push(paths.slice(index, index + MAX_BOUND_PATHS_PER_QUERY));
   }
   return chunks;
@@ -1667,11 +1672,10 @@ export class TursoAppDatabase implements AppDatabase {
     const updated: AppDatabaseMemoryJobRecord = {
       ...existing,
       ...input.patch,
-      ownerId:
-        input.patch.status === "running" ? existing.ownerId : undefined,
+      ownerId: input.patch.status === "running" ? existing.ownerId : undefined,
       leaseUntil:
         input.patch.status === "running"
-          ? input.patch.leaseUntil ?? existing.leaseUntil
+          ? (input.patch.leaseUntil ?? existing.leaseUntil)
           : undefined,
     };
     await this.commit(
@@ -1799,10 +1803,7 @@ export class TursoAppDatabase implements AppDatabase {
       ...args,
     );
     const pagePaths = rows.slice(0, limit).map((row) => row.path);
-    const materialized = await this.readIndexedFiles(
-      pagePaths,
-      input.include,
-    );
+    const materialized = await this.readIndexedFiles(pagePaths, input.include);
     return {
       rows: materialized,
       nextCursor: rows.length > limit ? pagePaths.at(-1) : undefined,
@@ -2660,11 +2661,7 @@ export class TursoAppDatabase implements AppDatabase {
     assertProjectionReadAccess(definition, readerPluginId);
     const compiled = compileProjectionQuerySql(
       projectionId,
-      {
-        ...query,
-        after: undefined,
-        limit: query.after ? undefined : query.limit,
-      },
+      projectionQueryCandidates(query),
       definition!,
     );
     const [rows, sources] = await Promise.all([
@@ -2728,12 +2725,17 @@ export class TursoAppDatabase implements AppDatabase {
     assertProjectionReadAccess(definition, readerPluginId);
     const edges = await this.requireConnection().all<Record<string, unknown>>(
       query.direction === "in"
-        ? `SELECT * FROM index_projection_edges WHERE projection_id = ? AND relation = ? AND target_row_id = ? ORDER BY ordinal LIMIT ?`
-        : `SELECT * FROM index_projection_edges WHERE projection_id = ? AND relation = ? AND source_row_id = ? ORDER BY ordinal LIMIT ?`,
+        ? `SELECT * FROM index_projection_edges
+           WHERE projection_id = ? AND relation = ?
+             AND (target_row_id = ? OR target_path = (
+               SELECT source_path FROM index_projection_rows
+               WHERE projection_id = ? AND row_id = ?
+             )) ORDER BY ordinal`
+        : `SELECT * FROM index_projection_edges WHERE projection_id = ? AND relation = ? AND source_row_id = ? ORDER BY ordinal`,
       query.projectionId,
       query.relation,
       query.rowId,
-      query.limit ?? 1000,
+      ...(query.direction === "in" ? [query.projectionId, query.rowId] : []),
     );
     const rows: IndexProjectionRowRecord[] = [];
     for (const edge of edges) {
@@ -2986,12 +2988,12 @@ export class TursoAppDatabase implements AppDatabase {
       }
       return values;
     };
-    const propertiesByPath = collectDomain<
-      AppDatabaseIndexedMetadataRow["properties"][number]
-    >(propertyRows);
-    const tagsByPath = collectDomain<
-      AppDatabaseIndexedMetadataRow["tags"][number]
-    >(tagRows);
+    const propertiesByPath =
+      collectDomain<AppDatabaseIndexedMetadataRow["properties"][number]>(
+        propertyRows,
+      );
+    const tagsByPath =
+      collectDomain<AppDatabaseIndexedMetadataRow["tags"][number]>(tagRows);
     const linksByPath = collectDomain<AppDatabaseLinkRecord>(linkRows);
     const filesByPath = new Map(
       fileRows.map((row) => [String(row.path), this.fileRecordFromRow(row)]),

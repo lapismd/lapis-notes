@@ -552,17 +552,19 @@ export class App {
               ? view.editor
               : undefined;
           });
-          openEditor?.view.dispatch({
-            changes: [...edits]
-              .sort((left, right) => left.from - right.from)
-              .map((edit) => ({
-                from: edit.from,
-                to: edit.to,
-                insert: edit.insert,
-              })),
-            userEvent: "input.complete",
-          });
-          await this.vault.modify(file, value);
+          if (openEditor) {
+            openEditor.view.dispatch({
+              changes: [...edits]
+                .sort((left, right) => left.from - right.from)
+                .map((edit) => ({
+                  from: edit.from,
+                  to: edit.to,
+                  insert: edit.insert,
+                })),
+              userEvent: "input.complete",
+            });
+            await openEditor.flushChanges();
+          } else await this.vault.modify(file, value);
         }
       }
     }

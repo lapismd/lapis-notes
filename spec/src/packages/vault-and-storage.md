@@ -20,6 +20,9 @@ The retained API projection-value implementation and native database storage
 share the API-owned `__tests__/fixtures/projection-values.json`. Their independent tests verify
 scalar conversion, missing values, arrays and typed columns; companion cases
 retain field ordering, cardinality and text/row limits under LN-DB-017.
+The API-owned projection-query fixture checks complete AST filtering, ordering,
+selection and cursor continuation through both retained providers. Turso narrows
+only provable SQL candidates before the shared evaluator cuts the final page.
 
 ## LN-PKG-185 — Core vault listing exclusions
 
