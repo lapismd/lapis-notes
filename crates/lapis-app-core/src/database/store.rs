@@ -10,6 +10,7 @@ use std::{
 use uuid::Uuid;
 
 pub(super) struct Store {
+    pub embedding: super::search::embedding::Provider,
     pub connection: turso::Connection,
     _database: turso::Database,
     _lease: File,
@@ -17,7 +18,11 @@ pub(super) struct Store {
     pub committed: VecDeque<ChangeSet>,
 }
 impl Store {
-    pub async fn open(directory: &Path, vault: Uuid) -> Result<Self> {
+    pub async fn open(
+        directory: &Path,
+        vault: Uuid,
+        embeddings: crate::embedding::host::NativeEmbeddingHost,
+    ) -> Result<Self> {
         if !directory.is_absolute() || vault.is_nil() {
             return Err(invalid(
                 "Native database needs an absolute profile and vault identity",
@@ -76,7 +81,8 @@ impl Store {
             .await
             .map_err(engine)?;
         connection.execute_batch("CREATE INDEX IF NOT EXISTS search_docs_fts ON search_docs USING fts (name,path,content,tags,metadata_text) WITH (weights = 'name=2.0,path=1.5,content=1.0,tags=1.5,metadata_text=1.0')").await.map_err(engine)?;
-        let store = Self {
+        let mut store = Self {
+            embedding: super::search::embedding::Provider::new(embeddings),
             connection,
             _database: database,
             _lease: lease,
@@ -84,6 +90,15 @@ impl Store {
             committed: VecDeque::new(),
         };
         store.revision().await?;
+        let config = store
+            .get("search.embeddingProvider")
+            .await?
+            .filter(|v| !v.is_null())
+            .map(serde_json::from_value)
+            .transpose()
+            .map_err(|_| invalid("Invalid stored embedding configuration"))?;
+        super::search::embedding::validate(&config)?;
+        store.embedding.reset(config);
         Ok(store)
     }
     pub async fn execute(&mut self, operation: Operation) -> Result<Output> {

@@ -32,6 +32,7 @@ import {
   type SearchManifestQuery,
   type SearchIndexStats,
   type SearchOptions,
+  type SearchEmbeddingProviderConfig,
   type SearchResult,
 } from "../bindings/protocol.js";
 const command = {
@@ -426,3 +427,20 @@ const invalidIndexedSql: IndexedFile = {
   sql: "DELETE FROM files",
 };
 void [indexedTaskSelection, invalidIndexedTask, invalidIndexedSql];
+
+const nativeEmbeddingOptions: SearchEmbeddingProviderConfig = {
+  kind: "transformers-js",
+  modelId: "Xenova/all-MiniLM-L6-v2",
+  dimensions: 384,
+};
+const invalidEmbeddingPath: SearchEmbeddingProviderConfig = {
+  ...nativeEmbeddingOptions,
+  // @ts-expect-error Browser configuration cannot select native model files.
+  localModelPath: "/private/models",
+};
+const invalidEmbeddingRuntime: SearchEmbeddingProviderConfig = {
+  ...nativeEmbeddingOptions,
+  // @ts-expect-error Native shared-library admission is host authority.
+  runtime: "/private/runtime.dylib",
+};
+void [nativeEmbeddingOptions, invalidEmbeddingPath, invalidEmbeddingRuntime];

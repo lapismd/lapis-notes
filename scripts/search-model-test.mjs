@@ -128,11 +128,11 @@ const result = spawnSync(
     "lapis-app-core",
     "--test",
     "embedding_model",
+    "--test",
+    "database_search_provider_model",
     "--locked",
     "--",
     "--ignored",
-    "--exact",
-    "real_minilm_inference_matches_retained_tokenization_and_cpu_vectors",
   ],
   {
     cwd: root,

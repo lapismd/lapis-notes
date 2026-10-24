@@ -389,3 +389,7 @@ projection work. The existing browser implementation remains explicit.
 The native Search encoder is a Notes-owned independent component under
 `lapis-app-core::embedding`. ONNX Runtime/tokenizer inputs are native host
 authority; model-math qualification under LN-DB-007 precedes database integration.
+
+AppDatabase owns portable Search configuration and invalidation. Memory and
+Turso reuse the API's pending-record policy; native publication uses its actor.
+Native model/cache file registration stays outside serialized configuration.

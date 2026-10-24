@@ -1,3 +1,4 @@
+import { rebindSearchDocument } from "./search-embedding-record";
 import { collectSearchQueryTerms } from "../search-query";
 import {
   buildSearchResult,
@@ -905,25 +906,58 @@ export class TursoAppDatabase implements AppDatabase {
   async configureSearchEmbeddingProvider(
     provider: SearchEmbeddingProviderConfig | null,
   ): Promise<void> {
+    const pending = this.commitQueue.then(() =>
+      this.configureSearchProviderImmediately(provider),
+    );
+    this.commitQueue = pending.then(
+      () => undefined,
+      () => undefined,
+    );
+    return pending;
+  }
+
+  private async configureSearchProviderImmediately(
+    provider: SearchEmbeddingProviderConfig | null,
+  ): Promise<void> {
     if (
       JSON.stringify(provider) ===
       JSON.stringify(this.searchEmbeddingProviderConfig)
     )
       return;
     const previous = this.searchEmbeddingProvider;
-    this.searchEmbeddingProviderConfig = clone(provider);
-    this.searchEmbeddingProvider = createSearchEmbeddingProvider(provider);
-    await previous?.dispose?.();
-    await this.commit(
-      [
+    const next = createSearchEmbeddingProvider(provider);
+    try {
+      const statements: TursoStatementInput[] = [
         {
           sql: `INSERT INTO app_meta (key, value_json) VALUES (?, ?)
               ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json`,
           args: [SEARCH_EMBEDDING_PROVIDER_META_KEY, JSON.stringify(provider)],
         },
-      ],
-      ["search"],
-    );
+      ];
+      if (next)
+        for (const document of await this.listSearchDocuments()) {
+          statements.push(
+            ...this.searchDocumentStatements(
+              rebindSearchDocument(document, next.config),
+            ),
+          );
+        }
+      await this.commitImmediately(
+        statements,
+        ["search"],
+        [],
+        undefined,
+        () => {
+          this.searchEmbeddingProviderConfig = clone(provider);
+          this.searchEmbeddingProvider = next;
+        },
+      );
+    } catch (error) {
+      if (this.searchEmbeddingProvider === next) await previous?.dispose?.();
+      else await next?.dispose?.();
+      throw error;
+    }
+    await previous?.dispose?.();
   }
 
   async getSearchEmbeddingProvider(): Promise<SearchEmbeddingProviderConfig | null> {
@@ -2808,6 +2842,7 @@ export class TursoAppDatabase implements AppDatabase {
     domains: AppDatabaseChangeDomain[],
     paths: string[] = [],
     renamed?: { oldPath: string; newPath: string }[],
+    onCommitted?: () => void,
   ): Promise<AppDatabaseChangeSet> {
     const revision = this.currentRevision + 1;
     const change: AppDatabaseChangeSet = {
@@ -2841,6 +2876,7 @@ export class TursoAppDatabase implements AppDatabase {
       "immediate",
     );
     this.currentRevision = revision;
+    onCommitted?.();
     for (const listener of this.changeListeners) listener(clone(change));
     return change;
   }

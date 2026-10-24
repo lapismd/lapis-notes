@@ -286,3 +286,10 @@ qualify model download/configuration, vector/hybrid retrieval or scheduling.
 The installed ONNX environment is process-owned and shared by independent model
 sessions. Reopening a session must retain inference after earlier sessions close;
 a different runtime installation cannot silently replace an initialized library.
+
+Native Search provider intake connects this encoder to the database actor.
+Native hosts register model/cache files separately from portable configuration;
+clients cannot nominate filesystem roots or libraries. Configuration and vector
+invalidation commit together before the runtime selection changes. Accepted
+indexing owns inference through publication and close drains it. Public status
+is an observation of that owner, including errors, without a second scheduler.

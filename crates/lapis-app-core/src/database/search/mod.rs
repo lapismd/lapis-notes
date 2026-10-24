@@ -1,5 +1,7 @@
 mod client;
+pub(in crate::database) mod embedding;
 mod preparation;
+mod provider;
 mod reads;
 mod retrieval;
 mod validation;
@@ -11,6 +13,9 @@ use serde::Serialize;
 
 #[derive(Serialize)]
 pub(super) enum Action {
+    Configure(Option<embedding_config::SearchEmbeddingProviderConfig>),
+    ProviderConfig,
+    PutSource(Box<SearchDocumentRecord>),
     Put(Box<SearchDocumentRecord>),
     Delete(String),
     Get(String),
@@ -24,6 +29,7 @@ pub(super) enum Action {
     ),
 }
 pub(super) enum Value {
+    ProviderConfig(Option<embedding_config::SearchEmbeddingProviderConfig>),
     Done,
     Document(Option<Box<SearchDocumentRecord>>),
     Documents(Vec<SearchDocumentRecord>),
@@ -35,6 +41,15 @@ pub(super) enum Value {
 impl Store {
     pub(super) async fn search(&mut self, action: Action) -> Result<Value> {
         match action {
+            Action::Configure(config) => self
+                .configure_search_provider(config)
+                .await
+                .map(|_| Value::Done),
+            Action::ProviderConfig => Ok(Value::ProviderConfig(self.embedding.config.clone())),
+            Action::PutSource(record) => {
+                let record = self.embedding.prepare(*record).await;
+                self.mutate_search(Action::Put(Box::new(record))).await
+            }
             Action::Retrieve(query, options, paths) => {
                 self.retrieve_search(query, options, paths).await
             }
@@ -55,6 +70,7 @@ impl Store {
         }
     }
 }
+use lapis_app_protocol::database::search::embedding as embedding_config;
 fn text(value: impl Into<String>) -> turso::Value {
     turso::Value::Text(value.into())
 }

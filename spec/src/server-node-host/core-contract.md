@@ -7,6 +7,10 @@ behavior when reconciling the previously qualified server workspace. The
 [hosted parity plan](../../../AI_HISTORY_PARITY_PLAN.md) is sequenced separately;
 this runtime reconciliation does not enable AI or repository-history services.
 
+Hosted browser acceptance uses the Web package's declared, pinned Playwright
+SDK CLI. Host-mode acceptance remains separate from Linux container qualification;
+the shared Rust plan retains the final server replacement gate.
+
 Portable paths, native database-worker dispatch and Markdown operations are
 owned by `@lapis-notes/host-services`. Existing Deno host-service subpaths
 forward those same implementations while the Node migration is qualified.

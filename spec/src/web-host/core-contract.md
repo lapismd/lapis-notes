@@ -12,6 +12,11 @@ continues to execute its complete independent browser suite. Both jobs remain
 blocking, and server acceptance checks a read-only Node 24 container with no Deno
 executable before editing and retained-volume restart.
 
+Browser acceptance invokes the CLI entry declared by the Web package's pinned
+`@playwright/test` dependency. PWA and hosted runners use that same installed
+module as their tests/configuration, avoiding a stale or hoisted `playwright`
+shim from a different package version.
+
 ## LN-WEB-032 — Retired Terminal connection settings
 
 <a id="ln-web-032"></a>

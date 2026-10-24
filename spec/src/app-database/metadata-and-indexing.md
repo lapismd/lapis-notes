@@ -112,6 +112,14 @@ separate from portable configuration and host adoption.
 Reference acceptance includes Unicode, mixed padded batches, configured
 truncation, normalized and unnormalized vectors, and explicit unavailable errors.
 
+Native provider configuration retains portable model identity and options, with
+no native path fields. The database owner persists configuration and invalidates
+old vectors in one committed Search change. Configuration and cold reopen stay
+lazy. Admitted model assets load on an owned blocking worker; a detached waiter
+cannot cancel publication. Runtime status remains observable while that worker
+loads or infers. Missing assets produce explicit error state without token-hash
+substitution. Native asset installation/download remains a separate intake gate.
+
 ## LN-DB-008 — Hybrid retrieval: combine lexical and vector candidates
 
 <a id="ln-db-008"></a>

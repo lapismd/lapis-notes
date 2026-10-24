@@ -1,5 +1,6 @@
 //! CPU inference only. Native hosts admit these files; paths are never DTOs.
 //! Call encoding/inference from an owned blocking worker, not a UI executor.
+pub mod host;
 mod pooling;
 mod runtime;
 mod tokenization;

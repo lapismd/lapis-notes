@@ -1707,6 +1707,61 @@
       ],
       "type": "object"
     },
+    "SearchEmbeddingDevice": { "enum": ["wasm", "webgpu"], "type": "string" },
+    "SearchEmbeddingPooling": { "enum": ["mean"], "type": "string" },
+    "SearchEmbeddingProviderConfig": {
+      "additionalProperties": false,
+      "description": "Portable retained options. Native paths and executable selection are absent.",
+      "properties": {
+        "allowRemoteModels": { "type": ["boolean", "null"] },
+        "device": {
+          "anyOf": [
+            { "$ref": "#/$defs/SearchEmbeddingDevice" },
+            { "type": "null" }
+          ]
+        },
+        "dimensions": {
+          "format": "uint",
+          "minimum": 0,
+          "type": ["integer", "null"]
+        },
+        "dtype": { "type": ["string", "null"] },
+        "kind": { "$ref": "#/$defs/SearchEmbeddingProviderKind" },
+        "modelId": { "type": ["string", "null"] },
+        "modelVersion": { "type": ["string", "null"] },
+        "normalize": { "type": ["boolean", "null"] },
+        "pooling": {
+          "anyOf": [
+            { "$ref": "#/$defs/SearchEmbeddingPooling" },
+            { "type": "null" }
+          ]
+        },
+        "revision": { "type": ["string", "null"] }
+      },
+      "required": ["kind"],
+      "type": "object"
+    },
+    "SearchEmbeddingProviderKind": {
+      "enum": ["token-hash", "transformers-js"],
+      "type": "string"
+    },
+    "SearchEmbeddingRuntimePhase": {
+      "enum": ["ready", "downloading", "embedding", "error"],
+      "type": "string"
+    },
+    "SearchEmbeddingRuntimeStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "message": { "type": ["string", "null"] },
+        "modelId": { "type": ["string", "null"] },
+        "phase": { "$ref": "#/$defs/SearchEmbeddingRuntimePhase" },
+        "progress": { "format": "double", "type": ["number", "null"] },
+        "providerKind": { "$ref": "#/$defs/SearchEmbeddingProviderKind" },
+        "updatedAt": { "format": "double", "type": "number" }
+      },
+      "required": ["providerKind", "phase", "updatedAt"],
+      "type": "object"
+    },
     "SearchEmbeddingStatus": {
       "enum": ["pending", "ready", "error"],
       "type": "string"
@@ -2597,6 +2652,12 @@
     "reply": { "$ref": "#/$defs/Reply" },
     "request": { "$ref": "#/$defs/Request" },
     "search_document": { "$ref": "#/$defs/SearchDocumentRecord" },
+    "search_embedding_config": {
+      "$ref": "#/$defs/SearchEmbeddingProviderConfig"
+    },
+    "search_embedding_status": {
+      "$ref": "#/$defs/SearchEmbeddingRuntimeStatus"
+    },
     "search_manifest": { "$ref": "#/$defs/SearchManifestPage" },
     "search_manifest_query": { "$ref": "#/$defs/SearchManifestQuery" },
     "search_options": { "$ref": "#/$defs/SearchOptions" },
@@ -2664,6 +2725,8 @@
     "search_manifest",
     "search_stats",
     "search_options",
+    "search_embedding_config",
+    "search_embedding_status",
     "search_results"
   ],
   "title": "Contracts",

@@ -41,11 +41,13 @@ impl Database {
         }
     }
 
-    /// Normalize raw domain records before atomic publication. Native semantic
-    /// inference remains a separate, explicitly configured service boundary.
+    /// Normalize domain records; the accepted owner completes configured inference
+    /// and atomic publication even after the submitting client detaches.
     pub async fn upsert_search_document(&self, record: SearchDocumentRecord) -> Result<()> {
         let prepared = super::preparation::normalize(record)?;
-        self.upsert_prepared_search_document(prepared).await
+        self.submit(Operation::Search(Action::PutSource(Box::new(prepared))))
+            .await
+            .map(|_| ())
     }
     /// Native processor boundary. Callers finish normalization and inference first.
     pub async fn upsert_prepared_search_document(

@@ -1,3 +1,4 @@
+import { rebindSearchDocument } from "./search-embedding-record";
 import type {
   HostMetadataStore,
   AppDatabaseMetaTransaction,
@@ -4018,30 +4019,10 @@ export class MemoryAppDatabase implements AppDatabase {
   protected rebindSearchDocumentForProvider(
     document: SearchDocumentRecord,
   ): SearchDocumentRecord {
-    const provider = this.searchEmbeddingProvider;
-    if (!provider || !document.chunks?.length) {
-      return clone(document);
-    }
-
-    return {
-      ...clone(document),
-      chunks: document.chunks.map((chunk) => {
-        if (!chunk.text.trim().length) {
-          return clone(chunk);
-        }
-
-        return {
-          ...clone(chunk),
-          embedding: {
-            status: "pending",
-            modelId: provider.config.modelId ?? "lapis/token-hash-v0",
-            modelVersion: provider.config.modelVersion,
-            dimensions: provider.config.dimensions,
-            dirty: true,
-          },
-        };
-      }),
-    };
+    return rebindSearchDocument(
+      document,
+      this.searchEmbeddingProvider?.config ?? null,
+    );
   }
 
   protected toState(): AppDatabaseState {

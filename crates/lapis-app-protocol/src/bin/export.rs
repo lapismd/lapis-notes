@@ -2,6 +2,7 @@ use lapis_app_protocol::database::indexed::{mutations::IndexedFile, queries::*, 
 use lapis_app_protocol::database::memory::{enums::*, jobs::*, records::*};
 use lapis_app_protocol::database::projections::queries::*;
 use lapis_app_protocol::database::projections::*;
+use lapis_app_protocol::database::search::embedding::*;
 use lapis_app_protocol::database::search::retrieval::*;
 use lapis_app_protocol::database::search::{records::*, source::*, *};
 use lapis_app_protocol::database::tasks::{enums::*, record::*, recurrence::*, structure::*, *};
@@ -62,6 +63,8 @@ pub struct Contracts {
     pub search_manifest: SearchManifestPage,
     pub search_stats: SearchIndexStats,
     pub search_options: SearchOptions,
+    pub search_embedding_config: SearchEmbeddingProviderConfig,
+    pub search_embedding_status: SearchEmbeddingRuntimeStatus,
     pub search_results: Vec<SearchResult>,
 }
 fn main() {
@@ -195,6 +198,12 @@ fn main() {
         SearchManifestRecord::decl(&config),
         SearchManifestPage::decl(&config),
         SearchIndexStats::decl(&config),
+        SearchEmbeddingProviderKind::decl(&config),
+        SearchEmbeddingProviderConfig::decl(&config),
+        SearchEmbeddingDevice::decl(&config),
+        SearchEmbeddingPooling::decl(&config),
+        SearchEmbeddingRuntimePhase::decl(&config),
+        SearchEmbeddingRuntimeStatus::decl(&config),
         SearchMode::decl(&config),
         SearchRetrievalMode::decl(&config),
         SearchField::decl(&config),

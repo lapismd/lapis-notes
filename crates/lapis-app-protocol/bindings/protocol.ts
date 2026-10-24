@@ -715,6 +715,34 @@ export type SearchIndexStats = {
   errorChunkCount: number;
   lastError: string | null;
 };
+export type SearchEmbeddingProviderKind = "token-hash" | "transformers-js";
+export type SearchEmbeddingProviderConfig = {
+  kind: SearchEmbeddingProviderKind;
+  modelId?: string;
+  modelVersion?: string;
+  revision?: string;
+  dtype?: string;
+  dimensions?: number;
+  device?: SearchEmbeddingDevice;
+  pooling?: SearchEmbeddingPooling;
+  normalize?: boolean;
+  allowRemoteModels?: boolean;
+};
+export type SearchEmbeddingDevice = "wasm" | "webgpu";
+export type SearchEmbeddingPooling = "mean";
+export type SearchEmbeddingRuntimePhase =
+  | "ready"
+  | "downloading"
+  | "embedding"
+  | "error";
+export type SearchEmbeddingRuntimeStatus = {
+  providerKind: SearchEmbeddingProviderKind;
+  phase: SearchEmbeddingRuntimePhase;
+  modelId?: string;
+  message?: string;
+  progress?: number;
+  updatedAt: number;
+};
 export type SearchMode = "auto" | "lexical" | "vector" | "hybrid";
 export type SearchRetrievalMode = "lexical" | "vector" | "hybrid";
 export type SearchField = "content" | "path" | "name" | "tags" | "metadata";

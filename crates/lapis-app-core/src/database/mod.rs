@@ -45,6 +45,9 @@ pub struct Database {
     bytes: Arc<Semaphore>,
     finished: watch::Receiver<Completion>,
     changes: Arc<broadcast::Receiver<ChangeSet>>,
+    embedding_status: watch::Receiver<
+        Option<lapis_app_protocol::database::search::embedding::SearchEmbeddingRuntimeStatus>,
+    >,
 }
 #[derive(Serialize)]
 enum Operation {
@@ -84,7 +87,20 @@ enum Output {
 impl Database {
     /// Native installation input only; callers derive this from admitted policy.
     pub async fn open(directory: &Path, vault: Uuid) -> Result<Self> {
-        let store = store::Store::open(directory, vault).await?;
+        Self::open_with_embeddings(
+            directory,
+            vault,
+            crate::embedding::host::NativeEmbeddingHost::default(),
+        )
+        .await
+    }
+    pub async fn open_with_embeddings(
+        directory: &Path,
+        vault: Uuid,
+        embeddings: crate::embedding::host::NativeEmbeddingHost,
+    ) -> Result<Self> {
+        let store = store::Store::open(directory, vault, embeddings).await?;
+        let embedding_status = store.embedding.status.subscribe();
         let (sender, receiver) = mpsc::channel(64);
         let (done, finished) = watch::channel(None);
         let (publisher, changes) = broadcast::channel(128);
@@ -94,6 +110,7 @@ impl Database {
             bytes: Arc::new(Semaphore::new(MAX_BYTES)),
             finished,
             changes: Arc::new(changes),
+            embedding_status,
         })
     }
     pub async fn get_meta(&self, key: &str) -> Result<Option<Value>> {

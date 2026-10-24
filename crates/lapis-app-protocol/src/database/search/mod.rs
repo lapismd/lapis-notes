@@ -1,3 +1,4 @@
+pub mod embedding;
 pub mod records;
 pub mod retrieval;
 pub mod source;

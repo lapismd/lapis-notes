@@ -5,6 +5,10 @@ visible before checking their content. DOM discovery alone does not establish
 visibility during the existing opening animation; dismissal retains the pointer
 and focus-restoration checks.
 
+Web installed-plugin acceptance runs through the Web package's pinned Playwright
+SDK CLI. Selecting that runner changes no plugin registration, installation,
+signature policy or product assertion.
+
 ## LN-PLUG-110 — Signed archive delivery endpoint
 
 <a id="ln-plug-110"></a>
