@@ -29,6 +29,15 @@ The shared native storage owner retains LN-DB-004/057 through the same prepared
 document/chunk fixture. Publication, rollback, cold reopen and body-free manifest
 reads qualify storage independently of native embedding generation and retrieval.
 
+## LN-DB-058 — Unicode-safe Search chunk boundaries
+
+<a id="ln-db-058"></a>
+
+**Requirement.** Generated Search chunks MUST retain their exact source text and
+UTF-16 offsets without dividing a surrogate pair. A target cutoff inside a pair
+MUST advance to the pair's end before chunk construction. The retained and native
+preparation implementations MUST share conformance evidence for this boundary.
+
 ## LN-DB-005 — Lexical retrieval: use Turso full-text search when available. Unsupported
 
 <a id="ln-db-005"></a>

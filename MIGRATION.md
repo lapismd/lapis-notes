@@ -12,9 +12,10 @@ still use their existing database adapters, and the hosted application still
 uses Node. The new shared Rust database facade has not been selected by either
 host.
 
-**Working now:** R1.3/R3 native database facade. Prepared Search storage is
-source complete; document preparation, retrieval and host integration are still
-waiting. Neither application has adopted this new database facade yet.
+**Working now:** R1.3/R3 native Search facade. Storage and document preparation
+are source complete; lexical/structured retrieval is next. Semantic inference
+and host integration are still waiting. Neither application has adopted this
+new database facade yet.
 
 **Next:** finish the remaining Search/database operations, connect the shared
 facade to both hosts, then qualify the existing hosted shell and backup lifetime.
@@ -66,24 +67,24 @@ The rest of R2–R7 follows the agreed order; this breakdown adds no feature sco
 These completed rows qualify shared Rust source. **They do not mean that Desktop
 or the hosted browser is already using the new database implementation.**
 
-| Work                                                                | Status          | Evidence or remaining work                                                                                                                                                         |
-| ------------------------------------------------------------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Metadata get/set, scans, conditional transactions and revisions     | Source complete | [Native database foundation](spec/records/2026-10-24-rust-core-database.md).                                                                                                       |
-| Notebook state, notifications and committed change events           | Source complete | [Saved state and events](spec/records/2026-10-24-rust-core-database-state.md).                                                                                                     |
-| Database-only file history                                          | Source complete | [Revisions, lineage, retention and rollback](spec/records/2026-10-24-rust-core-database-history.md).                                                                               |
-| Core indexed metadata storage, reads, manifests, filters and facets | Source complete | [Independent indexed publication and queries](spec/records/2026-10-24-rust-core-database-indexed.md).                                                                              |
-| Projection definitions and atomic source writes                     | Source complete | [Projection storage](spec/records/2026-10-24-rust-core-projection-storage.md).                                                                                                     |
-| Projection single-row reads                                         | Source complete | [Aliases, privacy, freshness and cold reads](spec/records/2026-10-24-rust-core-projection-rows.md).                                                                                |
-| Projection AST and relationship queries                             | Source complete | [Retained reference conformance](spec/records/2026-10-24-projection-query-reference.md); [native query intake](spec/records/2026-10-24-rust-core-projection-queries.md).           |
-| Task facade                                                         | Source complete | [Six task methods and ordered staged commits](spec/records/2026-10-24-rust-core-tasks.md).                                                                                         |
-| Derived memory records and job leases                               | Source complete | [Thirteen storage/lease methods](spec/records/2026-10-24-rust-core-memory-storage.md). Capture and maintenance remain R5.                                                          |
-| Retained Search storage reference                                   | Complete        | [Prepared documents, manifests and corrected Memory statistics](spec/records/2026-10-24-search-storage-reference.md), committed as `89acf34f`.                                     |
-| Native prepared Search storage                                      | Source complete | [Native Search storage](spec/records/2026-10-24-rust-core-search-storage.md): prepared rows, vectors, manifests and statistics. Desktop dependency compatibility is still waiting. |
-| Native Search document preparation and chunking                     | Waiting         | Preserve the retained normalization, Unicode offsets and source metadata contracts.                                                                                                |
-| Native lexical/structured Search retrieval                          | Waiting         | Existing query/result, source-provider, path and property behavior over native storage.                                                                                            |
-| Native semantic embeddings and retrieval                            | Waiting         | ONNX Runtime plus the current model, tokenizer, pooling/normalization and model-output/retrieval acceptance.                                                                       |
-| Complete indexed-file upsert, rename and delete                     | Waiting         | Preserve all cross-domain task, projection, Search and notebook effects.                                                                                                           |
-| Complete native AppDatabase facade                                  | Waiting         | Finish the remaining catalogue and cross-domain operations, then qualify host intake under R1.3.                                                                                   |
+| Work                                                                | Status          | Evidence or remaining work                                                                                                                                                                                              |
+| ------------------------------------------------------------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Metadata get/set, scans, conditional transactions and revisions     | Source complete | [Native database foundation](spec/records/2026-10-24-rust-core-database.md).                                                                                                                                            |
+| Notebook state, notifications and committed change events           | Source complete | [Saved state and events](spec/records/2026-10-24-rust-core-database-state.md).                                                                                                                                          |
+| Database-only file history                                          | Source complete | [Revisions, lineage, retention and rollback](spec/records/2026-10-24-rust-core-database-history.md).                                                                                                                    |
+| Core indexed metadata storage, reads, manifests, filters and facets | Source complete | [Independent indexed publication and queries](spec/records/2026-10-24-rust-core-database-indexed.md).                                                                                                                   |
+| Projection definitions and atomic source writes                     | Source complete | [Projection storage](spec/records/2026-10-24-rust-core-projection-storage.md).                                                                                                                                          |
+| Projection single-row reads                                         | Source complete | [Aliases, privacy, freshness and cold reads](spec/records/2026-10-24-rust-core-projection-rows.md).                                                                                                                     |
+| Projection AST and relationship queries                             | Source complete | [Retained reference conformance](spec/records/2026-10-24-projection-query-reference.md); [native query intake](spec/records/2026-10-24-rust-core-projection-queries.md).                                                |
+| Task facade                                                         | Source complete | [Six task methods and ordered staged commits](spec/records/2026-10-24-rust-core-tasks.md).                                                                                                                              |
+| Derived memory records and job leases                               | Source complete | [Thirteen storage/lease methods](spec/records/2026-10-24-rust-core-memory-storage.md). Capture and maintenance remain R5.                                                                                               |
+| Retained Search storage reference                                   | Complete        | [Prepared documents, manifests and corrected Memory statistics](spec/records/2026-10-24-search-storage-reference.md), committed as `89acf34f`.                                                                          |
+| Native prepared Search storage                                      | Source complete | [Native Search storage](spec/records/2026-10-24-rust-core-search-storage.md): prepared rows, vectors, manifests and statistics. Desktop dependency compatibility is still waiting.                                      |
+| Native Search document preparation and chunking                     | Source complete | [Native preparation](spec/records/2026-10-24-rust-core-search-preparation.md): shared 17-record reference, scored chunks, tags/frontmatter and UTF-16-safe cutoffs. Semantic inference and host intake remain separate. |
+| Native lexical/structured Search retrieval                          | Waiting         | Existing query/result, source-provider, path and property behavior over native storage.                                                                                                                                 |
+| Native semantic embeddings and retrieval                            | Waiting         | ONNX Runtime plus the current model, tokenizer, pooling/normalization and model-output/retrieval acceptance.                                                                                                            |
+| Complete indexed-file upsert, rename and delete                     | Waiting         | Preserve all cross-domain task, projection, Search and notebook effects.                                                                                                                                                |
+| Complete native AppDatabase facade                                  | Waiting         | Finish the remaining catalogue and cross-domain operations, then qualify host intake under R1.3.                                                                                                                        |
 
 ### Remaining R3 service ownership
 
@@ -132,8 +133,9 @@ Its qualified serving baseline and reusable contracts remain retained evidence.
 The agreed [implementation plan](AI_HISTORY_PARITY_PLAN.md) targets one owner,
 multiple managed vaults and host agent execution first. All memory is
 vault-visible. Docker execution is deferred behind a shared execution port.
-This is the single completion ledger; records distinguish source, native,
-browser, real-provider and platform qualification.
+This is the historical Node ledger; current completion is tracked by R0–R7
+above. Records distinguish source, native, browser, real-provider and platform
+qualification.
 
 | Slice                             | Status   | Next gate / evidence                                                                                                                                                                                |
 | --------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -150,9 +152,9 @@ browser, real-provider and platform qualification.
 | H10 Parity qualification          | Pending  | Full affected desktop/hosted, accessibility and real-provider lanes.                                                                                                                                |
 | H11 Docker execution              | Deferred | Add an adapter later; no initial container dependency.                                                                                                                                              |
 
-The qualified Node port is reconciled with current Notes services. The Deno
-desktop remains superseded and frozen. Hosted history and AI continue through
-the ordered service slices above.
+The qualified Node port remains the serving baseline. The Deno desktop remains
+superseded and frozen. Remaining hosted history and AI work follows R0–R7 above;
+the H03–H10 rows retain the earlier roadmap rather than a second active sequence.
 The implementation request does not authorize release, signing or deployment.
 
 Unified history Search: the App-owned result-provider API is implemented and source-qualified (LN-SRCH-051). Search UI federation, native indexing and Desktop integration remain in progress; this does not complete the Desktop M14.6 native gate.

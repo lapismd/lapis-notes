@@ -174,6 +174,13 @@ before the full AppDatabase Search facade is selected.
 The pinned Turso engine includes FTS and enables its existing index-method
 feature so previously indexed databases retain their lexical index on writes.
 
+Native Search preparation reuses the retained metadata-driven normalization and
+scored chunking contract: tag hierarchy, frontmatter text, source sections,
+heading association and code-fence suppression. Generated offsets and chunk IDs
+remain UTF-16-based, including LN-DB-058's scalar-safe cutoffs. Prepared-record
+publication remains distinct from semantic inference and retrieval; no host is
+switched until the complete facade is qualified.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

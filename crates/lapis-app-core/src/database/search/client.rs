@@ -4,6 +4,12 @@ use crate::services::Result;
 use lapis_app_protocol::database::search::{records::SearchDocumentRecord, *};
 
 impl Database {
+    /// Normalize raw domain records before atomic publication. Native semantic
+    /// inference remains a separate, explicitly configured service boundary.
+    pub async fn upsert_search_document(&self, record: SearchDocumentRecord) -> Result<()> {
+        let prepared = super::preparation::normalize(record)?;
+        self.upsert_prepared_search_document(prepared).await
+    }
     /// Native processor boundary. Callers finish normalization and inference first.
     pub async fn upsert_prepared_search_document(
         &self,

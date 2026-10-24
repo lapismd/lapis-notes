@@ -890,7 +890,18 @@ function buildSearchChunks(
             codeFences,
           )
         : content.length;
-    const safeEnd = chunkEnd > chunkStart ? chunkEnd : targetEnd;
+    let safeEnd = chunkEnd > chunkStart ? chunkEnd : targetEnd;
+    // Search offsets use UTF-16, but chunks must remain complete Unicode text.
+    if (
+      safeEnd > 0 &&
+      safeEnd < content.length &&
+      content.charCodeAt(safeEnd - 1) >= 0xd800 &&
+      content.charCodeAt(safeEnd - 1) <= 0xdbff &&
+      content.charCodeAt(safeEnd) >= 0xdc00 &&
+      content.charCodeAt(safeEnd) <= 0xdfff
+    ) {
+      safeEnd += 1;
+    }
     const chunk = createChunk(path, content, metadata, chunkStart, safeEnd);
     if (!chunk) {
       if (safeEnd <= chunkStart) {

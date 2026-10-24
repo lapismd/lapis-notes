@@ -34,6 +34,11 @@ queries, exact origins, daily recall totals and renewable job transitions.
 The Search-storage reference fixture retains prepared documents, manifests,
 embedding states and statistics through Memory and Turso. Its counts and error
 values are qualified before the native storage intake.
+The API-owned Search-preparation fixture also qualifies native normalization,
+scored breakpoints, tags, frontmatter text and UTF-16 offsets. LN-DB-058 keeps
+generated cutoffs outside surrogate pairs in retained and native implementations.
+This does not change public AppDatabase interfaces or select a native host
+adapter; semantic inference and retrieval retain separate qualification gates.
 
 ## LN-PKG-185 — Core vault listing exclusions
 
