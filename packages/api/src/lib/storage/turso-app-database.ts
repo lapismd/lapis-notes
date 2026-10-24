@@ -2214,7 +2214,7 @@ export class TursoAppDatabase implements AppDatabase {
       return this.evaluateSearchDocumentsForPaths(
         query,
         options,
-        await this.queryAllSearchPaths(options.limit, options),
+        await this.queryAllSearchPaths(options),
       );
     }
 
@@ -2256,7 +2256,6 @@ export class TursoAppDatabase implements AppDatabase {
   }
 
   private async queryAllSearchPaths(
-    limit = 100,
     options: Pick<
       AppDatabaseSearchOptions,
       "pathPrefix" | "sourceProviderIds"
@@ -2277,9 +2276,8 @@ export class TursoAppDatabase implements AppDatabase {
     const rows = await this.requireConnection().all<{ path: string }>(
       `SELECT path FROM search_docs
        ${clauses.length > 0 ? `WHERE ${clauses.join(" AND ")}` : ""}
-       ORDER BY path LIMIT ?`,
+       ORDER BY path`,
       ...args,
-      Math.max(limit, 100),
     );
     return rows.map((row) => row.path);
   }
@@ -2290,7 +2288,7 @@ export class TursoAppDatabase implements AppDatabase {
   ): Promise<string[]> {
     const terms = collectSearchQueryTerms(query);
     if (!terms.length || !this.nativeFullTextSearch) {
-      return this.queryAllSearchPaths(limit);
+      return this.queryAllSearchPaths();
     }
     const ftsQuery = ftsQueryForTerms(terms);
     const rows = await this.requireConnection().all<{ path: string }>(

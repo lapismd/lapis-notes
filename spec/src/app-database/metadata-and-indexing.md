@@ -38,6 +38,15 @@ UTF-16 offsets without dividing a surrogate pair. A target cutoff inside a pair
 MUST advance to the pair's end before chunk construction. The retained and native
 preparation implementations MUST share conformance evidence for this boundary.
 
+## LN-DB-059 — Complete Search table evaluation
+
+<a id="ln-db-059"></a>
+
+**Requirement.** Search table evaluation MUST evaluate every eligible candidate
+before ranking and applying the final result limit. Provider and path predicates
+MAY narrow candidates only when preserving the complete query's result
+membership and ordering. Path-only Search MUST retain the same final results.
+
 ## LN-DB-005 — Lexical retrieval: use Turso full-text search when available. Unsupported
 
 <a id="ln-db-005"></a>

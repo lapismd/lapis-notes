@@ -39,6 +39,10 @@ scored breakpoints, tags, frontmatter text and UTF-16 offsets. LN-DB-058 keeps
 generated cutoffs outside surrogate pairs in retained and native implementations.
 This does not change public AppDatabase interfaces or select a native host
 adapter; semantic inference and retrieval retain separate qualification gates.
+Search-candidate conformance uses more than 100 eligible documents to qualify
+case-sensitive, field, property, negative, provider and path queries through
+Memory and both FTS-enabled and degraded Turso. Final result limits belong after
+complete table evaluation, including path-only queries (LN-DB-059).
 
 ## LN-PKG-185 — Core vault listing exclusions
 

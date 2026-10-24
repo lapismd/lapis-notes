@@ -181,6 +181,12 @@ remain UTF-16-based, including LN-DB-058's scalar-safe cutoffs. Prepared-record
 publication remains distinct from semantic inference and retrieval; no host is
 switched until the complete facade is qualified.
 
+The retained Search retrieval reference evaluates every eligible table candidate
+before scoring and final limits (LN-DB-059). Provider/path SQL narrowing cannot
+truncate the remaining scope. Conformance covers more than 100 records in
+Memory, native FTS and degraded Turso before native retrieval intake; it does not
+select either host's native database adapter.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>
