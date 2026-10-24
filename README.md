@@ -119,6 +119,7 @@ for image refresh and local-container details.
 
 - Agent workflow: [`AGENTS.md`](./AGENTS.md)
 - Release process: [`RELEASING.md`](./RELEASING.md)
+- Active Rust migration plan: [`RUST_CORE_MIGRATION_PLAN.md`](./RUST_CORE_MIGRATION_PLAN.md)
 - Migration tracker: [`MIGRATION.md`](./MIGRATION.md)
 - Canonical requirements: [`spec/src/`](./spec/src/)
 - Supporting records: [`spec/records/`](./spec/records/)
