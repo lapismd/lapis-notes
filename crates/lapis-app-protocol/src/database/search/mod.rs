@@ -1,4 +1,5 @@
 pub mod records;
+pub mod retrieval;
 pub mod source;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};

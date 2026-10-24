@@ -43,6 +43,9 @@ Search-candidate conformance uses more than 100 eligible documents to qualify
 case-sensitive, field, property, negative, provider and path queries through
 Memory and both FTS-enabled and degraded Turso. Final result limits belong after
 complete table evaluation, including path-only queries (LN-DB-059).
+The Search-retrieval reference retains full result JSON for native intake,
+including score/fusion detail, source metadata and UTF-16 snippet ranges. Native
+retrieval and semantic inference are independently qualified before host adoption.
 
 ## LN-PKG-185 — Core vault listing exclusions
 

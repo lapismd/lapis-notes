@@ -1792,6 +1792,24 @@ function renameChunkId(
   return `${newPath}${chunkId.slice(oldPath.length)}`;
 }
 
+function searchSnippetBounds(
+  text: string,
+  start: number,
+  end: number,
+): [number, number] {
+  const splitsPair = (offset: number) =>
+    offset > 0 &&
+    offset < text.length &&
+    text.charCodeAt(offset - 1) >= 0xd800 &&
+    text.charCodeAt(offset - 1) <= 0xdbff &&
+    text.charCodeAt(offset) >= 0xdc00 &&
+    text.charCodeAt(offset) <= 0xdfff;
+  return [
+    splitsPair(start) ? start - 1 : start,
+    splitsPair(end) ? end + 1 : end,
+  ];
+}
+
 function buildFieldSnippet(
   field: Exclude<AppDatabaseSearchField, "content">,
   text: string,
@@ -1813,11 +1831,12 @@ function buildFieldSnippet(
 
   const focus = ranges[0];
   const padding = Math.max(16, Math.floor(snippetLength / 3));
-  const start = Math.max(0, focus.start - padding);
-  const end = Math.min(
+  const initialStart = Math.max(0, focus.start - padding);
+  const initialEnd = Math.min(
     text.length,
-    Math.max(start + snippetLength, focus.end + padding),
+    Math.max(initialStart + snippetLength, focus.end + padding),
   );
+  const [start, end] = searchSnippetBounds(text, initialStart, initialEnd);
 
   return [
     {
@@ -1866,13 +1885,21 @@ function buildContentSnippets(
         return { ...snippet, ranges };
       }
       const focus = ranges[0];
-      const start = Math.max(0, focus.start - Math.floor(snippetLength / 3));
-      const end = Math.min(
+      const initialStart = Math.max(
+        0,
+        focus.start - Math.floor(snippetLength / 3),
+      );
+      const initialEnd = Math.min(
         snippet.text.length,
         Math.max(
-          start + snippetLength,
+          initialStart + snippetLength,
           focus.end + Math.floor(snippetLength / 3),
         ),
+      );
+      const [start, end] = searchSnippetBounds(
+        snippet.text,
+        initialStart,
+        initialEnd,
       );
       return {
         field: "content" as const,

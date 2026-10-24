@@ -2,6 +2,7 @@ use lapis_app_protocol::database::indexed::{queries::*, records::*};
 use lapis_app_protocol::database::memory::{enums::*, jobs::*, records::*};
 use lapis_app_protocol::database::projections::queries::*;
 use lapis_app_protocol::database::projections::*;
+use lapis_app_protocol::database::search::retrieval::*;
 use lapis_app_protocol::database::search::{records::*, source::*, *};
 use lapis_app_protocol::database::tasks::{enums::*, record::*, recurrence::*, structure::*, *};
 use lapis_app_protocol::database::{changes::*, history::*, state::*};
@@ -59,6 +60,8 @@ pub struct Contracts {
     pub search_manifest_query: SearchManifestQuery,
     pub search_manifest: SearchManifestPage,
     pub search_stats: SearchIndexStats,
+    pub search_options: SearchOptions,
+    pub search_results: Vec<SearchResult>,
 }
 fn main() {
     let config = Config::default();
@@ -190,6 +193,17 @@ fn main() {
         SearchManifestRecord::decl(&config),
         SearchManifestPage::decl(&config),
         SearchIndexStats::decl(&config),
+        SearchMode::decl(&config),
+        SearchRetrievalMode::decl(&config),
+        SearchField::decl(&config),
+        SearchOptions::decl(&config),
+        SearchRange::decl(&config),
+        SearchSnippet::decl(&config),
+        SearchFusionAlgorithm::decl(&config),
+        SearchFusion::decl(&config),
+        SearchScore::decl(&config),
+        SearchDiagnostics::decl(&config),
+        SearchResult::decl(&config),
         ManagedVault::decl(&config),
         AttachClient::decl(&config),
         FileOptions::decl(&config),

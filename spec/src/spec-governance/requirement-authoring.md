@@ -101,3 +101,9 @@
 <a id="ln-gov-049"></a>
 
 **Requirement.** A specification presentation migration MUST preserve existing requirement IDs, normative constraints, acceptance details, verification statuses, and evidence. Intentional documentation-governance changes MUST be identified separately and validated against a captured baseline.
+
+## LN-GOV-051 — Migration tracker freshness
+
+<a id="ln-gov-051"></a>
+
+**Requirement.** Every verified slice commit MUST refresh root `MIGRATION.md` with current statuses, evidence and an explicit UTC date/time. Related consumer commits MUST be followed by a master-tracker refresh that distinguishes source qualification from host adoption. `AGENTS.md` MUST document this workflow.

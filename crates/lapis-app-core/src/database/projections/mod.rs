@@ -4,7 +4,7 @@ mod query;
 mod query_evaluation;
 mod query_page;
 mod reads;
-mod values;
+pub(super) mod values;
 mod writes;
 
 use super::{invalid, store::Store};

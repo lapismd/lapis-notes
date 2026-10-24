@@ -141,6 +141,10 @@ SQLite's bind ceiling. Path-only Search applies the same query, provider, path,
 mode, ranking, and limit semantics as document Search, but returns only ordered
 vault-relative paths through direct, browser-proxy, and desktop-native
 transports.
+The Search retrieval fixture independently retains complete result JSON through
+Memory and Turso FTS before native lexical/structured intake. It includes parser
+fallback, field/content scopes, nested properties, ranking, snippets and explicit
+FTS candidate differences; it does not substitute token hashes for inference.
 Structured tag evaluation receives decoded query literal values from the API
 parser. Slash-bearing tags remain bare query words, quoted tags preserve spaces
 and escaped delimiters, and leading slash literals continue to reach regex

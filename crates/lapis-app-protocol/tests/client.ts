@@ -30,6 +30,8 @@ import {
   type SearchManifestPage,
   type SearchManifestQuery,
   type SearchIndexStats,
+  type SearchOptions,
+  type SearchResult,
 } from "../bindings/protocol.js";
 const command = {
   kind: "write_text",
@@ -375,10 +377,33 @@ const badSearchDocument: SearchDocumentRecord = {
   // @ts-expect-error Search bodies cannot choose native storage paths.
   databasePath: "/tmp/other.db",
 };
+const searchOptions: SearchOptions = {
+  mode: "lexical",
+  limit: 10,
+  pathPrefix: "Projects",
+  caseSensitive: true,
+  includeDiagnostics: true,
+  sourceProviderIds: ["markdown"],
+};
+const badRetrieval: SearchOptions = {
+  // @ts-expect-error Search retrieval cannot carry SQL.
+  sql: "SELECT * FROM search_docs",
+};
+const badMode: SearchOptions = {
+  // @ts-expect-error Only declared retrieval modes are admitted.
+  mode: "execute",
+};
+function resultPath(result: SearchResult): string {
+  return result.document.path;
+}
 void [
   searchDocument,
   searchManifest,
   searchStats,
   badSearchQuery,
   badSearchDocument,
+  searchOptions,
+  badRetrieval,
+  badMode,
+  resultPath,
 ];

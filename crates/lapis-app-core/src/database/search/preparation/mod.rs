@@ -1,5 +1,5 @@
 mod breakpoints;
-mod json;
+pub(super) mod json;
 use super::validation;
 use crate::database::{MAX_BYTES, encoded, invalid};
 use crate::services::Result;

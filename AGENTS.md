@@ -454,6 +454,10 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   message descriptive enough for review context rather than using a terse label.
   This is a standing request for every workspace package; do not wait for the
   user to ask. When `jj` is unavailable, use Git with the same message quality.
+- Refresh root `MIGRATION.md` in every slice commit, including evidence and
+  completed, active and waiting work. Its last-updated stamp includes the date,
+  time and explicit UTC timezone. Refresh the shared tracker after related
+  consumer commits too; keep source qualification and host adoption separate.
 - Keep changes scoped to the package or surface needed for the request. Do not
   add broad refactors or metadata churn unless required to complete the task.
 

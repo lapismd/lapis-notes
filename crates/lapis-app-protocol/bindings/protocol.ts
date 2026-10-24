@@ -707,6 +707,64 @@ export type SearchIndexStats = {
   errorChunkCount: number;
   lastError: string | null;
 };
+export type SearchMode = "auto" | "lexical" | "vector" | "hybrid";
+export type SearchRetrievalMode = "lexical" | "vector" | "hybrid";
+export type SearchField = "content" | "path" | "name" | "tags" | "metadata";
+export type SearchOptions = {
+  limit?: number;
+  pathPrefix?: string;
+  snippetLength?: number;
+  mode?: SearchMode;
+  includeDiagnostics?: boolean;
+  caseSensitive?: boolean;
+  sourceProviderIds?: Array<string>;
+};
+export type SearchRange = { start: number; end: number };
+export type SearchSnippet = {
+  field: SearchField;
+  text: string;
+  ranges: Array<SearchRange>;
+  offset: number;
+  chunkId?: string;
+  chunkLabel?: string;
+};
+export type SearchFusionAlgorithm =
+  | "lexical-score"
+  | "vector-score"
+  | "reciprocal-rank-fusion";
+export type SearchFusion = {
+  algorithm: SearchFusionAlgorithm;
+  k?: number;
+  lexicalRank?: number;
+  vectorRank?: number;
+  lexicalContribution?: number;
+  vectorContribution?: number;
+};
+export type SearchScore = {
+  lexical?: number;
+  vector?: number;
+  fused: number;
+  fusion?: SearchFusion;
+};
+export type SearchDiagnostics = {
+  requestedMode: SearchMode;
+  appliedMode: SearchRetrievalMode;
+  backendKind: string;
+  lexicalCandidateCount: number;
+  vectorCandidateCount: number;
+  totalCandidateCount: number;
+  modelId?: string;
+  modelReady: boolean;
+};
+export type SearchResult = {
+  document: SearchDocumentRecord;
+  score: number;
+  snippets: Array<SearchSnippet>;
+  retrievalMode: SearchRetrievalMode;
+  scoreBreakdown: SearchScore;
+  matchedChunkIds: Array<string>;
+  diagnostics?: SearchDiagnostics;
+};
 export type ManagedVault = { vault_id: string; name: string };
 export type AttachClient = { protocol_version: number };
 export type FileOptions = { mtime: number | null };

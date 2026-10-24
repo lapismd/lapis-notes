@@ -1596,6 +1596,41 @@
       "required": ["targetChars", "breakpointWindowChars", "breakpointDecay"],
       "type": "object"
     },
+    "SearchDiagnostics": {
+      "additionalProperties": false,
+      "properties": {
+        "appliedMode": { "$ref": "#/$defs/SearchRetrievalMode" },
+        "backendKind": { "type": "string" },
+        "lexicalCandidateCount": {
+          "format": "uint",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "modelId": { "type": ["string", "null"] },
+        "modelReady": { "type": "boolean" },
+        "requestedMode": { "$ref": "#/$defs/SearchMode" },
+        "totalCandidateCount": {
+          "format": "uint",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "vectorCandidateCount": {
+          "format": "uint",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "requestedMode",
+        "appliedMode",
+        "backendKind",
+        "lexicalCandidateCount",
+        "vectorCandidateCount",
+        "totalCandidateCount",
+        "modelReady"
+      ],
+      "type": "object"
+    },
     "SearchDocumentChunk": {
       "additionalProperties": false,
       "properties": {
@@ -1658,6 +1693,41 @@
       "enum": ["pending", "ready", "error"],
       "type": "string"
     },
+    "SearchField": {
+      "enum": ["content", "path", "name", "tags", "metadata"],
+      "type": "string"
+    },
+    "SearchFusion": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": { "$ref": "#/$defs/SearchFusionAlgorithm" },
+        "k": { "format": "double", "type": ["number", "null"] },
+        "lexicalContribution": {
+          "format": "double",
+          "type": ["number", "null"]
+        },
+        "lexicalRank": {
+          "format": "uint",
+          "minimum": 0,
+          "type": ["integer", "null"]
+        },
+        "vectorContribution": {
+          "format": "double",
+          "type": ["number", "null"]
+        },
+        "vectorRank": {
+          "format": "uint",
+          "minimum": 0,
+          "type": ["integer", "null"]
+        }
+      },
+      "required": ["algorithm"],
+      "type": "object"
+    },
+    "SearchFusionAlgorithm": {
+      "enum": ["lexical-score", "vector-score", "reciprocal-rank-fusion"],
+      "type": "string"
+    },
     "SearchIndexStats": {
       "additionalProperties": false,
       "properties": {
@@ -1718,6 +1788,104 @@
         "sourceSize": { "format": "double", "type": ["number", "null"] }
       },
       "required": ["path", "checksum"],
+      "type": "object"
+    },
+    "SearchMode": {
+      "enum": ["auto", "lexical", "vector", "hybrid"],
+      "type": "string"
+    },
+    "SearchOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "caseSensitive": { "type": ["boolean", "null"] },
+        "includeDiagnostics": { "type": ["boolean", "null"] },
+        "limit": {
+          "format": "uint",
+          "minimum": 0,
+          "type": ["integer", "null"]
+        },
+        "mode": {
+          "anyOf": [{ "$ref": "#/$defs/SearchMode" }, { "type": "null" }]
+        },
+        "pathPrefix": { "type": ["string", "null"] },
+        "snippetLength": {
+          "format": "uint",
+          "minimum": 0,
+          "type": ["integer", "null"]
+        },
+        "sourceProviderIds": {
+          "items": { "type": "string" },
+          "type": ["array", "null"]
+        }
+      },
+      "type": "object"
+    },
+    "SearchRange": {
+      "additionalProperties": false,
+      "properties": {
+        "end": { "format": "uint", "minimum": 0, "type": "integer" },
+        "start": { "format": "uint", "minimum": 0, "type": "integer" }
+      },
+      "required": ["start", "end"],
+      "type": "object"
+    },
+    "SearchResult": {
+      "additionalProperties": false,
+      "properties": {
+        "diagnostics": {
+          "anyOf": [{ "$ref": "#/$defs/SearchDiagnostics" }, { "type": "null" }]
+        },
+        "document": { "$ref": "#/$defs/SearchDocumentRecord" },
+        "matchedChunkIds": { "items": { "type": "string" }, "type": "array" },
+        "retrievalMode": { "$ref": "#/$defs/SearchRetrievalMode" },
+        "score": { "format": "double", "type": "number" },
+        "scoreBreakdown": { "$ref": "#/$defs/SearchScore" },
+        "snippets": {
+          "items": { "$ref": "#/$defs/SearchSnippet" },
+          "type": "array"
+        }
+      },
+      "required": [
+        "document",
+        "score",
+        "snippets",
+        "retrievalMode",
+        "scoreBreakdown",
+        "matchedChunkIds"
+      ],
+      "type": "object"
+    },
+    "SearchRetrievalMode": {
+      "enum": ["lexical", "vector", "hybrid"],
+      "type": "string"
+    },
+    "SearchScore": {
+      "additionalProperties": false,
+      "properties": {
+        "fused": { "format": "double", "type": "number" },
+        "fusion": {
+          "anyOf": [{ "$ref": "#/$defs/SearchFusion" }, { "type": "null" }]
+        },
+        "lexical": { "format": "double", "type": ["number", "null"] },
+        "vector": { "format": "double", "type": ["number", "null"] }
+      },
+      "required": ["fused"],
+      "type": "object"
+    },
+    "SearchSnippet": {
+      "additionalProperties": false,
+      "properties": {
+        "chunkId": { "type": ["string", "null"] },
+        "chunkLabel": { "type": ["string", "null"] },
+        "field": { "$ref": "#/$defs/SearchField" },
+        "offset": { "format": "double", "type": "number" },
+        "ranges": {
+          "items": { "$ref": "#/$defs/SearchRange" },
+          "type": "array"
+        },
+        "text": { "type": "string" }
+      },
+      "required": ["field", "text", "ranges", "offset"],
       "type": "object"
     },
     "SearchSourceHeading": {
@@ -2412,6 +2580,11 @@
     "search_document": { "$ref": "#/$defs/SearchDocumentRecord" },
     "search_manifest": { "$ref": "#/$defs/SearchManifestPage" },
     "search_manifest_query": { "$ref": "#/$defs/SearchManifestQuery" },
+    "search_options": { "$ref": "#/$defs/SearchOptions" },
+    "search_results": {
+      "items": { "$ref": "#/$defs/SearchResult" },
+      "type": "array"
+    },
     "search_stats": { "$ref": "#/$defs/SearchIndexStats" },
     "session": { "$ref": "#/$defs/SessionInfo" },
     "store_history": { "$ref": "#/$defs/StoreHistory" },
@@ -2469,7 +2642,9 @@
     "search_document",
     "search_manifest_query",
     "search_manifest",
-    "search_stats"
+    "search_stats",
+    "search_options",
+    "search_results"
   ],
   "title": "Contracts",
   "type": "object"

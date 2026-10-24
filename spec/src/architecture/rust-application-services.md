@@ -187,6 +187,13 @@ truncate the remaining scope. Conformance covers more than 100 records in
 Memory, native FTS and degraded Turso before native retrieval intake; it does not
 select either host's native database adapter.
 
+Native lexical/structured retrieval intake uses the retained full-result fixture,
+including query grammar, scoped/property evaluation, scores, UTF-16 snippets and
+source/provider filtering. Native FTS preserves its candidate contract; complete
+table evaluation retains LN-DB-059. Query compilation and selected result buffers
+remain bounded. This intake does not qualify native semantic inference or select
+either host adapter.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

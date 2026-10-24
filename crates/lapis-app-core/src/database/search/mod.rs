@@ -1,6 +1,7 @@
 mod client;
 mod preparation;
 mod reads;
+mod retrieval;
 mod validation;
 mod writes;
 use crate::database::{encoded, invalid, store::Store};
@@ -16,6 +17,11 @@ pub(super) enum Action {
     List,
     Manifest(SearchManifestQuery),
     Stats,
+    Retrieve(
+        String,
+        lapis_app_protocol::database::search::retrieval::SearchOptions,
+        bool,
+    ),
 }
 pub(super) enum Value {
     Done,
@@ -23,10 +29,15 @@ pub(super) enum Value {
     Documents(Vec<SearchDocumentRecord>),
     Manifest(SearchManifestPage),
     Stats(SearchIndexStats),
+    Results(Vec<lapis_app_protocol::database::search::retrieval::SearchResult>),
+    Paths(Vec<String>),
 }
 impl Store {
     pub(super) async fn search(&mut self, action: Action) -> Result<Value> {
         match action {
+            Action::Retrieve(query, options, paths) => {
+                self.retrieve_search(query, options, paths).await
+            }
             Action::Get(path) => self
                 .search_rows(
                     "SELECT data_json FROM search_docs WHERE path=?",

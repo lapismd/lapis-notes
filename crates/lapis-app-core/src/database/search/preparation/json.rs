@@ -1,7 +1,7 @@
 use serde_json::Value;
 
 /// JSON.stringify-compatible number and object-key order for metadata text.
-pub(super) fn stringify(value: &Value) -> String {
+pub(in crate::database::search) fn stringify(value: &Value) -> String {
     match value {
         Value::Array(items) => format!(
             "[{}]",

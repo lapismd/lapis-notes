@@ -52,3 +52,30 @@ fn search_dtos_reject_native_paths_sql_and_unknown_nested_fields() {
         assert!(serde_json::from_value::<SearchManifestQuery>(query).is_err());
     }
 }
+
+#[test]
+fn retrieval_dtos_retain_full_results_and_reject_invalid_options() {
+    use lapis_app_protocol::database::search::retrieval::{SearchOptions, SearchResult};
+    let fixture: Value = serde_json::from_str(include_str!(
+        "../../../packages/api/src/lib/__tests__/fixtures/search-retrieval.json"
+    ))
+    .unwrap();
+    for case in fixture["cases"].as_array().unwrap() {
+        let options: SearchOptions = serde_json::from_value(case["options"].clone()).unwrap();
+        assert_eq!(serde_json::to_value(options).unwrap(), case["options"]);
+        let results: Vec<SearchResult> = serde_json::from_value(case["turso"].clone()).unwrap();
+        assert_eq!(
+            normalized(serde_json::to_value(results).unwrap()),
+            normalized(case["turso"].clone())
+        );
+    }
+    for bad in [
+        json!({"sql":"SELECT *"}),
+        json!({"databasePath":"/tmp/other.db"}),
+        json!({"mode":"execute"}),
+        json!({"limit":-1}),
+        json!({"snippetLength":1.5}),
+    ] {
+        assert!(serde_json::from_value::<SearchOptions>(bad).is_err())
+    }
+}

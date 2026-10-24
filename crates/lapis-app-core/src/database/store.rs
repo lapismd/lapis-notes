@@ -75,6 +75,7 @@ impl Store {
             .execute_batch(include_str!("search/schema.sql"))
             .await
             .map_err(engine)?;
+        connection.execute_batch("CREATE INDEX IF NOT EXISTS search_docs_fts ON search_docs USING fts (name,path,content,tags,metadata_text) WITH (weights = 'name=2.0,path=1.5,content=1.0,tags=1.5,metadata_text=1.0')").await.map_err(engine)?;
         let store = Self {
             connection,
             _database: database,

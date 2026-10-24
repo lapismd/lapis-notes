@@ -4,6 +4,43 @@ use crate::services::Result;
 use lapis_app_protocol::database::search::{records::SearchDocumentRecord, *};
 
 impl Database {
+    pub async fn search_documents(
+        &self,
+        query: &str,
+        options: retrieval::SearchOptions,
+    ) -> Result<Vec<retrieval::SearchResult>> {
+        validation::query_options(&options)?;
+        match self
+            .submit(Operation::Search(Action::Retrieve(
+                query.into(),
+                options,
+                false,
+            )))
+            .await?
+        {
+            Output::Search(Value::Results(rows)) => Ok(rows),
+            _ => unreachable!("matching worker output"),
+        }
+    }
+    pub async fn search_document_paths(
+        &self,
+        query: &str,
+        options: retrieval::SearchOptions,
+    ) -> Result<Vec<String>> {
+        validation::query_options(&options)?;
+        match self
+            .submit(Operation::Search(Action::Retrieve(
+                query.into(),
+                options,
+                true,
+            )))
+            .await?
+        {
+            Output::Search(Value::Paths(paths)) => Ok(paths),
+            _ => unreachable!("matching worker output"),
+        }
+    }
+
     /// Normalize raw domain records before atomic publication. Native semantic
     /// inference remains a separate, explicitly configured service boundary.
     pub async fn upsert_search_document(&self, record: SearchDocumentRecord) -> Result<()> {

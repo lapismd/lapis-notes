@@ -86,7 +86,7 @@ fn numeric(value: &Value, text: &str) -> turso::Value {
         number(text)
     }
 }
-fn number(value: &str) -> turso::Value {
+pub(in crate::database) fn number(value: &str) -> turso::Value {
     let value = value.trim_matches(|c: char| {
         matches!(c,
             '\u{0009}'..='\u{000d}' | '\u{0020}' | '\u{00a0}' | '\u{1680}' |
@@ -126,7 +126,7 @@ fn radix(s: &str, base: u32) -> Option<f64> {
         c.to_digit(base).map(|v| n * f64::from(base) + f64::from(v))
     })
 }
-pub(super) fn js_string(value: &Value) -> String {
+pub(in crate::database) fn js_string(value: &Value) -> String {
     match value {
         Value::Null => "null".into(),
         Value::String(s) => s.clone(),

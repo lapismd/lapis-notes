@@ -47,6 +47,15 @@ before ranking and applying the final result limit. Provider and path predicates
 MAY narrow candidates only when preserving the complete query's result
 membership and ordering. Path-only Search MUST retain the same final results.
 
+## LN-DB-060 — Unicode-safe Search snippets
+
+<a id="ln-db-060"></a>
+
+**Requirement.** Clipped Search snippets MUST retain complete Unicode scalars at
+both boundaries. Offsets and match ranges MUST remain UTF-16-based and refer to
+the retained source text. Retained and native implementations MUST share
+conformance evidence for this boundary.
+
 ## LN-DB-005 — Lexical retrieval: use Turso full-text search when available. Unsupported
 
 <a id="ln-db-005"></a>
