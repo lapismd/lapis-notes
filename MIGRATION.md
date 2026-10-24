@@ -2,7 +2,7 @@
 
 ## Shared Rust application services (2026-10-23)
 
-Last updated **2026-10-24 20:47:38 UTC**. This is the active migration tracker for the
+Last updated **2026-10-24 20:55:38 UTC**. This is the active migration tracker for the
 [shared Rust plan](RUST_CORE_MIGRATION_PLAN.md). The older Node parity roadmap
 below is superseded; its remaining rows are historical references, not another
 set of current migration tasks.
@@ -12,12 +12,13 @@ still use their existing database adapters, and the hosted application still
 uses Node. The new shared Rust database facade has not been selected by either
 host.
 
-**Current checkpoint:** native Search provider control (`e6de56ef`),
+**Current checkpoint:** [native schema lifecycle](spec/records/2026-10-24-rust-core-database-schema.md)
+is source complete at `3d5a0fcb`, with 198 ordinary Rust cases, three actual-model
+cases and full source qualification passing. Search provider control (`e6de56ef`),
 batch/rebuild (`cfb369f7`) and
 [vector/hybrid retrieval](spec/records/2026-10-24-rust-core-search-semantic.md)
-(`8fd7b926`) are source complete. The latest source passes 192 ordinary Rust
-cases, all three separately run real-model cases and full source qualification.
-Native asset installation/download remains waiting.
+(`8fd7b926`) remain source complete. Native asset installation/download remains
+waiting.
 
 [Desktop provider/archive/SQL intake](spec/records/2026-10-24-rust-core-search-provider-desktop.md)
 is Complete at `074dee3a`: all four rebuilt hidden API cases, 230 native service
@@ -26,12 +27,15 @@ all 2,000 catalog cases pass. Source `8fd7b926` also passes the exact Desktop
 file-service target and strict normal/e2e native checks. These gates qualify
 library/SQL/catalog intake; neither host selects the new database facade.
 
-**Working now:** the complete 68-method facade contract. [Native schema lifecycle](spec/records/2026-10-24-rust-core-database-schema.md) is source complete:
-all six exact cases, 198 ordinary Rust cases, three real-model cases and full
-source check/test/build/specification qualification pass. All 68 method names or
-known aliases now exist. Exact optional/default arguments, query-enhancement
-shape and transport return shapes still require conformance; name coverage is
-not compatibility or host-adoption evidence.
+**Working now:** exact argument/default and transport-result conformance for the
+complete native facade. [Schema lifecycle](spec/records/2026-10-24-rust-core-database-schema.md)
+is source complete at `3d5a0fcb`: six exact cases, 198 ordinary Rust cases,
+three real-model cases and full source check/test/build/specification lanes pass.
+[Desktop compatibility](spec/records/2026-10-24-rust-core-database-schema-desktop.md)
+passes both exact service cases and strict normal/e2e all-target Clippy.
+All 68 method names/known aliases exist, but query-enhancement shape, defaults
+and missing/null/void transport results still require conformance. Neither host
+has selected the facade.
 
 **Next:** finish facade and model/cache installation, connect both hosts, then
 qualify the retained hosted shell and backup lifetime. R2–R7 follows the agreed
@@ -127,7 +131,7 @@ hosted application acceptance.
 | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Cold Desktop native WebView gate            | Desktop `f043d1b9` with Notes `67a57aa9`: three rebuilt cold hidden-native cases; [E-CORE-005 intake](spec/records/2026-10-24-rust-core-database-desktop.md).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | Complete Desktop Rust suite                 | Latest fresh intake at Desktop `074dee3a`: all 230 native service cases pass with Notes `cfb369f7`; [provider/SQL/catalog receipt](spec/records/2026-10-24-rust-core-search-provider-desktop.md) retains its artifact scope. Later `8fd7b926` library compatibility is separate.                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| Latest native core dependency compatibility | Desktop `074dee3a` with Notes `8fd7b926`: exact file-service target (two cases) plus strict normal/e2e all-target Clippy pass. [Current intake](spec/records/2026-10-24-rust-core-search-provider-desktop.md); this does not select native semantic queries in the application.                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Latest native core dependency compatibility | Desktop `074dee3a` with Notes `3d5a0fcb`: both exact file-service cases and strict normal/e2e all-target Clippy pass. [Schema compatibility receipt](spec/records/2026-10-24-rust-core-database-schema-desktop.md); all 19 existing archive checksums verify, five Notes archives remain at `e6de56ef`. This is library compatibility, not selected native database or semantic-query adoption.                                                                                                                                                                                                                                                                                                                                                     |
 | Earlier database compatibility              | [State/history](spec/records/2026-10-24-rust-core-database-catalogue-desktop.md), [indexed metadata](spec/records/2026-10-24-rust-core-database-indexed-desktop.md), [projection writes](spec/records/2026-10-24-rust-core-projection-desktop.md), [single-row reads](spec/records/2026-10-24-rust-core-projection-row-desktop.md), [projection queries](spec/records/2026-10-24-rust-core-projection-query-desktop.md), [memory storage](spec/records/2026-10-24-rust-core-memory-storage-desktop.md), [Search storage/preparation](spec/records/2026-10-24-rust-core-search-desktop.md) and [Search retrieval](spec/records/2026-10-24-rust-core-search-retrieval-desktop.md) retain their exact source/consumer revisions in the linked records. |
 
 The [desktop review](docs/rust-core-desktop-review.md) retains existing public
