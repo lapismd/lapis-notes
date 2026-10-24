@@ -27,7 +27,8 @@ extensions have [focused Desktop compatibility](spec/records/2026-10-24-rust-cor
 the [indexed extension check](spec/records/2026-10-24-rust-core-database-indexed-desktop.md)
 also passes both native service cases. Current Desktop `14a07f6b` has
 [focused projection compatibility](spec/records/2026-10-24-rust-core-projection-desktop.md)
-with Notes `65a6c0e0`, without widening the complete-native qualification. Committed hosted
+with Notes `65a6c0e0`; its [single-row-read check](spec/records/2026-10-24-rust-core-projection-row-desktop.md)
+also passes against `c028f4f6`, without widening the complete-native qualification. Committed hosted
 branch `593abc65` has additional H03/H04 and H05 foundation evidence not integrated
 in this default. Its unfinished accepted-work change `vlvosxvo` is preserved in
 the `hosted-services` workspace. Do not treat it as qualified production code.
