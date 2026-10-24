@@ -12,6 +12,15 @@ export type HostInfo = {
   browser_auth: boolean;
 };
 export type LogoutReply = { ok: boolean };
+export type MetaCheck = { key: string; exists?: boolean; value?: unknown };
+export type MetaMutation = { key: string; value?: unknown; delete?: boolean };
+export type MetaTransaction = {
+  checks?: Array<MetaCheck>;
+  mutations: Array<MetaMutation>;
+};
+export type MetaScan = { prefix: string; after?: string; limit?: number };
+export type MetaEntry = { key: string; value: unknown };
+export type MetaPage = { entries: Array<MetaEntry>; nextCursor?: string };
 export type ManagedVault = { vault_id: string; name: string };
 export type AttachClient = { protocol_version: number };
 export type FileOptions = { mtime: number | null };

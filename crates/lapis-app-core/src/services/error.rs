@@ -10,7 +10,7 @@ impl Error {
     pub fn code(&self) -> ErrorCode {
         self.0.code
     }
-    pub(super) fn new(code: ErrorCode, message: &str) -> Self {
+    pub(crate) fn new(code: ErrorCode, message: &str) -> Self {
         Self(ServiceError {
             code,
             message: message.into(),

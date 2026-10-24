@@ -16,6 +16,18 @@ claims, detach/recovery and fenced drain. Hosts derive caller authority and atta
 clients; a work lease survives client detachment but is not a durable job receipt.
 `lapis-app-protocol` supplies the common commands and generated client contracts.
 
+`database` starts the native high-level AppDatabase facade with metadata get/set,
+prefix scans, conditional transactions and change revisions. An installation
+selects a private database directory and admitted vault UUID; no operation accepts
+SQL or a path. One bounded worker owns `<uuid>.db`, retaining the existing Turso
+metadata/change tables and JSON comparison order. Clones share admission; a
+cancelled waiter does not cancel an accepted transaction. Close fences all clones,
+drains admitted work, checkpoints and releases its native ownership lock.
+
+This foundation does not migrate the complete AppDatabase schema or connect a
+browser/desktop database adapter yet. Remaining catalogue methods and service
+intake gate the hosted shell; native indexing/Search remain R3.
+
 Run `pnpm test:rust-core`, `pnpm check:rust-core` and `pnpm build:rust-core` from
 the Notes root. Each checkout owns `.local/rust-core-target`; the build wrapper
 refuses a target override and requires 30 GiB free. No cleanup is automatic.

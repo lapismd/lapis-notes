@@ -399,6 +399,75 @@
       "required": ["vault_id", "name"],
       "type": "object"
     },
+    "MetaCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "exists": { "type": ["boolean", "null"] },
+        "key": { "type": "string" },
+        "value": true
+      },
+      "required": ["key"],
+      "type": "object"
+    },
+    "MetaEntry": {
+      "additionalProperties": false,
+      "properties": { "key": { "type": "string" }, "value": true },
+      "required": ["key", "value"],
+      "type": "object"
+    },
+    "MetaMutation": {
+      "additionalProperties": false,
+      "properties": {
+        "delete": { "default": false, "type": "boolean" },
+        "key": { "type": "string" },
+        "value": true
+      },
+      "required": ["key"],
+      "type": "object"
+    },
+    "MetaPage": {
+      "additionalProperties": false,
+      "properties": {
+        "entries": {
+          "items": { "$ref": "#/$defs/MetaEntry" },
+          "type": "array"
+        },
+        "nextCursor": { "type": ["string", "null"] }
+      },
+      "required": ["entries"],
+      "type": "object"
+    },
+    "MetaScan": {
+      "additionalProperties": false,
+      "properties": {
+        "after": { "default": null, "type": ["string", "null"] },
+        "limit": {
+          "default": null,
+          "format": "uint",
+          "minimum": 0,
+          "type": ["integer", "null"]
+        },
+        "prefix": { "type": "string" }
+      },
+      "required": ["prefix"],
+      "type": "object"
+    },
+    "MetaTransaction": {
+      "additionalProperties": false,
+      "properties": {
+        "checks": {
+          "default": [],
+          "items": { "$ref": "#/$defs/MetaCheck" },
+          "type": "array"
+        },
+        "mutations": {
+          "items": { "$ref": "#/$defs/MetaMutation" },
+          "type": "array"
+        }
+      },
+      "required": ["mutations"],
+      "type": "object"
+    },
     "Outcome": {
       "oneOf": [
         {
@@ -695,6 +764,9 @@
     "host": { "$ref": "#/$defs/HostInfo" },
     "login": { "$ref": "#/$defs/LoginRequest" },
     "logout": { "$ref": "#/$defs/LogoutReply" },
+    "meta_page": { "$ref": "#/$defs/MetaPage" },
+    "meta_scan": { "$ref": "#/$defs/MetaScan" },
+    "meta_transaction": { "$ref": "#/$defs/MetaTransaction" },
     "reply": { "$ref": "#/$defs/Reply" },
     "request": { "$ref": "#/$defs/Request" },
     "session": { "$ref": "#/$defs/SessionInfo" },
@@ -709,7 +781,10 @@
     "login",
     "session",
     "host",
-    "logout"
+    "logout",
+    "meta_transaction",
+    "meta_scan",
+    "meta_page"
   ],
   "title": "Contracts",
   "type": "object"

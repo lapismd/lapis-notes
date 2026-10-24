@@ -1,4 +1,4 @@
-use lapis_app_protocol::{browser::*, files::*, *};
+use lapis_app_protocol::{browser::*, database::*, files::*, *};
 use schemars::JsonSchema;
 use serde_json::json;
 use ts_rs::{Config, TS};
@@ -14,6 +14,9 @@ pub struct Contracts {
     pub session: SessionInfo,
     pub host: HostInfo,
     pub logout: LogoutReply,
+    pub meta_transaction: MetaTransaction,
+    pub meta_scan: MetaScan,
+    pub meta_page: MetaPage,
 }
 fn main() {
     let config = Config::default();
@@ -22,6 +25,12 @@ fn main() {
         SessionInfo::decl(&config),
         HostInfo::decl(&config),
         LogoutReply::decl(&config),
+        MetaCheck::decl(&config),
+        MetaMutation::decl(&config),
+        MetaTransaction::decl(&config),
+        MetaScan::decl(&config),
+        MetaEntry::decl(&config),
+        MetaPage::decl(&config),
         ManagedVault::decl(&config),
         AttachClient::decl(&config),
         FileOptions::decl(&config),
@@ -51,8 +60,7 @@ fn main() {
             .collect::<Vec<_>>()
             .join("\n")
     );
-    println!(
-        "{}",
-        json!({"schema": schemars::schema_for!(Contracts), "typescript": typescript})
-    );
+    let mut schema = schemars::schema_for!(Contracts).to_value();
+    schema.sort_all_objects();
+    println!("{}", json!({"schema": schema, "typescript": typescript}));
 }

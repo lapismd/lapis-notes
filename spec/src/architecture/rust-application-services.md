@@ -82,6 +82,16 @@ cancelling accepted work. Bearer access remains an explicit operator option.
 The existing hosted AppDatabase method allowlist remains required; browser
 intake must not replace it with a raw SQL interface.
 
+The native AppDatabase facade starts with the existing high-level metadata
+catalogue: get/set, bounded prefix scans, conditional transactions and change
+revisions. It retains the existing `app_meta`, `app_revision` and `app_changes`
+tables without marking the full database schema migrated. One bounded native
+worker owns each opened database. Accepted operations outlive their waiters;
+close fences admission, drains accepted operations and checkpoints. Conditional
+checks, mutations and their change revision commit in one native transaction.
+No browser endpoint exposes SQL or a database path. The full catalogue and its
+vault-lifetime integration remain prerequisites for the R1.3 hosted shell.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

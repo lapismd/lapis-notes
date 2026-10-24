@@ -7,6 +7,8 @@ import {
   type ManagedVault,
   type LoginRequest,
   type SessionInfo,
+  type MetaTransaction,
+  type MetaPage,
 } from "../bindings/protocol.js";
 const command = {
   kind: "write_text",
@@ -77,3 +79,15 @@ const claimedIdentity: LoginRequest = {
   session_id: "untrusted",
 };
 void [login, session, claimedIdentity];
+
+const metadata: MetaTransaction = {
+  checks: [{ key: "optional", exists: false }],
+  mutations: [{ key: "nullable", value: null }, { key: "deleted" }],
+};
+const page: MetaPage = { entries: [], nextCursor: "plugin:last" };
+const metadataSql: MetaTransaction = {
+  mutations: [],
+  // @ts-expect-error Metadata transactions never receive SQL.
+  sql: "DROP TABLE app_meta",
+};
+void [metadata, page, metadataSql];

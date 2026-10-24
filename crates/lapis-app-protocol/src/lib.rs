@@ -6,6 +6,7 @@ use ts_rs::TS;
 use uuid::Uuid;
 
 pub mod browser;
+pub mod database;
 pub mod files;
 
 pub const PROTOCOL_MAJOR: u32 = 3;
