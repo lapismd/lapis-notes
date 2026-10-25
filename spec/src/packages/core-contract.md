@@ -9,6 +9,10 @@ The private native core exposes bounded archive extraction and immutable ZIP
 snapshots under LN-CORE-004/007. Hosts own publication and transport; the engine
 accepts only an empty provisional root and regular content, retaining `.lapis`.
 
+R1.3.11 retains Web's existing public App-owned vault-change service. Starting it
+before ready and draining it before host teardown restores internal file-view
+projection; no API export, alternative file writer or scheduler is added.
+
 UI's existing public theme export supplies shared search-highlight defaults.
 Dark-mode contrast is qualified under LN-UI-020 on workspace/sidebar normal,
 hover and active rows, without a consumer override or an additional export.

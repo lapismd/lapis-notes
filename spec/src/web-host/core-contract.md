@@ -12,6 +12,12 @@ controls against the selected Rust host, with cookie-authenticated readonly
 export and Origin/CSRF-protected uploads. Installed delivery reuses the public asset contract and admitted Rust client
 URLs; installation transactions and recovery retain R6.
 
+R1.3.11 retains the App-owned vault-change lifecycle before exposing a ready Web
+workspace. That existing service projects internal rename/move into open editors;
+normal disposal and failed-startup retry drain it before the workspace host.
+PWA, Node and Rust sessions share this lifecycle. Native unattended indexing
+remains R3; this does not introduce another watcher or scheduler implementation.
+
 The Design Core dependency refresh consumes released `0.5.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.
@@ -23,6 +29,10 @@ That scenario runs in the dedicated Node server browser config; the PWA config
 continues to execute its complete independent browser suite. Both jobs remain
 blocking, and server acceptance checks a read-only Node 24 container with no Deno
 executable before editing and retained-volume restart.
+
+The PWA runner excludes both hosted fixture families. The dedicated Rust runner
+owns all Rust shell and file-action cases; those cases require a separately
+built Rust renderer and service rather than the PWA build.
 
 Browser acceptance invokes the CLI entry declared by the Web package's pinned
 `@playwright/test` dependency. PWA and hosted runners use that same installed

@@ -11,6 +11,10 @@ streaming. Node transfer behavior remains the baseline until Rust cutover. Insta
 delivery follows the extracted native verifier and authenticated Rust adapters;
 R6 retains native installation transaction/recovery.
 
+R1.3.11 starts/drains the shared Web vault-change lifecycle in Node and Rust
+profiles. Internal file-view projection reuses the existing App service; the
+Node RPC, watcher transport and source engines remain unchanged.
+
 The Node integration retains the current shared `.lapis` state directory under
 LN-ARCH-140 and LN-PKG-165, including browser and authenticated plugin-asset
 lookups. It preserves newer API workspace, conditional-write and owned-lifecycle

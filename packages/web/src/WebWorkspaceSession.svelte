@@ -292,6 +292,7 @@
     disposeCoordinationListener = null;
     disposeDatabaseStatus = null;
     disposeVaultTransferSettings = null;
+    await app.vaultChanges.stop().catch(() => undefined);
     await app.workspace.disposeWorkspaceHost().catch(() => undefined);
     await app.metadataCache.dispose().catch(() => undefined);
     for (const plugin of [...app.plugins.corePlugins].reverse()) {
@@ -349,6 +350,7 @@
       await app.workspace.loadLayout();
       recentVaults = await listProfiles();
       registerDatabaseStatus();
+      await app.vaultChanges.start();
       if (disposed) return;
       setTask(activeTask, "complete");
       ready = true;
@@ -406,6 +408,7 @@
     try {
       if (persistLayout) await writeWorkspaceLayout();
       ready = false;
+      await app.vaultChanges.stop();
       await app.workspace.disposeWorkspaceHost();
       stopMetadataTracking?.();
       stopMetadataTracking = null;

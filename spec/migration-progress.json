@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 05:45:52 UTC",
+  "updated": "2026-10-25 06:05:58 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -165,9 +165,9 @@
       "id": "R1.3.11",
       "area": "Host adapters",
       "work": "Same existing file actions through both application shells",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "Final native/hosted UI acceptance after the integrations above."
+      "detail": "[Retained shell file actions](spec/records/2026-10-25-rust-shell-file-actions.md): hosted qualification is complete. Both exact Explorer cases (11.2s), all seven cold Rust journeys (48.9s), all twelve PWA cases (1.5m), Node24 hosted editing/sharing/restart (20.2s), 283 ordinary Rust cases/doctests, twenty package check/test tasks, eleven builds and all 261 catalog cases pass. Desktop native completion and its database/backup commit still await the recorded pre-existing Markdown image failure disposition; the aggregate task remains Working."
     },
     {
       "id": "R3.1.1",

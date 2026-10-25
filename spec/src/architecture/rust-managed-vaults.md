@@ -63,6 +63,11 @@ export roundtrip, authenticated downloads and cold import recovery. Installed
 plugin delivery retains R1.3.9.3/R6. The Node serving baseline remains until R7;
 this intake does not claim the final cutover.
 
+R1.3.11 retains the ordinary Explorer and file-manager actions through both
+shells. Hosted UI acceptance checks exclusive creation, collision-preserving
+rename/move, saved editor identity, cold layout and byte-preserving local trash.
+Desktop native acceptance and its pending consumer commit remain separate.
+
 R1.3.9.3 retains the current signed installer and Plugins presentation. The
 shared native asset verifier is extracted from Desktop; hosts retain URL and
 caller admission. Each asset read verifies the current installed record,

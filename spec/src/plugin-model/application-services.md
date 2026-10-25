@@ -7,6 +7,10 @@ admissions, while the existing client installer retains signature/trust and
 plugin lifecycle. R1.3.9.3 qualifies delivery separately from R6 transactions.
 Generated capabilities admit vault transfers without selecting Node.
 
+Web hosts own the existing vault-change lifecycle before ready and through
+teardown. File views retain rename/move projection through that owned App;
+plugins need no host-specific observer or replacement file-management callback.
+
 LN-SRCH-051 gives plugins disposable result-source registrations. The Plugin helper namespaces their IDs and removes their invalidation subscriptions on unload; it grants no additional source access.
 
 The Sync flush port uses the owning App's complete workspace under LN-ARCH-128.
