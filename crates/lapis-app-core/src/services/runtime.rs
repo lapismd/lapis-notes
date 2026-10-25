@@ -13,6 +13,7 @@ pub struct Runtime {
     registry: Mutex<Registry>,
     storage: Option<Arc<DatabaseStorage>>,
     backup: Option<Arc<super::BackupStorage>>,
+    turns: Option<Arc<super::TurnStorage>>,
 }
 #[derive(Default)]
 struct Registry {
@@ -21,6 +22,10 @@ struct Registry {
     roots: HashMap<(u64, u64), Uuid>,
 }
 impl Runtime {
+    pub fn with_turns(mut self, storage: super::TurnStorage) -> Self {
+        self.turns = Some(Arc::new(storage));
+        self
+    }
     /// Select the existing backup engine using native installation storage.
     pub fn with_backup(mut self, storage: super::BackupStorage) -> Self {
         self.backup = Some(Arc::new(storage));
@@ -57,6 +62,9 @@ impl Runtime {
         if let Some(storage) = &self.backup {
             storage.validate_vault(&root)?;
         }
+        if let Some(storage) = &self.turns {
+            storage.validate_vault(&root)?;
+        }
         let identity = root.physical_identity()?;
         let mut registry = self.registry.lock().map_err(|_| Error::closed())?;
         if registry.closing {
@@ -76,6 +84,7 @@ impl Runtime {
         }
         let mut vault = VaultService::new(id, root, self.storage.clone());
         vault.backup_storage = self.backup.clone();
+        vault.turn_storage = self.turns.clone();
         let vault = Arc::new(vault);
         registry.roots.insert(identity, id);
         registry.vaults.insert(id, vault.clone());

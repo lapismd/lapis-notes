@@ -46,6 +46,7 @@ fn input() -> TurnInput {
         scope_dir: "./Notes/".into(),
         prompt: "Authored café 📝".into(),
         context: Some("Separate untrusted context".into()),
+        options: Default::default(),
     }
 }
 fn fresh(journal: &mut TurnJournal, input: TurnInput) -> lapis_app_core::turns::DispatchClaim {
@@ -139,6 +140,16 @@ fn live_writer_is_exclusive_and_vault_content_cannot_be_dispatch_authority() {
     fs::create_dir(&nested).unwrap();
     assert!(TurnJournal::open(&nested, f.vault, &f.content).is_err());
     assert!(TurnJournal::open(&f.profile, Uuid::nil(), &f.content).is_err());
+    let parent = tempfile::tempdir().unwrap();
+    let id = Uuid::new_v4();
+    let content = parent.path().join(id.to_string());
+    fs::create_dir(&content).unwrap();
+    let content = VaultRoot::open(&content).unwrap();
+    assert!(
+        TurnJournal::open(parent.path(), id, &content).is_err(),
+        "a private journal cannot resolve inside an admitted vault"
+    );
+    assert!(!content.path().join(".owner.lock").exists());
 }
 
 #[test]

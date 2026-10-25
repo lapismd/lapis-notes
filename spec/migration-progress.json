@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 06:55:01 UTC",
+  "updated": "2026-10-25 07:43:52 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -29,9 +29,9 @@
       "id": "R1.3",
       "area": "Roadmap",
       "work": "Both host adapters",
-      "status": "Working",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "Database adoption, existing hosted shell and backup detach/Quit acceptance. See the host checklist."
+      "detail": "[Both-host intake](spec/records/2026-10-25-rust-desktop-intake.md): HTTP and retained hosted shell gates plus committed Desktop efa44bb0 database, backup detach/Quit and native file-action qualification. The separate existing Markdown attachment defect has explicit user acceptance; R2-R7 and final cutover remain open."
     },
     {
       "id": "R2",
@@ -39,7 +39,31 @@
       "work": "Durable conversation",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Native turn-admission source](spec/records/2026-10-25-rust-turn-admission.md) is qualified: ten focused and 293 ordinary Rust cases/doctests pass, with full check/build/specification gates. The receipt retains actual process-loss tests, Clippy/capacity repairs and cached package scope. Native ACP execution, existing portable conversation files, both host adapters, chat and real-provider/cold acceptance remain required; R2 stays Working and the separate Desktop consumer disposition is not waived."
+      "detail": "R2.1 native journal/execution is Source complete. R2.2 typed host/chat adoption and R2.3 actual provider/detach/cold recovery remain Waiting. Source fixtures do not qualify either application; the original R2 gate remains Working."
+    },
+    {
+      "id": "R2.1",
+      "area": "Durable conversation",
+      "work": "Native admission and supervised execution",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Qualified native execution](spec/records/2026-10-25-rust-native-turn.md): ten execution plus ten journal cases, all 303 ordinary Rust cases/doctests, strict/full source check/test/build and all specification lanes pass. Lifecycle journal release and private-root overlap regressions each move from one failure to zero. Six intentional ignores retain their separate scope. The unchanged AI backend uses an isolated protocol peer; host/chat/provider acceptance remains R2.2/R2.3."
+    },
+    {
+      "id": "R2.2",
+      "area": "Durable conversation",
+      "work": "Typed host adapters and existing chat adoption",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "After R2.1: generated turn DTOs, admitted HTTP/Tauri adapters and the existing public chat observe the native owner. Keep launch paths/environment native-only and avoid a second renderer writer or scheduler."
+    },
+    {
+      "id": "R2.3",
+      "area": "Durable conversation",
+      "work": "Real-provider detach and cold application recovery",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-007",
+      "detail": "After R2.2: complete an actual provider turn without a viewing client, reconnect and restart both applications with retained conversation files and no uncertain replay. Fixture-only source checks cannot qualify this original R2 gate."
     },
     {
       "id": "R3",
@@ -47,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native database, model/cache and vault-owned database lifetime are source-qualified. Host adoption and unattended metadata/projection/Search/history indexing remain."
+      "detail": "Native database/model/cache and vault lifetime are source-qualified; HTTP and Desktop facade adoption are complete under R1.3.8. Unattended metadata/projection/Search/history indexing remains R3.2."
     },
     {
       "id": "R4",
@@ -141,9 +165,9 @@
       "id": "R1.3.8",
       "area": "Host adapters",
       "work": "Tauri and HTTP database adapters",
-      "status": "Waiting",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "HTTP and Desktop database/channel behavior pass. Desktop also passes 414 renderer/governance, 744 AI, 234 native service, four hidden API and all 2000 catalog cases; normal/e2e strict checks and bundle audit pass. Its native UI lane has 27 passes and one pre-existing Markdown image failure. Explicit user disposition or owning-package qualification is pending before the consumer commit."
+      "detail": "[Committed Desktop efa44bb0 intake](spec/records/2026-10-25-rust-desktop-intake.md) and the separately qualified HTTP database adapter pass admission, native channels, persistence and the retained provider. All 2000 catalog cases pass. The native UI result stays 27 pass / one pre-existing Markdown image failure, explicitly accepted as non-blocking for this commit; its source repair remains pending."
     },
     {
       "id": "R1.3.9",
@@ -157,17 +181,17 @@
       "id": "R1.3.10",
       "area": "Host adapters",
       "work": "Automatic backup after client detach and controlled Quit",
-      "status": "Waiting",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "[Shared backup lifetime](spec/records/2026-10-25-rust-backup-lifetime.md) and [native host controls](spec/records/2026-10-25-rust-backup-commands.md) are committed/source-qualified at 6f637449. Desktop E-CORE-017 qualifies the local intake: 235 native, 416 renderer/governance, 744 AI, all 2000 catalog, six hidden native API and eleven original lifecycle cases pass. Strict normal/e2e checks, types, both builds, specification and the zero-automation-marker bundle audit pass. Its consumer commit waits for the database slice Markdown image-failure disposition or qualified owning-package repair; backup checks are complete."
+      "detail": "[Shared native/HTTP backup](spec/records/2026-10-25-rust-backup-commands.md) and [Desktop efa44bb0](spec/records/2026-10-25-rust-desktop-intake.md) qualify capture after detach, final Quit, explicit disable/restart and failure preflight. All 235 native, 416 renderer/governance, 744 AI, 2000 catalog, six hidden API and eleven original lifecycle cases pass. Separate pre-existing Markdown exception explicitly accepted; provider/platform gates remain separate."
     },
     {
       "id": "R1.3.11",
       "area": "Host adapters",
       "work": "Same existing file actions through both application shells",
-      "status": "Waiting",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "[Both-shell file-action checkpoint](spec/records/2026-10-25-rust-native-file-actions.md): hosted qualification is committed at fe604931; all seven Rust browser, twelve PWA and Node24 hosted journeys pass. On Desktop tnnyuvsv, both actual native file-action journeys, seven asset cases, strict normal/e2e checks, both fresh bundles and the zero-automation ordinary audit pass. Acceptance evidence is ready; the consumer commit still requires explicit disposition or source-qualified repair of the separate pre-existing Markdown image failure. The aggregate gate is not Complete."
+      "detail": "[Both-shell file actions](spec/records/2026-10-25-rust-native-file-actions.md) and [committed Desktop efa44bb0](spec/records/2026-10-25-rust-desktop-intake.md): seven Rust-hosted browser, twelve PWA and one Node24 journey pass; both native file-action journeys, seven asset cases, strict normal/e2e checks, both bundles and ordinary audit pass. The separate existing Markdown failure is explicitly accepted for this intake."
     },
     {
       "id": "R3.1.1",

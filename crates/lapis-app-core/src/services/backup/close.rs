@@ -17,6 +17,11 @@ impl VaultService {
             state.phase = VaultPhase::Closing;
             state.backup_pending = true;
             while state.work != 0 {
+                if self.turns_failed() {
+                    state.backup_pending = false;
+                    self.changed.notify_all();
+                    return Err(Error::busy());
+                }
                 state = self.changed.wait(state).map_err(|_| Error::closed())?;
             }
         }

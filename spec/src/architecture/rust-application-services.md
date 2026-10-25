@@ -10,7 +10,7 @@ separate M-series tracker points here for shared-core activity. R3.1.18 native
 runtime/model installation has [independent source evidence](../../records/2026-10-24-rust-core-model-cache.md).
 Source database conformance and vault lifetime are qualified. HTTP and retained
 Web staging qualify R1.3.9: [managed vaults](rust-managed-vaults.md), bounded
-transfers and signed plugins. Tauri adoption and both-host acceptance remain.
+transfers and signed plugins. [Committed Tauri intake](../../records/2026-10-25-rust-desktop-intake.md) completes R1.3; R2–R7 remain.
 
 R1.1 extracts Desktop's existing vault file engine into `lapis-app-core` and
 updates native callers directly. The low-level engine retains the caller-owned
@@ -38,7 +38,7 @@ check file identity so hard-link aliases cannot bypass that guard.
 Protocol major three replaces the previous hosted control plane only when both
 host adapters qualify in R1.3. Rust types generate the JSON schema and TypeScript
 bindings. R1.2 establishes in-process ownership and transport conformance, not
-[durable turn admission](rust-turn-admission.md), HTTP or final hosted cutover.
+[durable turn services](rust-turn-admission.md), HTTP or final hosted cutover.
 
 R1.3 stages the existing portable shell file actions through that same owner.
 Reads retain their bounded text/binary/range contracts; mutations retain mtime,
@@ -59,8 +59,8 @@ match the configured public origin; no cross-origin permission is granted.
 Client attachments survive separate requests, and explicit detach retains dirty
 claims and accepted work. Core errors remain typed and omit native paths.
 Blocking file operations run outside the async executor. Bounded JSON commands
-qualify the initial adapter only; streamed bodies/resources, existing browser
-login/shell intake, SSE and native backup lifetime remain later R1.3/R7 gates.
+qualify the initial adapter only; later R1.3 receipts qualify streamed bodies,
+browser login/shell and native backup. SSE and final delivery remain R7.
 
 Hosted attachment leases expire after five minutes without an admitted command,
 byte transfer or explicit heartbeat. Expiry detaches only the client; the vault,
@@ -136,7 +136,7 @@ policy. Calls retain the high-level method catalogue and tagged JavaScript value
 with a 32 MiB request bound; ordinary JSON commands keep their 2 MiB bound.
 Detaching a browser client does not close its shared database. Neither SQL nor
 storage/model paths become request inputs. Existing shell and Tauri adoption
-remain separate acceptance gates.
+have separate passing R1.3 acceptance receipts.
 
 R1.3.8 clients subscribe through the admitted service to its bounded committed
 database changes. A passive receiver owns neither a work lease nor database

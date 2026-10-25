@@ -18,6 +18,8 @@ pub struct VaultService {
     pub(super) backup_storage: Option<Arc<super::BackupStorage>>,
     pub(super) backup: Mutex<Option<Arc<super::backup::Owner>>>,
     pub(super) close_gate: Mutex<()>,
+    pub(super) turn_storage: Option<Arc<super::TurnStorage>>,
+    pub(super) turns: Mutex<Option<Arc<super::turns::Owner>>>,
 }
 pub(super) struct Editor {
     pub client: Uuid,
@@ -96,6 +98,8 @@ impl VaultService {
             backup_storage: None,
             backup: Mutex::new(None),
             close_gate: Mutex::new(()),
+            turn_storage: None,
+            turns: Mutex::new(None),
         }
     }
     pub fn id(&self) -> Uuid {
@@ -120,6 +124,9 @@ impl VaultService {
     /// Blocking drain; async hosts call this outside their worker executor.
     pub fn close(&self) -> Result<()> {
         let _close = self.close_gate.lock().map_err(|_| Error::closed())?;
+        if self.turns_failed() {
+            return Err(Error::busy());
+        }
         if self.backup_storage.is_some() {
             self.finish_backup()?;
         }
@@ -129,12 +136,18 @@ impl VaultService {
         }
         state.begin_close();
         while state.phase != VaultPhase::Closed {
+            if self.turns_failed() {
+                return Err(Error::busy());
+            }
             state = self
                 .changed
                 .wait(state)
                 .map_err(|_| Error::new(ErrorCode::Io, "Vault drain is unavailable"))?;
         }
-        match state.database_error.clone() {
+        let database_error = state.database_error.clone();
+        drop(state);
+        self.retire_turns()?;
+        match database_error {
             Some(error) => Err(Error(error)),
             None => Ok(()),
         }

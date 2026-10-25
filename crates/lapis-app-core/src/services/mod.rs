@@ -13,6 +13,7 @@ mod protocol;
 mod runtime;
 mod state;
 mod streams;
+mod turns;
 mod work;
 
 pub use backup::BackupStorage;
@@ -22,4 +23,5 @@ pub use error::{Error, Result};
 pub use runtime::Runtime;
 pub use state::VaultService;
 pub use streams::FileSnapshot;
+pub use turns::{AgentPolicy, TurnStorage};
 pub use work::Work;

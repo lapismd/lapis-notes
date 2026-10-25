@@ -9,12 +9,33 @@ pub const MAX_RECORDS: usize = 4096;
 
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
+pub struct TurnOptions {
+    pub model: Option<String>,
+    pub effort: Option<String>,
+    pub mode: String,
+    pub max_duration_ms: u64,
+}
+impl Default for TurnOptions {
+    fn default() -> Self {
+        Self {
+            model: None,
+            effort: None,
+            mode: "ask".into(),
+            max_duration_ms: 60_000,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct TurnInput {
     pub request_id: Uuid,
     pub target_id: String,
     pub scope_dir: String,
     pub prompt: String,
     pub context: Option<String>,
+    #[serde(default)]
+    pub options: TurnOptions,
 }
 
 impl TurnInput {
@@ -25,6 +46,17 @@ impl TurnInput {
             || self.target_id.chars().any(char::is_control)
             || self.prompt.trim().is_empty()
             || self.prompt.len() > MAX_PROMPT_BYTES
+            || self.options.max_duration_ms == 0
+            || self.options.max_duration_ms > 86_400_000
+            || self.options.mode.trim().is_empty()
+            || [
+                Some(&self.options.mode),
+                self.options.model.as_ref(),
+                self.options.effort.as_ref(),
+            ]
+            .into_iter()
+            .flatten()
+            .any(|s| s.is_empty() || s.len() > 256 || s.chars().any(char::is_control))
             || self
                 .context
                 .as_ref()

@@ -9,6 +9,7 @@ description = "Transport-independent native application services for Lapis Notes
 
 [dependencies]
 lapis-app-protocol = { path = "../lapis-app-protocol" }
+lapis-ai-service = { path = "../../../lapis-ai/crates/lapis-ai-service", version = "0.1.0" }
 cap-std = "=4.0.3"
 cap-tempfile = "=4.0.3"
 libc = "0.2"

@@ -4,8 +4,9 @@ mod types;
 use crate::vault::VaultRoot;
 use std::{io, path::Path};
 use storage::Storage;
-use types::{MAX_OUTPUT_BYTES, MAX_RECORDS, invalid, now};
-pub use types::{TurnInput, TurnOutcome, TurnPhase, TurnRecord, TurnSummary};
+pub(crate) use types::MAX_OUTPUT_BYTES;
+use types::{MAX_RECORDS, invalid, now};
+pub use types::{TurnInput, TurnOptions, TurnOutcome, TurnPhase, TurnRecord, TurnSummary};
 use uuid::Uuid;
 
 pub struct TurnJournal {
@@ -32,6 +33,9 @@ pub enum Admission {
 }
 
 impl TurnJournal {
+    pub(crate) fn retire(&mut self) -> io::Result<()> {
+        self.storage.retire()
+    }
     /// Native installation inputs only. Recovery changes state, never dispatches.
     pub fn open(directory: &Path, vault: Uuid, content: &VaultRoot) -> io::Result<Self> {
         let journal = Self {
@@ -185,5 +189,21 @@ impl TurnJournal {
                     .ok_or_else(|| invalid("Native turn vanished during query"))
             })
             .collect()
+    }
+    /// Native owner loss can retire authority, but never create another claim.
+    pub(crate) fn interrupt(&mut self, id: Uuid, reason: &str) -> io::Result<TurnRecord> {
+        let (mut record, bytes) = self
+            .storage
+            .read(id)?
+            .ok_or_else(|| invalid("Native turn is unavailable"))?;
+        record.phase = match record.phase {
+            TurnPhase::Accepted => TurnPhase::Interrupted,
+            TurnPhase::Running => TurnPhase::Unknown,
+            _ => return Ok(record),
+        };
+        record.failure_code = Some(reason.into());
+        record.updated_at_ms = record.updated_at_ms.max(now()?);
+        self.storage.write(&record, Some(&bytes))?;
+        Ok(record)
     }
 }

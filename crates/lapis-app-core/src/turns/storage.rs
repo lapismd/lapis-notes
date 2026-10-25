@@ -12,6 +12,7 @@ pub(super) struct Storage {
     profile: VaultRoot,
     root: VaultRoot,
     lock: File,
+    retired: bool,
     pub vault: Uuid,
     pub generation: Uuid,
 }
@@ -25,7 +26,8 @@ impl Storage {
         }
         content.verify_physical_root()?;
         let profile = VaultRoot::open(directory)?;
-        if profile.path().starts_with(content.path()) {
+        if profile.path().starts_with(content.path()) || content.path().starts_with(profile.path())
+        {
             return Err(invalid(
                 "Native turn authority must remain outside vault content",
             ));
@@ -49,6 +51,7 @@ impl Storage {
             profile,
             root,
             lock,
+            retired: false,
             vault,
             generation: Uuid::new_v4(),
         };
@@ -57,6 +60,12 @@ impl Storage {
     }
     pub fn verify(&self) -> io::Result<()> {
         use std::os::unix::fs::MetadataExt as _;
+        if self.retired {
+            return Err(io::Error::new(
+                io::ErrorKind::NotConnected,
+                "Native turn writer is retired",
+            ));
+        }
         self.profile.verify_physical_root()?;
         self.root.verify_physical_root()?;
         let current = self.root.entry_metadata(".owner.lock")?;
@@ -66,6 +75,14 @@ impl Storage {
                 io::ErrorKind::PermissionDenied,
                 "Native turn writer changed",
             ));
+        }
+        Ok(())
+    }
+    pub fn retire(&mut self) -> io::Result<()> {
+        if !self.retired {
+            self.verify()?;
+            self.lock.unlock()?;
+            self.retired = true;
         }
         Ok(())
     }

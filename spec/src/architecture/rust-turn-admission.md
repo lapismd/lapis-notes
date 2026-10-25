@@ -6,6 +6,7 @@ existing chat adapters. This source boundary alone does not complete R2 or
 authorize a provider, native tool, executable or host path.
 
 The journal lives in host-selected private storage outside the admitted vault.
+The private root and vault root must not contain one another.
 One physical writer lock owns each opaque vault's journal. Opening another
 writer fails while that owner is live. Reads and writes verify the retained
 directory and lock identities; paths, linked entries and malformed or unsupported
@@ -48,3 +49,31 @@ single-use/generation-bound claims, conditional progress, immutable completion,
 exclusive ownership, retained unknown states, interrupted publication and real
 process loss. Real ACP, both transports, existing chat, provider and native
 application acceptance retain the original R2 completion gate.
+
+## Vault-owned execution
+
+The selected native turn service uses `lapis-ai-service`'s execution port and
+host backend. Native policy resolves opaque targets against an admitted scope
+capability; browser data cannot select executables, environment, credentials or
+host directories. Requested model, effort, mode and duration are frozen with
+the authored input. A duplicate cannot replace those settings or launch again.
+
+A native task retains the vault's Work lease through portable publication and
+confirmed process cleanup. Dropping the submitting future, client or progress
+observer does not own that task. Explicit vault close/Quit requests cancellation
+and drains it. Uncertain cleanup or persistence retains the lease and reports a
+close failure rather than declaring the vault drained.
+Successful close retires the journal writer even while stale clients survive.
+
+Native configuration must complete before the prompt is submitted. The runtime
+continues to enforce negotiated modes, exact request identities and approval
+options. The application acknowledges output only after its bounded progress
+and portable transcript have been persisted. A quiescent terminal record and
+confirmed cleanup are required before reporting completion.
+
+The service creates the retained schema-three conversation files under the
+selected scope and publishes through the shared conditional vault writer.
+Authored user text and assistant text retain separate provenance; additional
+context is not fabricated as authored dialogue. External changes or dirty
+editors prevent replacement. The journal becomes terminal only after the
+portable files have been published; recovery never starts another worker.
