@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 13:05:52 UTC",
+  "updated": "2026-10-25 13:52:49 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -439,7 +439,7 @@
       "work": "Tauri selection and existing chat adoption",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "[Qualified observer source checkpoint](spec/records/2026-10-25-rust-chat-observer.md): all twenty forced check tasks, 2,173 package cases, eleven builds, 261 cold catalog cases, specification/49 validator cases and seven Rust-hosted/twelve PWA/one Node browser journeys pass. Retained native source has 326 Rust passes. Desktop passes 420 renderer/governance, 744 AI, 242 native and seven hidden IPC cases with strict normal/e2e checks. Final committed-source archive intake and Desktop catalog remain next; mounted chat/history navigation, trust and actual-provider/cold recovery retain their original gates."
+      "detail": "[Source 58dc50ac](spec/records/2026-10-25-rust-chat-observer.md) and [committed Desktop 83b82d7f intake](spec/records/2026-10-25-rust-chat-desktop-intake.md) qualify the staged observer/transport checkpoint. Source passes twenty forced check tasks, 2,173 package cases, eleven builds, 261 cold catalog cases, specification/49 validator cases and seven Rust-hosted/twelve PWA/one Node journeys. Desktop passes 420 renderer/governance, 744 AI, 242 native, seven fresh hidden IPC and all 2,012 catalog cases; strict checks, both bundles, ordinary audit and static catalog pass. Six Notes archives are pinned to 58dc50ac among twenty verified receipts. Accepted immutable formatting exception remains unchanged. Mounted chat/History routing/trust and R2.3 actual-provider cold recovery retain original gates; defaults are not promoted."
     }
   ]
 }
