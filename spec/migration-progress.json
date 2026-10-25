@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 18:07:47 UTC",
+  "updated": "2026-10-25 18:20:48 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -479,7 +479,7 @@
       "work": "Native Tasks occurrence publication",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Qualified isolated source](../lapis-notes-native-occurrences/spec/records/2026-10-25-native-task-occurrences.md) committed at Notes 23f0e8c6 in native-occurrences: five exact and all 344 native cases plus five boundary regressions pass; strict checks, locked build and complete specification gates pass. Six retained model/crash ignores stay separate. Default-workspace integration follows its tooling intake; both host/plugin selections remain waiting."
+      "detail": "[Opt-in occurrence publication source](spec/records/2026-10-25-native-task-occurrences.md), isolated commit 23f0e8c6, is integrated into main. [Main intake](spec/records/2026-10-25-native-task-occurrences-intake.md) requalifies five exact/all 344 native cases, strict checks/build/spec on 04ce1f88 with unchanged production bytes and exact parser pins. Both host/plugin selections remain waiting."
     }
   ]
 }

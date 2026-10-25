@@ -23,13 +23,26 @@ pub(super) enum Action {
 }
 #[derive(Serialize)]
 pub(super) enum ReadAction {
+    NativeState(String, String),
     Get(String, String, Option<String>),
     Query(String, ProjectionQuery, Option<String>),
     Related(ProjectionRelatedQuery, Option<String>),
 }
 pub(super) enum ReadValue {
+    NativeState(NativeProjectionState),
     Row(Option<serde_json::Value>),
     Query(ProjectionQueryResult),
+}
+pub(crate) struct NativeProjectionState {
+    pub definition: Option<ProjectionDefinition>,
+    pub source: Option<NativeSourceState>,
+}
+pub(crate) struct NativeSourceState {
+    pub hash: String,
+    pub schema_version: f64,
+    pub config_hash: String,
+    pub status: String,
+    pub error: Option<String>,
 }
 impl Store {
     pub async fn projection(&mut self, action: Action) -> Result<()> {

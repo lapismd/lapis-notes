@@ -14,5 +14,9 @@
   {
     "name": "lapis-plugins",
     "revision": "6af2420ff720cf8ce04581306c9c7b8d12b126e4"
+  },
+  {
+    "name": "lapis-plugin-tasks",
+    "revision": "569d7e30ed86bd4514365e50befb908b2a8400e2"
   }
 ]

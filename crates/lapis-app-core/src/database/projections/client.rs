@@ -1,10 +1,26 @@
-use super::{Action, ReadAction, ReadValue, write_access};
+use super::{Action, NativeProjectionState, ReadAction, ReadValue, write_access};
 use crate::database::{Database, Operation, Output, invalid};
 use crate::services::Result;
 use lapis_app_protocol::database::projections::queries::*;
 use lapis_app_protocol::database::projections::*;
 
 impl Database {
+    pub(crate) async fn native_projection_state(
+        &self,
+        id: &str,
+        path: &str,
+    ) -> Result<NativeProjectionState> {
+        match self
+            .submit(Operation::ProjectionRead(ReadAction::NativeState(
+                id.into(),
+                path.into(),
+            )))
+            .await?
+        {
+            Output::ProjectionRead(ReadValue::NativeState(value)) => Ok(value),
+            _ => unreachable!("worker output matches operation"),
+        }
+    }
     pub async fn query_projection(
         &self,
         id: &str,

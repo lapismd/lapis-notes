@@ -21,6 +21,7 @@ pub(in crate::services) struct Owner {
     signal: mpsc::SyncSender<()>,
     thread: Mutex<Option<thread::JoinHandle<()>>>,
     pub status: Arc<Mutex<IndexingStatus>>,
+    occurrences: Arc<AtomicBool>,
 }
 fn failure() -> Error {
     Error::new(ErrorCode::Io, "Native metadata index owner is unavailable")
@@ -30,6 +31,7 @@ impl Owner {
         vault: Weak<VaultService>,
         database: Database,
         root: VaultRoot,
+        occurrences: bool,
     ) -> Result<Self> {
         let (signal, changes) = mpsc::sync_channel(1);
         let watched = root.path().to_owned();
@@ -68,6 +70,8 @@ impl Owner {
         let status = Arc::new(Mutex::new(IndexingStatus::default()));
         let progress = status.clone();
         let retry = signal.clone();
+        let occurrences = Arc::new(AtomicBool::new(occurrences));
+        let selected = occurrences.clone();
         let worker = thread::Builder::new()
             .name("lapis-metadata".into())
             .spawn(move || {
@@ -76,8 +80,9 @@ impl Owner {
                     if cancelled.load(Ordering::Acquire) {
                         break;
                     }
-                    let result =
-                        runtime.block_on(reconcile::run(&vault, &database, &root, &cancelled));
+                    let result = runtime.block_on(reconcile::run(
+                        &vault, &database, &root, &cancelled, &selected,
+                    ));
                     let mut current = progress.lock().unwrap_or_else(|error| error.into_inner());
                     current.passes = current.passes.saturating_add(1);
                     current.indexed = current.indexed.saturating_add(result.indexed);
@@ -107,7 +112,12 @@ impl Owner {
             signal,
             thread: Mutex::new(Some(worker)),
             status,
+            occurrences,
         })
+    }
+    pub(super) fn select_occurrences(&self, enabled: bool) {
+        self.occurrences.store(enabled, Ordering::Release);
+        let _ = self.signal.try_send(());
     }
     pub(super) fn finish(&self) -> Result<()> {
         self.stop.store(true, Ordering::Release);

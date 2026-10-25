@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-25 18:07:47 UTC**.
+Last updated **2026-10-25 18:20:48 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -36,16 +36,17 @@ checkpoints; its row count is not a count of independent unfinished jobs.
 **Current prerequisite: finish Docker tooling and the refreshed dependency cohort.**
 Notes, Plugins and jj-store already contain the referenced changes in their
 active default workspaces; no rebase is needed. Desktop and Tasks are completing
-their tooling in parallel; Notes intake is qualified in this slice. Lapis
+their tooling in parallel; Notes intake is committed at `04ce1f88`. Lapis
 AI and Terminal tooling are committed. Actual OS/WebView/provider acceptance
 remains separate from portable Docker checks.
 
-| Repository                                                                  | State                  | Qualified so far                                                                                        | Remaining in this tooling intake                                                                    |
-| --------------------------------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| [Notes](spec/records/2026-10-25-docker-permissions.md)                      | Qualified (this slice) | 59 tooling, 339 native Core, 2,209 package and 261 guarded catalog cases; full check/build/static/spec  | None for this source intake; registry-lock and native product gates remain explicit                 |
-| [Desktop](../lapis-desktop/spec/src/history/E-VALIDATION-001.md)            | Working                | 77 tooling cases, fresh Chromium/WebKit smoke, all 238 Linux service cases and strict normal/e2e Clippy | Full refreshed catalog/build/spec lanes                                                             |
-| [Tasks](../lapis-plugin-tasks/spec/records/2026-10-25-docker-validation.md) | Working                | 29 tooling cases, 258 unit cases, two native cases, strict source checks and clean runtime audit        | Aligned Notes UI/Bits input, guarded full catalog/static and package intake                         |
-| [Lapis AI](../lapis-ai/spec/src/history/2026-10-25-docker-validation.md)    | Committed `b4a5f747`   | 1,076 Rust, 43 renderer and 57 governance cases; complete portable check/build/package/spec lanes       | None for portable tooling; provider/hardware acceptance retains feature gates. No Storybook exists. |
+| Repository                                                                  | State                | Qualified so far                                                                                       | Remaining in this tooling intake                                                                    |
+| --------------------------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| [Notes](spec/records/2026-10-25-docker-permissions.md)                      | Committed `04ce1f88` | 59 tooling, 339 native Core, 2,209 package and 261 guarded catalog cases; full check/build/static/spec | None for this source intake; registry-lock and native product gates remain explicit                 |
+| [Desktop](../lapis-desktop/spec/src/history/E-VALIDATION-001.md)            | Working              | 77 tooling, 497 governance/renderer, 744 AI and 238 Linux native cases; strict normal/e2e Clippy       | Final Design Core teardown repair and refreshed full catalog/build/spec lanes                       |
+| [Tasks](../lapis-plugin-tasks/spec/records/2026-10-25-docker-validation.md) | Working              | 29 tooling cases, 258 unit cases, two native cases, strict source checks and clean runtime audit       | Aligned Notes UI/Bits input, guarded full catalog/static and package intake                         |
+| [Lapis AI](../lapis-ai/spec/src/history/2026-10-25-docker-validation.md)    | Committed `b4a5f747` | 1,076 Rust, 43 renderer and 57 governance cases; complete portable check/build/package/spec lanes      | None for portable tooling; provider/hardware acceptance retains feature gates. No Storybook exists. |
+| [Agent UI](../agent-ui/PLAN.md)                                             | Working              | Ten exact runner regressions pass; source baseline clean                                               | Docker smoke, composition/runtime guards and complete portable source/catalog gates                 |
 
 Terminal's Docker/Storybook tooling is committed at `aa8fc3a8`; its default
 workspace is clean. The [source receipt](../lapis-terminal/spec/src/history/2026-10-25-docker-validation.md)
@@ -81,13 +82,13 @@ closes `R2.2.3` application adoption against Notes `7161a447`. Its original
 native/cold-restart and 2,016 catalog receipts retain their exact dependency
 cohort; actual-provider acceptance remains `R2.3`.
 
-**New source slice committed:** native Tasks occurrence publication (`R3`) is
-Source complete at Notes `23f0e8c6`, in the clean
-`/Users/stevejuma/code/lapismd/lapis-notes-native-occurrences` workspace. Its five
-exact and all 344 native cases pass, along with strict checks/build/specification.
-It will be integrated into the default checkout after the current tooling intake;
-both host/plugin selections remain waiting. This source gate does not turn on a
-second writer.
+**Native source slice integrated:** Tasks occurrence publication is Source complete
+in the main workspace, with its original isolated `23f0e8c6` proof preserved.
+The [main-workspace intake](spec/records/2026-10-25-native-task-occurrences-intake.md)
+passes five exact cases, all 344 Rust/five boundary cases, strict checks, locked
+build and 78 specification regressions on top of `04ce1f88`. Production bytes and
+parser pins are unchanged. Both host/plugin selections and full Tasks/Docs/custom
+processors remain waiting; this source gate does not turn on a second writer.
 
 **R2 continues independently:** the [actual-provider transport preflight](spec/records/2026-10-25-rust-provider-preflight.md)
 passes native Tauri/Core and Rust HTTP detach/cold cases. A separate probe of the
@@ -191,7 +192,7 @@ not host adoption or native/hosted application acceptance.
 | [R3.1.22](spec/src/architecture/rust-application-services.md#ln-core-003)    | Database catalogue        | Complete native AppDatabase facade                                  | [Native call conformance](spec/records/2026-10-24-rust-core-database-calls.md): all 68 methods / 85 retained calls, explicit undefined/null/void, optional defaults, conditional transaction results and query-enhancement diagnostics pass. Eight exact native / 39 retained API cases and complete source check/test/build/model/spec lanes pass. Host adoption is separate.                                                                                                                                                                                                                                                                                                                                           |
 | [R3.2.1.1](spec/src/architecture/rust-application-services.md#ln-core-003)   | Unattended metadata       | Native Markdown parsing and reconciliation lifetime                 | [Native Markdown source](spec/records/2026-10-25-native-markdown-indexing.md): parser 6af2420f and Notes selected-source intake pass ten lifetime/two normalization/21 retained reference cases, 338 complete ordinary Rust cases, five unique real-model cases, all 2209 package cases/33 forced tasks, 261 cold catalog and spec lanes. Npm exception is limited to the plugin parser slice. Both host selections and other processors remain pending; Notes source intake is committed at 7161a447ef365df498371d7bad491df5f5da431c.                                                                                                                                                                                   |
 | [R3.2.1.2.1](spec/src/architecture/rust-application-services.md#ln-core-005) | Native plugin projections | Source-owned Tasks occurrence parser                                | [Source receipt](../lapis-plugin-tasks/spec/records/2026-10-25-native-task-occurrences.md), Tasks commit 569d7e30ed86bd4514365e50befb908b2a8400e2. Private parser retains version-1 rows, tracking values, URI/path handling, duplicates and UTF-16 source ranges. All 229 unit cases, 27 shared fixtures and native/check/build/spec lanes pass. Notes publication and host adoption remain pending.                                                                                                                                                                                                                                                                                                                    |
-| [R3.2.1.2.2](spec/src/architecture/rust-application-services.md#ln-core-005) | Native plugin projections | Native Tasks occurrence publication                                 | [Qualified isolated source](../lapis-notes-native-occurrences/spec/records/2026-10-25-native-task-occurrences.md) committed at Notes 23f0e8c6 in native-occurrences: five exact and all 344 native cases plus five boundary regressions pass; strict checks, locked build and complete specification gates pass. Six retained model/crash ignores stay separate. Default-workspace integration follows its tooling intake; both host/plugin selections remain waiting.                                                                                                                                                                                                                                                   |
+| [R3.2.1.2.2](spec/src/architecture/rust-application-services.md#ln-core-005) | Native plugin projections | Native Tasks occurrence publication                                 | [Opt-in occurrence publication source](spec/records/2026-10-25-native-task-occurrences.md), isolated commit 23f0e8c6, is integrated into main. [Main intake](spec/records/2026-10-25-native-task-occurrences-intake.md) requalifies five exact/all 344 native cases, strict checks/build/spec on 04ce1f88 with unchanged production bytes and exact parser pins. Both host/plugin selections remain waiting.                                                                                                                                                                                                                                                                                                             |
 
 ### Gate status: Complete
 

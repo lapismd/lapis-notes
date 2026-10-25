@@ -2,8 +2,9 @@
 
 R3.2.1 moves reconciliation into the admitted vault service under LN-CORE-003,
 LN-CORE-005 and LN-CORE-006. Notes coordinates the existing native database
-writers. Plugin parsing remains in the private `lapis-plugin-services` crate
-owned by the sibling first-party plugin repository.
+writers. Markdown parsing remains in private `lapis-plugin-services`, owned by
+the sibling first-party plugin repository. Occurrence parsing remains in
+`lapis-task-services`, owned by the sibling Tasks repository.
 
 ## Initial Markdown intake
 
@@ -30,6 +31,28 @@ processor rather than pretending it is a renderer processor registration.
 Unsupported plugin processors and richer projections remain explicitly waiting;
 this selection cannot be used as the full default metadata owner until their
 conformance and both host-adoption gates pass.
+
+## Optional Tasks occurrences
+
+Under LN-CORE-003/005/006, explicit host selection MAY enable Tasks occurrence
+publication on the existing Markdown owner. Markdown-only selection MUST remain
+unchanged. Enabling after startup MUST wake that owner; disabling MUST fence new
+Tasks source admissions without stopping Markdown. Already accepted source
+publication retains its database drain contract. Both host/plugin selections
+remain unqualified.
+
+The source-owned Tasks parser MUST derive retained occurrence records from
+canonical daily notes. Notes MUST register the existing public
+`tasks/occurrence` schema and publish its exact observation IDs, scanner order,
+UTF-16 ranges and source hash. Native parsing MUST NOT introduce task-document,
+recurrence, materialization or date policy.
+
+Reconciliation MUST repair missing or stale occurrence sources independently
+of unchanged Markdown metadata. Unchanged definitions/sources MUST NOT create
+database revisions. Noncanonical and deleted sources MUST lose their ready
+rows. Duplicate identities within a source and more than 64 rows MUST publish
+observable source errors with no partial ready rows; truncation and
+deduplication are forbidden.
 
 ## Lifetime and failure
 

@@ -1,3 +1,4 @@
+mod occurrences;
 mod owner;
 mod properties;
 mod reconcile;
@@ -18,6 +19,20 @@ pub struct IndexingStatus {
 }
 impl VaultService {
     pub async fn start_markdown_indexing(self: &Arc<Self>) -> Result<()> {
+        self.start_indexing(false).await
+    }
+    /// Hosts select this only after admitting the Tasks plugin capability.
+    pub async fn set_task_occurrence_indexing(self: &Arc<Self>, enabled: bool) -> Result<()> {
+        if enabled {
+            return self.start_indexing(true).await;
+        }
+        let _work = self.begin_work()?;
+        if let Some(owner) = self.indexing.lock().map_err(|_| unavailable())?.as_ref() {
+            owner.select_occurrences(false);
+        }
+        Ok(())
+    }
+    async fn start_indexing(self: &Arc<Self>, occurrences: bool) -> Result<()> {
         let database = self.database().await?;
         // Never retain work across this gate: close drains accepted work while
         // holding it, and a concurrent start must observe the retired phase.
@@ -33,7 +48,14 @@ impl VaultService {
             state.root.try_clone()?
         };
         if slot.is_none() {
-            *slot = Some(Owner::start(Arc::downgrade(self), database, root)?);
+            *slot = Some(Owner::start(
+                Arc::downgrade(self),
+                database,
+                root,
+                occurrences,
+            )?);
+        } else if occurrences && let Some(owner) = slot.as_ref() {
+            owner.select_occurrences(true);
         }
         drop(work);
         Ok(())

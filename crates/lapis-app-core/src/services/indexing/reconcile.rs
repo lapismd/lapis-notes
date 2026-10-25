@@ -1,4 +1,4 @@
-use super::{IndexingStatus, records};
+use super::{IndexingStatus, occurrences, records};
 use crate::{
     database::Database,
     services::{Error, Result, VaultService},
@@ -15,9 +15,10 @@ pub(super) async fn run(
     database: &Database,
     root: &VaultRoot,
     stop: &AtomicBool,
+    tasks: &AtomicBool,
 ) -> IndexingStatus {
     let mut status = IndexingStatus::default();
-    if let Err(error) = process(vault, database, root, stop, &mut status).await {
+    if let Err(error) = process(vault, database, root, stop, tasks, &mut status).await {
         status.error = Some(error.to_string());
     }
     status
@@ -27,10 +28,15 @@ async fn process(
     database: &Database,
     root: &VaultRoot,
     stop: &AtomicBool,
+    tasks: &AtomicBool,
     status: &mut IndexingStatus,
 ) -> Result<()> {
     let vault = vault.upgrade().ok_or_else(Error::closed)?;
     let work = vault.begin_work()?;
+    let task_selection = tasks.load(Ordering::Acquire);
+    if task_selection {
+        occurrences::register(database).await?;
+    }
     let declared = match root.read_text(".lapis/types.json") {
         Ok(text) => serde_json::from_str::<serde_json::Value>(&text).map_err(|_| {
             Error::new(
@@ -136,6 +142,8 @@ async fn process(
             Err(error) => return Err(error.into()),
         };
         let record = records::record(path, &before, &text, &files, &declared);
+        let occurrences = task_selection.then(|| occurrences::prepare(path, &text));
+        let source_hash = record.file.hash.clone();
         root.verify_physical_root()?;
         let Some(after) = root.stat(path)? else {
             continue;
@@ -171,6 +179,15 @@ async fn process(
         if !same {
             database.upsert_indexed_metadata(record).await?;
             status.indexed += 1;
+        }
+        // Fence new source admissions; an already selected source publication
+        // drains its database operations rather than cancelling uncertain work.
+        if let Some(occurrences) = occurrences
+            && tasks.load(Ordering::Acquire)
+            && let Err(error) =
+                occurrences::publish(database, path, &source_hash, occurrences).await
+        {
+            status.error = Some(error.to_string());
         }
     }
     Ok(())

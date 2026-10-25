@@ -1,4 +1,4 @@
-use super::{ReadAction, ReadValue};
+use super::{NativeProjectionState, NativeSourceState, ReadAction, ReadValue};
 use crate::database::{MAX_BYTES, engine, invalid, store::Store};
 use crate::services::{Error, Result};
 use lapis_app_protocol::{
@@ -9,6 +9,10 @@ use lapis_app_protocol::{
 impl Store {
     pub async fn read_projection(&self, action: ReadAction) -> Result<ReadValue> {
         match action {
+            ReadAction::NativeState(id, path) => self
+                .native_projection_state(&id, &path)
+                .await
+                .map(ReadValue::NativeState),
             ReadAction::Get(id, row, reader) => self
                 .projection_row(&id, &row, reader.as_deref())
                 .await
@@ -22,6 +26,41 @@ impl Store {
                 .await
                 .map(ReadValue::Query),
         }
+    }
+    async fn native_projection_state(&self, id: &str, path: &str) -> Result<NativeProjectionState> {
+        let mut rows = self
+            .connection
+            .query(
+                "SELECT active FROM index_projections WHERE projection_id=?",
+                [id],
+            )
+            .await
+            .map_err(engine)?;
+        let active = match rows.next().await.map_err(engine)? {
+            Some(row) => row.get::<i64>(0).map_err(engine)? != 0,
+            None => false,
+        };
+        drop(rows);
+        let definition = if active {
+            Some(self.projection_definition(id).await?)
+        } else {
+            None
+        };
+        let mut rows = self.connection.query(
+            "SELECT source_hash,schema_version,config_hash,status,error FROM index_projection_sources WHERE projection_id=? AND source_path=?",
+            turso::params![id, path]
+        ).await.map_err(engine)?;
+        let source = match rows.next().await.map_err(engine)? {
+            Some(row) => Some(NativeSourceState {
+                hash: row.get(0).map_err(engine)?,
+                schema_version: super::definitions::number(&row, 1)?,
+                config_hash: row.get(2).map_err(engine)?,
+                status: row.get(3).map_err(engine)?,
+                error: crate::database::indexed::optional_text(&row, 4)?,
+            }),
+            None => None,
+        };
+        Ok(NativeProjectionState { definition, source })
     }
     pub(in crate::database) async fn projection_row(
         &self,

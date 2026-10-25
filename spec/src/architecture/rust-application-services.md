@@ -19,9 +19,9 @@ lifetime. R1.2/R1.3 retain those gates. Native directory witnesses are explicit
 capability handles, never renderer or HTTP values. Watch/resource/profile policy
 remains in Desktop while the common engine owns checked IO and publication.
 
-R3.2.1 stages [native Markdown reconciliation](rust-indexing-lifetime.md).
-The plugin crate owns parsing; the admitted service owns watchers, indexing
-and drain. Task/custom projections and both host default gates remain open.
+R3.2.1 stages [native reconciliation](rust-indexing-lifetime.md). Source-owned
+Markdown and opt-in Tasks occurrence parsers share one admitted service worker.
+Full Tasks/custom processors and both host selections remain separate gates.
 
 The core boundary audit runs in normal checks and canonical specification checks.
 It rejects transport dependencies/source references, host source routing and new

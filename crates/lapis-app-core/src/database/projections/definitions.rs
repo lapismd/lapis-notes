@@ -65,7 +65,7 @@ impl Store {
 pub(super) fn json(value: &impl serde::Serialize) -> Result<String> {
     String::from_utf8(encoded(value)?).map_err(|_| invalid("Invalid projection JSON"))
 }
-fn number(row: &turso::Row, index: usize) -> Result<f64> {
+pub(super) fn number(row: &turso::Row, index: usize) -> Result<f64> {
     match row.get_value(index).map_err(engine)? {
         turso::Value::Integer(n) => Ok(n as f64),
         turso::Value::Real(n) if n.is_finite() => Ok(n),

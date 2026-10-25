@@ -32,6 +32,10 @@ canonical specification checks also run native source/dependency boundaries and
 their regressions. The transitional native companion remains an excluded,
 independently built package until the hosted cutover.
 
+Native source snapshots pin the sibling plugin and Tasks algorithm crates
+separately in `scripts/validation/native-sources.json`. Their qualified parser
+revisions do not select a host writer or admit a UI dependency cohort.
+
 The private hosted native companion is grouped by history and IPC functionality
 under `packages/server-native`. It pins Rust 1.99 and consumes sibling JJ Store
 source at qualified extraction `f58b9363`. `pnpm server:native` uses a separate
