@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 22:09:42 UTC",
+  "updated": "2026-10-25 22:14:14 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -39,7 +39,7 @@
       "work": "Durable conversation",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native execution, typed transports and both existing chat screens are qualified. Hosted actual-provider recovery is committed. Desktop actual-provider composer, running detach, no-observer completion and reload/cold History now pass with one turn and unchanged transcript (fresh E-CORE-027); final Desktop dependency/catalog qualification and the screen commit remain before aggregate completion. Defaults stay staged."
+      "detail": "Native execution, typed transports and both existing chat screens are qualified. Hosted actual-provider recovery and Desktop actual-provider composer/detach/reload/cold History are committed; Desktop source is 11e22c7f with one native journal and unchanged transcript. Final combined Desktop dependency/catalog intake remains before aggregate completion. Defaults stay staged."
     },
     {
       "id": "R2.1",
@@ -63,7 +63,7 @@
       "work": "Real-provider detach and cold application recovery",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-007",
-      "detail": "[Hosted actual-provider screen](spec/records/2026-10-25-hosted-provider-screen.md) is committed and passes. Fresh Desktop E-CORE-027 now passes one actual Codex composer/detach/reload/cold History case; the retained native fixture also passes and explicit provider opt-out skips without launching. Exact complete record/transcript and one native journal are preserved. Final Desktop dependency/catalog intake, specification checks and screen commit remain; native policy inputs are committed at 49881cd3. Broader M10 and default cutover gates remain separate."
+      "detail": "[Hosted actual-provider screen](spec/records/2026-10-25-hosted-provider-screen.md) is committed. [Desktop real-provider screen](spec/records/2026-10-25-desktop-provider-screen-intake.md) is committed at 11e22c7f: one actual Codex case plus the retained native fixture pass; explicit provider opt-out skips without launch. Composer, running detach, completion without an observer, reload/cold History, complete record/transcript and one native journal are exact. All four source specification lanes, final six-validator record check and progress pass. Final combined Desktop dependency/catalog intake remains; broader M10 and default cutover are separate."
     },
     {
       "id": "R3",
@@ -519,7 +519,15 @@
       "work": "Source-owned Tasks whole-vault parent and cycle validation",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Source receipt](../.workspaces/lapis-task-recurrence-intake-20261025/spec/records/2026-10-25-native-task-graph.md), isolated Tasks commit ad0fd2b8520330c6fd244e5bdc30a7396cd72fe5. All 38 unchanged-TypeScript snapshots match across 199 documents and 217 structural occurrences, retaining multiple-parent exclusion before cycles, duplicates, runs, diagnostics and ordered path replacement. Exact native two tests, 49 focused TypeScript, 645 full unit, 11 native and 62 cold catalog cases plus full check/build/publint/static/specification pass. The 52 protected prior source/corpus/evidence files remain unchanged. Href/snapshot targets and pure edge/index/publication envelopes are active; Notes publication, host selection, mutation and materialization remain separate."
+      "detail": "[Source receipt](../.workspaces/lapis-task-recurrence-intake-20261025/spec/records/2026-10-25-native-task-graph.md), isolated Tasks commit ad0fd2b8520330c6fd244e5bdc30a7396cd72fe5. All 38 unchanged-TypeScript snapshots match across 199 documents and 217 structural occurrences, retaining multiple-parent exclusion before cycles, duplicates, runs, diagnostics and ordered path replacement. Exact native two tests, 49 focused TypeScript, 645 full unit, 11 native and 62 cold catalog cases plus full check/build/publint/static/specification pass. The 52 protected prior source/corpus/evidence files remain unchanged. Later href/target/index source is qualified at fcb2a8b5 under R3.2.1.2.8. Notes publication, host selection, mutation and materialization remain separate."
+    },
+    {
+      "id": "R3.2.1.2.8",
+      "area": "Native Tasks source",
+      "work": "Source-owned Tasks hrefs, targets and index publication envelopes",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "[Qualified Tasks source](../lapis-plugin-tasks/spec/records/2026-10-25-native-task-index.md), integrated in clean Tasks default fcb2a8b5: 210 hrefs, 30 target lookups and 174 complete index outcomes. All 1,035 TypeScript, 14 native and 62 cold catalog cases plus check/build/publint/static/specification gates pass. Notes service intake, application host selection and Tasks mutation/materialization remain separate gates."
     }
   ]
 }
