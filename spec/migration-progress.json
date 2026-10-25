@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 21:30:54 UTC",
+  "updated": "2026-10-25 21:34:52 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native database/Search/model/cache and vault lifetime are source-qualified; HTTP and Desktop database facade adoption are complete. Markdown reconciliation and Tasks occurrence publication are integrated at 16977050. Source-owned Tasks document parsing and recurrence/effective resolution are qualified at isolated c725d58b: original 32 date sets/166 queries, 18 effective cases plus two additional ordinal cases/16 queries. Private version-4 Task row normalization is Source complete at 030cb061 (106 complete oracle outcomes, 108 focused/508 full TypeScript and seven native cases). Active structure/target/run source passes 96 structure and three direct parser scenarios, 110 focused TypeScript, nine native and 607 full unit cases; build/package/cold catalog and its commit remain pending. Full Tasks/Docs/supported custom projections, both unattended indexing selections and service-owned Search/History scheduling remain."
+      "detail": "Native database/Search/model/cache and vault lifetime are source-qualified; HTTP and Desktop database facade adoption are complete. Markdown reconciliation and Tasks occurrence publication are integrated at 16977050. Source-owned Tasks document parsing and recurrence/effective resolution are qualified at isolated c725d58b: original 32 date sets/166 queries, 18 effective cases plus two additional ordinal cases/16 queries. Private version-4 Task row normalization is Source complete at 030cb061 (106 complete oracle outcomes, 108 focused/508 full TypeScript and seven native cases). Per-document structure/target/run resolution is Source complete at 34ef8bf8: 96 complete structure scenarios, three direct parser outputs, 110 focused TypeScript, nine native, 607 full unit and 62 cold catalog cases plus all source/package/specification gates pass. Full Tasks/Docs/supported custom projections, both unattended indexing selections and service-owned Search/History scheduling remain."
     },
     {
       "id": "R4",
@@ -455,7 +455,7 @@
       "work": "Remaining native plugin projection processors",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Tasks occurrence parsing and publication are integrated into Notes 16977050. Private Tasks document parsing and recurrence/effective resolution are Source complete at c725d58b. Private version-4 projectTask normalization is Source complete at 030cb061. Structure/target/run/graph parity, projection envelopes/materialization, Docs/custom processors and both host selections remain; source qualification does not select a writer."
+      "detail": "Tasks occurrence parsing and publication are integrated into Notes 16977050. Private Tasks document parsing and recurrence/effective resolution are Source complete at c725d58b. Private version-4 projectTask normalization is Source complete at 030cb061. Structure/target/run parity is Source complete at 34ef8bf8. Whole-vault graph parity, projection envelopes/materialization, Docs/custom processors and both host selections remain; source qualification does not select a writer."
     },
     {
       "id": "R3.2.1.3",
@@ -503,7 +503,15 @@
       "work": "Source-owned version-4 Task row normalization",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Source receipt](../.workspaces/lapis-task-recurrence-intake-20261025/spec/records/2026-10-25-native-task-projection.md), isolated Tasks commit 030cb061bd7f945c4aaa5cb2dc274b9c4afe719b. All 106 complete unchanged-TypeScript oracle outcomes match: 92 Tasks, five Lists, one navigation, seven absent documents and one retained invalid-date error. All 108 focused/508 full TypeScript cases, seven native tests and strict check/build/publint/spec pass. Structure/target/run/graph resolution, projection envelopes and both host selections remain."
+      "detail": "[Source receipt](../.workspaces/lapis-task-recurrence-intake-20261025/spec/records/2026-10-25-native-task-projection.md), isolated Tasks commit 030cb061bd7f945c4aaa5cb2dc274b9c4afe719b. All 106 complete unchanged-TypeScript oracle outcomes match: 92 Tasks, five Lists, one navigation, seven absent documents and one retained invalid-date error. All 108 focused/508 full TypeScript cases, seven native tests and strict check/build/publint/spec pass. Per-document structure is separately qualified at 34ef8bf8. Whole-vault graph resolution, projection envelopes and both host selections remain."
+    },
+    {
+      "id": "R3.2.1.2.6",
+      "area": "Native plugin projections",
+      "work": "Source-owned Tasks per-document structure and run resolution",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "[Source receipt](../.workspaces/lapis-task-recurrence-intake-20261025/spec/records/2026-10-25-native-task-structure.md), isolated Tasks commit 34ef8bf8af0415531083f3cdd2884c45ddda6b36. All 96 unchanged-TypeScript structure outcomes match (93 resolved/projection pairs, two scan-only navigation cases and one callback error), plus three separately captured complete CRLF/tab/empty-heading parser outcomes. All 110 focused TypeScript, nine native, 607 full unit and 62 fresh catalog cases plus full check/build/publint/specification pass. All six prior corpora, Cargo graph and runtime models are unchanged. Whole-vault parent/cycle validation, target policy/href and edge/indexed-file envelopes, Notes processor intake and both host selections remain."
     }
   ]
 }
