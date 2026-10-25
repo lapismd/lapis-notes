@@ -8,7 +8,7 @@ The sibling Desktop tracker owns its M-series milestones; the active shared
 Rust work is tracked here as R0–R7. Other migration workspaces are retained
 history, not the current implementation checkout.
 
-Last updated **2026-10-25 01:35:09 UTC**. This is the active migration tracker for the
+Last updated **2026-10-25 02:11:19 UTC**. This is the active migration tracker for the
 [shared Rust plan](RUST_CORE_MIGRATION_PLAN.md). The older Node parity roadmap
 below is superseded; its remaining rows are historical references, not another
 set of current migration tasks.
@@ -20,14 +20,13 @@ configured-vault read/edit/save/reload journey; this does not claim final hosted
 feature parity or production delivery. Desktop's committed baseline still uses
 its prior database adapter while the replacement awaits its remaining gate.
 
-**Current checkpoint:** the R1.3.9 hosted-shell integration passes complete source
-checking, all 20 unit tasks (237 Rust and 1,534 API cases), all 11 build tasks,
-all 261 catalog cases and the full specification checks. The 50-case Web unit
-suite also passes directly. Retained Node 24 browser acceptance passes editing,
-sharing events and service restart. The final cold Rust browser rerun also
-passes (7.4 seconds).
-The [source record](spec/records/2026-10-25-rust-hosted-shell.md) retains exact
-commands, failures and limits.
+**Current checkpoint:** R1.3.10 shared backup source and hosted native lifetime
+are qualified. The final full check/test/build/specification lanes pass, including
+245 ordinary Rust cases, 20 package test tasks, 20 checking tasks and 11 package
+build tasks. The cold retained Rust browser journey passes (8.6 seconds).
+[Backup evidence](spec/records/2026-10-25-rust-backup-lifetime.md) records exact
+commands, failed attempts, cache maintenance and limits. Tauri adoption and the
+remaining application parity gates stay open.
 
 **Latest consumer compatibility:** Desktop `df16e136` passes both native
 file-service cases and strict normal/e2e all-target Clippy against the latest
@@ -39,24 +38,18 @@ qualification for their original implementations.
 Desktop `a5b936e0` refreshes its activity routing (E-PROGRESS-003) without
 claiming native database adoption.
 
-**Current activity:** Desktop's R1.3.8 / M16.3 implementation uses Notes
-`b55d3492` and passes database/channel acceptance, all 2000 catalog cases, four
-hidden API cases and its complete unit/type/strict/bundle checks. Its five-spec
-native UI lane has 27 passes and one pre-existing Markdown image failure; an
-explicit disposition or owning-package qualification is pending before commit.
-R1.3.9 passes a cold real-Rust/built-renderer journey through the existing login,
-configured-vault chooser, Notes editing, native disk save and browser reload.
-All 261 Notes catalog cases, complete source checking and specification checks
-pass. Full unit/build checks and retained Node browser acceptance now pass;
-the unchanged sync timeout does not recur in the complete rerun. Node is
-still the serving baseline. Managed-vault/transfer/installation parity and
-final SSE/static delivery remain open.
+**Current activity:** shared vault-owned automatic backup now uses `jj-vault`
+with native watching, physical storage checks, retryable final capture and
+controlled shutdown. Its source and hosted HTTP/browser checks pass. R1.3.10
+remains Working until Tauri adopts the same owner. Desktop's earlier M16.3
+consumer commit still needs disposition of its pre-existing Markdown image
+failure. Hosted-shell slice `1bf61394` remains the qualified UI integration.
 
-**Next:** resolve the existing Desktop acceptance disposition and commit its
-implemented high-level database adapter. The initial R1.3.9 hosted workflow is
-qualified; full hosted intake remains open. Continue the existing backup after
-detach/controlled Quit gate (R1.3.10), then both application-shell file actions
-(R1.3.11). R2–R7 retain their agreed scope and order; M11 stays Deferred.
+**Next:** resolve Desktop's existing acceptance disposition, refresh its shared
+core intake and commit the implemented database adapter. Then adopt this backup
+owner in Tauri and complete both application-shell file actions (R1.3.11).
+R1.3.9 retains full hosted parity work. R2–R7 retain their agreed scope and order;
+M11 stays Deferred.
 
 ### Status meanings
 
@@ -82,18 +75,18 @@ not host adoption or native/hosted application acceptance.
 
 ### Gate status: Working
 
-| Task ID                                                                  | Area          | Work                                              | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| ------------------------------------------------------------------------ | ------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [R1.3](spec/src/architecture/rust-application-services.md#ln-core-004)   | Roadmap       | Both host adapters                                | Database adoption, existing hosted shell and backup detach/Quit acceptance. See the host checklist.                                                                                                                                                                                                                                                                                                                                                                                                                |
-| [R1.3.9](spec/src/architecture/rust-application-services.md#ln-core-004) | Host adapters | Existing browser login/vault/workspace UI on Rust | [Retained hosted-shell integration](spec/records/2026-10-25-rust-hosted-shell.md) qualifies a final cold built-UI/real-Rust login, configured-vault read/edit/save and browser reload journey (7.4s). Retained Node 24 editing/sharing/restart acceptance also passes. Full source check/test/build, all 261 catalog and 50 Web unit cases, specification and formatting checks pass. Full hosted intake/parity remains open, including managed-vault/transfer/installation support and final SSE/static delivery. |
-| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)     | Roadmap       | Indexed vault                                     | Native database, model/cache and vault-owned database lifetime are source-qualified. Host adoption and unattended metadata/projection/Search/history indexing remain.                                                                                                                                                                                                                                                                                                                                              |
+| Task ID                                                                   | Area          | Work                                                     | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------------------------------------------------------- | ------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [R1.3](spec/src/architecture/rust-application-services.md#ln-core-004)    | Roadmap       | Both host adapters                                       | Database adoption, existing hosted shell and backup detach/Quit acceptance. See the host checklist.                                                                                                                                                                                                                                                                                                                                                                                                                |
+| [R1.3.9](spec/src/architecture/rust-application-services.md#ln-core-004)  | Host adapters | Existing browser login/vault/workspace UI on Rust        | [Retained hosted-shell integration](spec/records/2026-10-25-rust-hosted-shell.md) qualifies a final cold built-UI/real-Rust login, configured-vault read/edit/save and browser reload journey (7.4s). Retained Node 24 editing/sharing/restart acceptance also passes. Full source check/test/build, all 261 catalog and 50 Web unit cases, specification and formatting checks pass. Full hosted intake/parity remains open, including managed-vault/transfer/installation support and final SSE/static delivery. |
+| [R1.3.10](spec/src/architecture/rust-application-services.md#ln-core-004) | Host adapters | Automatic backup after client detach and controlled Quit | [Shared backup lifetime](spec/records/2026-10-25-rust-backup-lifetime.md): source and hosted native lifetime qualified. Six integration cases plus cancellation/drain pass; exact hosted and storage-guard regressions each move one failure to one pass. Final full check/test/build/spec passes with 245 Rust cases; the cold Rust browser journey passes (8.6s). Tauri ownership adoption remains open.                                                                                                         |
+| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)      | Roadmap       | Indexed vault                                            | Native database, model/cache and vault-owned database lifetime are source-qualified. Host adoption and unattended metadata/projection/Search/history indexing remain.                                                                                                                                                                                                                                                                                                                                              |
 
 ### Gate status: Waiting
 
 | Task ID                                                                   | Area              | Work                                                       | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                |
 | ------------------------------------------------------------------------- | ----------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [R1.3.8](spec/src/architecture/rust-application-services.md#ln-core-004)  | Host adapters     | Tauri and HTTP database adapters                           | HTTP and Desktop database/channel behavior pass. Desktop also passes 414 renderer/governance, 744 AI, 234 native service, four hidden API and all 2000 catalog cases; normal/e2e strict checks and bundle audit pass. Its native UI lane has 27 passes and one pre-existing Markdown image failure. Explicit user disposition or owning-package qualification is pending before the consumer commit. |
-| [R1.3.10](spec/src/architecture/rust-application-services.md#ln-core-004) | Host adapters     | Automatic backup after client detach and controlled Quit   | Reuse the existing engine with service ownership; qualify the original detach/drain gate.                                                                                                                                                                                                                                                                                                            |
 | [R1.3.11](spec/src/architecture/rust-application-services.md#ln-core-004) | Host adapters     | Same existing file actions through both application shells | Final native/hosted UI acceptance after the integrations above.                                                                                                                                                                                                                                                                                                                                      |
 | [R2](spec/src/architecture/rust-application-services.md#ln-core-003)      | Roadmap           | Durable conversation                                       | After R1.3: a real accepted turn completes without a client and recovers after restart without replay.                                                                                                                                                                                                                                                                                               |
 | [R3.2.1](spec/src/architecture/rust-application-services.md#ln-core-003)  | Service ownership | Unattended metadata and projection reconciliation          | Adopt the native database and move the existing processor/scheduler ownership into the service. External changes must index without clients.                                                                                                                                                                                                                                                         |

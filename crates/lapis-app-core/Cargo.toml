@@ -27,6 +27,9 @@ regress = { version = "=0.12.0", features = ["utf16", "prohibit-unsafe"] }
 ort = { version = "=2.0.0-rc.15", default-features = false, features = ["std", "load-dynamic", "api-30"] }
 tokenizers = { version = "=0.22.2", default-features = false, features = ["fancy-regex"] }
 reqwest = { version = "=0.12.28", default-features = false, features = ["blocking", "rustls-tls"] }
+jj-vault = { path = "../../../jj-store/crates/jj-vault", version = "0.1.0" }
+jj-store-jj = { path = "../../../jj-store/crates/jj-store-jj", version = "0.1.0", default-features = false, features = ["vault-backup"] }
+notify = "=8.2.0"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["rt-multi-thread", "time"] }

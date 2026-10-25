@@ -258,6 +258,8 @@ it cannot open browser storage or fall back to Node after failure. Node remains
 a separately selected serving baseline until cutover. Source transport fixtures
 and retained-screen acceptance are recorded separately.
 
+R1.3.10 reuses the native coordinator under the [backup lifetime contract](rust-backup-lifetime.md).
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

@@ -12,6 +12,7 @@ use uuid::Uuid;
 pub struct Runtime {
     registry: Mutex<Registry>,
     storage: Option<Arc<DatabaseStorage>>,
+    backup: Option<Arc<super::BackupStorage>>,
 }
 #[derive(Default)]
 struct Registry {
@@ -20,6 +21,11 @@ struct Registry {
     roots: HashMap<(u64, u64), Uuid>,
 }
 impl Runtime {
+    /// Select the existing backup engine using native installation storage.
+    pub fn with_backup(mut self, storage: super::BackupStorage) -> Self {
+        self.backup = Some(Arc::new(storage));
+        self
+    }
     /// Select shared database ownership using native installation policy.
     pub fn with_database(storage: DatabaseStorage) -> Self {
         Self {
@@ -48,6 +54,9 @@ impl Runtime {
         if let Some(storage) = &self.storage {
             storage.validate_vault(&root)?;
         }
+        if let Some(storage) = &self.backup {
+            storage.validate_vault(&root)?;
+        }
         let identity = root.physical_identity()?;
         let mut registry = self.registry.lock().map_err(|_| Error::closed())?;
         if registry.closing {
@@ -65,7 +74,9 @@ impl Runtime {
         if registry.roots.contains_key(&identity) {
             return Err(Error::busy());
         }
-        let vault = Arc::new(VaultService::new(id, root, self.storage.clone()));
+        let mut vault = VaultService::new(id, root, self.storage.clone());
+        vault.backup_storage = self.backup.clone();
+        let vault = Arc::new(vault);
         registry.roots.insert(identity, id);
         registry.vaults.insert(id, vault.clone());
         Ok(vault)
@@ -104,7 +115,13 @@ impl Runtime {
         }
         registry.closing = true;
         for state in &mut states {
-            state.begin_close();
+            if self.backup.is_some() && state.phase != lapis_app_protocol::VaultPhase::Closed {
+                // Keep database writers usable if final capture needs repair.
+                state.backup_pending = true;
+                state.phase = lapis_app_protocol::VaultPhase::Closing;
+            } else {
+                state.begin_close();
+            }
         }
         drop(states);
         drop(registry);

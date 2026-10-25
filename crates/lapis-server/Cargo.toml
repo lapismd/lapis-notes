@@ -27,5 +27,6 @@ tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "signal
 uuid = { version = "1", features = ["v4", "serde"] }
 
 [dev-dependencies]
+jj-store-jj = { path = "../../../jj-store/crates/jj-store-jj", version = "0.1.0", default-features = false, features = ["vault-backup"] }
 reqwest = { version = "=0.12.28", default-features = false, features = ["json", "stream"] }
 tokio = { version = "1", features = ["process", "io-util", "time"] }

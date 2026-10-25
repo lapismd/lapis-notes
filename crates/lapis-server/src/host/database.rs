@@ -2,7 +2,7 @@ use super::{Host, Principal, Result};
 use crate::config::Config;
 use lapis_app_core::{
     embedding::host::NativeEmbeddingHost,
-    services::{DatabaseStorage, Runtime},
+    services::{BackupStorage, DatabaseStorage, Runtime},
     vault::VaultRoot,
 };
 use lapis_app_protocol::database::call::{DatabaseCall, DatabaseValue};
@@ -13,8 +13,11 @@ impl Host {
     /// Installation-only selection; HTTP callers never supply this profile.
     pub fn with_profile(config: Config, profile: &Path) -> io::Result<Self> {
         config.validate()?;
-        let storage = storage(profile, &config)?;
-        Self::with_runtime(config, Runtime::with_database(storage))
+        let (database, backup) = storage(profile, &config)?;
+        let mut host =
+            Self::with_runtime(config, Runtime::with_database(database).with_backup(backup))?;
+        host.automatic_backup = true;
+        Ok(host)
     }
     pub async fn database(
         &self,
@@ -29,7 +32,7 @@ impl Host {
     }
 }
 
-fn storage(profile: &Path, config: &Config) -> io::Result<DatabaseStorage> {
+fn storage(profile: &Path, config: &Config) -> io::Result<(DatabaseStorage, BackupStorage)> {
     if !profile.is_absolute()
         || !std::fs::symlink_metadata(profile).is_ok_and(|entry| entry.is_dir())
     {
@@ -40,19 +43,20 @@ fn storage(profile: &Path, config: &Config) -> io::Result<DatabaseStorage> {
     let root = VaultRoot::open(profile)?;
     let database = root.path().join("databases");
     let models = root.path().join("models");
+    let history = root.path().join("vault-history");
     for vault in &config.vaults {
         let vault = vault.root.canonicalize()?;
         if root.path().starts_with(&vault)
-            || [&database, &models]
+            || [&database, &models, &history]
                 .iter()
                 .any(|storage| storage.starts_with(&vault) || vault.starts_with(storage))
         {
             return Err(io::Error::other(
-                "Server database/cache storage must stay outside vault content",
+                "Server database/cache/history storage must stay outside vault content",
             ));
         }
     }
-    for name in ["databases", "models"] {
+    for name in ["databases", "models", "vault-history"] {
         if let Err(error) = root.mkdir(name, false)
             && error.kind() != io::ErrorKind::AlreadyExists
         {
@@ -70,5 +74,6 @@ fn storage(profile: &Path, config: &Config) -> io::Result<DatabaseStorage> {
     let embeddings = NativeEmbeddingHost::managed(&models).map_err(io::Error::other)?;
     let storage = DatabaseStorage::new(&database, embeddings).map_err(io::Error::other)?;
     root.verify_physical_root()?;
-    Ok(storage)
+    let backup = BackupStorage::new(&history).map_err(io::Error::other)?;
+    Ok((storage, backup))
 }

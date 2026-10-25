@@ -36,9 +36,19 @@ pub(super) async fn attach(
             "Reload the matching application client",
         ));
     }
-    blocking(move || state.host.attach(vault, principal))
+    let host = state.host.clone();
+    let descriptor = blocking(move || host.attach(vault, principal)).await?;
+    if let Err(error) = state
+        .host
+        .prepare_client(descriptor.client_id, principal)
         .await
-        .map(Json)
+    {
+        let host = state.host.clone();
+        let client = descriptor.client_id;
+        let _ = blocking(move || host.detach(client, principal)).await;
+        return Err(error.into());
+    }
+    Ok(Json(descriptor))
 }
 pub(super) async fn execute(
     AxumState(state): AxumState<State>,

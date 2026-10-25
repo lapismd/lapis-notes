@@ -1,4 +1,5 @@
 mod attachments;
+mod backup;
 mod database;
 
 use crate::config::Config;
@@ -23,6 +24,7 @@ pub struct Host {
     runtime: Runtime,
     vaults: Vec<ManagedVault>,
     clients: attachments::Attachments,
+    automatic_backup: bool,
 }
 
 pub fn error(code: ErrorCode, message: &str) -> ServiceError {
@@ -52,6 +54,7 @@ impl Host {
             runtime,
             vaults,
             clients: attachments::Attachments::default(),
+            automatic_backup: false,
         })
     }
 

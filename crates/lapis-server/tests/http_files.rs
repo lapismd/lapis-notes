@@ -1,5 +1,6 @@
 mod admission;
 mod attachments;
+mod backup;
 mod browser_auth;
 mod credentials;
 mod database;

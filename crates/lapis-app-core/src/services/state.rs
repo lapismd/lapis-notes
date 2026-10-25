@@ -15,6 +15,9 @@ pub struct VaultService {
     pub(super) changed: Condvar,
     pub(super) storage: Option<Arc<DatabaseStorage>>,
     pub(super) database_open: tokio::sync::Mutex<()>,
+    pub(super) backup_storage: Option<Arc<super::BackupStorage>>,
+    pub(super) backup: Mutex<Option<Arc<super::backup::Owner>>>,
+    pub(super) close_gate: Mutex<()>,
 }
 pub(super) struct Editor {
     pub client: Uuid,
@@ -32,6 +35,7 @@ pub(super) struct State {
     pub database: Option<Database>,
     pub database_starting: bool,
     pub database_error: Option<lapis_app_protocol::ServiceError>,
+    pub backup_pending: bool,
 }
 impl State {
     pub fn require_open(&self) -> Result<()> {
@@ -64,6 +68,7 @@ impl State {
             && self.work == 0
             && self.database.is_none()
             && !self.database_starting
+            && !self.backup_pending
         {
             self.phase = VaultPhase::Closed;
         }
@@ -83,10 +88,14 @@ impl VaultService {
                 database: None,
                 database_starting: false,
                 database_error: None,
+                backup_pending: false,
             }),
             changed: Condvar::new(),
             storage,
             database_open: tokio::sync::Mutex::new(()),
+            backup_storage: None,
+            backup: Mutex::new(None),
+            close_gate: Mutex::new(()),
         }
     }
     pub fn id(&self) -> Uuid {
@@ -110,6 +119,10 @@ impl VaultService {
     }
     /// Blocking drain; async hosts call this outside their worker executor.
     pub fn close(&self) -> Result<()> {
+        let _close = self.close_gate.lock().map_err(|_| Error::closed())?;
+        if self.backup_storage.is_some() {
+            self.finish_backup()?;
+        }
         let mut state = self.lock()?;
         if state.dirty(None) {
             return Err(Error::busy());

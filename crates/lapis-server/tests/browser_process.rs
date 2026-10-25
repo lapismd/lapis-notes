@@ -202,7 +202,7 @@ async fn real_rust_host_bootstraps_once_and_restores_cookie_sessions_and_notes_a
     stop(&mut child).await;
     std::fs::remove_file(&password).unwrap();
     use std::os::unix::fs::PermissionsExt;
-    for name in ["databases", "models"] {
+    for name in ["databases", "models", "vault-history"] {
         assert_eq!(
             std::fs::metadata(profile.join(name))
                 .unwrap()

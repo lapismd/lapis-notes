@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 01:35:09 UTC",
+  "updated": "2026-10-25 02:11:19 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -157,9 +157,9 @@
       "id": "R1.3.10",
       "area": "Host adapters",
       "work": "Automatic backup after client detach and controlled Quit",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "Reuse the existing engine with service ownership; qualify the original detach/drain gate."
+      "detail": "[Shared backup lifetime](spec/records/2026-10-25-rust-backup-lifetime.md): source and hosted native lifetime qualified. Six integration cases plus cancellation/drain pass; exact hosted and storage-guard regressions each move one failure to one pass. Final full check/test/build/spec passes with 245 Rust cases; the cold Rust browser journey passes (8.6s). Tauri ownership adoption remains open."
     },
     {
       "id": "R1.3.11",
