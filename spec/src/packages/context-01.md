@@ -276,6 +276,10 @@ error types. Neither entry exports a Node server or tRPC implementation.
 
 - Result parents retain only a regular extension-free filename; expanded-body headers own the full path and applied retrieval mode.
 
+The private native core also exports bounded archive extraction and immutable ZIP
+snapshots. Hosts own provisional-root admission/publication and transport; archive
+code owns content validation and streaming under the managed-vault contract.
+
 ## `@lapis-notes/api` (kernel slice)
 
 Purpose (condensed from the full Lapis Notes api package):

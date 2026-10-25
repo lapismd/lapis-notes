@@ -34,8 +34,31 @@ Restore re-admits the same retained physical root and history identity before
 publishing the active state. Archived entries cannot attach or write through old
 clients. Repeated Archive/Restore requests retain the same identity and state.
 
+Folder and ZIP intake reuse the existing chooser controls and their browser
+ZIP encoding. The authenticated import route accepts a display name and at most
+512 MiB compressed, 2 GiB expanded and 100,000 entries. Native extraction first
+validates all entry paths and declared limits, normalizes Windows separators,
+and rejects absolute/traversal paths, links, special entries and collisions.
+Content streams into a new, empty, unpublished UUID directory; ordinary writes
+retain their separate file limit. Empty directories need not be retained.
+
+Interrupted uploads never publish. Completed uploads enter accepted management
+work, which survives response cancellation and drains before shutdown. Known
+extraction failures clean only that new unpublished directory. After uncertain
+catalogue publication, preserve bytes and report an unavailable outcome without
+automatic replay. Durable operation recovery remains R6.
+
+Export snapshots regular content under the shared native writer, applies the
+same limits and rejects links/special files. The completed private ZIP snapshot
+releases native work before streaming to a slow download client. Include `.lapis`
+content, excluding service/profile data already outside content. Downloads use
+attachment, length, no-store and nosniff headers. Only the exact readonly cookie
+export route may omit the protocol header; supplied stale versions still fail.
+
 Acceptance covers creation through real HTTP and the retained chooser, name-only
 rename, archive refusal with dirty editors, stale-client fencing, byte-preserving
-restore and cold catalogue recovery. Transfer/import/export and installed-plugin
-delivery retain their existing R1.3.9/R6 gates. The Node serving baseline remains
-until R7; this intake does not claim the final cutover.
+restore and cold catalogue recovery. Transfer checks cover browser-produced
+archives, binary/Unicode/state bytes, rejected archives without publication,
+export roundtrip, authenticated downloads and cold import recovery. Installed
+plugin delivery retains R1.3.9.3/R6. The Node serving baseline remains until R7;
+this intake does not claim the final cutover.

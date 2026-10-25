@@ -8,6 +8,7 @@ mod errors;
 mod files;
 mod management;
 mod routes;
+mod transfers;
 
 use crate::host::Host;
 use axum::{
@@ -64,6 +65,8 @@ pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::R
         .route("/api/v3/vaults/{vault}/name", post(management::rename))
         .route("/api/v3/vaults/{vault}/archive", post(management::archive))
         .route("/api/v3/vaults/{vault}/restore", post(management::restore))
+        .route("/api/v3/vaults/import", post(transfers::import))
+        .route("/api/v3/vaults/{vault}/export", get(transfers::export))
         .route("/api/v3/auth/current", get(browser::current))
         .route("/api/v3/auth/logout", post(browser::logout))
         .route("/api/v3/vaults/{vault}/clients", post(routes::attach))

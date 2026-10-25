@@ -87,6 +87,7 @@ export type HostInfo = {
   build_id: string;
   browser_auth: boolean;
   manage_vaults: boolean;
+  transfer_vaults: boolean;
 };
 export type LogoutReply = { ok: boolean };
 export type VaultName = { name: string };

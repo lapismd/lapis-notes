@@ -654,13 +654,15 @@
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
-        }
+        },
+        "transfer_vaults": { "type": "boolean" }
       },
       "required": [
         "protocol_major",
         "build_id",
         "browser_auth",
-        "manage_vaults"
+        "manage_vaults",
+        "transfer_vaults"
       ],
       "type": "object"
     },

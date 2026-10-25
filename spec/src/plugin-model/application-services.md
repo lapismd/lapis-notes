@@ -2,8 +2,9 @@
 
 Hosted screen resources are prepared before the owning VaultSession and released
 after its App/database teardown. This host connection preserves existing plugin
-registration and explicit App ownership. Rust's initial profile reports its
-unavailable installation/transfer actions without selecting the Node service.
+registration and explicit App ownership. Rust reports installation as unavailable
+until its own delivery gate passes. Generated host capabilities admit retained
+vault transfer controls through shared Rust services without selecting Node.
 
 LN-SRCH-051 gives plugins disposable result-source registrations. The Plugin helper namespaces their IDs and removes their invalidation subscriptions on unload; it grants no additional source access.
 

@@ -54,7 +54,13 @@ async fn authenticate(state: &State, request: &mut Request) -> Result<(), Failur
             .is_some_and(|(_, route)| {
                 route.starts_with("files/") || route.starts_with("resources/")
             });
-        version(request.headers(), readonly && byte_route)?;
+        let export_route = request
+            .uri()
+            .path()
+            .strip_prefix("/api/v3/vaults/")
+            .and_then(|tail| tail.strip_suffix("/export"))
+            .is_some_and(|id| uuid::Uuid::parse_str(id).is_ok());
+        version(request.headers(), readonly && (byte_route || export_route))?;
         if !readonly {
             let csrf = request
                 .headers()

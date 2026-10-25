@@ -6,6 +6,8 @@ existing RPC, cookie, vault-management and plugin-asset behavior. The separately
 selected Rust profile never falls back to this implementation after a failure.
 Its [managed-vault intake](../architecture/rust-managed-vaults.md) keeps control
 metadata and mutation authority in Rust while reusing the current hosted chooser.
+The same intake retains folder/ZIP import and export with bounded native
+streaming. Node transfer behavior remains the baseline until Rust cutover.
 
 The Node integration retains the current shared `.lapis` state directory under
 LN-ARCH-140 and LN-PKG-165, including browser and authenticated plugin-asset

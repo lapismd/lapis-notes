@@ -33,7 +33,10 @@ It reuses this production login/chooser/workspace through a host connection,
 uses the Rust-generated protocol and admitted client IDs, and reports its actual
 `rust-server` runtime. It has no PWA storage or Node fallback. Its source and
 real-screen gates remain in progress under R1.3.9; the Node profile retains its
-existing serving baseline until the final cutover.
+existing serving baseline until the final cutover. Its generated transfer
+capability enables the retained folder/ZIP import and Export ZIP controls only
+when the selected Rust installation supports them. Uploads and downloads use
+that host; the browser does not select a Node fallback.
 
 ## Implemented host boundary
 

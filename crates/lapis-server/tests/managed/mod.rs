@@ -1,6 +1,7 @@
 mod lifecycle;
 mod recovery;
 mod security;
+mod transfers;
 
 use lapis_app_protocol::{ClientDescriptor, ManagedVault, Reply, Request, VaultCommand};
 use lapis_server::{

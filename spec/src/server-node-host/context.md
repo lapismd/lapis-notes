@@ -20,6 +20,11 @@ worker dispatch and Markdown operations. The Node host owns filesystem execution
 managed roots, authentication, membership, HTTP policy and process lifetime.
 Retained Deno compatibility subpaths serve the frozen desktop independently.
 
+The staged Rust host retains these transfer controls through the shared bounded
+archive engine and managed-vault catalogue. Its accepted import/export lifetime
+and uncertain-publication rules follow [Rust managed vaults](../architecture/rust-managed-vaults.md);
+Node remains the serving baseline until R7.
+
 ## Runtime topology
 
 ```text

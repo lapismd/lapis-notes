@@ -21,6 +21,7 @@ export function createRustHostedBackend(
     async info() {
       const info = await host.info();
       capabilities.manageVaults = info.manage_vaults;
+      capabilities.transferVaults = info.transfer_vaults;
       return { buildId: info.build_id, protocolMajor: info.protocol_major };
     },
     current: () => host.current(),
@@ -46,12 +47,18 @@ export function createRustHostedBackend(
       host.json(`/vaults/${encodeURIComponent(id)}/archive`, "POST"),
     restore: (id) =>
       host.json(`/vaults/${encodeURIComponent(id)}/restore`, "POST"),
-    importArchive: async () => {
-      throw unavailable();
+    importArchive: async (name, archive) => {
+      const response = await host.response(
+        `/vaults/import?name=${encodeURIComponent(name)}`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/zip" },
+          body: archive,
+        },
+      );
+      await response.json();
     },
-    exportUrl: () => {
-      throw unavailable();
-    },
+    exportUrl: (id) => host.url(`/vaults/${encodeURIComponent(id)}/export`),
     async prepare(profile) {
       const client = await host.attach(profile.id);
       return {

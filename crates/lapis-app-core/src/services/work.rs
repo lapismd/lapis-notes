@@ -21,6 +21,16 @@ impl VaultService {
     }
 }
 impl Work {
+    pub fn archive_snapshot(
+        &self,
+        limits: crate::archive::ArchiveLimits,
+    ) -> Result<crate::archive::ArchiveSnapshot> {
+        let state = self.vault.lock()?;
+        if state.phase == VaultPhase::Closed {
+            return Err(Error::closed());
+        }
+        Ok(crate::archive::create_zip(&state.root, limits)?)
+    }
     pub fn cancellation_requested(&self) -> bool {
         self.vault
             .lock()

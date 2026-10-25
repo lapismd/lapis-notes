@@ -219,18 +219,22 @@ async fn database_json_has_its_own_bound_without_raising_the_file_command_limit(
     result(&f, &attached, "setMeta", vec![json!("large"), json!(data)]).await;
     let stored = result(&f, &attached, "getMeta", vec![json!("large")]).await;
     assert_eq!(stored["value"].as_str().unwrap().len(), data.len());
+    let rejected = request(
+        &f,
+        &attached,
+        "setMeta",
+        vec![json!("rejected"), json!("x".repeat(33 * 1024 * 1024))],
+    )
+    .send()
+    .await
+    .unwrap();
+    assert_eq!(rejected.status(), 413);
     assert_eq!(
-        request(
-            &f,
-            &attached,
-            "setMeta",
-            vec![json!("rejected"), json!("x".repeat(33 * 1024 * 1024))]
-        )
-        .send()
-        .await
-        .unwrap()
-        .status(),
-        413
+        rejected
+            .headers()
+            .get("connection")
+            .and_then(|value| value.to_str().ok()),
+        Some("close")
     );
     assert_eq!(
         result(&f, &attached, "getMeta", vec![json!("rejected")]).await,
@@ -246,6 +250,13 @@ async fn database_json_has_its_own_bound_without_raising_the_file_command_limit(
         .await
         .unwrap();
     assert_eq!(response.status(), 413);
+    assert_eq!(
+        response
+            .headers()
+            .get("connection")
+            .and_then(|value| value.to_str().ok()),
+        Some("close")
+    );
     finish(&f).await;
 }
 

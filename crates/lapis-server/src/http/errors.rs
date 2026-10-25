@@ -50,6 +50,14 @@ impl From<ServiceError> for Failure {
 }
 impl IntoResponse for Failure {
     fn into_response(self) -> Response {
-        (self.0, Json(self.1)).into_response()
+        let mut response = (self.0, Json(self.1)).into_response();
+        // This host serves HTTP/1. An early size rejection can leave body bytes
+        // unread; tell clients to retire it before their next admitted command.
+        if self.0 == StatusCode::PAYLOAD_TOO_LARGE {
+            response
+                .headers_mut()
+                .insert("connection", "close".parse().unwrap());
+        }
+        response
     }
 }

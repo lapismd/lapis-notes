@@ -7,7 +7,8 @@ use uuid::Uuid;
 impl Management {
     pub(super) async fn execute(&self, host: Arc<Host>, command: Command) -> Result<ManagedVault> {
         match command {
-            Command::Create(value) => self.create(host, name(value)?).await,
+            Command::Create(value) => self.create(host, name(value)?, None).await,
+            Command::Import(value, source) => self.create(host, name(value)?, Some(source)).await,
             Command::Rename(id, value) => {
                 let mut vault = self.catalogue.get(id)?;
                 vault.name = name(value)?;
@@ -19,7 +20,12 @@ impl Management {
             Command::Restore(id) => self.restore(host, id).await,
         }
     }
-    async fn create(&self, host: Arc<Host>, name: String) -> Result<ManagedVault> {
+    async fn create(
+        &self,
+        host: Arc<Host>,
+        name: String,
+        source: Option<std::fs::File>,
+    ) -> Result<ManagedVault> {
         if self.catalogue.list()?.len() >= 20 {
             return Err(error(
                 ErrorCode::Busy,
@@ -33,10 +39,24 @@ impl Management {
         };
         let parent = self.storage.try_clone().map_err(store)?;
         let id = vault.vault_id;
-        let root = tokio::task::spawn_blocking(move || storage::create(&parent, id))
-            .await
-            .map_err(|_| error(ErrorCode::Io, "Vault storage outcome is unavailable"))?
-            .map_err(store)?;
+        let root = tokio::task::spawn_blocking(move || {
+            let root = storage::create(&parent, id).map_err(store)?;
+            if let Some(source) = source {
+                use lapis_app_core::archive::{ArchiveLimits, extract_zip};
+                if let Err(error) = extract_zip(source, &root, ArchiveLimits::default()) {
+                    // Only unpublished bytes created by this operation are eligible.
+                    root.verify_physical_root().map_err(store)?;
+                    parent.verify_physical_root().map_err(store)?;
+                    parent
+                        .remove_directory(&id.to_string(), true)
+                        .map_err(store)?;
+                    return Err(lapis_app_core::services::Error::from(error).0);
+                }
+            }
+            Ok::<_, lapis_app_protocol::ServiceError>(root)
+        })
+        .await
+        .map_err(|_| error(ErrorCode::Io, "Vault storage outcome is unavailable"))??;
         // Keep provisional bytes after an uncertain catalogue write; never delete
         // a directory whose authoritative publication may have completed.
         self.control

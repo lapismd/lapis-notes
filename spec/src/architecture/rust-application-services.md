@@ -9,7 +9,7 @@ The main Notes `default` workspace owns that R0–R7 master tracker. Desktop's
 separate M-series tracker points here for shared-core activity. R3.1.18 native
 runtime/model installation has [independent source evidence](../../records/2026-10-24-rust-core-model-cache.md).
 Source database conformance and vault lifetime are qualified. The HTTP half of R1.3.8 is qualified; Tauri and retained Web application
-adoption remain. [Managed vault intake](rust-managed-vaults.md) retains R1.3.9 scope.
+adoption remain. [Managed vault intake](rust-managed-vaults.md) retains R1.3.9 scope, including bounded content transfers.
 
 R1.1 extracts Desktop's existing vault file engine into `lapis-app-core` and
 updates native callers directly. The low-level engine retains the caller-owned
@@ -76,9 +76,9 @@ bounded native snapshot with a matching ETag, content length and byte ranges.
 Resource routes retain restrictive MIME/CSP policy. Slow network consumers do
 not own vault jobs, and HTTP shutdown has a bounded drain after the native leave
 gate passes. Native paths and file handles never become protocol fields.
-When the file-write adapter rejects an HTTP/1 upload it closes the connection,
-since rejected/interrupted bodies may have unread bytes. Clients must not reuse
-an uncertain upload connection.
+Rejected file uploads and oversized JSON bodies close the HTTP/1 connection:
+unread bytes may still be in flight. Clients must not reuse an uncertain upload
+connection.
 
 Rust hosted browser authentication retains LN-SRV-004/005: idempotent owner
 bootstrap from a private password file, bounded scrypt, hashed opaque sessions,

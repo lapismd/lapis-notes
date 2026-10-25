@@ -2,6 +2,7 @@ mod catalogue;
 mod lifetime;
 mod operations;
 mod storage;
+mod transfers;
 
 use super::{Host, Result, error};
 use crate::control::Control;
@@ -13,6 +14,7 @@ use uuid::Uuid;
 
 pub(crate) enum Command {
     Create(String),
+    Import(String, std::fs::File),
     Rename(Uuid, String),
     Archive(Uuid),
     Restore(Uuid),

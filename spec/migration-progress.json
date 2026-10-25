@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 04:15:55 UTC",
+  "updated": "2026-10-25 04:55:06 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -381,9 +381,9 @@
       "id": "R1.3.9.2",
       "area": "Hosted shell",
       "work": "Existing folder/ZIP import and vault export",
-      "status": "Waiting",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "Retained R1.3.9 transfer scope: native bounded archive intake/export and the existing browser folder/ZIP controls. Accepted operation lifetime also retains its R6 gate."
+      "detail": "[Vault transfers](spec/records/2026-10-25-rust-vault-transfers.md): bounded native folder/ZIP intake and export reuse the retained chooser. Nine archive and twelve managed-vault cases, all 273 ordinary Rust cases/doctests, all 20 package check/test tasks, eleven builds, 53 Web unit cases, all 261 catalog cases and all three final cold Rust UI/restart journeys (18.9s) pass. Both Desktop library compatibility cases pass on the separately recorded uncommitted snapshot. R6 durable recovery and the pending Desktop consumer commit retain their own gates."
     },
     {
       "id": "R1.3.9.3",

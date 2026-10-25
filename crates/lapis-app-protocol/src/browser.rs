@@ -26,6 +26,7 @@ pub struct HostInfo {
     pub build_id: String,
     pub browser_auth: bool,
     pub manage_vaults: bool,
+    pub transfer_vaults: bool,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, JsonSchema, TS)]

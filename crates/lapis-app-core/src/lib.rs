@@ -2,6 +2,7 @@
 
 //! Native Notes application services shared by Tauri and hosted adapters.
 
+pub mod archive;
 pub mod database;
 pub mod embedding;
 pub mod services;
