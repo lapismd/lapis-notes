@@ -1,5 +1,10 @@
 # Deno Desktop Host / Startup and lifecycle
 
+The frozen Deno host retains its existing application profile. The staged
+[Rust-owned chat navigator](../architecture/rust-turn-admission.md) and
+[native index owner](../architecture/rust-indexing-lifetime.md) are Tauri/hosted
+migration work; neither changes Deno startup or selects a new Deno writer.
+
 ## LN-DENO-008 — Language, plugin, AI, and terminal host services: use public package boundaries and Deno-owned process
 
 <a id="ln-deno-008"></a>

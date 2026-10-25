@@ -2,16 +2,19 @@ import { View, type WorkspaceLeaf } from "@lapis-notes/api";
 import { mount, unmount } from "svelte";
 import NativeChat from "./NativeChat.svelte";
 import type { NativeChatSession } from "./session";
+import type { NativeChatNavigation } from "./navigation";
 
 export class NativeChatView extends View {
   #component?: ReturnType<typeof mount>;
   #selection?: string;
+  #scope = "";
   #disposed = new Set<Promise<void>>();
   constructor(
     leaf: WorkspaceLeaf,
     readonly session: NativeChatSession,
     readonly views: Set<NativeChatView>,
     readonly type = "ai",
+    readonly navigation?: NativeChatNavigation,
   ) {
     super(leaf);
   }
@@ -31,6 +34,7 @@ export class NativeChatView extends View {
   getState(): Record<string, unknown> {
     return {
       ...super.getState(),
+      scopeDir: this.#scope,
       conversationId: this.#selection?.startsWith("draft:")
         ? undefined
         : this.#selection,
@@ -39,6 +43,7 @@ export class NativeChatView extends View {
   onload(): void {
     this.views.add(this);
     const state = super.getState();
+    this.#scope = typeof state.scopeDir === "string" ? state.scopeDir : "";
     this.#component = mount(NativeChat, {
       target: this.containerEl,
       props: {
@@ -48,8 +53,16 @@ export class NativeChatView extends View {
             ? state.conversationId
             : undefined,
         screen: this.type === "ai" ? "chat" : "history",
-        onSelection: (id: string) => {
+        initialScope: this.#scope,
+        onHistory: this.navigation
+          ? () => this.navigation!.history()
+          : undefined,
+        onConversation: this.navigation
+          ? (location) => this.navigation!.chat(location)
+          : undefined,
+        onSelection: (id: string, scope: string) => {
           this.#selection = id;
+          this.#scope = scope;
           this.app.workspace.requestSaveLayout();
         },
         onDispose: (pending: Promise<void>) => {

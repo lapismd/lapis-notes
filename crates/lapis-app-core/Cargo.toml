@@ -8,6 +8,7 @@ publish.workspace = true
 description = "Transport-independent native application services for Lapis Notes"
 
 [dependencies]
+lapis-plugin-services = { path = "../../../lapis-plugins/crates/lapis-plugin-services", version = "0.1.0" }
 lapis-app-protocol = { path = "../lapis-app-protocol" }
 lapis-ai-service = { path = "../../../lapis-ai/crates/lapis-ai-service", version = "0.1.0" }
 cap-std = "=4.0.3"

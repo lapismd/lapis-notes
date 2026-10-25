@@ -28,6 +28,7 @@ export class RustServerRuntime {
     readonly repository: string,
     readonly origin: string,
     readonly password: string,
+    readonly agentsConfig?: string,
   ) {}
   get logs(): string {
     return this.#logs;
@@ -81,6 +82,9 @@ export class RustServerRuntime {
       LAPIS_SERVER_BUILD_ID: "rust-browser-acceptance",
     };
     delete environment.LAPIS_SERVER_TOKEN;
+    if (this.agentsConfig)
+      environment.LAPIS_SERVER_AGENTS_CONFIG = this.agentsConfig;
+    else delete environment.LAPIS_SERVER_AGENTS_CONFIG;
     const service = this.#spawn(
       join(this.repository, ".local/rust-core-target/debug/lapis-server"),
       [config, "127.0.0.1:0"],

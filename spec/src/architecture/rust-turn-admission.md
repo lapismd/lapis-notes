@@ -174,3 +174,14 @@ detach/logout and Desktop reload detach clients while accepted work continues;
 explicit Desktop close/Quit drains before dependent native services stop.
 The standalone browser and separately selected serving baseline retain their
 existing implementations. Staging selects one writer and never falls back.
+
+History uses the retained public screen in an ungrouped right sidebar by
+default. Its command reveals an existing instance wherever it was moved.
+Selecting a saved conversation opens or reuses its exact scope/conversation
+in a main chat tab while History remains mounted. Creating a chat from History
+opens a new local draft in the selected scope; only explicit Send admits work.
+Other drafts and conversations retain their state. Persisted chat leaves retain
+both scope and saved conversation identity. A fresh History observer reads
+portable metadata titles/status without loading every transcript or adding a
+writer. Metadata publication may lag a newly accepted journal; that transient
+state is observed without fabricating a saved title or replaying work.

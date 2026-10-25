@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 13:52:49 UTC",
+  "updated": "2026-10-25 15:29:33 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -373,9 +373,9 @@
       "id": "R3.2.1",
       "area": "Service ownership",
       "work": "Unattended metadata and projection reconciliation",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Adopt the native database and move the existing processor/scheduler ownership into the service. External changes must index without clients."
+      "detail": "A second authorized implementation lane is migrating real Markdown parsing and unattended reconciliation into the native service. Startup/external-change/cold-reopen and close/start regressions pass focused source checks; full source qualification and commit are in progress. Plugin projections and both host selections retain separate pending gates."
     },
     {
       "id": "R3.2.2",
@@ -439,7 +439,39 @@
       "work": "Tauri selection and existing chat adoption",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "[Source 58dc50ac](spec/records/2026-10-25-rust-chat-observer.md) and [committed Desktop 83b82d7f intake](spec/records/2026-10-25-rust-chat-desktop-intake.md) qualify the staged observer/transport checkpoint. Source passes twenty forced check tasks, 2,173 package cases, eleven builds, 261 cold catalog cases, specification/49 validator cases and seven Rust-hosted/twelve PWA/one Node journeys. Desktop passes 420 renderer/governance, 744 AI, 242 native, seven fresh hidden IPC and all 2,012 catalog cases; strict checks, both bundles, ordinary audit and static catalog pass. Six Notes archives are pinned to 58dc50ac among twenty verified receipts. Accepted immutable formatting exception remains unchanged. Mounted chat/History routing/trust and R2.3 actual-provider cold recovery retain original gates; defaults are not promoted."
+      "detail": "[Verified retained chat source](spec/records/2026-10-25-rust-chat-navigation.md): eighteen focused and all 2209 package cases/33 forced tasks, 261 cold Notes catalog, eight actual Rust-hosted/twelve PWA/one Node journeys pass. Desktop 420 renderer/governance, 744 AI and all 2016 catalog cases pass. Source commit and committed-profile/native intake are being finalized; R2.3/default gates remain unchanged."
+    },
+    {
+      "id": "R3.2.1.1",
+      "area": "Unattended metadata",
+      "work": "Native Markdown parsing and reconciliation lifetime",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Native Markdown source](spec/records/2026-10-25-native-markdown-indexing.md): parser 6af2420f and Notes selected-source intake pass ten lifetime/two normalization/21 retained reference cases, 338 complete ordinary Rust cases, five unique real-model cases, all 2209 package cases/33 forced tasks, 261 cold catalog and spec lanes. Npm exception is limited to the plugin parser slice. Both host selections and other processors remain pending; Notes source commit is the enclosing verified intake."
+    },
+    {
+      "id": "R3.2.1.2",
+      "area": "Unattended metadata",
+      "work": "Remaining native plugin projection processors",
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "Tasks occurrence parser committed at 569d7e30 in its owning repository after 27 shared fixtures, 35 focused/229 complete TS cases and all private native/package/specification lanes pass. Native publication integration, full Tasks/Docs/custom processors and host selection remain pending; parser source does not select a writer."
+    },
+    {
+      "id": "R3.2.1.3",
+      "area": "Unattended metadata",
+      "work": "Tauri and HTTP unattended metadata adoption",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "Select one native metadata writer through both hosts and prove external changes after client detach without a renderer scheduler."
+    },
+    {
+      "id": "R3.2.1.2.1",
+      "area": "Native plugin projections",
+      "work": "Source-owned Tasks occurrence parser",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "[Source receipt](../lapis-plugin-tasks/spec/records/2026-10-25-native-task-occurrences.md), Tasks commit 569d7e30ed86bd4514365e50befb908b2a8400e2. Private parser retains version-1 rows, tracking values, URI/path handling, duplicates and UTF-16 source ranges. All 229 unit cases, 27 shared fixtures and native/check/build/spec lanes pass. Notes publication and host adoption remain pending."
     }
   ]
 }

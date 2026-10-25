@@ -15,6 +15,7 @@ pub struct VaultService {
     pub(super) changed: Condvar,
     pub(super) storage: Option<Arc<DatabaseStorage>>,
     pub(super) database_open: tokio::sync::Mutex<()>,
+    pub(super) indexing: Mutex<Option<super::indexing::Owner>>,
     pub(super) backup_storage: Option<Arc<super::BackupStorage>>,
     pub(super) backup: Mutex<Option<Arc<super::backup::Owner>>>,
     pub(super) close_gate: Mutex<()>,
@@ -95,6 +96,7 @@ impl VaultService {
             changed: Condvar::new(),
             storage,
             database_open: tokio::sync::Mutex::new(()),
+            indexing: Mutex::new(None),
             backup_storage: None,
             backup: Mutex::new(None),
             close_gate: Mutex::new(()),
@@ -129,7 +131,14 @@ impl VaultService {
         }
         if self.backup_storage.is_some() {
             self.finish_backup()?;
+        } else {
+            let mut state = self.lock()?;
+            if state.dirty(None) {
+                return Err(Error::busy());
+            }
+            state.begin_close();
         }
+        self.finish_indexing()?;
         let mut state = self.lock()?;
         if state.dirty(None) {
             return Err(Error::busy());

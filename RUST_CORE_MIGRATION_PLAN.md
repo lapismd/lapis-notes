@@ -148,6 +148,12 @@ carried forward rather than restarted or marked complete.
 
 ## Verification and governance
 
+Two implementation lanes may run concurrently: existing chat/host integration
+and independent native indexing work. Assign disjoint files and review both
+before intake. Queue heavy Rust configurations and memory-intensive catalog
+lanes on the shared machine. Parallel implementation does not change the
+feature dependencies or allow a source checkpoint to satisfy a host gate.
+
 - First reproduce the exact affected boundary. Reuse stored-format/hash, vault,
   AppDatabase, Markdown/Unicode metadata, Search, tool and history fixtures.
 - Exercise common service acceptance over both transports; cover multiple

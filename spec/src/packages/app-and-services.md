@@ -6,6 +6,9 @@ and built public exports. Temporary verified local archives admit unpublished
 Agent UI during migration; tracked dependency declarations keep normal ranges
 and publication remains separate. Its built native-chat entry is shared by
 Desktop and Rust-hosted Web, without another transcript writer or engine.
+The profile also owns retained workspace routing: History stays visible while
+its rows open exact main-area conversations. Native metadata is a read-only
+projection; draft creation and view selection never submit prompts.
 
 The private Rust-hosted chooser adapter consumes generated native protocol types
 and the existing public App/Vault interfaces. Managed-vault mutation authority

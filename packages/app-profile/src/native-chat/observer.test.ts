@@ -136,6 +136,26 @@ function fixture() {
 }
 
 describe("native chat observer", () => {
+  it("a fresh History observer reads saved titles without loading all transcripts", async () => {
+    const f = fixture();
+    await f.port.read(new AbortController().signal);
+    await f.send();
+    f.records[0].phase = "completed";
+    f.host.readText.mockClear();
+    const history = new NativeChatObserver(f.session, {
+      target: () => "codex",
+    });
+    const snapshot = await history.read(new AbortController().signal);
+    expect(snapshot.sessions.find((s) => s.id === f.conversation)?.title).toBe(
+      "Saved native title",
+    );
+    expect(f.host.readText.mock.calls.map(([path]) => path)).toEqual([
+      expect.stringContaining("/metadata.yaml"),
+    ]);
+    expect(f.calls.filter((v) => v.kind === "submit")).toHaveLength(1);
+    history.close();
+    f.port.close();
+  });
   it("opens a local draft without publishing a conversation or authored work", async () => {
     const f = fixture();
     const snapshot = await f.port.read(new AbortController().signal);
@@ -144,6 +164,126 @@ describe("native chat observer", () => {
     expect(snapshot.sessions[0].items).toEqual([]);
     expect(f.calls.filter((v) => v.kind === "submit")).toHaveLength(0);
     expect(f.host.readText).not.toHaveBeenCalled();
+    f.port.close();
+  });
+  it("uses the first native authored prompt when portable metadata has no title", async () => {
+    const f = fixture();
+    await f.port.read(new AbortController().signal);
+    await f.send();
+    f.records[0].phase = "completed";
+    const history = new NativeChatObserver(f.session, {
+      target: () => "codex",
+    });
+    f.host.readText.mockResolvedValue(
+      JSON.stringify({
+        schemaVersion: 3,
+        id: f.conversation,
+        status: "active",
+      }),
+    );
+    f.host.readText.mockClear();
+    const snapshot = await history.read(new AbortController().signal);
+    expect(snapshot.sessions.find((s) => s.id === f.conversation)?.title).toBe(
+      "Authored café 📝",
+    );
+    expect(f.host.readText.mock.calls.map(([path]) => path)).toEqual([
+      expect.stringContaining("/metadata.yaml"),
+    ]);
+    history.close();
+    f.port.close();
+  });
+  it("retries only active missing metadata and never hides malformed saved history", async () => {
+    const f = fixture();
+    await f.port.read(new AbortController().signal);
+    await f.send();
+    const history = new NativeChatObserver(f.session, {
+      target: () => "codex",
+    });
+    f.host.readText.mockRejectedValueOnce(
+      Object.assign(new Error("Not published"), { code: "ENOENT" }),
+    );
+    const pending = await history.read(new AbortController().signal);
+    expect(pending.sessions.find((s) => s.id === f.conversation)?.title).toBe(
+      "Conversation",
+    );
+    const published = await history.read(new AbortController().signal);
+    expect(published.sessions.find((s) => s.id === f.conversation)?.title).toBe(
+      "Saved native title",
+    );
+    f.records[0].updated_at_ms++;
+    f.records[0].phase = "completed";
+    f.host.readText.mockRejectedValueOnce(
+      Object.assign(new Error("Missing saved metadata"), { code: "ENOENT" }),
+    );
+    await expect(history.read(new AbortController().signal)).rejects.toThrow(
+      "Missing saved metadata",
+    );
+    f.host.readText.mockResolvedValueOnce(
+      JSON.stringify({ schemaVersion: 3, id: "other", title: "Other" }),
+    );
+    await expect(history.read(new AbortController().signal)).rejects.toThrow(
+      "cannot be displayed",
+    );
+    expect(f.calls.filter((v) => v.kind === "submit")).toHaveLength(1);
+    history.close();
+    f.port.close();
+  });
+  it("refreshes edited metadata after the bounded cache expires without reading transcripts", async () => {
+    vi.useFakeTimers();
+    try {
+      const f = fixture();
+      await f.port.read(new AbortController().signal);
+      await f.send();
+      f.records[0].phase = "completed";
+      const history = new NativeChatObserver(f.session, {
+        target: () => "codex",
+      });
+      await history.read(new AbortController().signal);
+      f.host.readText.mockClear();
+      f.host.readText.mockResolvedValue(
+        JSON.stringify({
+          schemaVersion: 3,
+          id: f.conversation,
+          title: "Edited title",
+          status: "archived",
+        }),
+      );
+      const cached = await history.read(new AbortController().signal);
+      expect(cached.sessions.find((s) => s.id === f.conversation)?.title).toBe(
+        "Saved native title",
+      );
+      expect(f.host.readText).not.toHaveBeenCalled();
+      await vi.advanceTimersByTimeAsync(2001);
+      const refreshed = await history.read(new AbortController().signal);
+      expect(
+        refreshed.sessions.find((s) => s.id === f.conversation),
+      ).toMatchObject({ title: "Edited title", status: "archived" });
+      expect(f.host.readText.mock.calls).toHaveLength(1);
+      expect(f.host.readText.mock.calls[0][0]).toMatch(/metadata.yaml$/);
+      history.close();
+      f.port.close();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  it("keeps a History-created draft's scope through its first explicit send", async () => {
+    const f = fixture();
+    const port = new NativeChatObserver(f.session, {
+      target: () => "codex",
+      initialScope: "Projects/Café",
+    });
+    const snapshot = await port.read(new AbortController().signal);
+    expect(snapshot.chat?.scope).toBe("Projects/Café");
+    expect(snapshot.sessions[0].scope).toBe("Projects/Café");
+    const id = crypto.randomUUID();
+    await port.act({
+      id,
+      kind: "send",
+      recipients: ["codex"],
+      submission: { id, text: "Scoped prompt", comments: [] },
+    });
+    expect(f.records[0].input.scope_dir).toBe("Projects/Café");
+    port.close();
     f.port.close();
   });
   it("acknowledges the exact native request and observes portable files without writing", async () => {

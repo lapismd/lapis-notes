@@ -10,6 +10,11 @@ Feature disable drains the native owner, while hosted session detach/logout
 only releases the client. Standalone browser and Node profiles retain their
 existing restrictions. Application/provider qualification remains R2.2/R2.3.
 
+The Rust browser journey exercises an operator-configured native worker through
+the production chat composer. History uses the right sidebar and keeps its view
+when opening an exact existing main conversation. Draft creation and restored
+selection never dispatch prompts; portable metadata supplies saved titles.
+
 The explicit `server-rust` profile connects the retained hosted screen to
 Rust-generated commands through admitted HTTP client IDs. It omits PWA startup
 and browser storage. Its initial configured-vault workflow and later hosted

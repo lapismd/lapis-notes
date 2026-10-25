@@ -5,23 +5,32 @@
   import { AgentHistoryScreen } from "@lapismd/agent-ui/screens";
   import { NativeChatObserver } from "./observer";
   import type { NativeChatSession } from "./session";
+  import { NativeChatHistory } from "./history.svelte";
+  import type { NativeChatLocation } from "./navigation";
   let {
     session,
     initialSession,
+    initialScope,
     screen = "chat",
     onSelection,
+    onHistory,
+    onConversation,
     onDispose,
   }: {
     session: NativeChatSession;
     initialSession?: string;
+    initialScope?: string;
     screen?: "chat" | "history";
-    onSelection?(id: string): void;
+    onSelection?(id: string, scope: string): void;
+    onHistory?(): Promise<void>;
+    onConversation?(location: NativeChatLocation): Promise<void>;
     onDispose?(pending: Promise<void>): void;
   } = $props();
   const port = untrack(
     () =>
       new NativeChatObserver(session, {
         initialSession,
+        initialScope,
         target: () => controller.selectedAgent,
       }),
   );
@@ -34,6 +43,29 @@
   untrack(() => {
     controller.screen = screen;
   });
+  const history = untrack(
+    () =>
+      new NativeChatHistory(
+        () => controller,
+        async (location) => {
+          try {
+            if (onConversation) await onConversation(location);
+            else if (location.conversationId)
+              controller.selectSession(location.conversationId);
+            else await controller.action("new_session");
+          } catch (error) {
+            session.report(error as Error);
+          }
+        },
+      ),
+  );
+  $effect(() => {
+    if (screen === "chat" && controller.screen === "history" && onHistory) {
+      controller.screen = "chat";
+      void untrack(onHistory).catch((error) => session.report(error as Error));
+    }
+    history.syncScope();
+  });
   let previous = "";
   $effect(() => {
     const snapshot = controller.snapshot;
@@ -44,7 +76,10 @@
         controller.selectedAgent =
           controller.session?.agent || snapshot.agents[0]?.id || "";
         previous = port.selected;
-        onSelection?.(port.selected);
+        onSelection?.(
+          port.selected,
+          controller.session?.scope ?? initialScope ?? "",
+        );
       }
     });
   });
@@ -59,7 +94,7 @@
 
 <div class="native-chat" data-testid="ai-chat-panel" data-native-chat="true">
   {#if controller.screen === "history"}
-    <AgentHistoryScreen {controller} />
+    <AgentHistoryScreen {history} />
   {:else}
     <AgentChatScreen {controller} />
   {/if}

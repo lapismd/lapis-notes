@@ -56,7 +56,7 @@ impl Drop for Opening<'_> {
 }
 
 impl VaultService {
-    async fn database(self: &Arc<Self>) -> Result<Database> {
+    pub(super) async fn database(self: &Arc<Self>) -> Result<Database> {
         let _gate = self.database_open.lock().await;
         let storage = self.storage.as_ref().ok_or_else(|| {
             Error::new(

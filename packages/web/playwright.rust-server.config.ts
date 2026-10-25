@@ -2,7 +2,11 @@ import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: ["rust-server-host.spec.ts", "rust-server-files.spec.ts"],
+  testMatch: [
+    "rust-server-host.spec.ts",
+    "rust-server-files.spec.ts",
+    "rust-server-chat.spec.ts",
+  ],
   timeout: 120_000,
   expect: { timeout: 30_000 },
   fullyParallel: false,

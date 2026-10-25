@@ -1,5 +1,11 @@
 # Storybook Catalog / Documentation and navigation
 
+The generated specification navigation includes
+[Native indexing lifetime](../architecture/rust-indexing-lifetime.md) beside the
+shared Rust architecture chapters. Its MDX mirror renders the canonical source;
+this documentation entry does not select an application index owner or qualify
+the independent desktop/native acceptance gates.
+
 Backlog recommendations use canonical pages and generated metadata-only mirrors
 in SUMMARY order. The Legacy plugin ports page records future intake separately
 from implemented plugin contracts and verification status.

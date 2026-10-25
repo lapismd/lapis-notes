@@ -19,6 +19,10 @@ lifetime. R1.2/R1.3 retain those gates. Native directory witnesses are explicit
 capability handles, never renderer or HTTP values. Watch/resource/profile policy
 remains in Desktop while the common engine owns checked IO and publication.
 
+R3.2.1 stages [native Markdown reconciliation](rust-indexing-lifetime.md).
+The plugin crate owns parsing; the admitted service owns watchers, indexing
+and drain. Task/custom projections and both host default gates remain open.
+
 The core boundary audit runs in normal checks and canonical specification checks.
 It rejects transport dependencies/source references, host source routing and new
 oversized source/test files. Native builds retain checkout-owned output and the
@@ -338,12 +342,6 @@ native conversation-store experiment MUST NOT become migration prerequisites.
 browser-owned implementation and plugins. Desktop and hosted clients using native
 services MUST NOT construct duplicate authoritative schedulers. Shared conformance
 fixtures MUST verify the retained browser and native contracts independently.
-
-Native indexed-file facade intake composes the retained core/task stages and
-atomic rename/delete effects under LN-DB-061/062/063. It reuses existing native
-writers and committed rename notifications across metadata, Search, notebook,
-task and projection relationships. Host adoption and unattended indexing remain
-separate gates.
 
 Native semantic inference intake first qualifies the actual ONNX encoder against
 the retained model/tokenizer and mean-pooling/normalization contract. Model and

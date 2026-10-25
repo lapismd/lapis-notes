@@ -5,6 +5,7 @@ import {
   type NativeChatLeave,
 } from "./session";
 import { NativeChatView } from "./view";
+import { NativeChatNavigation } from "./navigation";
 
 const modes = new WeakMap<App, NativeChatLeave>();
 export function prepareNativeChatLeave(
@@ -21,6 +22,7 @@ export function createNativeChatPlugin(
   return class NativeChatPlugin extends Plugin {
     readonly session: NativeChatSession;
     readonly views = new Set<NativeChatView>();
+    readonly navigation: NativeChatNavigation;
     constructor(app: App) {
       super(app, {
         id: "ai",
@@ -31,6 +33,7 @@ export function createNativeChatPlugin(
         description: "Chat with your configured agents.",
       });
       this.session = new NativeChatSession(factory(app));
+      this.navigation = new NativeChatNavigation(app);
     }
     async onload(): Promise<void> {
       for (const [type, title, icon] of [
@@ -38,19 +41,19 @@ export function createNativeChatPlugin(
         ["ai-conversation-history", "AI conversations", "history"],
       ]) {
         const open = async () => {
-          const existing = this.app.workspace.getLeavesOfType(type)[0];
-          const leaf = existing ?? this.app.workspace.getLeaf("tab");
-          if (!existing) await leaf.setViewState({ type, state: {} });
-          this.app.workspace.activateLeaf(leaf, {
-            focusRootHost: false,
-            source: "api",
-            operation: "open-native-chat",
-          });
-          await this.app.workspace.revealLeaf(leaf);
+          if (type === "ai") await this.navigation.chat();
+          else await this.navigation.history();
         };
         this.registerSidebarView(
           type,
-          (leaf) => new NativeChatView(leaf, this.session, this.views, type),
+          (leaf) =>
+            new NativeChatView(
+              leaf,
+              this.session,
+              this.views,
+              type,
+              this.navigation,
+            ),
           { side: "right", title, icon },
           {
             kind: "command",

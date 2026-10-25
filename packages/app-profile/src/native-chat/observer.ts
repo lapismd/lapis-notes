@@ -11,22 +11,31 @@ import type {
 } from "@lapis-notes/api/native-turns";
 import { active, conversation, directory } from "./conversation";
 import type { NativeChatSession } from "./session";
+import { NativeChatMetadata } from "./metadata";
 
 /** One view's read-only projection. Native commands retain all durable authority. */
 export class NativeChatObserver implements AgentPort {
   selected: string;
   #draft = `draft:${crypto.randomUUID()}`;
   #heads = new Map<string, TurnSummary>();
-  #titles = new Map<string, string>();
+  #firsts = new Map<string, TurnSummary>();
+  #metadata: NativeChatMetadata;
+  #scope: string;
   #closed = false;
   #tail = Promise.resolve();
   #listeners = new Set<(snapshot: AgentSnapshot) => void>();
   #timer?: ReturnType<typeof setTimeout>;
   constructor(
     readonly session: NativeChatSession,
-    readonly options: { target(): string; initialSession?: string },
+    readonly options: {
+      target(): string;
+      initialSession?: string;
+      initialScope?: string;
+    },
   ) {
     this.selected = options.initialSession ?? this.#draft;
+    this.#scope = options.initialScope ?? "";
+    this.#metadata = new NativeChatMetadata(session);
   }
   resolveRecipients(input: { selected: readonly string[] }): readonly string[] {
     return input.selected.length ? input.selected : [this.options.target()];
@@ -56,21 +65,26 @@ export class NativeChatObserver implements AgentPort {
     if (list.kind !== "records" || targets.kind !== "targets")
       throw new Error("Native chat state is unavailable");
     this.#heads.clear();
+    this.#firsts.clear();
     for (const record of list.records) {
       directory(record);
       const previous = this.#heads.get(record.conversation_id);
       if (!previous || record.accepted_at_ms > previous.accepted_at_ms)
         this.#heads.set(record.conversation_id, record);
+      const first = this.#firsts.get(record.conversation_id);
+      if (!first || record.accepted_at_ms < first.accepted_at_ms)
+        this.#firsts.set(record.conversation_id, record);
     }
     const heads = [...this.#heads.values()].sort(
       (a, b) => b.updated_at_ms - a.updated_at_ms,
     );
+    const metadata = await this.#metadata.read(heads, this.#firsts);
     const sessions: AgentSnapshot["sessions"] = heads.map((head) => ({
       id: head.conversation_id,
-      title: this.#titles.get(head.conversation_id) ?? "Conversation",
+      title: metadata.get(head.conversation_id)?.title ?? "Conversation",
       agent: head.target_id,
       updatedAt: new Date(head.updated_at_ms).toISOString(),
-      status: "active",
+      status: metadata.get(head.conversation_id)?.status ?? "active",
       scope: head.scope_dir,
       path: directory(head),
       items: [],
@@ -85,7 +99,6 @@ export class NativeChatObserver implements AgentPort {
         throw new Error("Native conversation is unavailable");
       const saved = await conversation(this.session, head, value.record);
       Object.assign(sessions.find((row) => row.id === this.selected)!, saved);
-      this.#titles.set(this.selected, saved.title);
     } else if (this.selected !== this.#draft) {
       throw new Error("The selected native conversation is unavailable");
     }
@@ -96,7 +109,7 @@ export class NativeChatObserver implements AgentPort {
         agent: this.options.target() || targets.targets[0]?.id || "",
         updatedAt: "",
         status: "active",
-        scope: "",
+        scope: this.#scope,
         items: [],
       });
     const running = !!head && active(head.phase),
@@ -122,8 +135,8 @@ export class NativeChatObserver implements AgentPort {
         ...(running ? ["stop"] : []),
       ],
       chat: {
-        scope: head?.scope_dir ?? "",
-        scopes: [head?.scope_dir ?? ""],
+        scope: head?.scope_dir ?? this.#scope,
+        scopes: [...new Set([this.#scope, ...heads.map((h) => h.scope_dir)])],
         files: [],
         controls: { attachments: false, approvalPolicy: false, runtime: false },
       },
@@ -186,7 +199,7 @@ export class NativeChatObserver implements AgentPort {
     const input: TurnInput = {
       request_id: action.id,
       target_id: recipients[0],
-      scope_dir: head?.scope_dir ?? "",
+      scope_dir: head?.scope_dir ?? this.#scope,
       prompt: submission.text,
       context: null,
       options: {

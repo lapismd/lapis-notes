@@ -1,5 +1,12 @@
 # Node Server Host / Integration contracts
 
+The staged Rust chat retains History in its workspace sidebar and reopens exact
+scope/conversation pairs through the shared App-owned navigator. Cold hosted
+acceptance reopens the managed vault through the existing chooser and verifies
+that restarting the Rust service does not replay the accepted prompt. This
+continues the [native turn gate](../architecture/rust-turn-admission.md); Node
+remains the serving baseline.
+
 The staged Rust renderer may inject the private native-chat observer into the
 retained workspace. The Node serving baseline keeps its AI restriction and
 existing profile; it neither registers the native observer nor selects a second
