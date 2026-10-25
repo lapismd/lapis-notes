@@ -1,9 +1,6 @@
 packages:
   - "packages/*"
 
-patchedDependencies:
-  bits-ui@2.19.5: patches/bits-ui@2.19.5.patch
-
 linkWorkspacePackages: true
 
 auditConfig:

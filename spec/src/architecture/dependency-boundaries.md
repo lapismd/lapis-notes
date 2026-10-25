@@ -262,3 +262,11 @@ claimed as a complete frozen registry install. Its final regeneration follows
 publication of the private prerequisites. The
 [dependency receipt](../../records/2026-10-25-released-mira-dependency-intake.md)
 separates source admission, consumer qualification and remaining release gates.
+
+The final shared migration cohort selects published Bits UI `2.20.2` in root,
+API and UI to preserve shared Bits component context with Design Core's
+current declaration. The previous approved 2.19.5 patch is removed; the remaining
+timer-lifetime repair is qualified upstream and admitted through a documented
+temporary archive, with exact cold families before consumer admission.
+[Runtime intake evidence](../../records/2026-10-25-bits-runtime-intake.md)
+separates candidate source, source qualification and each consumer's acceptance.

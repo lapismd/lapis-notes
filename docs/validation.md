@@ -19,15 +19,20 @@ pnpm check:storybook-parity
 pnpm test:storybook -- stories/plugins/ai/AiLiveHost.stories.ts
 ```
 
-Images are fingerprinted by the pinned Docker recipe, tool installer, package
-manifest, lockfile, workspace configuration and daemon architecture. Use
+Images are fingerprinted by the pinned Docker recipe, tool installer, target
+and daemon architecture. Application manifests and locks belong to dependency
+caches, so ordinary dependency changes cannot rebuild the tool image. Use
 `pnpm validation:images -- --rebuild` to rebuild explicitly.
 Native Rust aggregate lanes select the full image automatically. Prepare it with `pnpm validation:images -- --target full`. Its recorded sibling revisions are in `scripts/validation/native-sources.json`; the runner transfers those committed sources, never another workspace’s dirty tree.
 
 Each run transfers the exact tracked Jujutsu working-copy revision and ancestry,
 including from an isolated workspace. Secrets, ignored local configuration and
 host node_modules are not transferred. Frozen registry installs and persistent
-pnpm/Turbo volumes are keyed by dependency and tool identities. Browser suites
+pnpm/Turbo volumes are keyed by dependency and tool identities. JavaScript and
+native caches use separate keys: UI archives/pnpm locks cannot cold-bust Cargo,
+and native pins/Cargo locks cannot cold-bust JavaScript stores. Both use the
+exact image identity; Cargo still validates source fingerprints. Inputs come
+from the transferred snapshot and reports record both cache identities. Browser suites
 run bounded sequential shards; explicit file, test and shard arguments stay
 literal. Runs use bounded CPU, memory and shared-memory limits. No host source
 bind mount or Docker socket is exposed inside a worker.

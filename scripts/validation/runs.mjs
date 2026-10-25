@@ -1,9 +1,10 @@
-import { readFile, writeFile, mkdir, rm, open } from "node:fs/promises";
+import { writeFile, mkdir, rm, open } from "node:fs/promises";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { root, localRoot, json } from "./paths.mjs";
-import { hash, imageKey, laneImage, label } from "./model.mjs";
+import { hash, laneImage, label } from "./model.mjs";
 import { image } from "./images.mjs";
+import { cachePlan } from "./cache.mjs";
 import { containerIdentity, completed, withWorkspaceLease } from "./leases.mjs";
 import { snapshot, snapshotFile } from "./source.mjs";
 import { execute } from "./process.mjs";
@@ -51,6 +52,23 @@ async function performRun(config, lane, args, selected, workspace) {
     native: selected.target === "full",
     sourceRoots: config.sourceRoots,
   });
+  const caches = cachePlan({
+    image: selected.id,
+    workspace,
+    pnpmLock: snapshotFile(root, source.revision, "pnpm-lock.yaml"),
+    archives: source.archives,
+    ...(selected.target === "full"
+      ? {
+          cargoLock: snapshotFile(root, source.revision, "Cargo.lock"),
+          companionLock: snapshotFile(
+            root,
+            source.revision,
+            "packages/server-native/Cargo.lock",
+          ),
+          nativeSources: source.nativeSources,
+        }
+      : {}),
+  });
   const request = {
     run: name,
     lane,
@@ -58,6 +76,7 @@ async function performRun(config, lane, args, selected, workspace) {
     image: selected.id,
     imageTarget: selected.target,
     workspace,
+    cache: caches.keys,
     resources: {
       cpus: config.cpus,
       memoryGiB: config.memoryGiB,
@@ -78,26 +97,8 @@ async function performRun(config, lane, args, selected, workspace) {
       join(input, file),
       snapshotFile(root, source.revision, `scripts/validation/${file}`),
     );
-  const dependencies = imageKey({
-    image: selected.id,
-    lock: hash(await readFile(join(root, "pnpm-lock.yaml"))),
-    archives: JSON.stringify(source.archives),
-    nativeSources: JSON.stringify(source.nativeSources),
-  });
-  const volumes = [
-    ["pnpm", "/cache/pnpm"],
-    ["deno", "/cache/deno"],
-    ["turbo", "/work/lapis-notes/.turbo"],
-  ];
-  if (selected.target === "full")
-    volumes.push(
-      ["cargo", "/cache/cargo"],
-      ["rust", "/work/lapis-notes/.local/rust-core-target"],
-      ["native", "/work/lapis-notes/packages/server-native/target"],
-    );
   const mountArgs = [];
-  for (const [key, destination] of volumes) {
-    const volume = `lapis-notes-validation-${workspace}-${dependencies}-${key}`;
+  for (const [volume, destination] of caches.mounts) {
     await docker(config, [
       "volume",
       "create",
@@ -129,7 +130,7 @@ async function performRun(config, lane, args, selected, workspace) {
     "-e",
     "npm_config_store_dir=/cache/pnpm",
     ...mountArgs,
-    selected.tag,
+    selected.id,
     "node",
     "/input/worker.mjs",
   ]);
@@ -184,7 +185,7 @@ export async function remoteRun(config, lane, args) {
     ])
   )
     throw Error("This workspace already has an active remote validation run");
-  return withWorkspaceLease(config, workspace, selected.tag, () =>
+  return withWorkspaceLease(config, workspace, selected.id, () =>
     performRun(config, lane, args, selected, workspace),
   );
 }

@@ -102,7 +102,7 @@
     "@dnd-kit/svelte": "^0.4.0",
     "@lapismd/design-core": "^0.6.0",
     "@lucide/svelte": "^0.515.0",
-    "bits-ui": "2.19.5",
+    "bits-ui": "2.20.2",
     "clsx": "^2.1.1",
     "fuse.js": "^7.3.0",
     "tailwind-merge": "^3.3.1"

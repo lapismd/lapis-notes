@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 20:24:01 UTC",
+  "updated": "2026-10-25 20:42:35 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -63,7 +63,7 @@
       "work": "Real-provider detach and cold application recovery",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-007",
-      "detail": "[Actual-provider preflight](spec/records/2026-10-25-rust-provider-preflight.md) passes native Tauri/Core and Rust HTTP detach/cold/idempotent checks. Approved default_mode source in isolated provider-modes-20261025 passes 11 focused/23 observer, eight native installation/operator/transport, and full check/test/build (346 Rust, 2,220 package cases). Final spec/hosted browser, source commit/integration, Desktop trusted-runner metadata and actual-provider retained-screen recovery in both hosts remain."
+      "detail": "[Actual-provider preflight](spec/records/2026-10-25-rust-provider-preflight.md) passes native Tauri/Core and Rust HTTP detach/cold/idempotent checks. Approved default_mode source passes 11 focused/23 observer cases, eight native cases, full integrated check/test/build (346 Rust/2,220 package cases), and eight fixture-provider hosted browser journeys. Desktop prepared-launch metadata passes three focused native cases. Final source/consumer integration and actual-provider retained-screen recovery in both hosts remain; AI defaults stay staged."
     },
     {
       "id": "R3",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native database/model/cache and vault lifetime are source-qualified; HTTP and Desktop facade adoption are complete under R1.3.8. Native Tasks occurrence publication is source-qualified at 16977050; a pure task-document parser and shared 66-case corpus are being implemented in isolated lapis-task-documents. Full Task/Docs/custom processor engines, native writer selection and unattended Search/history scheduling remain R3.2."
+      "detail": "Native database/Search/model/cache and vault lifetime are source-qualified; HTTP and Desktop database facade adoption are complete. Markdown reconciliation and Tasks occurrence publication (main 16977050), occurrence parsing (569d7e30) and complete Task document parsing (isolated f06b79b4; 75 shared documents) are Source complete. Recurrence/effective-occurrence parity is prepared, not implemented. Full Tasks/Docs/supported custom projections, both unattended indexing selections and service-owned Search/History scheduling remain."
     },
     {
       "id": "R4",

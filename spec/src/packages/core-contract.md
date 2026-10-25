@@ -12,6 +12,13 @@ ranges admit those releases. The
 records the temporary committed Design Core archive, separate consumer checks
 and unresolved private-package frozen-registry gate under LN-PKG-012/064.
 
+Root, API and UI select the same published Bits UI `2.20.2` runtime. The
+[unified-runtime intake](../../records/2026-10-25-bits-runtime-intake.md) retains
+exact hover-preview regressions, final source/packing and separate consumer gates
+before admission. The timer repair is qualified in its owning source and consumed
+through a documented temporary archive, without a tracked dependency patch or
+checkout-specific installation path.
+
 The private native core exposes bounded archive extraction and immutable ZIP
 snapshots under LN-CORE-004/007. Hosts own publication and transport; the engine
 accepts only an empty provisional root and regular content, retaining `.lapis`.

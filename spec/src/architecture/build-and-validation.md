@@ -14,6 +14,16 @@ Workers drop Linux capabilities so permission regressions cannot pass through
 root's discretionary-access overrides. The actual Docker smoke verifies denied
 file reads, denied directory writes and zero effective capabilities before the
 browser checks. The existing init process reaps owned subprocesses.
+Aggregate Storybook lanes enter the public dependency-aware build/test commands
+inside the worker. A clean snapshot cannot assume that API or profile `dist`
+already exists from an earlier host run.
+JavaScript and native cache identities are independent. JavaScript archives and
+pnpm locks MUST NOT invalidate Cargo targets; native source pins and Cargo locks
+MUST NOT invalidate JavaScript caches. Exact image/tool identities fence both.
+Image fingerprints use only the actual Docker build inputs, architecture and
+target; application manifests and dependency locks cannot rebuild a tool image.
+Cache inputs come from the transferred immutable source snapshot, and receipts
+record both identities. Cargo still validates changed Rust source fingerprints.
 Workspace leases remain held for created, active, paused or unreachable workers.
 Cleanup collects only completed owned runs and removes their immutable container
 IDs; an SSH failure cannot authorize an overlapping run or cache cleanup.

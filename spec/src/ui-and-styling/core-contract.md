@@ -22,6 +22,14 @@ package boundary without adding utility classes to component markup.
 
 **Requirement.** Overlapping shadcn primitives SHOULD migrate to `@lapismd/design-core/shadcn/*` over time; progress MUST be tracked in `MIGRATION.md`.
 
+The retained Select story follows the public primitive's native `combobox`
+semantics, locates the labelled Workspace control by that role, selects Daily,
+and verifies the selected value with axe enabled. Application-owned Select
+controls provide their purpose through labels; visible option text does not
+replace the control's accessible name. The
+[runtime intake receipt](../../records/2026-10-25-bits-runtime-intake.md) separates
+this Notes story update from the source-owned Bases naming repair.
+
 ## LN-UI-002 — UI families consumed by @lapis-notes/api (and Lapis-specific: keep API/ Storybook stories, plays, and docs
 
 <a id="ln-ui-002"></a>
