@@ -22,9 +22,10 @@ substantial feature, with portable JSON Canvas documents and connected notes.
 
 Telemetry is an optional engineering workstream for diagnosing performance and
 plugin problems, rather than the third product priority. Univer Docs & Sheets
-and Notebook remain deferred until a specific document or executable-note
-workflow justifies their integration and maintenance cost. Tasks follow-up is
-a selective compatibility audit of the existing implementation.
+remains deferred until a specific document workflow justifies its integration
+and maintenance cost. Notebook is active as a staged port in the standalone
+`lapis-plugin-notebook` repository. Tasks follow-up is a selective
+compatibility audit of the existing implementation.
 
 ## Candidates by increasing difficulty
 
@@ -40,7 +41,7 @@ priority because Telemetry primarily benefits development.
 | 3     | Telemetry diagnostics      | Medium–large     | Optional engineering workstream                           | Restore a real collector behind the retained API, then adapt trace tables, span waterfalls, measurements, settings, and persistence. The current API defaults to a no-op service, so the legacy UI alone is insufficient.                     |
 | 4     | Canvas                     | Large            | Product priority 3                                        | Adapt Svelte Flow nodes and edges, grouping, selection, zoom, keyboard/pointer behavior, Markdown/file embeds, and editable note surfaces. Qualify serialized/debounced writes, close/reload, and read-only embeds.                           |
 | 5     | Univer Docs & Sheets       | Large–very large | Defer until native document/sheet workflows are requested | Integrate the embedded Univer/React runtime, lazy assets and module interop, measured pane startup, focus/theme behavior, and snapshot persistence with visible save recovery. Resolve view-identity overlap with current Docs.               |
-| 6     | Notebook                   | Very large       | Defer; specify and port in stages                         | Restore notebook parsing and reactive execution, worker transport, DuckDB/WASM, TypeScript services, rich outputs and inputs, cancellation, vault access, and generated-state persistence. This spans the plugin and six supporting packages. |
+| 6     | Notebook                   | Very large       | Active; staged port in `lapis-plugin-notebook`            | Restore notebook parsing and reactive execution, worker transport, DuckDB/WASM, TypeScript services, rich outputs and inputs, cancellation, vault access, and generated-state persistence. This spans the plugin and six supporting packages. |
 
 ## Source and compatibility boundaries
 
@@ -52,6 +53,21 @@ priority because Telemetry primarily benefits development.
 | Canvas               | `@lapis-notes/canvas`; `packages/plugins/plugin-canvas`       | Runtime `lapis-canvas`; `.canvas` JSON Canvas documents and embeds.                                                                                           |
 | Univer Docs & Sheets | `@lapis-notes/docs`; `packages/plugins/plugin-docs`           | Runtime `lapis-docs`; `.lapisdoc` and `.lapissheet` JSON snapshot wrappers.                                                                                   |
 | Notebook             | `@lapis-notes/notebook`; `packages/notebook`                  | `.notebook.md` notes, plus `notebook-core`, `notebook-duckdb`, `notebook-duckdb-assets`, `notebook-input`, `notebook-stdlib`, and `notebook-worker` packages. |
+
+### Notebook port is active in its owning repository
+
+The staged Notebook port began on 2026-10-25 in the standalone
+`lapis-plugin-notebook` repository (`@lapis-notes/lapis-plugin-notebook`,
+runtime id `lapis-notebook` preserved from the legacy plugin). Its canonical
+contract lives in that repository's `spec/src/plugins/notebook/` chapters,
+which own the execution, cancellation, persistence, and worker/host
+boundaries; stage status is tracked in its `spec/src/verification.md`. The
+six legacy support packages were ported as private workspace members with
+their regression tests. Generated outputs reuse the notebook-state contract
+already published by `lapis-app-protocol` and `lapis-app-core`, so current
+stages require no Notes changes. Native query-engine services remain a later,
+separately specified proposal. Publication and host adoption stay separate
+gates.
 
 ### Current Docs is a different feature
 
@@ -111,8 +127,11 @@ changing active package authorization or completion status.
       collector and host ownership before porting its diagnostics UI.
 - [ ] Revisit Univer only when `.lapisdoc` or `.lapissheet` usage warrants it;
       settle naming and view identities before implementation.
-- [ ] Revisit Notebook as a staged runtime proposal with explicit execution,
-      cancellation, persistence, and worker/host boundaries.
+- [x] Revisit Notebook as a staged runtime proposal with explicit execution,
+      cancellation, persistence, and worker/host boundaries. Active since
+      2026-10-25 as the standalone `lapis-plugin-notebook` repository; its
+      `spec/src/plugins/notebook/` chapters own those boundaries and its
+      `spec/src/verification.md` tracks stage status.
 - [ ] Audit Tasks compatibility separately and select useful features for the
       existing owning package.
 
