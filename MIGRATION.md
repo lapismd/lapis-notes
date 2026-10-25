@@ -2,15 +2,20 @@
 
 ## Catalog validation activity
 
-The isolated `catalog-validation` workspace adds fail-closed story composition
-checks for 59 families, reusable fixture controls and Docker-first validation.
-All 261 cold Storybook cases, 49 tooling cases, 312 native cases and 2157 package
-cases pass, together with complete root check/build and the static catalog.
-Linux directory durability and private-permission defects exposed by Docker are
-fixed at their owners; Notes pins committed jj-store source `4e74e423`.
-Default-workspace conversation/catalog changes remain excluded. See
-[the qualification record](spec/records/2026-10-25-catalog-validation.md) for
-source archives, exact commands, existing exclusions and separate delivery gates.
+The story-composition and Docker-first changes are now in the default workspace,
+with existing native conversation and indexing work preserved separately.
+Original isolated qualification passed all 261 cold stories, 49 tooling cases,
+312 native cases and 2157 package cases, plus root check/build and the static
+catalog. Those results do not qualify the separately preserved application work.
+
+The landing rechecks the current catalog through source archives where the main
+workspace already depends on unpublished changes. Seven Search-related stories
+fail against the older registry implementations and pass with the matching
+Search and AI archives. The complete current catalog then passes all 261 cold
+stories. Registry-only delivery remains unqualified. See the
+[landing record](spec/records/2026-10-25-catalog-main-landing.md) for exact scope,
+archive identities, results and blockers. Temporary workspaces remain pending
+cleanup confirmation. Catalog checkpoint: **2026-10-25 15:41:15 UTC**.
 
 ## Shared Rust application services (2026-10-23)
 

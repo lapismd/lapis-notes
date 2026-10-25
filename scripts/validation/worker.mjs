@@ -96,9 +96,6 @@ try {
   process.env.DENO_DIR = "/cache/deno";
   const archives = validateArchives(source.archives);
   if (archives.length) {
-    await execute("pnpm", ["fetch", "--frozen-lockfile", "--ignore-pnpmfile"], {
-      cwd: root,
-    });
     const overrides = {};
     await mkdir(join(root, ".local/validation-packages"), { recursive: true });
     for (const entry of archives) {

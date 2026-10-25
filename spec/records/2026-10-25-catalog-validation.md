@@ -1,6 +1,8 @@
 # Lapis Notes catalog validation and Docker execution
 
-Status: qualified in the isolated `catalog-validation` Jujutsu workspace.
+Status: original qualification in the isolated `catalog-validation` Jujutsu workspace.
+See [the later main-workspace landing](2026-10-25-catalog-main-landing.md) for the
+combined checkout and its separate delivery gates.
 Functional, interaction, accessibility, build and final same-change specification
 checks pass, including all 78 specification regressions.
 Ongoing application edits in the default workspace are excluded.

@@ -6,6 +6,11 @@
 
 **Requirement.** Root checks, builds and portable tests MUST default to isolated Docker runs with exact tracked source, frozen registry dependencies, reusable fingerprinted images and dependency-keyed caches; missing images MUST build automatically. Native execution MUST require an explicit override; Docker failure MUST NOT fall back to the host. Runs MUST preserve arguments, bounded resources, source/tool identities and reports, including separate Jujutsu workspaces and remote daemons. Platform-native delivery and live-provider acceptance remain separate lanes.
 
+Temporary source-archive qualification installs its declared, checksum-verified
+prerequisites before validation. It does not require unpublished identities to
+resolve from the registry first; tracked manifests and lockfiles remain portable.
+Registry-only release qualification stays a separate gate.
+
 The root migration tracker projects gate-status tables from its owned JSON
 ledger through `pnpm progress:generate`. `pnpm check:progress` runs in normal
 and specification validation to reject stale status groups and invalid task
