@@ -8,7 +8,7 @@ The sibling Desktop tracker owns its M-series milestones; the active shared
 Rust work is tracked here as R0–R7. Other migration workspaces are retained
 history, not the current implementation checkout.
 
-Last updated **2026-10-24 23:50:49 UTC**. This is the active migration tracker for the
+Last updated **2026-10-25 00:08:07 UTC**. This is the active migration tracker for the
 [shared Rust plan](RUST_CORE_MIGRATION_PLAN.md). The older Node parity roadmap
 below is superseded; its remaining rows are historical references, not another
 set of current migration tasks.
@@ -19,14 +19,14 @@ selects the shared database/model-cache factory; its retained Web shell has not
 yet been connected. Hosted Web continues to use Node until its replacement gates
 pass.
 
-**Current checkpoint:** [Rust HTTP database intake](spec/records/2026-10-24-rust-http-database.md)
-qualifies all seven focused database/auth cases, the complete thirty-case HTTP
-fixture suite and a real authenticated cold restart. Full source check/test/build
-passes with 234 ordinary Rust cases; all five real-model parent cases also pass.
-The exposed installer lease race is repaired and its eight fresh contention
-rounds pass. The shared 68-method facade and
-[vault-owned database lifetime](spec/records/2026-10-24-rust-core-vault-database.md)
-retain their independent source receipts.
+**Current checkpoint:** [Tauri source prerequisites](spec/records/2026-10-25-rust-database-observers.md)
+qualify passive bounded commit observation and public Rust-generated database
+DTOs through the built API. All three exact lifetime/lag cases and packed type
+contracts pass. Complete source check/test/build passes with 237 ordinary Rust
+cases and 1,532 API cases; all ten specification lanes and 49 regressions pass.
+The [qualified HTTP adapter](spec/records/2026-10-24-rust-http-database.md) retains
+its independent authenticated/cold-restart receipt. Neither source boundary
+alone selects the Tauri database adapter.
 
 **Latest consumer compatibility:** Desktop `df16e136` passes both native
 file-service cases and strict normal/e2e all-target Clippy against the latest
@@ -35,11 +35,14 @@ shared core, including that lease repair. The
 exact scope. This is shared-library compatibility; Tauri database adoption has
 not happened. Earlier Desktop SQL/catalog/native-UI receipts remain historical
 qualification for their original implementations.
+Desktop `a5b936e0` refreshes its activity routing (E-PROGRESS-003) without
+claiming native database adoption.
 
-**Current activity:** the HTTP half of R1.3.8 is qualified. The installed native
-factory opens the shared database/model cache lazily under the existing leased,
-authenticated attachment. R1.3.8 remains Working until Tauri adopts the same
-facade. The retained Web application still uses Node.
+**Current activity:** R1.3.8 source prerequisites are qualified. Desktop's next
+change replaces its renderer SQL transport with shared high-level calls and
+scoped change observation through the existing vault owner. Tauri still uses
+its previous adapter until native intake passes. The HTTP half is qualified;
+the retained hosted Web shell still uses Node.
 
 **Next:** implement the Tauri high-level database adapter. Then connect the
 retained hosted Web shell (R1.3.9), qualify backup after detach/controlled Quit
@@ -70,11 +73,11 @@ not host adoption or native/hosted application acceptance.
 
 ### Gate status: Working
 
-| Task ID                                                                  | Area          | Work                             | Evidence or next gate                                                                                                                                                                                                                                                                                        |
-| ------------------------------------------------------------------------ | ------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [R1.3](spec/src/architecture/rust-application-services.md#ln-core-004)   | Roadmap       | Both host adapters               | Database adoption, existing hosted shell and backup detach/Quit acceptance. See the host checklist.                                                                                                                                                                                                          |
-| [R1.3.8](spec/src/architecture/rust-application-services.md#ln-core-004) | Host adapters | Tauri and HTTP database adapters | [HTTP half qualified](spec/records/2026-10-24-rust-http-database.md): seven focused cases, all thirty shared HTTP cases, real cold-process persistence and complete source check/test/build pass (234 Rust cases). Tauri high-level database adoption is next; retained Web shell acceptance remains R1.3.9. |
-| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)     | Roadmap       | Indexed vault                    | Native database, model/cache and vault-owned database lifetime are source-qualified. Host adoption and unattended metadata/projection/Search/history indexing remain.                                                                                                                                        |
+| Task ID                                                                  | Area          | Work                             | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------------------------------------------------------ | ------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [R1.3](spec/src/architecture/rust-application-services.md#ln-core-004)   | Roadmap       | Both host adapters               | Database adoption, existing hosted shell and backup detach/Quit acceptance. See the host checklist.                                                                                                                                                                                                                                                                                                                                                                |
+| [R1.3.8](spec/src/architecture/rust-application-services.md#ln-core-004) | Host adapters | Tauri and HTTP database adapters | [HTTP half qualified](spec/records/2026-10-24-rust-http-database.md): seven focused cases, all thirty HTTP cases and cold persistence pass. [Tauri source prerequisites](spec/records/2026-10-25-rust-database-observers.md) qualify three passive-observer cases, public generated DTOs and packed contracts; full source check/test/build/spec passes (237 Rust / 1,532 API cases). Tauri adapter selection is next; retained Web shell acceptance stays R1.3.9. |
+| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)     | Roadmap       | Indexed vault                    | Native database, model/cache and vault-owned database lifetime are source-qualified. Host adoption and unattended metadata/projection/Search/history indexing remain.                                                                                                                                                                                                                                                                                              |
 
 ### Gate status: Waiting
 

@@ -28,18 +28,29 @@ const generated = JSON.parse(
   ),
 );
 const outputs = [
-  ["protocol.ts", await format(generated.typescript, { parser: "typescript" })],
   [
-    "schema.json",
+    new URL("protocol.ts", directory),
+    await format(generated.typescript, { parser: "typescript" }),
+  ],
+  [
+    new URL("schema.json", directory),
     await format(JSON.stringify(generated.schema), { parser: "json" }),
+  ],
+  [
+    new URL(
+      "../packages/api/src/lib/native-database-protocol.ts",
+      import.meta.url,
+    ),
+    await format(generated.databaseTypescript, { parser: "typescript" }),
   ],
 ];
 if (write) await mkdir(directory, { recursive: true });
-for (const [name, source] of outputs) {
-  const path = new URL(name, directory);
+for (const [path, source] of outputs) {
   if (write) await writeFile(path, source);
   else if ((await readFile(path, "utf8").catch(() => "")) !== source)
-    throw new Error(`${name} is stale; run pnpm protocol:generate`);
+    throw new Error(
+      `${fileURLToPath(path)} is stale; run pnpm protocol:generate`,
+    );
 }
 console.log(
   write ? "Generated protocol bindings." : "Protocol bindings match Rust.",

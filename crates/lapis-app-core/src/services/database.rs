@@ -2,7 +2,10 @@ use super::{Client, Error, Result, VaultService, Work};
 use crate::{database::Database, embedding::host::NativeEmbeddingHost, vault::VaultRoot};
 use lapis_app_protocol::{
     ErrorCode, VaultPhase,
-    database::call::{DatabaseCall, DatabaseValue},
+    database::{
+        call::{DatabaseCall, DatabaseValue},
+        changes::ChangeSet,
+    },
 };
 use std::{path::Path, sync::Arc};
 
@@ -109,6 +112,18 @@ impl VaultService {
     }
 }
 impl Client {
+    /// Passive, bounded commit observation. The receiver owns no writer or lease.
+    pub async fn subscribe_to_database_changes(
+        &self,
+    ) -> Result<tokio::sync::broadcast::Receiver<ChangeSet>> {
+        self.vault.lock()?.require_client(self.id)?;
+        let opening = self.vault.begin_work()?;
+        let database = self.vault.database().await?;
+        let changes = database.subscribe_to_changes();
+        drop(opening);
+        Ok(changes)
+    }
+
     pub async fn call_database(&self, request: DatabaseCall) -> Result<DatabaseValue> {
         self.vault.lock()?.require_client(self.id)?;
         let opening = self.vault.begin_work()?;

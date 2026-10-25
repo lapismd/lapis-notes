@@ -137,6 +137,15 @@ Detaching a browser client does not close its shared database. Neither SQL nor
 storage/model paths become request inputs. Existing shell and Tauri adoption
 remain separate acceptance gates.
 
+R1.3.8 clients subscribe through the admitted service to its bounded committed
+database changes. A passive receiver owns neither a work lease nor database
+admission; detach and slow consumption cannot delay writes or close. Closed or
+replaced vaults and unselected databases retain their existing errors. Lag remains
+explicit so host adapters can publish a complete refresh before resuming.
+The public `@lapis-notes/api/app-database` entry exports the Rust-generated call,
+value, method and change DTOs; generation and packed type checks reject drift
+from the retained AppDatabase method and change contracts.
+
 Search call conformance retains the existing optional query-enhancement request
 and skip diagnostics. Unsupported runtime, strong-signal and unavailable-provider
 outcomes keep their prior order and complete-result signals before final limits.
