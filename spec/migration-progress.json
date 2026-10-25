@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 18:20:48 UTC",
+  "updated": "2026-10-25 20:24:01 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -63,7 +63,7 @@
       "work": "Real-provider detach and cold application recovery",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-007",
-      "detail": "[Actual-provider preflight](spec/records/2026-10-25-rust-provider-preflight.md) passes one native Tauri/Core and one Rust HTTP Codex case with explicit read-only mode, including detach/cold/idempotent readback. A separate actual probe of current chat defaults fails native_mode_not_admitted: ask is not a Codex mode. Native provider-mode policy must preserve read-only intent, then actual-provider retained-screen journeys must pass in both hosts. This original staged feature gate remains Working."
+      "detail": "[Actual-provider preflight](spec/records/2026-10-25-rust-provider-preflight.md) passes native Tauri/Core and Rust HTTP detach/cold/idempotent checks. Approved default_mode source in isolated provider-modes-20261025 passes 11 focused/23 observer, eight native installation/operator/transport, and full check/test/build (346 Rust, 2,220 package cases). Final spec/hosted browser, source commit/integration, Desktop trusted-runner metadata and actual-provider retained-screen recovery in both hosts remain."
     },
     {
       "id": "R3",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native database/model/cache and vault lifetime are source-qualified; HTTP and Desktop facade adoption are complete under R1.3.8. Unattended metadata/projection/Search/history indexing remains R3.2."
+      "detail": "Native database/model/cache and vault lifetime are source-qualified; HTTP and Desktop facade adoption are complete under R1.3.8. Native Tasks occurrence publication is source-qualified at 16977050; a pure task-document parser and shared 66-case corpus are being implemented in isolated lapis-task-documents. Full Task/Docs/custom processor engines, native writer selection and unattended Search/history scheduling remain R3.2."
     },
     {
       "id": "R4",
@@ -375,7 +375,7 @@
       "work": "Unattended metadata and projection reconciliation",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native Markdown reconciliation and opt-in Tasks occurrence publication are Source complete; the latter is committed at Notes 23f0e8c6 in isolated native-occurrences. Full Tasks/Docs/custom processors, default source integration and both host selections remain separate gates; aggregate R3.2.1 stays Working."
+      "detail": "Native Markdown reconciliation, Tasks occurrence publication (main Notes 16977050) and the source-owned Tasks document parser (f06b79b4) are Source complete. Full Tasks/Docs/custom processors and both host selections remain separate gates; aggregate R3.2.1 stays Working."
     },
     {
       "id": "R3.2.2",
@@ -455,7 +455,7 @@
       "work": "Remaining native plugin projection processors",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Tasks parser 569d7e30 and opt-in occurrence publication Notes 23f0e8c6 are Source complete. Publication is committed in isolated native-occurrences and awaits default-workspace integration after tooling intake. Full Tasks document/recurrence/materialization, Docs/custom processors and both host selections remain pending; source qualification does not select a writer."
+      "detail": "Tasks occurrence parser 569d7e30 and publication integrated into main Notes 16977050 are Source complete. Tasks document parser f06b79b4 separately qualifies 75 complete shared fixtures; Notes has not adopted that parser. Full projection/recurrence/materialization, Docs/custom processors and both host selections remain pending; source qualification does not select a writer."
     },
     {
       "id": "R3.2.1.3",
@@ -471,7 +471,7 @@
       "work": "Source-owned Tasks occurrence parser",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Source receipt](../lapis-plugin-tasks/spec/records/2026-10-25-native-task-occurrences.md), Tasks commit 569d7e30ed86bd4514365e50befb908b2a8400e2. Private parser retains version-1 rows, tracking values, URI/path handling, duplicates and UTF-16 source ranges. All 229 unit cases, 27 shared fixtures and native/check/build/spec lanes pass. Notes publication and host adoption remain pending."
+      "detail": "[Source receipt](../lapis-plugin-tasks/spec/records/2026-10-25-native-task-occurrences.md), Tasks commit 569d7e30ed86bd4514365e50befb908b2a8400e2. Private parser retains version-1 rows, tracking values, URI/path handling, duplicates and UTF-16 source ranges. All 229 unit cases, 27 shared fixtures and native/check/build/spec lanes pass. Notes publication is integrated at 16977050; both host selections remain pending."
     },
     {
       "id": "R3.2.1.2.2",
@@ -479,7 +479,15 @@
       "work": "Native Tasks occurrence publication",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Opt-in occurrence publication source](spec/records/2026-10-25-native-task-occurrences.md), isolated commit 23f0e8c6, is integrated into main. [Main intake](spec/records/2026-10-25-native-task-occurrences-intake.md) requalifies five exact/all 344 native cases, strict checks/build/spec on 04ce1f88 with unchanged production bytes and exact parser pins. Both host/plugin selections remain waiting."
+      "detail": "[Opt-in occurrence publication source](spec/records/2026-10-25-native-task-occurrences.md), isolated commit 23f0e8c6, is integrated into main at 16977050. [Main intake](spec/records/2026-10-25-native-task-occurrences-intake.md) requalifies five exact/all 344 native cases, strict checks/build/spec on 04ce1f88 with unchanged production bytes and exact parser pins. Both host/plugin selections remain waiting."
+    },
+    {
+      "id": "R3.2.1.2.3",
+      "area": "Native plugin projections",
+      "work": "Source-owned Tasks document parser",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "[Source receipt](../lapis-task-documents/spec/records/2026-10-25-native-task-documents.md), isolated Tasks commit f06b79b4. All 75 complete shared JSON document fixtures match the unchanged TypeScript oracle; 89 exact TypeScript, 304 full unit and three native cases pass with strict check/build/package/spec lanes. Notes adoption, full projection, recurrence execution, mutations and both host selections remain pending."
     }
   ]
 }
