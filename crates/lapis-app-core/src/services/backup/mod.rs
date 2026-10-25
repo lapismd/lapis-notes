@@ -1,6 +1,9 @@
 //! The vault owns the existing native engine; clients own passive status views.
 mod close;
 mod commands;
+mod history;
+#[cfg(test)]
+mod history_tests;
 mod provider;
 mod storage;
 #[cfg(test)]
@@ -8,6 +11,7 @@ mod tests;
 mod watch;
 
 use super::{Client, Error, Result};
+pub use history::HistoryIndexStatus;
 use jj_vault::{Backup, Status};
 use std::sync::{Arc, Mutex};
 pub use storage::BackupStorage;
@@ -17,6 +21,7 @@ pub(super) struct Owner {
     engine: AsyncMutex<Backup>,
     status: Receiver<Status>,
     watch: Mutex<Option<notify::RecommendedWatcher>>,
+    history: Option<history::Owner>,
 }
 fn failure() -> Error {
     Error::new(

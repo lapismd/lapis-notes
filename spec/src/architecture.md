@@ -11,6 +11,7 @@ Defines runtime ownership, dependency boundaries, host integration, and build an
 - [Rust managed vaults](architecture/rust-managed-vaults.md)
 - [Durable native turn admission](architecture/rust-turn-admission.md)
 - [Native indexing lifetime](architecture/rust-indexing-lifetime.md)
+- [Native History indexing lifetime](architecture/rust-history-indexing-lifetime.md)
 - [Backup service lifetime](architecture/rust-backup-lifetime.md)
 - [Editor integration](architecture/editor-integration.md)
 - [Build and validation](architecture/build-and-validation.md)

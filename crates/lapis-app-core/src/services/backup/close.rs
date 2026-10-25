@@ -36,6 +36,9 @@ impl VaultService {
                     .block_on(engine.try_close())
                     .map_err(|_| failure())?;
                 owner.watch.lock().map_err(|_| failure())?.take();
+                if let Some(index) = &owner.history {
+                    index.finish()?;
+                }
             }
             Ok(())
         })();

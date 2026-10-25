@@ -17,7 +17,7 @@ mod streams;
 mod turns;
 mod work;
 
-pub use backup::BackupStorage;
+pub use backup::{BackupStorage, HistoryIndexStatus};
 pub use client::Client;
 pub use database::DatabaseStorage;
 pub use error::{Error, Result};

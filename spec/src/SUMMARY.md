@@ -9,6 +9,7 @@
   - [Architecture / Rust managed vaults](./architecture/rust-managed-vaults.md)
   - [Architecture / Durable native turn admission](./architecture/rust-turn-admission.md)
   - [Architecture / Native indexing lifetime](./architecture/rust-indexing-lifetime.md)
+  - [Architecture / Native History indexing lifetime](./architecture/rust-history-indexing-lifetime.md)
   - [Architecture / Backup service lifetime](./architecture/rust-backup-lifetime.md)
   - [Architecture / Editor integration](./architecture/editor-integration.md)
   - [Architecture / Build and validation](./architecture/build-and-validation.md)

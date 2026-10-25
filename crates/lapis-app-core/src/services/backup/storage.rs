@@ -1,4 +1,4 @@
-use super::{Owner, failure, provider, watch};
+use super::{Owner, failure, history, provider, watch};
 use crate::{
     services::{Error, Result, VaultService},
     vault::VaultRoot,
@@ -15,6 +15,7 @@ use tokio::sync::Mutex as AsyncMutex;
 pub struct BackupStorage {
     root: VaultRoot,
     pub(super) files: Option<Arc<Mutex<()>>>,
+    pub(super) history_indexing: bool,
 }
 impl BackupStorage {
     pub fn new(directory: &Path) -> Result<Self> {
@@ -29,11 +30,17 @@ impl BackupStorage {
         Ok(Self {
             root: VaultRoot::open(directory)?,
             files: None,
+            history_indexing: false,
         })
     }
     /// A native host's existing gate also covers its OS-specific file actions.
     pub fn with_files_gate(mut self, files: Arc<Mutex<()>>) -> Self {
         self.files = Some(files);
+        self
+    }
+    /// Explicit native profile selection; the default admits no index worker.
+    pub fn with_history_indexing(mut self, enabled: bool) -> Self {
+        self.history_indexing = enabled;
         self
     }
     pub(crate) fn validate_vault(&self, vault: &VaultRoot) -> Result<()> {
@@ -76,7 +83,7 @@ impl BackupStorage {
         let engine = Backup::start_idle(
             provider::Provider {
                 native: NativeRepository {
-                    binding,
+                    binding: binding.clone(),
                     exclusions: vec![],
                 },
                 vault: Arc::downgrade(vault),
@@ -86,10 +93,23 @@ impl BackupStorage {
         .map_err(|_| failure())?;
         let watcher = watch::start(root.path(), engine.changes())?;
         executor.block_on(engine.capture()).map_err(|_| failure())?;
+        let history = if self.history_indexing {
+            Some(history::Owner::start(
+                Arc::downgrade(vault),
+                jj_vault::search::NativeHistory {
+                    binding,
+                    exclusions: vec![],
+                },
+                engine.subscribe(),
+            )?)
+        } else {
+            None
+        };
         Ok(Owner {
             status: engine.subscribe(),
             engine: AsyncMutex::new(engine),
             watch: Mutex::new(Some(watcher)),
+            history,
         })
     }
 }

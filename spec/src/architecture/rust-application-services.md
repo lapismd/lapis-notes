@@ -10,7 +10,7 @@ separate M-series tracker points here for shared-core activity. R3.1.18 native
 runtime/model installation has [independent source evidence](../../records/2026-10-24-rust-core-model-cache.md).
 Source database conformance and vault lifetime are qualified. HTTP and retained
 Web staging qualify R1.3.9: [managed vaults](rust-managed-vaults.md), bounded
-transfers and signed plugins. [Committed Tauri intake](../../records/2026-10-25-rust-desktop-intake.md) completes R1.3; R2–R7 remain.
+transfers and signed plugins. [Committed Tauri intake](../../records/2026-10-25-rust-desktop-intake.md) completes R1.3; R3–R7 remain.
 
 R1.1 extracts Desktop's existing vault file engine into `lapis-app-core` and
 updates native callers directly. The low-level engine retains the caller-owned
@@ -19,9 +19,9 @@ lifetime. R1.2/R1.3 retain those gates. Native directory witnesses are explicit
 capability handles, never renderer or HTTP values. Watch/resource/profile policy
 remains in Desktop while the common engine owns checked IO and publication.
 
-R3.2.1 stages [native reconciliation](rust-indexing-lifetime.md). Source-owned
-Markdown, opt-in Tasks occurrences and staged complete Task documents share one
-admitted worker. Full custom processors and both host selections remain separate.
+R3.2.1 [reconciliation](rust-indexing-lifetime.md) shares one admitted worker for
+source-owned Markdown, opt-in Tasks occurrences and staged Task documents; R3.2.3 adds [History scheduling](rust-history-indexing-lifetime.md).
+Full custom processors and both host selections remain separate gates.
 
 The core boundary audit runs in normal checks and canonical specification checks.
 It rejects transport dependencies/source references, host source routing and new

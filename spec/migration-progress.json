@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 22:59:26 UTC",
+  "updated": "2026-10-25 23:20:18 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -391,7 +391,7 @@
       "work": "History-index scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Private native History owner source work is active in native-history-owner-20261025, reusing jj-vault bounded indexing under the existing backup lifetime. Exact no-client regression is prepared; scheduler implementation and qualification remain. Public selection, removal of renderer scheduling and both host adoption gates remain separate."
+      "detail": "Native History scheduler source is qualified under the existing backup owner: nine exact backup cases, 364 Rust cases, 261 cold catalog cases and complete source/specification/navigation gates pass. Both host selections and removal of renderer scheduling remain; the aggregate gate stays Working and defaults are unchanged."
     },
     {
       "id": "R1.3.9.1",
@@ -536,6 +536,46 @@
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
       "detail": "[Qualified native Notes intake](spec/records/2026-10-25-native-task-documents-intake.md) consumes Tasks fcb2a8b5 directly. All 10 exact Tasks cases pass; full repository check/test/build passes 356 ordinary Rust and 2,220 package tests with zero failures. Admitted snapshots retain exact bytes, physical hashes/core metadata and existing schema/rows/edges; one owner handles watcher/dependency/local-date refresh, pruning, revision-idempotent repair and close/drain. Existing six Rust ignores and one frozen Deno integration skip are retained. Both host/plugin selections, mutations/materialization and installed delivery remain separate."
+    },
+    {
+      "id": "R3.2.3.1",
+      "area": "History indexing",
+      "work": "Native backup-owned index source lifetime",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Qualified source](spec/records/2026-10-25-native-history-index-owner.md): nine backup cases, complete source check (364 Rust), 261 cold catalog cases, 78 specification regressions, eight development and six static navigation cases pass. Native-only selection/status remains off by default; both host adoptions are separate."
+    },
+    {
+      "id": "R3.2.1.2.10",
+      "area": "Tasks transformations",
+      "work": "Native mutation and occurrence transformations",
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "Owning Tasks native-transformations contract: all 1,658 frozen original transformation cases pass. Additional metadata cases exposed source YAML differences; a separate owning-parser prerequisite preserves original snapshots and is completing its source gates. Final transformations and Notes/host adoption remain."
+    },
+    {
+      "id": "R3.2.1.2.11",
+      "area": "Docs projection",
+      "work": "Native Docs note projection parity",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "Owning Docs source 781b2847 is integrated in default at f772f2ba. All 155 native projection cases and unchanged 167-case TypeScript oracle pass, with locked strict Rust/specification gates and unchanged dirty npm manifests. Notes publication and both host selections remain separate."
+    },
+    {
+      "id": "R3.2.1.2.11.1",
+      "area": "Docs publication",
+      "work": "Native Docs source-to-projection service intake",
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "Qualified Docs f772f2ba is available. A separate Notes native-docs-index-20261025 workspace is implementing opt-in registration/admission/publication on the existing native metadata owner, preserving Markdown/Tasks/Search defaults. Source qualification and both host selections remain."
+    },
+    {
+      "id": "R3.2.1.2.12",
+      "area": "Markdown metadata parity",
+      "work": "Verify and repair native YAML 1.2 behavior",
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "An isolated Plugins source lane is comparing retained Markdown metadata with the Unicode/scalar differences proven by Tasks and Docs. Reuse the existing parser boundary, preserve original fixtures and repair only demonstrated differences before full host adoption."
     }
   ]
 }
