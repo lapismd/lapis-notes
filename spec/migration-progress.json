@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 21:22:36 UTC",
+  "updated": "2026-10-25 21:30:54 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native database/Search/model/cache and vault lifetime are source-qualified; HTTP and Desktop database facade adoption are complete. Markdown reconciliation and Tasks occurrence publication are integrated at 16977050. Source-owned Tasks document parsing and recurrence/effective resolution are qualified at isolated c725d58b: original 32 date sets/166 queries, 18 effective cases plus two additional ordinal cases/16 queries. Private version-4 Task row normalization is Source complete at 030cb061 (106 complete oracle outcomes, 108 focused/508 full TypeScript and seven native cases). Per-document structure/target/run resolution is underway. Full Tasks/Docs/supported custom projections, both unattended indexing selections and service-owned Search/History scheduling remain."
+      "detail": "Native database/Search/model/cache and vault lifetime are source-qualified; HTTP and Desktop database facade adoption are complete. Markdown reconciliation and Tasks occurrence publication are integrated at 16977050. Source-owned Tasks document parsing and recurrence/effective resolution are qualified at isolated c725d58b: original 32 date sets/166 queries, 18 effective cases plus two additional ordinal cases/16 queries. Private version-4 Task row normalization is Source complete at 030cb061 (106 complete oracle outcomes, 108 focused/508 full TypeScript and seven native cases). Active structure/target/run source passes 96 structure and three direct parser scenarios, 110 focused TypeScript, nine native and 607 full unit cases; build/package/cold catalog and its commit remain pending. Full Tasks/Docs/supported custom projections, both unattended indexing selections and service-owned Search/History scheduling remain."
     },
     {
       "id": "R4",
