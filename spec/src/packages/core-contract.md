@@ -122,3 +122,7 @@ install the UI package's development dependencies.
 <a id="ln-pkg-166"></a>
 
 **Requirement.** API MUST export runtime identity types and native desktop classification through `@lapis-notes/api/runtime` without importing database or model services. Existing root and application-database exports MUST retain those contracts.
+
+The same private core owns the installed-asset verifier extracted from Desktop
+under LN-CORE-004/007. Tauri and HTTP adapters retain URL and caller authority;
+Core receives only an admitted vault capability and installation coordinates.

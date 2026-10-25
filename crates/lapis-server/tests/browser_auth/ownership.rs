@@ -2,6 +2,79 @@ use super::{BrowserFixture, PROTOCOL_MAJOR, VERSION_HEADER};
 use lapis_app_protocol::{Outcome, VaultCommand, VaultValue};
 
 #[tokio::test]
+async fn cookie_module_requests_keep_session_origin_and_version_fences() {
+    use sha2::{Digest, Sha256};
+    let mut f = BrowserFixture::start(true, None).await;
+    let bytes = b"export const marker = 1;";
+    let hash = format!("{:x}", Sha256::digest(bytes));
+    let fingerprint = format!(
+        "{:x}",
+        Sha256::digest(format!("main.mjs:{}:{hash}", bytes.len()))
+    );
+    std::fs::create_dir_all(f.vault.join(".lapis/plugins/portable")).unwrap();
+    std::fs::write(f.vault.join(".lapis/plugins/portable/main.mjs"), bytes).unwrap();
+    std::fs::write(f.vault.join(".lapis/installed-plugins.json"), serde_json::json!({"schemaVersion":1,"plugins":{"portable":{"pluginId":"portable","installedVersion":"1.0.0","files":[{"path":"main.mjs","size":bytes.len(),"sha256":hash}]}}}).to_string()).unwrap();
+    let (a, info, _) = f.login().await;
+    let (b, _, _) = f.login().await;
+    let attached = f.attach(&a, &info).await;
+    let url = format!(
+        "{}/__lapis/plugins/{}/portable/1.0.0/{fingerprint}/main.mjs",
+        f.base, attached.client_id
+    );
+    let response = f
+        .client
+        .get(&url)
+        .header("cookie", &a)
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(response.status(), 200);
+    assert_eq!(response.bytes().await.unwrap().as_ref(), bytes);
+    for (request, expected) in [
+        (f.client.get(&url), 401),
+        (f.client.get(&url).header("cookie", &b), 403),
+        (
+            f.client
+                .get(&url)
+                .header("cookie", &a)
+                .header("origin", "https://foreign.invalid"),
+            403,
+        ),
+        (
+            f.client
+                .get(&url)
+                .header("cookie", &a)
+                .header(VERSION_HEADER, "2"),
+            409,
+        ),
+    ] {
+        assert_eq!(request.send().await.unwrap().status(), expected);
+    }
+    let response = f
+        .authorize(
+            f.client.post(format!("{}/api/v3/auth/logout", f.base)),
+            &a,
+            &info,
+            true,
+        )
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(response.status(), 200);
+    assert_eq!(
+        f.client
+            .get(&url)
+            .header("cookie", &a)
+            .send()
+            .await
+            .unwrap()
+            .status(),
+        401
+    );
+    f.finish().await;
+}
+
+#[tokio::test]
 async fn sessions_and_operator_tokens_cannot_claim_each_others_clients() {
     let token = super::super::support::TOKEN;
     let mut f = BrowserFixture::start(true, Some(token)).await;

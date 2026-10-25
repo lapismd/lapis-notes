@@ -2,9 +2,10 @@
 
 Hosted screen resources are prepared before the owning VaultSession and released
 after its App/database teardown. This host connection preserves existing plugin
-registration and explicit App ownership. Rust reports installation as unavailable
-until its own delivery gate passes. Generated host capabilities admit retained
-vault transfer controls through shared Rust services without selecting Node.
+registration and explicit App ownership. Rust installed content uses the shared native verifier behind authenticated
+admissions, while the existing client installer retains signature/trust and
+plugin lifecycle. R1.3.9.3 qualifies delivery separately from R6 transactions.
+Generated capabilities admit vault transfers without selecting Node.
 
 LN-SRCH-051 gives plugins disposable result-source registrations. The Plugin helper namespaces their IDs and removes their invalidation subscriptions on unload; it grants no additional source access.
 

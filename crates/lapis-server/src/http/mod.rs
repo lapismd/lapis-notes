@@ -7,6 +7,7 @@ pub use identity::Authentication;
 mod errors;
 mod files;
 mod management;
+mod plugins;
 mod routes;
 mod transfers;
 
@@ -28,6 +29,7 @@ struct State {
     auth: Authentication,
     build_id: String,
     origin: String,
+    downloads: reqwest::Client,
 }
 
 pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::Result<Router> {
@@ -48,6 +50,7 @@ pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::R
     }
     auth.validate(&uri)?;
     let state = State {
+        downloads: plugins::client()?,
         host,
         auth,
         build_id: std::env::var("LAPIS_SERVER_BUILD_ID")
@@ -58,6 +61,10 @@ pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::R
         origin: origin.into(),
     };
     Ok(Router::new()
+        .route(
+            "/__lapis/plugins/{client}/{plugin}/{version}/{fingerprint}/{*path}",
+            get(plugins::serve),
+        )
         .route(
             "/api/v3/vaults",
             get(routes::vaults).post(management::create),
@@ -81,6 +88,10 @@ pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::R
             post(routes::heartbeat),
         )
         .route("/api/v3/clients/{client}", delete(routes::detach))
+        .route(
+            "/api/v3/clients/{client}/plugin-bundles/download",
+            get(plugins::download),
+        )
         .route(
             "/api/v3/clients/{client}/files/{*path}",
             get(files::read).put(files::write),

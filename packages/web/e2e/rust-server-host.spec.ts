@@ -1,9 +1,11 @@
 import { test, expect } from "@playwright/test";
 import { mkdtemp, mkdir, readFile } from "node:fs/promises";
-import { randomBytes } from "node:crypto";
+import { randomBytes, createHash } from "node:crypto";
+import { writeFile } from "node:fs/promises";
 import { resolve, join } from "node:path";
 import { RustServerRuntime, unusedLoopbackPort } from "./rust-server-runtime";
 import { unzipSync } from "fflate";
+import { verifyInstalledPluginLifecycle } from "./rust-plugin-lifecycle";
 
 let runtime: RustServerRuntime;
 let origin: string;
@@ -285,5 +287,178 @@ test("retained folder and ZIP controls import and export native content across r
       contentType: "text/plain",
     });
     throw error;
+  }
+});
+
+test("authenticated installed modules load through the built Rust browser origin", async ({
+  page,
+}) => {
+  await page.goto(origin);
+  await page.getByLabel("Username").fill("owner");
+  await page.getByLabel("Password").fill(password);
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Your vaults", exact: true }),
+  ).toBeVisible();
+  const bytes = 'export const marker = "native module";';
+  const hash = createHash("sha256").update(bytes).digest("hex");
+  const fingerprint = createHash("sha256")
+    .update(`main.mjs:${Buffer.byteLength(bytes)}:${hash}`)
+    .digest("hex");
+  await mkdir(join(runtime.vault, ".lapis/plugins/portable"), {
+    recursive: true,
+  });
+  await writeFile(
+    join(runtime.vault, ".lapis/plugins/portable/main.mjs"),
+    bytes,
+  );
+  await writeFile(
+    join(runtime.vault, ".lapis/installed-plugins.json"),
+    JSON.stringify({
+      schemaVersion: 1,
+      plugins: {
+        portable: {
+          pluginId: "portable",
+          installedVersion: "1.0.0",
+          files: [
+            { path: "main.mjs", size: Buffer.byteLength(bytes), sha256: hash },
+          ],
+        },
+      },
+    }),
+  );
+  const current = await page.request.get(`${origin}/api/v3/auth/current`, {
+    headers: { "x-lapis-protocol": "3" },
+  });
+  const { csrf_token } = await current.json();
+  const headers = {
+    "x-lapis-protocol": "3",
+    "x-lapis-csrf": csrf_token,
+    origin,
+  };
+  const attached = await page.request.post(
+    `${origin}/api/v3/vaults/${runtime.vaultId}/clients`,
+    { headers, data: { protocol_version: 3 } },
+  );
+  expect(attached.status()).toBe(200);
+  const { client_id } = await attached.json();
+  const url = `${origin}/__lapis/plugins/${client_id}/portable/1.0.0/${fingerprint}/main.mjs`;
+  expect(
+    await page.evaluate(async (url) => (await import(url)).marker, url),
+  ).toBe("native module");
+  expect(
+    (
+      await page.request.delete(`${origin}/api/v3/clients/${client_id}`, {
+        headers,
+      })
+    ).status(),
+  ).toBe(204);
+  expect((await page.request.get(url)).status()).toBe(403);
+});
+
+test("retained Plugins UI installs and restores an official signed plugin on Rust", async ({
+  page,
+}, testInfo) => {
+  const repository = resolve("../..");
+  const root = await mkdtemp(join(repository, ".local/rust-plugin-install-"));
+  const hostOrigin = `http://localhost:${await unusedLoopbackPort()}`;
+  const service = new RustServerRuntime(root, repository, hostOrigin, password);
+  await service.start();
+  try {
+    await page.goto(hostOrigin);
+    await page.getByLabel("Username").fill("owner");
+    await page.getByLabel("Password").fill(password);
+    await page.getByRole("button", { name: "Sign in", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Open Rust vault", exact: true })
+      .click();
+    await expect(page.getByText("Server DB", { exact: true })).toBeVisible();
+    await page
+      .locator('button[data-hint-target-id="ribbon:app:plugins"]')
+      .click();
+    await expect(
+      page.getByRole("heading", {
+        name: "Make Lapis Notes yours.",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await page
+      .getByRole("link", { name: "Plugins", exact: true })
+      .filter({
+        has: page.getByRole("heading", { name: "Plugins", exact: true }),
+      })
+      .click();
+    await page
+      .getByRole("textbox", { name: "Search registry plugins", exact: true })
+      .fill("Word Count");
+    await page
+      .getByRole("link", { name: "Open Word Count", exact: true })
+      .click();
+    const downloaded = page.waitForResponse(
+      (response) =>
+        response.url().includes("/plugin-bundles/download?source=") &&
+        response.request().method() === "GET",
+    );
+    await page
+      .getByRole("button", { name: "Install in Lapis", exact: true })
+      .click();
+    expect((await downloaded).status()).toBe(200);
+    await expect(
+      page.getByRole("button", { name: "Installed", exact: true }),
+    ).toBeDisabled();
+    await page
+      .getByRole("button", { name: "Open settings", exact: true })
+      .click();
+    await page
+      .getByRole("button", { name: "Plugin registry", exact: true })
+      .click();
+    await page.getByRole("tab", { name: "Installed", exact: true }).click();
+    await expect(
+      page.getByRole("switch", { name: "Disable Word Count", exact: true }),
+    ).toBeChecked();
+    const enabled = JSON.parse(
+      await readFile(
+        join(service.vault, ".lapis/community-plugins.json"),
+        "utf8",
+      ),
+    );
+    expect(enabled).toContain("wordcount");
+    await page
+      .getByRole("button", { name: "Close settings", exact: true })
+      .click();
+    await page.goto(hostOrigin);
+    await service.restart();
+    await page.reload();
+    const restoredModule = page.waitForResponse(
+      (response) =>
+        response.url().includes("/__lapis/plugins/") &&
+        response.url().includes("/wordcount/") &&
+        response.request().method() === "GET",
+    );
+    await page
+      .getByRole("button", { name: "Open Rust vault", exact: true })
+      .click();
+    await expect(page.getByText("Server DB", { exact: true })).toBeVisible();
+    await page
+      .getByRole("button", { name: "Open settings", exact: true })
+      .click();
+    await page
+      .getByRole("button", { name: "Plugin registry", exact: true })
+      .click();
+    await page.getByRole("tab", { name: "Installed", exact: true }).click();
+    await expect(
+      page.getByRole("switch", { name: "Disable Word Count", exact: true }),
+    ).toBeChecked();
+    const restored = await restoredModule;
+    expect(restored.status()).toBe(200);
+    await verifyInstalledPluginLifecycle(page, service.vault, restored.url());
+  } catch (error) {
+    await testInfo.attach("Rust plugin host log", {
+      body: service.logs,
+      contentType: "text/plain",
+    });
+    throw error;
+  } finally {
+    await service.stop();
   }
 });

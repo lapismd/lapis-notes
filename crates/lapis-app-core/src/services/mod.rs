@@ -8,6 +8,7 @@ mod error;
 mod files;
 mod guards;
 mod operations;
+mod plugins;
 mod protocol;
 mod runtime;
 mod state;

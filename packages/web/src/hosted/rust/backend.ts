@@ -1,19 +1,15 @@
 import type { HostedBackend } from "../backend";
-import { RustHostError, RustHttpClient } from "./client";
+import { RustHttpClient } from "./client";
 import { RustDatabaseProvider } from "./database-provider";
 import { RustVaultAdapter } from "./vault-adapter";
+import { createRustPluginAssetServer } from "./plugin-assets";
+import { createRustPluginDistributionFetch } from "./plugin-distribution";
 import type { ManagedVault } from "../../../../../crates/lapis-app-protocol/bindings/protocol";
 
 export function createRustHostedBackend(
   host = new RustHttpClient(),
 ): HostedBackend {
   const capabilities = { manageVaults: false, transferVaults: false };
-  const unavailable = () =>
-    new RustHostError(
-      "UNSUPPORTED",
-      "This operation is unavailable on the selected server",
-      501,
-    );
   return {
     runtime: "rust-server",
     protocolMajor: host.protocolMajor,
@@ -61,13 +57,13 @@ export function createRustHostedBackend(
     exportUrl: (id) => host.url(`/vaults/${encodeURIComponent(id)}/export`),
     async prepare(profile) {
       const client = await host.attach(profile.id);
+      const adapter = new RustVaultAdapter(client, profile.name);
       return {
-        adapter: new RustVaultAdapter(client, profile.name),
+        adapter,
+        pluginAssetServer: createRustPluginAssetServer(client, adapter),
         database: new RustDatabaseProvider(client),
         pluginDistributionOptions: {
-          fetch: async () => {
-            throw unavailable();
-          },
+          fetch: createRustPluginDistributionFetch(client),
         },
         release: () => client.close(),
       };

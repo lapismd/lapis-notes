@@ -1,11 +1,15 @@
 use axum::http::{HeaderMap, StatusCode};
 
-pub(super) struct Selection {
+pub(in crate::http) struct Selection {
     pub start: u64,
     pub length: u64,
     pub status: StatusCode,
 }
-pub(super) fn select(headers: &HeaderMap, length: u64, etag: &str) -> Result<Selection, ()> {
+pub(in crate::http) fn select(
+    headers: &HeaderMap,
+    length: u64,
+    etag: &str,
+) -> Result<Selection, ()> {
     let range = headers
         .get("range")
         .filter(|_| headers.get("if-range").is_none_or(|value| value == etag));

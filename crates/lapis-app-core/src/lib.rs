@@ -5,5 +5,6 @@
 pub mod archive;
 pub mod database;
 pub mod embedding;
+pub mod plugins;
 pub mod services;
 pub mod vault;

@@ -1,5 +1,5 @@
 mod conditions;
-mod ranges;
+pub(super) mod ranges;
 mod reads;
 mod writes;
 

@@ -25,6 +25,7 @@ scrypt = { version = "=0.11.0", default-features = false, features = ["std"] }
 turso = { version = "=0.7.2", default-features = false }
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "signal", "time", "fs", "io-util", "sync"] }
 uuid = { version = "1", features = ["v4", "serde"] }
+reqwest = { version = "=0.12.28", default-features = false, features = ["rustls-tls", "stream"] }
 
 [dev-dependencies]
 zip = { version = "=9.1.0", default-features = false, features = ["deflate-flate2-zlib-rs"] }

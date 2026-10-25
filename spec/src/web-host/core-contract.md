@@ -9,7 +9,8 @@ capability and opaque IDs. [Managed-vault intake](../architecture/rust-managed-v
 qualifies Create/Rename/Archive/Restore separately from transfer and installation.
 Its generated transfer capability enables those existing folder/ZIP and download
 controls against the selected Rust host, with cookie-authenticated readonly
-export and Origin/CSRF-protected uploads. Installed delivery remains pending.
+export and Origin/CSRF-protected uploads. Installed delivery reuses the public asset contract and admitted Rust client
+URLs; installation transactions and recovery retain R6.
 
 The Design Core dependency refresh consumes released `0.5.0` CSS, fonts and
 components through public exports. Existing application ownership, host

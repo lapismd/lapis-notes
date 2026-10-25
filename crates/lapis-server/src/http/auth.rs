@@ -60,7 +60,18 @@ async fn authenticate(state: &State, request: &mut Request) -> Result<(), Failur
             .strip_prefix("/api/v3/vaults/")
             .and_then(|tail| tail.strip_suffix("/export"))
             .is_some_and(|id| uuid::Uuid::parse_str(id).is_ok());
-        version(request.headers(), readonly && (byte_route || export_route))?;
+        let plugin_route = request
+            .uri()
+            .path()
+            .strip_prefix("/__lapis/plugins/")
+            .and_then(|tail| tail.split_once('/'))
+            .is_some_and(|(id, tail)| {
+                uuid::Uuid::parse_str(id).is_ok() && tail.split('/').count() >= 4
+            });
+        version(
+            request.headers(),
+            readonly && (byte_route || export_route || plugin_route),
+        )?;
         if !readonly {
             let csrf = request
                 .headers()

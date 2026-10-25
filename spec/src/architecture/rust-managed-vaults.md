@@ -62,3 +62,25 @@ archives, binary/Unicode/state bytes, rejected archives without publication,
 export roundtrip, authenticated downloads and cold import recovery. Installed
 plugin delivery retains R1.3.9.3/R6. The Node serving baseline remains until R7;
 this intake does not claim the final cutover.
+
+R1.3.9.3 retains the current signed installer and Plugins presentation. The
+shared native asset verifier is extracted from Desktop; hosts retain URL and
+caller admission. Each asset read verifies the current installed record,
+version, complete installation fingerprint, declared path/size and byte SHA-256
+under the admitted vault writer. Paths remain capability-confined to the plugin;
+unsafe paths, unsupported MIME, stale metadata and replaced storage fail closed.
+Closing/logout/archive fences future asset requests. Relative chunks, workers
+and WASM retain the same installation identity without a service worker.
+
+Rust serves GET/HEAD assets at the existing fingerprinted public route, using
+opaque client admissions bound to the authenticated owner/session. Cookie module
+requests may omit the version header only on that readonly route; supplied stale
+versions and foreign origins remain rejected. Revalidate before conditional/range
+responses; network delivery retains no vault lock or work lease.
+
+The same-origin release-download adapter admits only the current first-party
+HTTPS registry mirror and GitHub release sources, bounds bytes at 64 MiB, forwards no owner credentials and
+retains client-side signature/digest verification. It cannot select native roots
+or an alternate execution runtime. The existing browser manual-install path,
+trust, enable/disable/uninstall and restart semantics remain. Native installation
+transactions and retained job recovery remain R6, and final static delivery R7.

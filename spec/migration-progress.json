@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 04:55:06 UTC",
+  "updated": "2026-10-25 05:45:52 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -149,9 +149,9 @@
       "id": "R1.3.9",
       "area": "Host adapters",
       "work": "Existing browser login/vault/workspace UI on Rust",
-      "status": "Working",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "[Configured shell](spec/records/2026-10-25-rust-hosted-shell.md) and [managed-vault intake](spec/records/2026-10-25-rust-managed-vaults.md) are qualified. R1.3.9.1 completes Create/Rename/Archive/Restore through retained UI, actual Rust restart and guarded native ownership. Existing transfers and installations remain R1.3.9.2/.3; final SSE/static delivery remains R7. This parent is not complete hosted parity."
+      "detail": "[Configured shell](spec/records/2026-10-25-rust-hosted-shell.md), [managed vaults](spec/records/2026-10-25-rust-managed-vaults.md), [folder/ZIP transfers](spec/records/2026-10-25-rust-vault-transfers.md) and [signed plugin lifecycle](spec/records/2026-10-25-rust-installed-assets.md) qualify the retained Rust-hosted login/chooser/Notes UI. All five cold browser journeys pass, including actual server restarts. This staged shell gate does not claim R2-R7 feature parity or replace Node; final SSE/static delivery remains R7."
     },
     {
       "id": "R1.3.10",
@@ -389,9 +389,9 @@
       "id": "R1.3.9.3",
       "area": "Hosted shell",
       "work": "Existing installed-plugin delivery and lifecycle",
-      "status": "Waiting",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "Retained R1.3.9 installation scope through existing plugin controls. Installation transactions and final service/static delivery retain their R6/R7 gates; no new plugin model or publication scope."
+      "detail": "[Installed delivery](spec/records/2026-10-25-rust-installed-assets.md): signed install/restart/disable/re-enable/uninstall and all five cold Rust browser journeys (34.6s) pass. Final qualification passes 283 ordinary Rust cases/doctests, twenty package check/test tasks, eleven builds, 60 Web cases, all 261 catalog cases and specification/format gates. One macOS ENOBUFS attempt is retained; the exact case and bounded complete rerun pass unchanged. Desktop native compatibility passes separately; its pending application commit, R6 transactions and R7 delivery remain separate."
     }
   ]
 }

@@ -229,6 +229,11 @@ export default defineConfig(({ mode }) => ({
                 process.env.LAPIS_RUST_SERVER_URL ?? "http://127.0.0.1:4810",
               changeOrigin: false,
             },
+            "/__lapis/plugins": {
+              target:
+                process.env.LAPIS_RUST_SERVER_URL ?? "http://127.0.0.1:4810",
+              changeOrigin: false,
+            },
           }
         : undefined,
     headers: crossOriginIsolationHeaders,
@@ -243,6 +248,11 @@ export default defineConfig(({ mode }) => ({
       mode === "server-rust"
         ? {
             "/api/v3": {
+              target:
+                process.env.LAPIS_RUST_SERVER_URL ?? "http://127.0.0.1:4810",
+              changeOrigin: false,
+            },
+            "/__lapis/plugins": {
               target:
                 process.env.LAPIS_RUST_SERVER_URL ?? "http://127.0.0.1:4810",
               changeOrigin: false,
