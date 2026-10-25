@@ -1,4 +1,5 @@
 //! Private durable dispatch authority. Live vault and execution admission remain required.
+mod continuation;
 mod storage;
 mod types;
 use crate::vault::VaultRoot;
@@ -81,11 +82,11 @@ impl TurnJournal {
                 "Native turn journal is full",
             ));
         }
-        let timestamp = now()?;
+        let (conversation_id, timestamp) = continuation::select(self, &input)?;
         let record = TurnRecord {
             schema_version: 1,
             vault_id: self.storage.vault,
-            conversation_id: Uuid::new_v4(),
+            conversation_id,
             input,
             phase: TurnPhase::Accepted,
             accepted_at_ms: timestamp,

@@ -6,12 +6,17 @@ export type TurnOptions = {
   max_duration_ms: number;
 };
 export type TurnTarget = { id: string; label: string };
+export type TurnContinuation = {
+  conversation_id: string;
+  after_request_id: string;
+};
 export type TurnInput = {
   request_id: string;
   target_id: string;
   scope_dir: string;
   prompt: string;
   context: string | null;
+  continuation?: TurnContinuation;
   options: TurnOptions;
 };
 export type TurnPhase =

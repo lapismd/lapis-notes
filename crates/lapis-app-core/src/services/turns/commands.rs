@@ -23,7 +23,7 @@ impl Client {
                 Ok(TurnValue::Targets { targets })
             }
             TurnCommand::Submit { input } => Ok(TurnValue::Record {
-                record: Some(Box::new(self.submit_turn(input)?)),
+                record: Some(Box::new(self.submit_turn(*input)?)),
             }),
             TurnCommand::Read { request_id } => {
                 id(request_id)?;

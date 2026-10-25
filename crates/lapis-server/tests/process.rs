@@ -322,6 +322,7 @@ async fn configured_binary_finishes_detached_native_work_and_preserves_it_after_
     let attached = attach(&client, &base, id).await;
     let input = TurnInput {
         request_id: Uuid::new_v4(),
+        continuation: None,
         target_id: "fixture".into(),
         scope_dir: "".into(),
         prompt: "Binary-owned native turn".into(),

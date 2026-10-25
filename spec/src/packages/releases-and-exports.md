@@ -1,7 +1,7 @@
 # Packages / Releases and exports
 
 Dependency-image reviews retain LN-GOV-050/LN-PKG-142; API Mira uses public ranges.
-`@lapis-notes/api/native-turns` exports Rust-generated DTOs and an admitted port.
+`@lapis-notes/api/native-turns` exports generated DTOs, explicit continuation cursors and an admitted port.
 
 Release and validation containers consume shared image `2026.10.14.1` by
 digest. GitHub CLI 2.102.0 is supplied upstream so approved npm publication can

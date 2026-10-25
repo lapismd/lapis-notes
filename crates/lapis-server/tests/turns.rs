@@ -1,6 +1,6 @@
 use lapis_app_protocol::{
     ClientDescriptor,
-    turns::{TurnInput, TurnPhase, TurnRecord},
+    turns::{TurnContinuation, TurnInput, TurnPhase, TurnRecord},
 };
 use lapis_server::{
     config::{Config, VaultConfig},
@@ -154,6 +154,7 @@ impl Native {
     fn input(&self) -> TurnInput {
         TurnInput {
             request_id: Uuid::new_v4(),
+            continuation: None,
             target_id: "fixture".into(),
             scope_dir: "".into(),
             prompt: "Authored café 📝".into(),
@@ -378,5 +379,72 @@ async fn hosted_turn_commands_keep_native_launch_authority_and_exact_cancel_scop
         terminal_cancel,
         json!({"kind":"cancel_requested","accepted":false})
     );
+    f.close().await;
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn hosted_followups_keep_one_conversation_across_detach_and_cold_recovery() {
+    let mut f = Native::start().await;
+    let client = f.attach(0).await;
+    let first = f.input();
+    f.call(client.client_id, json!({"kind":"submit","input":first}))
+        .await;
+    let first = f.terminal(first.request_id).await;
+    assert_eq!(first.phase, TurnPhase::Completed);
+    let path = f
+        .temp
+        .path()
+        .join("vault-0/.lapis/agents/sessions")
+        .join(first.conversation_id.to_string())
+        .join("transcript.jsonl");
+    let original = fs::read_to_string(&path).unwrap();
+    let mut followup = f.input();
+    followup.prompt = "A hosted follow-up".into();
+    followup.continuation = Some(TurnContinuation {
+        conversation_id: first.conversation_id,
+        after_request_id: first.input.request_id,
+    });
+    f.call(client.client_id, json!({"kind":"submit","input":followup}))
+        .await;
+    let response = f
+        .client
+        .delete(format!("{}/api/v3/clients/{}", f.base, client.client_id))
+        .bearer_auth(TOKEN)
+        .header("x-lapis-protocol", 3)
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::NO_CONTENT);
+    let second = f.terminal(followup.request_id).await;
+    assert_eq!(second.phase, TurnPhase::Completed);
+    assert_eq!(second.conversation_id, first.conversation_id);
+    assert!(fs::read_to_string(&path).unwrap().starts_with(&original));
+    f.restart().await;
+    let client = f.attach(0).await;
+    let duplicate = f
+        .call(client.client_id, json!({"kind":"submit","input":followup}))
+        .await;
+    assert_eq!(duplicate["record"], serde_json::to_value(&second).unwrap());
+    assert_eq!(f.prompts(), 2);
+    let mut stale = followup.clone();
+    stale.request_id = Uuid::new_v4();
+    let response = f
+        .command(client.client_id, json!({"kind":"submit","input":stale}))
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::CONFLICT);
+    assert_eq!(
+        response.json::<serde_json::Value>().await.unwrap()["code"],
+        "BUSY"
+    );
+    followup.request_id = Uuid::new_v4();
+    followup.continuation.as_mut().unwrap().after_request_id = second.input.request_id;
+    f.call(client.client_id, json!({"kind":"submit","input":followup}))
+        .await;
+    let third = f.terminal(followup.request_id).await;
+    assert_eq!(third.phase, TurnPhase::Completed);
+    assert_eq!(third.conversation_id, first.conversation_id);
+    assert_eq!(f.prompts(), 3);
     f.close().await;
 }

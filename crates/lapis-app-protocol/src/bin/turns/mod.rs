@@ -1,10 +1,11 @@
 use lapis_app_protocol::turns::*;
 use ts_rs::{Config, TS};
 
-pub(super) fn declarations(config: &Config) -> [String; 8] {
+pub(super) fn declarations(config: &Config) -> [String; 9] {
     [
         TurnOptions::decl(config),
         TurnTarget::decl(config),
+        TurnContinuation::decl(config),
         TurnInput::decl(config),
         TurnPhase::decl(config),
         TurnRecord::decl(config),

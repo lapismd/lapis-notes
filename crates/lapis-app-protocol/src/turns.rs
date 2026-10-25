@@ -25,12 +25,22 @@ impl Default for TurnOptions {
 
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize, JsonSchema, TS)]
 #[serde(deny_unknown_fields)]
+pub struct TurnContinuation {
+    pub conversation_id: Uuid,
+    pub after_request_id: Uuid,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize, JsonSchema, TS)]
+#[serde(deny_unknown_fields)]
 pub struct TurnInput {
     pub request_id: Uuid,
     pub target_id: String,
     pub scope_dir: String,
     pub prompt: String,
     pub context: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub continuation: Option<TurnContinuation>,
     #[serde(default)]
     pub options: TurnOptions,
 }
@@ -98,7 +108,7 @@ impl From<TurnRecord> for TurnSummary {
 #[ts(tag = "kind", rename_all = "snake_case")]
 pub enum TurnCommand {
     Targets {},
-    Submit { input: TurnInput },
+    Submit { input: Box<TurnInput> },
     Read { request_id: Uuid },
     List {},
     Cancel { request_id: Uuid },

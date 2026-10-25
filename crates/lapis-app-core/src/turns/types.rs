@@ -14,6 +14,11 @@ pub(crate) fn normalize(mut input: TurnInput) -> io::Result<TurnInput> {
         || input.target_id.chars().any(char::is_control)
         || input.prompt.trim().is_empty()
         || input.prompt.len() > MAX_PROMPT_BYTES
+        || input.continuation.as_ref().is_some_and(|cursor| {
+            cursor.conversation_id.get_version_num() != 4
+                || cursor.after_request_id.get_version_num() != 4
+                || cursor.after_request_id == input.request_id
+        })
         || input.options.max_duration_ms == 0
         || input.options.max_duration_ms > 86_400_000
         || input.options.mode.trim().is_empty()
@@ -55,6 +60,11 @@ pub(super) fn validate(record: &TurnRecord, vault: Uuid, id: Uuid) -> io::Result
         || record.vault_id.is_nil()
         || record.input.request_id != id
         || record.conversation_id.get_version_num() != 4
+        || record
+            .input
+            .continuation
+            .as_ref()
+            .is_some_and(|cursor| cursor.conversation_id != record.conversation_id)
         || normalize(record.input.clone())? != record.input
         || record.updated_at_ms < record.accepted_at_ms
         || record.updated_at_ms > 253_402_300_799_999

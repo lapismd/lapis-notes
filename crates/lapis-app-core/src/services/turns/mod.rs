@@ -1,6 +1,7 @@
 mod commands;
 mod conversation;
 mod execution;
+mod history;
 mod launch;
 mod storage;
 mod worker;
@@ -129,7 +130,14 @@ impl Client {
                 )
             })?;
         let selected = launch::select(&owner, &work, &input)?;
-        let Admission::Fresh { record, claim } = data.journal.accept(input)? else {
+        let admitted = data.journal.accept(input).map_err(|error| {
+            if error.kind() == std::io::ErrorKind::WouldBlock {
+                Error::busy()
+            } else {
+                error.into()
+            }
+        })?;
+        let Admission::Fresh { record, claim } = admitted else {
             return Err(failure());
         };
         let job = Arc::new(Job {

@@ -111,3 +111,26 @@ reply disconnects. Cancellation before prompt dispatch can be confirmed;
 uncertain dispatched effects remain Unknown unless the runtime proves a
 terminal outcome and process cleanup. A cancelled/unknown request is never
 replayed. Explicit close/Quit retains the same fence-and-drain contract.
+
+## Explicit conversation continuation
+
+A continuation carries its opaque conversation ID and the exact last accepted
+request ID. Native admission verifies both against its own journal, vault and
+normalized scope; portable files alone never authorize dispatch. An exact
+duplicate still returns its retained record. A changed request, stale head,
+branch or unfinished predecessor refuses before another acceptance is written.
+Accepted continuation timestamps remain strictly ordered even if the wall clock
+moves backwards. A fresh explicit request is required after restart; recovery
+does not create a follow-up, resend an earlier prompt or resume from browser
+authority.
+
+The service retains one conversation directory and the existing metadata,
+binding and transcript formats across sequential turns. Prior transcript bytes
+remain preserved; each accepted prompt adds its own authored user message and
+separate assistant response. Native publication checks retained file revisions
+and dirty-editor guards. Conversation history reaches a fresh worker as bounded
+read-only evidence with its original roles, separately from the current authored
+prompt and additional context. It does not become a new user instruction.
+Unsupported history or capacity reports an explicit refusal without truncating
+retained files. Queueing, participant switching, richer context/skills and
+handoff summaries retain R4's separate gates.

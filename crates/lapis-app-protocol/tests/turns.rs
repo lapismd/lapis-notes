@@ -33,6 +33,30 @@ fn turn_commands_round_trip_with_portable_options_and_exact_discriminants() {
 }
 
 #[test]
+fn continuation_cursor_round_trips_without_admitting_native_resume_authority() {
+    let original: TurnInput = serde_json::from_value(input()).unwrap();
+    assert!(original.continuation.is_none());
+    assert!(
+        serde_json::to_value(original)
+            .unwrap()
+            .get("continuation")
+            .is_none()
+    );
+    let mut value = input();
+    value["continuation"] = json!({
+        "conversation_id":"24706af7-64b4-47c0-8cf4-1157161d7b33",
+        "after_request_id":"af2cad91-6e47-428a-8be7-7a19a6fb812c"
+    });
+    let continued: TurnInput = serde_json::from_value(value.clone()).unwrap();
+    assert_eq!(
+        serde_json::to_value(continued).unwrap()["continuation"],
+        value["continuation"]
+    );
+    value["continuation"]["resume"] = json!("untrusted-native-session");
+    assert!(serde_json::from_value::<TurnInput>(value).is_err());
+}
+
+#[test]
 fn turn_wire_never_admits_native_launch_fields_or_unknown_options() {
     for field in ["root", "executable", "environment", "arguments", "resume"] {
         let mut value = input();

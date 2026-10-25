@@ -2679,10 +2679,22 @@
         }
       ]
     },
+    "TurnContinuation": {
+      "additionalProperties": false,
+      "properties": {
+        "after_request_id": { "format": "uuid", "type": "string" },
+        "conversation_id": { "format": "uuid", "type": "string" }
+      },
+      "required": ["conversation_id", "after_request_id"],
+      "type": "object"
+    },
     "TurnInput": {
       "additionalProperties": false,
       "properties": {
         "context": { "type": ["string", "null"] },
+        "continuation": {
+          "anyOf": [{ "$ref": "#/$defs/TurnContinuation" }, { "type": "null" }]
+        },
         "options": {
           "$ref": "#/$defs/TurnOptions",
           "default": {

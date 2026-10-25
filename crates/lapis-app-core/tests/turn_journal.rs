@@ -43,6 +43,7 @@ impl Fixture {
 fn input() -> TurnInput {
     TurnInput {
         request_id: Uuid::new_v4(),
+        continuation: None,
         target_id: "codex".into(),
         scope_dir: "./Notes/".into(),
         prompt: "Authored café 📝".into(),

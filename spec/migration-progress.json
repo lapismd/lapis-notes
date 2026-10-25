@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 09:01:03 UTC",
+  "updated": "2026-10-25 09:54:38 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -55,7 +55,7 @@
       "work": "Typed host adapters and existing chat adoption",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "[Typed host commands](spec/records/2026-10-25-rust-turn-hosts.md) are Source complete under R2.2.1: generated DTOs/public SDK, authenticated HTTP and frozen native launch selection. All 311 Rust cases/doctests, full source check/test/build/specification lanes, 261 cold catalog, seven Rust-hosted and twelve PWA journeys pass. R2.2.2 conversation continuation and R2.2.3 Tauri/existing-chat adoption remain Waiting; the application gate stays Working."
+      "detail": "R2.2.1 [typed transport](spec/records/2026-10-25-rust-turn-hosts.md) and R2.2.2 [native continuation](spec/records/2026-10-25-rust-conversation-continuation.md) are Source complete. The latter passes all 321 Rust cases/doctests and complete package/check/build/specification lanes. R2.2.3 Tauri/existing-chat adoption remains Waiting; source/native fixtures do not complete this application gate."
     },
     {
       "id": "R2.3",
@@ -429,9 +429,9 @@
       "id": "R2.2.2",
       "area": "Durable conversation",
       "work": "Service-owned conversation creation and continuation",
-      "status": "Waiting",
+      "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "After R2.2.1: sequential prompts retain one conversation and its existing portable files. The current source creates a fresh conversation for each request; it does not yet support ordinary follow-ups. Preserve exact deduplication, dirty/external edits and no replay on recovery."
+      "detail": "[Qualified native continuation](spec/records/2026-10-25-rust-conversation-continuation.md): four journal/four native cases, all four HTTP and three wire cases pass. One conversation retains transcript/binding prefixes and metadata through detach/cold recovery, with pinned history, bounded Unicode evidence and 409/BUSY stale-head refusal. All 321 Rust cases/doctests, 2,157 package Vitest cases, complete source check/test/build/specification lanes pass. The earlier three journal/two native failures and strict enum finding are fixed. Generated SDK runtime is unchanged; actual chat/Tauri/provider gates remain separate."
     },
     {
       "id": "R2.2.3",

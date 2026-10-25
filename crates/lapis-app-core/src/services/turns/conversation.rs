@@ -1,7 +1,7 @@
-use super::{Result, Work};
+use super::{Error, Result, Work, history::History};
 use crate::turns::TurnOutcome;
-use lapis_app_protocol::ExpectedVersion;
 use lapis_app_protocol::turns::TurnRecord;
+use lapis_app_protocol::{ErrorCode, ExpectedVersion};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
@@ -12,6 +12,7 @@ pub(super) struct Conversation {
     user: Value,
     assistant: Value,
     transcript_version: String,
+    prior: String,
 }
 fn timestamp(ms: u64) -> String {
     chrono::DateTime::from_timestamp_millis(ms as i64)
@@ -21,15 +22,20 @@ fn timestamp(ms: u64) -> String {
 fn line(value: &Value) -> String {
     format!("{value}\n")
 }
+fn expected(version: Option<String>) -> ExpectedVersion {
+    version.map_or(ExpectedVersion::Missing {}, |version| {
+        ExpectedVersion::Version { version }
+    })
+}
 impl Conversation {
-    pub fn create(work: &Work, record: &TurnRecord) -> Result<Self> {
+    pub fn create(work: &Work, record: &TurnRecord, history: Option<History>) -> Result<Self> {
         let parent = [record.input.scope_dir.as_str(), ".lapis/agents/sessions"]
             .into_iter()
             .filter(|s| !s.is_empty())
             .collect::<Vec<_>>()
             .join("/");
         let directory = format!("{parent}/{}", record.conversation_id);
-        {
+        if history.is_none() {
             let state = work.vault.lock()?;
             state.root.verify_physical_root()?;
             super::super::guards::write(&state, &parent, None, true)?;
@@ -54,8 +60,45 @@ impl Conversation {
         }
         let binding = Uuid::new_v4().to_string();
         let created = timestamp(record.accepted_at_ms);
-        let metadata = json!({ "schemaVersion":3, "id":record.conversation_id,
-            "createdAt":created, "updatedAt":created, "status":"active", "activeAgentBindingId":binding });
+        let (mut metadata, metadata_expected, agents, agents_expected, prior, transcript_expected) =
+            match history {
+                Some(history) => {
+                    for (path, version) in [
+                        (
+                            format!("{directory}/metadata.yaml"),
+                            &history.metadata_version,
+                        ),
+                        (history.agents.path.clone(), &history.agents.version),
+                        (history.transcript.path.clone(), &history.transcript.version),
+                    ] {
+                        if work.read_text(&path)?.version != *version {
+                            return Err(Error::new(
+                                ErrorCode::Conflict,
+                                "Native conversation changed before publication",
+                            ));
+                        }
+                    }
+                    (
+                        history.metadata,
+                        Some(history.metadata_version),
+                        history.agents.text,
+                        Some(history.agents.version),
+                        history.transcript.text,
+                        Some(history.transcript.version),
+                    )
+                }
+                None => (
+                    json!({ "schemaVersion":3, "id":record.conversation_id,
+                "createdAt":created, "status":"active" }),
+                    None,
+                    String::new(),
+                    None,
+                    String::new(),
+                    None,
+                ),
+            };
+        metadata["updatedAt"] = json!(created);
+        metadata["activeAgentBindingId"] = json!(binding);
         let user = json!({"schemaVersion":3, "id":record.input.request_id, "type":"message",
             "createdAt":created, "role":"user", "text":record.input.prompt,
             "provenance":{"originClass":"owner","sourceKind":"user-message"}});
@@ -65,19 +108,19 @@ impl Conversation {
         let metadata_version = work.write_text(
             &format!("{directory}/metadata.yaml"),
             &line(&metadata),
-            &ExpectedVersion::Missing {},
+            &expected(metadata_expected),
         )?;
         let agent = json!({"schemaVersion":3, "id":binding, "type":"binding.created", "createdAt":created,
             "runtime":"acp", "agent":record.input.target_id});
         work.write_text(
             &format!("{directory}/agents.jsonl"),
-            &line(&agent),
-            &ExpectedVersion::Missing {},
+            &format!("{agents}{}", line(&agent)),
+            &expected(agents_expected),
         )?;
         let transcript_version = work.write_text(
             &format!("{directory}/transcript.jsonl"),
-            &line(&user),
-            &ExpectedVersion::Missing {},
+            &format!("{prior}{}", line(&user)),
+            &expected(transcript_expected),
         )?;
         Ok(Self {
             directory,
@@ -86,6 +129,7 @@ impl Conversation {
             user,
             assistant,
             transcript_version,
+            prior,
         })
     }
     pub fn progress(&mut self, work: &Work, output: &str) -> Result<()> {
@@ -93,7 +137,7 @@ impl Conversation {
         self.write_transcript(work, None)
     }
     fn write_transcript(&mut self, work: &Work, terminal: Option<Value>) -> Result<()> {
-        let mut text = line(&self.user);
+        let mut text = format!("{}{}", self.prior, line(&self.user));
         if self.assistant["text"]
             .as_str()
             .is_some_and(|s| !s.is_empty())

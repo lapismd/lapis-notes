@@ -38,7 +38,7 @@ check file identity so hard-link aliases cannot bypass that guard.
 Protocol major three replaces the previous hosted control plane only when both
 host adapters qualify in R1.3. Rust types generate the JSON schema and TypeScript
 bindings. R1.2 establishes in-process ownership and transport conformance, not
-[durable turn services and typed host commands](rust-turn-admission.md), or final hosted cutover.
+[durable turns, typed commands and explicit continuation](rust-turn-admission.md), or final hosted cutover.
 
 R1.3 stages the existing portable shell file actions through that same owner.
 Reads retain their bounded text/binary/range contracts; mutations retain mtime,

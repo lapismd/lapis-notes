@@ -127,6 +127,7 @@ impl Fixture {
     pub fn input(&self) -> TurnInput {
         TurnInput {
             request_id: Uuid::new_v4(),
+            continuation: None,
             target_id: "fixture".into(),
             scope_dir: "".into(),
             prompt: "Authored café 📝".into(),

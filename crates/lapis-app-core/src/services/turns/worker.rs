@@ -67,14 +67,15 @@ async fn run(
     job: Arc<Job>,
     record: TurnRecord,
     claim: DispatchClaim,
-    selected: super::launch::Selected,
+    mut selected: super::launch::Selected,
 ) {
     let prepare_owner = owner.clone();
     let prepare_job = job.clone();
     let prepare_record = record.clone();
+    let history = selected.history.take();
     let initialized = tokio::task::spawn_blocking(move || -> Result<bool> {
         let running = prepare_owner.data()?.journal.claim(claim)?;
-        let conversation = Conversation::create(&prepare_job.work, &prepare_record).ok();
+        let conversation = Conversation::create(&prepare_job.work, &prepare_record, history).ok();
         let available = conversation.is_some();
         *prepare_job.capture.lock().map_err(|_| super::failure())? = Some(Capture {
             running,
@@ -148,10 +149,18 @@ fn finish(owner: &Owner, job: &Job, id: Uuid, mut outcome: TurnOutcome, clean: b
     {
         outcome = TurnOutcome::Unknown("portable_publication_failed".into());
     }
-    let persisted = owner
-        .data()
-        .is_ok_and(|mut data| data.journal.finish(&mut capture.running, outcome).is_ok());
-    retire(owner, job, id, clean && persisted);
+    let confirmed = owner.data().is_ok_and(|mut data| {
+        if data.journal.finish(&mut capture.running, outcome).is_err() || !clean {
+            return false;
+        }
+        // A reader of the terminal record can immediately submit its follow-up.
+        data.jobs.remove(&id);
+        job.done.store(true, Ordering::Release);
+        true
+    });
+    if !confirmed {
+        owner.fault(job);
+    }
 }
 fn retire(owner: &Owner, job: &Job, id: Uuid, confirmed: bool) {
     if confirmed && let Ok(mut data) = owner.data() {

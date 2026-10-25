@@ -9,6 +9,8 @@ use lapis_app_protocol::{
 pub(super) struct Selected {
     scope: VaultRoot,
     launch: Launch,
+    pub history: Option<super::history::History>,
+    context: Option<String>,
 }
 
 pub(super) struct Prepared {
@@ -16,6 +18,7 @@ pub(super) struct Prepared {
     pub launch: Launch,
     pub binding: SessionBinding,
     pub processor: Option<Box<dyn SessionProcessor>>,
+    pub context: Option<String>,
 }
 pub(super) fn select(owner: &Owner, work: &Work, input: &TurnInput) -> super::Result<Selected> {
     let scope = {
@@ -42,7 +45,32 @@ pub(super) fn select(owner: &Owner, work: &Work, input: &TurnInput) -> super::Re
         ));
     }
     scope.verify_physical_root()?;
-    Ok(Selected { scope, launch })
+    let history = super::history::read(work, input)?;
+    let context = history
+        .as_ref()
+        .map(|history| match input.context.as_deref() {
+            Some(context) if !context.is_empty() => format!("{}\n\n{context}", history.context),
+            _ => history.context.clone(),
+        })
+        .or_else(|| input.context.clone());
+    lapis_ai_service::runtime::SessionRequest::Prompt {
+        text: input.prompt.clone(),
+        context: context.clone(),
+        max_duration_ms: input.options.max_duration_ms,
+    }
+    .validate(&input.request_id.to_string())
+    .map_err(|_| {
+        Error::new(
+            ErrorCode::InvalidRequest,
+            "Native conversation context exceeds runtime limits",
+        )
+    })?;
+    Ok(Selected {
+        scope,
+        launch,
+        history,
+        context,
+    })
 }
 pub(super) fn prepare(
     owner: &Owner,
@@ -50,7 +78,12 @@ pub(super) fn prepare(
     record: &TurnRecord,
     selected: Selected,
 ) -> Result<Prepared, &'static str> {
-    let Selected { scope, launch } = selected;
+    let Selected {
+        scope,
+        launch,
+        context,
+        ..
+    } = selected;
     scope
         .verify_physical_root()
         .map_err(|_| "native_scope_changed")?;
@@ -70,5 +103,6 @@ pub(super) fn prepare(
         launch,
         binding,
         processor,
+        context,
     })
 }

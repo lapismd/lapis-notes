@@ -24,6 +24,7 @@ pub(super) async fn execute(
         launch,
         binding,
         processor,
+        context,
     } = tokio::task::spawn_blocking(move || {
         super::launch::prepare(&prepare_owner, &prepare_job, &prepare_record, selected)
     })
@@ -81,7 +82,7 @@ pub(super) async fn execute(
             request.clone(),
             SessionRequest::Prompt {
                 text: record.input.prompt.clone(),
-                context: record.input.context.clone(),
+                context,
                 max_duration_ms: settings.max_duration_ms,
             },
         )
