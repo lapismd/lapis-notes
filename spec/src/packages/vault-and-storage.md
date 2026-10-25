@@ -6,15 +6,14 @@ Existing TypeScript Vault and AppDatabase interfaces remain intact. Root
 check/test/build include the independently qualified native lanes; this does not
 replace the standalone browser backend or enable a hosted Rust adapter.
 
-The private `lapis-app-protocol` crate owns portable commands, replies and editor
-claims. `pnpm protocol:generate` emits schemas and TypeScript bindings, including
-call/change DTOs exported by `@lapis-notes/api/app-database`. Packed declaration
-checks require exact retained method/change parity. `pnpm check:protocol` checks
-drift and positive/negative client fixtures in normal native/spec lanes. The
-same guarded runner exports without a second target or disk-guard bypass.
-Portable file actions retain shell operations and result metadata, excluding
-host-only OS commands. Native admission consumes a retained root capability
-without reopening its path.
+Private `lapis-app-protocol` owns portable commands, replies and editor claims.
+`pnpm protocol:generate` emits schemas and TypeScript, including public
+call/change DTOs at `@lapis-notes/api/app-database`. Packed fixtures check exact
+method/change parity and union dispatch. `pnpm check:protocol` checks drift and
+positive/negative fixtures in normal native/spec lanes. Export uses the same
+guarded runner without a second target or disk-guard bypass. Portable file
+actions retain shell operations/metadata, excluding host-only OS commands.
+Admission consumes retained physical-root capabilities without reopening paths.
 
 The retained API projection-value implementation and native database storage
 share the API-owned `__tests__/fixtures/projection-values.json`. Their independent tests verify

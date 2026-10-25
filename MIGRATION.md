@@ -8,7 +8,7 @@ The sibling Desktop tracker owns its M-series milestones; the active shared
 Rust work is tracked here as R0–R7. Other migration workspaces are retained
 history, not the current implementation checkout.
 
-Last updated **2026-10-25 00:08:07 UTC**. This is the active migration tracker for the
+Last updated **2026-10-25 00:28:14 UTC**. This is the active migration tracker for the
 [shared Rust plan](RUST_CORE_MIGRATION_PLAN.md). The older Node parity roadmap
 below is superseded; its remaining rows are historical references, not another
 set of current migration tasks.
@@ -38,13 +38,15 @@ qualification for their original implementations.
 Desktop `a5b936e0` refreshes its activity routing (E-PROGRESS-003) without
 claiming native database adoption.
 
-**Current activity:** R1.3.8 source prerequisites are qualified. Desktop's next
-change replaces its renderer SQL transport with shared high-level calls and
-scoped change observation through the existing vault owner. Tauri still uses
-its previous adapter until native intake passes. The HTTP half is qualified;
-the retained hosted Web shell still uses Node.
+**Current activity:** Desktop's R1.3.8 / M16.3 replacement is under qualification
+in its main/default workspace. Nine exact native database cases and eight
+renderer transport cases pass, including lag/reset and killed-process recovery.
+Consumer type checking exposed an existing remote-catalogue argument-union defect;
+its types-only source fix now passes packed contracts, full check/test/build
+and specification lanes here. Application-wide native/catalog acceptance remains open. HTTP is qualified; the retained hosted shell uses Node.
 
-**Next:** implement the Tauri high-level database adapter. Then connect the
+**Next:** finish qualification of the implemented Tauri high-level database
+adapter and commit its consumer adoption. Then connect the
 retained hosted Web shell (R1.3.9), qualify backup after detach/controlled Quit
 (R1.3.10) and complete both application-shell gates (R1.3.11). R2–R7 retains the
 agreed order; M11 stays Deferred.
@@ -73,11 +75,11 @@ not host adoption or native/hosted application acceptance.
 
 ### Gate status: Working
 
-| Task ID                                                                  | Area          | Work                             | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| ------------------------------------------------------------------------ | ------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [R1.3](spec/src/architecture/rust-application-services.md#ln-core-004)   | Roadmap       | Both host adapters               | Database adoption, existing hosted shell and backup detach/Quit acceptance. See the host checklist.                                                                                                                                                                                                                                                                                                                                                                |
-| [R1.3.8](spec/src/architecture/rust-application-services.md#ln-core-004) | Host adapters | Tauri and HTTP database adapters | [HTTP half qualified](spec/records/2026-10-24-rust-http-database.md): seven focused cases, all thirty HTTP cases and cold persistence pass. [Tauri source prerequisites](spec/records/2026-10-25-rust-database-observers.md) qualify three passive-observer cases, public generated DTOs and packed contracts; full source check/test/build/spec passes (237 Rust / 1,532 API cases). Tauri adapter selection is next; retained Web shell acceptance stays R1.3.9. |
-| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)     | Roadmap       | Indexed vault                    | Native database, model/cache and vault-owned database lifetime are source-qualified. Host adoption and unattended metadata/projection/Search/history indexing remain.                                                                                                                                                                                                                                                                                              |
+| Task ID                                                                  | Area          | Work                             | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ------------------------------------------------------------------------ | ------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [R1.3](spec/src/architecture/rust-application-services.md#ln-core-004)   | Roadmap       | Both host adapters               | Database adoption, existing hosted shell and backup detach/Quit acceptance. See the host checklist.                                                                                                                                                                                                                                                                                                                              |
+| [R1.3.8](spec/src/architecture/rust-application-services.md#ln-core-004) | Host adapters | Tauri and HTTP database adapters | HTTP is qualified. Desktop M16.3 replacement is under qualification: nine exact native database cases and eight renderer cases pass. [Public dispatch typing](spec/records/2026-10-25-rust-database-dispatch-types.md) repairs the argument-union defect upstream; packed contracts and full source check/test/build/spec pass. Complete native/catalog/application acceptance remains pending; retained Web shell stays R1.3.9. |
+| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)     | Roadmap       | Indexed vault                    | Native database, model/cache and vault-owned database lifetime are source-qualified. Host adoption and unattended metadata/projection/Search/history indexing remain.                                                                                                                                                                                                                                                            |
 
 ### Gate status: Waiting
 

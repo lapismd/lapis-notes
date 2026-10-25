@@ -1,5 +1,11 @@
 # App Database / Sessions and ownership
 
+LN-DB-001's public remote catalogue supports both literal methods and a runtime
+method union. Argument inference distributes over the catalogue instead of
+intersecting incompatible tuples into `never`. Packed positive/negative fixtures
+retain required literal arguments and reject unknown methods; runtime parsing,
+allowlists, DTOs and native authority remain unchanged.
+
 LN-PKG-180 and LN-PKG-181 project complete disk snapshots through existing
 Vault events, including folder descendants needed by metadata ownership.
 Retired generations cannot publish a snapshot into the next session.

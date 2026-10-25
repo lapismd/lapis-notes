@@ -144,7 +144,8 @@ replaced vaults and unselected databases retain their existing errors. Lag remai
 explicit so host adapters can publish a complete refresh before resuming.
 The public `@lapis-notes/api/app-database` entry exports the Rust-generated call,
 value, method and change DTOs; generation and packed type checks reject drift
-from the retained AppDatabase method and change contracts.
+from the retained AppDatabase method and change contracts. Runtime catalogue
+dispatch retains the union of each method's argument tuples.
 
 Search call conformance retains the existing optional query-enhancement request
 and skip diagnostics. Unsupported runtime, strong-signal and unavailable-provider

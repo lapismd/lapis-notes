@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 00:08:07 UTC",
+  "updated": "2026-10-25 00:28:14 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -143,7 +143,7 @@
       "work": "Tauri and HTTP database adapters",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "[HTTP half qualified](spec/records/2026-10-24-rust-http-database.md): seven focused cases, all thirty HTTP cases and cold persistence pass. [Tauri source prerequisites](spec/records/2026-10-25-rust-database-observers.md) qualify three passive-observer cases, public generated DTOs and packed contracts; full source check/test/build/spec passes (237 Rust / 1,532 API cases). Tauri adapter selection is next; retained Web shell acceptance stays R1.3.9."
+      "detail": "HTTP is qualified. Desktop M16.3 replacement is under qualification: nine exact native database cases and eight renderer cases pass. [Public dispatch typing](spec/records/2026-10-25-rust-database-dispatch-types.md) repairs the argument-union defect upstream; packed contracts and full source check/test/build/spec pass. Complete native/catalog/application acceptance remains pending; retained Web shell stays R1.3.9."
     },
     {
       "id": "R1.3.9",
