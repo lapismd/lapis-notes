@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-25 15:59:57 UTC**.
+Last updated **2026-10-25 16:48:45 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -29,27 +29,41 @@ owner is staged, with renderer AI still the default.
 
 These are **six remaining delivery stages**, not six equally sized changes.
 The detailed ledger includes parent stages, child slices and source-only
-checkpoints, so its 59 rows must not be read as 59 independent unfinished jobs.
+checkpoints; its row count is not a count of independent unfinished jobs.
 
 ## Current work and next handoff
 
-- **Latest completed slice:** [Desktop `5f165fc9` native chat/History](spec/records/2026-10-25-rust-chat-native-acceptance.md)
-  closes `R2.2.3` application adoption against Notes `7161a447`. All 2,016
-  catalog cases, the actual native chat/cold-restart journey, seven hidden IPC
-  and 242 native service cases pass. Actual-provider acceptance is still `R2.3`.
-- **Delivery tooling first:** Notes and Plugins already contain Docker-first
-  portable validation and Storybook composition guards in their main workspaces.
-  [Landing receipts](spec/records/2026-10-25-catalog-main-landing.md) retain the
-  exact source/archive qualification. Desktop and Tasks are receiving equivalent
-  owned tooling in parallel. Check
-  active ancestry before rebasing; do not rebase historical workspaces wholesale.
-- **Dependency refresh:** inspect released Design Core/Mira and use verified
-  committed-source archives where newer fixes are unpublished. Keep registry
-  ranges portable and record the exact tested cohort.
-- **Resume feature work:** native projection publication/host ownership (`R3`)
-  and provider recovery (`R2.3`) can use independent implementation lanes.
-  Prefer parallel agents with disjoint file ownership; bound expensive runs by
-  the selected Docker daemon or native machine's capacity.
+**Current prerequisite: finish Docker tooling and the refreshed dependency cohort.**
+Notes, Plugins and jj-store already contain the referenced changes in their
+active default workspaces; no rebase is needed. Desktop, Tasks and Lapis AI are
+receiving equivalent tooling in parallel. Actual OS/WebView/provider acceptance
+remains separate from portable Docker checks.
+
+| Repository                                                                  | Qualified so far in this intake                                                 | Still running or waiting before commit                                              |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| [Desktop](../lapis-desktop/spec/src/history/E-VALIDATION-001.md)            | 77 tooling cases, fresh Chromium/WebKit smoke and strict Linux normal Clippy    | Full Linux services/e2e compile, full refreshed catalog/build/spec lanes            |
+| [Tasks](../lapis-plugin-tasks/spec/records/2026-10-25-docker-validation.md) | 29 tooling cases, all 258 unit cases, two native cases and strict source checks | Final repaired Design Core archive, cold full catalog/static and package intake     |
+| [Lapis AI](../lapis-ai/spec/src/history/2026-10-25-docker-validation.md)    | 10 runner, 43 renderer and 57 governance cases; strict Clippy                   | Full native tests/build and final tooling/source qualification; no Storybook exists |
+
+The [dependency intake](spec/records/2026-10-25-released-mira-dependency-intake.md)
+uses released Mira 0.1.1 and companion 0.0.3 packages. Design Core's new
+composer-lifetime and selector-accessibility repairs are being qualified in their
+owning repository before one shared archive is taken into all consumers. Notes'
+initial cohort passes 2,209 package and 261 catalog cases; final repaired-cohort
+browser/static/specification acceptance remains active. Private unpublished
+package prerequisites and registry-lock qualification remain explicit delivery
+gates. The source audit records Terminal's tooling gap and Docs' overlapping
+independent dependency edits.
+
+**Latest completed feature slice:** [Desktop `5f165fc9` native chat/History](spec/records/2026-10-25-rust-chat-native-acceptance.md)
+closes `R2.2.3` application adoption against Notes `7161a447`. Its original
+native/cold-restart and 2,016 catalog receipts retain their exact dependency
+cohort; actual-provider acceptance remains `R2.3`.
+
+**Next feature lanes:** native Tasks projection publication (`R3`) and
+actual-provider detach/cold recovery (`R2.3`). Prefer parallel agents with
+disjoint file ownership and bounded heavy runs. Their original completion gates
+remain unchanged.
 
 ## Completed foundation
 
@@ -76,7 +90,7 @@ means implementation is qualified but host/product acceptance is still separate.
 sorted by task ID, rather than execution order.
 
 <details>
-<summary>Show all 59 task gates and their evidence</summary>
+<summary>Show every task gate and its evidence</summary>
 
 <!-- migration-tasks:start -->
 
