@@ -42,9 +42,11 @@ canonical specification checks also run native source/dependency boundaries and
 their regressions. The transitional native companion remains an excluded,
 independently built package until the hosted cutover.
 
-Native source snapshots pin the sibling plugin and Tasks algorithm crates
+Native source snapshots pin the sibling plugin, Tasks and Docs algorithm crates
 separately in `scripts/validation/native-sources.json`. Their qualified parser
-revisions do not select a host writer or admit a UI dependency cohort.
+revisions do not select a host writer or admit a UI dependency cohort. Docs is
+exported from its committed source revision; unrelated dirty npm manifests are
+excluded, as recorded in the [Docs intake](../../records/2026-10-25-native-docs-projection-intake.md).
 
 The private hosted native companion is grouped by history and IPC functionality
 under `packages/server-native`. It pins Rust 1.99 and consumes sibling JJ Store

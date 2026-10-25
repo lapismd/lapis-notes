@@ -117,6 +117,26 @@ observable without a JavaScript fallback. Complete provider registration,
 configuration, checkpoint/progress parity, host activation, semantic-provider
 journeys and broader R3.2.2 acceptance remain separate gates.
 
+## Optional Docs note projection
+
+Under LN-CORE-003/005/006, explicit native-only Docs selection MAY publish
+`docs/note` on the existing metadata owner. It MUST reuse the qualified
+Docs-owned crate for registration and parsing, while Notes retains root/suffix
+admission, exact-byte snapshots and database publication. Existing Markdown,
+Tasks and Search defaults and public wire contracts MUST remain unchanged.
+
+The stage MUST retain all seven row fields, source errors and configured-root
+matching. It MUST repair missing/stale sources, prune former-root/orphan sources
+through bounded reads, and preserve other namespaces. Unchanged ready/error
+sources and definitions MUST remain revision-idempotent. Changed snapshots stay
+pending; hidden, symlinked and replaced-root resources remain unavailable.
+Disable and close fence new work while accepted database effects drain.
+
+The [bounded Docs intake](../../records/2026-10-25-native-docs-projection-intake.md)
+records the confirmed native-only selection and qualified plugin revision.
+Source qualification does not select either application host or migrate Docs UI,
+editing, FSRS, custom processors or Tasks mutations.
+
 ## Lifetime and failure
 
 Only one native owner starts for a vault. File watchers are hints; startup and

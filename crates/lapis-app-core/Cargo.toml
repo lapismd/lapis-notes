@@ -8,6 +8,7 @@ publish.workspace = true
 description = "Transport-independent native application services for Lapis Notes"
 
 [dependencies]
+lapis-docs-projection = { path = "../../../lapis-plugin-docs/crates/lapis-docs-projection", version = "0.0.0" }
 lapis-task-services = { path = "../../../lapis-plugin-tasks/crates/lapis-task-services", version = "0.1.0" }
 lapis-plugin-services = { path = "../../../lapis-plugins/crates/lapis-plugin-services", version = "0.1.0" }
 lapis-app-protocol = { path = "../lapis-app-protocol" }

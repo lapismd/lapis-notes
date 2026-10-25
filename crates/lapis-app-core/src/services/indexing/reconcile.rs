@@ -1,4 +1,4 @@
-use super::{IndexingStatus, manifest, occurrences, records, search, tasks};
+use super::{IndexingStatus, docs, manifest, occurrences, records, search, tasks};
 use crate::{
     database::Database,
     services::{Error, Result, VaultService},
@@ -6,7 +6,7 @@ use crate::{
 };
 use lapis_app_protocol::{ErrorCode, database::indexed::queries::ManifestQuery};
 use std::sync::{
-    Weak,
+    Mutex, Weak,
     atomic::{AtomicBool, Ordering},
 };
 
@@ -14,6 +14,7 @@ pub(super) struct Selection<'a> {
     pub occurrences: &'a AtomicBool,
     pub documents: &'a AtomicBool,
     pub search: &'a AtomicBool,
+    pub docs: &'a Mutex<Option<String>>,
     pub today: &'a str,
 }
 pub(super) async fn run(
@@ -26,6 +27,12 @@ pub(super) async fn run(
     let mut status = IndexingStatus::default();
     if let Err(error) = process(vault, database, root, stop, selection, &mut status).await {
         status.error = Some(error.to_string());
+    }
+    match docs::run(vault, database, root, stop, selection.docs).await {
+        Ok(pending) => status.pending = status.pending.saturating_add(pending),
+        Err(error) => {
+            status.error.get_or_insert_with(|| error.to_string());
+        }
     }
     match search::run(vault, database, root, stop, selection.search).await {
         Ok(pending) => status.pending = status.pending.saturating_add(pending),

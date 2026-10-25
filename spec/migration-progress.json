@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 23:50:59 UTC",
+  "updated": "2026-10-25 23:57:48 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native database/Search engines and both database facades are qualified. Markdown and complete Tasks publication, Search and History scheduler sources are committed. Combined native intake passes 377 Rust cases plus strict and full specification gates. Tasks mutation/materialization intake, Docs publication, parser intake and both unattended host selections remain; defaults stay unchanged."
+      "detail": "Native database and qualified metadata/Tasks/Docs/Search/History source owners are integrated. The latest combined source passes all 391 Rust cases, strict native and complete specification gates with 29 product/input paths equal to qualified parents. Guarded Task write/cache intake, Markdown parser pin/cache intake, explicit one-writer selection and both host adoptions remain; defaults stay unchanged."
     },
     {
       "id": "R4",
@@ -461,9 +461,9 @@
       "id": "R3.2.1.3",
       "area": "Unattended metadata",
       "work": "Tauri and HTTP unattended metadata adoption",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "Select one native metadata writer through both hosts and prove external changes after client detach without a renderer scheduler."
+      "detail": "Source foundation is active in an isolated Notes workspace: explicit App-owned native indexing port, typed selection/refresh/status and native database writer-authority enforcement. Preserve metadata/query/events facades, make detach passive and retain absent-port browser processing. Known Tasks/Docs projection ownership is staged; Search provider/configuration parity and both actual host gates remain separate."
     },
     {
       "id": "R3.2.1.2.1",
@@ -567,7 +567,7 @@
       "work": "Native Docs source-to-projection service intake",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Qualified Notes Docs publication source fedf7b16 consumes Docs f772f2ba on the existing native metadata owner. All 36 indexing cases (11 Docs), 388 native cases, 2,253 package cases, strict/full check/test/build/specification gates pass. Exact fixture/spec-mapping failures are retained and closed. Main-workspace integration, both host selections and single-writer activation remain separate."
+      "detail": "[Integrated Docs/History source](spec/records/2026-10-25-docs-history-source-integration.md) consumes qualified Notes fedf7b16 and Docs f772f2ba. All 36 affected indexing and 391 combined Rust cases, strict native and complete specification gates pass; 18 Docs product/input paths match the qualified source exactly. Parent source passes 2,253 package cases and full check/test/build. Both host selections and single-writer activation remain separate."
     },
     {
       "id": "R3.2.1.2.12",

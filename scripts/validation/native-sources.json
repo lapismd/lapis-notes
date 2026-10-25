@@ -16,6 +16,10 @@
     "revision": "6af2420ff720cf8ce04581306c9c7b8d12b126e4"
   },
   {
+    "name": "lapis-plugin-docs",
+    "revision": "f772f2bacc20a914cef2f0398f294cefbac4ba3c"
+  },
+  {
     "name": "lapis-plugin-tasks",
     "revision": "fcb2a8b514d68464034173e2aed886133d2a2e99"
   }

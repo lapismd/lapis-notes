@@ -9,6 +9,10 @@ use lapis_app_protocol::{
 impl Store {
     pub async fn read_projection(&self, action: ReadAction) -> Result<ReadValue> {
         match action {
+            ReadAction::NativeSourcePaths(id, after) => self
+                .native_projection_source_paths(&id, after.as_deref())
+                .await
+                .map(ReadValue::NativeSourcePaths),
             ReadAction::NativeState(id, path) => self
                 .native_projection_state(&id, &path)
                 .await
