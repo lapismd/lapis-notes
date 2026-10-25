@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 22:42:30 UTC",
+  "updated": "2026-10-25 22:59:26 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -37,9 +37,9 @@
       "id": "R2",
       "area": "Roadmap",
       "work": "Durable conversation",
-      "status": "Working",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native execution, typed transports and both existing chat screens are qualified. Hosted actual-provider recovery and Desktop actual-provider composer/detach/reload/cold History are committed; Desktop source is 11e22c7f with one native journal and unchanged transcript. Final combined Desktop dependency/catalog intake remains before aggregate completion. Defaults stay staged."
+      "detail": "[Completed staged conversation gate](spec/records/2026-10-25-r2-conversation-completion.md): native durable execution, both existing applications and actual-provider detach/reload/cold recovery are qualified. Desktop combined intake `8289c310` passes all 2,016 catalog cases, full source/native/build/specification gates and exact equality for 26 archives, 101 active import routes and the native binary. Native AI remains explicitly staged; R4/R7 and broader Desktop M10 are separate."
     },
     {
       "id": "R2.1",
@@ -47,7 +47,7 @@
       "work": "Native admission and supervised execution",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Qualified native execution](spec/records/2026-10-25-rust-native-turn.md): ten execution plus ten journal cases, all 303 ordinary Rust cases/doctests, strict/full source check/test/build and all specification lanes pass. Lifecycle journal release and private-root overlap regressions each move from one failure to zero. Six intentional ignores retain their separate scope. The unchanged AI backend uses an isolated protocol peer; host/chat/provider acceptance remains R2.2/R2.3. [Desktop compatibility](spec/records/2026-10-25-rust-native-turn-desktop.md) is committed at 6c9e55f7: six native file/database/backup cases and strict normal/e2e checks pass without selecting the new execution owner."
+      "detail": "[Qualified native execution](spec/records/2026-10-25-rust-native-turn.md): ten execution plus ten journal cases, all 303 ordinary Rust cases/doctests, strict/full source check/test/build and all specification lanes pass. Lifecycle journal release and private-root overlap regressions each move from one failure to zero. Six intentional ignores retain their separate scope. The unchanged AI backend uses an isolated protocol peer; host/chat/provider adoption is separately complete under R2.2/R2.3. [Desktop compatibility](spec/records/2026-10-25-rust-native-turn-desktop.md) is committed at 6c9e55f7: six native file/database/backup cases and strict normal/e2e checks pass without selecting the new execution owner."
     },
     {
       "id": "R2.2",
@@ -55,15 +55,15 @@
       "work": "Typed host adapters and existing chat adoption",
       "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "Typed transport and continuation source plus both existing production chat screens are qualified. [Actual-host receipt](spec/records/2026-10-25-rust-chat-native-acceptance.md) records Desktop 5f165fc9 and Rust-hosted application adoption. Protocol-peer fixtures do not qualify the separate R2.3 actual-provider gate; defaults remain staged."
+      "detail": "Typed transport and continuation source plus both existing production chat screens are qualified. [Actual-host receipt](spec/records/2026-10-25-rust-chat-native-acceptance.md) records Desktop 5f165fc9 and Rust-hosted application adoption. The separate R2.3 actual-provider gate is now complete; defaults remain staged."
     },
     {
       "id": "R2.3",
       "area": "Durable conversation",
       "work": "Real-provider detach and cold application recovery",
-      "status": "Working",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-007",
-      "detail": "[Hosted actual-provider screen](spec/records/2026-10-25-hosted-provider-screen.md) is committed. [Desktop real-provider screen](spec/records/2026-10-25-desktop-provider-screen-intake.md) is committed at 11e22c7f: one actual Codex case plus the retained native fixture pass; explicit provider opt-out skips without launch. Composer, running detach, completion without an observer, reload/cold History, complete record/transcript and one native journal are exact. All four source specification lanes, final six-validator record check and progress pass. Final combined Desktop dependency/catalog intake remains; broader M10 and default cutover are separate."
+      "detail": "[Both-host actual-provider recovery](spec/records/2026-10-25-r2-conversation-completion.md) is committed. Hosted screen proof and Desktop E-CORE-027 retain composer admission, running detach, completion without the observer, reload/cold History, one journal and unchanged transcript. Final Desktop intake `8289c310` passes all 16 reports / 2,016 catalog cases, source/native/build/specification and exact installed/cohort equality. Defaults, broader provider matrix/M10 and later Rust stages remain separate."
     },
     {
       "id": "R3",
@@ -79,7 +79,7 @@
       "work": "AI/tools/Changes",
       "status": "Waiting",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "After R2/R3: existing queues, participants/context, approvals, native tools and guarded undo through both hosts."
+      "detail": "After R3 (R2 is complete): existing queues, participants/context, approvals, native tools and guarded undo through both hosts."
     },
     {
       "id": "R5",
@@ -439,7 +439,7 @@
       "work": "Tauri selection and existing chat adoption",
       "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "[Committed actual-host intake](spec/records/2026-10-25-rust-chat-native-acceptance.md): Desktop 5f165fc9 against Notes 7161a447. Native composer, right-sidebar History, exact main-tab reuse and cold restart retain one prompt/reply. All 2016 catalog, 420 renderer/governance, 744 AI, 242 native service and seven hidden IPC cases pass; strict checks/builds/spec pass. Existing E-AI-109 format exception stays explicitly accepted; R2.3/default cutover remain open."
+      "detail": "[Committed actual-host intake](spec/records/2026-10-25-rust-chat-native-acceptance.md): Desktop 5f165fc9 against Notes 7161a447. Native composer, right-sidebar History, exact main-tab reuse and cold restart retain one prompt/reply. All 2016 catalog, 420 renderer/governance, 744 AI, 242 native service and seven hidden IPC cases pass; strict checks/builds/spec pass. Existing E-AI-109 format exception stays explicitly accepted; R2.3 is separately complete; default cutover remains open."
     },
     {
       "id": "R3.2.1.1",
