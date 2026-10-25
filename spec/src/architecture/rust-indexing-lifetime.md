@@ -88,6 +88,35 @@ Host/plugin admission, unattended application acceptance and all mutations remai
 separate gates. The bounded [Notes intake](../../records/2026-10-25-native-task-documents-intake.md)
 records source progress and exact acceptance.
 
+## Native Markdown Search preparation
+
+R3.2.2 first stages a Markdown source gate under LN-CORE-003/005/006. Explicit
+native start/stop selection MUST use the existing admitted indexing owner after
+its Markdown publication. Starting after Markdown startup MUST wake that same
+owner. Transport fields and host defaults MUST remain unchanged until their
+separate contract and acceptance gates pass. Closing clients MUST NOT stop
+selected reconciliation. Disable MUST fence new Search admissions while already
+accepted database work retains its drain.
+
+The stage MUST reuse the existing native preparation, embedding and retrieval
+engine and the source-owned Markdown metadata. It MUST retain SearchManager's
+Markdown document envelope, filename, historical code-unit MD5 checksum,
+UTF-16 source positions and chunking defaults. Native metadata hashes MUST use
+the existing source parser's UTF-8 identity; a private projection signature MUST
+fence parser upgrades. These cache identities MUST remain distinct from the
+retained JavaScript metadata hash rather than claiming byte-identical identity.
+Matching body-free manifests MUST skip Search body hydration, preparation and
+inference; missing or stale Search rows MUST repair independently of unchanged
+metadata. Derived publication MUST NOT rewrite authoritative note content.
+
+Only `search:markdown` rows belong to this source. Reconciliation MUST preserve
+other provider and unowned rows, including rows whose paths are absent from the
+current vault manifest. Reads MUST retain bounded pages, visible physical-file
+admission and same-byte validation before publication. Failures MUST remain
+observable without a JavaScript fallback. Complete provider registration,
+configuration, checkpoint/progress parity, host activation, semantic-provider
+journeys and broader R3.2.2 acceptance remain separate gates.
+
 ## Lifetime and failure
 
 Only one native owner starts for a vault. File watchers are hints; startup and

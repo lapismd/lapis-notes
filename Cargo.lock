@@ -3291,6 +3291,7 @@ dependencies = [
  "lapis-plugin-services",
  "lapis-task-services",
  "libc",
+ "md5",
  "notify",
  "ort",
  "regress",

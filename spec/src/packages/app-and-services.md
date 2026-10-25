@@ -20,6 +20,12 @@ LN-SRV-021–023 without adding public npm exports or an App singleton. The host
 supplies trusted caller scopes; history remains independent of AI and indexes.
 Public package ranges and the existing vault/AppDatabase APIs are unchanged.
 
+The retained public SearchManager is the API envelope oracle for the staged
+[native Markdown Search source](../architecture/rust-indexing-lifetime.md).
+Qualification MUST import the public Search package and transform its CSS
+without source aliases. Native metadata and projection cache identities retain
+their explicitly documented parser boundary; no AppDatabase interface changes.
+
 LN-SRCH-051 saved-version content identities and checkpoint references are additive presentation types. They preserve provider-owned navigation and introduce no database, Vault or repository authority.
 
 The API exports the result-provider types and registry under LN-SRCH-051. Each App owns its registry; this additive service does not change LN-PKG-001 or existing AppDatabase and Vault interfaces.

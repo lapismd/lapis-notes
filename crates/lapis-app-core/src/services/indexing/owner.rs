@@ -23,6 +23,7 @@ pub(in crate::services) struct Owner {
     pub status: Arc<Mutex<IndexingStatus>>,
     occurrences: Arc<AtomicBool>,
     documents: Arc<AtomicBool>,
+    search: Arc<AtomicBool>,
 }
 pub(super) struct Clock {
     pub today: Arc<dyn Fn() -> String + Send + Sync>,
@@ -89,6 +90,8 @@ impl Owner {
         let selected = occurrences.clone();
         let documents = Arc::new(AtomicBool::new(documents));
         let selected_documents = documents.clone();
+        let search = Arc::new(AtomicBool::new(false));
+        let selected_search = search.clone();
         let worker = thread::Builder::new()
             .name("lapis-metadata".into())
             .spawn(move || {
@@ -101,6 +104,7 @@ impl Owner {
                     let selection = reconcile::Selection {
                         occurrences: &selected,
                         documents: &selected_documents,
+                        search: &selected_search,
                         today: &today,
                     };
                     let result = runtime.block_on(reconcile::run(
@@ -135,7 +139,12 @@ impl Owner {
             status,
             occurrences,
             documents,
+            search,
         })
+    }
+    pub(super) fn select_search(&self, enabled: bool) {
+        self.search.store(enabled, Ordering::Release);
+        let _ = self.signal.try_send(());
     }
     pub(super) fn select(&self, occurrences: Option<bool>, documents: Option<bool>) {
         if let Some(enabled) = occurrences {
