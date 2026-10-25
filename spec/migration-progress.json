@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 22:14:14 UTC",
+  "updated": "2026-10-25 22:39:23 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -455,7 +455,7 @@
       "work": "Remaining native plugin projection processors",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Tasks native index source](../lapis-plugin-tasks/spec/records/2026-10-25-native-task-index.md) is Source complete at fcb2a8b5: 210 hrefs, 30 target lookups and 174 complete index outcomes, plus 1,035 TypeScript/14 native/62 cold catalog cases and full source/package gates. Notes service publication integration is active in native-tasks-index-20261025. Tasks mutations/materialization, Docs/custom processors and both host selections remain; source qualification does not select a writer."
+      "detail": "[Tasks native index source](../lapis-plugin-tasks/spec/records/2026-10-25-native-task-index.md) is Source complete at fcb2a8b5: 210 hrefs, 30 target lookups and 174 complete index outcomes, plus 1,035 TypeScript/14 native/62 cold catalog cases and full source/package gates. [Native Notes publication](spec/records/2026-10-25-native-task-documents-intake.md) is now source-qualified with 10 exact Tasks cases and full repository check/test/build (356 Rust and 2,220 package passes). Tasks mutations/materialization, Docs/custom processors and both host selections remain; source qualification does not select a writer."
     },
     {
       "id": "R3.2.1.3",
@@ -528,6 +528,14 @@
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
       "detail": "[Qualified Tasks source](../lapis-plugin-tasks/spec/records/2026-10-25-native-task-index.md), integrated in clean Tasks default fcb2a8b5: 210 hrefs, 30 target lookups and 174 complete index outcomes. All 1,035 TypeScript, 14 native and 62 cold catalog cases plus check/build/publint/static/specification gates pass. Notes service intake, application host selection and Tasks mutation/materialization remain separate gates."
+    },
+    {
+      "id": "R3.2.1.2.9",
+      "area": "Native plugin projections",
+      "work": "Native complete Tasks document projection intake",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "[Qualified native Notes intake](spec/records/2026-10-25-native-task-documents-intake.md) consumes Tasks fcb2a8b5 directly. All 10 exact Tasks cases pass; full repository check/test/build passes 356 ordinary Rust and 2,220 package tests with zero failures. Admitted snapshots retain exact bytes, physical hashes/core metadata and existing schema/rows/edges; one owner handles watcher/dependency/local-date refresh, pruning, revision-idempotent repair and close/drain. Existing six Rust ignores and one frozen Deno integration skip are retained. Both host/plugin selections, mutations/materialization and installed delivery remain separate."
     }
   ]
 }

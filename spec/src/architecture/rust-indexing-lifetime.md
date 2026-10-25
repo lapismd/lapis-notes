@@ -54,6 +54,40 @@ rows. Duplicate identities within a source and more than 64 rows MUST publish
 observable source errors with no partial ready rows; truncation and
 deduplication are forbidden.
 
+## Optional complete Task documents
+
+Under LN-CORE-003/005/006, a separate native-only selection MAY enable complete
+Task, List and navigation projection publication on the existing owner. Existing
+Markdown-only and occurrence selections MUST retain their behavior and defaults.
+No HTTP, Tauri or renderer configuration selects this source intake yet.
+
+Notes MUST reuse the qualified Tasks crate for parsing, recurrence, row and
+structure resolution, whole-vault graph validation and source envelopes. Target
+lookup MUST use the existing admitted physical-vault link policy and a bounded,
+read-only snapshot. Hidden resources, symlinks and replaced roots MUST remain
+unavailable. A changing snapshot MUST remain pending before publication.
+
+Native publication MUST retain the existing public `tasks/task` schema, row data,
+relationship ordinals and diagnostics. Physical source hashes MUST come from the
+admitted Markdown snapshot; compatibility placeholder metadata MUST NOT replace
+core metadata. Native Task path/child reads MUST observe the selected projection
+without falling back to stale renderer caches. Ordinary metadata links MUST
+remain reference records.
+
+Changes to targets or other structural parents MUST refresh dependent unchanged
+sources. Non-Task and deleted sources MUST be pruned. Missing/stale sources MUST
+repair independently of unchanged metadata, and unchanged source values MUST
+remain revision-idempotent across warm passes and cold reopen. Native local-date
+refresh MUST derive effective recurrence fields without materializing notes.
+
+Disabling MUST fence new Task source admissions while accepted database writes
+drain and Markdown continues. Vault close MUST retire this same watcher/worker,
+fence new work and release the database after accepted effects drain. This
+private source selection MUST NOT change either host default or public wire API.
+Host/plugin admission, unattended application acceptance and all mutations remain
+separate gates. The bounded [Notes intake](../../records/2026-10-25-native-task-documents-intake.md)
+records source progress and exact acceptance.
+
 ## Lifetime and failure
 
 Only one native owner starts for a vault. File watchers are hints; startup and

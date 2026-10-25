@@ -15,7 +15,7 @@ mod schema;
 mod search;
 mod state_client;
 mod store;
-mod tasks;
+pub(crate) mod tasks;
 mod transactions;
 
 use crate::services::{Error, Result};

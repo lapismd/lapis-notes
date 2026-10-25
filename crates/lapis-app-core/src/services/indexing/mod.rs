@@ -1,8 +1,10 @@
+mod manifest;
 mod occurrences;
 mod owner;
 mod properties;
 mod reconcile;
 mod records;
+mod tasks;
 
 use super::{Error, Result, VaultService};
 use lapis_app_protocol::ErrorCode;
@@ -19,20 +21,28 @@ pub struct IndexingStatus {
 }
 impl VaultService {
     pub async fn start_markdown_indexing(self: &Arc<Self>) -> Result<()> {
-        self.start_indexing(false).await
+        self.start_indexing(false, false, owner::Clock::default())
+            .await
     }
     /// Hosts select this only after admitting the Tasks plugin capability.
     pub async fn set_task_occurrence_indexing(self: &Arc<Self>, enabled: bool) -> Result<()> {
         if enabled {
-            return self.start_indexing(true).await;
+            return self
+                .start_indexing(true, false, owner::Clock::default())
+                .await;
         }
         let _work = self.begin_work()?;
         if let Some(owner) = self.indexing.lock().map_err(|_| unavailable())?.as_ref() {
-            owner.select_occurrences(false);
+            owner.select(Some(false), None);
         }
         Ok(())
     }
-    async fn start_indexing(self: &Arc<Self>, occurrences: bool) -> Result<()> {
+    async fn start_indexing(
+        self: &Arc<Self>,
+        occurrences: bool,
+        documents: bool,
+        clock: owner::Clock,
+    ) -> Result<()> {
         let database = self.database().await?;
         // Never retain work across this gate: close drains accepted work while
         // holding it, and a concurrent start must observe the retired phase.
@@ -53,9 +63,13 @@ impl VaultService {
                 database,
                 root,
                 occurrences,
+                documents,
+                clock,
             )?);
-        } else if occurrences && let Some(owner) = slot.as_ref() {
-            owner.select_occurrences(true);
+        } else if (occurrences || documents)
+            && let Some(owner) = slot.as_ref()
+        {
+            owner.select(occurrences.then_some(true), documents.then_some(true));
         }
         drop(work);
         Ok(())
