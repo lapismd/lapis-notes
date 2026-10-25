@@ -22,3 +22,12 @@ CREATE TABLE IF NOT EXISTS login_attempts (
   attempt_count INTEGER NOT NULL,
   blocked_until INTEGER
 );
+CREATE TABLE IF NOT EXISTS hosted_vaults (
+  id TEXT PRIMARY KEY,
+  owner_id INTEGER NOT NULL REFERENCES installation_owner(id) CHECK(owner_id = 1),
+  name TEXT NOT NULL,
+  managed INTEGER NOT NULL CHECK(managed IN (0,1)),
+  physical_device TEXT NOT NULL,
+  physical_inode TEXT NOT NULL,
+  archived_at INTEGER
+);

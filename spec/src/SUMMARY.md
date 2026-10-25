@@ -6,6 +6,7 @@
   - [Architecture / Workspace integration](./architecture/workspace-integration.md)
   - [Architecture / Host boundaries](./architecture/host-boundaries.md)
   - [Architecture / Rust application services](./architecture/rust-application-services.md)
+  - [Architecture / Rust managed vaults](./architecture/rust-managed-vaults.md)
   - [Architecture / Backup service lifetime](./architecture/rust-backup-lifetime.md)
   - [Architecture / Editor integration](./architecture/editor-integration.md)
   - [Architecture / Build and validation](./architecture/build-and-validation.md)

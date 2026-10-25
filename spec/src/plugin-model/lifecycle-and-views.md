@@ -1,5 +1,11 @@
 # Plugin Model / Lifecycle and views
 
+Hosted archive of the displayed vault awaits the existing workspace/plugin
+disposal and final file writes before retiring the native owner. The retained
+chooser supplies this host lifecycle policy; plugins keep their owned App and
+normal cleanup contracts. Installed-plugin delivery remains its own migration
+gate.
+
 LN-WS-101 allows an explicit layout-only close policy for views with no file
 writers and externally retained staged state. Existing plugin views keep full
 application writer protection unless they opt in; whole-host shutdown remains

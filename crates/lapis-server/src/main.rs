@@ -50,6 +50,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Some(profile) => Host::with_profile(config, std::path::Path::new(&profile))?,
         None => Host::new(config)?,
     });
+    if let (Some(control), Some(profile)) = (&control, std::env::var_os("LAPIS_SERVER_DATA_ROOT")) {
+        host.enable_management(control.clone(), std::path::Path::new(&profile))
+            .await?;
+    }
     let listener = tokio::net::TcpListener::bind(address).await?;
     let origin = if address.port() == 0 && std::env::var_os("LAPIS_SERVER_ORIGIN").is_none() {
         format!("http://{}", listener.local_addr()?)

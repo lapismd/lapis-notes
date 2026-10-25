@@ -4,6 +4,9 @@ The explicit `server-rust` profile connects the retained hosted screen to
 Rust-generated commands through admitted HTTP client IDs. It omits PWA startup
 and browser storage. Its initial configured-vault workflow and later hosted
 feature parity retain separate evidence; Node remains the serving baseline.
+The retained chooser's managed-vault actions use the Rust host's advertised
+capability and opaque IDs. [Managed-vault intake](../architecture/rust-managed-vaults.md)
+qualifies Create/Rename/Archive/Restore separately from transfer and installation.
 
 The Design Core dependency refresh consumes released `0.5.0` CSS, fonts and
 components through public exports. Existing application ownership, host

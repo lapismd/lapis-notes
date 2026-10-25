@@ -21,8 +21,10 @@ pub(super) fn body<T>(body: Result<Json<T>, JsonRejection>) -> Result<T, Failure
         )
     })
 }
-pub(super) async fn vaults(AxumState(state): AxumState<State>) -> Json<Vec<ManagedVault>> {
-    Json(state.host.vaults().to_vec())
+pub(super) async fn vaults(
+    AxumState(state): AxumState<State>,
+) -> Result<Json<Vec<ManagedVault>>, Failure> {
+    Ok(Json(state.host.vaults()?))
 }
 pub(super) async fn attach(
     AxumState(state): AxumState<State>,

@@ -2,7 +2,7 @@
 
 Private R1.3 staging for the shared application-service migration. This executable
 embeds `lapis-app-core`; it contains no JavaScript application runtime. It has
-one owner and up to twenty operator-configured vaults. The current Node server
+one owner and up to twenty configured or created vaults. The current Node server
 continues to serve the browser until its replacement gates pass.
 
 Create an operator-owned configuration **outside every admitted vault**:
@@ -57,6 +57,18 @@ header. Cookie mutations additionally require the returned `x-lapis-csrf` token.
 Logout revokes the session and detaches only its clients, preserving dirty claims
 and accepted work. All configured vaults belong to the single installation owner.
 
+Profile-backed startup enables the retained chooser's Create, Rename, Archive
+and Restore controls. A fresh installation may configure `{"vaults": []}`.
+Created content lives under `vaults/<host-generated-id>/content` in the private
+profile; names never select directories. The control database persists names,
+archive state and physical identities. Restart retains renamed configured
+entries and rejects replaced storage. Archived content is preserved, while its
+shared file/database/backup owner is drained and old clients are revoked.
+Dirty-editor claims block archive. Restore retains the original vault and
+history identity. Catalogue mutations complete independently of HTTP response
+waiters and drain before shutdown. Operator-only staging without a profile
+continues to require at least one configured vault and cannot manage vaults.
+
 API requests use `x-lapis-protocol: 3` and either the session cookie or
 `Authorization: Bearer <owner-token>`. Cookie file/resource GET/HEAD requests may
 omit that custom header for browser media loading; a supplied stale header is
@@ -70,6 +82,10 @@ Routes:
 | GET          | `/api/v3/auth/current`                      | Current browser session and CSRF token           |
 | POST         | `/api/v3/auth/logout`                       | Revoke browser session and clear its cookie      |
 | GET          | `/api/v3/vaults`                            | Opaque vault IDs and names                       |
+| POST         | `/api/v3/vaults`                            | Create with `{ "name": "Notes" }`                |
+| POST         | `/api/v3/vaults/{vault}/name`               | Rename with a bounded display name               |
+| POST         | `/api/v3/vaults/{vault}/archive`            | Drain and archive, preserving content            |
+| POST         | `/api/v3/vaults/{vault}/restore`            | Restore the original physical vault              |
 | POST         | `/api/v3/vaults/{vault}/clients`            | Attach with `{ "protocol_version": 3 }`          |
 | POST         | `/api/v3/clients/{client}/commands`         | Generated protocol `Request` and `Reply`         |
 | POST         | `/api/v3/clients/{client}/heartbeat`        | Renew the current client attachment              |
@@ -103,6 +119,8 @@ images, audio/video and PDF with a sandbox CSP; ordinary file reads download as
 attachments. After native shutdown succeeds, network drain is limited to ten
 seconds.
 
-Existing browser login UI integration, App/Vault/database adapters and shell
-acceptance, raw append, SSE jobs and native backup ownership remain required. This private adapter is not a hosted cutover or distribution
+The retained browser login, configured-vault read/edit shell and native backup
+lifetime have separate qualified receipts. Managed chooser acceptance is tracked
+under R1.3.9. Transfers, installation delivery, durable AI, unattended indexing,
+native operations and final SSE/static delivery remain required. This private adapter is not a hosted cutover or distribution
 qualification. See [the migration plan](../../RUST_CORE_MIGRATION_PLAN.md).

@@ -25,6 +25,13 @@ pub struct HostInfo {
     pub protocol_major: u32,
     pub build_id: String,
     pub browser_auth: bool,
+    pub manage_vaults: bool,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, JsonSchema, TS)]
+#[serde(deny_unknown_fields)]
+pub struct VaultName {
+    pub name: String,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, JsonSchema, TS)]

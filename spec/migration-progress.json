@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 03:37:49 UTC",
+  "updated": "2026-10-25 04:15:55 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -151,15 +151,15 @@
       "work": "Existing browser login/vault/workspace UI on Rust",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "[Retained hosted-shell integration](spec/records/2026-10-25-rust-hosted-shell.md) qualifies a final cold built-UI/real-Rust login, configured-vault read/edit/save and browser reload journey (7.4s). Retained Node 24 editing/sharing/restart acceptance also passes. Full source check/test/build, all 261 catalog and 50 Web unit cases, specification and formatting checks pass. Full hosted intake/parity remains open, including managed-vault/transfer/installation support and final SSE/static delivery."
+      "detail": "[Configured shell](spec/records/2026-10-25-rust-hosted-shell.md) and [managed-vault intake](spec/records/2026-10-25-rust-managed-vaults.md) are qualified. R1.3.9.1 completes Create/Rename/Archive/Restore through retained UI, actual Rust restart and guarded native ownership. Existing transfers and installations remain R1.3.9.2/.3; final SSE/static delivery remains R7. This parent is not complete hosted parity."
     },
     {
       "id": "R1.3.10",
       "area": "Host adapters",
       "work": "Automatic backup after client detach and controlled Quit",
-      "status": "Working",
+      "status": "Waiting",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "[Shared backup lifetime](spec/records/2026-10-25-rust-backup-lifetime.md) and [native host controls](spec/records/2026-10-25-rust-backup-commands.md) are committed/source-qualified at 6f637449. Tauri ownership/lifecycle intake is implemented locally. Final 235 native, 416 renderer/governance, 744 AI, 104 backup catalog and 12 Shell catalog cases pass; normal/e2e strict checks, types, renderer build and specification lanes pass. A missing Shell fixture port is repaired and exact/family reruns pass. Full catalog rerun has passed 1,000 cases; desktop/dark is running. All six hidden native API cases and five original backup lifecycle cases pass. Three obsolete Notes failure-banner selectors initially fail; the exact three-case rerun and full six-case native Notes lifecycle family pass after correcting only those selectors. Ordinary debug bundle and zero-automation-marker audit pass. Complete catalog and consumer commit remain open. See Desktop E-CORE-017."
+      "detail": "[Shared backup lifetime](spec/records/2026-10-25-rust-backup-lifetime.md) and [native host controls](spec/records/2026-10-25-rust-backup-commands.md) are committed/source-qualified at 6f637449. Desktop E-CORE-017 qualifies the local intake: 235 native, 416 renderer/governance, 744 AI, all 2000 catalog, six hidden native API and eleven original lifecycle cases pass. Strict normal/e2e checks, types, both builds, specification and the zero-automation-marker bundle audit pass. Its consumer commit waits for the database slice Markdown image-failure disposition or qualified owning-package repair; backup checks are complete."
     },
     {
       "id": "R1.3.11",
@@ -368,6 +368,30 @@
       "status": "Waiting",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
       "detail": "Reuse the existing history engine and move its scheduler into the vault service."
+    },
+    {
+      "id": "R1.3.9.1",
+      "area": "Hosted shell",
+      "work": "Retained chooser managed-vault lifecycle",
+      "status": "Complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "[Managed-vault intake](spec/records/2026-10-25-rust-managed-vaults.md) qualifies all seven native management cases, accepted-work cancellation/drain, both adapter cases, all 52 Web unit cases and both final cold Rust UI journeys (15.7s), including real process restart. Full source check/test/build/spec, all 261 catalog cases, retained Node acceptance and both Desktop library compatibility cases pass in this slice. Transfers/installation remain separate."
+    },
+    {
+      "id": "R1.3.9.2",
+      "area": "Hosted shell",
+      "work": "Existing folder/ZIP import and vault export",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "Retained R1.3.9 transfer scope: native bounded archive intake/export and the existing browser folder/ZIP controls. Accepted operation lifetime also retains its R6 gate."
+    },
+    {
+      "id": "R1.3.9.3",
+      "area": "Hosted shell",
+      "work": "Existing installed-plugin delivery and lifecycle",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "Retained R1.3.9 installation scope through existing plugin controls. Installation transactions and final service/static delivery retain their R6/R7 gates; no new plugin model or publication scope."
     }
   ]
 }

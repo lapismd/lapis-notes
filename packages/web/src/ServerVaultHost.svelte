@@ -259,7 +259,10 @@
   async function archive(row: VaultRow): Promise<void> {
     await runVaultAction(
       `archive:${row.id}`,
-      () => backend.archive(row.id).then(() => undefined),
+      async () => {
+        if (prepared?.profile.id === row.id) await disposeWorkspace(true);
+        await backend.archive(row.id);
+      },
       `${row.name} archived`,
     );
   }

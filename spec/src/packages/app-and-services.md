@@ -1,5 +1,10 @@
 # Packages / App and services
 
+The private Rust-hosted chooser adapter consumes generated native protocol types
+and the existing public App/Vault interfaces. Managed-vault mutation authority
+and catalogue persistence stay in the Rust host; no public npm export, browser
+path selector or alternate file writer is introduced.
+
 The private `lapis-notes-native` executable and Node supervisor implement
 LN-SRV-021–023 without adding public npm exports or an App singleton. The host
 supplies trusted caller scopes; history remains independent of AI and indexes.

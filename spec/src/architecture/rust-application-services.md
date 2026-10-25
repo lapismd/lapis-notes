@@ -9,7 +9,7 @@ The main Notes `default` workspace owns that R0–R7 master tracker. Desktop's
 separate M-series tracker points here for shared-core activity. R3.1.18 native
 runtime/model installation has [independent source evidence](../../records/2026-10-24-rust-core-model-cache.md).
 Source database conformance and vault lifetime are qualified. The HTTP half of R1.3.8 is qualified; Tauri and retained Web application
-adoption remain. Retained migration workspaces are not this thread's checkout.
+adoption remain. [Managed vault intake](rust-managed-vaults.md) retains R1.3.9 scope.
 
 R1.1 extracts Desktop's existing vault file engine into `lapis-app-core` and
 updates native callers directly. The low-level engine retains the caller-owned

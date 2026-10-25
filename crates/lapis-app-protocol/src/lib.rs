@@ -16,6 +16,9 @@ pub const PROTOCOL_MAJOR: u32 = 3;
 pub struct ManagedVault {
     pub vault_id: Uuid,
     pub name: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional, type = "number")]
+    pub archived_at: Option<i64>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, JsonSchema, TS)]

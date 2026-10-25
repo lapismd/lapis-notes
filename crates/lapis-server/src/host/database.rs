@@ -12,7 +12,9 @@ use uuid::Uuid;
 impl Host {
     /// Installation-only selection; HTTP callers never supply this profile.
     pub fn with_profile(config: Config, profile: &Path) -> io::Result<Self> {
-        config.validate()?;
+        if !config.vaults.is_empty() {
+            config.validate()?;
+        }
         let (database, backup) = storage(profile, &config)?;
         let mut host =
             Self::with_runtime(config, Runtime::with_database(database).with_backup(backup))?;

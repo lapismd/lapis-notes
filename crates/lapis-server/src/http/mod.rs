@@ -6,6 +6,7 @@ mod identity;
 pub use identity::Authentication;
 mod errors;
 mod files;
+mod management;
 mod routes;
 
 use crate::host::Host;
@@ -56,7 +57,13 @@ pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::R
         origin: origin.into(),
     };
     Ok(Router::new()
-        .route("/api/v3/vaults", get(routes::vaults))
+        .route(
+            "/api/v3/vaults",
+            get(routes::vaults).post(management::create),
+        )
+        .route("/api/v3/vaults/{vault}/name", post(management::rename))
+        .route("/api/v3/vaults/{vault}/archive", post(management::archive))
+        .route("/api/v3/vaults/{vault}/restore", post(management::restore))
         .route("/api/v3/auth/current", get(browser::current))
         .route("/api/v3/auth/logout", post(browser::logout))
         .route("/api/v3/vaults/{vault}/clients", post(routes::attach))

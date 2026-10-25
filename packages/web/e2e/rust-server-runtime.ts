@@ -53,11 +53,15 @@ export class RustServerRuntime {
   }
 
   async start(): Promise<void> {
+    this.#logs = "";
     await mkdir(this.vault, { recursive: true });
     await writeFile(
       join(this.vault, "Note.md"),
       "# Native hosted note\n\nRead and edit this note through Rust.\n",
-    );
+      { flag: "wx" },
+    ).catch((error: NodeJS.ErrnoException) => {
+      if (error.code !== "EEXIST") throw error;
+    });
     const secret = join(this.root, "bootstrap-password");
     await writeFile(secret, this.password, { mode: 0o600 });
     const config = join(this.root, "config.json");
@@ -129,6 +133,11 @@ export class RustServerRuntime {
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
     throw new Error(`Built renderer did not start\n${this.logs}`);
+  }
+
+  async restart(): Promise<void> {
+    await this.stop();
+    await this.start();
   }
 
   async stop(): Promise<void> {

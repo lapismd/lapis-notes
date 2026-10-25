@@ -86,8 +86,10 @@ export type HostInfo = {
   protocol_major: number;
   build_id: string;
   browser_auth: boolean;
+  manage_vaults: boolean;
 };
 export type LogoutReply = { ok: boolean };
+export type VaultName = { name: string };
 export type MetaCheck = { key: string; exists?: boolean; value?: unknown };
 export type MetaMutation = { key: string; value?: unknown; delete?: boolean };
 export type MetaTransaction = {
@@ -923,7 +925,11 @@ export type SearchResult = {
   matchedChunkIds: Array<string>;
   diagnostics?: SearchDiagnostics;
 };
-export type ManagedVault = { vault_id: string; name: string };
+export type ManagedVault = {
+  vault_id: string;
+  name: string;
+  archived_at?: number;
+};
 export type AttachClient = { protocol_version: number };
 export type FileOptions = { mtime: number | null };
 export type FileCommand =

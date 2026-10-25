@@ -649,13 +649,19 @@
       "properties": {
         "browser_auth": { "type": "boolean" },
         "build_id": { "type": "string" },
+        "manage_vaults": { "type": "boolean" },
         "protocol_major": {
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
         }
       },
-      "required": ["protocol_major", "build_id", "browser_auth"],
+      "required": [
+        "protocol_major",
+        "build_id",
+        "browser_auth",
+        "manage_vaults"
+      ],
       "type": "object"
     },
     "IndexedFile": {
@@ -762,6 +768,7 @@
     "ManagedVault": {
       "additionalProperties": false,
       "properties": {
+        "archived_at": { "format": "int64", "type": ["integer", "null"] },
         "name": { "type": "string" },
         "vault_id": { "format": "uuid", "type": "string" }
       },
@@ -2731,6 +2738,12 @@
         }
       ]
     },
+    "VaultName": {
+      "additionalProperties": false,
+      "properties": { "name": { "type": "string" } },
+      "required": ["name"],
+      "type": "object"
+    },
     "VaultPhase": { "enum": ["open", "closing", "closed"], "type": "string" },
     "VaultStatus": {
       "additionalProperties": false,
@@ -2894,7 +2907,8 @@
     "task_lookup": { "$ref": "#/$defs/TaskLookup" },
     "task_query": { "$ref": "#/$defs/TaskQuery" },
     "task_record": { "$ref": "#/$defs/TaskRecord" },
-    "vault": { "$ref": "#/$defs/ManagedVault" }
+    "vault": { "$ref": "#/$defs/ManagedVault" },
+    "vault_name": { "$ref": "#/$defs/VaultName" }
   },
   "required": [
     "database_call",
@@ -2908,6 +2922,7 @@
     "session",
     "host",
     "logout",
+    "vault_name",
     "meta_transaction",
     "meta_scan",
     "meta_page",

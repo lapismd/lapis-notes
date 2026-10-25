@@ -182,6 +182,6 @@ async fn original_native_file_operations_use_the_shared_owner_over_real_http() {
     );
     assert!(!f.roots[1].path().join("é.md").exists());
     f.detach(&second).await;
-    assert_eq!(f.host.vaults().len(), 2);
+    assert_eq!(f.host.vaults().unwrap().len(), 2);
     f.host.shutdown().unwrap();
 }

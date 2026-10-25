@@ -1,12 +1,15 @@
 mod attachments;
 mod backup;
 mod database;
+mod management;
+pub(crate) use management::Command as ManagementCommand;
 
 use crate::config::Config;
 use lapis_app_core::services::{Client, Runtime};
 use lapis_app_protocol::{ClientDescriptor, ErrorCode, ManagedVault, Reply, Request, ServiceError};
 use std::{
-    sync::Arc,
+    collections::HashMap,
+    sync::{Arc, OnceLock},
     time::{Duration, Instant},
 };
 use uuid::Uuid;
@@ -25,6 +28,8 @@ pub struct Host {
     vaults: Vec<ManagedVault>,
     clients: attachments::Attachments,
     automatic_backup: bool,
+    roots: HashMap<Uuid, lapis_app_core::vault::VaultRoot>,
+    management: OnceLock<Arc<management::Management>>,
 }
 
 pub fn error(code: ErrorCode, message: &str) -> ServiceError {
@@ -36,18 +41,25 @@ pub fn error(code: ErrorCode, message: &str) -> ServiceError {
 
 impl Host {
     pub fn new(config: Config) -> std::io::Result<Self> {
+        config.validate()?;
         Self::with_runtime(config, Runtime::default())
     }
     fn with_runtime(config: Config, runtime: Runtime) -> std::io::Result<Self> {
-        config.validate()?;
+        if !config.vaults.is_empty() {
+            config.validate()?;
+        }
         let mut vaults = Vec::new();
+        let mut roots = HashMap::new();
         for vault in config.vaults {
+            let root = lapis_app_core::vault::VaultRoot::open(&vault.root)?;
             runtime
-                .admit(vault.id, &vault.root)
+                .admit_root(vault.id, root.try_clone()?)
                 .map_err(std::io::Error::other)?;
+            roots.insert(vault.id, root);
             vaults.push(ManagedVault {
                 vault_id: vault.id,
                 name: vault.name,
+                archived_at: None,
             });
         }
         Ok(Self {
@@ -55,15 +67,25 @@ impl Host {
             vaults,
             clients: attachments::Attachments::default(),
             automatic_backup: false,
+            roots,
+            management: OnceLock::new(),
         })
     }
 
-    pub fn vaults(&self) -> &[ManagedVault] {
-        &self.vaults
+    pub fn vaults(&self) -> Result<Vec<ManagedVault>> {
+        match self.management.get() {
+            Some(manager) => manager.catalogue.list(),
+            None => Ok(self.vaults.clone()),
+        }
     }
 
     pub fn attach(&self, vault: Uuid, principal: Principal) -> Result<ClientDescriptor> {
         self.expire_idle(Instant::now())?;
+        let _admission = self
+            .management
+            .get()
+            .map(|manager| manager.catalogue.admission(vault))
+            .transpose()?;
         let client = self
             .runtime
             .get(vault)
@@ -109,7 +131,15 @@ impl Host {
     }
 
     pub fn shutdown(&self) -> Result<()> {
-        self.runtime.shutdown().map_err(|e| e.0)?;
+        if let Some(manager) = self.management.get() {
+            manager.pause_and_drain()?;
+        }
+        if let Err(error) = self.runtime.shutdown() {
+            if let Some(manager) = self.management.get() {
+                manager.resume();
+            }
+            return Err(error.0);
+        }
         self.clients.retire(None)?;
         Ok(())
     }

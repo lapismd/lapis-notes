@@ -4,6 +4,7 @@ mod login;
 mod owner;
 pub mod passwords;
 mod sessions;
+pub(crate) mod vaults;
 
 pub use login::LoginError;
 pub use sessions::{IssuedSession, Session};

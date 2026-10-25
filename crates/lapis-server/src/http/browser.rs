@@ -24,6 +24,7 @@ pub(super) async fn info(AxumState(state): AxumState<State>) -> Json<HostInfo> {
         protocol_major: PROTOCOL_MAJOR,
         build_id: state.build_id,
         browser_auth: state.auth.control.is_some(),
+        manage_vaults: state.host.manages_vaults(),
     })
 }
 pub(super) async fn login(
