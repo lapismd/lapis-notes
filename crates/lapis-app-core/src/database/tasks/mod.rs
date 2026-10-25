@@ -13,7 +13,7 @@ use lapis_app_protocol::database::{
 use serde::Serialize;
 use serde_json::Value as Json;
 const ID: &str = "tasks/task";
-pub(crate) const NATIVE_CONFIG: &str = "native-tasks-document-v4";
+pub(crate) const NATIVE_CONFIG: &str = "native-tasks-document-v4-yaml12-1";
 #[derive(Serialize)]
 pub(super) enum Action {
     Put(Box<TaskRecord>),

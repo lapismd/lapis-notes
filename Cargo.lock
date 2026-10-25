@@ -3406,6 +3406,8 @@ dependencies = [
  "pulldown-cmark",
  "regex",
  "rrule",
+ "ryu-js",
+ "saphyr",
  "serde",
  "serde_json",
  "serde_yaml",
