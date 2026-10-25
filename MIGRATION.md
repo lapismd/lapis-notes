@@ -14,8 +14,8 @@ fail against the older registry implementations and pass with the matching
 Search and AI archives. The complete current catalog then passes all 261 cold
 stories. Registry-only delivery remains unqualified. See the
 [landing record](spec/records/2026-10-25-catalog-main-landing.md) for exact scope,
-archive identities, results and blockers. Temporary workspaces remain pending
-cleanup confirmation. Catalog checkpoint: **2026-10-25 15:41:15 UTC**.
+archive identities, results and blockers. The two temporary Notes workspaces were retired after user
+confirmation; evidence and recovery receipts remain under `.local/retired-workspaces/`. Catalog checkpoint: **2026-10-25 15:52:11 UTC**.
 
 ## Shared Rust application services (2026-10-23)
 

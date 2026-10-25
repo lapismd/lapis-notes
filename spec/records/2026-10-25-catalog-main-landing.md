@@ -83,3 +83,15 @@ The before/after SHA-256 comparison across all 2,661 existing tracked files
 finds no unexpected changes. Only this landing's migration checkpoint, canonical
 validation documentation and evidence links differ. The remaining native-source
 pin stays uncommitted. No Jujutsu conflicts remain.
+
+## Confirmed temporary-workspace cleanup
+
+On 2026-10-25 the user confirmed cleanup. The 2 temporary workspaces were
+unregistered from Jujutsu and moved to timestamped macOS Trash locations.
+Their complete local evidence was archived in the default workspace under
+`.local/retired-workspaces/catalog-validation-20261025T155102Z`,
+with verified archive checksums, original head/parent revisions and local
+recovery bookmarks in `retirement.json`. Each checkout was clean, its non-empty
+changes were already landed, and no running process owned its directory.
+The before/after comparison confirmed every existing main-workspace tracked
+file remained byte-identical during retirement. Other workspaces were retained.
