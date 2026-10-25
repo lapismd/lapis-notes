@@ -172,3 +172,8 @@ existing Lapis browser application and managed vaults on Node 24 LTS.
 `pnpm test:server` runs focused checks plus the real native worker smoke.
 `pnpm build:server:container && pnpm test:server:e2e` runs the isolated,
 headless container/browser acceptance without a Deno installation.
+
+## Local checks
+
+Portable checks, builds and tests default to Docker. See [validation](docs/validation.md)
+for image preparation, remote execution, explicit native runs and story composition checks.

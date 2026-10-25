@@ -21,6 +21,9 @@ concurrency:
   group: lapis-public-release
   cancel-in-progress: false
 
+env:
+  LAPIS_NOTES_VALIDATION_RUNTIME: native
+
 jobs:
   changesets:
     name: Version packages

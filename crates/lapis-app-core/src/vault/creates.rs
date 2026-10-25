@@ -1,5 +1,6 @@
 use super::{
-    MAX_FILE_BYTES, VaultRoot, WriteOptions, invalid, staged::StagedFile, writes::modification_time,
+    MAX_FILE_BYTES, VaultRoot, WriteOptions, invalid, staged::StagedFile, sync_directory,
+    writes::modification_time,
 };
 use std::io::{self, Read};
 
@@ -32,6 +33,6 @@ impl VaultRoot {
         }
         staged.file.sync_all()?;
         staged.publish(&name)?;
-        parent.into_std_file().sync_all()
+        sync_directory(&parent)
     }
 }

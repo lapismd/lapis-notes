@@ -25,6 +25,7 @@ export default defineConfig(headingRequirements(), {
   },
   documentRoles: [{ pattern: "^verification/", role: "verification" }],
   diagnostics: {
+    "STORYBOOK-PARITY": "LN-CAT-118",
     "SPEC-LINK-BROKEN": "LN-GOV-017",
     "SPEC-REQ-ID": "LN-GOV-002",
     "SPEC-REQ-DUPLICATE": "LN-GOV-002",
@@ -393,6 +394,7 @@ export default defineConfig(headingRequirements(), {
     },
   },
   plugins: [
+    "scripts/spec-validation/storybook-parity.mjs",
     "scripts/spec-validation/view-command-audit.mjs",
     "scripts/spec-validation/storybook-structure-audit.mjs",
   ],

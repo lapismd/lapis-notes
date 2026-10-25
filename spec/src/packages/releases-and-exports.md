@@ -387,7 +387,7 @@ batch through npm ranges: AI 0.1.5; Bases, Bookmarks, Graph, Search and Spellche
 0.1.3; History 0.1.4; Markdown 0.1.6; Markdown Lint, Source Editor and Word Count
 0.1.2. Slides 0.1.0 remains available through installed-plugin management rather
 than the static profile. The tracked lockfile resolves public npm packages;
-test-signed archive fixtures remain separate acceptance inputs.
+test-signed archive fixtures remain separate acceptance inputs. Local consumer qualification builds the five public host packages from exact source and records archive hashes under LN-ARCH-146. It does not create a release candidate or change registry dependency ranges.
 
 <!-- ci-dependency-image:start -->
 

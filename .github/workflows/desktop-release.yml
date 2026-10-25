@@ -19,6 +19,7 @@ defaults:
   run:
     shell: bash
 env:
+  LAPIS_NOTES_VALIDATION_RUNTIME: native
   LAPIS_HOMEBREW_TAP_COMMIT: "41a4f6f89fb5d3abe0a5d36886d03f68d02514a4"
   LAPIS_CONTROLLER_CANDIDATE_COMMIT: "ac0adf67ea80ead3526fa6ff20b13a8fa2523dec"
 jobs:

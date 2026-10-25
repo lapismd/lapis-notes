@@ -35,6 +35,7 @@ pub(super) fn create(parent: &VaultRoot, id: uuid::Uuid) -> io::Result<VaultRoot
 fn private(root: &VaultRoot) -> io::Result<()> {
     use std::os::unix::fs::PermissionsExt;
     root.open_directory("")?
-        .into_std_file()
+        .open(".")?
+        .into_std()
         .set_permissions(std::fs::Permissions::from_mode(0o700))
 }

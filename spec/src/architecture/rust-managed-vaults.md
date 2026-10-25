@@ -12,6 +12,9 @@ under the installation profile's `vaults/<id>/content`. Requests supply a bounde
 display name, never a native path, storage root or executable. Names may contain
 Unicode and are not interpreted as directory names. Private service databases,
 models and history remain outside vault content.
+Private directory permissions and durability barriers use readable,
+capability-relative handles on Linux. Search-only handles remain valid identity
+witnesses; reopening a handle never widens profile or vault authority.
 
 Profile-backed startup may begin with no configured vault. Operator-only
 file-service staging retains its existing configured-vault requirement. Startup

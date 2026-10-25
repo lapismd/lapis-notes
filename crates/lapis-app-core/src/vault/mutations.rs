@@ -1,5 +1,5 @@
 use super::staged::{StagedFile, rename_exclusive};
-use super::{VaultRoot, invalid};
+use super::{VaultRoot, invalid, sync_directory};
 use cap_std::fs::Dir;
 use std::ffi::OsString;
 use std::io::{self, Write};
@@ -28,8 +28,8 @@ impl VaultRoot {
             return Ok(());
         }
         rename_exclusive(&from, &old_name, &to, &new_name)?;
-        from.into_std_file().sync_all()?;
-        to.into_std_file().sync_all()
+        sync_directory(&from)?;
+        sync_directory(&to)
     }
 
     pub fn copy_file(&self, source: &str, destination: &str) -> io::Result<()> {
@@ -54,7 +54,7 @@ impl VaultRoot {
         staged.file.write_all(&bytes)?;
         staged.file.sync_all()?;
         staged.publish(&name)?;
-        parent.into_std_file().sync_all()
+        sync_directory(&parent)
     }
 
     pub fn remove_file(&self, path: &str) -> io::Result<()> {
@@ -66,7 +66,7 @@ impl VaultRoot {
         }
         let (parent, name) = self.entry_parent(path)?;
         parent.remove_file(name)?;
-        parent.into_std_file().sync_all()
+        sync_directory(&parent)
     }
 
     pub fn remove_directory(&self, path: &str, recursive: bool) -> io::Result<()> {
@@ -85,6 +85,6 @@ impl VaultRoot {
         } else {
             parent.remove_dir(name)?;
         }
-        parent.into_std_file().sync_all()
+        sync_directory(&parent)
     }
 }

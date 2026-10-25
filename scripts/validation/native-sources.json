@@ -1,0 +1,14 @@
+[
+  {
+    "name": "lapis-ai",
+    "revision": "6548afe0f47c6fa2ff71d326a5f6e8ce4ebbebd8"
+  },
+  {
+    "name": "jj-store",
+    "revision": "4e74e423966180576da89229e02da49dcd014dfd"
+  },
+  {
+    "name": "agent-redaction",
+    "revision": "3c3dc0d768afbe197e796d4bf94c0be5074faa4c"
+  }
+]

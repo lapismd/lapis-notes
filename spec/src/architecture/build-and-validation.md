@@ -1,5 +1,11 @@
 # Architecture / Build and validation
 
+## LN-ARCH-146 — Docker-first local validation
+
+<a id="ln-arch-146"></a>
+
+**Requirement.** Root checks, builds and portable tests MUST default to isolated Docker runs with exact tracked source, frozen registry dependencies, reusable fingerprinted images and dependency-keyed caches; missing images MUST build automatically. Native execution MUST require an explicit override; Docker failure MUST NOT fall back to the host. Runs MUST preserve arguments, bounded resources, source/tool identities and reports, including separate Jujutsu workspaces and remote daemons. Platform-native delivery and live-provider acceptance remain separate lanes.
+
 The root migration tracker projects gate-status tables from its owned JSON
 ledger through `pnpm progress:generate`. `pnpm check:progress` runs in normal
 and specification validation to reject stale status groups and invalid task
@@ -82,3 +88,8 @@ so a passing retry retains its observed transport errors.
 The retry diagnostic is file-backed JSON attached by path, and both Web
 Playwright configurations preserve output from passing tests. This keeps
 recovery evidence available to the artifact uploader with the line reporter.
+
+Linux native qualification retains atomic cache durability by reopening the
+capability-relative parent directory for reading before synchronizing it. A
+search-only directory capability cannot serve as an fsync handle. The exact
+model-cache regression passes ten cases after four initial failures.

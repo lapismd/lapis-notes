@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FixtureControls from "../../catalog/FixtureControls.svelte";
   import { onMount } from "svelte";
   import type { App } from "@lapis-notes/api";
   import { WorkspaceShell } from "@lapis-notes/workspace";
@@ -73,6 +74,7 @@
 </script>
 
 {#if !attached && !persistReload}
+  <FixtureControls placement="inline" label="Live host fixture setup">
   <section
     class="ai-live-host-setup"
     data-testid="ai-live-host-setup"
@@ -94,6 +96,7 @@
       <li>Return to this story and send prompts manually. Plays never send.</li>
     </ol>
   </section>
+  </FixtureControls>
 {:else}
   <div
     bind:this={root}

@@ -24,10 +24,11 @@ pub(in crate::host) fn select(
         Err(error) if error.kind() == io::ErrorKind::AlreadyExists => {}
         Err(error) => return Err(error),
     }
-    root.open_directory("")?.into_std_file().sync_all()?;
+    root.open_directory("")?.open(".")?.sync_all()?;
     use std::os::unix::fs::PermissionsExt;
     root.open_directory("turns")?
-        .into_std_file()
+        .open(".")?
+        .into_std()
         .set_permissions(std::fs::Permissions::from_mode(0o700))?;
     let storage = TurnStorage::new(
         &root.path().join("turns"),

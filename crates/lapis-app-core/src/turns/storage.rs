@@ -1,5 +1,5 @@
 use super::types::{MAX_RECORD_BYTES, MAX_RECORDS, invalid, validate};
-use crate::vault::{VaultRoot, WriteOptions};
+use crate::vault::{VaultRoot, WriteOptions, sync_directory};
 use cap_std::fs::MetadataExt;
 use lapis_app_protocol::turns::TurnRecord;
 use std::{
@@ -40,7 +40,7 @@ impl Storage {
             Err(e) => return Err(e),
         }
         let root = profile.open_child(&name)?;
-        profile.directory_handle()?.into_std_file().sync_all()?;
+        sync_directory(&profile.directory_handle()?)?;
         match root.create_file(".owner.lock", &b""[..], &WriteOptions::default()) {
             Ok(()) => {}
             Err(e) if e.kind() == io::ErrorKind::AlreadyExists => {}

@@ -42,7 +42,7 @@ bindings. R1.2 establishes in-process ownership and transport conformance, not
 
 R1.3 stages the existing portable shell file actions through that same owner.
 Reads retain their bounded text/binary/range contracts; mutations retain mtime,
-exclusive destinations and byte-conditional publication. Rename/removal fence dirty
+exclusive destinations, byte-conditional publication and readable directory sync. Rename/removal fence dirty
 descendants, including aliases of an ancestor directory. OS open/reveal/trash,
 absolute-path conversion and native capability witnesses remain host policy.
 Native adapters hand their existing retained physical root to `admit_root`;
@@ -368,8 +368,8 @@ admitted model/revision/dtype identities, never download URLs or cache paths.
 The accepted embedding worker verifies cached files and serializes installers. It
 creates its persistent lease exclusively and reopens an existing lease without
 creation, truncation or symlink following. Competing initial installers share it.
-It streams bounded HTTPS downloads into private staging files and atomically
-publishes verified assets. Partial downloads never become loadable assets.
+Bounded HTTPS downloads use private staging and verified atomic publication,
+syncing a readable parent directory; partial assets remain unloadable.
 Offline configuration forbids downloads and retains explicit missing/corrupt
 asset errors; verified cache files work after a cold reopen. Download progress
 uses the existing observable Search status, and detach/close retain the same

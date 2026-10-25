@@ -78,7 +78,8 @@ fn storage(profile: &Path, config: &Config) -> io::Result<(DatabaseStorage, Back
         {
             use std::os::unix::fs::PermissionsExt;
             root.open_directory(name)?
-                .into_std_file()
+                .open(".")?
+                .into_std()
                 .set_permissions(std::fs::Permissions::from_mode(0o700))?;
         }
     }

@@ -1,5 +1,10 @@
 # Specification Governance / Validation and CI
 
+Local validation selects the isolated Docker runtime under LN-ARCH-146. Hosted
+CI explicitly selects its provisioned native runtime. The source composition
+audit enforces LN-CAT-118 and LN-CAT-119 in both normal and specification lanes;
+existing shell placement, App ownership and public Show Code checks remain.
+
 ## LN-GOV-004 — Local gate: inspect the current VCS change (jj preferred
 
 <a id="ln-gov-004"></a>

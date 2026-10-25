@@ -1,5 +1,17 @@
 # Migration Status
 
+## Catalog validation activity
+
+The isolated `catalog-validation` workspace adds fail-closed story composition
+checks for 59 families, reusable fixture controls and Docker-first validation.
+All 261 cold Storybook cases, 49 tooling cases, 312 native cases and 2157 package
+cases pass, together with complete root check/build and the static catalog.
+Linux directory durability and private-permission defects exposed by Docker are
+fixed at their owners; Notes pins committed jj-store source `4e74e423`.
+Default-workspace conversation/catalog changes remain excluded. See
+[the qualification record](spec/records/2026-10-25-catalog-validation.md) for
+source archives, exact commands, existing exclusions and separate delivery gates.
+
 ## Shared Rust application services (2026-10-23)
 
 **Authoritative master tracker:** this file in the main Notes repository,

@@ -120,7 +120,7 @@ impl Cache {
         self.root.verify_physical_root()?;
         self.root.checked(&asset.filename(), false)?;
         staged.replace(asset.filename())?;
-        self.root.dir.try_clone()?.into_std_file().sync_all()?;
+        crate::vault::sync_directory(&self.root.dir)?;
         Ok(())
     }
 }

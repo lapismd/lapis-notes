@@ -532,6 +532,16 @@
       "cache": false,
       "envMode": "loose",
       "outputs": []
+    },
+    "//#test:storybook-parity:run": {
+      "cache": true,
+      "inputs": [
+        "scripts/spec-validation/storybook-parity*.mjs",
+        "scripts/spec-validation/story-parity/**",
+        "package.json",
+        "pnpm-lock.yaml"
+      ],
+      "outputs": []
     }
   },
   "globalEnv": [
@@ -542,7 +552,8 @@
     "DENO_BIN",
     "TZ",
     "LANG",
-    "LC_ALL"
+    "LC_ALL",
+    "LAPIS_NOTES_VALIDATION_WORKER"
   ],
   "globalPassThroughEnv": [
     "LAPIS_AGENT_RUNTIME_URL",
@@ -550,6 +561,9 @@
     "LAPIS_TERMINAL_HOST_URL",
     "LAPIS_TERMINAL_HOST_TOKEN",
     "LAPIS_DENO_PACKAGED_EXECUTABLE",
-    "LAPIS_WEB_REGISTRY_ACCEPTANCE"
+    "LAPIS_WEB_REGISTRY_ACCEPTANCE",
+    "LAPIS_NOTES_VALIDATION_RUNTIME",
+    "PLAYWRIGHT_BROWSERS_PATH",
+    "DENO_DIR"
   ]
 }

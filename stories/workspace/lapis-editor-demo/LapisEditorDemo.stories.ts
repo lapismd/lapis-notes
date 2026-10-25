@@ -1198,7 +1198,9 @@ export const MarkdownProblems: Story = {
       { timeout: 3_000 },
     );
     await editor.flushChanges();
-    expect(runtimeApp.fileEditingSessions.textConflicts.entries).toHaveLength(0);
+    expect(runtimeApp.fileEditingSessions.textConflicts.entries).toHaveLength(
+      0,
+    );
     canvasElement.dataset.markdownProblemsAcceptanceReady = "true";
   },
 };
@@ -1291,7 +1293,9 @@ export const MarkdownSpellcheck: Story = {
     });
     await editor.flushChanges();
     expect(await runtimeApp.vault.read(editor.file!)).toBe(editor.getValue());
-    expect(runtimeApp.fileEditingSessions.textConflicts.entries).toHaveLength(0);
+    expect(runtimeApp.fileEditingSessions.textConflicts.entries).toHaveLength(
+      0,
+    );
   },
 };
 
@@ -2941,6 +2945,14 @@ export const StartupFailure: Story = {
   args: { scenario: "startup-failure" },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const controls = canvas.getByRole("complementary", {
+      name: "Startup failure fixture",
+    });
+    expect(getComputedStyle(controls).borderTopStyle).toBe("dotted");
+    expect(parseFloat(getComputedStyle(controls).paddingTop)).toBeGreaterThan(
+      0,
+    );
+    expect(getComputedStyle(controls).position).toBe("fixed");
     await waitFor(
       () =>
         expect(canvas.getByRole("alert")).toHaveTextContent(

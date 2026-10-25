@@ -16,6 +16,7 @@
 </script>
 
 <script lang="ts">
+  import FixtureControls from "../../catalog/FixtureControls.svelte";
   import { onMount, untrack } from "svelte";
   import {
     App,
@@ -429,7 +430,12 @@
       {vaultPaths}
     </output>
     <output data-testid="lapis-editor-active-view">{activeViewType}</output>
+
+  </div>
+</div>
+
     {#if selectedScenario === "startup-failure"}
+      <FixtureControls label="Startup failure fixture">
       <button
         type="button"
         data-testid="lapis-editor-replay-failure"
@@ -437,6 +443,5 @@
       >
         Replay startup failure
       </button>
+      </FixtureControls>
     {/if}
-  </div>
-</div>

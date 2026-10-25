@@ -1,5 +1,6 @@
 use super::{Error, Result, Work, history::History};
 use crate::turns::TurnOutcome;
+use crate::vault::sync_directory;
 use lapis_app_protocol::turns::TurnRecord;
 use lapis_app_protocol::{ErrorCode, ExpectedVersion};
 use serde_json::{Value, json};
@@ -53,10 +54,10 @@ impl Conversation {
                             && path != directory => {}
                     Err(error) => return Err(error.into()),
                 }
-                containing.into_std_file().sync_all()?;
+                sync_directory(&containing)?;
                 containing = state.root.open_directory(&path)?;
             }
-            containing.into_std_file().sync_all()?;
+            sync_directory(&containing)?;
         }
         let binding = Uuid::new_v4().to_string();
         let created = timestamp(record.accepted_at_ms);

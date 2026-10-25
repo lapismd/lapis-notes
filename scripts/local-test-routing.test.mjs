@@ -5,6 +5,9 @@ import test from "node:test";
 const config = JSON.parse(
   await readFile(new URL("../turbo.json", import.meta.url), "utf8"),
 );
+const lanes = JSON.parse(
+  await readFile(new URL("./validation/lanes.json", import.meta.url), "utf8"),
+);
 const manifest = JSON.parse(
   await readFile(new URL("../package.json", import.meta.url), "utf8"),
 );
@@ -17,8 +20,13 @@ test("local test entry points use bounded Turbo tasks without raw-script recursi
   );
   for (const name of [...names, "build-storybook"]) {
     const target = `${name}:run`;
+    if (lanes[name])
+      assert.equal(
+        manifest.scripts[name],
+        `node scripts/validation.mjs run ${name}`,
+      );
     assert.match(
-      manifest.scripts[name],
+      lanes[name] ?? manifest.scripts[name],
       new RegExp(`scripts/run-turbo\\.mjs ${target} --task-args$`),
       name,
     );

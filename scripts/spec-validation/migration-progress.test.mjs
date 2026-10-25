@@ -291,7 +291,12 @@ test("repository tracker is current and both normal and specification lanes chec
   const manifest = JSON.parse(
     readFileSync(new URL("package.json", root), "utf8"),
   );
-  assert.ok(manifest.scripts.check.includes("pnpm check:progress"));
+  assert.equal(manifest.scripts.check, "node scripts/validation.mjs run check");
+  const lanes = JSON.parse(
+    readFileSync(new URL("scripts/validation/lanes.json", root), "utf8"),
+  );
+  assert.ok(lanes.check.includes("pnpm check:progress"));
+  assert.equal(lanes["check:progress"], "node scripts/migration-progress.mjs");
   assert.equal(
     manifest.scripts["progress:generate"],
     "node scripts/migration-progress.mjs --write",

@@ -1,5 +1,5 @@
 use super::conditional::WriteCondition;
-use super::{MAX_FILE_BYTES, VaultRoot, invalid};
+use super::{MAX_FILE_BYTES, VaultRoot, invalid, sync_directory};
 use cap_tempfile::TempFile;
 use serde::Deserialize;
 use std::io::{self, Read};
@@ -86,7 +86,7 @@ impl VaultRoot {
         staged.as_file().sync_all()?;
         condition.verify(&parent, name, path)?;
         staged.replace(name)?;
-        parent.into_std_file().sync_all()?;
+        sync_directory(&parent)?;
         Ok(())
     }
 

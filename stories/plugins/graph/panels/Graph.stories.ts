@@ -320,9 +320,10 @@ function placementStory(
             currentRemoveRect.left + currentRemoveRect.width / 2,
             currentRemoveRect.top + currentRemoveRect.height / 2,
           );
-          expect(removeHitTarget && removeButton.contains(removeHitTarget)).toBe(
-            true,
-          );
+          expect(
+            removeHitTarget && removeButton.contains(removeHitTarget),
+            `Remove control must receive pointer input; hit ${removeHitTarget?.tagName}`,
+          ).toBe(true);
         });
         expect(
           removeStyle
@@ -406,6 +407,15 @@ function placementStory(
           ).toHaveTextContent("path:Code");
         });
 
+        const graphLeaf = app.workspace.getLeavesOfType("graph")[0]!;
+        const note = app.vault.getFileByPath("Notes/Welcome.md");
+        if (!note) throw new Error("Graph focus fixture note is missing");
+        const contextLeaf = app.workspace.getLeaf(true);
+        await contextLeaf.openFile(note);
+        app.workspace.setActiveLeaf(contextLeaf, { focus: false });
+        expect(app.workspace.getActiveFile()?.path).toBe(note.path);
+        contextLeaf.detach();
+        app.workspace.setActiveLeaf(graphLeaf, { focus: false });
         await userEvent.click(panel.getByLabelText("Focus active file"));
         const canvas = canvasElement.querySelector<HTMLCanvasElement>(
           '[data-ui-part="canvas"]',

@@ -86,9 +86,9 @@
     position: relative;
     display: flex;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     max-width: 100%;
-    max-height: 100%;
+    max-height: 100vh;
     min-width: 0;
     min-height: 0;
     overflow: hidden;

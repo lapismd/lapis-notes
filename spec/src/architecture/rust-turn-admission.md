@@ -7,6 +7,8 @@ authorize a provider, native tool, executable or host path.
 
 The journal lives in host-selected private storage outside the admitted vault.
 The private root and vault root must not contain one another.
+Journal and conversation publication sync capability-relative directories through
+readable handles on Linux; reopening a handle never widens the admitted scope.
 One physical writer lock owns each opaque vault's journal. Opening another
 writer fails while that owner is live. Reads and writes verify the retained
 directory and lock identities; paths, linked entries and malformed or unsupported
