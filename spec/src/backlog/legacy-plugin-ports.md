@@ -102,6 +102,9 @@ changing active package authorization or completion status.
       embeds, settings, resource ownership, disposal, and web/native acceptance.
 - [ ] Specify CSV/TSV next, retaining model/parser regressions and adding
       current-UI keyboard, selection, drag, undo, and persistence coverage.
+      The first Storybook table and note embed are specified in
+      `lapis-plugins/spec/src/plugins/csv/index.md`. Keyboard, selection,
+      drag, undo, lint, rainbow source, and persistence remain open.
 - [ ] Specify Canvas after those slices, with editable-note integration and
       close/reload persistence as explicit boundaries.
 - [ ] Decide whether performance investigations warrant Telemetry; select the
