@@ -1,3 +1,4 @@
+mod docs;
 mod manifest;
 mod occurrences;
 mod owner;

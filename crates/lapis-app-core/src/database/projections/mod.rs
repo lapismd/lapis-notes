@@ -4,6 +4,7 @@ mod query;
 mod query_evaluation;
 mod query_page;
 mod reads;
+mod source_paths;
 pub(super) mod values;
 mod writes;
 
@@ -24,12 +25,14 @@ pub(super) enum Action {
 #[derive(Serialize)]
 pub(super) enum ReadAction {
     NativeState(String, String),
+    NativeSourcePaths(String, Option<String>),
     Get(String, String, Option<String>),
     Query(String, ProjectionQuery, Option<String>),
     Related(ProjectionRelatedQuery, Option<String>),
 }
 pub(super) enum ReadValue {
     NativeState(NativeProjectionState),
+    NativeSourcePaths(Vec<String>),
     Row(Option<serde_json::Value>),
     Query(ProjectionQueryResult),
 }

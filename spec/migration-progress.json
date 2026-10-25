@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 23:30:34 UTC",
+  "updated": "2026-10-25 23:48:02 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -565,9 +565,9 @@
       "id": "R3.2.1.2.11.1",
       "area": "Docs publication",
       "work": "Native Docs source-to-projection service intake",
-      "status": "Working",
+      "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Qualified Docs f772f2ba is available. A separate Notes native-docs-index-20261025 workspace is implementing opt-in registration/admission/publication on the existing native metadata owner, preserving Markdown/Tasks/Search defaults. Source qualification and both host selections remain."
+      "detail": "[Qualified native Docs intake](spec/records/2026-10-25-native-docs-projection-intake.md): exact startup/root targets, all 36 indexing cases, strict Clippy, both source guards, full Notes check/test/build, 388 native and 2,253 package cases pass. Corrected mapped-parent specification qualification passes all 78 regressions; all 18 native source/manifest/lock/pin paths remain byte-identical to the full tested revision. Both host selections, Docs UI/editing/FSRS and remaining processors are separate."
     },
     {
       "id": "R3.2.1.2.12",
