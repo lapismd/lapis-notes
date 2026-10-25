@@ -3,7 +3,12 @@
 The Rust admitted client exposes generated native turn calls over the existing
 versioned, authenticated transport. Closing that client detaches observations;
 accepted native work continues. Submission errors retain their uncertainty
-without automatic retry or fallback. Existing chat selection remains R2.2.
+without automatic retry or fallback. The staged Rust profile registers the shared application-profile AI observer
+as the optional `ai` identity. Its existing Agent screens read native state and
+portable files; they never construct the previous browser transcript writer.
+Feature disable drains the native owner, while hosted session detach/logout
+only releases the client. Standalone browser and Node profiles retain their
+existing restrictions. Application/provider qualification remains R2.2/R2.3.
 
 The explicit `server-rust` profile connects the retained hosted screen to
 Rust-generated commands through admitted HTTP client IDs. It omits PWA startup

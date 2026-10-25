@@ -150,3 +150,25 @@ The native operation retains its work independently of its reply or invoking
 view. Reload/detach does not disable the service. Availability is process-owned;
 constructing a new runtime recovers records without executing them. Native
 hosts retain their existing user/trust admission and operator launch selection.
+
+## Existing chat observes native work
+
+R2.2.3 composes the public Agent Chat and History screens through one private
+Notes application-profile adapter. Its per-view port reads native summaries,
+exact request outcomes and retained portable conversation files. Polling and
+subscriptions only observe; closing a view stops observation without cancelling
+accepted work. The selected profile never constructs the former renderer
+transcript writer, queue owner, memory scheduler or maintenance loop.
+
+Authored sends retain their exact UUID through acceptance and outcome checks.
+A lost reply stays unknown until that same request is queried; the observer
+never resubmits it. Explicit follow-ups carry the native conversation and exact
+predecessor. Unsupported attachments, comments or multiple participants refuse
+before submission rather than dropping content. Those capabilities retain R4.
+
+Hosts supply the admitted command transport and read-only vault access. Native
+feature disable fences/drains before host authority is released. Hosted session
+detach/logout and Desktop reload detach clients while accepted work continues;
+explicit Desktop close/Quit drains before dependent native services stop.
+The standalone browser and separately selected serving baseline retain their
+existing implementations. Staging selects one writer and never falls back.

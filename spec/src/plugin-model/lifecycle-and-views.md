@@ -1,5 +1,11 @@
 # Plugin Model / Lifecycle and views
 
+The selected native-chat profile retains the optional `ai` identity, commands
+and view types through the public Plugin lifecycle. One feature-owned session
+coordinates read-only views; closing a view detaches observation. Hosts prepare
+detach versus explicit disable/close before unload, and the native owner retains
+accepted work and its writer. The shared default profile remains unchanged.
+
 Hosted archive of the displayed vault awaits the existing workspace/plugin
 disposal and final file writes before retiring the native owner. The retained
 chooser supplies this host lifecycle policy; plugins keep their owned App and

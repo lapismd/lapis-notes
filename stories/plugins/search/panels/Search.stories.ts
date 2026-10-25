@@ -18,6 +18,8 @@ import {
 } from "../../_shared/panels/panel-story-helpers";
 import "../../_shared/panels/Panel.docs.css";
 
+import { searchResultIdentity } from "./search-result-identity";
+
 const kind = "search" as const;
 const sources = panelExampleSources(kind);
 
@@ -175,13 +177,8 @@ function placementStory(
       ).toBe(true);
       expect(within(tree).getAllByText("lexical").length).toBeGreaterThan(0);
       const resultRow = fileTreeItem!;
-      const resultPath = resultRow
-        .getAttribute("aria-label")!
-        .replace(/, \d+ matches$/, "");
-      const resultFilename = resultPath
-        .split("/")
-        .at(-1)!
-        .replace(/\.[^.]+$/, "");
+      const { path: resultPath, basename: resultFilename } =
+        searchResultIdentity(resultRow, panelDemoApp(canvasElement));
       const resultGroup = resultRow.closest<HTMLElement>(
         ".search-panel__result",
       )!;
@@ -214,6 +211,9 @@ function placementStory(
       );
       expect(resultLabel).not.toBeNull();
       expect(countBadge).not.toBeNull();
+      await expect(resultRow).toHaveAccessibleName(
+        `${resultFilename} ${countBadge!.textContent?.trim()} · ${resultPath}, ${countBadge!.textContent?.trim()} matches`,
+      );
       expect(modeBadge).not.toBeNull();
       expect(resultRow.querySelector(".search-panel__mode-badge")).toBeNull();
       expect(resultRow.querySelector(".search-panel__match-path")).toBeNull();
@@ -437,7 +437,7 @@ function placementStory(
       searchPanel.style.removeProperty("--ui-search-highlight-foreground");
 
       const resultCopyButton = panel.getByRole("button", {
-        name: "Copy search results",
+        name: /^Copy search results: /,
       });
       const sortButton = panel.getByRole("button", {
         name: /Filename \(A to Z\)/,
@@ -565,7 +565,7 @@ function placementStory(
         ).toBeVisible();
 
         await userEvent.click(
-          panel.getByRole("button", { name: "Copy search results" }),
+          panel.getByRole("button", { name: /^Copy search results: / }),
         );
         await expect(writeText).toHaveBeenCalledWith(
           expect.stringContaining("Notes/Welcome.md"),
@@ -597,7 +597,7 @@ function placementStory(
           expect(panel.queryByRole("alert")).not.toBeInTheDocument();
         });
         await userEvent.click(
-          panel.getByRole("button", { name: "Copy search results" }),
+          panel.getByRole("button", { name: /^Copy search results: / }),
         );
         await waitFor(() => {
           const chip = searchbox.querySelector<HTMLElement>(
@@ -665,9 +665,10 @@ function placementStory(
           const resultGroup = currentFileTreeItem.closest(
             ".search-panel__result",
           )!;
-          const resultPath = currentFileTreeItem
-            .getAttribute("aria-label")!
-            .replace(/, \d+ matches$/, "");
+          const { path: resultPath } = searchResultIdentity(
+            currentFileTreeItem,
+            app,
+          );
           expect(
             within(resultGroup)
               .getAllByRole("treeitem")
@@ -676,8 +677,9 @@ function placementStory(
           await expect(within(resultGroup).getByText(resultPath)).toBeVisible();
           await expect(within(resultGroup).getByText("lexical")).toBeVisible();
         }
-        const filenameOnlyResult = currentFileTreeItems.find((item) =>
-          item.getAttribute("aria-label")?.startsWith("Notes/FilenameOnly.md,"),
+        const filenameOnlyResult = currentFileTreeItems.find(
+          (item) =>
+            searchResultIdentity(item, app).path === "Notes/FilenameOnly.md",
         )!;
         await expect(
           within(

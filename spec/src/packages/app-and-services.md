@@ -1,5 +1,12 @@
 # Packages / App and services
 
+The private application profile owns the native-turn observer and optional AI
+plugin under LN-CORE-004/006/007/008. It uses the existing public Agent screens
+and built public exports. Temporary verified local archives admit unpublished
+Agent UI during migration; tracked dependency declarations keep normal ranges
+and publication remains separate. Its built native-chat entry is shared by
+Desktop and Rust-hosted Web, without another transcript writer or engine.
+
 The private Rust-hosted chooser adapter consumes generated native protocol types
 and the existing public App/Vault interfaces. Managed-vault mutation authority
 and catalogue persistence stay in the Rust host; no public npm export, browser

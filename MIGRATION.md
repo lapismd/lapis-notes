@@ -8,7 +8,7 @@ The sibling Desktop tracker owns its M-series milestones; the active shared
 Rust work is tracked here as R0–R7. Other migration workspaces are retained
 history, not the current implementation checkout.
 
-Last updated **2026-10-25 10:37:07 UTC**. This is the active migration tracker for the
+Last updated **2026-10-25 13:05:52 UTC**. This is the active migration tracker for the
 [shared Rust plan](RUST_CORE_MIGRATION_PLAN.md). The older Node parity roadmap
 below is superseded; its remaining rows are historical references, not another
 set of current migration tasks.
@@ -67,17 +67,48 @@ qualified: disable fences fresh submissions, cancels/drains accepted workers
 and retains failure when cleanup is uncertain, even if its waiter disappears.
 The exact three-case target, all 32 affected native cases, five HTTP and four
 wire cases pass. All 326 Rust cases/doctests, 2,157 package cases, source/strict
-checks, builds and selected-tree specification lanes pass. Two unrelated
-uncommitted editor documentation files are preserved and excluded from that
-selected tree; the main checkout retains their existing validation error.
+checks, builds and selected-tree specification lanes pass. Its receipt records
+the concurrent documentation excluded from that exact selected tree; those
+changes retain their own source qualification.
 
-Desktop's immutable per-vault launch-policy intake is under qualification.
-Runtime/IPC selection and the existing Agent screen's observer-only adoption
-remain unfinished. R2.3 actual-provider and cold application acceptance stays
-Waiting; R2.2 and R2 remain Working.
+[Desktop immutable launch-policy intake](spec/records/2026-10-25-rust-desktop-turn-policy.md)
+is committed at `d098b218`, against native activation source `4650a10c`.
+All 30 affected native AI, 237 native, 416 renderer/governance and 744 AI cases
+pass. Strict normal/e2e checks, both native builds, types, architecture/ownership,
+renderer build and all specification lanes pass. The accepted historical
+E-AI-109 format exception stays unchanged; no application window is launched.
 
-[Desktop compatibility](spec/records/2026-10-25-rust-native-turn-desktop.md) remains
-committed at `6c9e55f7`; this new transport work is not yet consumed there.
+**Current observer adoption:** R2.2.3 implements the shared public-screen
+observer, optional plugin lifetime, Rust-hosted adapter and staged Tauri
+owner/typed IPC. Twelve observer/lifetime cases and all 26 application-profile
+cases pass. All 2,173 package cases and 326 Rust cases/doctests pass. The full
+source check, build and specification lanes pass, including 49 validator cases.
+The unchanged frozen-Deno timeout passes its exact and complete bounded reruns;
+no Deno implementation changes. The Web production build passes with the same
+verified Design Core archive as Desktop.
+
+The final source checkpoint passes all 20 forced check tasks, all 2,173 bounded
+package cases and all 11 production-build tasks, with zero cached results.
+All 261 catalog cases pass across four cold shards (93/71/42/55); specification
+checks and all 49 validator cases pass. Seven Rust-hosted, twelve PWA and one
+Node24 browser journey pass. Consumer-only Search labels and the retired AI
+Shell footer allowance are repaired against their owning contracts; exact and
+complete affected-family results are recorded without product style changes.
+
+Desktop passes 420 renderer/governance, 744 AI, 242 native and seven fresh
+hidden IPC cases. The owning-vault token regression moves from one failure to
+zero. The earlier startup-readiness miss passes unchanged in its exact and
+complete reruns; serial native requalification also passes doctest compilation.
+Types, strict normal/e2e Rust, architecture/App ownership and all four Desktop
+specification lanes pass. Committed-source archive intake and the complete
+Desktop catalog remain next. These checks do not qualify mounted native chat,
+History navigation, trust recovery or a provider. R2.2.3 stays Working, R2.3
+stays Waiting, and the default Desktop renderer/Node serving baseline remain
+selected. Signing/M11 stays Deferred.
+
+Earlier [Desktop compatibility](spec/records/2026-10-25-rust-native-turn-desktop.md)
+remains pinned to `6c9e55f7`. The newer policy intake above qualifies source
+preparation only; Desktop still selects its existing AI execution profile.
 
 **Desktop qualification:** committed `efa44bb0` passes 235 native service,
 416 renderer/governance, 744 AI, all 2,000 catalog, six hidden native API and
@@ -88,10 +119,14 @@ Markdown attachment failure. The user explicitly accepted it as non-blocking
 for this intake; its owning-package repair remains pending. These receipts do
 not qualify the newer R2 source or claim a full archive-cohort refresh.
 
-**Next:** connect the existing chat/Tauri adapters in R2.2.3, then qualify actual-provider
+**Next:** qualify the implemented R2.2.3 observer/Tauri adoption, then actual-provider
 detach and cold recovery in R2.3. Unattended indexing, AI tools, memory, native
 jobs and final hosted cutover remain R3–R7. Node stays the serving baseline.
 M11 stays Deferred.
+
+**Tracker validation:** the earlier PDF/CSV specification repair is committed.
+This observer slice is undergoing source, browser and specification validation;
+its source/consumer evidence will be recorded separately before each commit.
 
 ### Status meanings
 
@@ -117,12 +152,12 @@ not host adoption or native/hosted application acceptance.
 
 ### Gate status: Working
 
-| Task ID                                                                  | Area                 | Work                                           | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| ------------------------------------------------------------------------ | -------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [R2](spec/src/architecture/rust-application-services.md#ln-core-003)     | Roadmap              | Durable conversation                           | R2.1 native source is qualified. R2.2 typed host/chat adoption is Working; R2.3 actual provider/detach/cold application recovery remains Waiting. Initial RPC evidence is recorded separately from application acceptance; the original R2 gate remains Working.                                                                                                                                                                                                                                                                                              |
-| [R2.2](spec/src/architecture/rust-application-services.md#ln-core-004)   | Durable conversation | Typed host adapters and existing chat adoption | R2.2.1 [typed transport](spec/records/2026-10-25-rust-turn-hosts.md) and R2.2.2 [native continuation](spec/records/2026-10-25-rust-conversation-continuation.md) are Source complete. The latter passes all 321 Rust cases/doctests and complete package/check/build/specification lanes. R2.2.3 Tauri/existing-chat adoption is Working; [Native activation](spec/records/2026-10-25-rust-turn-activation.md) is qualified; runtime/IPC selection and observer-only screens remain unfinished. Source/native fixtures do not complete this application gate. |
-| [R2.2.3](spec/src/architecture/rust-application-services.md#ln-core-004) | Durable conversation | Tauri selection and existing chat adoption     | Working: [native activation source](spec/records/2026-10-25-rust-turn-activation.md) is qualified. The exact three-case fence/drain target, 32 affected native cases, five HTTP and four wire cases pass; all 326 Rust cases/doctests, 2,157 package cases, strict/source checks, builds and selected-tree specification gates pass. Desktop immutable launch-policy intake is under qualification. Runtime/IPC selection and observer-only existing Agent screen adoption remain unfinished.                                                                 |
-| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)     | Roadmap              | Indexed vault                                  | Native database/model/cache and vault lifetime are source-qualified; HTTP and Desktop facade adoption are complete under R1.3.8. Unattended metadata/projection/Search/history indexing remains R3.2.                                                                                                                                                                                                                                                                                                                                                         |
+| Task ID                                                                  | Area                 | Work                                           | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ------------------------------------------------------------------------ | -------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [R2](spec/src/architecture/rust-application-services.md#ln-core-003)     | Roadmap              | Durable conversation                           | R2.1 native source is qualified. R2.2 typed host/chat adoption is Working; R2.3 actual provider/detach/cold application recovery remains Waiting. Initial RPC evidence is recorded separately from application acceptance; the original R2 gate remains Working.                                                                                                                                                                                                                                                                                                                                                                  |
+| [R2.2](spec/src/architecture/rust-application-services.md#ln-core-004)   | Durable conversation | Typed host adapters and existing chat adoption | R2.2.1 typed transports and R2.2.2 native continuation are Source complete. R2.2.3 implements staged Tauri selection and shared existing-screen observation; source/consumer qualification is underway. Native application and actual-provider/cold gates remain distinct; no second writer or fallback is selected.                                                                                                                                                                                                                                                                                                              |
+| [R2.2.3](spec/src/architecture/rust-application-services.md#ln-core-004) | Durable conversation | Tauri selection and existing chat adoption     | [Qualified observer source checkpoint](spec/records/2026-10-25-rust-chat-observer.md): all twenty forced check tasks, 2,173 package cases, eleven builds, 261 cold catalog cases, specification/49 validator cases and seven Rust-hosted/twelve PWA/one Node browser journeys pass. Retained native source has 326 Rust passes. Desktop passes 420 renderer/governance, 744 AI, 242 native and seven hidden IPC cases with strict normal/e2e checks. Final committed-source archive intake and Desktop catalog remain next; mounted chat/history navigation, trust and actual-provider/cold recovery retain their original gates. |
+| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)     | Roadmap              | Indexed vault                                  | Native database/model/cache and vault lifetime are source-qualified; HTTP and Desktop facade adoption are complete under R1.3.8. Unattended metadata/projection/Search/history indexing remains R3.2.                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
 ### Gate status: Waiting
 
@@ -453,7 +488,7 @@ intake or UI swap status changes.
 | `@lapis-notes/history`                     | In progress  | Enabled-by-default file-history plugin captures vault revisions through AppDatabase, exposes a movable History panel, and compares through Design Core FileDiff / MergeEditor. Visual baselines remain `visual-pending`.                                                                                                                |
 | `@lapis-notes/wordcount`                   | Done         | Enabled-by-default status-bar word and character count over the API status-bar contract. Design Core F-Mode is included on the default shell and disabled until the user enables it.                                                                                                                                                    |
 | `@lapis-notes/spellcheck`                  | Done         | Enabled-by-default Harper diagnostics through the language-service and Problems path, Lucide status item, and Settings for dialect, rules, and file types. The editor-demo misspelling story stays `visual-pending` without a captured baseline.                                                                                        |
-| `@lapis-notes/pdf`                         | In progress  | Authorized by LN-PKG-004. The Storybook file view, note embed, and dark-page inversion setting live in `lapis-plugins/spec/src/plugins/pdf/index.md`. Host profiles and native resource URLs stay deferred.                                                                                                                            |
+| `@lapis-notes/pdf`                         | In progress  | Authorized by LN-PKG-004. The Storybook file view, note embed, and dark-page inversion setting live in `lapis-plugins/spec/src/plugins/pdf/index.md`. Host profiles and native resource URLs stay deferred.                                                                                                                             |
 | `@lapis-notes/csv`                         | In progress  | Authorized by LN-PKG-004. The Storybook table view and note embed live in `lapis-plugins/spec/src/plugins/csv/index.md`. Source highlighting, lint, drag, undo, settings, registry screenshots, host profiles, and native viewing stay deferred.                                                                                        |
 | `@lapis-notes/source-editor`               | Done         | Enabled-by-default production source editor shared by desktop, web, and Storybook for text, JSON, YAML, and YML; Markdown remains owned by `@lapis-notes/markdown`.                                                                                                                                                                     |
 | `@lapis-notes/bases`                       | Done         | Legacy revision `8ec68e18` runtime and native presentation pass 20 test files / 161 tests, focused Storybook and pointer coverage, desktop and web persistence acceptance, and root check/test/build. Visual baselines remain deferred by request.                                                                                      |

@@ -1,3 +1,5 @@
+import type { App } from "@lapis-notes/api";
+import type { NativeChatHost } from "@lapis-notes/app-profile/native-chat";
 import type { AppDatabaseProvider } from "@lapis-notes/api/app-database";
 import type { ServerVaultProfile } from "@lapis-notes/api/server-host";
 import type { VaultAdapter } from "@lapis-notes/api/vault";
@@ -11,6 +13,7 @@ export type HostedVault = {
   archivedAt?: number;
 };
 export type HostedResources = {
+  nativeChat?: (app: App) => NativeChatHost;
   adapter: VaultAdapter;
   database: AppDatabaseProvider;
   pluginAssetServer?: PluginAssetServer;

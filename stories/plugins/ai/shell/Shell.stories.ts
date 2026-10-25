@@ -112,9 +112,11 @@ function assertStackedComposer(panel: HTMLElement): void {
   );
   expect(emptyBox.height).toBeGreaterThan(shellBox.height * 0.7);
   expect(shellBox.bottom).toBeLessThanOrEqual(dockBox.top + 2);
+  const dockPadding = parseFloat(getComputedStyle(dock!).paddingBottom);
+  expect(dockPadding).toBeGreaterThan(0);
   expect(
     dockBox.bottom - composerBody!.getBoundingClientRect().bottom,
-  ).toBeGreaterThanOrEqual(20);
+  ).toBeGreaterThanOrEqual(dockPadding);
   expect(dockBox.bottom).toBeLessThanOrEqual(panelBox.bottom + 2);
   expect(dockBox.top).toBeGreaterThan(panelBox.top + panelBox.height * 0.4);
 }

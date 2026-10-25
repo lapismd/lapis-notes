@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 10:37:07 UTC",
+  "updated": "2026-10-25 13:05:52 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -55,7 +55,7 @@
       "work": "Typed host adapters and existing chat adoption",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "R2.2.1 [typed transport](spec/records/2026-10-25-rust-turn-hosts.md) and R2.2.2 [native continuation](spec/records/2026-10-25-rust-conversation-continuation.md) are Source complete. The latter passes all 321 Rust cases/doctests and complete package/check/build/specification lanes. R2.2.3 Tauri/existing-chat adoption is Working; [Native activation](spec/records/2026-10-25-rust-turn-activation.md) is qualified; runtime/IPC selection and observer-only screens remain unfinished. Source/native fixtures do not complete this application gate."
+      "detail": "R2.2.1 typed transports and R2.2.2 native continuation are Source complete. R2.2.3 implements staged Tauri selection and shared existing-screen observation; source/consumer qualification is underway. Native application and actual-provider/cold gates remain distinct; no second writer or fallback is selected."
     },
     {
       "id": "R2.3",
@@ -439,7 +439,7 @@
       "work": "Tauri selection and existing chat adoption",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "Working: [native activation source](spec/records/2026-10-25-rust-turn-activation.md) is qualified. The exact three-case fence/drain target, 32 affected native cases, five HTTP and four wire cases pass; all 326 Rust cases/doctests, 2,157 package cases, strict/source checks, builds and selected-tree specification gates pass. Desktop immutable launch-policy intake is under qualification. Runtime/IPC selection and observer-only existing Agent screen adoption remain unfinished."
+      "detail": "[Qualified observer source checkpoint](spec/records/2026-10-25-rust-chat-observer.md): all twenty forced check tasks, 2,173 package cases, eleven builds, 261 cold catalog cases, specification/49 validator cases and seven Rust-hosted/twelve PWA/one Node browser journeys pass. Retained native source has 326 Rust passes. Desktop passes 420 renderer/governance, 744 AI, 242 native and seven hidden IPC cases with strict normal/e2e checks. Final committed-source archive intake and Desktop catalog remain next; mounted chat/history navigation, trust and actual-provider/cold recovery retain their original gates."
     }
   ]
 }

@@ -1,5 +1,11 @@
 # Deno Desktop Host / Host integration
 
+The Deno host is frozen. Its existing application-profile entry and four-plugin
+static registration remain unchanged. The new private `native-chat` entry is
+selected only by Tauri or Rust-hosted Web; Deno does not import or construct it.
+[Native observer adoption](../architecture/rust-turn-admission.md) owns that
+separate migration contract.
+
 The Design Core dependency refresh consumes released `0.5.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.

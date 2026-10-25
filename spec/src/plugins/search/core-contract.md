@@ -1,5 +1,10 @@
 # Search Plugin / Search queries and results
 
+Consumer placement acceptance identifies results through the full-path caption
+and its real vault file. The accessible name separately includes filename,
+count and path; it is not a file identity string. Geometry, match text, counts
+and open behavior retain their existing assertions.
+
 ## LN-SRCH-001 — Search: owned by the sibling lapis-plugins repository, retain
 
 <a id="ln-srch-001"></a>

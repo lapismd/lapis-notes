@@ -1,5 +1,13 @@
 # AI Plugin / Conversation presentation
 
+The `Search Tool Hits` catalog scenario uses Search-owned result buttons with
+both filename and full vault path in their accessible names. Acceptance keeps
+the exact opened path and retained chat-panel assertions after clicking a hit.
+
+Shell geometry follows the owning plugin's resolved composer dock padding for
+LN-AI-027. The former fixed 20px footer allowance is superseded by the shell's
+reserved footer track; the root-padding and message-overlap checks remain.
+
 Prepared Design Core CSS includes overlay entrance and exit transitions. The
 retained Notes chat and shell acceptance waits for visible menu state and
 released pointer handling, while preserving normal input guards and native

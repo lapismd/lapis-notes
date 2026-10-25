@@ -1,5 +1,10 @@
 # Node Server Host / Integration contracts
 
+The staged Rust renderer may inject the private native-chat observer into the
+retained workspace. The Node serving baseline keeps its AI restriction and
+existing profile; it neither registers the native observer nor selects a second
+writer. The standalone browser and frozen Deno paths retain their own contracts.
+
 The staged Rust service exposes native turn commands under its admitted client
 route. Operator configuration selects native helpers; authenticated clients use
 opaque targets and generated portable DTOs. The existing Node serving baseline

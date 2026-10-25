@@ -60,6 +60,25 @@ export function createRustHostedBackend(
       const adapter = new RustVaultAdapter(client, profile.name);
       return {
         adapter,
+        nativeChat: (app) => ({
+          allowed: () =>
+            app.workspaceTrust.trusted &&
+            !app.safeMode.disableOptionalCorePlugins,
+          activate: async () => {},
+          call: (command) => client.turns(command),
+          readText: (path) => adapter.read(path),
+          leave: async (reason) => {
+            if (reason === "detach") return;
+            await client.turns({ kind: "set_enabled", enabled: false });
+          },
+          report: (error) =>
+            app.notifications.notify({
+              title: "AI",
+              source: "ai",
+              severity: "error",
+              message: error.message,
+            }),
+        }),
         pluginAssetServer: createRustPluginAssetServer(client, adapter),
         database: new RustDatabaseProvider(client),
         pluginDistributionOptions: {

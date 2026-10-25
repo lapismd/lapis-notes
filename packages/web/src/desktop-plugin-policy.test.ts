@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { expect, it } from "vitest";
 import {
   webPluginRestrictions,
+  webPluginRestrictionsFor,
   removeObsoleteServiceSecrets,
 } from "./desktop-plugin-policy";
 
@@ -47,7 +48,9 @@ it("removes only obsolete connection secrets and remains idempotent", async () =
 
 it("web startup applies restrictions and secret cleanup without service bridge registration", () => {
   const source = readFileSync("src/WebWorkspaceSession.svelte", "utf8");
-  expect(source).toContain("unavailablePlugins: webPluginRestrictions");
+  expect(source).toContain(
+    "unavailablePlugins: webPluginRestrictionsFor(!!nativeChat)",
+  );
   expect(
     source.indexOf("await removeObsoleteServiceSecrets(app)"),
   ).toBeGreaterThan(source.indexOf("await app.configuration.load()"));
@@ -55,4 +58,10 @@ it("web startup applies restrictions and secret cleanup without service bridge r
     source.indexOf("await removeObsoleteServiceSecrets(app)"),
   ).toBeLessThan(source.indexOf("await app.plugins.loadPlugins"));
   expect(source).not.toMatch(/(?:register|sync)Web(?:Agent|Terminal)Runtime/);
+});
+
+it("keeps default AI restrictions while allowing only the selected native observer profile", () => {
+  expect(webPluginRestrictionsFor(false)).toBe(webPluginRestrictions);
+  expect(webPluginRestrictionsFor(true)).toEqual({ terminal: "desktop-only" });
+  expect(Object.isFrozen(webPluginRestrictionsFor(true))).toBe(true);
 });

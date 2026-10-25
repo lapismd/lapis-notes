@@ -28,6 +28,11 @@
     registerNotesPluginSettings,
     registerNotesPluginBrowser,
   } from "@lapis-notes/app-profile";
+  import {
+    createNativeChatPlugin,
+    prepareNativeChatLeave,
+    type NativeChatHost,
+  } from "@lapis-notes/app-profile/native-chat";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
   import {
@@ -37,7 +42,7 @@
   } from "@lapismd/design-core/workspace/startup";
   import { onMount, untrack } from "svelte";
   import {
-    webPluginRestrictions,
+    webPluginRestrictionsFor,
     removeObsoleteServiceSecrets,
   } from "./desktop-plugin-policy";
   import { registerWebVaultTransferSettings } from "./vault-transfer-settings";
@@ -55,6 +60,7 @@
     listProfiles = listVaultProfiles,
     pluginAssetServer,
     pluginDistributionOptions,
+    nativeChat,
   }: {
     adapter: VaultAdapter;
     profile: VaultProfile;
@@ -66,6 +72,7 @@
     listProfiles?: () => Promise<VaultProfile[]>;
     pluginAssetServer?: PluginAssetServer;
     pluginDistributionOptions?: AppPluginDistributionOptions;
+    nativeChat?: (app: App) => NativeChatHost;
   } = $props();
 
   const staticPluginDistributionOptions = untrack(() =>
@@ -148,7 +155,7 @@
       pluginAssetServer:
         pluginAssetServer ?? createWebPluginAssetServer({ adapter }),
       pluginDistributionOptions: staticPluginDistributionOptions,
-      unavailablePlugins: webPluginRestrictions,
+      unavailablePlugins: webPluginRestrictionsFor(!!nativeChat),
       workspaceShell: {
         application: {
           name: "Lapis Notes",
@@ -315,6 +322,14 @@
       setTask(activeTask, "active");
       if (!corePluginsRegistered) {
         app.plugins.registerStaticPlugins(notesPluginProfile);
+        if (nativeChat)
+          app.plugins.registerStaticPlugins([
+            {
+              plugin: createNativeChatPlugin(nativeChat),
+              required: false,
+              enabledByDefault: false,
+            },
+          ]);
         corePluginsRegistered = true;
       }
       await app.vault.load();
@@ -405,6 +420,7 @@
   export async function dispose(persistLayout: boolean): Promise<void> {
     if (disposed) return;
     disposed = true;
+    prepareNativeChatLeave(app, "detach");
     try {
       if (persistLayout) await writeWorkspaceLayout();
       ready = false;

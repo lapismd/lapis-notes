@@ -37,7 +37,9 @@ describe("web plugin profile registration", () => {
     expect(source).toContain('id: "layout"');
     expect(source).toContain("onProgress");
     expect(source).toContain("startMetadataCache");
-    expect(source).toContain("unavailablePlugins: webPluginRestrictions");
+    expect(source).toContain(
+      "unavailablePlugins: webPluginRestrictionsFor(!!nativeChat)",
+    );
     expect(source).toContain("registerWebVaultTransferSettings");
     expect(source).not.toContain("syncWebAgentRuntime");
     expect(

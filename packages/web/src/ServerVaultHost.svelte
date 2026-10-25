@@ -397,6 +397,7 @@
         listProfiles={async () => activeProfiles()}
         pluginAssetServer={prepared.pluginAssetServer}
         pluginDistributionOptions={prepared.pluginDistributionOptions}
+        nativeChat={prepared.nativeChat}
         onReady={() => (hostState = "workspace")}
         onOpenRecent={async (profile) => {
           const row = vaults.find((vault) => vault.id === profile.id);
