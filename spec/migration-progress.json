@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 22:14:14 UTC",
+  "updated": "2026-10-25 22:33:52 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -381,9 +381,9 @@
       "id": "R3.2.2",
       "area": "Service ownership",
       "work": "Search index reconciliation and scheduling",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native preparation/retrieval and service-owned lifetime; qualify equivalent results and derived-cache rebuilds."
+      "detail": "Private native Markdown Search ownership source work is active in native-search-owner-20261025. Reuse qualified preparation/retrieval/embedding engines and retained source envelopes, preserve other providers, and prove unattended reconcile/prune/rebuild. Public selection, complete provider parity and both host adoption gates remain; no host default changes."
     },
     {
       "id": "R3.2.3",
