@@ -31,6 +31,9 @@ pnpm/Turbo volumes are keyed by dependency and tool identities. Browser suites
 run bounded sequential shards; explicit file, test and shard arguments stay
 literal. Runs use bounded CPU, memory and shared-memory limits. No host source
 bind mount or Docker socket is exposed inside a worker.
+Workers retain an init reaper and drop all Linux capabilities. The smoke checks
+denied file reads and directory writes, so root cannot mask native permission
+regressions through discretionary-access overrides.
 
 ## Move the test load to another machine
 
@@ -75,6 +78,9 @@ Failures retain their container for inspection. Use `pnpm validation -- collect
 owned run, and `pnpm validation -- clean` to preview cleanup. `clean --apply`
 removes stopped owned runs after collection; add `--caches` only to explicitly
 remove unused owned cache volumes. No global Docker prune is used.
+Only completed `exited`/`dead` workers qualify for cleanup. Created, paused,
+running or unreachable workers keep their workspace lease; an SSH failure is
+not proof of completion. Collection and cleanup use verified immutable IDs.
 
 ## Story composition
 
@@ -101,3 +107,22 @@ axe and visual approval remain separate. This change does not update PNGs.
 packages into ignored `.release/validation-packages`, with a SHA-256 archive
 inventory and exact source provenance. Docker reports collect these for temporary
 consumer qualification. This command creates no release candidate or publication.
+
+## Explicit native provider qualification
+
+Real-provider tests use operator-owned native installations and isolated test
+vaults/profiles. They never transfer credentials or user profiles to Docker.
+Run the opt-in HTTP transport target explicitly:
+
+```sh
+LAPIS_SERVER_PROVIDER_TEST=1 \
+LAPIS_SERVER_TEST_AGENTS_CONFIG="$PWD/.local/qualification/provider-agents.json" \
+node --test --test-concurrency=1 scripts/qualification/hosted-provider.test.mjs
+```
+
+The JSON file uses the server's existing operator `AgentConfig` contract. It
+selects an installed native helper and its explicit environment. The optional
+`LAPIS_SERVER_TEST_BINARY`, `LAPIS_SERVER_TEST_TARGET` and
+`LAPIS_SERVER_TEST_MODEL` select the native executable, target and model. The
+test skips unless enabled; its direct transport proof does not replace retained
+application-screen, browser/catalog or Linux delivery gates.

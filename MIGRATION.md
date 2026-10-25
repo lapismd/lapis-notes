@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-25 16:48:45 UTC**.
+Last updated **2026-10-25 18:07:47 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -20,7 +20,7 @@ owner is staged, with renderer AI still the default.
 
 | Stage                       | Current gate                                             | Concrete work still required                                                                                                                                                                                                                                                                         |
 | --------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `R2` Conversations          | Working                                                  | Actual-provider turns after client detach and cold restart in both hosts, with no prompt replay. Application adoption and fixture-provider chat/History are committed.                                                                                                                               |
+| `R2` Conversations          | Working                                                  | Actual-provider retained-screen detach and cold restart in both hosts, with no prompt replay. Direct native Tauri/HTTP provider preflights pass; fixture-provider application chat/History is committed.                                                                                             |
 | `R3` Indexed vault          | Working                                                  | Publish native Tasks projections; finish Tasks/Docs and supported custom processors; select one native metadata writer in both hosts; move Search and History scheduling out of clients. Native database, Search engines, Markdown reconciliation and Tasks occurrence parsing are source-qualified. |
 | `R4` AI workflows and tools | Waiting on R2/R3                                         | Move queues, participants, context/skills/handoff, approvals, first-party app tools, Changes and guarded undo to the service; retain existing screens and extension limits.                                                                                                                          |
 | `R5` Memory                 | Waiting on R4                                            | Move capture/recall, claims, scheduled maintenance, forget and relocation into native jobs; prove handwritten-edit preservation and restart recovery. Storage alone is already implemented.                                                                                                          |
@@ -35,35 +35,66 @@ checkpoints; its row count is not a count of independent unfinished jobs.
 
 **Current prerequisite: finish Docker tooling and the refreshed dependency cohort.**
 Notes, Plugins and jj-store already contain the referenced changes in their
-active default workspaces; no rebase is needed. Desktop, Tasks and Lapis AI are
-receiving equivalent tooling in parallel. Actual OS/WebView/provider acceptance
+active default workspaces; no rebase is needed. Desktop and Tasks are completing
+their tooling in parallel; Notes intake is qualified in this slice. Lapis
+AI and Terminal tooling are committed. Actual OS/WebView/provider acceptance
 remains separate from portable Docker checks.
 
-| Repository                                                                  | Qualified so far in this intake                                                 | Still running or waiting before commit                                              |
-| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| [Desktop](../lapis-desktop/spec/src/history/E-VALIDATION-001.md)            | 77 tooling cases, fresh Chromium/WebKit smoke and strict Linux normal Clippy    | Full Linux services/e2e compile, full refreshed catalog/build/spec lanes            |
-| [Tasks](../lapis-plugin-tasks/spec/records/2026-10-25-docker-validation.md) | 29 tooling cases, all 258 unit cases, two native cases and strict source checks | Final repaired Design Core archive, cold full catalog/static and package intake     |
-| [Lapis AI](../lapis-ai/spec/src/history/2026-10-25-docker-validation.md)    | 10 runner, 43 renderer and 57 governance cases; strict Clippy                   | Full native tests/build and final tooling/source qualification; no Storybook exists |
+| Repository                                                                  | State                  | Qualified so far                                                                                        | Remaining in this tooling intake                                                                    |
+| --------------------------------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| [Notes](spec/records/2026-10-25-docker-permissions.md)                      | Qualified (this slice) | 59 tooling, 339 native Core, 2,209 package and 261 guarded catalog cases; full check/build/static/spec  | None for this source intake; registry-lock and native product gates remain explicit                 |
+| [Desktop](../lapis-desktop/spec/src/history/E-VALIDATION-001.md)            | Working                | 77 tooling cases, fresh Chromium/WebKit smoke, all 238 Linux service cases and strict normal/e2e Clippy | Full refreshed catalog/build/spec lanes                                                             |
+| [Tasks](../lapis-plugin-tasks/spec/records/2026-10-25-docker-validation.md) | Working                | 29 tooling cases, 258 unit cases, two native cases, strict source checks and clean runtime audit        | Aligned Notes UI/Bits input, guarded full catalog/static and package intake                         |
+| [Lapis AI](../lapis-ai/spec/src/history/2026-10-25-docker-validation.md)    | Committed `b4a5f747`   | 1,076 Rust, 43 renderer and 57 governance cases; complete portable check/build/package/spec lanes       | None for portable tooling; provider/hardware acceptance retains feature gates. No Storybook exists. |
+
+Terminal's Docker/Storybook tooling is committed at `aa8fc3a8`; its default
+workspace is clean. The [source receipt](../lapis-terminal/spec/src/history/2026-10-25-docker-validation.md)
+records 21 tooling, 105 Rust, nine release, ten JavaScript and 24 browser cases,
+plus full portable build/package/specification gates. Real native/visual gates
+remain separate. Docs has overlapping independent manifest/lock edits; those
+are preserved and its tooling intake remains waiting.
 
 The [dependency intake](spec/records/2026-10-25-released-mira-dependency-intake.md)
-uses released Mira 0.1.1 and companion 0.0.3 packages. Design Core's new
-composer-lifetime and selector-accessibility repairs are being qualified in their
-owning repository before one shared archive is taken into all consumers. Notes'
-initial cohort passes 2,209 package and 261 catalog cases; final repaired-cohort
-browser/static/specification acceptance remains active. Private unpublished
-package prerequisites and registry-lock qualification remain explicit delivery
-gates. The source audit records Terminal's tooling gap and Docs' overlapping
-independent dependency edits.
+uses released Mira 0.1.1 and companion 0.0.3 packages. Design Core's repairs are
+committed at `944cd448`; all 922 source unit cases, 973 stories and the complete
+browser/check/build/specification lanes pass. Its public archive is byte-equal
+to the audited candidate. Desktop's 28 affected regression cases pass; its first
+456 catalog cases pass. Remaining shards run in parallel; the fatal guard exposed
+a deferred Design Core focus-cleanup read after its owner is destroyed. The fix
+is being made in Design Core, with unchanged Desktop regression evidence.
+
+Notes' corrected-cohort full Docker `check:all` passes 339 native Core cases,
+2,209 package cases and all checks/builds; all 261 catalog cases also pass with
+fatal diagnostics enabled. Final static, specification and fresh public-package
+packing checks also pass. The explicit Plugins native pin is `6af2420f`.
+
+Tasks' new fatal guard exposed stale Bits UI 2.18.1 teardown diagnostics. The
+released 2.19.5 contains the exact fix. The Notes UI archive is confirmed current
+and already declares 2.19.5; Tasks' direct dependency is being aligned before
+final guarded acceptance. Existing Tasks fixtures also need the current vault
+config directory and accessible control contract. Earlier failures
+remain recorded. Private unpublished packages and registry-lock qualification
+remain explicit delivery gates.
 
 **Latest completed feature slice:** [Desktop `5f165fc9` native chat/History](spec/records/2026-10-25-rust-chat-native-acceptance.md)
 closes `R2.2.3` application adoption against Notes `7161a447`. Its original
 native/cold-restart and 2,016 catalog receipts retain their exact dependency
 cohort; actual-provider acceptance remains `R2.3`.
 
-**Next feature lanes:** native Tasks projection publication (`R3`) and
-actual-provider detach/cold recovery (`R2.3`). Prefer parallel agents with
-disjoint file ownership and bounded heavy runs. Their original completion gates
-remain unchanged.
+**New source slice committed:** native Tasks occurrence publication (`R3`) is
+Source complete at Notes `23f0e8c6`, in the clean
+`/Users/stevejuma/code/lapismd/lapis-notes-native-occurrences` workspace. Its five
+exact and all 344 native cases pass, along with strict checks/build/specification.
+It will be integrated into the default checkout after the current tooling intake;
+both host/plugin selections remain waiting. This source gate does not turn on a
+second writer.
+
+**R2 continues independently:** the [actual-provider transport preflight](spec/records/2026-10-25-rust-provider-preflight.md)
+passes native Tauri/Core and Rust HTTP detach/cold cases. A separate probe of the
+current chat default (`ask`, no model) fails `native_mode_not_admitted` for Codex.
+Native provider-mode policy must preserve read-only intent, then actual-provider
+retained-screen journeys must pass in both hosts. Keep file ownership disjoint,
+heavy runs bounded and the original completion gates unchanged.
 
 ## Completed foundation
 
@@ -106,25 +137,25 @@ not host adoption or native/hosted application acceptance.
 
 ### Gate status: Working
 
-| Task ID                                                                    | Area                | Work                                              | Evidence or next gate                                                                                                                                                                                                                                                                                                                   |
-| -------------------------------------------------------------------------- | ------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [R2](spec/src/architecture/rust-application-services.md#ln-core-003)       | Roadmap             | Durable conversation                              | Native execution, typed transports and existing-screen application adoption are qualified. R2.3 actual-provider detach/cold application recovery is Waiting; the original R2 gate remains Working until it passes.                                                                                                                      |
-| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)       | Roadmap             | Indexed vault                                     | Native database/model/cache and vault lifetime are source-qualified; HTTP and Desktop facade adoption are complete under R1.3.8. Unattended metadata/projection/Search/history indexing remains R3.2.                                                                                                                                   |
-| [R3.2.1](spec/src/architecture/rust-application-services.md#ln-core-003)   | Service ownership   | Unattended metadata and projection reconciliation | Native Markdown parsing and optional unattended reconciliation are Source complete at Notes 7161a447 and Plugins 6af2420f. Remaining projection processors/publication and both host selections are separate child gates; the aggregate R3.2.1 gate remains Working.                                                                    |
-| [R3.2.1.2](spec/src/architecture/rust-application-services.md#ln-core-005) | Unattended metadata | Remaining native plugin projection processors     | Tasks occurrence parser committed at 569d7e30 in its owning repository after 27 shared fixtures, 35 focused/229 complete TS cases and all private native/package/specification lanes pass. Native publication integration, full Tasks/Docs/custom processors and host selection remain pending; parser source does not select a writer. |
+| Task ID                                                                    | Area                 | Work                                               | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| -------------------------------------------------------------------------- | -------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [R2](spec/src/architecture/rust-application-services.md#ln-core-003)       | Roadmap              | Durable conversation                               | Native execution, typed transports and existing-screen application adoption are qualified. R2.3 is Working: actual Codex completes after Tauri/Core reload detach and retains the exact record/transcript cold; retained-screen and hosted actual-provider acceptance remain.                                                                                                                                                                                                                                      |
+| [R2.3](spec/src/architecture/rust-application-services.md#ln-core-007)     | Durable conversation | Real-provider detach and cold application recovery | [Actual-provider preflight](spec/records/2026-10-25-rust-provider-preflight.md) passes one native Tauri/Core and one Rust HTTP Codex case with explicit read-only mode, including detach/cold/idempotent readback. A separate actual probe of current chat defaults fails native_mode_not_admitted: ask is not a Codex mode. Native provider-mode policy must preserve read-only intent, then actual-provider retained-screen journeys must pass in both hosts. This original staged feature gate remains Working. |
+| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)       | Roadmap              | Indexed vault                                      | Native database/model/cache and vault lifetime are source-qualified; HTTP and Desktop facade adoption are complete under R1.3.8. Unattended metadata/projection/Search/history indexing remains R3.2.                                                                                                                                                                                                                                                                                                              |
+| [R3.2.1](spec/src/architecture/rust-application-services.md#ln-core-003)   | Service ownership    | Unattended metadata and projection reconciliation  | Native Markdown reconciliation and opt-in Tasks occurrence publication are Source complete; the latter is committed at Notes 23f0e8c6 in isolated native-occurrences. Full Tasks/Docs/custom processors, default source integration and both host selections remain separate gates; aggregate R3.2.1 stays Working.                                                                                                                                                                                                |
+| [R3.2.1.2](spec/src/architecture/rust-application-services.md#ln-core-005) | Unattended metadata  | Remaining native plugin projection processors      | Tasks parser 569d7e30 and opt-in occurrence publication Notes 23f0e8c6 are Source complete. Publication is committed in isolated native-occurrences and awaits default-workspace integration after tooling intake. Full Tasks document/recurrence/materialization, Docs/custom processors and both host selections remain pending; source qualification does not select a writer.                                                                                                                                  |
 
 ### Gate status: Waiting
 
-| Task ID                                                                    | Area                 | Work                                               | Evidence or next gate                                                                                                                                                                                                                     |
-| -------------------------------------------------------------------------- | -------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [R2.3](spec/src/architecture/rust-application-services.md#ln-core-007)     | Durable conversation | Real-provider detach and cold application recovery | After R2.2: complete an actual provider turn without a viewing client, reconnect and restart both applications with retained conversation files and no uncertain replay. Fixture-only source checks cannot qualify this original R2 gate. |
-| [R3.2.1.3](spec/src/architecture/rust-application-services.md#ln-core-004) | Unattended metadata  | Tauri and HTTP unattended metadata adoption        | Select one native metadata writer through both hosts and prove external changes after client detach without a renderer scheduler.                                                                                                         |
-| [R3.2.2](spec/src/architecture/rust-application-services.md#ln-core-003)   | Service ownership    | Search index reconciliation and scheduling         | Native preparation/retrieval and service-owned lifetime; qualify equivalent results and derived-cache rebuilds.                                                                                                                           |
-| [R3.2.3](spec/src/architecture/rust-application-services.md#ln-core-003)   | Service ownership    | History-index scheduling                           | Reuse the existing history engine and move its scheduler into the vault service.                                                                                                                                                          |
-| [R4](spec/src/architecture/rust-application-services.md#ln-core-005)       | Roadmap              | AI/tools/Changes                                   | After R2/R3: existing queues, participants/context, approvals, native tools and guarded undo through both hosts.                                                                                                                          |
-| [R5](spec/src/architecture/rust-application-services.md#ln-core-007)       | Roadmap              | Memory                                             | After R4: native capture/recall, Markdown authority, maintenance, relocation and cold recovery. Derived database storage alone does not complete this.                                                                                    |
-| [R6](spec/src/architecture/rust-application-services.md#ln-core-003)       | Roadmap              | Native jobs                                        | After R5: imports/capture, existing Forge/transfer/Compute, installation transactions and terminal lifetime.                                                                                                                              |
-| [R7](spec/src/architecture/rust-application-services.md#ln-core-008)       | Roadmap              | Rust cutover                                       | After the feature slices: full hosted/desktop journeys, HTTP/SSE, Linux packaging, standalone-browser regression checks and Node/companion retirement.                                                                                    |
+| Task ID                                                                    | Area                | Work                                        | Evidence or next gate                                                                                                                                  |
+| -------------------------------------------------------------------------- | ------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [R3.2.1.3](spec/src/architecture/rust-application-services.md#ln-core-004) | Unattended metadata | Tauri and HTTP unattended metadata adoption | Select one native metadata writer through both hosts and prove external changes after client detach without a renderer scheduler.                      |
+| [R3.2.2](spec/src/architecture/rust-application-services.md#ln-core-003)   | Service ownership   | Search index reconciliation and scheduling  | Native preparation/retrieval and service-owned lifetime; qualify equivalent results and derived-cache rebuilds.                                        |
+| [R3.2.3](spec/src/architecture/rust-application-services.md#ln-core-003)   | Service ownership   | History-index scheduling                    | Reuse the existing history engine and move its scheduler into the vault service.                                                                       |
+| [R4](spec/src/architecture/rust-application-services.md#ln-core-005)       | Roadmap             | AI/tools/Changes                            | After R2/R3: existing queues, participants/context, approvals, native tools and guarded undo through both hosts.                                       |
+| [R5](spec/src/architecture/rust-application-services.md#ln-core-007)       | Roadmap             | Memory                                      | After R4: native capture/recall, Markdown authority, maintenance, relocation and cold recovery. Derived database storage alone does not complete this. |
+| [R6](spec/src/architecture/rust-application-services.md#ln-core-003)       | Roadmap             | Native jobs                                 | After R5: imports/capture, existing Forge/transfer/Compute, installation transactions and terminal lifetime.                                           |
+| [R7](spec/src/architecture/rust-application-services.md#ln-core-008)       | Roadmap             | Rust cutover                                | After the feature slices: full hosted/desktop journeys, HTTP/SSE, Linux packaging, standalone-browser regression checks and Node/companion retirement. |
 
 ### Gate status: Source complete
 
@@ -160,6 +191,7 @@ not host adoption or native/hosted application acceptance.
 | [R3.1.22](spec/src/architecture/rust-application-services.md#ln-core-003)    | Database catalogue        | Complete native AppDatabase facade                                  | [Native call conformance](spec/records/2026-10-24-rust-core-database-calls.md): all 68 methods / 85 retained calls, explicit undefined/null/void, optional defaults, conditional transaction results and query-enhancement diagnostics pass. Eight exact native / 39 retained API cases and complete source check/test/build/model/spec lanes pass. Host adoption is separate.                                                                                                                                                                                                                                                                                                                                           |
 | [R3.2.1.1](spec/src/architecture/rust-application-services.md#ln-core-003)   | Unattended metadata       | Native Markdown parsing and reconciliation lifetime                 | [Native Markdown source](spec/records/2026-10-25-native-markdown-indexing.md): parser 6af2420f and Notes selected-source intake pass ten lifetime/two normalization/21 retained reference cases, 338 complete ordinary Rust cases, five unique real-model cases, all 2209 package cases/33 forced tasks, 261 cold catalog and spec lanes. Npm exception is limited to the plugin parser slice. Both host selections and other processors remain pending; Notes source intake is committed at 7161a447ef365df498371d7bad491df5f5da431c.                                                                                                                                                                                   |
 | [R3.2.1.2.1](spec/src/architecture/rust-application-services.md#ln-core-005) | Native plugin projections | Source-owned Tasks occurrence parser                                | [Source receipt](../lapis-plugin-tasks/spec/records/2026-10-25-native-task-occurrences.md), Tasks commit 569d7e30ed86bd4514365e50befb908b2a8400e2. Private parser retains version-1 rows, tracking values, URI/path handling, duplicates and UTF-16 source ranges. All 229 unit cases, 27 shared fixtures and native/check/build/spec lanes pass. Notes publication and host adoption remain pending.                                                                                                                                                                                                                                                                                                                    |
+| [R3.2.1.2.2](spec/src/architecture/rust-application-services.md#ln-core-005) | Native plugin projections | Native Tasks occurrence publication                                 | [Qualified isolated source](../lapis-notes-native-occurrences/spec/records/2026-10-25-native-task-occurrences.md) committed at Notes 23f0e8c6 in native-occurrences: five exact and all 344 native cases plus five boundary regressions pass; strict checks, locked build and complete specification gates pass. Six retained model/crash ignores stay separate. Default-workspace integration follows its tooling intake; both host/plugin selections remain waiting.                                                                                                                                                                                                                                                   |
 
 ### Gate status: Complete
 

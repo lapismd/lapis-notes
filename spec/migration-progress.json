@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 16:48:45 UTC",
+  "updated": "2026-10-25 18:07:47 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -39,7 +39,7 @@
       "work": "Durable conversation",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native execution, typed transports and existing-screen application adoption are qualified. R2.3 actual-provider detach/cold application recovery is Waiting; the original R2 gate remains Working until it passes."
+      "detail": "Native execution, typed transports and existing-screen application adoption are qualified. R2.3 is Working: actual Codex completes after Tauri/Core reload detach and retains the exact record/transcript cold; retained-screen and hosted actual-provider acceptance remain."
     },
     {
       "id": "R2.1",
@@ -61,9 +61,9 @@
       "id": "R2.3",
       "area": "Durable conversation",
       "work": "Real-provider detach and cold application recovery",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-007",
-      "detail": "After R2.2: complete an actual provider turn without a viewing client, reconnect and restart both applications with retained conversation files and no uncertain replay. Fixture-only source checks cannot qualify this original R2 gate."
+      "detail": "[Actual-provider preflight](spec/records/2026-10-25-rust-provider-preflight.md) passes one native Tauri/Core and one Rust HTTP Codex case with explicit read-only mode, including detach/cold/idempotent readback. A separate actual probe of current chat defaults fails native_mode_not_admitted: ask is not a Codex mode. Native provider-mode policy must preserve read-only intent, then actual-provider retained-screen journeys must pass in both hosts. This original staged feature gate remains Working."
     },
     {
       "id": "R3",
@@ -375,7 +375,7 @@
       "work": "Unattended metadata and projection reconciliation",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native Markdown parsing and optional unattended reconciliation are Source complete at Notes 7161a447 and Plugins 6af2420f. Remaining projection processors/publication and both host selections are separate child gates; the aggregate R3.2.1 gate remains Working."
+      "detail": "Native Markdown reconciliation and opt-in Tasks occurrence publication are Source complete; the latter is committed at Notes 23f0e8c6 in isolated native-occurrences. Full Tasks/Docs/custom processors, default source integration and both host selections remain separate gates; aggregate R3.2.1 stays Working."
     },
     {
       "id": "R3.2.2",
@@ -455,7 +455,7 @@
       "work": "Remaining native plugin projection processors",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Tasks occurrence parser committed at 569d7e30 in its owning repository after 27 shared fixtures, 35 focused/229 complete TS cases and all private native/package/specification lanes pass. Native publication integration, full Tasks/Docs/custom processors and host selection remain pending; parser source does not select a writer."
+      "detail": "Tasks parser 569d7e30 and opt-in occurrence publication Notes 23f0e8c6 are Source complete. Publication is committed in isolated native-occurrences and awaits default-workspace integration after tooling intake. Full Tasks document/recurrence/materialization, Docs/custom processors and both host selections remain pending; source qualification does not select a writer."
     },
     {
       "id": "R3.2.1.3",
@@ -472,6 +472,14 @@
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
       "detail": "[Source receipt](../lapis-plugin-tasks/spec/records/2026-10-25-native-task-occurrences.md), Tasks commit 569d7e30ed86bd4514365e50befb908b2a8400e2. Private parser retains version-1 rows, tracking values, URI/path handling, duplicates and UTF-16 source ranges. All 229 unit cases, 27 shared fixtures and native/check/build/spec lanes pass. Notes publication and host adoption remain pending."
+    },
+    {
+      "id": "R3.2.1.2.2",
+      "area": "Native plugin projections",
+      "work": "Native Tasks occurrence publication",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "[Qualified isolated source](../lapis-notes-native-occurrences/spec/records/2026-10-25-native-task-occurrences.md) committed at Notes 23f0e8c6 in native-occurrences: five exact and all 344 native cases plus five boundary regressions pass; strict checks, locked build and complete specification gates pass. Six retained model/crash ignores stay separate. Default-workspace integration follows its tooling intake; both host/plugin selections remain waiting."
     }
   ]
 }

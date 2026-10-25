@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { root, localRoot, json } from "./paths.mjs";
 import { hash, imageKey, laneImage, label } from "./model.mjs";
 import { image } from "./images.mjs";
+import { containerIdentity, completed, withWorkspaceLease } from "./leases.mjs";
 import { snapshot, snapshotFile } from "./source.mjs";
 import { execute } from "./process.mjs";
 import {
@@ -14,24 +15,23 @@ import {
   receiveDirectory,
 } from "./docker.mjs";
 export async function owned(config, name) {
-  const kind = output(config, [
-    "inspect",
-    name,
-    "--format",
-    `{{index .Config.Labels "${label}"}}`,
-  ]);
-  if (kind !== "run") throw Error("Refusing an unowned validation container");
+  return containerIdentity(config, name, "run");
 }
 export async function collect(config, name) {
-  await owned(config, name);
+  const record = await owned(config, name);
+  name = record.Name?.replace(/^\//, "");
   if (!/^lapis-notes-validation-[a-z0-9-]+$/.test(name))
     throw Error("Invalid run identity");
   const directory = join(localRoot, "runs", name);
   await mkdir(directory, { recursive: true });
-  await receiveDirectory(config, ["cp", `${name}:/results/.`, "-"], directory);
+  await receiveDirectory(
+    config,
+    ["cp", `${record.Id}:/results/.`, "-"],
+    directory,
+  );
   const log = await open(join(directory, "container.log"), "w");
   try {
-    const [command, args] = dockerCommand(config, ["logs", name]);
+    const [command, args] = dockerCommand(config, ["logs", record.Id]);
     await execute(command, args, { stdio: ["ignore", log.fd, log.fd] });
   } finally {
     await log.close();
@@ -110,11 +110,12 @@ async function performRun(config, lane, args, selected, workspace) {
       `type=volume,source=${volume},target=${destination}`,
     );
   }
-  await docker(config, [
+  const runId = output(config, [
     "create",
     "--name",
     name,
     "--init",
+    "--cap-drop=ALL",
     "--label",
     `${label}=run`,
     "--label",
@@ -135,34 +136,34 @@ async function performRun(config, lane, args, selected, workspace) {
   let interrupted = false;
   const cancel = () => {
     interrupted = true;
-    void docker(config, ["stop", "--time", "15", name]).catch((error) =>
+    void docker(config, ["stop", "--time", "15", runId]).catch((error) =>
       console.error(error.message),
     );
   };
   process.on("SIGINT", cancel);
   process.on("SIGTERM", cancel);
   try {
-    await sendDirectory(config, ["cp", "-", `${name}:/input`], input);
+    await sendDirectory(config, ["cp", "-", `${runId}:/input`], input);
     let collected = false;
     try {
-      await docker(config, ["start", "--attach", name]);
+      await docker(config, ["start", "--attach", runId]);
     } finally {
       try {
-        await collect(config, name);
+        await collect(config, runId);
         collected = true;
       } catch (error) {
         console.error(`Collection pending for ${name}: ${error.message}`);
       }
     }
     const state = JSON.parse(
-      output(config, ["inspect", name, "--format", "{{json .State}}"]),
+      output(config, ["inspect", runId, "--format", "{{json .State}}"]),
     );
-    if (interrupted || state.ExitCode !== 0)
+    if (interrupted || !completed(state) || state.ExitCode !== 0)
       throw Error(
         `${lane} ${interrupted ? "interrupted" : `failed (${state.ExitCode})`}; run ${name}`,
       );
     if (!collected) throw Error(`Reports not collected; retained run ${name}`);
-    await docker(config, ["rm", name]);
+    await docker(config, ["rm", runId]);
   } finally {
     process.off("SIGINT", cancel);
     process.off("SIGTERM", cancel);
@@ -183,23 +184,7 @@ export async function remoteRun(config, lane, args) {
     ])
   )
     throw Error("This workspace already has an active remote validation run");
-  const lease = `lapis-notes-validation-lease-${workspace}`;
-  await docker(config, [
-    "create",
-    "--name",
-    lease,
-    "--label",
-    `${label}=lease`,
-    "--label",
-    `${label}.workspace=${workspace}`,
-    selected.tag,
-    "true",
-  ]);
-  try {
-    return await performRun(config, lane, args, selected, workspace);
-  } finally {
-    await docker(config, ["rm", lease]).catch((error) =>
-      console.error(`Lease cleanup pending: ${lease}: ${error.message}`),
-    );
-  }
+  return withWorkspaceLease(config, workspace, selected.tag, () =>
+    performRun(config, lane, args, selected, workspace),
+  );
 }

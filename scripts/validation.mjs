@@ -2,7 +2,8 @@
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { root, localRoot, json } from "./validation/paths.mjs";
-import { validationConfig, label } from "./validation/model.mjs";
+import { validationConfig } from "./validation/model.mjs";
+import { cleanOwned } from "./validation/leases.mjs";
 import { execute } from "./validation/process.mjs";
 import { image } from "./validation/images.mjs";
 import { owned, collect, remoteRun } from "./validation/runs.mjs";
@@ -79,73 +80,10 @@ export async function main(argv = process.argv.slice(2)) {
     return docker(config, ["stop", "--time", "15", args[0]]);
   }
   if (command === "clean") {
-    const containers = output(config, [
-      "ps",
-      "-aq",
-      "--filter",
-      `label=${label}=run`,
-    ])
-      .split("\n")
-      .filter(Boolean);
-    const leases = output(config, [
-      "ps",
-      "-aq",
-      "--filter",
-      `label=${label}=lease`,
-    ])
-      .split("\n")
-      .filter(Boolean);
-    const eligible = containers.filter(
-      (id) =>
-        output(config, ["inspect", id, "--format", "{{.State.Running}}"]) ===
-        "false",
-    );
-    const volumes = output(config, [
-      "volume",
-      "ls",
-      "-q",
-      "--filter",
-      `label=${label}=cache`,
-    ])
-      .split("\n")
-      .filter(Boolean);
-    console.log({
-      stoppedContainers: eligible,
-      leaseContainers: leases,
-      cacheVolumes: volumes,
-      apply: args.includes("--apply"),
-    });
-    if (args.includes("--apply")) {
-      for (const id of eligible) {
-        await collect(
-          config,
-          output(config, ["inspect", id, "--format", "{{.Name}}"]).slice(1),
-        );
-        await docker(config, ["rm", id]);
-      }
-      for (const id of leases) {
-        const workspace = output(config, [
-          "inspect",
-          id,
-          "--format",
-          `{{index .Config.Labels "${label}.workspace"}}`,
-        ]);
-        const active = output(config, [
-          "ps",
-          "-q",
-          "--filter",
-          `label=${label}=run`,
-          "--filter",
-          `label=${label}.workspace=${workspace}`,
-        ]);
-        if (!active) await docker(config, ["rm", id]);
-      }
-      if (args.includes("--caches"))
-        for (const volume of volumes)
-          await docker(config, ["volume", "rm", volume]);
-    }
+    console.log(await cleanOwned(config, args, { collect }));
     return;
   }
+
   throw Error(
     "Use run <lane>, images [--rebuild], doctor, collect <run>, stop <run>, or clean [--apply] [--caches]",
   );

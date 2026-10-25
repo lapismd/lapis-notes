@@ -10,5 +10,9 @@
   {
     "name": "agent-redaction",
     "revision": "3c3dc0d768afbe197e796d4bf94c0be5074faa4c"
+  },
+  {
+    "name": "lapis-plugins",
+    "revision": "6af2420ff720cf8ce04581306c9c7b8d12b126e4"
   }
 ]

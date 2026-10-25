@@ -249,3 +249,16 @@ the server is stopped and recreated; production host networking and remote
 vault adapters remain governed by their existing contracts.
 Its dedicated browser worker starts after network preparation, so preceding
 PWA cases cannot carry delayed Docker interface events into initial navigation.
+
+## Released Mira dependency intake
+
+The root development ranges select released Mira `~0.1.1` and its Editor, AI
+and Mermaid companions at `~0.0.3`. Existing API and Markdown peer ranges
+already admit that cohort. Temporary consumer validation retains the qualified
+committed Design Core `944cd448` archive and explicitly records all unpublished
+prerequisites; it does not consume another task's dirty source inputs.
+The tracked lock predates private App Profile's Agent UI dependency and is not
+claimed as a complete frozen registry install. Its final regeneration follows
+publication of the private prerequisites. The
+[dependency receipt](../../records/2026-10-25-released-mira-dependency-intake.md)
+separates source admission, consumer qualification and remaining release gates.

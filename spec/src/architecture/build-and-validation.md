@@ -10,6 +10,13 @@ Temporary source-archive qualification installs its declared, checksum-verified
 prerequisites before validation. It does not require unpublished identities to
 resolve from the registry first; tracked manifests and lockfiles remain portable.
 Registry-only release qualification stays a separate gate.
+Workers drop Linux capabilities so permission regressions cannot pass through
+root's discretionary-access overrides. The actual Docker smoke verifies denied
+file reads, denied directory writes and zero effective capabilities before the
+browser checks. The existing init process reaps owned subprocesses.
+Workspace leases remain held for created, active, paused or unreachable workers.
+Cleanup collects only completed owned runs and removes their immutable container
+IDs; an SSH failure cannot authorize an overlapping run or cache cleanup.
 
 The root migration tracker projects gate-status tables from its owned JSON
 ledger through `pnpm progress:generate`. `pnpm check:progress` runs in normal
