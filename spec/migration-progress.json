@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 03:19:03 UTC",
+  "updated": "2026-10-25 03:37:49 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -159,7 +159,7 @@
       "work": "Automatic backup after client detach and controlled Quit",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "[Shared backup lifetime](spec/records/2026-10-25-rust-backup-lifetime.md) and [native host controls](spec/records/2026-10-25-rust-backup-commands.md) are committed/source-qualified at 6f637449. Tauri ownership/lifecycle intake is implemented locally. Final 235 native, 416 renderer/governance, 744 AI, 104 backup catalog and 12 Shell catalog cases pass; normal/e2e strict checks, types, renderer build and specification lanes pass. The first full catalog group has 499 passes / one fixture failure, repaired and proven by exact/family reruns; complete catalog is rerunning. The ordinary debug bundle and its zero-automation-marker audit pass. Full catalog rerun, e2e API and packaged lifecycle acceptance remain open. See Desktop E-CORE-017."
+      "detail": "[Shared backup lifetime](spec/records/2026-10-25-rust-backup-lifetime.md) and [native host controls](spec/records/2026-10-25-rust-backup-commands.md) are committed/source-qualified at 6f637449. Tauri ownership/lifecycle intake is implemented locally. Final 235 native, 416 renderer/governance, 744 AI, 104 backup catalog and 12 Shell catalog cases pass; normal/e2e strict checks, types, renderer build and specification lanes pass. A missing Shell fixture port is repaired and exact/family reruns pass. Full catalog rerun has passed 1,000 cases; desktop/dark is running. All six hidden native API cases and five original backup lifecycle cases pass. Three obsolete Notes failure-banner selectors initially fail; the exact three-case rerun and full six-case native Notes lifecycle family pass after correcting only those selectors. Ordinary debug bundle and zero-automation-marker audit pass. Complete catalog and consumer commit remain open. See Desktop E-CORE-017."
     },
     {
       "id": "R1.3.11",
