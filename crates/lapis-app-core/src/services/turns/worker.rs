@@ -156,6 +156,7 @@ fn finish(owner: &Owner, job: &Job, id: Uuid, mut outcome: TurnOutcome, clean: b
         // A reader of the terminal record can immediately submit its follow-up.
         data.jobs.remove(&id);
         job.done.store(true, Ordering::Release);
+        owner.changed.notify_all();
         true
     });
     if !confirmed {
@@ -166,6 +167,7 @@ fn retire(owner: &Owner, job: &Job, id: Uuid, confirmed: bool) {
     if confirmed && let Ok(mut data) = owner.data() {
         data.jobs.remove(&id);
         job.done.store(true, Ordering::Release);
+        owner.changed.notify_all();
         return;
     }
     owner.fault(job);

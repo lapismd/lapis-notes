@@ -320,6 +320,17 @@ async fn uncertain_startup_retains_work_and_reports_close_failure_without_hangin
     assert_eq!(unknown.phase, TurnPhase::Unknown);
     assert_eq!(unknown.failure_code.as_deref(), Some("cleanup_unknown"));
     assert!(vault.status().unwrap().work > 0);
+    for enabled in [false, true] {
+        assert_eq!(
+            client.set_turns_enabled(enabled).unwrap_err().code(),
+            lapis_app_protocol::ErrorCode::Io
+        );
+    }
+    assert_eq!(
+        client.submit_turn(f.input()).unwrap_err().code(),
+        lapis_app_protocol::ErrorCode::Unsupported
+    );
+    assert_eq!(client.submit_turn(input).unwrap(), unknown);
     drop(client);
     let closing = vault.clone();
     let result = tokio::time::timeout(

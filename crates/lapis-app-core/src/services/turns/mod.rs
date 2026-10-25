@@ -1,3 +1,4 @@
+mod activation;
 mod commands;
 mod conversation;
 mod execution;
@@ -15,7 +16,7 @@ use lapis_app_protocol::{
 use std::{
     collections::HashMap,
     sync::{
-        Arc, Mutex,
+        Arc, Condvar, Mutex,
         atomic::{AtomicBool, Ordering},
     },
 };
@@ -25,12 +26,15 @@ use uuid::Uuid;
 
 pub(super) struct Owner {
     data: Mutex<Data>,
+    transitions: Mutex<()>,
+    changed: Condvar,
     failed: AtomicBool,
     storage: Arc<TurnStorage>,
 }
 struct Data {
     journal: TurnJournal,
     jobs: HashMap<Uuid, Arc<Job>>,
+    enabled: bool,
 }
 struct Job {
     work: Arc<Work>,
@@ -48,6 +52,7 @@ impl Owner {
     fn fault(&self, job: &Job) {
         self.failed.store(true, Ordering::Release);
         job.done.store(true, Ordering::Release);
+        self.changed.notify_all();
         let _state = job
             .work
             .vault
@@ -84,7 +89,10 @@ impl Client {
                     data: Mutex::new(Data {
                         journal,
                         jobs: HashMap::new(),
+                        enabled: true,
                     }),
+                    transitions: Mutex::new(()),
+                    changed: Condvar::new(),
                     failed: AtomicBool::new(false),
                     storage,
                 });
@@ -113,7 +121,8 @@ impl Client {
                 Admission::Fresh { .. } => Err(failure()),
             };
         }
-        if owner.failed.load(Ordering::Acquire) || !data.jobs.is_empty() {
+        owner.require_enabled(&data)?;
+        if !data.jobs.is_empty() {
             return Err(Error::busy());
         }
         let prompt = SessionRequest::Prompt {

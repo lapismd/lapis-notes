@@ -51,12 +51,14 @@ export type TurnSummary = {
 };
 export type TurnCommand =
   | { kind: "targets" }
+  | { kind: "set_enabled"; enabled: boolean }
   | { kind: "submit"; input: TurnInput }
   | { kind: "read"; request_id: string }
   | { kind: "list" }
   | { kind: "cancel"; request_id: string };
 export type TurnValue =
   | { kind: "targets"; targets: Array<TurnTarget> }
+  | { kind: "availability"; enabled: boolean }
   | { kind: "record"; record: TurnRecord | null }
   | { kind: "records"; records: Array<TurnSummary> }
   | { kind: "cancel_requested"; accepted: boolean };

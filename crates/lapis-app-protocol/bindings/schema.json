@@ -2647,6 +2647,15 @@
         {
           "additionalProperties": false,
           "properties": {
+            "enabled": { "type": "boolean" },
+            "kind": { "const": "set_enabled", "type": "string" }
+          },
+          "required": ["kind", "enabled"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
             "input": { "$ref": "#/$defs/TurnInput" },
             "kind": { "const": "submit", "type": "string" }
           },
@@ -2824,6 +2833,15 @@
             }
           },
           "required": ["kind", "targets"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "kind": { "const": "availability", "type": "string" }
+          },
+          "required": ["kind", "enabled"],
           "type": "object"
         },
         {

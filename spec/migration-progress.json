@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 09:54:38 UTC",
+  "updated": "2026-10-25 10:37:07 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -55,7 +55,7 @@
       "work": "Typed host adapters and existing chat adoption",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "R2.2.1 [typed transport](spec/records/2026-10-25-rust-turn-hosts.md) and R2.2.2 [native continuation](spec/records/2026-10-25-rust-conversation-continuation.md) are Source complete. The latter passes all 321 Rust cases/doctests and complete package/check/build/specification lanes. R2.2.3 Tauri/existing-chat adoption remains Waiting; source/native fixtures do not complete this application gate."
+      "detail": "R2.2.1 [typed transport](spec/records/2026-10-25-rust-turn-hosts.md) and R2.2.2 [native continuation](spec/records/2026-10-25-rust-conversation-continuation.md) are Source complete. The latter passes all 321 Rust cases/doctests and complete package/check/build/specification lanes. R2.2.3 Tauri/existing-chat adoption is Working; [Native activation](spec/records/2026-10-25-rust-turn-activation.md) is qualified; runtime/IPC selection and observer-only screens remain unfinished. Source/native fixtures do not complete this application gate."
     },
     {
       "id": "R2.3",
@@ -437,9 +437,9 @@
       "id": "R2.2.3",
       "area": "Durable conversation",
       "work": "Tauri selection and existing chat adoption",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "After R2.2.2: select the native owner in Tauri and adapt the existing public Agent screen through both hosts. Selected native conversations must not retain a renderer transcript writer; closing a view only detaches its observation."
+      "detail": "Working: [native activation source](spec/records/2026-10-25-rust-turn-activation.md) is qualified. The exact three-case fence/drain target, 32 affected native cases, five HTTP and four wire cases pass; all 326 Rust cases/doctests, 2,157 package cases, strict/source checks, builds and selected-tree specification gates pass. Desktop immutable launch-policy intake is under qualification. Runtime/IPC selection and observer-only existing Agent screen adoption remain unfinished."
     }
   ]
 }

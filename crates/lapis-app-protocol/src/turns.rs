@@ -108,6 +108,7 @@ impl From<TurnRecord> for TurnSummary {
 #[ts(tag = "kind", rename_all = "snake_case")]
 pub enum TurnCommand {
     Targets {},
+    SetEnabled { enabled: bool },
     Submit { input: Box<TurnInput> },
     Read { request_id: Uuid },
     List {},
@@ -118,6 +119,7 @@ pub enum TurnCommand {
 #[ts(tag = "kind", rename_all = "snake_case")]
 pub enum TurnValue {
     Targets { targets: Vec<TurnTarget> },
+    Availability { enabled: bool },
     Record { record: Option<Box<TurnRecord>> },
     Records { records: Vec<TurnSummary> },
     CancelRequested { accepted: bool },

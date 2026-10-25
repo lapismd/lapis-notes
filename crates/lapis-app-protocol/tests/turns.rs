@@ -33,6 +33,25 @@ fn turn_commands_round_trip_with_portable_options_and_exact_discriminants() {
 }
 
 #[test]
+fn feature_activation_is_strict_boolean_without_native_launch_authority() {
+    for enabled in [false, true] {
+        let value = json!({"kind":"set_enabled", "enabled":enabled});
+        let command: TurnCommand = serde_json::from_value(value.clone()).unwrap();
+        assert_eq!(serde_json::to_value(command).unwrap(), value);
+        let value = json!({"kind":"availability", "enabled":enabled});
+        let response: TurnValue = serde_json::from_value(value.clone()).unwrap();
+        assert_eq!(serde_json::to_value(response).unwrap(), value);
+    }
+    for value in [
+        json!({"kind":"set_enabled"}),
+        json!({"kind":"set_enabled", "enabled":"true"}),
+        json!({"kind":"set_enabled", "enabled":true, "root":"/tmp"}),
+    ] {
+        assert!(serde_json::from_value::<TurnCommand>(value).is_err());
+    }
+}
+
+#[test]
 fn continuation_cursor_round_trips_without_admitting_native_resume_authority() {
     let original: TurnInput = serde_json::from_value(input()).unwrap();
     assert!(original.continuation.is_none());

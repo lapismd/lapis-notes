@@ -134,3 +134,19 @@ prompt and additional context. It does not become a new user instruction.
 Unsupported history or capacity reports an explicit refusal without truncating
 retained files. Queueing, participant switching, richer context/skills and
 handoff summaries retain R4's separate gates.
+
+## Native feature activation
+
+An admitted host may explicitly enable or disable the selected turn service.
+Disable fences fresh submissions under the same native lock as acceptance,
+requests cancellation of every accepted worker and acknowledges only after
+confirmed cleanup and journal publication. A previously retained client cannot
+bypass that fence. Retained queries and exact duplicate reads remain available.
+Cleanup failure keeps admission fenced and reports uncertainty rather than a
+successful disable. Re-enable waits for any in-progress disable to settle and
+never starts, resumes or replays an earlier request.
+
+The native operation retains its work independently of its reply or invoking
+view. Reload/detach does not disable the service. Availability is process-owned;
+constructing a new runtime recovers records without executing them. Native
+hosts retain their existing user/trust admission and operator launch selection.

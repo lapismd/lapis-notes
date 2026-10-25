@@ -383,6 +383,67 @@ async fn hosted_turn_commands_keep_native_launch_authority_and_exact_cancel_scop
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn hosted_disable_fences_retained_clients_without_affecting_another_vault() {
+    let f = Native::start().await;
+    let first = f.attach(0).await;
+    let retained = f.attach(0).await;
+    let other = f.attach(1).await;
+    let input = f.input();
+    f.call(first.client_id, json!({"kind":"submit","input":input}))
+        .await;
+    let disabled = f
+        .call(
+            first.client_id,
+            json!({"kind":"set_enabled","enabled":false}),
+        )
+        .await;
+    assert_eq!(disabled, json!({"kind":"availability","enabled":false}));
+    let terminal = f.terminal(input.request_id).await;
+    let duplicate = f
+        .call(retained.client_id, json!({"kind":"submit","input":input}))
+        .await;
+    assert_eq!(duplicate["record"], serde_json::to_value(terminal).unwrap());
+    let refused = f
+        .command(
+            retained.client_id,
+            json!({"kind":"submit","input":f.input()}),
+        )
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(refused.status(), StatusCode::NOT_IMPLEMENTED);
+    assert_eq!(
+        refused.json::<serde_json::Value>().await.unwrap()["code"],
+        "UNSUPPORTED"
+    );
+    assert_eq!(
+        f.call(other.client_id, json!({"kind":"targets"})).await["targets"]
+            .as_array()
+            .unwrap()
+            .len(),
+        1
+    );
+    let prompts = f.prompts();
+    assert_eq!(
+        f.call(
+            first.client_id,
+            json!({"kind":"set_enabled","enabled":true})
+        )
+        .await,
+        json!({"kind":"availability","enabled":true})
+    );
+    assert_eq!(f.prompts(), prompts);
+    let fresh = f.input();
+    f.call(retained.client_id, json!({"kind":"submit","input":fresh}))
+        .await;
+    assert_eq!(
+        f.terminal(fresh.request_id).await.phase,
+        TurnPhase::Completed
+    );
+    f.close().await;
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn hosted_followups_keep_one_conversation_across_detach_and_cold_recovery() {
     let mut f = Native::start().await;
     let client = f.attach(0).await;

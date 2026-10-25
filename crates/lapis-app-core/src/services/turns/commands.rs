@@ -12,6 +12,9 @@ impl Client {
         match command {
             TurnCommand::Targets {} => {
                 let (owner, work) = self.turn_owner()?;
+                let data = owner.data()?;
+                owner.require_enabled(&data)?;
+                drop(data);
                 let root = work.vault.lock()?.root.try_clone()?;
                 let targets = owner
                     .storage
@@ -22,6 +25,9 @@ impl Client {
                     })?;
                 Ok(TurnValue::Targets { targets })
             }
+            TurnCommand::SetEnabled { enabled } => Ok(TurnValue::Availability {
+                enabled: self.set_turns_enabled(enabled)?,
+            }),
             TurnCommand::Submit { input } => Ok(TurnValue::Record {
                 record: Some(Box::new(self.submit_turn(*input)?)),
             }),
