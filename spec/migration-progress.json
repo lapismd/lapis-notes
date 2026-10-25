@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 02:40:03 UTC",
+  "updated": "2026-10-25 02:52:04 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -159,7 +159,7 @@
       "work": "Automatic backup after client detach and controlled Quit",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "[Shared backup lifetime](spec/records/2026-10-25-rust-backup-lifetime.md) qualifies source and hosted native lifetime. [Native host controls](spec/records/2026-10-25-rust-backup-commands.md) qualifies six command/gate/retry cases, full source check/test/build/spec with 251 ordinary Rust cases, one cold Rust browser journey (9.0s) and two Desktop file-service compatibility cases. Tauri ownership adoption remains open."
+      "detail": "[Shared backup lifetime](spec/records/2026-10-25-rust-backup-lifetime.md) and [native host controls](spec/records/2026-10-25-rust-backup-commands.md) are committed and source-qualified at 6f637449: six control cases, 251 ordinary Rust cases, cold Rust browser journey and two Desktop compatibility cases. Tauri selects the shared owner locally; one initial native lifetime and 12 renderer backup cases pass. All 416 renderer/governance, 744 AI and 104 focused catalog cases pass; full native/catalog and packaged lifecycle gates remain in progress. See Desktop E-CORE-017. No Tauri completion is claimed."
     },
     {
       "id": "R1.3.11",
