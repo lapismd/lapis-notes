@@ -22,6 +22,19 @@ pub(in crate::services) struct Owner {
     thread: Mutex<Option<thread::JoinHandle<()>>>,
     pub status: Arc<Mutex<IndexingStatus>>,
     occurrences: Arc<AtomicBool>,
+    documents: Arc<AtomicBool>,
+}
+pub(super) struct Clock {
+    pub today: Arc<dyn Fn() -> String + Send + Sync>,
+    pub interval: Duration,
+}
+impl Default for Clock {
+    fn default() -> Self {
+        Self {
+            today: Arc::new(|| chrono::Local::now().format("%Y-%m-%d").to_string()),
+            interval: Duration::from_secs(30),
+        }
+    }
 }
 fn failure() -> Error {
     Error::new(ErrorCode::Io, "Native metadata index owner is unavailable")
@@ -32,6 +45,8 @@ impl Owner {
         database: Database,
         root: VaultRoot,
         occurrences: bool,
+        documents: bool,
+        clock: Clock,
     ) -> Result<Self> {
         let (signal, changes) = mpsc::sync_channel(1);
         let watched = root.path().to_owned();
@@ -72,6 +87,8 @@ impl Owner {
         let retry = signal.clone();
         let occurrences = Arc::new(AtomicBool::new(occurrences));
         let selected = occurrences.clone();
+        let documents = Arc::new(AtomicBool::new(documents));
+        let selected_documents = documents.clone();
         let worker = thread::Builder::new()
             .name("lapis-metadata".into())
             .spawn(move || {
@@ -80,8 +97,14 @@ impl Owner {
                     if cancelled.load(Ordering::Acquire) {
                         break;
                     }
+                    let today = (clock.today)();
+                    let selection = reconcile::Selection {
+                        occurrences: &selected,
+                        documents: &selected_documents,
+                        today: &today,
+                    };
                     let result = runtime.block_on(reconcile::run(
-                        &vault, &database, &root, &cancelled, &selected,
+                        &vault, &database, &root, &cancelled, &selection,
                     ));
                     let mut current = progress.lock().unwrap_or_else(|error| error.into_inner());
                     current.passes = current.passes.saturating_add(1);
@@ -94,11 +117,9 @@ impl Owner {
                         let _ = retry.try_send(());
                     }
                     if cancelled.load(Ordering::Acquire)
-                        || changes
-                            .recv_timeout(Duration::from_secs(30))
-                            .is_err_and(|error| {
-                                matches!(error, mpsc::RecvTimeoutError::Disconnected)
-                            })
+                        || changes.recv_timeout(clock.interval).is_err_and(|error| {
+                            matches!(error, mpsc::RecvTimeoutError::Disconnected)
+                        })
                     {
                         break;
                     }
@@ -113,10 +134,16 @@ impl Owner {
             thread: Mutex::new(Some(worker)),
             status,
             occurrences,
+            documents,
         })
     }
-    pub(super) fn select_occurrences(&self, enabled: bool) {
-        self.occurrences.store(enabled, Ordering::Release);
+    pub(super) fn select(&self, occurrences: Option<bool>, documents: Option<bool>) {
+        if let Some(enabled) = occurrences {
+            self.occurrences.store(enabled, Ordering::Release);
+        }
+        if let Some(enabled) = documents {
+            self.documents.store(enabled, Ordering::Release);
+        }
         let _ = self.signal.try_send(());
     }
     pub(super) fn finish(&self) -> Result<()> {

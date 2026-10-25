@@ -20,8 +20,8 @@ capability handles, never renderer or HTTP values. Watch/resource/profile policy
 remains in Desktop while the common engine owns checked IO and publication.
 
 R3.2.1 stages [native reconciliation](rust-indexing-lifetime.md). Source-owned
-Markdown and opt-in Tasks occurrence parsers share one admitted service worker.
-Full Tasks/custom processors and both host selections remain separate gates.
+Markdown, opt-in Tasks occurrences and staged complete Task documents share one
+admitted worker. Full custom processors and both host selections remain separate.
 
 The core boundary audit runs in normal checks and canonical specification checks.
 It rejects transport dependencies/source references, host source routing and new

@@ -15,6 +15,13 @@ impl Store {
         let Some(path) = lookup.path.filter(|s| !s.is_empty()) else {
             return Ok(None);
         };
+        if self.native_tasks_selected().await? {
+            let mut row = self.projection_row(ID, &path, None).await?;
+            if let Some(Value::Object(row)) = &mut row {
+                row.remove("id");
+            }
+            return Ok(row);
+        }
         let mut rows = self
             .connection
             .query(
@@ -33,6 +40,9 @@ impl Store {
         Ok(serde_json::from_str(&json).ok())
     }
     pub(super) async fn task_children(&self, query: TaskChildQuery) -> Result<Vec<LinkRecord>> {
+        if self.native_tasks_selected().await? {
+            return self.native_task_children(query).await;
+        }
         let mut args = vec![query.source_path];
         let filter = if let Some(kind) = query.kind {
             args.push(

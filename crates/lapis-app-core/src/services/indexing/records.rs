@@ -163,7 +163,7 @@ fn normalized(path: &str) -> Option<String> {
     }
     Some(parts.join("/"))
 }
-fn resolve(source: &str, target: &str, files: &[String]) -> Option<String> {
+pub(super) fn resolve(source: &str, target: &str, files: &[String]) -> Option<String> {
     let target = target.split(['|', '#']).next().unwrap_or_default();
     let normalized = target
         .replace('\\', "/")

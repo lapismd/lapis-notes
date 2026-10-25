@@ -1,4 +1,4 @@
-use super::{IndexingStatus, occurrences, records};
+use super::{IndexingStatus, manifest, occurrences, records, tasks};
 use crate::{
     database::Database,
     services::{Error, Result, VaultService},
@@ -10,15 +10,20 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
 };
 
+pub(super) struct Selection<'a> {
+    pub occurrences: &'a AtomicBool,
+    pub documents: &'a AtomicBool,
+    pub today: &'a str,
+}
 pub(super) async fn run(
     vault: &Weak<VaultService>,
     database: &Database,
     root: &VaultRoot,
     stop: &AtomicBool,
-    tasks: &AtomicBool,
+    selection: &Selection<'_>,
 ) -> IndexingStatus {
     let mut status = IndexingStatus::default();
-    if let Err(error) = process(vault, database, root, stop, tasks, &mut status).await {
+    if let Err(error) = process(vault, database, root, stop, selection, &mut status).await {
         status.error = Some(error.to_string());
     }
     status
@@ -28,12 +33,12 @@ async fn process(
     database: &Database,
     root: &VaultRoot,
     stop: &AtomicBool,
-    tasks: &AtomicBool,
+    selection: &Selection<'_>,
     status: &mut IndexingStatus,
 ) -> Result<()> {
     let vault = vault.upgrade().ok_or_else(Error::closed)?;
     let work = vault.begin_work()?;
-    let task_selection = tasks.load(Ordering::Acquire);
+    let task_selection = selection.occurrences.load(Ordering::Acquire);
     if task_selection {
         occurrences::register(database).await?;
     }
@@ -50,56 +55,12 @@ async fn process(
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => Default::default(),
         Err(error) => return Err(error.into()),
     };
-    let mut directories = vec![String::new()];
-    let mut files = Vec::new();
-    let mut bytes = 0usize;
-    let mut entries = 0usize;
-    while let Some(directory) = directories.pop() {
-        if stop.load(Ordering::Acquire) || work.cancellation_requested() {
-            return Ok(());
-        }
-        root.verify_physical_root()?;
-        let listing = root.list(&directory)?;
-        entries = entries
-            .saturating_add(listing.folders.len())
-            .saturating_add(listing.files.len());
-        if entries > 100_000 {
-            return Err(Error::new(
-                ErrorCode::InvalidRequest,
-                "Native metadata manifest exceeds bounds",
-            ));
-        }
-        let child = |name: String| {
-            if directory.is_empty() {
-                name
-            } else {
-                format!("{directory}/{name}")
-            }
-        };
-        directories.extend(
-            listing
-                .folders
-                .into_iter()
-                .filter(|name| !name.starts_with('.'))
-                .map(child),
-        );
-        for name in listing
-            .files
-            .into_iter()
-            .filter(|name| !name.starts_with('.'))
-        {
-            let path = child(name);
-            bytes = bytes.saturating_add(path.len());
-            if files.len() >= 100_000 || bytes > 32 * 1024 * 1024 {
-                return Err(Error::new(
-                    ErrorCode::InvalidRequest,
-                    "Native metadata manifest exceeds bounds",
-                ));
-            }
-            files.push(path);
-        }
-    }
-    files.sort();
+    let Some(files) = manifest::collect(root, || {
+        stop.load(Ordering::Acquire) || work.cancellation_requested()
+    })?
+    else {
+        return Ok(());
+    };
     let mut after = None;
     loop {
         let page = database
@@ -183,12 +144,21 @@ async fn process(
         // Fence new source admissions; an already selected source publication
         // drains its database operations rather than cancelling uncertain work.
         if let Some(occurrences) = occurrences
-            && tasks.load(Ordering::Acquire)
+            && selection.occurrences.load(Ordering::Acquire)
             && let Err(error) =
                 occurrences::publish(database, path, &source_hash, occurrences).await
         {
             status.error = Some(error.to_string());
         }
     }
+    status.pending += tasks::run(
+        database,
+        root,
+        &files,
+        stop,
+        selection.documents,
+        selection.today,
+    )
+    .await?;
     Ok(())
 }
