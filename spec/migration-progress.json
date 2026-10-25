@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 07:53:00 UTC",
+  "updated": "2026-10-25 09:01:03 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -39,7 +39,7 @@
       "work": "Durable conversation",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "R2.1 native journal/execution is Source complete. R2.2 typed host/chat adoption and R2.3 actual provider/detach/cold recovery remain Waiting. Source fixtures do not qualify either application; the original R2 gate remains Working."
+      "detail": "R2.1 native source is qualified. R2.2 typed host/chat adoption is Working; R2.3 actual provider/detach/cold application recovery remains Waiting. Initial RPC evidence is recorded separately from application acceptance; the original R2 gate remains Working."
     },
     {
       "id": "R2.1",
@@ -53,9 +53,9 @@
       "id": "R2.2",
       "area": "Durable conversation",
       "work": "Typed host adapters and existing chat adoption",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "After R2.1: generated turn DTOs, admitted HTTP/Tauri adapters and the existing public chat observe the native owner. Keep launch paths/environment native-only and avoid a second renderer writer or scheduler."
+      "detail": "[Typed host commands](spec/records/2026-10-25-rust-turn-hosts.md) are Source complete under R2.2.1: generated DTOs/public SDK, authenticated HTTP and frozen native launch selection. All 311 Rust cases/doctests, full source check/test/build/specification lanes, 261 cold catalog, seven Rust-hosted and twelve PWA journeys pass. R2.2.2 conversation continuation and R2.2.3 Tauri/existing-chat adoption remain Waiting; the application gate stays Working."
     },
     {
       "id": "R2.3",
@@ -416,6 +416,30 @@
       "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
       "detail": "[Installed delivery](spec/records/2026-10-25-rust-installed-assets.md): signed install/restart/disable/re-enable/uninstall and all five cold Rust browser journeys (34.6s) pass. Final qualification passes 283 ordinary Rust cases/doctests, twenty package check/test tasks, eleven builds, 60 Web cases, all 261 catalog cases and specification/format gates. One macOS ENOBUFS attempt is retained; the exact case and bounded complete rerun pass unchanged. Desktop native compatibility passes separately; its pending application commit, R6 transactions and R7 delivery remain separate."
+    },
+    {
+      "id": "R2.2.1",
+      "area": "Durable conversation",
+      "work": "Typed turn protocol, HTTP and public client port",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "[Qualified typed host source](spec/records/2026-10-25-rust-turn-hosts.md): wire, 21 native execution/journal, HTTP/installation, configured-binary cold restart and public SDK/client contracts pass. Full source checks/tests/build/specification pass with all 311 ordinary Rust cases/doctests, 261 cold catalog, seven hosted and twelve PWA journeys. Prepared native launch retention is fixed; Lapis AI is unchanged. Actual chat/Tauri/provider acceptance remains separate."
+    },
+    {
+      "id": "R2.2.2",
+      "area": "Durable conversation",
+      "work": "Service-owned conversation creation and continuation",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "After R2.2.1: sequential prompts retain one conversation and its existing portable files. The current source creates a fresh conversation for each request; it does not yet support ordinary follow-ups. Preserve exact deduplication, dirty/external edits and no replay on recovery."
+    },
+    {
+      "id": "R2.2.3",
+      "area": "Durable conversation",
+      "work": "Tauri selection and existing chat adoption",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
+      "detail": "After R2.2.2: select the native owner in Tauri and adapt the existing public Agent screen through both hosts. Selected native conversations must not retain a renderer transcript writer; closing a view only detaches its observation."
     }
   ]
 }

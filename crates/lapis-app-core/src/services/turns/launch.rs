@@ -1,6 +1,15 @@
-use super::{Job, Owner};
-use crate::{turns::TurnRecord, vault::VaultRoot};
+use super::{Error, Job, Owner, Work};
+use crate::vault::VaultRoot;
 use lapis_ai_service::{Launch, SessionBinding, runtime::SessionProcessor};
+use lapis_app_protocol::{
+    ErrorCode,
+    turns::{TurnInput, TurnRecord},
+};
+
+pub(super) struct Selected {
+    scope: VaultRoot,
+    launch: Launch,
+}
 
 pub(super) struct Prepared {
     pub scope: VaultRoot,
@@ -8,36 +17,40 @@ pub(super) struct Prepared {
     pub binding: SessionBinding,
     pub processor: Option<Box<dyn SessionProcessor>>,
 }
-pub(super) fn prepare(
-    owner: &Owner,
-    job: &Job,
-    record: &TurnRecord,
-) -> Result<Prepared, &'static str> {
+pub(super) fn select(owner: &Owner, work: &Work, input: &TurnInput) -> super::Result<Selected> {
     let scope = {
-        let state = job
-            .work
-            .vault
-            .lock()
-            .map_err(|_| "native_scope_unavailable")?;
-        if record.input.scope_dir.is_empty() {
+        let state = work.vault.lock()?;
+        if input.scope_dir.is_empty() {
             state.root.try_clone()
         } else {
-            state.root.open_child(&record.input.scope_dir)
+            state.root.open_child(&input.scope_dir)
         }
-    }
-    .map_err(|_| "native_scope_unavailable")?;
+    }?;
     let launch = owner
         .storage
         .policy
-        .resolve(job.work.vault.id, &scope, &record.input.target_id)
-        .map_err(|e| e.0)?;
+        .resolve(work.vault.id, &scope, &input.target_id)
+        .map_err(|_| Error::new(ErrorCode::Unsupported, "Native agent target is unavailable"))?;
     if launch.directory != scope.path()
         || launch.prepared.directory != scope.path()
         || !launch.prepared.arguments.is_empty()
         || launch.resume.is_some()
     {
-        return Err("native_launch_scope_mismatch");
+        return Err(Error::new(
+            ErrorCode::PermissionDenied,
+            "Native launch scope is invalid",
+        ));
     }
+    scope.verify_physical_root()?;
+    Ok(Selected { scope, launch })
+}
+pub(super) fn prepare(
+    owner: &Owner,
+    job: &Job,
+    record: &TurnRecord,
+    selected: Selected,
+) -> Result<Prepared, &'static str> {
+    let Selected { scope, launch } = selected;
     scope
         .verify_physical_root()
         .map_err(|_| "native_scope_changed")?;

@@ -1,6 +1,7 @@
 use super::{Result, Work};
-use crate::turns::{TurnOutcome, TurnRecord};
+use crate::turns::TurnOutcome;
 use lapis_app_protocol::ExpectedVersion;
+use lapis_app_protocol::turns::TurnRecord;
 use serde_json::{Value, json};
 use uuid::Uuid;
 

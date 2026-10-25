@@ -1,5 +1,10 @@
 # Web Host / Browser integration
 
+The Rust admitted client exposes generated native turn calls over the existing
+versioned, authenticated transport. Closing that client detaches observations;
+accepted native work continues. Submission errors retain their uncertainty
+without automatic retry or fallback. Existing chat selection remains R2.2.
+
 The explicit `server-rust` profile connects the retained hosted screen to
 Rust-generated commands through admitted HTTP client IDs. It omits PWA startup
 and browser storage. Its initial configured-vault workflow and later hosted

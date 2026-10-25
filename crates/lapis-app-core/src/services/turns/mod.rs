@@ -1,14 +1,16 @@
+mod commands;
 mod conversation;
 mod execution;
 mod launch;
 mod storage;
 mod worker;
 use super::{Client, Error, Result, VaultService, Work};
-use crate::turns::{
-    Admission, DispatchClaim, RunningTurn, TurnInput, TurnJournal, TurnRecord, TurnSummary,
-};
+use crate::turns::{Admission, DispatchClaim, RunningTurn, TurnJournal};
 use lapis_ai_service::{ExecutionSession, runtime::SessionRequest};
-use lapis_app_protocol::ErrorCode;
+use lapis_app_protocol::{
+    ErrorCode,
+    turns::{TurnInput, TurnRecord, TurnSummary},
+};
 use std::{
     collections::HashMap,
     sync::{
@@ -101,6 +103,7 @@ impl Client {
     }
     /// Durable acceptance is synchronous; the native runtime owns the task.
     pub fn submit_turn(&self, input: TurnInput) -> Result<TurnRecord> {
+        let input = crate::turns::normalize(input)?;
         let (owner, work) = self.turn_owner()?;
         let mut data = owner.data()?;
         if data.journal.read(input.request_id)?.is_some() {
@@ -125,6 +128,7 @@ impl Client {
                     "Native prompt exceeds runtime limits",
                 )
             })?;
+        let selected = launch::select(&owner, &work, &input)?;
         let Admission::Fresh { record, claim } = data.journal.accept(input)? else {
             return Err(failure());
         };
@@ -138,7 +142,7 @@ impl Client {
         });
         data.jobs.insert(record.input.request_id, job.clone());
         drop(data);
-        worker::spawn(owner, job, record.clone(), claim);
+        worker::spawn(owner, job, record.clone(), claim, selected);
         Ok(record)
     }
 }

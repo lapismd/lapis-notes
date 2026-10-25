@@ -29,6 +29,10 @@ const generated = JSON.parse(
 );
 const outputs = [
   [
+    new URL("../packages/api/src/lib/native-turn-protocol.ts", import.meta.url),
+    await format(generated.turnTypescript, { parser: "typescript" }),
+  ],
+  [
     new URL("protocol.ts", directory),
     await format(generated.typescript, { parser: "typescript" }),
   ],

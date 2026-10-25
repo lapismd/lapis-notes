@@ -1,9 +1,10 @@
 use super::{Job, Owner, launch::Prepared};
-use crate::turns::{MAX_OUTPUT_BYTES, TurnOutcome, TurnRecord};
+use crate::turns::{MAX_OUTPUT_BYTES, TurnOutcome};
 use lapis_ai_service::{
     ExecutionSession,
     runtime::{SessionOptions, SessionRequest},
 };
+use lapis_app_protocol::turns::TurnRecord;
 use std::{
     sync::{Arc, atomic::Ordering},
     time::Duration,
@@ -13,6 +14,7 @@ pub(super) async fn execute(
     owner: Arc<Owner>,
     job: Arc<Job>,
     record: TurnRecord,
+    selected: super::launch::Selected,
 ) -> Result<TurnOutcome, &'static str> {
     let prepare_owner = owner.clone();
     let prepare_job = job.clone();
@@ -23,7 +25,7 @@ pub(super) async fn execute(
         binding,
         processor,
     } = tokio::task::spawn_blocking(move || {
-        super::launch::prepare(&prepare_owner, &prepare_job, &prepare_record)
+        super::launch::prepare(&prepare_owner, &prepare_job, &prepare_record, selected)
     })
     .await
     .map_err(|_| "native_preparation_failed")??;

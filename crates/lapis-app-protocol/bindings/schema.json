@@ -2636,6 +2636,218 @@
       "required": ["path", "text", "version"],
       "type": "object"
     },
+    "TurnCommand": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "targets", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "input": { "$ref": "#/$defs/TurnInput" },
+            "kind": { "const": "submit", "type": "string" }
+          },
+          "required": ["kind", "input"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "read", "type": "string" },
+            "request_id": { "format": "uuid", "type": "string" }
+          },
+          "required": ["kind", "request_id"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "list", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "cancel", "type": "string" },
+            "request_id": { "format": "uuid", "type": "string" }
+          },
+          "required": ["kind", "request_id"],
+          "type": "object"
+        }
+      ]
+    },
+    "TurnInput": {
+      "additionalProperties": false,
+      "properties": {
+        "context": { "type": ["string", "null"] },
+        "options": {
+          "$ref": "#/$defs/TurnOptions",
+          "default": {
+            "effort": null,
+            "max_duration_ms": 60000,
+            "mode": "ask",
+            "model": null
+          }
+        },
+        "prompt": { "type": "string" },
+        "request_id": { "format": "uuid", "type": "string" },
+        "scope_dir": { "type": "string" },
+        "target_id": { "type": "string" }
+      },
+      "required": ["request_id", "target_id", "scope_dir", "prompt"],
+      "type": "object"
+    },
+    "TurnOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "effort": { "type": ["string", "null"] },
+        "max_duration_ms": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "mode": { "type": "string" },
+        "model": { "type": ["string", "null"] }
+      },
+      "required": ["mode", "max_duration_ms"],
+      "type": "object"
+    },
+    "TurnPhase": {
+      "enum": [
+        "accepted",
+        "running",
+        "completed",
+        "failed",
+        "cancelled",
+        "interrupted",
+        "unknown"
+      ],
+      "type": "string"
+    },
+    "TurnRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "accepted_at_ms": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "conversation_id": { "format": "uuid", "type": "string" },
+        "failure_code": { "type": ["string", "null"] },
+        "input": { "$ref": "#/$defs/TurnInput" },
+        "output": { "type": ["string", "null"] },
+        "phase": { "$ref": "#/$defs/TurnPhase" },
+        "schema_version": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "updated_at_ms": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "vault_id": { "format": "uuid", "type": "string" }
+      },
+      "required": [
+        "schema_version",
+        "vault_id",
+        "conversation_id",
+        "input",
+        "phase",
+        "accepted_at_ms",
+        "updated_at_ms"
+      ],
+      "type": "object"
+    },
+    "TurnSummary": {
+      "additionalProperties": false,
+      "description": "Metadata-only native query; prompts, context and response bodies stay on read.",
+      "properties": {
+        "accepted_at_ms": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "conversation_id": { "format": "uuid", "type": "string" },
+        "failure_code": { "type": ["string", "null"] },
+        "phase": { "$ref": "#/$defs/TurnPhase" },
+        "request_id": { "format": "uuid", "type": "string" },
+        "scope_dir": { "type": "string" },
+        "target_id": { "type": "string" },
+        "updated_at_ms": { "format": "uint64", "minimum": 0, "type": "integer" }
+      },
+      "required": [
+        "request_id",
+        "conversation_id",
+        "target_id",
+        "scope_dir",
+        "phase",
+        "accepted_at_ms",
+        "updated_at_ms"
+      ],
+      "type": "object"
+    },
+    "TurnTarget": {
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "label": { "type": "string" }
+      },
+      "required": ["id", "label"],
+      "type": "object"
+    },
+    "TurnValue": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "targets", "type": "string" },
+            "targets": {
+              "items": { "$ref": "#/$defs/TurnTarget" },
+              "type": "array"
+            }
+          },
+          "required": ["kind", "targets"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "record", "type": "string" },
+            "record": {
+              "anyOf": [{ "$ref": "#/$defs/TurnRecord" }, { "type": "null" }]
+            }
+          },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "records", "type": "string" },
+            "records": {
+              "items": { "$ref": "#/$defs/TurnSummary" },
+              "type": "array"
+            }
+          },
+          "required": ["kind", "records"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "accepted": { "type": "boolean" },
+            "kind": { "const": "cancel_requested", "type": "string" }
+          },
+          "required": ["kind", "accepted"],
+          "type": "object"
+        }
+      ]
+    },
     "VaultCommand": {
       "oneOf": [
         {
@@ -2909,10 +3121,14 @@
     "task_lookup": { "$ref": "#/$defs/TaskLookup" },
     "task_query": { "$ref": "#/$defs/TaskQuery" },
     "task_record": { "$ref": "#/$defs/TaskRecord" },
+    "turn_command": { "$ref": "#/$defs/TurnCommand" },
+    "turn_value": { "$ref": "#/$defs/TurnValue" },
     "vault": { "$ref": "#/$defs/ManagedVault" },
     "vault_name": { "$ref": "#/$defs/VaultName" }
   },
   "required": [
+    "turn_command",
+    "turn_value",
     "database_call",
     "database_value",
     "request",

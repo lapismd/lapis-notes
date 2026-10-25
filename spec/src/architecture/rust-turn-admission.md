@@ -52,6 +52,9 @@ application acceptance retain the original R2 completion gate.
 
 ## Vault-owned execution
 
+Native admission retains the resolved launch before durable acceptance; view
+configuration changes cannot replace an accepted launch. Binding/capture and
+worker startup still require the fresh durable claim.
 The selected native turn service uses `lapis-ai-service`'s execution port and
 host backend. Native policy resolves opaque targets against an admitted scope
 capability; browser data cannot select executables, environment, credentials or
@@ -77,3 +80,34 @@ Authored user text and assistant text retain separate provenance; additional
 context is not fabricated as authored dialogue. External changes or dirty
 editors prevent replacement. The journal becomes terminal only after the
 portable files have been published; recovery never starts another worker.
+
+## Typed host commands
+
+`lapis-app-protocol::turns` owns strict portable input, options, phase, record,
+summary, target and command/value DTOs. Core retains input normalization,
+retained-record validation, private journal authority and executable policy.
+Rust-generated schemas and TypeScript declarations must reject drift.
+
+An admitted client may list native target labels, submit one fresh turn, read
+retained state, list metadata summaries or request cancellation of an exact
+retained request. Summary lists exclude authored/context/output bodies. No
+command accepts launch paths, arguments, credentials, environment or resume
+authority. Native hosts retain their opaque vault/client admission and version,
+Origin and CSRF rules. Queries and replies never own the worker lifetime.
+
+The hosted `/api/v3/clients/{client}/turns` route uses the same admitted owner
+as file/database commands. Its separate 16 MiB JSON decoder bound permits
+escaping without increasing the ordinary 2 MiB command limit; Core's existing
+prompt, context, output and journal bounds still apply before publication.
+
+Hosted agent installation is explicit operator configuration loaded through
+`LAPIS_SERVER_AGENTS_CONFIG` with `LAPIS_SERVER_DATA_ROOT`. It maps opaque IDs
+to physical executable helpers and sealed native environment. Configuration
+never comes from HTTP. Helpers must stay outside admitted and managed vault
+content. An unselected service reports Unsupported without fallback.
+
+Cancellation requests are observed by the retained native task even when the
+reply disconnects. Cancellation before prompt dispatch can be confirmed;
+uncertain dispatched effects remain Unknown unless the runtime proves a
+terminal outcome and process cleanup. A cancelled/unknown request is never
+replayed. Explicit close/Quit retains the same fence-and-drain contract.

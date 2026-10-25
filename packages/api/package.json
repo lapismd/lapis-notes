@@ -95,6 +95,9 @@
       ],
       "build/vite": [
         "dist/build-tools/vite.d.ts"
+      ],
+      "native-turns": [
+        "dist/native-turns.d.ts"
       ]
     }
   },
@@ -260,6 +263,11 @@
       "types": "./dist/metadata-store.d.ts",
       "import": "./dist/metadata-store.js",
       "default": "./dist/metadata-store.js"
+    },
+    "./native-turns": {
+      "types": "./dist/native-turns.d.ts",
+      "import": "./dist/native-turns.js",
+      "default": "./dist/native-turns.js"
     }
   },
   "devDependencies": {

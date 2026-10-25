@@ -1,6 +1,7 @@
 #[path = "support/native_turn/mod.rs"]
 mod support;
-use lapis_app_core::{services::Runtime, turns::TurnPhase};
+use lapis_app_core::services::Runtime;
+use lapis_app_protocol::turns::TurnPhase;
 use std::{
     fs,
     sync::{Arc, atomic::Ordering},
@@ -331,4 +332,22 @@ async fn uncertain_startup_retains_work_and_reports_close_failure_without_hangin
     assert!(result.is_err());
     assert!(vault.status().unwrap().work > 0);
     assert_eq!(f.policy.calls.load(Ordering::SeqCst), 1);
+}
+
+#[tokio::test]
+async fn accepted_turn_retains_prepared_native_configuration_without_observer_policy_lookup() {
+    let f = Fixture::new();
+    let runtime = f.runtime();
+    let client = runtime.get(f.vault).unwrap().attach().unwrap();
+    let input = f.input();
+    client.submit_turn(input.clone()).unwrap();
+    // The current-thread runtime has not yielded to its native worker yet.
+    f.policy
+        .configuration_unavailable
+        .store(true, Ordering::SeqCst);
+    drop(client);
+    let completed = f.finished(&runtime, input.request_id).await;
+    assert_eq!(completed.phase, TurnPhase::Completed);
+    assert_eq!(f.policy.calls.load(Ordering::SeqCst), 1);
+    shutdown(runtime).await;
 }

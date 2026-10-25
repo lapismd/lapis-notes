@@ -2,11 +2,12 @@
 mod storage;
 mod types;
 use crate::vault::VaultRoot;
+use lapis_app_protocol::turns::{TurnInput, TurnPhase, TurnRecord, TurnSummary};
 use std::{io, path::Path};
 use storage::Storage;
-pub(crate) use types::MAX_OUTPUT_BYTES;
+pub use types::TurnOutcome;
+pub(crate) use types::{MAX_OUTPUT_BYTES, normalize};
 use types::{MAX_RECORDS, invalid, now};
-pub use types::{TurnInput, TurnOptions, TurnOutcome, TurnPhase, TurnRecord, TurnSummary};
 use uuid::Uuid;
 
 pub struct TurnJournal {
@@ -65,7 +66,7 @@ impl TurnJournal {
         Ok(journal)
     }
     pub fn accept(&mut self, input: TurnInput) -> io::Result<Admission> {
-        let input = input.normalize()?;
+        let input = normalize(input)?;
         if let Some((record, _)) = self.storage.read(input.request_id)? {
             if record.input != input {
                 return Err(invalid(

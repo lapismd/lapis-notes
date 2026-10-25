@@ -112,6 +112,21 @@ R6 reuses existing terminal engines and does not introduce hosted terminals.
 Existing public Agent and Repository screens remain the integration surface.
 Preserve live-leaf capture, exact operation pins and awaitable host teardown.
 
+### R2 delivery checkpoints
+
+R2.2 retains one application-adoption gate, with the following implementation
+checkpoints so transport completion cannot be mistaken for completed chat.
+These divide the existing scope; they do not add another migration.
+
+| Task   | Deliverable                                                      | Acceptance boundary                                                                                   |
+| ------ | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| R2.2.1 | Typed turn protocol, native HTTP commands and public client port | Native worker/detach/restart fixtures, authenticated transport, SDK and browser regressions           |
+| R2.2.2 | Service-owned conversation creation and sequential continuation  | Follow-up turns retain one conversation and its files; reconnect/recovery never replay work           |
+| R2.2.3 | Tauri selection and existing chat observing the native writer    | Existing Agent screen through both hosts, with no renderer transcript writer for the selected service |
+
+R2.3 remains the actual-provider, detach and cold-application gate after these
+checkpoints. A configured-binary protocol fixture is source evidence only.
+
 ## Work retained from the hosted parity plan
 
 The original [AI/history plan](AI_HISTORY_PARITY_PLAN.md) is a historical roadmap

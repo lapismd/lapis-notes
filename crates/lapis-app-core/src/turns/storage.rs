@@ -1,6 +1,7 @@
-use super::types::{MAX_RECORD_BYTES, MAX_RECORDS, TurnRecord, invalid};
+use super::types::{MAX_RECORD_BYTES, MAX_RECORDS, invalid, validate};
 use crate::vault::{VaultRoot, WriteOptions};
 use cap_std::fs::MetadataExt;
+use lapis_app_protocol::turns::TurnRecord;
 use std::{
     fs::File,
     io::{self, Read},
@@ -136,12 +137,12 @@ impl Storage {
         }
         let record: TurnRecord = serde_json::from_slice(&bytes)
             .map_err(|_| invalid("Native turn record is unreadable"))?;
-        record.validate(self.vault, id)?;
+        validate(&record, self.vault, id)?;
         Ok(Some((record, bytes)))
     }
     pub fn write(&self, record: &TurnRecord, expected: Option<&[u8]>) -> io::Result<Vec<u8>> {
         self.verify()?;
-        record.validate(self.vault, record.input.request_id)?;
+        validate(record, self.vault, record.input.request_id)?;
         let bytes = serde_json::to_vec(record)
             .map_err(|_| invalid("Native turn record is not serializable"))?;
         if bytes.len() > MAX_RECORD_BYTES {

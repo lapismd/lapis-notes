@@ -47,8 +47,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let origin =
         std::env::var("LAPIS_SERVER_ORIGIN").unwrap_or_else(|_| format!("http://{address}"));
     let host = Arc::new(match std::env::var_os("LAPIS_SERVER_DATA_ROOT") {
-        Some(profile) => Host::with_profile(config, std::path::Path::new(&profile))?,
-        None => Host::new(config)?,
+        Some(profile) => {
+            let agents = match std::env::var_os("LAPIS_SERVER_AGENTS_CONFIG") {
+                Some(path) => serde_json::from_slice(&std::fs::read(path)?)?,
+                None => Vec::new(),
+            };
+            Host::with_profile_and_agents(config, std::path::Path::new(&profile), agents)?
+        }
+        None => {
+            if std::env::var_os("LAPIS_SERVER_AGENTS_CONFIG").is_some() {
+                return Err("Native agents require LAPIS_SERVER_DATA_ROOT".into());
+            }
+            Host::new(config)?
+        }
     });
     if let (Some(control), Some(profile)) = (&control, std::env::var_os("LAPIS_SERVER_DATA_ROOT")) {
         host.enable_management(control.clone(), std::path::Path::new(&profile))

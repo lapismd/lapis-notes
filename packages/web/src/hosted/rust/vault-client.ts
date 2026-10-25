@@ -7,6 +7,8 @@ import {
   type Request,
   type VaultCommand,
   type VaultValue,
+  type TurnCommand,
+  type TurnValue,
 } from "../../../../../crates/lapis-app-protocol/bindings/protocol";
 import { RustHostError, type RustHttpClient } from "./client";
 
@@ -103,6 +105,11 @@ export class RustVaultClient {
     const value = await this.execute({ kind: "files", operation });
     if (value.kind !== "files") throw new Error("Invalid hosted file response");
     return value.value;
+  }
+
+  async turns(command: TurnCommand): Promise<TurnValue> {
+    this.requireOpen();
+    return this.host.json(`${this.path}/turns`, "POST", command);
   }
 
   close(): Promise<void> {

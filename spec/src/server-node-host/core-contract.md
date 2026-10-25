@@ -1,5 +1,10 @@
 # Node Server Host / Integration contracts
 
+The staged Rust service exposes native turn commands under its admitted client
+route. Operator configuration selects native helpers; authenticated clients use
+opaque targets and generated portable DTOs. The existing Node serving baseline
+retains its current behavior while R2 host/chat adoption and R7 cutover continue.
+
 The retained Node browser adapter now supplies a private hosted connection to
 the same production login/chooser/workspace. Its explicit profile keeps the
 existing RPC, cookie, vault-management and plugin-asset behavior. The separately

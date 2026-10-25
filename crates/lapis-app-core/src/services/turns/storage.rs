@@ -11,6 +11,13 @@ use uuid::Uuid;
 
 /// Installation policy only: browser DTOs cannot construct a prepared launch.
 pub trait AgentPolicy: Send + Sync + 'static {
+    fn targets(
+        &self,
+        _vault: Uuid,
+        _scope: &VaultRoot,
+    ) -> lapis_ai_service::Result<Vec<lapis_app_protocol::turns::TurnTarget>> {
+        Ok(Vec::new())
+    }
     fn resolve(
         &self,
         vault: Uuid,

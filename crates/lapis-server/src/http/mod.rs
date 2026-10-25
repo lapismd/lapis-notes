@@ -10,6 +10,7 @@ mod management;
 mod plugins;
 mod routes;
 mod transfers;
+mod turns;
 
 use crate::host::Host;
 use axum::{
@@ -82,6 +83,10 @@ pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::R
         .route(
             "/api/v3/clients/{client}/database",
             post(database::call).layer(DefaultBodyLimit::max(database::JSON_LIMIT)),
+        )
+        .route(
+            "/api/v3/clients/{client}/turns",
+            post(turns::call).layer(DefaultBodyLimit::max(turns::JSON_LIMIT)),
         )
         .route(
             "/api/v3/clients/{client}/heartbeat",

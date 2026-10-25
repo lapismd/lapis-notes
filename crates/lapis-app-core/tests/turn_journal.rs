@@ -1,7 +1,8 @@
 use lapis_app_core::{
-    turns::{Admission, TurnInput, TurnJournal, TurnOutcome, TurnPhase},
+    turns::{Admission, TurnJournal, TurnOutcome},
     vault::VaultRoot,
 };
+use lapis_app_protocol::turns::{TurnInput, TurnPhase};
 use std::{
     fs,
     path::PathBuf,

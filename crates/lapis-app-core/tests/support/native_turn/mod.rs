@@ -4,9 +4,9 @@ use lapis_ai_service::{
 };
 use lapis_app_core::{
     services::{AgentPolicy, Runtime, TurnStorage},
-    turns::{TurnInput, TurnPhase, TurnRecord},
     vault::VaultRoot,
 };
+use lapis_app_protocol::turns::{TurnInput, TurnPhase, TurnRecord};
 use std::{
     fs,
     os::unix::fs::PermissionsExt,
@@ -24,6 +24,7 @@ pub struct Policy {
     pub log: PathBuf,
     pub calls: AtomicUsize,
     pub stalled_capture: AtomicBool,
+    pub configuration_unavailable: AtomicBool,
 }
 impl AgentPolicy for Policy {
     fn resolve(
@@ -34,6 +35,9 @@ impl AgentPolicy for Policy {
     ) -> lapis_ai_service::Result<Launch> {
         if target != "fixture" {
             return Err(lapis_ai_service::Error("target_unavailable"));
+        }
+        if self.configuration_unavailable.load(Ordering::SeqCst) {
+            return Err(lapis_ai_service::Error("configuration_unavailable"));
         }
         self.calls.fetch_add(1, Ordering::SeqCst);
         let mut environment = Environment::default();
@@ -99,6 +103,7 @@ impl Fixture {
             log: base.join("commands.jsonl"),
             calls: AtomicUsize::new(0),
             stalled_capture: AtomicBool::new(false),
+            configuration_unavailable: AtomicBool::new(false),
         });
         Self {
             _temp: temp,

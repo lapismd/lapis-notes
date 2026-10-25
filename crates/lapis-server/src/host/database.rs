@@ -12,12 +12,22 @@ use uuid::Uuid;
 impl Host {
     /// Installation-only selection; HTTP callers never supply this profile.
     pub fn with_profile(config: Config, profile: &Path) -> io::Result<Self> {
+        Self::with_profile_and_agents(config, profile, Vec::new())
+    }
+    pub fn with_profile_and_agents(
+        config: Config,
+        profile: &Path,
+        agents: Vec<super::turns::AgentConfig>,
+    ) -> io::Result<Self> {
         if !config.vaults.is_empty() {
             config.validate()?;
         }
         let (database, backup) = storage(profile, &config)?;
-        let mut host =
-            Self::with_runtime(config, Runtime::with_database(database).with_backup(backup))?;
+        let mut runtime = Runtime::with_database(database).with_backup(backup);
+        if let Some(storage) = super::turns::storage::select(profile, &config, agents)? {
+            runtime = runtime.with_turns(storage);
+        }
+        let mut host = Self::with_runtime(config, runtime)?;
         host.automatic_backup = true;
         Ok(host)
     }

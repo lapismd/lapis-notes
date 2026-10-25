@@ -1,13 +1,20 @@
-use super::{Capture, DispatchClaim, Job, Owner, Result, TurnRecord, conversation::Conversation};
+use super::{Capture, DispatchClaim, Job, Owner, Result, conversation::Conversation};
 use crate::turns::TurnOutcome;
 use lapis_app_protocol::VaultPhase;
+use lapis_app_protocol::turns::TurnRecord;
 use std::{
     sync::{Arc, TryLockError, atomic::Ordering},
     time::Duration,
 };
 use uuid::Uuid;
 
-pub(super) fn spawn(owner: Arc<Owner>, job: Arc<Job>, record: TurnRecord, claim: DispatchClaim) {
+pub(super) fn spawn(
+    owner: Arc<Owner>,
+    job: Arc<Job>,
+    record: TurnRecord,
+    claim: DispatchClaim,
+    selected: super::launch::Selected,
+) {
     let monitor = job.clone();
     owner.storage.runtime.spawn(async move {
         while !monitor.done.load(Ordering::Acquire) {
@@ -29,7 +36,7 @@ pub(super) fn spawn(owner: Arc<Owner>, job: Arc<Job>, record: TurnRecord, claim:
     let task = owner
         .storage
         .runtime
-        .spawn(async move { run(work_owner, work_job, record, claim).await });
+        .spawn(async move { run(work_owner, work_job, record, claim, selected).await });
     let runtime = owner.storage.runtime.clone();
     runtime.spawn(async move {
         if task.await.is_err() {
@@ -55,7 +62,13 @@ pub(super) fn spawn(owner: Arc<Owner>, job: Arc<Job>, record: TurnRecord, claim:
         }
     });
 }
-async fn run(owner: Arc<Owner>, job: Arc<Job>, record: TurnRecord, claim: DispatchClaim) {
+async fn run(
+    owner: Arc<Owner>,
+    job: Arc<Job>,
+    record: TurnRecord,
+    claim: DispatchClaim,
+    selected: super::launch::Selected,
+) {
     let prepare_owner = owner.clone();
     let prepare_job = job.clone();
     let prepare_record = record.clone();
@@ -78,7 +91,7 @@ async fn run(owner: Arc<Owner>, job: Arc<Job>, record: TurnRecord, claim: Dispat
         }
     };
     let result = if ready {
-        super::execution::execute(owner.clone(), job.clone(), record.clone()).await
+        super::execution::execute(owner.clone(), job.clone(), record.clone(), selected).await
     } else {
         Err("conversation_preparation_failed")
     };
@@ -93,6 +106,7 @@ async fn run(owner: Arc<Owner>, job: Arc<Job>, record: TurnRecord, claim: Dispat
         Err(code) if job.dispatched.load(Ordering::Acquire) || uncertain_startup => {
             TurnOutcome::Unknown(code.into())
         }
+        Err(_) if *job.cancel.borrow() => TurnOutcome::Cancelled,
         Err(code) => TurnOutcome::Failed(code.into()),
     };
     let session = job.session.lock().ok().and_then(|session| session.clone());
