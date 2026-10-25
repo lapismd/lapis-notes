@@ -1,13 +1,14 @@
-//! The backup owner retains derived work; clients retain no scheduler lease.
+//! Vault-owned derived work remains independent of backup capture and clients.
+mod selection;
 #[cfg(test)]
 mod tests;
 mod worker;
 
 use crate::services::{Error, Result, VaultService};
-use jj_vault::search::{NativeHistory, indexed};
+use jj_vault::search::indexed;
 use lapis_app_protocol::ErrorCode;
 use std::{
-    sync::{Arc, Mutex, Weak, mpsc},
+    sync::{Arc, Mutex, Weak, atomic::AtomicBool, mpsc},
     thread,
 };
 
@@ -17,27 +18,34 @@ pub struct HistoryIndexStatus {
     pub source: Option<indexed::Status>,
     pub error: Option<String>,
 }
-pub(super) struct Owner {
+pub(in crate::services) struct Owner {
     pub status: Arc<Mutex<HistoryIndexStatus>>,
     stop: mpsc::SyncSender<()>,
+    backup: Arc<Mutex<Option<tokio::sync::watch::Receiver<jj_vault::Status>>>>,
+    requested: Arc<AtomicBool>,
     thread: Mutex<Option<thread::JoinHandle<()>>>,
 }
 impl Owner {
     pub fn start(
         vault: Weak<VaultService>,
-        source: NativeHistory,
-        backup: tokio::sync::watch::Receiver<jj_vault::Status>,
+        backup: Option<tokio::sync::watch::Receiver<jj_vault::Status>>,
     ) -> Result<Self> {
         let (stop, receiver) = mpsc::sync_channel(1);
         let status = Arc::new(Mutex::new(HistoryIndexStatus::default()));
         let progress = status.clone();
+        let backup = Arc::new(Mutex::new(backup));
+        let notifications = backup.clone();
+        let requested = Arc::new(AtomicBool::new(false));
+        let wake = requested.clone();
         let thread = thread::Builder::new()
             .name("lapis-history-index".into())
-            .spawn(move || worker::run(vault, source, backup, receiver, progress))
+            .spawn(move || worker::run(vault, notifications, receiver, progress, wake))
             .map_err(|_| unavailable())?;
         Ok(Self {
             status,
             stop,
+            backup,
+            requested,
             thread: Mutex::new(Some(thread)),
         })
     }
@@ -61,27 +69,6 @@ impl Owner {
     #[cfg(test)]
     pub(super) fn is_finished(&self) -> bool {
         self.thread.lock().unwrap().is_none()
-    }
-}
-impl VaultService {
-    /// Read cached progress only; this never admits capture or index work.
-    pub fn history_indexing_status(&self) -> Result<HistoryIndexStatus> {
-        let state = self.lock()?;
-        state.require_open()?;
-        state.root.verify_physical_root()?;
-        self.backup_storage
-            .as_ref()
-            .ok_or_else(not_selected)?
-            .validate_vault(&state.root)?;
-        drop(state);
-        let slot = self.backup.lock().map_err(|_| unavailable())?;
-        let owner = slot.as_ref().ok_or_else(not_selected)?;
-        let index = owner.history.as_ref().ok_or_else(not_selected)?;
-        index
-            .status
-            .lock()
-            .map(|status| status.clone())
-            .map_err(|_| unavailable())
     }
 }
 fn not_selected() -> Error {

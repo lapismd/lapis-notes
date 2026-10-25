@@ -1,4 +1,4 @@
-use super::{Owner, failure, history, provider, watch};
+use super::{Owner, failure, provider, watch};
 use crate::{
     services::{Error, Result, VaultService},
     vault::VaultRoot,
@@ -51,6 +51,32 @@ impl BackupStorage {
         }
         Ok(())
     }
+    pub(super) fn history_source(
+        &self,
+        vault: &VaultService,
+    ) -> Result<jj_vault::search::NativeHistory> {
+        let state = vault.lock()?;
+        state.root.verify_physical_root()?;
+        self.validate_vault(&state.root)?;
+        let id = vault.id.to_string();
+        let storage = Storage::new(
+            Binding {
+                vault_id: id.clone(),
+                root: state.root.path().into(),
+                state: self.root.path().join(&id),
+            },
+            self.root.path().join(".layouts").join(&id),
+        );
+        // Binding/status only read installed control records. In particular,
+        // this path never runs recovery, initialization, capture or relink.
+        if storage.status().map_err(|_| failure())?.pending.is_some() {
+            return Err(Error::busy());
+        }
+        Ok(jj_vault::search::NativeHistory {
+            binding: storage.binding().map_err(|_| failure())?,
+            exclusions: vec![],
+        })
+    }
     pub(super) fn start(&self, vault: &Arc<VaultService>) -> Result<Owner> {
         let root = {
             let state = vault.lock()?;
@@ -93,23 +119,13 @@ impl BackupStorage {
         .map_err(|_| failure())?;
         let watcher = watch::start(root.path(), engine.changes())?;
         executor.block_on(engine.capture()).map_err(|_| failure())?;
-        let history = if self.history_indexing {
-            Some(history::Owner::start(
-                Arc::downgrade(vault),
-                jj_vault::search::NativeHistory {
-                    binding,
-                    exclusions: vec![],
-                },
-                engine.subscribe(),
-            )?)
-        } else {
-            None
-        };
+        if self.history_indexing {
+            vault.ensure_history_indexing(Some(engine.subscribe()))?;
+        }
         Ok(Owner {
             status: engine.subscribe(),
             engine: AsyncMutex::new(engine),
             watch: Mutex::new(Some(watcher)),
-            history,
         })
     }
 }

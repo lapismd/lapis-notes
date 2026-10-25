@@ -1,17 +1,21 @@
 use super::HistoryIndexStatus;
 use crate::services::VaultService;
-use jj_vault::search::{NativeHistory, indexed};
+use jj_vault::search::indexed;
 use std::{
-    sync::{Arc, Mutex, Weak, mpsc},
+    sync::{
+        Arc, Mutex, Weak,
+        atomic::{AtomicBool, Ordering},
+        mpsc,
+    },
     time::{Duration, Instant},
 };
 
 pub(super) fn run(
     vault: Weak<VaultService>,
-    source: NativeHistory,
-    mut backup: tokio::sync::watch::Receiver<jj_vault::Status>,
+    backup: Arc<Mutex<Option<tokio::sync::watch::Receiver<jj_vault::Status>>>>,
     stop: mpsc::Receiver<()>,
     progress: Arc<Mutex<HistoryIndexStatus>>,
+    requested: Arc<AtomicBool>,
 ) {
     let mut due = Instant::now();
     loop {
@@ -19,12 +23,22 @@ pub(super) fn run(
             Ok(()) | Err(mpsc::TryRecvError::Disconnected) => return,
             Err(mpsc::TryRecvError::Empty) => {}
         }
-        if backup.has_changed().unwrap_or(false) {
-            backup.borrow_and_update();
+        let changed = match backup.lock() {
+            Ok(mut receiver) => receiver.as_mut().is_some_and(|backup| {
+                if backup.has_changed().unwrap_or(false) {
+                    backup.borrow_and_update();
+                    true
+                } else {
+                    false
+                }
+            }),
+            Err(_) => return,
+        };
+        if changed || requested.swap(false, Ordering::AcqRel) {
             due = Instant::now();
         }
         if Instant::now() >= due {
-            let result = step(&vault, &source);
+            let result = step(&vault);
             let Ok(mut state) = progress.lock() else {
                 return;
             };
@@ -56,29 +70,26 @@ pub(super) fn run(
         }
     }
 }
-fn step(vault: &Weak<VaultService>, source: &NativeHistory) -> Result<indexed::Status, String> {
+fn step(vault: &Weak<VaultService>) -> Result<indexed::Status, String> {
     let vault = vault.upgrade().ok_or("Vault service is closed")?;
     let _work = vault.begin_work().map_err(|error| error.to_string())?;
-    {
-        let state = vault.lock().map_err(|error| error.to_string())?;
-        state
-            .root
-            .verify_physical_root()
-            .map_err(|error| error.to_string())?;
-        vault
-            .backup_storage
-            .as_ref()
-            .ok_or("History storage is not selected")?
-            .validate_vault(&state.root)
-            .map_err(|error| error.to_string())?;
-    }
-    // The immutable engine takes only its disposable-index lock. In
-    // particular, never retain the vault/file/backup mutation gate here.
-    let status = source.index_step()?;
-    let state = vault.lock().map_err(|error| error.to_string())?;
-    state
-        .root
-        .verify_physical_root()
+    let source = vault
+        .backup_storage
+        .as_ref()
+        .ok_or("History storage is not selected")?
+        .history_source(&vault)
         .map_err(|error| error.to_string())?;
+    // Resolve current installed layout for every immutable batch. Neither
+    // admission nor cache repair acquires the capture/file-writer lease.
+    let status = source.index_step()?;
+    let current = vault
+        .backup_storage
+        .as_ref()
+        .unwrap()
+        .history_source(&vault)
+        .map_err(|error| error.to_string())?;
+    if current.binding.state != source.binding.state {
+        return Err("History storage changed during indexing".into());
+    }
     Ok(status)
 }

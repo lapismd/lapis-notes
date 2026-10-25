@@ -16,6 +16,8 @@ fn last_owner_dropped_on_its_worker_signals_stop_without_joining_itself() {
         .send(Owner {
             status: Arc::new(Mutex::new(HistoryIndexStatus::default())),
             stop,
+            backup: Arc::new(Mutex::new(None)),
+            requested: Arc::new(AtomicBool::new(false)),
             thread: Mutex::new(Some(worker)),
         })
         .unwrap_or_else(|_| panic!("worker must receive its final owner"));

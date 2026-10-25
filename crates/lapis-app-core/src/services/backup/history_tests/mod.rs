@@ -1,3 +1,5 @@
+mod read;
+
 use super::*;
 use crate::services::{Runtime, VaultService};
 use jj_vault::{
@@ -129,13 +131,22 @@ async fn unselected_backup_keeps_history_indexing_off() {
     assert!(!f.binding.state.join("history-search-v2").exists());
 }
 
-fn owner(f: &Fixture) -> Arc<super::Owner> {
-    f.vault.backup.lock().unwrap().as_ref().unwrap().clone()
+fn owner(f: &Fixture) -> Arc<history::Owner> {
+    f.vault
+        .history_indexing
+        .lock()
+        .unwrap()
+        .as_ref()
+        .unwrap()
+        .clone()
 }
-async fn wait_progress(owner: &super::Owner, ready: impl Fn(&history::HistoryIndexStatus) -> bool) {
+async fn wait_progress(
+    owner: &history::Owner,
+    ready: impl Fn(&history::HistoryIndexStatus) -> bool,
+) {
     tokio::time::timeout(Duration::from_secs(12), async {
         loop {
-            if ready(&owner.history.as_ref().unwrap().status.lock().unwrap()) {
+            if ready(&owner.status.lock().unwrap()) {
                 return;
             }
             tokio::time::sleep(Duration::from_millis(40)).await;
@@ -166,51 +177,14 @@ async fn selected_history_follows_external_capture_with_no_client() {
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn selected_history_rebuilds_after_cold_cache_loss_without_new_checkpoint() {
-    let f = fixture(true).await;
-    let initial = indexed(&f, "rare initial history").await;
-    let checkpoint = initial.hits[0].record.revision.checkpoint.commit.clone();
-    let first = owner(&f);
-    close(&f).await;
-    assert!(first.history.as_ref().unwrap().is_finished());
-    fs::remove_dir_all(f.binding.state.join("history-search-v2")).unwrap();
-    let storage = BackupStorage::new(&f.history)
-        .unwrap()
-        .with_history_indexing(true);
-    let runtime = Arc::new(Runtime::default().with_backup(storage));
-    let vault = runtime.admit(f.vault.id(), &f.binding.root).unwrap();
-    let client = vault.attach().unwrap();
-    let state = client.start_backup().await.unwrap();
-    assert_eq!(
-        state.borrow().checkpoint.as_ref().unwrap().commit,
-        checkpoint
-    );
-    drop(client);
-    drop(state);
-    let rebuilt = indexed(&f, "rare initial history").await;
-    assert_eq!(
-        rebuilt.hits[0].record.revision.checkpoint.commit,
-        checkpoint
-    );
-    assert_eq!(
-        fs::read_to_string(f.binding.root.join("Note.md")).unwrap(),
-        "rare initial history text"
-    );
-    tokio::task::spawn_blocking(move || runtime.shutdown())
-        .await
-        .unwrap()
-        .unwrap();
-}
-
-#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn selected_history_disable_joins_and_restart_retains_immutable_reads() {
+async fn selected_history_pause_retains_owner_and_restart_updates_checkpoint() {
     let f = fixture(true).await;
     let initial = indexed(&f, "rare initial history").await;
     let previous = initial.hits[0].record.revision.checkpoint.commit.clone();
     let first = owner(&f);
     let client = f.vault.attach().unwrap();
     client.stop_backup().await.unwrap();
-    assert!(first.history.as_ref().unwrap().is_finished());
+    assert!(!first.is_finished());
     assert!(f.vault.backup.lock().unwrap().is_none());
     let retained = indexed(&f, "rare initial history").await;
     assert_eq!(retained.hits[0].record.revision.checkpoint.commit, previous);
@@ -221,13 +195,13 @@ async fn selected_history_disable_joins_and_restart_retains_immutable_reads() {
     .unwrap();
     client.start_backup().await.unwrap();
     let second = owner(&f);
-    assert!(!Arc::ptr_eq(&first, &second));
-    assert!(!second.history.as_ref().unwrap().is_finished());
+    assert!(Arc::ptr_eq(&first, &second));
+    assert!(!second.is_finished());
     drop(client);
     let resumed = indexed(&f, "saved while capture").await;
     assert_ne!(resumed.hits[0].record.revision.checkpoint.commit, previous);
     close(&f).await;
-    assert!(second.history.as_ref().unwrap().is_finished());
+    assert!(second.is_finished());
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -250,7 +224,7 @@ async fn selected_history_rejects_replaced_roots_and_retains_owner_for_close_ret
     );
     wait_progress(&first, |status| status.error.is_some()).await;
     assert!(Arc::ptr_eq(&first, &owner(&f)));
-    assert!(!first.history.as_ref().unwrap().is_finished());
+    assert!(!first.is_finished());
     assert_eq!(
         fs::read_to_string(f.binding.root.join("Note.md")).unwrap(),
         "unadmitted replacement"
@@ -264,7 +238,7 @@ async fn selected_history_rejects_replaced_roots_and_retains_owner_for_close_ret
     wait_progress(&first, |status| status.error.is_none()).await;
     drop(client);
     close(&f).await;
-    assert!(first.history.as_ref().unwrap().is_finished());
+    assert!(first.is_finished());
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -277,14 +251,29 @@ async fn selected_history_two_vaults_keep_independent_owners_and_close() {
     let second = owner(&b);
     assert!(!Arc::ptr_eq(&first, &second));
     close(&a).await;
-    assert!(first.history.as_ref().unwrap().is_finished());
+    assert!(first.is_finished());
     fs::write(
         b.binding.root.join("Note.md"),
         "second independent vault edit",
     )
     .unwrap();
     indexed(&b, "second independent vault").await;
-    assert!(!second.history.as_ref().unwrap().is_finished());
+    assert!(!second.is_finished());
     close(&b).await;
-    assert!(second.history.as_ref().unwrap().is_finished());
+    assert!(second.is_finished());
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn paused_capture_retains_the_native_history_index_owner() {
+    let f = fixture(true).await;
+    indexed(&f, "rare initial history").await;
+    let client = f.vault.attach().unwrap();
+    client.stop_backup().await.unwrap();
+    assert!(f.vault.backup.lock().unwrap().is_none());
+    let status = f.vault.history_indexing_status();
+    close(&f).await;
+    assert!(
+        status.is_ok(),
+        "paused capture must retain History: {status:?}"
+    );
 }

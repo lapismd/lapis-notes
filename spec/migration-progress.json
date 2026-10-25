@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 23:30:34 UTC",
+  "updated": "2026-10-25 23:50:59 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -391,7 +391,7 @@
       "work": "History-index scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native History scheduler source is qualified under the existing backup owner: nine exact backup cases, 364 Rust cases, 261 cold catalog cases and complete source/specification/navigation gates pass. Both host selections and removal of renderer scheduling remain; the aggregate gate stays Working and defaults are unchanged."
+      "detail": "[Vault-owned native History source](spec/records/2026-10-25-native-history-read-lifetime.md) now retains paused/cold immutable reads. Ten checkpoint cases, 380 complete Rust cases, 2,253 package cases and full check/test/build/specification gates pass. Desktop passive observation and native relocation drain are being implemented; HTTP selection and removal of remaining renderer scheduling remain. Defaults stay unchanged in the source."
     },
     {
       "id": "R1.3.9.1",
@@ -549,9 +549,9 @@
       "id": "R3.2.1.2.10",
       "area": "Tasks transformations",
       "work": "Native mutation and occurrence transformations",
-      "status": "Working",
+      "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Owning Tasks native-transformations contract: all 1,658 original frozen cases pass. The separate YAML reader prerequisite is Source complete at 9131b27d (114 full snapshots, 1,074 units, 16 native and 62 cold catalog cases). Transformation work is rebasing onto that reader for final qualification; Notes and both host adoptions remain."
+      "detail": "Qualified owning Tasks source fde58de0 on 2cfcdc59/9131b27d passes all 1,766 native transformation cases, 1,768 unchanged TypeScript/reference-adapter cases, 25 native tests, 2,847 unit cases, 62 cold catalog cases and full strict/check/build/publint/static/spec gates. All original differences and frozen complete outputs are retained. Notes materialization/private cache-signature intake and both host selections remain separate."
     },
     {
       "id": "R3.2.1.2.11",
@@ -565,17 +565,17 @@
       "id": "R3.2.1.2.11.1",
       "area": "Docs publication",
       "work": "Native Docs source-to-projection service intake",
-      "status": "Working",
+      "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Qualified Docs f772f2ba is available. A separate Notes native-docs-index-20261025 workspace is implementing opt-in registration/admission/publication on the existing native metadata owner, preserving Markdown/Tasks/Search defaults. Source qualification and both host selections remain."
+      "detail": "Qualified Notes Docs publication source fedf7b16 consumes Docs f772f2ba on the existing native metadata owner. All 36 indexing cases (11 Docs), 388 native cases, 2,253 package cases, strict/full check/test/build/specification gates pass. Exact fixture/spec-mapping failures are retained and closed. Main-workspace integration, both host selections and single-writer activation remain separate."
     },
     {
       "id": "R3.2.1.2.12",
       "area": "Markdown metadata parity",
       "work": "Verify and repair native YAML 1.2 behavior",
-      "status": "Working",
+      "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Exact public native Markdown comparison freezes 55 complete outcomes and proves 17 retained YAML differences. The owning Plugins repair now passes all 55 outcomes, the native version fence and 63 retained Markdown cases; full owning qualification is running. Notes intake and both hosts remain separate."
+      "detail": "Qualified owning Plugins source 797c14ef fixes 17/55 complete YAML metadata differences with typed YAML 1.2 and parser identity markdown-native-v2. All 55 frozen outcomes, four native tests, 63 exact/126 full Markdown, 1,027 owner package cases, 16 checks/15 builds, 54 cold Markdown/CSV catalog cases and strict/spec gates pass. Unchanged parent audit/CSV metadata/style failures remain recorded, with no npm publication or consumer workaround. Notes pin/cache-identity intake and both hosts remain separate."
     },
     {
       "id": "R3.2.2.1",
@@ -591,7 +591,23 @@
       "work": "Source YAML 1.2 reader prerequisite",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Committed Tasks 9131b27d preserves all 75 original document snapshots plus 39 Unicode/scalar cases. Full check, strict native, 1,074 units, 16 native, build/publint, static/62 cold catalog and specification gates pass. Original seven and discarded-candidate two failures are retained; transformation and Notes adoption stay separate."
+      "detail": "Committed Tasks 9131b27d and 2cfcdc59 preserve all 75 original snapshots plus 44 Unicode/scalar/priority cases (119 total). Strict source/check/build/publint/static/spec, 1,079 units, 17 native and 62 cold catalog cases pass. The separate nonfinite-priority prerequisite repairs three of three exact differences without changing the public projection schema. Transformation and Notes adoption stay separate."
+    },
+    {
+      "id": "R3.2.3.2",
+      "area": "History indexing",
+      "work": "Paused and cold read-only index owner",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Qualified paused/cold History owner](spec/records/2026-10-25-native-history-read-lifetime.md): ten checkpoint cases, all 380 Rust cases, 2,253 package cases, strict/full check/test/build and complete specification gates pass. Cold cache repair retains checkpoint identity and unsnapshotted edits with no client; a new-vault read creates no repository. Backup pause retains the owner; explicit native disable and vault close drain it. Desktop passive observation/relocation intake is active; both complete host gates remain separate."
+    },
+    {
+      "id": "R3.2.1.2.10.2",
+      "area": "Tasks application intake",
+      "work": "Guarded native Task writes and occurrence materialization",
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
+      "detail": "Qualified Tasks fde58de0 is being consumed in the isolated lapis-native-task-writes-20261025 workspace. Reuse accepted Work and the existing guarded byte writer for one-file mutations/materialization/completion; retain dirty/alias/revision/physical-root guards, a private projection cache-identity bump and same-byte cold-reopen evidence. Daily/two-file application coordination and both host selections remain."
     }
   ]
 }

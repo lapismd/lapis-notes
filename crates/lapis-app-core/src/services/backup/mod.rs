@@ -1,7 +1,7 @@
 //! The vault owns the existing native engine; clients own passive status views.
 mod close;
 mod commands;
-mod history;
+pub(super) mod history;
 #[cfg(test)]
 mod history_tests;
 mod provider;
@@ -21,7 +21,6 @@ pub(super) struct Owner {
     engine: AsyncMutex<Backup>,
     status: Receiver<Status>,
     watch: Mutex<Option<notify::RecommendedWatcher>>,
-    history: Option<history::Owner>,
 }
 fn failure() -> Error {
     Error::new(

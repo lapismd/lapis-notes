@@ -18,6 +18,7 @@ pub struct VaultService {
     pub(super) indexing: Mutex<Option<super::indexing::Owner>>,
     pub(super) backup_storage: Option<Arc<super::BackupStorage>>,
     pub(super) backup: Mutex<Option<Arc<super::backup::Owner>>>,
+    pub(super) history_indexing: Mutex<Option<Arc<super::backup::history::Owner>>>,
     pub(super) close_gate: Mutex<()>,
     pub(super) turn_storage: Option<Arc<super::TurnStorage>>,
     pub(super) turns: Mutex<Option<Arc<super::turns::Owner>>>,
@@ -99,6 +100,7 @@ impl VaultService {
             indexing: Mutex::new(None),
             backup_storage: None,
             backup: Mutex::new(None),
+            history_indexing: Mutex::new(None),
             close_gate: Mutex::new(()),
             turn_storage: None,
             turns: Mutex::new(None),
@@ -138,6 +140,7 @@ impl VaultService {
             }
             state.begin_close();
         }
+        self.finish_history_indexing()?;
         self.finish_indexing()?;
         let mut state = self.lock()?;
         if state.dirty(None) {
