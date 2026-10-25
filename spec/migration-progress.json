@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 02:52:04 UTC",
+  "updated": "2026-10-25 03:19:03 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -159,7 +159,7 @@
       "work": "Automatic backup after client detach and controlled Quit",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "[Shared backup lifetime](spec/records/2026-10-25-rust-backup-lifetime.md) and [native host controls](spec/records/2026-10-25-rust-backup-commands.md) are committed and source-qualified at 6f637449: six control cases, 251 ordinary Rust cases, cold Rust browser journey and two Desktop compatibility cases. Tauri selects the shared owner locally; one initial native lifetime and 12 renderer backup cases pass. All 416 renderer/governance, 744 AI and 104 focused catalog cases pass; full native/catalog and packaged lifecycle gates remain in progress. See Desktop E-CORE-017. No Tauri completion is claimed."
+      "detail": "[Shared backup lifetime](spec/records/2026-10-25-rust-backup-lifetime.md) and [native host controls](spec/records/2026-10-25-rust-backup-commands.md) are committed/source-qualified at 6f637449. Tauri ownership/lifecycle intake is implemented locally. Final 235 native, 416 renderer/governance, 744 AI, 104 backup catalog and 12 Shell catalog cases pass; normal/e2e strict checks, types, renderer build and specification lanes pass. The first full catalog group has 499 passes / one fixture failure, repaired and proven by exact/family reruns; complete catalog is rerunning. The ordinary debug bundle and its zero-automation-marker audit pass. Full catalog rerun, e2e API and packaged lifecycle acceptance remain open. See Desktop E-CORE-017."
     },
     {
       "id": "R1.3.11",
