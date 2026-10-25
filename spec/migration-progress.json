@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 00:11:41 UTC",
+  "updated": "2026-10-26 00:17:08 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -616,6 +616,14 @@
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
       "detail": "[Qualified native parser/cache intake](spec/records/2026-10-25-markdown-parser-cache-intake.md) consumes Plugins 797c14ef with only necessary locked dependency edges. Exact cold regression improves from zero passes/one failure to one pass/zero failures. All 36 affected indexing, 392 complete Rust and 54 retained API reference cases, native build/strict checks and full specification/78 governance regressions pass. Prior metadata is reparsed without file writes; both host selections remain separate."
+    },
+    {
+      "id": "R3.2.2.2",
+      "area": "Native Search source",
+      "work": "Retained Canvas document source extraction",
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "Owning Plugins workspace lapis-plugins-native-search-20261026 captures 37 complete outcomes directly from the unchanged TypeScript Canvas provider. Exact native comparison improves from zero passes/one failure to one pass/zero failures; all five native cases, strict checks and native build pass. Search package/source specification qualification is running; Notes publication, chunking/custom-provider parity and both hosts remain separate."
     }
   ]
 }

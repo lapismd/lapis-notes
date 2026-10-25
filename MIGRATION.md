@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-26 00:11:41 UTC**.
+Last updated **2026-10-26 00:17:08 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -39,13 +39,21 @@ strict native/build and complete specification gates pass. It adopts Plugins
 The preceding [Docs/History integration](spec/records/2026-10-25-docs-history-source-integration.md)
 is also committed in main at `5ee783f1`.
 
-Three independent implementation lanes are active:
+Four independent implementation lanes are active:
 
 | Lane                      | Current work                                                          | Gate before completion                                                                                   |
 | ------------------------- | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | Tasks                     | Guarded one-file transformations and private cache-identity intake    | Complete Notes check/test/build; integrate qualified source, then finish daily/two-file coordination     |
 | Native indexing ownership | Explicit App/service selection and metadata/projection writer fencing | Cancellation/drain and cache/projection/HTTP tests; full source qualification, then actual host adoption |
 | Desktop History           | Passive observation, paused/cold reads and relocation drain           | Complete catalog/source lanes and hidden native acceptance, then Desktop commit                          |
+| Search source             | Native Canvas extraction from retained provider outcomes              | Complete source/package gates, then native publication and configuration/provider parity                 |
+
+The separate Search source lane now has 37 frozen Canvas outcomes and five
+native cases passing. Its source/package qualification is running in
+`lapis-plugins-native-search-20261026`. Tasks intake has passed all 404 native
+and 2,253 package cases plus full check/build; final evidence/commit is pending.
+Desktop’s expanded hidden suite exposed a History read-admission failure under
+background indexing; the owning lane is investigating it before completion.
 
 Both metadata host selections remain off. Full Search provider/configuration
 parity and custom-processor handling remain before the complete R3 host gate.
@@ -173,6 +181,7 @@ not host adoption or native/hosted application acceptance.
 | [R3.2.1.2.10.2](spec/src/architecture/rust-application-services.md#ln-core-006) | Tasks application intake | Guarded native Task writes and occurrence materialization | Qualified Tasks fde58de0 is being consumed in the isolated lapis-native-task-writes-20261025 workspace. Reuse accepted Work and the existing guarded byte writer for one-file mutations/materialization/completion; retain dirty/alias/revision/physical-root guards, a private projection cache-identity bump and same-byte cold-reopen evidence. Daily/two-file application coordination and both host selections remain.                                                                                                                                          |
 | [R3.2.1.3](spec/src/architecture/rust-application-services.md#ln-core-004)      | Unattended metadata      | Tauri and HTTP unattended metadata adoption               | Source foundation is active in an isolated Notes workspace: explicit App-owned native indexing port, typed selection/refresh/status and native database writer-authority enforcement. Preserve metadata/query/events facades, make detach passive and retain absent-port browser processing. Known Tasks/Docs projection ownership is staged; Search provider/configuration parity and both actual host gates remain separate.                                                                                                                                       |
 | [R3.2.2](spec/src/architecture/rust-application-services.md#ln-core-003)        | Service ownership        | Search index reconciliation and scheduling                | [Qualified native Markdown Search source](spec/records/2026-10-25-native-search-owner.md): exact startup regression, 13 native Search and 33 retained SearchManager cases pass; complete source checks/builds pass with 369 Rust and 2,253 unique package cases. Final ten-archive cohort passes all 1,590 API cases, API build/check and all 13 native Search cases. Canonical specification/progress qualification passes all 78 regression cases. Complete provider/configuration/checkpoint parity and both host adoption gates remain; no host default changes. |
+| [R3.2.2.2](spec/src/architecture/rust-application-services.md#ln-core-005)      | Native Search source     | Retained Canvas document source extraction                | Owning Plugins workspace lapis-plugins-native-search-20261026 captures 37 complete outcomes directly from the unchanged TypeScript Canvas provider. Exact native comparison improves from zero passes/one failure to one pass/zero failures; all five native cases, strict checks and native build pass. Search package/source specification qualification is running; Notes publication, chunking/custom-provider parity and both hosts remain separate.                                                                                                            |
 | [R3.2.3](spec/src/architecture/rust-application-services.md#ln-core-003)        | Service ownership        | History-index scheduling                                  | [Vault-owned native History source](spec/records/2026-10-25-native-history-read-lifetime.md) now retains paused/cold immutable reads. Ten checkpoint cases, 380 complete Rust cases, 2,253 package cases and full check/test/build/specification gates pass. Desktop passive observation and native relocation drain are being implemented; HTTP selection and removal of remaining renderer scheduling remain. Defaults stay unchanged in the source.                                                                                                               |
 
 ### Gate status: Waiting
