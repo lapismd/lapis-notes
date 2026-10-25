@@ -48,6 +48,7 @@ export default defineConfig(() => {
     test: {
       environment: "jsdom",
       setupFiles: ["./test/vitest.setup.ts"],
+      server: { deps: { inline: ["@lapis-notes/search"] } },
       exclude: [
         "**/node_modules/**",
         "**/dist/**",

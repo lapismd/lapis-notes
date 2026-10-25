@@ -15,6 +15,7 @@ lapis-ai-service = { path = "../../../lapis-ai/crates/lapis-ai-service", version
 cap-std = "=4.0.3"
 cap-tempfile = "=4.0.3"
 libc = "0.2"
+md5 = "=0.8.0"
 rustix = { version = "=1.1.5", features = ["fs"] }
 serde = { version = "1", features = ["derive"] }
 sha2 = "=0.10.9"

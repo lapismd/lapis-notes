@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 23:20:18 UTC",
+  "updated": "2026-10-25 23:30:34 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native database/Search engines and both database facades are qualified. Markdown reconciliation and complete Tasks source-to-projection service intake are committed; Notes 0c9d6b2a passes 10 focused Tasks, 356 Rust and 2,220 package cases plus full check/build/specification. Search and History ownership source lanes are active. Tasks mutation/materialization, Docs/custom processors and both unattended host selections remain; defaults stay unchanged."
+      "detail": "Native database/Search engines and both database facades are qualified. Markdown and complete Tasks publication, Search and History scheduler sources are committed. Combined native intake passes 377 Rust cases plus strict and full specification gates. Tasks mutation/materialization intake, Docs publication, parser intake and both unattended host selections remain; defaults stay unchanged."
     },
     {
       "id": "R4",
@@ -383,7 +383,7 @@
       "work": "Search index reconciliation and scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Private native Markdown Search ownership source work is active in native-search-owner-20261025. Reuse qualified preparation/retrieval/embedding engines and retained source envelopes, preserve other providers, and prove unattended reconcile/prune/rebuild. Public selection, complete provider parity and both host adoption gates remain; no host default changes."
+      "detail": "[Qualified native Markdown Search source](spec/records/2026-10-25-native-search-owner.md): exact startup regression, 13 native Search and 33 retained SearchManager cases pass; complete source checks/builds pass with 369 Rust and 2,253 unique package cases. Final ten-archive cohort passes all 1,590 API cases, API build/check and all 13 native Search cases. Canonical specification/progress qualification passes all 78 regression cases. Complete provider/configuration/checkpoint parity and both host adoption gates remain; no host default changes."
     },
     {
       "id": "R3.2.3",
@@ -551,7 +551,7 @@
       "work": "Native mutation and occurrence transformations",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Owning Tasks native-transformations contract: all 1,658 frozen original transformation cases pass. Additional metadata cases exposed source YAML differences; a separate owning-parser prerequisite preserves original snapshots and is completing its source gates. Final transformations and Notes/host adoption remain."
+      "detail": "Owning Tasks native-transformations contract: all 1,658 original frozen cases pass. The separate YAML reader prerequisite is Source complete at 9131b27d (114 full snapshots, 1,074 units, 16 native and 62 cold catalog cases). Transformation work is rebasing onto that reader for final qualification; Notes and both host adoptions remain."
     },
     {
       "id": "R3.2.1.2.11",
@@ -575,7 +575,23 @@
       "work": "Verify and repair native YAML 1.2 behavior",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "An isolated Plugins source lane is comparing retained Markdown metadata with the Unicode/scalar differences proven by Tasks and Docs. Reuse the existing parser boundary, preserve original fixtures and repair only demonstrated differences before full host adoption."
+      "detail": "Exact public native Markdown comparison freezes 55 complete outcomes and proves 17 retained YAML differences. The owning Plugins repair now passes all 55 outcomes, the native version fence and 63 retained Markdown cases; full owning qualification is running. Notes intake and both hosts remain separate."
+    },
+    {
+      "id": "R3.2.2.1",
+      "area": "Native Search source",
+      "work": "Native Markdown source reconciliation and SearchManager envelope parity",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Native source qualification](spec/records/2026-10-25-native-search-owner.md): admitted Rust-only start/stop, bounded manifests, cache repair, foreign-row preservation, detach and close/drain pass 13 native cases. All 33 public SearchManager oracle envelopes match with two documented native cache-identity differences. Full source check/test/build and final ten-archive API/native gates pass; canonical specification/progress qualification passes all 78 regression cases. Provider/configuration/checkpoint parity, both hosts and actual semantic-provider journeys remain separate."
+    },
+    {
+      "id": "R3.2.1.2.10.1",
+      "area": "Tasks metadata parity",
+      "work": "Source YAML 1.2 reader prerequisite",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "Committed Tasks 9131b27d preserves all 75 original document snapshots plus 39 Unicode/scalar cases. Full check, strict native, 1,074 units, 16 native, build/publint, static/62 cold catalog and specification gates pass. Original seven and discarded-candidate two failures are retained; transformation and Notes adoption stay separate."
     }
   ]
 }

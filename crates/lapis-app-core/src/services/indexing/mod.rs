@@ -4,6 +4,7 @@ mod owner;
 mod properties;
 mod reconcile;
 mod records;
+mod search;
 mod tasks;
 
 use super::{Error, Result, VaultService};
