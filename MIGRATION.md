@@ -1,193 +1,82 @@
 # Migration Status
 
-## Catalog validation activity
+Last updated **2026-10-25 15:59:57 UTC**.
 
-The story-composition and Docker-first changes are now in the default workspace,
-with existing native conversation and indexing work preserved separately.
-Original isolated qualification passed all 261 cold stories, 49 tooling cases,
-312 native cases and 2157 package cases, plus root check/build and the static
-catalog. Those results do not qualify the separately preserved application work.
+This is the **master tracker for the shared Rust migration**, in the main
+`lapis-notes` Jujutsu `default` workspace. The
+[saved implementation plan](RUST_CORE_MIGRATION_PLAN.md) defines the scope;
+[Desktop's tracker](../lapis-desktop/MIGRATION.md) owns its separate M-series gates.
+Historical Node/Deno intake is collapsed below and is not additional work.
+[Scope refresh and workspace audit](spec/records/2026-10-25-migration-scope-refresh.md)
+record the latest validation and ancestry check.
 
-The landing rechecks the current catalog through source archives where the main
-workspace already depends on unpublished changes. Seven Search-related stories
-fail against the older registry implementations and pass with the matching
-Search and AI archives. The complete current catalog then passes all 261 cold
-stories. Registry-only delivery remains unqualified. See the
-[landing record](spec/records/2026-10-25-catalog-main-landing.md) for exact scope,
-archive identities, results and blockers. The two temporary Notes workspaces were retired after user
-confirmation; evidence and recovery receipts remain under `.local/retired-workspaces/`. Catalog checkpoint: **2026-10-25 15:52:11 UTC**.
+## What is still left
 
-## Shared Rust application services (2026-10-23)
+**The foundation is complete; feature ownership and final cutover remain.**
+Both hosts can use shared native files/database/backup. The staged Rust server
+already presents the existing login, multi-vault chooser, workspace and plugin
+installation. Node remains the hosted default until R7; Desktop's native AI
+owner is staged, with renderer AI still the default.
 
-**Authoritative master tracker:** this file in the main Notes repository,
-`/Users/stevejuma/code/lapismd/lapis-notes` (Jujutsu workspace `default`).
-The sibling Desktop tracker owns its M-series milestones; the active shared
-Rust work is tracked here as R0–R7. Other migration workspaces are retained
-history, not the current implementation checkout.
+| Stage                       | Current gate                                             | Concrete work still required                                                                                                                                                                                                                                                                         |
+| --------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `R2` Conversations          | Working                                                  | Actual-provider turns after client detach and cold restart in both hosts, with no prompt replay. Application adoption and fixture-provider chat/History are committed.                                                                                                                               |
+| `R3` Indexed vault          | Working                                                  | Publish native Tasks projections; finish Tasks/Docs and supported custom processors; select one native metadata writer in both hosts; move Search and History scheduling out of clients. Native database, Search engines, Markdown reconciliation and Tasks occurrence parsing are source-qualified. |
+| `R4` AI workflows and tools | Waiting on R2/R3                                         | Move queues, participants, context/skills/handoff, approvals, first-party app tools, Changes and guarded undo to the service; retain existing screens and extension limits.                                                                                                                          |
+| `R5` Memory                 | Waiting on R4                                            | Move capture/recall, claims, scheduled maintenance, forget and relocation into native jobs; prove handwritten-edit preservation and restart recovery. Storage alone is already implemented.                                                                                                          |
+| `R6` Durable operations     | Waiting; independent source work can run alongside R3–R5 | Adapt retained imports/capture, Forge/transfer, Compute, installation transactions and desktop terminal lifetime to accepted service jobs with progress/cancel/recovery. Reuse existing engines.                                                                                                     |
+| `R7` Hosted cutover         | Waiting on feature gates                                 | Run complete hosted/desktop parity and Linux delivery checks; switch the hosted default to Rust; remove Node, the companion and obsolete orchestration. Preserve standalone offline Web.                                                                                                             |
 
-Last updated **2026-10-25 15:37:57 UTC**. This is the active migration tracker for the
-[shared Rust plan](RUST_CORE_MIGRATION_PLAN.md). The older Node parity roadmap
-below is superseded; its remaining rows are historical references, not another
-set of current migration tasks.
+These are **six remaining delivery stages**, not six equally sized changes.
+The detailed ledger includes parent stages, child slices and source-only
+checkpoints, so its 59 rows must not be read as 59 independent unfinished jobs.
 
-**Serving baseline:** the retained hosted Web application still selects Node.
-The staged `server-rust` profile uses the same login, vault chooser and Notes
-workspace with Rust-owned files and database access. It has passed a cold
-configured-vault read/edit/save/reload journey; this does not claim final hosted
-feature parity or production delivery. Desktop `efa44bb0` now selects the shared high-level database and backup owners.
-The [consumer receipt](spec/records/2026-10-25-rust-desktop-intake.md) closes
-R1.3's original host-adapter gate with the explicit Markdown exception below.
+## Current work and next handoff
 
-**Latest checkpoint:** Notes source `7161a447` is committed. Native Markdown
-parsing/reconciliation is Source complete; hosted chat/History and cold restart
-pass through the retained production workspace. Desktop `83b82d7f` remains the
-latest committed application checkpoint. Its current candidate passes all 2,016
-catalog cases; the new committed private chat archive is being installed and
-native application qualification is running. [Chat source evidence](spec/records/2026-10-25-rust-chat-navigation.md)
-and [indexing evidence](spec/records/2026-10-25-native-markdown-indexing.md)
-keep source, archive and application gates separate. R2.2.3 stays Working;
-R2.3 and default cutover remain pending. M11 stays Deferred.
+- **Latest completed slice:** [Desktop `5f165fc9` native chat/History](spec/records/2026-10-25-rust-chat-native-acceptance.md)
+  closes `R2.2.3` application adoption against Notes `7161a447`. All 2,016
+  catalog cases, the actual native chat/cold-restart journey, seven hidden IPC
+  and 242 native service cases pass. Actual-provider acceptance is still `R2.3`.
+- **Delivery tooling first:** Notes and Plugins already contain Docker-first
+  portable validation and Storybook composition guards in their main workspaces.
+  [Landing receipts](spec/records/2026-10-25-catalog-main-landing.md) retain the
+  exact source/archive qualification. Desktop and Tasks are receiving equivalent
+  owned tooling in parallel. Check
+  active ancestry before rebasing; do not rebase historical workspaces wholesale.
+- **Dependency refresh:** inspect released Design Core/Mira and use verified
+  committed-source archives where newer fixes are unpublished. Keep registry
+  ranges portable and record the exact tested cohort.
+- **Resume feature work:** native projection publication/host ownership (`R3`)
+  and provider recovery (`R2.3`) can use independent implementation lanes.
+  Prefer parallel agents with disjoint file ownership; bound expensive runs by
+  the selected Docker daemon or native machine's capacity.
 
-**Earlier hosted-shell checkpoint:** R1.3.9 and R1.3.9.3 qualify the retained Rust-hosted
-login, vault chooser, Notes workspace and installed-plugin delivery. Ordinary
-Plugins UI installs a genuinely signed Word Count release, restores it across an
-actual server restart, persists disable/re-enable and uninstalls it. A freshly
-admitted module URL changes from 200 to 404 after uninstall. The
-[installed-delivery receipt](spec/records/2026-10-25-rust-installed-assets.md)
-retains the exact failures and source/consumer scope.
+## Completed foundation
 
-**Native execution foundation:** R2.1 native journal/execution is Source complete.
-The [execution receipt](spec/records/2026-10-25-rust-native-turn.md) qualifies
-the existing `lapis-ai-service` host backend under a vault-owned task: actual
-fixture workers complete after detach, publish retained conversation files,
-reopen without replay and preserve frozen options, mode refusal, edit guards
-and explicit output/cleanup uncertainty. Ten execution and ten journal cases
-pass. The final complete run passes 303 Rust cases/doctests, package
-check/test/build and all specification lanes, with zero failures. Both final
-lifecycle/storage regressions move from one failure to zero. Lapis AI source
-is unchanged. Source fixtures do not qualify either application or a provider.
+`R0`, `R1.1`, `R1.2` and `R1.3` are Complete: saved plan, shared file engine,
+vault/service admission and writer lifetime, both transport adapters and their
+retained-shell intake. Native database/Search/model source and turn protocol/
+continuation source are also committed, with host gates listed separately below.
+Source evidence does not imply host selection or final product acceptance.
 
-**Active work:** source qualification passes all 338 ordinary Rust cases,
-five unique real-model cases, 2,209 package cases / 33 forced check/test/build
-tasks, all 261 cold Notes catalog cases, and specification/mirror checks.
-All twelve fresh PWA, eight actual Rust-hosted and one retained Node journeys
-pass. Desktop passes 420 renderer/governance, 744 AI and all four catalog modes
-(2,016 cases). Committed-profile/native application intake remains pending. Selected native Markdown source is Source complete;
-Tasks occurrence parser `569d7e30` is also Source complete. These parser commits
-do not select unattended indexing in either host. Remaining processors, native
-publication and the original R2.3/R3–R7 gates remain open. M11 stays Deferred.
-Heavy builds remain serialized; quiet/headless checks stay the default.
+## Deferred and excluded
 
-**Current implementation:** R2.2 remains Working and is split into three
-[delivery checkpoints](RUST_CORE_MIGRATION_PLAN.md#r2-delivery-checkpoints).
-R2.2.1 is Source complete; its
-[typed host receipt](spec/records/2026-10-25-rust-turn-hosts.md) covers generated
-protocol/public SDK, authenticated HTTP
-and operator-only launch selection. All 311 Rust cases/doctests, full source
-check/test/build and specification lanes, all 261 cold catalog cases, seven
-Rust-hosted and twelve PWA journeys pass. The unchanged frozen-Deno timing
-failure passes both its exact rerun and the full bounded rerun.
+Signing/distribution `M11`, Docker **agent execution**, multi-user hosting,
+hosted terminals, an independent daemon and the AgentStore/ThreadStore experiment
+remain deferred or outside this migration. Docker **local testing** is active
+work. Deno is frozen and superseded. No Deno-era data import is required.
 
-R2.2.1 is committed at `fe2f0d93`. R2.2.2 is Source complete; the
-[continuation receipt](spec/records/2026-10-25-rust-conversation-continuation.md)
-qualifies one conversation across sequential turns, HTTP detach and a fresh
-service owner. Transcript and binding prefixes and metadata survive; frozen
-history protects external edits. Four journal/four native cases, all three wire
-and four HTTP cases pass. All 321 ordinary Rust cases/doctests, 2,157 package
-Vitest cases, full source check/test/build and specification lanes pass. The
-initial three journal/two native failures and strict enum finding move to zero.
-The generated SDK's runtime output is unchanged; earlier UI/catalog receipts
-retain their original revision and do not claim selection of this new service.
+## Detailed task ledger
 
-R2.2.3 Tauri/existing-chat adoption is Working. Its
-[native activation source](spec/records/2026-10-25-rust-turn-activation.md) is
-qualified: disable fences fresh submissions, cancels/drains accepted workers
-and retains failure when cleanup is uncertain, even if its waiter disappears.
-The exact three-case target, all 32 affected native cases, five HTTP and four
-wire cases pass. All 326 Rust cases/doctests, 2,157 package cases, source/strict
-checks, builds and selected-tree specification lanes pass. Its receipt records
-the concurrent documentation excluded from that exact selected tree; those
-changes retain their own source qualification.
+Open the ledger for exact slice status, specification links and evidence.
+**Complete** means the original gate passed and was committed; **Source complete**
+means implementation is qualified but host/product acceptance is still separate.
+**Working** means underway; **Waiting** means not started or prerequisite-bound;
+**Deferred** means outside current scope. Tables are grouped by gate status and
+sorted by task ID, rather than execution order.
 
-[Desktop immutable launch-policy intake](spec/records/2026-10-25-rust-desktop-turn-policy.md)
-is committed at `d098b218`, against native activation source `4650a10c`.
-All 30 affected native AI, 237 native, 416 renderer/governance and 744 AI cases
-pass. Strict normal/e2e checks, both native builds, types, architecture/ownership,
-renderer build and all specification lanes pass. The accepted historical
-E-AI-109 format exception stays unchanged; no application window is launched.
-
-**Current observer adoption:** R2.2.3 implements the shared public-screen
-observer, optional plugin lifetime, Rust-hosted adapter and staged Tauri
-owner/typed IPC. Twelve observer/lifetime cases and all 26 application-profile
-cases pass. All 2,173 package cases and 326 Rust cases/doctests pass. The full
-source check, build and specification lanes pass, including 49 validator cases.
-The unchanged frozen-Deno timeout passes its exact and complete bounded reruns;
-no Deno implementation changes. The Web production build passes with the same
-verified Design Core archive as Desktop.
-
-The final source checkpoint passes all 20 forced check tasks, all 2,173 bounded
-package cases and all 11 production-build tasks, with zero cached results.
-All 261 catalog cases pass across four cold shards (93/71/42/55); specification
-checks and all 49 validator cases pass. Seven Rust-hosted, twelve PWA and one
-Node24 browser journey pass. Consumer-only Search labels and the retired AI
-Shell footer allowance are repaired against their owning contracts; exact and
-complete affected-family results are recorded without product style changes.
-
-Source is committed at `58dc50ac`; [Desktop consumer `83b82d7f`](spec/records/2026-10-25-rust-chat-desktop-intake.md)
-installs the five Notes public packages and private built application-profile
-entry from that exact clean source. All twenty archive/import receipts validate;
-fourteen peer receipts retain their earlier qualification. Fresh public-export
-types pass without errors or warnings. Both fresh app bundles, the ordinary
-automation audit, static catalog and all seven fresh hidden IPC cases pass.
-All four consumer catalog modes pass 503 cases each: **2,012 total**, zero
-functional or accessibility failures.
-
-Desktop also passes 420 renderer/governance, 744 AI and 242 native cases.
-The owning-vault token regression moves from one failure to zero. The earlier
-startup-readiness miss passes unchanged in its exact and complete reruns;
-serial native requalification also passes doctest compilation. Strict
-normal/e2e Rust, architecture/App ownership, Rust formatting and specification
-lanes pass. The combined check reaches only the previously accepted immutable
-E-AI-109 formatting exception, byte-identical to the parent; no historical file
-is edited and no new functional failure is waived.
-
-These source and consumer checks do not qualify mounted native chat, retained
-History navigation, trust recovery or a provider. R2.2.3 stays Working, R2.3 stays
-Waiting, and the default Desktop renderer/Node serving baseline remain selected.
-Signing/M11 stays Deferred.
-
-Earlier [Desktop compatibility](spec/records/2026-10-25-rust-native-turn-desktop.md)
-remains pinned to `6c9e55f7`. The older `d098b218` policy receipt qualifies launch
-preparation; the newest staged observer intake is `83b82d7f` above. Renderer
-ownership remains the default.
-
-**Earlier Desktop qualification:** committed `efa44bb0` passes 235 native service,
-416 renderer/governance, 744 AI, all 2,000 catalog, six hidden native API and
-eleven original lifecycle cases, both native file-action journeys, strict
-checks, builds and bundle audit. R1.3.8, R1.3.10, R1.3.11 and aggregate R1.3
-are Complete. The original native UI result remains 27 pass / one pre-existing
-Markdown attachment failure. The user explicitly accepted it as non-blocking
-for this intake; its owning-package repair remains pending. These receipts do
-not qualify the newer R2 source or claim a full archive-cohort refresh.
-
-**Next:** qualify mounted Core chat, retained History routing and trust/recovery
-through both actual hosts, then actual-provider detach and cold recovery in R2.3. Unattended indexing, AI tools, memory, native
-jobs and final hosted cutover remain R3–R7. Node stays the serving baseline.
-M11 stays Deferred.
-
-**Tracker validation:** the earlier PDF/CSV specification repair is committed.
-This observer slice is undergoing source, browser and specification validation;
-its source/consumer evidence will be recorded separately before each commit.
-
-### Status meanings
-
-| Status          | Meaning                                                                                                       |
-| --------------- | ------------------------------------------------------------------------------------------------------------- |
-| Complete        | The original slice gate has passed and its evidence is committed.                                             |
-| Source complete | Implementation and source acceptance are committed; host adoption or end-to-end acceptance is still separate. |
-| Working         | Implementation or its required validation is underway now.                                                    |
-| Waiting         | Not started, or waiting for the named prerequisite.                                                           |
-| Deferred        | Outside the agreed migration scope.                                                                           |
+<details>
+<summary>Show all 59 task gates and their evidence</summary>
 
 <!-- migration-tasks:start -->
 
@@ -203,14 +92,12 @@ not host adoption or native/hosted application acceptance.
 
 ### Gate status: Working
 
-| Task ID                                                                    | Area                 | Work                                              | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| -------------------------------------------------------------------------- | -------------------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [R2](spec/src/architecture/rust-application-services.md#ln-core-003)       | Roadmap              | Durable conversation                              | R2.1 native source is qualified. R2.2 typed host/chat adoption is Working; R2.3 actual provider/detach/cold application recovery remains Waiting. Initial RPC evidence is recorded separately from application acceptance; the original R2 gate remains Working.                                                                                                                                                                                     |
-| [R2.2](spec/src/architecture/rust-application-services.md#ln-core-004)     | Durable conversation | Typed host adapters and existing chat adoption    | R2.2.1 typed transports and R2.2.2 native continuation are Source complete. R2.2.3 implements staged Tauri selection and shared existing-screen observation; source/consumer qualification is underway. Native application and actual-provider/cold gates remain distinct; no second writer or fallback is selected.                                                                                                                                 |
-| [R2.2.3](spec/src/architecture/rust-application-services.md#ln-core-004)   | Durable conversation | Tauri selection and existing chat adoption        | [Verified retained chat source](spec/records/2026-10-25-rust-chat-navigation.md): eighteen focused and all 2209 package cases/33 forced tasks, 261 cold Notes catalog, eight actual Rust-hosted/twelve PWA/one Node journeys pass. Desktop 420 renderer/governance, 744 AI and all 2016 catalog cases pass. Notes source 7161a447 is committed; its final private archive/native application intake is running; R2.3/default gates remain unchanged. |
-| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)       | Roadmap              | Indexed vault                                     | Native database/model/cache and vault lifetime are source-qualified; HTTP and Desktop facade adoption are complete under R1.3.8. Unattended metadata/projection/Search/history indexing remains R3.2.                                                                                                                                                                                                                                                |
-| [R3.2.1](spec/src/architecture/rust-application-services.md#ln-core-003)   | Service ownership    | Unattended metadata and projection reconciliation | A second authorized implementation lane is migrating real Markdown parsing and unattended reconciliation into the native service. Startup/external-change/cold-reopen and close/start regressions pass focused source checks; full source qualification and commit are in progress. Plugin projections and both host selections retain separate pending gates.                                                                                       |
-| [R3.2.1.2](spec/src/architecture/rust-application-services.md#ln-core-005) | Unattended metadata  | Remaining native plugin projection processors     | Tasks occurrence parser committed at 569d7e30 in its owning repository after 27 shared fixtures, 35 focused/229 complete TS cases and all private native/package/specification lanes pass. Native publication integration, full Tasks/Docs/custom processors and host selection remain pending; parser source does not select a writer.                                                                                                              |
+| Task ID                                                                    | Area                | Work                                              | Evidence or next gate                                                                                                                                                                                                                                                                                                                   |
+| -------------------------------------------------------------------------- | ------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [R2](spec/src/architecture/rust-application-services.md#ln-core-003)       | Roadmap             | Durable conversation                              | Native execution, typed transports and existing-screen application adoption are qualified. R2.3 actual-provider detach/cold application recovery is Waiting; the original R2 gate remains Working until it passes.                                                                                                                      |
+| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)       | Roadmap             | Indexed vault                                     | Native database/model/cache and vault lifetime are source-qualified; HTTP and Desktop facade adoption are complete under R1.3.8. Unattended metadata/projection/Search/history indexing remains R3.2.                                                                                                                                   |
+| [R3.2.1](spec/src/architecture/rust-application-services.md#ln-core-003)   | Service ownership   | Unattended metadata and projection reconciliation | Native Markdown parsing and optional unattended reconciliation are Source complete at Notes 7161a447 and Plugins 6af2420f. Remaining projection processors/publication and both host selections are separate child gates; the aggregate R3.2.1 gate remains Working.                                                                    |
+| [R3.2.1.2](spec/src/architecture/rust-application-services.md#ln-core-005) | Unattended metadata | Remaining native plugin projection processors     | Tasks occurrence parser committed at 569d7e30 in its owning repository after 27 shared fixtures, 35 focused/229 complete TS cases and all private native/package/specification lanes pass. Native publication integration, full Tasks/Docs/custom processors and host selection remain pending; parser source does not select a writer. |
 
 ### Gate status: Waiting
 
@@ -262,25 +149,32 @@ not host adoption or native/hosted application acceptance.
 
 ### Gate status: Complete
 
-| Task ID                                                                    | Area               | Work                                                       | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| -------------------------------------------------------------------------- | ------------------ | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [R0](spec/src/architecture/rust-application-services.md#ln-core-001)       | Roadmap            | Plan and review                                            | [Saved plan and reviewed Desktop baseline](spec/records/2026-10-23-rust-core-plan.md).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| [R1.1](spec/src/architecture/rust-application-services.md#ln-core-002)     | Roadmap            | Shared vault engine                                        | [Extracted engine and qualified Desktop intake](spec/records/2026-10-23-rust-core-vault.md).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| [R1.2](spec/src/architecture/rust-application-services.md#ln-core-003)     | Roadmap            | Vault/service ownership                                    | [Qualified ownership, detach, dirty claims, serialization and drain](spec/records/2026-10-23-rust-core-ownership.md).                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| [R1.3](spec/src/architecture/rust-application-services.md#ln-core-004)     | Roadmap            | Both host adapters                                         | [Both-host intake](spec/records/2026-10-25-rust-desktop-intake.md): HTTP and retained hosted shell gates plus committed Desktop efa44bb0 database, backup detach/Quit and native file-action qualification. The separate existing Markdown attachment defect has explicit user acceptance; R2-R7 and final cutover remain open.                                                                                                                                                                                                                                                                     |
-| [R1.3.2](spec/src/architecture/rust-application-services.md#ln-core-004)   | Host adapters      | Desktop file adapter intake                                | Desktop M16.2/E-CORE-003/004 qualifies the original native file/admission gate. Later database additions are separate.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| [R1.3.8](spec/src/architecture/rust-application-services.md#ln-core-004)   | Host adapters      | Tauri and HTTP database adapters                           | [Committed Desktop efa44bb0 intake](spec/records/2026-10-25-rust-desktop-intake.md) and the separately qualified HTTP database adapter pass admission, native channels, persistence and the retained provider. All 2000 catalog cases pass. The native UI result stays 27 pass / one pre-existing Markdown image failure, explicitly accepted as non-blocking for this commit; its source repair remains pending.                                                                                                                                                                                   |
-| [R1.3.9](spec/src/architecture/rust-application-services.md#ln-core-004)   | Host adapters      | Existing browser login/vault/workspace UI on Rust          | [Configured shell](spec/records/2026-10-25-rust-hosted-shell.md), [managed vaults](spec/records/2026-10-25-rust-managed-vaults.md), [folder/ZIP transfers](spec/records/2026-10-25-rust-vault-transfers.md) and [signed plugin lifecycle](spec/records/2026-10-25-rust-installed-assets.md) qualify the retained Rust-hosted login/chooser/Notes UI. All five cold browser journeys pass, including actual server restarts. This staged shell gate does not claim R2-R7 feature parity or replace Node; final SSE/static delivery remains R7.                                                       |
-| [R1.3.9.1](spec/src/architecture/rust-application-services.md#ln-core-004) | Hosted shell       | Retained chooser managed-vault lifecycle                   | [Managed-vault intake](spec/records/2026-10-25-rust-managed-vaults.md) qualifies all seven native management cases, accepted-work cancellation/drain, both adapter cases, all 52 Web unit cases and both final cold Rust UI journeys (15.7s), including real process restart. Full source check/test/build/spec, all 261 catalog cases, retained Node acceptance and both Desktop library compatibility cases pass in this slice. Transfers/installation remain separate.                                                                                                                           |
-| [R1.3.9.2](spec/src/architecture/rust-application-services.md#ln-core-004) | Hosted shell       | Existing folder/ZIP import and vault export                | [Vault transfers](spec/records/2026-10-25-rust-vault-transfers.md): bounded native folder/ZIP intake and export reuse the retained chooser. Nine archive and twelve managed-vault cases, all 273 ordinary Rust cases/doctests, all 20 package check/test tasks, eleven builds, 53 Web unit cases, all 261 catalog cases and all three final cold Rust UI/restart journeys (18.9s) pass. Both Desktop library compatibility cases pass on the separately recorded uncommitted snapshot. R6 durable recovery and the pending Desktop consumer commit retain their own gates.                          |
-| [R1.3.9.3](spec/src/architecture/rust-application-services.md#ln-core-004) | Hosted shell       | Existing installed-plugin delivery and lifecycle           | [Installed delivery](spec/records/2026-10-25-rust-installed-assets.md): signed install/restart/disable/re-enable/uninstall and all five cold Rust browser journeys (34.6s) pass. Final qualification passes 283 ordinary Rust cases/doctests, twenty package check/test tasks, eleven builds, 60 Web cases, all 261 catalog cases and specification/format gates. One macOS ENOBUFS attempt is retained; the exact case and bounded complete rerun pass unchanged. Desktop native compatibility passes separately; its pending application commit, R6 transactions and R7 delivery remain separate. |
-| [R1.3.10](spec/src/architecture/rust-application-services.md#ln-core-004)  | Host adapters      | Automatic backup after client detach and controlled Quit   | [Shared native/HTTP backup](spec/records/2026-10-25-rust-backup-commands.md) and [Desktop efa44bb0](spec/records/2026-10-25-rust-desktop-intake.md) qualify capture after detach, final Quit, explicit disable/restart and failure preflight. All 235 native, 416 renderer/governance, 744 AI, 2000 catalog, six hidden API and eleven original lifecycle cases pass. Separate pre-existing Markdown exception explicitly accepted; provider/platform gates remain separate.                                                                                                                        |
-| [R1.3.11](spec/src/architecture/rust-application-services.md#ln-core-004)  | Host adapters      | Same existing file actions through both application shells | [Both-shell file actions](spec/records/2026-10-25-rust-native-file-actions.md) and [committed Desktop efa44bb0](spec/records/2026-10-25-rust-desktop-intake.md): seven Rust-hosted browser, twelve PWA and one Node24 journey pass; both native file-action journeys, seven asset cases, strict normal/e2e checks, both bundles and ordinary audit pass. The separate existing Markdown failure is explicitly accepted for this intake.                                                                                                                                                             |
-| [R3.1.10](spec/src/architecture/rust-application-services.md#ln-core-003)  | Database catalogue | Retained Search storage reference                          | [Prepared documents, manifests and corrected Memory statistics](spec/records/2026-10-24-search-storage-reference.md), committed as `89acf34f`.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| [R3.1.11](spec/src/architecture/rust-application-services.md#ln-core-003)  | Database catalogue | Retained Search retrieval candidate reference              | [Complete table evaluation](spec/records/2026-10-24-search-candidate-reference.md): 22 exact regression cases pass after repairing 15 failures; full source check/test/build, 261 catalog cases and specification lanes pass. Native retrieval remains separate.                                                                                                                                                                                                                                                                                                                                    |
-| [R3.1.17](spec/src/architecture/rust-application-services.md#ln-core-003)  | Database catalogue | Desktop provider/archive/SQL intake                        | [Desktop `074dee3a` / E-CORE-014](spec/records/2026-10-24-rust-core-search-provider-desktop.md): five archives and four rebuilt hidden API cases; fresh 411 renderer/governance, 744 AI, 230 native service and all 2,000 catalog cases pass. Strict native/type checks and both builds pass; unchanged E-AI-109 format exception remains explicitly accepted. Latest core `8fd7b926` passes separate service/normal/e2e compatibility.                                                                                                                                                             |
+| Task ID                                                                    | Area                 | Work                                                       | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| -------------------------------------------------------------------------- | -------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [R0](spec/src/architecture/rust-application-services.md#ln-core-001)       | Roadmap              | Plan and review                                            | [Saved plan and reviewed Desktop baseline](spec/records/2026-10-23-rust-core-plan.md).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| [R1.1](spec/src/architecture/rust-application-services.md#ln-core-002)     | Roadmap              | Shared vault engine                                        | [Extracted engine and qualified Desktop intake](spec/records/2026-10-23-rust-core-vault.md).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| [R1.2](spec/src/architecture/rust-application-services.md#ln-core-003)     | Roadmap              | Vault/service ownership                                    | [Qualified ownership, detach, dirty claims, serialization and drain](spec/records/2026-10-23-rust-core-ownership.md).                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| [R1.3](spec/src/architecture/rust-application-services.md#ln-core-004)     | Roadmap              | Both host adapters                                         | [Both-host intake](spec/records/2026-10-25-rust-desktop-intake.md): HTTP and retained hosted shell gates plus committed Desktop efa44bb0 database, backup detach/Quit and native file-action qualification. The separate existing Markdown attachment defect has explicit user acceptance; R2-R7 and final cutover remain open.                                                                                                                                                                                                                                                                     |
+| [R1.3.2](spec/src/architecture/rust-application-services.md#ln-core-004)   | Host adapters        | Desktop file adapter intake                                | Desktop M16.2/E-CORE-003/004 qualifies the original native file/admission gate. Later database additions are separate.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| [R1.3.8](spec/src/architecture/rust-application-services.md#ln-core-004)   | Host adapters        | Tauri and HTTP database adapters                           | [Committed Desktop efa44bb0 intake](spec/records/2026-10-25-rust-desktop-intake.md) and the separately qualified HTTP database adapter pass admission, native channels, persistence and the retained provider. All 2000 catalog cases pass. The native UI result stays 27 pass / one pre-existing Markdown image failure, explicitly accepted as non-blocking for this commit; its source repair remains pending.                                                                                                                                                                                   |
+| [R1.3.9](spec/src/architecture/rust-application-services.md#ln-core-004)   | Host adapters        | Existing browser login/vault/workspace UI on Rust          | [Configured shell](spec/records/2026-10-25-rust-hosted-shell.md), [managed vaults](spec/records/2026-10-25-rust-managed-vaults.md), [folder/ZIP transfers](spec/records/2026-10-25-rust-vault-transfers.md) and [signed plugin lifecycle](spec/records/2026-10-25-rust-installed-assets.md) qualify the retained Rust-hosted login/chooser/Notes UI. All five cold browser journeys pass, including actual server restarts. This staged shell gate does not claim R2-R7 feature parity or replace Node; final SSE/static delivery remains R7.                                                       |
+| [R1.3.9.1](spec/src/architecture/rust-application-services.md#ln-core-004) | Hosted shell         | Retained chooser managed-vault lifecycle                   | [Managed-vault intake](spec/records/2026-10-25-rust-managed-vaults.md) qualifies all seven native management cases, accepted-work cancellation/drain, both adapter cases, all 52 Web unit cases and both final cold Rust UI journeys (15.7s), including real process restart. Full source check/test/build/spec, all 261 catalog cases, retained Node acceptance and both Desktop library compatibility cases pass in this slice. Transfers/installation remain separate.                                                                                                                           |
+| [R1.3.9.2](spec/src/architecture/rust-application-services.md#ln-core-004) | Hosted shell         | Existing folder/ZIP import and vault export                | [Vault transfers](spec/records/2026-10-25-rust-vault-transfers.md): bounded native folder/ZIP intake and export reuse the retained chooser. Nine archive and twelve managed-vault cases, all 273 ordinary Rust cases/doctests, all 20 package check/test tasks, eleven builds, 53 Web unit cases, all 261 catalog cases and all three final cold Rust UI/restart journeys (18.9s) pass. Both Desktop library compatibility cases pass on the separately recorded uncommitted snapshot. R6 durable recovery and the pending Desktop consumer commit retain their own gates.                          |
+| [R1.3.9.3](spec/src/architecture/rust-application-services.md#ln-core-004) | Hosted shell         | Existing installed-plugin delivery and lifecycle           | [Installed delivery](spec/records/2026-10-25-rust-installed-assets.md): signed install/restart/disable/re-enable/uninstall and all five cold Rust browser journeys (34.6s) pass. Final qualification passes 283 ordinary Rust cases/doctests, twenty package check/test tasks, eleven builds, 60 Web cases, all 261 catalog cases and specification/format gates. One macOS ENOBUFS attempt is retained; the exact case and bounded complete rerun pass unchanged. Desktop native compatibility passes separately; its pending application commit, R6 transactions and R7 delivery remain separate. |
+| [R1.3.10](spec/src/architecture/rust-application-services.md#ln-core-004)  | Host adapters        | Automatic backup after client detach and controlled Quit   | [Shared native/HTTP backup](spec/records/2026-10-25-rust-backup-commands.md) and [Desktop efa44bb0](spec/records/2026-10-25-rust-desktop-intake.md) qualify capture after detach, final Quit, explicit disable/restart and failure preflight. All 235 native, 416 renderer/governance, 744 AI, 2000 catalog, six hidden API and eleven original lifecycle cases pass. Separate pre-existing Markdown exception explicitly accepted; provider/platform gates remain separate.                                                                                                                        |
+| [R1.3.11](spec/src/architecture/rust-application-services.md#ln-core-004)  | Host adapters        | Same existing file actions through both application shells | [Both-shell file actions](spec/records/2026-10-25-rust-native-file-actions.md) and [committed Desktop efa44bb0](spec/records/2026-10-25-rust-desktop-intake.md): seven Rust-hosted browser, twelve PWA and one Node24 journey pass; both native file-action journeys, seven asset cases, strict normal/e2e checks, both bundles and ordinary audit pass. The separate existing Markdown failure is explicitly accepted for this intake.                                                                                                                                                             |
+| [R2.2](spec/src/architecture/rust-application-services.md#ln-core-004)     | Durable conversation | Typed host adapters and existing chat adoption             | Typed transport and continuation source plus both existing production chat screens are qualified. [Actual-host receipt](spec/records/2026-10-25-rust-chat-native-acceptance.md) records Desktop 5f165fc9 and Rust-hosted application adoption. Protocol-peer fixtures do not qualify the separate R2.3 actual-provider gate; defaults remain staged.                                                                                                                                                                                                                                                |
+| [R2.2.3](spec/src/architecture/rust-application-services.md#ln-core-004)   | Durable conversation | Tauri selection and existing chat adoption                 | [Committed actual-host intake](spec/records/2026-10-25-rust-chat-native-acceptance.md): Desktop 5f165fc9 against Notes 7161a447. Native composer, right-sidebar History, exact main-tab reuse and cold restart retain one prompt/reply. All 2016 catalog, 420 renderer/governance, 744 AI, 242 native service and seven hidden IPC cases pass; strict checks/builds/spec pass. Existing E-AI-109 format exception stays explicitly accepted; R2.3/default cutover remain open.                                                                                                                      |
+| [R3.1.10](spec/src/architecture/rust-application-services.md#ln-core-003)  | Database catalogue   | Retained Search storage reference                          | [Prepared documents, manifests and corrected Memory statistics](spec/records/2026-10-24-search-storage-reference.md), committed as `89acf34f`.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| [R3.1.11](spec/src/architecture/rust-application-services.md#ln-core-003)  | Database catalogue   | Retained Search retrieval candidate reference              | [Complete table evaluation](spec/records/2026-10-24-search-candidate-reference.md): 22 exact regression cases pass after repairing 15 failures; full source check/test/build, 261 catalog cases and specification lanes pass. Native retrieval remains separate.                                                                                                                                                                                                                                                                                                                                    |
+| [R3.1.17](spec/src/architecture/rust-application-services.md#ln-core-003)  | Database catalogue   | Desktop provider/archive/SQL intake                        | [Desktop `074dee3a` / E-CORE-014](spec/records/2026-10-24-rust-core-search-provider-desktop.md): five archives and four rebuilt hidden API cases; fresh 411 renderer/governance, 744 AI, 230 native service and all 2,000 catalog cases pass. Strict native/type checks and both builds pass; unchanged E-AI-109 format exception remains explicitly accepted. Latest core `8fd7b926` passes separate service/normal/e2e compatibility.                                                                                                                                                             |
 
 <!-- migration-tasks:end -->
+
+</details>
+
+<details>
+<summary>Historical intake and earlier qualification — reference only</summary>
 
 ### Consumer qualification already recorded
 
@@ -1085,3 +979,5 @@ The additive `View.getClosePersistenceScope()` contract (LN-WS-101) retains
 application-wide protection by default and enables explicitly declared views
 with externally retained state to close without flushing unrelated notes.
 Desktop owns its conflict-review opt-in; publication remains deferred.
+
+</details>

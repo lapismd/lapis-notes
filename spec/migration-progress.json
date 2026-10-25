@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 15:37:57 UTC",
+  "updated": "2026-10-25 15:59:57 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -39,7 +39,7 @@
       "work": "Durable conversation",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "R2.1 native source is qualified. R2.2 typed host/chat adoption is Working; R2.3 actual provider/detach/cold application recovery remains Waiting. Initial RPC evidence is recorded separately from application acceptance; the original R2 gate remains Working."
+      "detail": "Native execution, typed transports and existing-screen application adoption are qualified. R2.3 actual-provider detach/cold application recovery is Waiting; the original R2 gate remains Working until it passes."
     },
     {
       "id": "R2.1",
@@ -53,9 +53,9 @@
       "id": "R2.2",
       "area": "Durable conversation",
       "work": "Typed host adapters and existing chat adoption",
-      "status": "Working",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "R2.2.1 typed transports and R2.2.2 native continuation are Source complete. R2.2.3 implements staged Tauri selection and shared existing-screen observation; source/consumer qualification is underway. Native application and actual-provider/cold gates remain distinct; no second writer or fallback is selected."
+      "detail": "Typed transport and continuation source plus both existing production chat screens are qualified. [Actual-host receipt](spec/records/2026-10-25-rust-chat-native-acceptance.md) records Desktop 5f165fc9 and Rust-hosted application adoption. Protocol-peer fixtures do not qualify the separate R2.3 actual-provider gate; defaults remain staged."
     },
     {
       "id": "R2.3",
@@ -375,7 +375,7 @@
       "work": "Unattended metadata and projection reconciliation",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "A second authorized implementation lane is migrating real Markdown parsing and unattended reconciliation into the native service. Startup/external-change/cold-reopen and close/start regressions pass focused source checks; full source qualification and commit are in progress. Plugin projections and both host selections retain separate pending gates."
+      "detail": "Native Markdown parsing and optional unattended reconciliation are Source complete at Notes 7161a447 and Plugins 6af2420f. Remaining projection processors/publication and both host selections are separate child gates; the aggregate R3.2.1 gate remains Working."
     },
     {
       "id": "R3.2.2",
@@ -437,9 +437,9 @@
       "id": "R2.2.3",
       "area": "Durable conversation",
       "work": "Tauri selection and existing chat adoption",
-      "status": "Working",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "[Verified retained chat source](spec/records/2026-10-25-rust-chat-navigation.md): eighteen focused and all 2209 package cases/33 forced tasks, 261 cold Notes catalog, eight actual Rust-hosted/twelve PWA/one Node journeys pass. Desktop 420 renderer/governance, 744 AI and all 2016 catalog cases pass. Notes source 7161a447 is committed; its final private archive/native application intake is running; R2.3/default gates remain unchanged."
+      "detail": "[Committed actual-host intake](spec/records/2026-10-25-rust-chat-native-acceptance.md): Desktop 5f165fc9 against Notes 7161a447. Native composer, right-sidebar History, exact main-tab reuse and cold restart retain one prompt/reply. All 2016 catalog, 420 renderer/governance, 744 AI, 242 native service and seven hidden IPC cases pass; strict checks/builds/spec pass. Existing E-AI-109 format exception stays explicitly accepted; R2.3/default cutover remain open."
     },
     {
       "id": "R3.2.1.1",
