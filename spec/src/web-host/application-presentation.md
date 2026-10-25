@@ -13,6 +13,12 @@ under [LN-CORE-009/010](../architecture/rust-turn-admission.md#ln-core-009).
 Unavailable metadata refuses before submission and preserves the draft. This
 does not select native AI for standalone Web or advance the Rust cutover gate.
 
+The opt-in R2.3 provider-screen journey uses the retained composer, vault menu,
+Sign out and conversation History. It verifies explicit client release before
+completion, then a fresh browser and cold Rust service read the same result and
+transcript without another submission. Credentials remain native and test-owned
+vault/profile data stays isolated; Linux delivery remains a separate gate.
+
 ## LN-WEB-001 — Private @lapis-notes/web version 2026.6.3: retain the legacy PWA identity, manifest, icons
 
 <a id="ln-web-001"></a>

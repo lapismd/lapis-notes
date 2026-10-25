@@ -1,9 +1,9 @@
 # Architecture / Rust application services
 
 The [shared Rust plan](../../../RUST_CORE_MIGRATION_PLAN.md) supersedes future
-Node-specific hosted parity implementation. Existing hosts remain supported
-until their replacement gates pass. Current migration status is in
-[MIGRATION.md](../../../MIGRATION.md).
+Node-specific hosted parity implementation. Existing hosts stay supported until
+their replacement gates pass. See [current status](../../../MIGRATION.md) and
+[hosted provider-screen evidence](../../records/2026-10-25-hosted-provider-screen.md).
 
 The main Notes `default` workspace owns that R0–R7 master tracker. Desktop's
 separate M-series tracker points here for shared-core activity. R3.1.18 native

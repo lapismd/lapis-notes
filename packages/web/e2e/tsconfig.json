@@ -11,6 +11,7 @@
     "./**/*.ts",
     "../playwright.config.ts",
     "../playwright.server.config.ts",
-    "../playwright.rust-server.config.ts"
+    "../playwright.rust-server.config.ts",
+    "../playwright.rust-provider.config.ts"
   ]
 }

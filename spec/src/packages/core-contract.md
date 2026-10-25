@@ -5,6 +5,11 @@ The private native-chat application profile consumes host-authored target
 before Send, refuses missing or invalid metadata and preserves explicit native
 input modes. It never infers provider permissions from target IDs or labels.
 
+The private Web package's opt-in provider-screen acceptance exercises that
+profile through its real composer and History after explicit Sign out and cold
+service restart. Its dedicated Playwright configuration is type-checked with
+the hosted test sources; no acceptance helper enters package runtime exports.
+
 The private root package exposes `progress:generate` and `check:progress` for
 the master migration tracker. These development-only commands consume
 `spec/migration-progress.json` and do not enter published package exports or

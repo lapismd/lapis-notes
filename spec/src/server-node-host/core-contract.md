@@ -13,6 +13,12 @@ native observer refreshes that exact target's metadata before submission and
 refuses unavailable modes before writing. Node's existing AI restriction and
 serving default remain unchanged.
 
+The opt-in Rust-hosted provider-screen gate uses the existing composer and
+History, observes explicit client release during Sign out, then verifies native
+completion without a browser and exact recovery after a cold service restart.
+Its native-only credentials and isolated profile never enter portable snapshots.
+This qualifies conversation recovery separately from R7 server delivery.
+
 The staged Rust renderer may inject the private native-chat observer into the
 retained workspace. The Node serving baseline keeps its AI restriction and
 existing profile; it neither registers the native observer nor selects a second
