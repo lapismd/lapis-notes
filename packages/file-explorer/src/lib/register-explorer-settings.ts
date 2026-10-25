@@ -1,5 +1,8 @@
 import type { Plugin } from "@lapis-notes/api";
-import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
+import {
+  getWorkspaceHostBinding,
+  type WorkspaceHostBinding,
+} from "@lapis-notes/api/workspace-host";
 import {
   DEFAULT_VAULT_PALETTE_FILE_EXTENSIONS,
   EXPLORER_SETTING_IDS,
@@ -44,11 +47,28 @@ export function createExplorerSettingsSection() {
   };
 }
 
-export function registerExplorerSettings(plugin: Plugin): void {
-  if (!plugin.app.workspace) return;
-  const binding = getWorkspaceHostBinding(plugin.app.workspace);
-  if (!binding) return;
+export function readWorkspaceHostBinding(
+  workspace: Parameters<typeof getWorkspaceHostBinding>[0],
+): WorkspaceHostBinding | null {
+  try {
+    return getWorkspaceHostBinding(workspace);
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message === "Workspace host binding is not initialized"
+    ) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+export function registerExplorerSettings(plugin: Plugin): boolean {
+  if (!plugin.app.workspace) return false;
+  const binding = readWorkspaceHostBinding(plugin.app.workspace);
+  if (!binding) return false;
   plugin.register(
     binding.controller.registerSettingsSection(createExplorerSettingsSection()),
   );
+  return true;
 }

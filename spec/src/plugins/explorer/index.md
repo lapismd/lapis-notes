@@ -136,3 +136,9 @@ its owned App to Notice; native error handling keeps the existing presentation.
 LN-PKG-178 and LN-PKG-179 add opt-in exclusive creation and source-owned new-file
 intent. Existing low-level overwrite behavior and unsupported legacy hosts stay
 explicit; Deno host source remains frozen. Admission spans creation projection.
+
+## LN-EXP-013 — Explorer enable survives a late workspace host binding
+
+<a id="ln-exp-013"></a>
+
+**Requirement.** Explorer enable MUST complete when the workspace host binding is not yet visible. Settings and the Files palette MUST attach once that binding can be read, including a retry on `layout-ready`. A missing binding MUST NOT reject plugin enable.

@@ -11,7 +11,6 @@ import {
   type PluginConstructor,
   type WorkspaceLeaf,
 } from "@lapis-notes/api";
-import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
 import { ExplorerController } from "@lapismd/design-core/workspace/explorer";
 import type { WorkspaceAction } from "@lapismd/design-core/workspace/core";
 import { mount, unmount } from "svelte";
@@ -28,7 +27,10 @@ import {
   EXPLORER_SETTING_IDS,
 } from "./explorer-settings";
 import { listExplorerVaultEntries } from "./explorer-vault-entries";
-import { registerExplorerSettings } from "./register-explorer-settings";
+import {
+  readWorkspaceHostBinding,
+  registerExplorerSettings,
+} from "./register-explorer-settings";
 import { subscribeExplorerVaultTreeChanges } from "./explorer-tree-subscription";
 import {
   listVaultPaletteFiles,
@@ -354,7 +356,7 @@ export function createFileExplorerPlugin(
       this.register(() => {
         this.app.configuration.schema.unregister(EXPLORER_SCHEMA);
       });
-      registerExplorerSettings(this);
+      const settingsRegistered = registerExplorerSettings(this);
       const configurationRef = this.app.configuration.on(
         "updated",
         ({ key, value }) => {
@@ -409,36 +411,53 @@ export function createFileExplorerPlugin(
         },
       });
 
-      const { controller } = getWorkspaceHostBinding(this.app.workspace);
-      this.register(
-        controller.commands.registerPaletteProvider({
-          id: "lapis-vault-files",
-          tab: VAULT_PALETTE_FILES_TAB,
-          emptyQueryLimit: 5,
-          search: (query) => {
-            const starterFiles = query.trim().length === 0;
-            const recentPaths = starterFiles
-              ? new Set(
-                  this.app.workspace
-                    .getRecentFiles()
-                    .map((recent) => recent.path),
-                )
-              : null;
-            return listVaultPaletteFiles(this.app, query).map((file) => ({
-              id: `vault-file:${file.path}`,
-              title: file.name,
-              subtitle: file.path,
-              icon: "file",
-              providerId: "lapis-vault-files",
-              tab: VAULT_PALETTE_FILES_TAB.id,
-              group: recentPaths?.has(file.path)
-                ? VAULT_PALETTE_RECENT_GROUP
-                : undefined,
-              run: () => this.app.openFile(file),
-            }));
-          },
-        }),
-      );
+      let paletteAttached = false;
+      let paletteDisposed = false;
+      this.register(() => {
+        paletteDisposed = true;
+      });
+      const attachVaultPalette = () => {
+        if (paletteDisposed || paletteAttached) return;
+        const binding = readWorkspaceHostBinding(this.app.workspace);
+        if (!binding) return;
+        paletteAttached = true;
+        this.register(
+          binding.controller.commands.registerPaletteProvider({
+            id: "lapis-vault-files",
+            tab: VAULT_PALETTE_FILES_TAB,
+            emptyQueryLimit: 5,
+            search: (query) => {
+              const starterFiles = query.trim().length === 0;
+              const recentPaths = starterFiles
+                ? new Set(
+                    this.app.workspace
+                      .getRecentFiles()
+                      .map((recent) => recent.path),
+                  )
+                : null;
+              return listVaultPaletteFiles(this.app, query).map((file) => ({
+                id: `vault-file:${file.path}`,
+                title: file.name,
+                subtitle: file.path,
+                icon: "file",
+                providerId: "lapis-vault-files",
+                tab: VAULT_PALETTE_FILES_TAB.id,
+                group: recentPaths?.has(file.path)
+                  ? VAULT_PALETTE_RECENT_GROUP
+                  : undefined,
+                run: () => this.app.openFile(file),
+              }));
+            },
+          }),
+        );
+      };
+      attachVaultPalette();
+      if (!paletteAttached || !settingsRegistered) {
+        this.app.workspace.onLayoutReady(() => {
+          if (!settingsRegistered) registerExplorerSettings(this);
+          attachVaultPalette();
+        });
+      }
 
       await this.app.configuration.materializeSchemaDefaults();
     }

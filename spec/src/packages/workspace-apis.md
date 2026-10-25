@@ -10,7 +10,9 @@ Public package exports, signatures and generic workspace ownership are unchanged
 
 The optional WorkspaceShell popup host in LN-WS-008 uses the public Design Core
 host contract. API host binding remains on the host-only subpath; LN-WS-098
-projects existing handles rather than constructing another App or host.
+projects existing handles rather than constructing another App or host. The
+binding is also stored on the workspace, so a second copy of the host module
+can still read the binding created by `Workspace`.
 
 The LN-WS-006/064 attachment correction changes no public export or root API
 type. Controller-opened views attach their retained API container after the
