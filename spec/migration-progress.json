@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 06:25:05 UTC",
+  "updated": "2026-10-25 06:55:01 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -37,9 +37,9 @@
       "id": "R2",
       "area": "Roadmap",
       "work": "Durable conversation",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "After R1.3: a real accepted turn completes without a client and recovers after restart without replay."
+      "detail": "[Native turn-admission source](spec/records/2026-10-25-rust-turn-admission.md) is qualified: ten focused and 293 ordinary Rust cases/doctests pass, with full check/build/specification gates. The receipt retains actual process-loss tests, Clippy/capacity repairs and cached package scope. Native ACP execution, existing portable conversation files, both host adapters, chat and real-provider/cold acceptance remain required; R2 stays Working and the separate Desktop consumer disposition is not waived."
     },
     {
       "id": "R3",

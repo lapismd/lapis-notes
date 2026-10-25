@@ -73,6 +73,17 @@ impl VaultRoot {
         })
     }
 
+    pub(crate) fn open_child(&self, name: &str) -> io::Result<Self> {
+        self.verify_physical_root()?;
+        let relative = self.checked(name, false)?;
+        let child = Self {
+            dir: self.dir.open_dir(&relative)?,
+            path: self.path.join(relative),
+        };
+        child.verify_physical_root()?;
+        Ok(child)
+    }
+
     pub(crate) fn checked(&self, path: &str, root_allowed: bool) -> io::Result<PathBuf> {
         if path.is_empty() && root_allowed {
             return Ok(PathBuf::from("."));

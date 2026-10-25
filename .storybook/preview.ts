@@ -64,6 +64,7 @@ const preview: Preview = {
               "Host boundaries",
               "Rust application services",
               "Rust managed vaults",
+              "Durable native turn admission",
               "Backup service lifetime",
               "Editor integration",
               "Build and validation",

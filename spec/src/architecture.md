@@ -9,6 +9,7 @@ Defines runtime ownership, dependency boundaries, host integration, and build an
 - [Host boundaries](architecture/host-boundaries.md)
 - [Rust application services](architecture/rust-application-services.md)
 - [Rust managed vaults](architecture/rust-managed-vaults.md)
+- [Durable native turn admission](architecture/rust-turn-admission.md)
 - [Backup service lifetime](architecture/rust-backup-lifetime.md)
 - [Editor integration](architecture/editor-integration.md)
 - [Build and validation](architecture/build-and-validation.md)

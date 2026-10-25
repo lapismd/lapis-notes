@@ -8,7 +8,7 @@ The sibling Desktop tracker owns its M-series milestones; the active shared
 Rust work is tracked here as R0–R7. Other migration workspaces are retained
 history, not the current implementation checkout.
 
-Last updated **2026-10-25 06:25:05 UTC**. This is the active migration tracker for the
+Last updated **2026-10-25 06:55:01 UTC**. This is the active migration tracker for the
 [shared Rust plan](RUST_CORE_MIGRATION_PLAN.md). The older Node parity roadmap
 below is superseded; its remaining rows are historical references, not another
 set of current migration tasks.
@@ -28,16 +28,16 @@ admitted module URL changes from 200 to 404 after uninstall. The
 [installed-delivery receipt](spec/records/2026-10-25-rust-installed-assets.md)
 retains the exact failures and source/consumer scope.
 
-**Current activity:** R1.3.11 qualification is ready through both shells;
-its consumer commit is Waiting. Hosted source `fe604931` passes the seven Rust
-browser journeys, twelve PWA cases, Node24 journey and complete source/catalog
-lanes. Desktop now separately passes both actual native file-action journeys:
-rename/move/cold layout and exclusive binary/Unicode creation. All seven asset
-cases, strict normal/e2e checks, both fresh bundles and the zero-automation
-ordinary bundle audit pass. A private adapter's unnecessary reference is fixed;
-`E-CORE-018` retains its working
-snapshot. The [both-shell receipt](spec/records/2026-10-25-rust-native-file-actions.md)
-keeps Native success separate from the pending Markdown failure disposition.
+**Current activity:** R2 native turn admission is Working. The private
+accepted-dispatch journal is source-qualified: all ten focused cases and 293
+ordinary Rust cases/doctests pass, as do full check/build/specification lanes.
+The [source receipt](spec/records/2026-10-25-rust-turn-admission.md) retains the
+actual process-loss cases, Clippy/capacity repairs and cached package scope.
+This persistence source boundary does not launch an agent, publish
+portable conversations, adopt chat or complete R2. The
+[turn-admission contract](spec/src/architecture/rust-turn-admission.md) retains
+those original gates. R1.3.11 acceptance is ready; its Desktop consumer commit
+still awaits the separate Markdown failure disposition.
 
 **Desktop qualification:** local backup intake separately passes all 2,000
 catalog, six hidden native API and eleven original lifecycle cases, plus its
@@ -46,9 +46,9 @@ checks. Its receipt retains Notes `6f637449` and the exact artifact scope. The
 Desktop consumer change remains uncommitted pending disposition or qualified
 source repair of its separate pre-existing database Markdown image failure.
 
-**Next:** obtain disposition of the separate Desktop Markdown image failure
-and commit the verified database/backup/file-action intake. Its selected native
-and hosted file-action checks are complete; R1.3.11 awaits that consumer commit.
+**Next:** finish R2 admission qualification and the native accepted-turn owner,
+then its retained chat/transport acceptance. R1.3.11 retains its separate Desktop
+consumer-commit gate; selected native and hosted file-action checks are complete.
 R2–R7 retain durable conversations, unattended indexing, tools, memory, jobs and
 final cutover. Node stays the serving baseline. M11 stays Deferred.
 
@@ -76,10 +76,11 @@ not host adoption or native/hosted application acceptance.
 
 ### Gate status: Working
 
-| Task ID                                                                | Area    | Work               | Evidence or next gate                                                                                                                                                 |
-| ---------------------------------------------------------------------- | ------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [R1.3](spec/src/architecture/rust-application-services.md#ln-core-004) | Roadmap | Both host adapters | Database adoption, existing hosted shell and backup detach/Quit acceptance. See the host checklist.                                                                   |
-| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)   | Roadmap | Indexed vault      | Native database, model/cache and vault-owned database lifetime are source-qualified. Host adoption and unattended metadata/projection/Search/history indexing remain. |
+| Task ID                                                                | Area    | Work                 | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ---------------------------------------------------------------------- | ------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [R1.3](spec/src/architecture/rust-application-services.md#ln-core-004) | Roadmap | Both host adapters   | Database adoption, existing hosted shell and backup detach/Quit acceptance. See the host checklist.                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| [R2](spec/src/architecture/rust-application-services.md#ln-core-003)   | Roadmap | Durable conversation | [Native turn-admission source](spec/records/2026-10-25-rust-turn-admission.md) is qualified: ten focused and 293 ordinary Rust cases/doctests pass, with full check/build/specification gates. The receipt retains actual process-loss tests, Clippy/capacity repairs and cached package scope. Native ACP execution, existing portable conversation files, both host adapters, chat and real-provider/cold acceptance remain required; R2 stays Working and the separate Desktop consumer disposition is not waived. |
+| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)   | Roadmap | Indexed vault        | Native database, model/cache and vault-owned database lifetime are source-qualified. Host adoption and unattended metadata/projection/Search/history indexing remain.                                                                                                                                                                                                                                                                                                                                                 |
 
 ### Gate status: Waiting
 
@@ -88,7 +89,6 @@ not host adoption or native/hosted application acceptance.
 | [R1.3.8](spec/src/architecture/rust-application-services.md#ln-core-004)  | Host adapters     | Tauri and HTTP database adapters                           | HTTP and Desktop database/channel behavior pass. Desktop also passes 414 renderer/governance, 744 AI, 234 native service, four hidden API and all 2000 catalog cases; normal/e2e strict checks and bundle audit pass. Its native UI lane has 27 passes and one pre-existing Markdown image failure. Explicit user disposition or owning-package qualification is pending before the consumer commit.                                                                                                                                                                                                                                              |
 | [R1.3.10](spec/src/architecture/rust-application-services.md#ln-core-004) | Host adapters     | Automatic backup after client detach and controlled Quit   | [Shared backup lifetime](spec/records/2026-10-25-rust-backup-lifetime.md) and [native host controls](spec/records/2026-10-25-rust-backup-commands.md) are committed/source-qualified at 6f637449. Desktop E-CORE-017 qualifies the local intake: 235 native, 416 renderer/governance, 744 AI, all 2000 catalog, six hidden native API and eleven original lifecycle cases pass. Strict normal/e2e checks, types, both builds, specification and the zero-automation-marker bundle audit pass. Its consumer commit waits for the database slice Markdown image-failure disposition or qualified owning-package repair; backup checks are complete. |
 | [R1.3.11](spec/src/architecture/rust-application-services.md#ln-core-004) | Host adapters     | Same existing file actions through both application shells | [Both-shell file-action checkpoint](spec/records/2026-10-25-rust-native-file-actions.md): hosted qualification is committed at fe604931; all seven Rust browser, twelve PWA and Node24 hosted journeys pass. On Desktop tnnyuvsv, both actual native file-action journeys, seven asset cases, strict normal/e2e checks, both fresh bundles and the zero-automation ordinary audit pass. Acceptance evidence is ready; the consumer commit still requires explicit disposition or source-qualified repair of the separate pre-existing Markdown image failure. The aggregate gate is not Complete.                                                 |
-| [R2](spec/src/architecture/rust-application-services.md#ln-core-003)      | Roadmap           | Durable conversation                                       | After R1.3: a real accepted turn completes without a client and recovers after restart without replay.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | [R3.2.1](spec/src/architecture/rust-application-services.md#ln-core-003)  | Service ownership | Unattended metadata and projection reconciliation          | Adopt the native database and move the existing processor/scheduler ownership into the service. External changes must index without clients.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | [R3.2.2](spec/src/architecture/rust-application-services.md#ln-core-003)  | Service ownership | Search index reconciliation and scheduling                 | Native preparation/retrieval and service-owned lifetime; qualify equivalent results and derived-cache rebuilds.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | [R3.2.3](spec/src/architecture/rust-application-services.md#ln-core-003)  | Service ownership | History-index scheduling                                   | Reuse the existing history engine and move its scheduler into the vault service.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |

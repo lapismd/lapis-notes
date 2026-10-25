@@ -6,9 +6,9 @@ owns that content; this adds no alternative hosted chooser or application view.
 
 The shared Rust application-services chapter and CORE verification table remain
 browsable through generated Specification mirrors and navigation. The backup
-service lifetime chapter uses that same metadata-only mirror and SUMMARY order.
-Adding them
-does not change production stories or their interaction/visual gates.
+service lifetime and durable native turn-admission chapters use that same
+metadata-only mirror and SUMMARY order. Adding them does not change production
+stories or their interaction/visual gates.
 
 The optional development controller metadata bridge now lives in
 `scripts/lib/controller-connection-bridge.ts`, shared by catalog preview and
