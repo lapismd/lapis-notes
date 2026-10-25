@@ -7,7 +7,7 @@ import { MemoryVaultAdapter } from "../storage/memory-vault-adapter";
 import { createVaultSession } from "../storage/vault-session";
 
 describe("server vault runtime selection", () => {
-  it.each(["node-server", "deno-server"] as const)(
+  it.each(["node-server", "deno-server", "rust-server"] as const)(
     "requires an explicit server provider for %s",
     async (runtime) => {
       await expect(
@@ -16,7 +16,7 @@ describe("server vault runtime selection", () => {
     },
   );
 
-  it.each(["node-server", "deno-server"] as const)(
+  it.each(["node-server", "deno-server", "rust-server"] as const)(
     "uses the owning provider and closes its database for %s",
     async (runtime) => {
       const adapter = new MemoryVaultAdapter();

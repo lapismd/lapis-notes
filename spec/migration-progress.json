@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 00:28:14 UTC",
+  "updated": "2026-10-25 01:35:09 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -141,17 +141,17 @@
       "id": "R1.3.8",
       "area": "Host adapters",
       "work": "Tauri and HTTP database adapters",
-      "status": "Working",
+      "status": "Waiting",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "HTTP is qualified. Desktop M16.3 replacement is under qualification: nine exact native database cases and eight renderer cases pass. [Public dispatch typing](spec/records/2026-10-25-rust-database-dispatch-types.md) repairs the argument-union defect upstream; packed contracts and full source check/test/build/spec pass. Complete native/catalog/application acceptance remains pending; retained Web shell stays R1.3.9."
+      "detail": "HTTP and Desktop database/channel behavior pass. Desktop also passes 414 renderer/governance, 744 AI, 234 native service, four hidden API and all 2000 catalog cases; normal/e2e strict checks and bundle audit pass. Its native UI lane has 27 passes and one pre-existing Markdown image failure. Explicit user disposition or owning-package qualification is pending before the consumer commit."
     },
     {
       "id": "R1.3.9",
       "area": "Host adapters",
       "work": "Existing browser login/vault/workspace UI on Rust",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "Native database and HTTP adapters, then real retained-shell read/edit acceptance."
+      "detail": "[Retained hosted-shell integration](spec/records/2026-10-25-rust-hosted-shell.md) qualifies a final cold built-UI/real-Rust login, configured-vault read/edit/save and browser reload journey (7.4s). Retained Node 24 editing/sharing/restart acceptance also passes. Full source check/test/build, all 261 catalog and 50 Web unit cases, specification and formatting checks pass. Full hosted intake/parity remains open, including managed-vault/transfer/installation support and final SSE/static delivery."
     },
     {
       "id": "R1.3.10",

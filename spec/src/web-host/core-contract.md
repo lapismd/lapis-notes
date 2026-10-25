@@ -1,5 +1,10 @@
 # Web Host / Browser integration
 
+The explicit `server-rust` profile connects the retained hosted screen to
+Rust-generated commands through admitted HTTP client IDs. It omits PWA startup
+and browser storage. Its initial configured-vault workflow and later hosted
+feature parity retain separate evidence; Node remains the serving baseline.
+
 The Design Core dependency refresh consumes released `0.5.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.

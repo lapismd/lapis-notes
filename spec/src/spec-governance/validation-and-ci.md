@@ -12,6 +12,12 @@
 
 **Requirement.** Tests, generated output, and ordinary story files MUST NOT satisfy or spuriously trigger the specification-first gate.
 
+The explicit Rust-hosted Web build writes generated assets to
+`packages/web/dist-rust-server`. That directory is ignored alongside the other
+Web build outputs; it does not become authored source or satisfy a protected
+change's canonical-document requirement. The build profile, adapter source and
+their contracts remain subject to the ordinary specification-first gate.
+
 ## LN-GOV-023 — Specification validation: inspect repository and authorized package-local Autodocs stories
 
 <a id="ln-gov-023"></a>

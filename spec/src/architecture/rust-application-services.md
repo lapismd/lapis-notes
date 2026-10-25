@@ -252,6 +252,12 @@ table evaluation retains LN-DB-059. Query compilation and selected result buffer
 remain bounded. This intake does not qualify native semantic inference or select
 either host adapter.
 
+R1.3.9 connects the existing hosted login/chooser/workspace through an explicit
+`rust-server` profile. That profile requires its admitted HTTP database provider;
+it cannot open browser storage or fall back to Node after failure. Node remains
+a separately selected serving baseline until cutover. Source transport fixtures
+and retained-screen acceptance are recorded separately.
+
 ## LN-CORE-001 — Native application service independence
 
 <a id="ln-core-001"></a>

@@ -1,6 +1,7 @@
 node_modules
 dist
 dist-server
+dist-rust-server
 .turbo
 .svelte-kit
 storybook-static

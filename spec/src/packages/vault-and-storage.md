@@ -1,10 +1,10 @@
 # Packages / Vault and storage
 
-The private `lapis-app-core` Rust crate owns the extracted native vault file
-engine under the [shared service contract](../architecture/rust-application-services.md).
-Existing TypeScript Vault and AppDatabase interfaces remain intact. Root
-check/test/build include the independently qualified native lanes; this does not
-replace the standalone browser backend or enable a hosted Rust adapter.
+Private `lapis-app-core` owns native files under the
+[shared service contract](../architecture/rust-application-services.md).
+Vault/AppDatabase interfaces remain. Root native lanes are independent of
+browser storage and hosted adoption. Explicit `rust-server` sessions require
+an injected AppDatabaseProvider and cannot select browser storage.
 
 Private `lapis-app-protocol` owns portable commands, replies and editor claims.
 `pnpm protocol:generate` emits schemas and TypeScript, including public

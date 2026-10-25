@@ -246,7 +246,11 @@ async function createPreferredAppDatabase(
         });
     return { appDatabase: database, state: readyState(database, false) };
   }
-  if (runtime === "node-server" || runtime === "deno-server") {
+  if (
+    runtime === "node-server" ||
+    runtime === "deno-server" ||
+    runtime === "rust-server"
+  ) {
     if (!provider) {
       throw new Error("server-hosted vaults require an AppDatabaseProvider");
     }

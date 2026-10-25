@@ -62,7 +62,7 @@
     onReady(): void;
     onOpenRecent(profile: VaultProfile): Promise<void>;
     onManageVaults(): Promise<void>;
-    runtime?: "web-pwa" | "node-server";
+    runtime?: "web-pwa" | "node-server" | "rust-server";
     listProfiles?: () => Promise<VaultProfile[]>;
     pluginAssetServer?: PluginAssetServer;
     pluginDistributionOptions?: AppPluginDistributionOptions;
@@ -264,7 +264,7 @@
   }
 
   function registerDatabaseStatus(): void {
-    if (runtime === "node-server") {
+    if (runtime === "node-server" || runtime === "rust-server") {
       syncDatabaseStatus("server");
       return;
     }

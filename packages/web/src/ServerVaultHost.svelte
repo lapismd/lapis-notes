@@ -16,18 +16,12 @@
     type BrowserFileSystemDirectoryHandle,
     type VaultSession,
   } from "@lapis-notes/api";
-  import {
-    LAPIS_SERVER_PROTOCOL_MAJOR,
-    type ServerVaultProfile,
-  } from "@lapis-notes/api/server-host";
-  import {
-    ServerAppDatabaseProvider,
-    ServerVaultAdapter,
-    ServerVaultEventStream,
-    createServerClientSession,
-    createServerPluginDistributionFetch,
-    createServerPluginAssetServer,
-  } from "@lapis-notes/server-node/browser";
+  import { type ServerVaultProfile } from "@lapis-notes/api/server-host";
+  import type {
+    HostedBackend,
+    HostedResources,
+    HostedVault,
+  } from "./hosted/backend";
   import * as Button from "@lapismd/design-core/shadcn/button";
   import * as Card from "@lapismd/design-core/shadcn/card";
   import * as CommandView from "@lapismd/design-core/shadcn/command-view";
@@ -41,15 +35,8 @@
   } from "./server-vault-import";
   import WebWorkspaceSession from "./WebWorkspaceSession.svelte";
 
-  type VaultRow = {
-    id: string;
-    name: string;
-    role: "owner" | "editor" | "viewer";
-    archivedAt?: number;
-  };
-  type Prepared = {
-    adapter: ServerVaultAdapter;
-    events: ServerVaultEventStream;
+  type VaultRow = HostedVault;
+  type Prepared = HostedResources & {
     profile: ServerVaultProfile;
     session: VaultSession;
   };
@@ -58,8 +45,7 @@
     persistLayout(): Promise<void>;
   };
 
-  const serverSession = createServerClientSession();
-  const client = serverSession.client;
+  let { backend }: { backend: HostedBackend } = $props();
   type HostState =
     | "loading"
     | "login"
@@ -84,7 +70,9 @@
   let renameTarget = $state.raw<VaultRow | null>(null);
   let renameVaultName = $state("");
   let directoryDialogOpen = $state(false);
-  let directoryHandle = $state.raw<BrowserFileSystemDirectoryHandle | null>(null);
+  let directoryHandle = $state.raw<BrowserFileSystemDirectoryHandle | null>(
+    null,
+  );
   let directoryVaultName = $state("");
   let importProgress = $state("");
   let vaultQuery = $state("");
@@ -129,15 +117,14 @@
   async function initialize(): Promise<void> {
     errorMessage = "";
     try {
-      const info = await client.system.info.query();
+      const info = await backend.info();
       buildId = info.buildId;
-      if (info.protocolMajor !== LAPIS_SERVER_PROTOCOL_MAJOR) {
+      if (info.protocolMajor !== backend.protocolMajor) {
         hostState = "protocol";
         return;
       }
       try {
-        const current = await client.auth.current.query();
-        serverSession.setCsrfToken(current.csrfToken);
+        await backend.current();
         await refreshVaults();
         hostState = "vaults";
       } catch {
@@ -153,9 +140,8 @@
     event.preventDefault();
     errorMessage = "";
     try {
-      const result = await client.auth.login.mutate({ username, password });
+      await backend.login(username, password);
       password = "";
-      serverSession.setCsrfToken(result.csrfToken);
       await refreshVaults();
       hostState = "vaults";
     } catch (error) {
@@ -165,7 +151,7 @@
   }
 
   async function refreshVaults(): Promise<void> {
-    vaults = await client.vault.list.query({ includeArchived: true });
+    vaults = await backend.vaults();
   }
 
   function activeProfiles() {
@@ -181,7 +167,7 @@
     actionMessage = "";
     activeAction = "create";
     try {
-      const created = await client.vault.create.mutate({ name });
+      const created = await backend.create(name);
       newVaultName = "";
       createDialogOpen = false;
       await refreshVaults();
@@ -200,21 +186,19 @@
     errorMessage = "";
     try {
       await disposeWorkspace(true);
-      await client.vault.open.query({ vaultId: row.id });
       const profile = profileFor(row);
-      const events = new ServerVaultEventStream(client, row.id);
-      const adapter = new ServerVaultAdapter({
-        client,
-        profile,
-        csrfToken: serverSession.csrfToken,
-        events,
-      });
-      const session = await createVaultSession(adapter, {
-        runtime: "node-server",
-        profile,
-        appDatabaseProvider: new ServerAppDatabaseProvider(client, events),
-      });
-      prepared = { adapter, events, profile, session };
+      const resources = await backend.prepare(profile);
+      try {
+        const session = await createVaultSession(resources.adapter, {
+          runtime: backend.runtime,
+          profile,
+          appDatabaseProvider: resources.database,
+        });
+        prepared = { ...resources, profile, session };
+      } catch (error) {
+        await resources.release();
+        throw error;
+      }
       await tick();
     } catch (error) {
       errorMessage = error instanceof Error ? error.message : String(error);
@@ -226,7 +210,7 @@
     const active = prepared;
     if (sessionComponent) await sessionComponent.dispose(persistLayout);
     else if (active) await active.session.close();
-    active?.events.close();
+    await active?.release();
     sessionComponent = null;
     prepared = null;
   }
@@ -275,7 +259,7 @@
   async function archive(row: VaultRow): Promise<void> {
     await runVaultAction(
       `archive:${row.id}`,
-      () => client.vault.archive.mutate({ vaultId: row.id }).then(() => undefined),
+      () => backend.archive(row.id).then(() => undefined),
       `${row.name} archived`,
     );
   }
@@ -283,7 +267,7 @@
   async function restore(row: VaultRow): Promise<void> {
     await runVaultAction(
       `restore:${row.id}`,
-      () => client.vault.restore.mutate({ vaultId: row.id }).then(() => undefined),
+      () => backend.restore(row.id).then(() => undefined),
       `${row.name} restored`,
     );
   }
@@ -300,26 +284,17 @@
     if (!target || !name || name === target.name) return;
     await runVaultAction(
       `rename:${target.id}`,
-      () =>
-        client.vault
-          .rename.mutate({ vaultId: target.id, name })
-          .then(() => undefined),
+      () => backend.rename(target.id, name).then(() => undefined),
       `${name} renamed`,
     );
     if (!errorMessage) renameDialogOpen = false;
   }
 
-  async function uploadVaultArchive(name: string, archive: Blob): Promise<void> {
-    const response = await fetch(`/api/vaults/import?name=${encodeURIComponent(name)}`, {
-      method: "POST",
-      body: archive,
-      credentials: "same-origin",
-      headers: {
-        "content-type": "application/zip",
-        "x-lapis-csrf": serverSession.csrfToken() ?? "",
-      },
-    });
-    if (!response.ok) throw new Error(`Import failed (${response.status})`);
+  async function uploadVaultArchive(
+    name: string,
+    archive: Blob,
+  ): Promise<void> {
+    await backend.importArchive(name, archive);
   }
 
   async function importZip(): Promise<void> {
@@ -387,7 +362,7 @@
 
   function downloadVault(row: VaultRow): void {
     const link = document.createElement("a");
-    link.href = `/api/vaults/${encodeURIComponent(row.id)}/export`;
+    link.href = backend.exportUrl(row.id);
     link.download = "";
     document.body.append(link);
     link.click();
@@ -396,8 +371,7 @@
 
   async function logout(): Promise<void> {
     await disposeWorkspace(true);
-    await client.auth.logout.mutate();
-    serverSession.setCsrfToken();
+    await backend.logout();
     vaults = [];
     username = "";
     hostState = "login";
@@ -408,22 +382,18 @@
   {#if prepared}
     <div
       class="server-workspace"
-      hidden={hostState !== "workspace"}
-      inert={hostState !== "workspace"}
+      hidden={hostState !== "workspace" && hostState !== "opening"}
+      inert={hostState !== "workspace" && hostState !== "opening"}
     >
       <WebWorkspaceSession
         bind:this={sessionComponent}
         adapter={prepared.adapter}
         profile={prepared.profile}
         session={prepared.session}
-        runtime="node-server"
+        runtime={backend.runtime}
         listProfiles={async () => activeProfiles()}
-        pluginAssetServer={createServerPluginAssetServer(prepared.adapter)}
-        pluginDistributionOptions={{
-          fetch: createServerPluginDistributionFetch({
-            vaultId: prepared.profile.id,
-          }),
-        }}
+        pluginAssetServer={prepared.pluginAssetServer}
+        pluginDistributionOptions={prepared.pluginDistributionOptions}
         onReady={() => (hostState = "workspace")}
         onOpenRecent={async (profile) => {
           const row = vaults.find((vault) => vault.id === profile.id);
@@ -460,7 +430,10 @@
           </Card.Description>
         </Card.Header>
         <Card.Footer>
-          <Button.Root class="server-full-button" onclick={() => location.reload()}>
+          <Button.Root
+            class="server-full-button"
+            onclick={() => location.reload()}
+          >
             Reload Lapis
           </Button.Root>
         </Card.Footer>
@@ -575,7 +548,8 @@
             <Card.Content class="server-action-list">
               <Button.Root
                 class="web-vault-launcher__action"
-                disabled={activeAction !== null}
+                disabled={activeAction !== null ||
+                  !backend.capabilities.manageVaults}
                 onclick={() => {
                   newVaultName = "";
                   createDialogOpen = true;
@@ -592,7 +566,9 @@
               <Button.Root
                 variant="outline"
                 class="web-vault-launcher__action"
-                disabled={activeAction !== null || !canImportDirectory}
+                disabled={activeAction !== null ||
+                  !canImportDirectory ||
+                  !backend.capabilities.transferVaults}
                 onclick={() => void pickImportDirectory()}
               >
                 <FolderInput />
@@ -608,7 +584,8 @@
               <Button.Root
                 variant="outline"
                 class="web-vault-launcher__action"
-                disabled={activeAction !== null}
+                disabled={activeAction !== null ||
+                  !backend.capabilities.transferVaults}
                 onclick={() => importInput?.click()}
               >
                 <Archive />
@@ -634,9 +611,12 @@
             <Card.Header>
               <div class="server-card-header-row">
                 <div>
-                  <Card.Title class="server-card-title">Managed Vaults</Card.Title>
+                  <Card.Title class="server-card-title"
+                    >Managed Vaults</Card.Title
+                  >
                   <Card.Description>
-                    Vaults available to this account, including archived projects.
+                    Vaults available to this account, including archived
+                    projects.
                   </Card.Description>
                 </div>
                 {#if searchableVaults.length > 1}
@@ -658,7 +638,8 @@
                     <button
                       type="button"
                       class="web-vault-launcher__recent server-vault-open"
-                      disabled={activeAction !== null || vault.archivedAt !== undefined}
+                      disabled={activeAction !== null ||
+                        vault.archivedAt !== undefined}
                       aria-label={vault.archivedAt
                         ? `${vault.name} is archived`
                         : `Open ${vault.name}`}
@@ -668,7 +649,9 @@
                       <span class="server-vault-copy">
                         <span class="server-vault-name">{vault.name}</span>
                         <span class="server-vault-meta">
-                          {vault.role}{vault.archivedAt ? " · archived" : " · server-hosted"}
+                          {vault.role}{vault.archivedAt
+                            ? " · archived"
+                            : " · server-hosted"}
                         </span>
                       </span>
                     </button>
@@ -683,26 +666,40 @@
                       </DropdownMenu.Trigger>
                       <DropdownMenu.Content align="end" side="bottom">
                         {#if vault.archivedAt}
-                          <DropdownMenu.Item onclick={() => void restore(vault)}>
+                          <DropdownMenu.Item
+                            disabled={!backend.capabilities.manageVaults}
+                            onclick={() => void restore(vault)}
+                          >
                             <RotateCcw />
                             Restore
                           </DropdownMenu.Item>
                         {:else}
-                          <DropdownMenu.Item onclick={() => void openVault(vault)}>
+                          <DropdownMenu.Item
+                            onclick={() => void openVault(vault)}
+                          >
                             <FolderOpen />
                             Open
                           </DropdownMenu.Item>
-                          <DropdownMenu.Item onclick={() => downloadVault(vault)}>
+                          <DropdownMenu.Item
+                            disabled={!backend.capabilities.transferVaults}
+                            onclick={() => downloadVault(vault)}
+                          >
                             <Download />
                             Export ZIP
                           </DropdownMenu.Item>
                           {#if vault.role === "owner"}
-                            <DropdownMenu.Item onclick={() => openRenameDialog(vault)}>
+                            <DropdownMenu.Item
+                              disabled={!backend.capabilities.manageVaults}
+                              onclick={() => openRenameDialog(vault)}
+                            >
                               <PenLine />
                               Rename...
                             </DropdownMenu.Item>
                             <DropdownMenu.Separator />
-                            <DropdownMenu.Item onclick={() => void archive(vault)}>
+                            <DropdownMenu.Item
+                              disabled={!backend.capabilities.manageVaults}
+                              onclick={() => void archive(vault)}
+                            >
                               <Archive />
                               Archive
                             </DropdownMenu.Item>
@@ -713,7 +710,8 @@
                   </li>
                 {:else}
                   <li class="server-vault-empty">
-                    Your managed vaults will appear here after you create or import one.
+                    Your managed vaults will appear here after you create or
+                    import one.
                   </li>
                 {/each}
               </ul>
@@ -726,13 +724,12 @@
 </main>
 
 <Dialog.Root bind:open={vaultDialogOpen}>
-  <Dialog.Content
-    class="web-vault-launcher__command"
-    showCloseButton={false}
-  >
+  <Dialog.Content class="web-vault-launcher__command" showCloseButton={false}>
     <Dialog.Header class="sr-only">
       <Dialog.Title>Managed Vaults</Dialog.Title>
-      <Dialog.Description>Search and open a managed server vault</Dialog.Description>
+      <Dialog.Description
+        >Search and open a managed server vault</Dialog.Description
+      >
     </Dialog.Header>
     <CommandView.Root shouldFilter={false}>
       <CommandView.Input
@@ -787,10 +784,17 @@
         <Input.Root bind:value={newVaultName} autocomplete="off" autofocus />
       </label>
       <Dialog.Footer>
-        <Button.Root type="button" variant="ghost" onclick={() => (createDialogOpen = false)}>
+        <Button.Root
+          type="button"
+          variant="ghost"
+          onclick={() => (createDialogOpen = false)}
+        >
           Cancel
         </Button.Root>
-        <Button.Root type="submit" disabled={!newVaultName.trim() || activeAction !== null}>
+        <Button.Root
+          type="submit"
+          disabled={!newVaultName.trim() || activeAction !== null}
+        >
           Create vault
         </Button.Root>
       </Dialog.Footer>
@@ -803,7 +807,8 @@
     <Dialog.Header>
       <Dialog.Title>Import Server Vault</Dialog.Title>
       <Dialog.Description>
-        Upload a managed copy of {directoryHandle?.name ?? "the selected folder"}.
+        Upload a managed copy of {directoryHandle?.name ??
+          "the selected folder"}.
       </Dialog.Description>
     </Dialog.Header>
     <form
@@ -815,7 +820,11 @@
     >
       <label class="server-field">
         <span>Name</span>
-        <Input.Root bind:value={directoryVaultName} autocomplete="off" autofocus />
+        <Input.Root
+          bind:value={directoryVaultName}
+          autocomplete="off"
+          autofocus
+        />
       </label>
       {#if importProgress}
         <p class="server-import-progress" role="status">{importProgress}</p>
@@ -844,7 +853,9 @@
   <Dialog.Content class="web-vault-launcher__settings">
     <Dialog.Header>
       <Dialog.Title>Rename vault</Dialog.Title>
-      <Dialog.Description>Update the managed vault name for this account.</Dialog.Description>
+      <Dialog.Description
+        >Update the managed vault name for this account.</Dialog.Description
+      >
     </Dialog.Header>
     <form
       class="server-dialog-form"
@@ -858,7 +869,11 @@
         <Input.Root bind:value={renameVaultName} autocomplete="off" autofocus />
       </label>
       <Dialog.Footer>
-        <Button.Root type="button" variant="ghost" onclick={() => (renameDialogOpen = false)}>
+        <Button.Root
+          type="button"
+          variant="ghost"
+          onclick={() => (renameDialogOpen = false)}
+        >
           Cancel
         </Button.Root>
         <Button.Root

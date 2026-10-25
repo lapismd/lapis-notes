@@ -28,6 +28,13 @@ bounded server import route. Opening constructs the explicit server vault,
 event, plugin-asset, and database adapters before mounting the existing
 workspace shell; AI and terminal host attachment remain disabled in this mode.
 
+The shared Rust migration adds a separately selected `server-rust` build profile.
+It reuses this production login/chooser/workspace through a host connection,
+uses the Rust-generated protocol and admitted client IDs, and reports its actual
+`rust-server` runtime. It has no PWA storage or Node fallback. Its source and
+real-screen gates remain in progress under R1.3.9; the Node profile retains its
+existing serving baseline until the final cutover.
+
 ## Implemented host boundary
 
 The web session imports Bases and its exported stylesheet from the package and

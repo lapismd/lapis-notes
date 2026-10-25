@@ -1,5 +1,9 @@
 # Web Host / Startup and plugins
 
+While a hosted attachment opens, its retained workspace startup/recovery surface
+stays visible. The chooser can hide a retained ready session; it cannot hide a
+prepared session's progress or failure while waiting for that session's readiness.
+
 ## LN-WEB-002 — Web host: own its launcher, profile selection, session lifecycle
 
 <a id="ln-web-002"></a>

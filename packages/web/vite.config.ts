@@ -202,7 +202,10 @@ const pwaPlugin = VitePWA({
 export default defineConfig(({ mode }) => ({
   envPrefix: ["VITE_"],
   define: {
-    __LAPIS_SERVER_MODE__: JSON.stringify(mode === "server"),
+    __LAPIS_SERVER_MODE__: JSON.stringify(
+      mode === "server" || mode === "server-rust",
+    ),
+    __LAPIS_RUST_SERVER__: JSON.stringify(mode === "server-rust"),
     "import.meta.env.VITE_APP_COMMIT_HASH": JSON.stringify(
       process.env.LAPIS_BUILD_COMMIT ?? "local",
     ),
@@ -213,11 +216,21 @@ export default defineConfig(({ mode }) => ({
     wasmHeadersPlugin(),
     svelte(rendererSvelteOptions),
     tailwindcss(),
-    ...(mode === "server" ? [] : [pwaPlugin]),
+    ...(mode === "server" || mode === "server-rust" ? [] : [pwaPlugin]),
   ],
   server: {
     port: 4174,
     strictPort: true,
+    proxy:
+      mode === "server-rust"
+        ? {
+            "/api/v3": {
+              target:
+                process.env.LAPIS_RUST_SERVER_URL ?? "http://127.0.0.1:4810",
+              changeOrigin: false,
+            },
+          }
+        : undefined,
     headers: crossOriginIsolationHeaders,
     fs: {
       allow: [workspaceRoot, linkedDesignCoreRoot, linkedMiraWorkspaceRoot],
@@ -226,6 +239,16 @@ export default defineConfig(({ mode }) => ({
   preview: {
     port: 4174,
     strictPort: true,
+    proxy:
+      mode === "server-rust"
+        ? {
+            "/api/v3": {
+              target:
+                process.env.LAPIS_RUST_SERVER_URL ?? "http://127.0.0.1:4810",
+              changeOrigin: false,
+            },
+          }
+        : undefined,
     headers: crossOriginIsolationHeaders,
   },
   worker: { format: "es", plugins: () => [tursoBundleBuildPlugin()] },
@@ -240,7 +263,12 @@ export default defineConfig(({ mode }) => ({
     sourcemap: false,
     minify: false,
     reportCompressedSize: false,
-    outDir: mode === "server" ? "dist-server" : "dist",
+    outDir:
+      mode === "server-rust"
+        ? "dist-rust-server"
+        : mode === "server"
+          ? "dist-server"
+          : "dist",
     rollupOptions: {
       preserveEntrySignatures: "strict",
       input: {

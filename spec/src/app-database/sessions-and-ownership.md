@@ -1,5 +1,9 @@
 # App Database / Sessions and ownership
 
+An explicit `rust-server` session uses its admitted HTTP AppDatabaseProvider in
+the direct role. It requires that provider and never opens browser storage;
+session teardown closes the database view before its hosted attachment.
+
 LN-DB-001's public remote catalogue supports both literal methods and a runtime
 method union. Argument inference distributes over the catalogue instead of
 intersecting incompatible tuples into `never`. Packed positive/negative fixtures

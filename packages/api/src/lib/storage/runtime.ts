@@ -4,6 +4,7 @@ export type RuntimeTarget =
   | "deno-desktop"
   | "tauri-desktop"
   | "node-server"
+  | "rust-server"
   | "deno-server"
   | "test";
 
