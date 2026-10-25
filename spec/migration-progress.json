@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 23:57:48 UTC",
+  "updated": "2026-10-26 00:11:41 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native database and qualified metadata/Tasks/Docs/Search/History source owners are integrated. The latest combined source passes all 391 Rust cases, strict native and complete specification gates with 29 product/input paths equal to qualified parents. Guarded Task write/cache intake, Markdown parser pin/cache intake, explicit one-writer selection and both host adoptions remain; defaults stay unchanged."
+      "detail": "Native database and qualified metadata/Tasks/Docs/Search/History source owners are integrated. The parser/cache intake passes all 392 Rust cases, 54 retained API references, strict native/build and complete specification gates. Guarded Task write/cache intake, full Search/custom-processor parity, explicit one-writer selection and both host adoptions remain; defaults stay unchanged."
     },
     {
       "id": "R4",
@@ -375,7 +375,7 @@
       "work": "Unattended metadata and projection reconciliation",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native Markdown reconciliation, Tasks occurrences and complete Tasks source-to-projection publication are committed at Notes 0c9d6b2a, using qualified Tasks fcb2a8b5 directly. All 10 focused Tasks and full source gates pass. Tasks mutations/materialization, Docs/custom processors and both host selections remain; aggregate stays Working."
+      "detail": "Native Markdown, complete Tasks projections and opt-in Docs publication are source-qualified in Notes. Markdown parser/cache intake passes all 392 Rust cases and 54 retained API references. Guarded Tasks writes/cache intake and explicit one-writer ownership are active in separate workspaces. Daily/two-file coordination, custom-processor parity and both host selections remain; source qualification does not select a writer."
     },
     {
       "id": "R3.2.2",
@@ -455,7 +455,7 @@
       "work": "Remaining native plugin projection processors",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Tasks native index source](../lapis-plugin-tasks/spec/records/2026-10-25-native-task-index.md) is Source complete at fcb2a8b5: 210 hrefs, 30 target lookups and 174 complete index outcomes, plus 1,035 TypeScript/14 native/62 cold catalog cases and full source/package gates. [Native Notes publication](spec/records/2026-10-25-native-task-documents-intake.md) is now source-qualified with 10 exact Tasks cases and full repository check/test/build (356 Rust and 2,220 package passes). Tasks mutations/materialization, Docs/custom processors and both host selections remain; source qualification does not select a writer."
+      "detail": "Native Markdown, complete Tasks projections and opt-in Docs publication are source-qualified in Notes. Markdown parser/cache intake passes all 392 Rust cases and 54 retained API references. Guarded Tasks writes/cache intake and explicit one-writer ownership are active in separate workspaces. Daily/two-file coordination, custom-processor parity and both host selections remain; source qualification does not select a writer."
     },
     {
       "id": "R3.2.1.3",
@@ -608,6 +608,14 @@
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
       "detail": "Qualified Tasks fde58de0 is being consumed in the isolated lapis-native-task-writes-20261025 workspace. Reuse accepted Work and the existing guarded byte writer for one-file mutations/materialization/completion; retain dirty/alias/revision/physical-root guards, a private projection cache-identity bump and same-byte cold-reopen evidence. Daily/two-file application coordination and both host selections remain."
+    },
+    {
+      "id": "R3.2.1.2.12.1",
+      "area": "Markdown application intake",
+      "work": "Qualified native parser pin and cold cache-identity intake",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
+      "detail": "[Qualified native parser/cache intake](spec/records/2026-10-25-markdown-parser-cache-intake.md) consumes Plugins 797c14ef with only necessary locked dependency edges. Exact cold regression improves from zero passes/one failure to one pass/zero failures. All 36 affected indexing, 392 complete Rust and 54 retained API reference cases, native build/strict checks and full specification/78 governance regressions pass. Prior metadata is reparsed without file writes; both host selections remain separate."
     }
   ]
 }

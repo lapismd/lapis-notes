@@ -3367,8 +3367,9 @@ version = "0.1.0"
 dependencies = [
  "md5",
  "regex",
+ "ryu-js",
+ "saphyr",
  "serde_json",
- "serde_yaml",
 ]
 
 [[package]]

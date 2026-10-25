@@ -32,6 +32,11 @@ Unsupported plugin processors and richer projections remain explicitly waiting;
 this selection cannot be used as the full default metadata owner until their
 conformance and both host-adoption gates pass.
 
+Parser identity participates in metadata and Search cache signatures. Adopting a
+qualified parser revision reparses prior derived records even when source bytes,
+stat and normalized properties stay unchanged. This repair preserves saved
+files and their source hashes; it does not import Deno state or select a host.
+
 ## Optional Tasks occurrences
 
 Under LN-CORE-003/005/006, explicit host selection MAY enable Tasks occurrence

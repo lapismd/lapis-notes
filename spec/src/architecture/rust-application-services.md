@@ -19,7 +19,7 @@ lifetime. R1.2/R1.3 retain those gates. Native directory witnesses are explicit
 capability handles, never renderer or HTTP values. Watch/resource/profile policy
 remains in Desktop while the common engine owns checked IO and publication.
 
-[Native indexing](rust-indexing-lifetime.md) stages Markdown, Tasks, Docs and native Search
+[Native indexing](rust-indexing-lifetime.md) stages qualified Markdown parser revisions, Tasks, Docs and native Search
 on one admitted worker; [History scheduling](rust-history-indexing-lifetime.md) retains paused/cold read-only work.
 Custom processors, complete provider scheduling and both hosts remain gated.
 
