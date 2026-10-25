@@ -227,6 +227,8 @@ const preview: Preview = {
               "Discovery",
               "Context",
             ],
+            "Backlog",
+            ["Legacy plugin ports"],
             "Verification",
             [
               "AI — Part 1",

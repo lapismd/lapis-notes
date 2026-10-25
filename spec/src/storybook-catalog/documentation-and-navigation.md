@@ -1,5 +1,9 @@
 # Storybook Catalog / Documentation and navigation
 
+Backlog recommendations use canonical pages and generated metadata-only mirrors
+in SUMMARY order. The Legacy plugin ports page records future intake separately
+from implemented plugin contracts and verification status.
+
 Rust managed-vault intake is documented through its canonical architecture
 chapter and metadata-only MDX mirror in SUMMARY order. The specification source
 owns that content; this adds no alternative hosted chooser or application view.

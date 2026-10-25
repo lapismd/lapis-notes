@@ -146,6 +146,8 @@
   - [Specification Governance / Repository policy](./spec-governance/core-contract.md)
   - [Specification Governance / Discovery](./spec-governance/discovery.md)
   - [Specification Governance / Context](./spec-governance/context.md)
+- [Backlog](./backlog.md)
+  - [Backlog / Legacy plugin ports](./backlog/legacy-plugin-ports.md)
 - [Verification](./verification.md)
   - [Verification / AI — Part 1](./verification/ai-01.md)
   - [Verification / AI — Part 2](./verification/ai-02.md)
