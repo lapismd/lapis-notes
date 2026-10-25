@@ -28,6 +28,16 @@ its quiet period, maximum delay and periodic reconciliation; observers do not
 own scheduling. Client detach, expiry, logout and receiver disposal do not stop
 capture. Immutable history access still cannot initialize a writer.
 
+Native host commands borrow the existing engine through an admitted client;
+they cannot take ownership or close it by dropping a view. Accepted commands
+continue independently of cancelled or unpolled reply receivers. Explicit backup
+disable drains that coordinator and permits a later explicit restart against the
+same retained history. Repeated or concurrent disable is idempotent; a failed
+drain retains the same engine for repair and retry. Saved-file restore/undo also
+respect unresolved editors.
+Native hosts may supply their existing external file gate; the coordinator takes
+that gate before its own vault gate, matching host file-publication order.
+
 Capture and file publication share the admitted vault's file gate and physical
 root checks. Explicit close fences new file work and drains accepted writers
 before the final capture. A failed final capture retains the original worker,

@@ -8,7 +8,7 @@ The sibling Desktop tracker owns its M-series milestones; the active shared
 Rust work is tracked here as R0–R7. Other migration workspaces are retained
 history, not the current implementation checkout.
 
-Last updated **2026-10-25 02:11:19 UTC**. This is the active migration tracker for the
+Last updated **2026-10-25 02:40:03 UTC**. This is the active migration tracker for the
 [shared Rust plan](RUST_CORE_MIGRATION_PLAN.md). The older Node parity roadmap
 below is superseded; its remaining rows are historical references, not another
 set of current migration tasks.
@@ -20,36 +20,32 @@ configured-vault read/edit/save/reload journey; this does not claim final hosted
 feature parity or production delivery. Desktop's committed baseline still uses
 its prior database adapter while the replacement awaits its remaining gate.
 
-**Current checkpoint:** R1.3.10 shared backup source and hosted native lifetime
-are qualified. The final full check/test/build/specification lanes pass, including
-245 ordinary Rust cases, 20 package test tasks, 20 checking tasks and 11 package
-build tasks. The cold retained Rust browser journey passes (8.6 seconds).
-[Backup evidence](spec/records/2026-10-25-rust-backup-lifetime.md) records exact
-commands, failed attempts, cache maintenance and limits. Tauri adoption and the
-remaining application parity gates stay open.
+**Current checkpoint:** R1.3.10 shared backup lifetime, hosted lifetime and
+native host-control source are qualified. The six control cases pass, including
+cancelled/unpolled replies, repeated disable, failed-disable retry, dirty-editor
+restore and native file-gate ordering. Full source check/test/build/spec passes
+with 251 ordinary Rust cases, 20 package test/check tasks and 11 package builds.
+The cold Rust browser journey passes (9.0 seconds). See the
+[host-control receipt](spec/records/2026-10-25-rust-backup-commands.md).
 
-**Latest consumer compatibility:** Desktop `df16e136` passes both native
-file-service cases and strict normal/e2e all-target Clippy against the latest
-shared core, including that lease repair. The
-[HTTP/source receipt](spec/records/2026-10-24-rust-http-database.md) records the
-exact scope. This is shared-library compatibility; Tauri database adoption has
-not happened. Earlier Desktop SQL/catalog/native-UI receipts remain historical
-qualification for their original implementations.
-Desktop `a5b936e0` refreshes its activity routing (E-PROGRESS-003) without
-claiming native database adoption.
+**Latest consumer compatibility:** Desktop's uncommitted `tnnyuvsv` database
+change on `a5b936e0` rebuilds against this shared core and passes both headless
+file-service cases. This is compilation/file-service compatibility. It does not
+qualify Tauri backup selection or dispose of the database slice's existing
+native Markdown image failure. Older native/UI/archive receipts retain their
+original scope.
 
-**Current activity:** shared vault-owned automatic backup now uses `jj-vault`
-with native watching, physical storage checks, retryable final capture and
-controlled shutdown. Its source and hosted HTTP/browser checks pass. R1.3.10
-remains Working until Tauri adopts the same owner. Desktop's earlier M16.3
-consumer commit still needs disposition of its pre-existing Markdown image
-failure. Hosted-shell slice `1bf61394` remains the qualified UI integration.
+**Current activity:** the shared backup host-control source is qualified.
+It preserves the existing history/restore/sync engines while keeping accepted
+commands independent of their response receiver. Tauri still owns its previous
+backup coordinator; R1.3.10 stays Working until that owner is replaced and its
+reload, explicit close/disable and Quit paths pass native acceptance.
 
-**Next:** resolve Desktop's existing acceptance disposition, refresh its shared
-core intake and commit the implemented database adapter. Then adopt this backup
-owner in Tauri and complete both application-shell file actions (R1.3.11).
-R1.3.9 retains full hosted parity work. R2–R7 retain their agreed scope and order;
-M11 stays Deferred.
+**Next:** adopt the qualified shared backup owner in Tauri. Desktop's database
+consumer commit separately awaits disposition of its pre-existing Markdown image
+failure. Both-shell file-action acceptance remains R1.3.11; R1.3.9 retains
+complete hosted parity. R2–R7 retain their agreed scope and order. M11 stays
+Deferred.
 
 ### Status meanings
 
@@ -79,7 +75,7 @@ not host adoption or native/hosted application acceptance.
 | ------------------------------------------------------------------------- | ------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [R1.3](spec/src/architecture/rust-application-services.md#ln-core-004)    | Roadmap       | Both host adapters                                       | Database adoption, existing hosted shell and backup detach/Quit acceptance. See the host checklist.                                                                                                                                                                                                                                                                                                                                                                                                                |
 | [R1.3.9](spec/src/architecture/rust-application-services.md#ln-core-004)  | Host adapters | Existing browser login/vault/workspace UI on Rust        | [Retained hosted-shell integration](spec/records/2026-10-25-rust-hosted-shell.md) qualifies a final cold built-UI/real-Rust login, configured-vault read/edit/save and browser reload journey (7.4s). Retained Node 24 editing/sharing/restart acceptance also passes. Full source check/test/build, all 261 catalog and 50 Web unit cases, specification and formatting checks pass. Full hosted intake/parity remains open, including managed-vault/transfer/installation support and final SSE/static delivery. |
-| [R1.3.10](spec/src/architecture/rust-application-services.md#ln-core-004) | Host adapters | Automatic backup after client detach and controlled Quit | [Shared backup lifetime](spec/records/2026-10-25-rust-backup-lifetime.md): source and hosted native lifetime qualified. Six integration cases plus cancellation/drain pass; exact hosted and storage-guard regressions each move one failure to one pass. Final full check/test/build/spec passes with 245 Rust cases; the cold Rust browser journey passes (8.6s). Tauri ownership adoption remains open.                                                                                                         |
+| [R1.3.10](spec/src/architecture/rust-application-services.md#ln-core-004) | Host adapters | Automatic backup after client detach and controlled Quit | [Shared backup lifetime](spec/records/2026-10-25-rust-backup-lifetime.md) qualifies source and hosted native lifetime. [Native host controls](spec/records/2026-10-25-rust-backup-commands.md) qualifies six command/gate/retry cases, full source check/test/build/spec with 251 ordinary Rust cases, one cold Rust browser journey (9.0s) and two Desktop file-service compatibility cases. Tauri ownership adoption remains open.                                                                               |
 | [R3](spec/src/architecture/rust-application-services.md#ln-core-003)      | Roadmap       | Indexed vault                                            | Native database, model/cache and vault-owned database lifetime are source-qualified. Host adoption and unattended metadata/projection/Search/history indexing remain.                                                                                                                                                                                                                                                                                                                                              |
 
 ### Gate status: Waiting

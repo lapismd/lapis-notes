@@ -1,5 +1,6 @@
 //! The vault owns the existing native engine; clients own passive status views.
 mod close;
+mod commands;
 mod provider;
 mod storage;
 #[cfg(test)]

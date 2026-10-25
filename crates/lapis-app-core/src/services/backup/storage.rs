@@ -14,6 +14,7 @@ use tokio::sync::Mutex as AsyncMutex;
 /// Installation-owned external history/control directory. It is never a DTO.
 pub struct BackupStorage {
     root: VaultRoot,
+    pub(super) files: Option<Arc<Mutex<()>>>,
 }
 impl BackupStorage {
     pub fn new(directory: &Path) -> Result<Self> {
@@ -27,7 +28,13 @@ impl BackupStorage {
         }
         Ok(Self {
             root: VaultRoot::open(directory)?,
+            files: None,
         })
+    }
+    /// A native host's existing gate also covers its OS-specific file actions.
+    pub fn with_files_gate(mut self, files: Arc<Mutex<()>>) -> Self {
+        self.files = Some(files);
+        self
     }
     pub(crate) fn validate_vault(&self, vault: &VaultRoot) -> Result<()> {
         self.root.verify_physical_root()?;
