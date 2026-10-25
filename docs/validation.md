@@ -125,8 +125,11 @@ LAPIS_SERVER_TEST_AGENTS_CONFIG="$PWD/.local/qualification/provider-agents.json"
 node --test --test-concurrency=1 scripts/qualification/hosted-provider.test.mjs
 ```
 
-The JSON file uses the server's existing operator `AgentConfig` contract. It
-selects an installed native helper and its explicit environment. The optional
+The JSON file uses the server's operator `AgentConfig` contract. Each target
+declares `id`, `label`, `default_mode`, an absolute `executable`, and optional
+`environment`. Choose the provider's intended default explicitly, such as
+Codex `read-only` or OpenCode `plan`; the server never infers it from an opaque
+ID or display label. Missing or invalid modes reject startup. The optional
 `LAPIS_SERVER_TEST_BINARY`, `LAPIS_SERVER_TEST_TARGET` and
 `LAPIS_SERVER_TEST_MODEL` select the native executable, target and model. The
 test skips unless enabled; its direct transport proof does not replace retained

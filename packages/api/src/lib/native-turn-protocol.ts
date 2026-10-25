@@ -5,7 +5,7 @@ export type TurnOptions = {
   mode: string;
   max_duration_ms: number;
 };
-export type TurnTarget = { id: string; label: string };
+export type TurnTarget = { id: string; label: string; default_mode: string };
 export type TurnContinuation = {
   conversation_id: string;
   after_request_id: string;

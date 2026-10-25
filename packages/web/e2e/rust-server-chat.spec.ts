@@ -32,6 +32,7 @@ test("native chat retains sidebar History and opens the same conversation withou
       {
         id: "fixture",
         label: "Fixture agent",
+        default_mode: "plan",
         executable: helper,
         environment: { LOG: log },
       },
@@ -106,7 +107,12 @@ test("native chat retains sidebar History and opens the same conversation withou
     ).toHaveCount(2);
     await expect
       .poll(async () =>
-        readFile(join(service.vault, ".lapis/workspace.json"), "utf8"),
+        readFile(join(service.vault, ".lapis/workspace.json"), "utf8").catch(
+          (error: NodeJS.ErrnoException) => {
+            if (error.code === "ENOENT") return "";
+            throw error;
+          },
+        ),
       )
       .toContain("ai-conversation-history");
     await page.reload();
@@ -136,13 +142,14 @@ test("native chat retains sidebar History and opens the same conversation withou
         .getByRole("toolbar", { name: "Workspace tabs" })
         .getByRole("button", { name: "AI", exact: true }),
     ).toHaveCount(2);
+    const frames = (await readFile(log, "utf8"))
+      .split("\n")
+      .filter(Boolean)
+      .map((s) => JSON.parse(s));
+    expect(frames.filter((s) => s.type === "prompt")).toHaveLength(1);
     expect(
-      (await readFile(log, "utf8"))
-        .split("\n")
-        .filter(Boolean)
-        .map((s) => JSON.parse(s))
-        .filter((s) => s.type === "prompt"),
-    ).toHaveLength(1);
+      frames.filter((s) => s.type === "configure").map((s) => s.mode),
+    ).toEqual(["plan"]);
   } catch (error) {
     await testInfo.attach("Rust chat host log", {
       body: service.logs,

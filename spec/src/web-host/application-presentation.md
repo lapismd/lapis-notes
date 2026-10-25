@@ -8,6 +8,11 @@ ready App, including the shared profile's plugin navigation action
 ([LN-PLUG-106](../plugin-model/app-ownership.md#ln-plug-106)). The requested
 release is preserved; installation remains an explicit verified app action.
 
+Rust-hosted native chat uses the shared profile's fresh declared target mode
+under [LN-CORE-009/010](../architecture/rust-turn-admission.md#ln-core-009).
+Unavailable metadata refuses before submission and preserves the draft. This
+does not select native AI for standalone Web or advance the Rust cutover gate.
+
 ## LN-WEB-001 — Private @lapis-notes/web version 2026.6.3: retain the legacy PWA identity, manifest, icons
 
 <a id="ln-web-001"></a>

@@ -85,6 +85,23 @@ portable files have been published; recovery never starts another worker.
 
 ## Typed host commands
 
+## LN-CORE-009 — Native target default mode authority
+
+<a id="ln-core-009"></a>
+
+**Requirement.** Native target metadata MUST declare a nonempty, bounded `default_mode` from trusted host installation configuration. Hosted startup MUST reject missing, whitespace-only, control-bearing or overlong values before exposing a target. Desktop MUST reuse an explicitly configured execution mode or its trusted runner default.
+
+## LN-CORE-010 — Exact selected target mode submission
+
+<a id="ln-core-010"></a>
+
+**Requirement.** Native chat MUST submit the freshly declared default mode for the exact selected opaque target. It MUST refuse before submission when that target or valid mode metadata is unavailable, and MUST NOT infer modes from browser IDs or display names.
+
+Low-level explicit mode requests retain LN-CORE-003's immutable input and native
+negotiation boundaries. Metadata defaults do not rewrite an explicit request,
+accepted input or idempotent read, bypass native negotiation, suppress
+unsupported-mode errors, or widen provider permissions. Codex's trusted default is `read-only`; OpenCode's is `plan`.
+
 `lapis-app-protocol::turns` owns strict portable input, options, phase, record,
 summary, target and command/value DTOs. Core retains input normalization,
 retained-record validation, private journal authority and executable policy.

@@ -313,7 +313,7 @@ async fn configured_binary_finishes_detached_native_work_and_preserves_it_after_
         .unwrap(),
     )
     .unwrap();
-    fs::write(&agents,serde_json::to_vec(&serde_json::json!([{"id":"fixture","label":"Fixture","executable":helper,"environment":{"LOG":log}}])).unwrap()).unwrap();
+    fs::write(&agents,serde_json::to_vec(&serde_json::json!([{"id":"fixture","label":"Fixture","default_mode":"ask","executable":helper,"environment":{"LOG":log}}])).unwrap()).unwrap();
     let client = reqwest::Client::builder()
         .timeout(Duration::from_secs(5))
         .build()

@@ -43,6 +43,8 @@ Protocol major three replaces the previous hosted control plane only when both
 host adapters qualify in R1.3. Rust types generate the JSON schema and TypeScript
 bindings. R1.2 establishes in-process ownership and transport conformance, not
 [durable turns, typed commands, explicit continuation and feature activation](rust-turn-admission.md), or final hosted cutover.
+Native target `default_mode` follows [trusted mode authority](rust-turn-admission.md#ln-core-009);
+[source qualification](../../records/2026-10-25-native-target-modes.md) keeps adapter/provider gates separate.
 
 R1.3 stages the existing portable shell file actions through that same owner.
 Reads retain their bounded text/binary/range contracts; mutations retain mtime,

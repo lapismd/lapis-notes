@@ -6,6 +6,10 @@ selected only by Tauri or Rust-hosted Web; Deno does not import or construct it.
 [Native observer adoption](../architecture/rust-turn-admission.md) owns that
 separate migration contract.
 
+The declared target-mode contract under LN-CORE-009/010 applies only to that
+native entry. Its metadata refresh cannot reactivate or change the frozen Deno
+chat path.
+
 The Design Core dependency refresh consumes released `0.5.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.

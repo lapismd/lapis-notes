@@ -18,6 +18,7 @@ use uuid::Uuid;
 pub struct AgentConfig {
     pub id: String,
     pub label: String,
+    pub default_mode: String,
     pub executable: PathBuf,
     #[serde(default)]
     pub environment: BTreeMap<String, String>,
@@ -33,6 +34,8 @@ impl Policy {
             || agents.iter().any(|agent| {
                 !label(&agent.id)
                     || !label(&agent.label)
+                    || !label(&agent.default_mode)
+                    || agent.default_mode.trim() != agent.default_mode
                     || !ids.insert(&agent.id)
                     || !agent.executable.is_absolute()
                     || agent.environment.len() > 128
@@ -85,6 +88,7 @@ impl AgentPolicy for Policy {
             .map(|agent| TurnTarget {
                 id: agent.id.clone(),
                 label: agent.label.clone(),
+                default_mode: agent.default_mode.clone(),
             })
             .collect())
     }

@@ -8,7 +8,10 @@ import type {
 import { NativeChatSession } from "./session";
 import { NativeChatObserver } from "./observer";
 
-function fixture() {
+function fixture(
+  targets = [{ id: "codex", label: "Codex", default_mode: "ask" }],
+) {
+  const targetId = targets[0]?.id ?? "missing";
   const conversation = crypto.randomUUID();
   const records: TurnRecord[] = [];
   const calls: TurnCommand[] = [];
@@ -26,7 +29,7 @@ function fixture() {
         case "targets":
           return {
             kind: "targets",
-            targets: [{ id: "codex", label: "Codex" }],
+            targets,
           };
         case "set_enabled":
           return { kind: "availability", enabled: command.enabled };
@@ -111,13 +114,13 @@ function fixture() {
     ),
   };
   const session = new NativeChatSession(host);
-  const port = new NativeChatObserver(session, { target: () => "codex" });
+  const port = new NativeChatObserver(session, { target: () => targetId });
   const send = (id = crypto.randomUUID()) =>
     port.act({
       id,
       kind: "send",
       session: port.selected,
-      recipients: ["codex"],
+      recipients: [targetId],
       submission: { id, text: "Authored café 📝", comments: [] },
     });
   return {
@@ -129,6 +132,7 @@ function fixture() {
     leaves,
     send,
     conversation,
+    targets,
     loseReply: () => {
       loseReply = true;
     },
@@ -136,6 +140,74 @@ function fixture() {
 }
 
 describe("native chat observer", () => {
+  it.each([
+    ["opaque-one", "Codex", "read-only"],
+    ["opaque-two", "OpenCode", "plan"],
+  ])("submits the declared default mode for %s", async (id, label, mode) => {
+    const f = fixture([{ id, label, default_mode: mode }]);
+    try {
+      await f.port.read(new AbortController().signal);
+      expect((await f.send()).status).toBe("acknowledged");
+      expect(f.records[0].input.target_id).toBe(id);
+      expect(f.records[0].input.options.mode).toBe(mode);
+    } finally {
+      f.port.close();
+    }
+  });
+  it("refreshes the exact target default mode before submission", async () => {
+    const f = fixture();
+    try {
+      await f.port.read(new AbortController().signal);
+      f.targets[0].default_mode = "plan";
+      await f.send();
+      expect(f.records[0].input.options.mode).toBe("plan");
+    } finally {
+      f.port.close();
+    }
+  });
+  it.each([undefined, "", "  ", "read-only\n", "x".repeat(257)])(
+    "refuses invalid declared default mode %j before submission",
+    async (mode) => {
+      const f = fixture();
+      try {
+        await f.port.read(new AbortController().signal);
+        f.targets[0].default_mode = mode as never;
+        expect((await f.send()).status).toBe("refused");
+        expect(f.calls.some((v) => v.kind === "submit")).toBe(false);
+      } finally {
+        f.port.close();
+      }
+    },
+  );
+  it("refuses a disappeared target before submission", async () => {
+    const f = fixture();
+    try {
+      await f.port.read(new AbortController().signal);
+      f.targets.splice(0);
+      expect((await f.send()).status).toBe("refused");
+      expect(f.calls.some((v) => v.kind === "submit")).toBe(false);
+    } finally {
+      f.port.close();
+    }
+  });
+  it.each(["rejected", "wrong reply"])(
+    "refuses a failed metadata refresh (%s) before submission",
+    async (failure) => {
+      const f = fixture();
+      try {
+        await f.port.read(new AbortController().signal);
+        const call = vi.spyOn(f.host, "call");
+        if (failure === "rejected")
+          call.mockRejectedValueOnce(new Error("Metadata disconnected"));
+        else call.mockResolvedValueOnce({ kind: "records", records: [] });
+        expect((await f.send()).status).toBe("refused");
+        expect(f.calls.some((v) => v.kind === "submit")).toBe(false);
+        expect(f.records).toHaveLength(0);
+      } finally {
+        f.port.close();
+      }
+    },
+  );
   it("a fresh History observer reads saved titles without loading all transcripts", async () => {
     const f = fixture();
     await f.port.read(new AbortController().signal);

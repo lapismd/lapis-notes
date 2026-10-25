@@ -2815,10 +2815,11 @@
     "TurnTarget": {
       "additionalProperties": false,
       "properties": {
+        "default_mode": { "type": "string" },
         "id": { "type": "string" },
         "label": { "type": "string" }
       },
-      "required": ["id", "label"],
+      "required": ["id", "label", "default_mode"],
       "type": "object"
     },
     "TurnValue": {

@@ -1,5 +1,10 @@
 # Packages / Host and plugin integration
 
+The private native-chat application profile consumes host-authored target
+`default_mode` metadata under LN-CORE-009/010. It resolves the exact target again
+before Send, refuses missing or invalid metadata and preserves explicit native
+input modes. It never infers provider permissions from target IDs or labels.
+
 The private root package exposes `progress:generate` and `check:progress` for
 the master migration tracker. These development-only commands consume
 `spec/migration-progress.json` and do not enter published package exports or

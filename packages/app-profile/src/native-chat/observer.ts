@@ -196,6 +196,25 @@ export class NativeChatObserver implements AgentPort {
         status: "refused",
         reason: "Wait for the current native turn to finish",
       };
+    const targets = await this.session
+      .call({ kind: "targets" })
+      .catch(() => null);
+    const target =
+      targets?.kind === "targets"
+        ? targets.targets.find((row) => row.id === recipients[0])
+        : undefined;
+    const mode = target?.default_mode;
+    if (
+      typeof mode !== "string" ||
+      !mode.length ||
+      mode.trim() !== mode ||
+      new TextEncoder().encode(mode).length > 256 ||
+      /[\u0000-\u001f\u007f-\u009f]/u.test(mode)
+    )
+      return {
+        status: "refused",
+        reason: "The native agent's declared mode is unavailable",
+      };
     const input: TurnInput = {
       request_id: action.id,
       target_id: recipients[0],
@@ -203,7 +222,7 @@ export class NativeChatObserver implements AgentPort {
       prompt: submission.text,
       context: null,
       options: {
-        mode: "ask",
+        mode,
         model: null,
         effort: null,
         max_duration_ms: 60_000,

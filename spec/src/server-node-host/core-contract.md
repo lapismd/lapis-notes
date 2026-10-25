@@ -7,6 +7,12 @@ that restarting the Rust service does not replay the accepted prompt. This
 continues the [native turn gate](../architecture/rust-turn-admission.md); Node
 remains the serving baseline.
 
+Staged Rust targets declare the trusted operator's bounded `default_mode` under
+[LN-CORE-009/010](../architecture/rust-turn-admission.md#ln-core-009). The retained
+native observer refreshes that exact target's metadata before submission and
+refuses unavailable modes before writing. Node's existing AI restriction and
+serving default remain unchanged.
+
 The staged Rust renderer may inject the private native-chat observer into the
 retained workspace. The Node serving baseline keeps its AI restriction and
 existing profile; it neither registers the native observer nor selects a second

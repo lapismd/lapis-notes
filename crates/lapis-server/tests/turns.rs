@@ -86,6 +86,7 @@ impl Native {
                     vec![AgentConfig {
                         id: "fixture".into(),
                         label: "Fixture agent".into(),
+                        default_mode: "plan".into(),
                         executable: helper.into(),
                         environment: std::collections::BTreeMap::from([
                             ("LOG".into(), log.to_string_lossy().into()),
@@ -256,12 +257,13 @@ async fn hosted_turn_completes_without_client_and_reconnects_after_cold_owner_re
     let targets = f.call(client.client_id, json!({"kind":"targets"})).await;
     assert_eq!(
         targets,
-        json!({"kind":"targets","targets":[{"id":"fixture","label":"Fixture agent"}]})
+        json!({"kind":"targets","targets":[{"id":"fixture","label":"Fixture agent","default_mode":"plan"}]})
     );
     let value = f
         .call(client.client_id, json!({"kind":"submit","input":input}))
         .await;
     let accepted: TurnRecord = serde_json::from_value(value["record"].clone()).unwrap();
+    assert_eq!(accepted.input.options.mode, "ask");
     let response = f
         .client
         .delete(format!("{}/api/v3/clients/{}", f.base, client.client_id))

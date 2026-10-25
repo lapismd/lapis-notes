@@ -130,4 +130,5 @@ pub enum TurnValue {
 pub struct TurnTarget {
     pub id: String,
     pub label: String,
+    pub default_mode: String,
 }

@@ -3,7 +3,11 @@
 The public `NativeTurnService` is an already-admitted host port. Its generated
 DTOs carry portable commands and observations; plugins cannot nominate native
 launch paths or credentials. Accepted work and transcript writes stay in Core
-under LN-CORE-003/004. Existing chat adoption remains a separate R2.2 gate.
+under LN-CORE-003/004. The native chat profile refreshes trusted target metadata
+and submits its declared default mode under
+[LN-CORE-009/010](../architecture/rust-turn-admission.md#ln-core-009). Plugin
+labels and opaque target IDs cannot infer provider modes; explicit native API
+requests retain their authored mode. Actual-provider acceptance remains R2.3.
 
 Hosted screen resources are prepared before the owning VaultSession and released
 after its App/database teardown. This host connection preserves existing plugin

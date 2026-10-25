@@ -29,6 +29,7 @@ async fn native_agent_installation_rejects_vault_helpers_links_and_duplicate_ids
     let agent = |path: std::path::PathBuf| AgentConfig {
         id: "fixture".into(),
         label: "Fixture".into(),
+        default_mode: "ask".into(),
         executable: path,
         environment: Default::default(),
     };
@@ -54,8 +55,10 @@ async fn native_agent_installation_rejects_vault_helpers_links_and_duplicate_ids
     fs::set_permissions(&helper, fs::Permissions::from_mode(0o600)).unwrap();
     assert!(Host::with_profile_and_agents(config(), &profile, vec![agent(helper)]).is_err());
     assert!(
-        serde_json::from_value::<AgentConfig>(serde_json::json!({"id":"fixture","label":"Fixture",
-        "executable":"/helper","arguments":["--unsafe"]}))
+        serde_json::from_value::<AgentConfig>(
+            serde_json::json!({"id":"fixture","label":"Fixture","default_mode":"ask",
+        "executable":"/helper","arguments":["--unsafe"]})
+        )
         .is_err()
     );
 }

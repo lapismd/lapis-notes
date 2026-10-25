@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 20:56:25 UTC",
+  "updated": "2026-10-25 21:04:54 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -63,7 +63,7 @@
       "work": "Real-provider detach and cold application recovery",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-007",
-      "detail": "[Actual-provider preflight](spec/records/2026-10-25-rust-provider-preflight.md) passes native Tauri/Core and Rust HTTP detach/cold/idempotent checks. Approved default_mode source passes 11 focused/23 observer cases, eight native cases, full integrated check/test/build (346 Rust/2,220 package cases), 261 cold catalog, eight development and six static specification-browser cases. Eight fixture-provider hosted journeys pass on the earlier cohort. Desktop prepared-launch metadata is committed separately at f289874c with three focused/all 240 native cases. Final source/consumer integration and actual-provider retained-screen recovery in both hosts remain; AI defaults stay staged."
+      "detail": "[Actual-provider preflight](spec/records/2026-10-25-rust-provider-preflight.md) passes native Tauri/Core and Rust HTTP detach/cold/idempotent checks. [Declared-mode source](spec/records/2026-10-25-native-target-modes.md) is qualified in the enclosing change: 11 focused/23 observer, eight native, full check/test/build (346 Rust/2,220 package cases), 261 cold catalog, eight development/six static specification-browser and all eight refreshed fixture-provider hosted journeys. Final spec/package checks pass; API/app-profile archives are prepared. Desktop adapter f289874c separately passes three focused/all 240 native cases. Matching Desktop package intake and actual-provider retained-screen recovery in both hosts remain; AI defaults stay staged."
     },
     {
       "id": "R3",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native database/Search/model/cache and vault lifetime are source-qualified; HTTP and Desktop database facade adoption are complete. Markdown reconciliation and Tasks occurrence publication (main 16977050), occurrence parsing (569d7e30) and complete Task document parsing (isolated f06b79b4; 75 shared documents) are Source complete. Recurrence/effective-occurrence implementation is underway against the frozen unchanged-TypeScript oracle: 32 date sets/166 queries and 18 effective-occurrence cases. No recurrence source qualification or host selection is claimed. Full Tasks/Docs/supported custom projections, both unattended indexing selections and service-owned Search/History scheduling remain."
+      "detail": "Native database/Search/model/cache and vault lifetime are source-qualified; HTTP and Desktop database facade adoption are complete. Markdown reconciliation and Tasks occurrence publication are integrated at 16977050. Source-owned Tasks document parsing and recurrence/effective resolution are qualified at isolated c725d58b: original 32 date sets/166 queries, 18 effective cases plus two additional ordinal cases/16 queries. Version-4 task normalization is next. Full Tasks/Docs/supported custom projections, both unattended indexing selections and service-owned Search/History scheduling remain."
     },
     {
       "id": "R4",
@@ -455,7 +455,7 @@
       "work": "Remaining native plugin projection processors",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Tasks occurrence parser 569d7e30 and publication integrated into main Notes 16977050 are Source complete. Tasks document parser f06b79b4 separately qualifies 75 complete shared fixtures; Notes has not adopted that parser. Full projection/recurrence/materialization, Docs/custom processors and both host selections remain pending; source qualification does not select a writer."
+      "detail": "Tasks occurrence parsing and publication are integrated into Notes 16977050. Private Tasks document parsing and recurrence/effective resolution are Source complete at c725d58b. Version-4 projectTask normalization, full projection/materialization, Docs/custom processors and both host selections remain; source qualification does not select a writer."
     },
     {
       "id": "R3.2.1.3",
@@ -488,6 +488,14 @@
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
       "detail": "[Source receipt](../lapis-task-documents/spec/records/2026-10-25-native-task-documents.md), isolated Tasks commit f06b79b4. All 75 complete shared JSON document fixtures match the unchanged TypeScript oracle; 89 exact TypeScript, 304 full unit and three native cases pass with strict check/build/package/spec lanes. Notes adoption, full projection, recurrence execution, mutations and both host selections remain pending. Isolated Docker-tooling intake 5695cc11 preserves f06 and 3b6cada3 as parents, verifies all 22 native/parser inputs unchanged, and passes fresh canonical Docker specification gates. Recurrence implementation is separate."
+    },
+    {
+      "id": "R3.2.1.2.4",
+      "area": "Native plugin projections",
+      "work": "Source-owned Tasks recurrence and effective resolution",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "[Source receipt](../.workspaces/lapis-task-recurrence-intake-20261025/spec/records/2026-10-25-native-task-recurrence.md), isolated Tasks commit c725d58b04b8c0a370ad020c38357462ac98650a. Original unchanged-TypeScript oracle retains 32 date sets/166 queries and 18 effective cases; two separate ordinal scenarios add 16 query envelopes. All 63 focused/402 full TypeScript cases, six native tests and strict check/build/publint/spec pass. Version-4 task normalization, Notes projection adoption and both host selections remain separate."
     }
   ]
 }
