@@ -6,7 +6,7 @@
 | LN-PKG-001 | [packages](../packages/app-and-services.md#ln-pkg-001) | Implemented | `packages/api` kernel copy |
 | LN-PKG-002 | [packages](../packages/core-contract.md#ln-pkg-002) | Implemented | API 0.1.1 candidate requires UI 0.1.1; framework packages pass 30 build/check/test tasks and 18 root checks, with verified tarball checksums |
 | LN-PKG-003 | [packages](../packages/core-contract.md#ln-pkg-003) | Implemented | Pruned `packages/ui`; `utils.test.ts` checks the class helper and every retained UI source import against the published runtime/peer dependencies for clean package consumers. |
-| LN-PKG-004 | [packages](../packages/editor-apis.md#ln-pkg-004) | Implemented | Deno desktop and web are the production hosts; authorized plugins include Source Editor, Tasks, Docs, and Terminal while notebook and remaining unlisted plugins remain gated |
+| LN-PKG-004 | [packages](../packages/editor-apis.md#ln-pkg-004) | Implemented | Deno desktop and web are the production hosts; authorized plugins include Source Editor, Tasks, Docs, Terminal, and PDF. PDF is specified in lapis-plugins/spec/src/plugins/pdf/index.md. Notebook and remaining unlisted plugins remain gated |
 | LN-PKG-015 | [packages](../packages/releases-and-exports.md#ln-pkg-015) | Implemented | Markdown package location, API/Mira dependencies, preserved Plugin configuration/event contracts, and bounded public embedded-editor composition |
 | LN-PKG-017 | [packages](../packages/app-and-services.md#ln-pkg-017) | Implemented | app-only Markdown panel exports include Tags while preserving governed Outline and Tags tree geometry |
 | LN-PKG-018 | [packages](../packages/editor-apis.md#ln-pkg-018) | Implemented | root and narrow public exports for Mira-backed FileEmbed, MarkdownEmbed, and NoteLink |

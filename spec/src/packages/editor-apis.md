@@ -28,7 +28,7 @@ on unload.
 
 <a id="ln-pkg-004"></a>
 
-**Requirement.** Notebook and remaining unlisted plugin packages MUST NOT be added until specified and tracked in `MIGRATION.md`. The production hosts are Deno desktop and web. Authorized plugins are Source Editor, Markdown, Markdownlint, Spell Check, File Explorer, Bookmarks, Search, Graph, Bases, AI, History, Word Count, Roles, Tasks, Docs, and Terminal. Authorized host infrastructure MAY include public `@lapismd/ai-host` and `@lapismd/terminal-host`.
+**Requirement.** Notebook and remaining unlisted plugin packages MUST NOT be added until specified and tracked in `MIGRATION.md`. The production hosts are Deno desktop and web. Authorized plugins are Source Editor, Markdown, Markdownlint, Spell Check, File Explorer, Bookmarks, Search, Graph, Bases, AI, History, Word Count, Roles, Tasks, Docs, Terminal, and PDF. PDF is specified in `lapis-plugins/spec/src/plugins/pdf/index.md`; its viewer stays in that repository. Authorized host infrastructure MAY include public `@lapismd/ai-host` and `@lapismd/terminal-host`.
 
 ## LN-PKG-011 — Development-only CodeMirror language dependencies
 
