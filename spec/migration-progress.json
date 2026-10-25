@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 07:43:52 UTC",
+  "updated": "2026-10-25 07:53:00 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -47,7 +47,7 @@
       "work": "Native admission and supervised execution",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Qualified native execution](spec/records/2026-10-25-rust-native-turn.md): ten execution plus ten journal cases, all 303 ordinary Rust cases/doctests, strict/full source check/test/build and all specification lanes pass. Lifecycle journal release and private-root overlap regressions each move from one failure to zero. Six intentional ignores retain their separate scope. The unchanged AI backend uses an isolated protocol peer; host/chat/provider acceptance remains R2.2/R2.3."
+      "detail": "[Qualified native execution](spec/records/2026-10-25-rust-native-turn.md): ten execution plus ten journal cases, all 303 ordinary Rust cases/doctests, strict/full source check/test/build and all specification lanes pass. Lifecycle journal release and private-root overlap regressions each move from one failure to zero. Six intentional ignores retain their separate scope. The unchanged AI backend uses an isolated protocol peer; host/chat/provider acceptance remains R2.2/R2.3. [Desktop compatibility](spec/records/2026-10-25-rust-native-turn-desktop.md) is committed at 6c9e55f7: six native file/database/backup cases and strict normal/e2e checks pass without selecting the new execution owner."
     },
     {
       "id": "R2.2",
