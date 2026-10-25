@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 21:34:52 UTC",
+  "updated": "2026-10-25 21:39:34 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -63,7 +63,7 @@
       "work": "Real-provider detach and cold application recovery",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-007",
-      "detail": "[Actual-provider preflight](spec/records/2026-10-25-rust-provider-preflight.md) passes native Tauri/Core and Rust HTTP detach/cold/idempotent checks. [Declared-mode source](spec/records/2026-10-25-native-target-modes.md) is qualified in the enclosing change: 11 focused/23 observer, eight native, full check/test/build (346 Rust/2,220 package cases), 261 cold catalog, eight development/six static specification-browser and all eight refreshed fixture-provider hosted journeys. Final spec/package checks pass; API/app-profile archives are prepared. Desktop adapter f289874c separately passes three focused/all 240 native cases. [Hosted actual-provider screen](spec/records/2026-10-25-hosted-provider-screen.md) passes one case: running detach, no-browser completion and cold History/reload with one Submit/journal and unchanged transcript. Matching Desktop package intake and its actual-provider screen remain; AI defaults stay staged."
+      "detail": "[Actual-provider preflight](spec/records/2026-10-25-rust-provider-preflight.md) passes native Tauri/Core and Rust HTTP detach/cold/idempotent checks. [Declared-mode source](spec/records/2026-10-25-native-target-modes.md) is qualified in the enclosing change: 11 focused/23 observer, eight native, full check/test/build (346 Rust/2,220 package cases), 261 cold catalog, eight development/six static specification-browser and all eight refreshed fixture-provider hosted journeys. Final spec/package checks pass; API/app-profile archives are prepared. Desktop adapter f289874c separately passes three focused/all 240 native cases. [Hosted actual-provider screen](spec/records/2026-10-25-hosted-provider-screen.md) passes one case: running detach, no-browser completion and cold History/reload with one Submit/journal and unchanged transcript. Desktop native source/pin alignment is committed at 49881cd3: three fresh policy and 77 tooling cases plus specification gates pass. Matching Desktop UI package intake and its actual-provider screen remain; AI defaults stay staged."
     },
     {
       "id": "R3",
