@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 15:29:33 UTC",
+  "updated": "2026-10-25 15:37:57 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -439,7 +439,7 @@
       "work": "Tauri selection and existing chat adoption",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "[Verified retained chat source](spec/records/2026-10-25-rust-chat-navigation.md): eighteen focused and all 2209 package cases/33 forced tasks, 261 cold Notes catalog, eight actual Rust-hosted/twelve PWA/one Node journeys pass. Desktop 420 renderer/governance, 744 AI and all 2016 catalog cases pass. Source commit and committed-profile/native intake are being finalized; R2.3/default gates remain unchanged."
+      "detail": "[Verified retained chat source](spec/records/2026-10-25-rust-chat-navigation.md): eighteen focused and all 2209 package cases/33 forced tasks, 261 cold Notes catalog, eight actual Rust-hosted/twelve PWA/one Node journeys pass. Desktop 420 renderer/governance, 744 AI and all 2016 catalog cases pass. Notes source 7161a447 is committed; its final private archive/native application intake is running; R2.3/default gates remain unchanged."
     },
     {
       "id": "R3.2.1.1",
@@ -447,7 +447,7 @@
       "work": "Native Markdown parsing and reconciliation lifetime",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Native Markdown source](spec/records/2026-10-25-native-markdown-indexing.md): parser 6af2420f and Notes selected-source intake pass ten lifetime/two normalization/21 retained reference cases, 338 complete ordinary Rust cases, five unique real-model cases, all 2209 package cases/33 forced tasks, 261 cold catalog and spec lanes. Npm exception is limited to the plugin parser slice. Both host selections and other processors remain pending; Notes source commit is the enclosing verified intake."
+      "detail": "[Native Markdown source](spec/records/2026-10-25-native-markdown-indexing.md): parser 6af2420f and Notes selected-source intake pass ten lifetime/two normalization/21 retained reference cases, 338 complete ordinary Rust cases, five unique real-model cases, all 2209 package cases/33 forced tasks, 261 cold catalog and spec lanes. Npm exception is limited to the plugin parser slice. Both host selections and other processors remain pending; Notes source intake is committed at 7161a447ef365df498371d7bad491df5f5da431c."
     },
     {
       "id": "R3.2.1.2",

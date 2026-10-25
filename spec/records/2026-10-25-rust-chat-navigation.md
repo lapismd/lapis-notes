@@ -91,3 +91,14 @@ rerun and both hosted lanes pass without test-source or timeout changes.
 The source gate is verified. Tauri committed-archive adoption remains the next
 consumer gate; R2.2.3 remains Working until it passes. R2.3 provider acceptance,
 other services and Node retirement retain their original gates.
+
+## Committed source and final formatting
+
+Notes `7161a447ef365df498371d7bad491df5f5da431c` commits the verified source.
+Final JSON fixture indentation is verified again by two native and 21 retained
+reference cases. Final callback-only Svelte formatting produces byte-identical
+production JavaScript and CSS with Svelte 5.56.10; compiled JavaScript SHA-256 is
+`e0014bbcccd2e25bb777bbcdc2eb65d8b5bdacc0ff24f1fbea277a9f9685f530`.
+Private-profile checks/build and all 37 cases pass again. Only the changed
+private profile is repacked; the other nineteen peer archives retain their
+qualified identities. Final consumer acceptance remains separate.
