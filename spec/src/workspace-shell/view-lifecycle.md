@@ -165,3 +165,9 @@ collection across its main and detached surfaces. Final unmount disposes the
 observer and fences pending publication. Host leave preflights unresolved
 claims before destructive App/registry disposal; a failed leave preserves its
 existing editors and explicit recovery actions.
+
+Retained text-conflict review is shared by WorkspaceShell and early host leases
+under [LN-WS-102 through LN-WS-104](panels/problems/core-contract.md#ln-ws-102).
+Its existing `desktop:file-conflict` leaf uses LN-WS-101 layout-only close;
+staged merge text stays in the App-owned presentation model while the writer's
+captured conflict remains the sole persistence and explicit-recovery authority.

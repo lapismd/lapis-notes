@@ -687,6 +687,20 @@ export const workspaceCatalog = [
     publicSurface: "@lapis-notes/workspace",
     storyId: "workspace-editing-recovery--handoff-failure",
   },
+  {
+    id: "workspace-file-conflicts-edit-and-save",
+    title: "File Conflicts: Edit And Save",
+    spec: "spec/src/workspace-shell/panels/problems/core-contract.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-file-conflicts--edit-and-save",
+  },
+  {
+    id: "workspace-file-conflicts-close-and-reopen",
+    title: "File Conflicts: Close And Reopen",
+    spec: "spec/src/workspace-shell/panels/problems/core-contract.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-file-conflicts--close-and-reopen",
+  },
   ...pluginPanelCatalog,
   {
     id: "workspace-plugins-app-link-release-selection",

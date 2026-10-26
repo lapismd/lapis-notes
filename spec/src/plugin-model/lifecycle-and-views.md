@@ -31,6 +31,10 @@ LN-WS-101 allows an explicit layout-only close policy for views with no file
 writers and externally retained staged state. Existing plugin views keep full
 application writer protection unless they opt in; whole-host shutdown remains
 guarded. Registration, permissions and file-writer lifetimes are unchanged.
+The shared file-conflict review (LN-WS-102) is a host-owned internal view
+registered by the Workspace binding, not a plugin contribution; it uses the
+same explicit layout-only close policy, and its diagnostics collection follows
+the binding's reference-counted disposal.
 
 LN-WS-005/062 in-flight replay retains newer plugin-owned view state and
 activation. Stale prepared candidates are retired before opening; ordinary

@@ -2,8 +2,12 @@
 
 LN-WS-101 keeps close policy generic and safe by default. A declared layout-only
 view still joins operation settlement and layout persistence; its App-owned
-staged state and unrelated failed writers survive removal. Desktop owns the
-conflict-review opt-in; shared code contains no consumer view-type exception.
+staged state and unrelated failed writers survive removal. Retained
+text-conflict review is shared under LN-WS-102 through LN-WS-104: Workspace
+binds one App-owned presentation for shell and early host leases, reusing the
+stable `desktop:file-conflict` view id while the writer-captured conflict
+remains the sole persistence authority. Desktop keeps its own conflict-review
+opt-in; shared code contains no consumer view-type exception.
 
 Same-type state transitions retain LN-WS-005/062 authority through in-flight
 projection, including Search query/scope state.

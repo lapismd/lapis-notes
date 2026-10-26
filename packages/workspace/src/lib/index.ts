@@ -19,3 +19,6 @@ export type {
 } from "./desktop/desktop-vault-launcher";
 
 export { default as DesktopRecoveryBanner } from "./desktop/DesktopRecoveryBanner.svelte";
+
+export { bindFileConflictReviews } from "./file-conflicts/register-conflict-reviews";
+export type { FileConflictReviewOptions } from "./file-conflicts/register-conflict-reviews";

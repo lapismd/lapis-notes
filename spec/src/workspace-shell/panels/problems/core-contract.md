@@ -291,3 +291,26 @@ Native editing admission and unresolved-claim recovery under LN-CORE-027 use
 this existing Problems collection/menu boundary. Diagnostics retain serializable
 claim/issue identifiers; callbacks and saved-file navigation stay App-owned.
 Ordinary healthy attached writers do not become diagnostics.
+
+## LN-WS-102 — App-owned retained text-conflict presentation
+
+<a id="ln-ws-102"></a>
+
+**Requirement.** WorkspaceShell MUST share one App-owned retained text-conflict presentation across shell and early host leases. The final idempotent release MUST remove only its own diagnostics, navigation and view registration without resolving or dropping writer conflicts.
+
+## LN-WS-103 — Guarded retained text-conflict review
+
+<a id="ln-ws-103"></a>
+
+**Requirement.** Activating a text-conflict problem MUST reveal the retained three-way MergeEditor for its captured path. Its editable centre MUST save through the writer-owned captured merge action; refresh MUST use that conflict's existing refresh action. Presentation MUST NOT add a writer or conflate native claim recovery with text-conflict resolution.
+
+Review leaves retain the existing layout-only close contract under LN-WS-101;
+closing and reopening a review preserves staged results without resolving its
+writer. The Desktop view ID `desktop:file-conflict`, diagnostic owner
+`desktop:file-conflicts` and `lapis-file-conflict:` URI remain stable.
+
+## LN-WS-104 — Combined host recovery inhibition
+
+<a id="ln-ws-104"></a>
+
+**Requirement.** Shared text-conflict review MUST combine every active host lease's current disabled predicate with its own busy state. A default shell lease MUST NOT remove an early host's inhibition, and releasing one lease MUST NOT retain its predicate.

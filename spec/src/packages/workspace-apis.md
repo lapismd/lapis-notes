@@ -134,6 +134,13 @@ reference-counts that disposable collection binding per App; the source model
 is passive until mounted or explicitly refreshed. Hosts call the registry
 preflight before destructive teardown, preserving failed-leave recovery.
 
+LN-WS-102 through LN-WS-104 expose `bindFileConflictReviews(app)` from
+`@lapis-notes/workspace`: one App-owned retained text-conflict presentation
+shared by WorkspaceShell mounts and early host leases. The binding is
+reference-counted per App; its final idempotent release removes only its own
+diagnostics, navigation and view registration and never resolves or drops the
+writer-captured conflicts.
+
 LN-PLUG-122–124 expose optional editor-view `fileIcon`, extension-registration
 options, `Workspace.getFileIconForPath`/`onFileIconsChanged` and the App-owned
 icon registry. Plugin helpers register lifecycle-owned SVGs and icon packs;

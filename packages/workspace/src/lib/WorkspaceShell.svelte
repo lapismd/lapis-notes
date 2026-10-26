@@ -25,6 +25,7 @@
   } from "@lapis-notes/api";
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
   import { AppShell } from "@lapismd/design-core/workspace/app-shell";
+  import { bindFileConflictReviews } from "./file-conflicts/register-conflict-reviews";
   import "./workspace-shell.css";
 
   let {
@@ -48,7 +49,12 @@
     // AppShell.Root does not own startup. By the time this shell is mounted,
     // the consumer has loaded the vault and restored the Lapis workspace.
     void controller.start();
-    return bindNativeEditingProblems(app);
+    const stopNative = bindNativeEditingProblems(app);
+    const stopConflicts = bindFileConflictReviews(app);
+    return () => {
+      stopConflicts();
+      stopNative();
+    };
   });
 </script>
 
