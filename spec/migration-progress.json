@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 17:05:17 UTC",
+  "updated": "2026-10-26 17:08:37 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -735,7 +735,7 @@
       "work": "Backup capture controls and passive status",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Qualified backup controls](../.workspaces/lapis-notes-native-history-capture-20261026/spec/records/2026-10-26-native-backup-selection.md), sourceedf1d76f, passes575Rust/2358package/261coldcatalog/25browser plus strict/build/public/static/canonical78governance. Persisted selection honors saved false before capture; passive status is an ordered barrier and accepted work survives reply loss/cancellation. History92b4dea6/e714source is qualified. Combined current CORE026/main intake remains active; original-source selection is separate."
+      "detail": "[Qualified backup controls](../.workspaces/lapis-notes-native-history-capture-20261026/spec/records/2026-10-26-hosted-backup-controls.md), sourceedf1d76f, passes575Rust/2358package/261coldcatalog/25browser plus strict/build/public/static/canonical78governance. Persisted selection honors saved false before capture; passive status is an ordered barrier and accepted work survives reply loss/cancellation. History92b4dea6/e714source is qualified. Combined current CORE026/main intake remains active; original-source selection is separate."
     },
     {
       "id": "R3.2.3.6.3",
