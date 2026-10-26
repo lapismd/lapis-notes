@@ -286,3 +286,8 @@ Adding the optional App/session History port changes no Problems registration,
 file-conflict navigation, diagnostic selection or error presentation. History
 observation keeps its explicitly owned App and existing notification feedback;
 it introduces no alternative Problems panel or inline failure surface.
+
+Native editing admission and unresolved-claim recovery under LN-CORE-027 use
+this existing Problems collection/menu boundary. Diagnostics retain serializable
+claim/issue identifiers; callbacks and saved-file navigation stay App-owned.
+Ordinary healthy attached writers do not become diagnostics.

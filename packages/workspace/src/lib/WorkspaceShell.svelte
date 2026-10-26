@@ -19,7 +19,10 @@
 
 <script lang="ts">
   import { onMount, untrack } from "svelte";
-  import { provideApplicationState } from "@lapis-notes/api";
+  import {
+    bindNativeEditingProblems,
+    provideApplicationState,
+  } from "@lapis-notes/api";
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
   import { AppShell } from "@lapismd/design-core/workspace/app-shell";
   import "./workspace-shell.css";
@@ -45,6 +48,7 @@
     // AppShell.Root does not own startup. By the time this shell is mounted,
     // the consumer has loaded the vault and restored the Lapis workspace.
     void controller.start();
+    return bindNativeEditingProblems(app);
   });
 </script>
 

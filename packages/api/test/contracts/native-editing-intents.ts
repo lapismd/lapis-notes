@@ -1,5 +1,7 @@
 import {
   FileEditingSessionRegistry,
+  bindNativeEditingProblems,
+  type App,
   type AppStateProperties,
   type FileEditingRegistration,
   type FileEditingSession,
@@ -63,3 +65,13 @@ void port.call({
 void port.call({ kind: "recover", editor_id: "id", generation: 1 });
 // @ts-expect-error ID-only managed discard is not part of the public port.
 void port.call({ kind: "discard", editor_id: "id" });
+
+declare const app: App;
+const stopProblems = bindNativeEditingProblems(app);
+stopProblems();
+void registry.preflightNativeRecovery();
+void registry.nativeRecovery?.refresh();
+const issue = registry.nativeIssues.entries[0];
+if (issue) void registry.nativeIssues.retry(issue);
+// @ts-expect-error Local retries require captured registration and issue identity.
+void registry.nativeIssues.retry({ path: "note.md", id: "issue" });

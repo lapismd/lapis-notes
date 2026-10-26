@@ -1,4 +1,6 @@
 import { FileTextConflictRegistry } from "./file-text-conflicts";
+import { FileEditingNativeIssues } from "./file-editing-native-issues";
+import { NativeEditingRecovery } from "./native-editing-recovery";
 import type { NativeEditingIntents } from "./native-editing-intents";
 import {
   NativeRegisteredEditingSession,
@@ -11,6 +13,7 @@ export type {
 } from "./native-editing-session";
 export * from "./file-text-conflicts";
 export * from "./file-text-persistence";
+export type { NativeEditingProblemIssue } from "./file-editing-native-issues";
 
 /**
  * Independent file writers implement this contract without importing a
@@ -35,6 +38,7 @@ type Registration = {
   references: number;
   native?: NativeRegisteredEditingSession;
   retirement?: Promise<unknown>;
+  stopNativeIssues?: () => void;
 };
 type Release = {
   barrier: object;
@@ -72,6 +76,8 @@ function failures(results: PromiseSettledResult<unknown>[]): unknown[] {
  */
 export class FileEditingSessionRegistry {
   readonly textConflicts = new FileTextConflictRegistry();
+  readonly nativeIssues = new FileEditingNativeIssues();
+  readonly nativeRecovery: NativeEditingRecovery | undefined;
   readonly #sessions = new Map<FileEditingSession, Registration>();
   readonly #barriers = new Map<object, string | undefined>();
   readonly #releases = new Set<Release>();
@@ -82,7 +88,21 @@ export class FileEditingSessionRegistry {
   #closed = false;
   #disposal: Promise<void> | undefined;
 
-  constructor(private readonly native?: NativeEditingIntents) {}
+  constructor(private readonly native?: NativeEditingIntents) {
+    this.nativeRecovery = native
+      ? new NativeEditingRecovery(native, (run) => this.track(run))
+      : undefined;
+  }
+
+  /** Hosts preflight before disposing the App, preserving failed-leave recovery. */
+  async preflightNativeRecovery(): Promise<void> {
+    await this.settleOperations();
+    await this.nativeRecovery?.assertClear();
+    if (this.nativeIssues.entries.length)
+      throw new Error(
+        "Unresolved editing admission requires review in Problems",
+      );
+  }
 
   get closed(): boolean {
     return this.#closing;
@@ -173,6 +193,7 @@ export class FileEditingSessionRegistry {
           () => this.#closing || entry!.references === 0,
         );
         entry.session = entry.native;
+        this.#observeNativeIssues(entry);
       }
       this.#sessions.set(session, entry);
     }
@@ -245,7 +266,7 @@ export class FileEditingSessionRegistry {
         typeof session.dirty !== "boolean"
       )
         throw new Error("Invalid file editing session");
-      const entry = { path: scope, session, references: 0 };
+      const entry: Registration = { path: scope, session, references: 0 };
       if (this.native) {
         const native = new NativeRegisteredEditingSession(
           session,
@@ -254,6 +275,7 @@ export class FileEditingSessionRegistry {
           () => true,
         );
         Object.assign(entry, { native, session: native });
+        this.#observeNativeIssues(entry);
       }
       this.#sessions.set(session, entry);
       try {
@@ -294,6 +316,7 @@ export class FileEditingSessionRegistry {
       await this.#tail;
       if (this.#closed) return;
       await this.#guard(undefined, async () => undefined, true);
+      for (const entry of this.#sessions.values()) entry.stopNativeIssues?.();
       this.#sessions.clear();
       this.#closed = true;
     })();
@@ -352,10 +375,28 @@ export class FileEditingSessionRegistry {
         return;
       }
       for (const [session, registered] of this.#sessions)
-        if (registered === entry) this.#sessions.delete(session);
+        if (registered === entry) {
+          this.#sessions.delete(session);
+          entry.stopNativeIssues?.();
+        }
     } catch {
       // A failing dirty-state getter must not silently remove a writer.
     }
+  }
+
+  #observeNativeIssues(entry: Registration): void {
+    if (!entry.native) return;
+    entry.stopNativeIssues = this.nativeIssues.register(
+      entry.path,
+      entry.native,
+      (check) =>
+        this.track(() =>
+          this.#enqueue(async () => {
+            check();
+            await this.#guard(entry.path, async () => undefined);
+          }),
+        ),
+    );
   }
 
   async #release(pending: Release[]): Promise<unknown[]> {

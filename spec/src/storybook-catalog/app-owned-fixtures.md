@@ -125,3 +125,11 @@ Browser file serialization MUST be configured on the browser pool itself.
 Application panel fixtures own a full viewport even when the browser test host
 omits Storybook body classes. Plays verify the actual viewport height before
 checking placement; isolated Docs canvases retain their explicit 700px height.
+
+LN-CORE-027 adds two real WorkspaceShell Problems scenarios: detached native
+claim recovery/discard with saved-file Reading review, and failed local
+admission with explicit retry. The catalog binds the production App, registry,
+collection and menu, using only disposable transport/storage fixtures. No JSON
+observer output or alternate recovery screen is visible. Both stories stay
+`visual-pending`; independent nested paths under
+`stories/workspace/editing-recovery/` are declared without PNG capture.

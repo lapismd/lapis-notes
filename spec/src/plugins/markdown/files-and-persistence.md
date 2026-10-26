@@ -110,3 +110,7 @@ Mira's public registration hook; API must not import Mira session internals.
 ## Native Task ownership during metadata reads
 
 [CORE015](../../architecture/rust-task-host-port.md#ln-core-015) separates metadata reads from native Task startup policy. A compatibility snapshot may load before Tasks finishes activation. Final plugin startup reconciles the Task declaration, while passive metadata disposal detaches observation before plugin teardown. Selected Task transformations retain their admitted native writer and source-version guard.
+
+LN-CORE-027 reports native admission/rearm through the existing Problems
+collection without replacing Markdown persistence. Saved-file review opens a
+separate retained Reading tab; diagnostics never claim to contain draft bytes.

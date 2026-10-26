@@ -2,6 +2,7 @@ import "$lib/enhance";
 
 export * from "./editor.svelte";
 export * from "./file-editing-sessions";
+export { bindNativeEditingProblems } from "./native-editing-problems";
 export type { NativeEditingIntents } from "./native-editing-intents";
 export * from "./events";
 export * from "./components/editor/extensions/autocomplete";
