@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 15:51:32 UTC",
+  "updated": "2026-10-26 16:12:38 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -735,7 +735,7 @@
       "work": "Backup capture controls and passive status",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native persisted backup selection/passive status and source History observer changes are under focused qualification. Saved false must be honored before capture; status observers must not disable the owner. Complete source and host gates remain pending."
+      "detail": "Native persisted backup selection/passive status and source History observer changes are under focused qualification. Saved false must be honored before capture; status observers must not disable the owner. Complete source and host gates remain pending. Owning History source92b4dea6 qualifies persisted selection versus passive observer lifetime:1013Vitest/96RepositoryNode/285coldcatalog and strict/build/public/static/spec pass. [Source record](../.workspaces/lapis-plugins-native-backup-observer-20261026/spec/records/2026-10-26-native-backup-selection.md) records identical parent Zod/CSV/release-graph findings. Native focused7/HTTP3/API3/Web19 and three actual hosted controls/restore cases pass; full combined Notes gate remains active."
     },
     {
       "id": "R3.2.3.6.3",
@@ -805,9 +805,9 @@
       "id": "R3.2.4.2.2",
       "area": "Native writer recovery presentation",
       "work": "Existing Problems discovery and explicit recovery actions",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/workspace-shell/panels/problems/core-contract.md#ln-ws-029",
-      "detail": "After native captured-state qualification, adapt retained intent discovery and guarded decisions into the App-owned diagnostic collection and existing Problems actions. No new screen, automatic discard or content recovery engine; host/cold-crash qualification remains separate."
+      "detail": "[Existing Problems bridge](../.workspaces/lapis-notes-editor-problems-20261026/spec/records/2026-10-26-editing-problems.md) passes11native-recovery model and5local-issue identity cases. Product collection/menu, passive shell binding and minimal real-shell stories are implemented but unqualified, awaiting coherent CORE026 hooks and full source/story/host gates. No replacement screen or native draft storage."
     }
   ]
 }
