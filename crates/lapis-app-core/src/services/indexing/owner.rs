@@ -1,4 +1,4 @@
-use super::{IndexingStatus, reconcile, search};
+use super::{IndexingStatus, TrackedTaskProvider, reconcile, search};
 use crate::{
     database::Database,
     services::{Error, Result, VaultService},
@@ -28,6 +28,7 @@ pub(in crate::services) struct Owner {
     requested: Arc<AtomicU64>,
     rebuild: Arc<AtomicBool>,
     completed: tokio::sync::watch::Receiver<u64>,
+    tracked: Arc<Mutex<Option<TrackedTaskProvider>>>,
 }
 pub(super) struct Clock {
     pub today: Arc<dyn Fn() -> String + Send + Sync>,
@@ -103,6 +104,8 @@ impl Owner {
         let rebuild = Arc::new(AtomicBool::new(false));
         let force = rebuild.clone();
         let (completion, completed) = tokio::sync::watch::channel(0);
+        let tracked = Arc::new(Mutex::new(None));
+        let selected_tracking = tracked.clone();
         let worker = thread::Builder::new()
             .name("lapis-metadata".into())
             .spawn(move || {
@@ -125,6 +128,7 @@ impl Owner {
                         documents: &selected_documents,
                         search: &selected_search,
                         docs: &selected_docs,
+                        tracked: &selected_tracking,
                         today: &today,
                         force: force.swap(false, Ordering::AcqRel),
                         progress: &progress,
@@ -143,12 +147,14 @@ impl Owner {
                     {
                         current.completed_at = Some(chrono::Utc::now().timestamp_millis() as f64);
                     }
-                    current.error = result.error;
+                    let pending = result.pending;
+                    current.error = result.progress.error;
                     current.active = false;
                     current.phase = IndexingPhase::Idle;
+                    current.tracked = result.tracked;
                     drop(current);
                     completion.send_replace(target);
-                    if result.pending > 0 {
+                    if pending > 0 {
                         let _ = retry.try_send(());
                     }
                     if cancelled.load(Ordering::Acquire)
@@ -175,6 +181,7 @@ impl Owner {
             requested,
             rebuild,
             completed,
+            tracked,
         })
     }
     pub(super) fn refresh(&self, rebuild: bool) -> Refresh {
@@ -190,6 +197,11 @@ impl Owner {
     }
     pub(super) fn select_search(&self, configuration: Option<search::Policy>) -> Result<()> {
         self.search.configure(configuration)?;
+        let _ = self.signal.try_send(());
+        Ok(())
+    }
+    pub(super) fn select_tracking(&self, provider: Option<TrackedTaskProvider>) -> Result<()> {
+        *self.tracked.lock().map_err(|_| failure())? = provider;
         let _ = self.signal.try_send(());
         Ok(())
     }

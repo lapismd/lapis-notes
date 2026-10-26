@@ -8,6 +8,7 @@ use uuid::Uuid;
 pub mod browser;
 pub mod database;
 pub mod files;
+pub mod history_index;
 pub mod indexing;
 pub mod turns;
 

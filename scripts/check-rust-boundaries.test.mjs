@@ -26,6 +26,34 @@ test("rejects transport dependencies and source references", () => {
   assert.equal(errors.length, 2);
   assert.ok(errors.every((error) => error.includes("LN-CORE-001")));
 });
+test("distinguishes bare browser names from ordinary Rust struct fields", () => {
+  for (const source of [
+    "let text = partial.daily.document.text;",
+    "let text = partial.daily . document . text;",
+    "let field = payload.window.value;",
+    "let field = payload.globalThis.value;",
+    "let local = mydocument.value;",
+  ]) {
+    assert.deepEqual(
+      auditRustSources([["crates/lapis-app-core/src/lib.rs", source]]),
+      [],
+      source,
+    );
+  }
+  for (const source of [
+    "window.location;",
+    "document.body;",
+    "globalThis.app;",
+    "let value = document.body;",
+    "globalThis.document.body;",
+  ]) {
+    assert.equal(
+      auditRustSources([["crates/lapis-app-core/src/lib.rs", source]]).length,
+      1,
+      source,
+    );
+  }
+});
 test("rejects oversized source and host implementation routing", () => {
   const errors = auditRustSources([
     ["crates/lapis-app-core/src/lib.rs", "pub fn policy() {}\n".repeat(301)],

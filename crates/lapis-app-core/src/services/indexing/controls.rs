@@ -111,9 +111,11 @@ impl VaultService {
             contribution,
         })
     }
-    fn observed_indexing_status(&self) -> Result<Option<super::IndexingStatus>> {
+    fn observed_indexing_status(
+        &self,
+    ) -> Result<Option<lapis_app_protocol::indexing::IndexingStatus>> {
         match self.indexing_status() {
-            Ok(status) => Ok(Some(status)),
+            Ok(status) => Ok(Some(status.progress)),
             Err(error) if error.code() == ErrorCode::Unsupported => Ok(None),
             Err(error) => Err(error),
         }

@@ -1,6 +1,6 @@
 # R3 source and host handoff checkpoint
 
-Last updated **2026-10-26 10:42:00 UTC**. This checkpoint distinguishes source
+Last updated **2026-10-26 11:12:29 UTC**. This checkpoint distinguishes source
 qualification from main-workspace intake; it does not change the R3–R7 gates.
 Requirements: LN-CORE-003/004/005/006/007/008.
 
@@ -37,13 +37,15 @@ Requirements: LN-CORE-003/004/005/006/007/008.
   committed: 2,859 units / 14 native / 62 cold catalog and complete source gates. Notes port
   qualification is completing final plugin-load ordering; both host selections
   and daily-provider/locale parity remain open. No lapis-ai edits are required.
-- `r3-shared-intake-20261026` merges main tracker, hosted Search, Tasks scheduling
-  and shared History source without rewriting their qualified commits. All 12
-  initial conflicts are resolved, preserving tracked observations and the
-  single transport progress DTO. The first exact run failed at compilation
-  against a stale Tasks cache; exported native source hashes and lifecycle
-  exports match the qualified prerequisite. The same exact targets are being
-  rerun after clearing only that package cache.
+- `r3-shared-intake-20261026` now qualifies the coherent source:507 Rust,
+  2,295 package,261 cold catalog and22 browser cases, strict/full builds, complete
+  specification and 78 governance cases. Functional source 790306bb and final
+  documentation 01f3284a preserve runtime bytes. Both failed compilation receipts
+  and the final mapped-catalog failure remain recorded alongside their repairs.
+- Tasks port `d6e0427f83d613b662f4d28df8c65e691e0588b6` is committed with
+  480 Rust / 2,264 package / 261 cold catalog and full static/protocol/strict/specification
+  qualification. Aggregate API intake, daily en-GB parity and host selection
+  remain separate; source adapters are not counted as complete applications.
 
 The main `default` workspace remains the authoritative master tracker. Active
 implementation lives in the named isolated workspaces until their qualified

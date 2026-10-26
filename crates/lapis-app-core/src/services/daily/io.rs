@@ -9,11 +9,11 @@ use crate::{
 };
 use lapis_app_protocol::{ErrorCode, ExpectedVersion, TextSnapshot, VaultPhase};
 
-pub(super) struct Prepared {
+pub(in crate::services) struct Prepared {
     snapshot: Snapshot,
     plan: Option<DailyDocumentPlan>,
 }
-pub(super) fn prepare(
+pub(in crate::services) fn prepare(
     work: &Work,
     date: &str,
     settings: Option<(&DailyDocumentSettings, &DailyFormatContext)>,
@@ -28,6 +28,17 @@ pub(super) fn prepare(
         None => policy::locate(date, &snapshot.candidates)?,
     };
     Ok(Prepared { snapshot, plan })
+}
+impl Prepared {
+    pub(in crate::services) fn plan(&self) -> &Option<DailyDocumentPlan> {
+        &self.plan
+    }
+    pub(in crate::services) fn existing(
+        &self,
+        path: &str,
+    ) -> crate::services::Result<TextSnapshot> {
+        self.snapshot.existing(path)
+    }
 }
 fn parents(state: &State, folder: &str) -> crate::services::Result<()> {
     guards::write(state, folder, None, false)?;
@@ -46,7 +57,7 @@ fn parents(state: &State, folder: &str) -> crate::services::Result<()> {
     }
     Ok(())
 }
-pub(super) fn finish(
+pub(in crate::services) fn finish(
     work: &Work,
     prepared: Prepared,
 ) -> DailyDocumentOperationResult<Option<TextSnapshot>> {

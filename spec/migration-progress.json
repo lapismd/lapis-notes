@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 10:42:00 UTC",
+  "updated": "2026-10-26 11:12:29 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Metadata is integrated in both main applications. Hosted Search 2a6f938a and Desktop Search a052be6b are committed and application-qualified. Tasks writers/recovery/tracked-today source ad968536 and the owning plugin adapter 7ae46a74 are committed; Notes port startup-order gates and both host selections remain. Shared indexed History source 7cbb8713 is fully qualified; retained-screen/Desktop adapters and coherent main intake remain active. R4-R7 retain their planned dependencies."
+      "detail": "Metadata and both committed Search host lanes are qualified. [Coherent shared source intake](spec/records/2026-10-26-r3-shared-intake.md) passes 507 Rust, 2,295 package, 261 cold catalog, 22 actual browser cases and final specification gates. Tasks port d6e0427f is separately committed; its aggregate API/host intake and daily en-GB parity remain active. Shared History controls are qualified, while its retained hosted reader/screen and Desktop shared-adapter adoption remain open. R4-R7 retain their original dependencies."
     },
     {
       "id": "R4",
@@ -455,7 +455,7 @@
       "work": "Remaining native plugin projection processors",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Native Markdown, Tasks/occurrence and Docs projections plus explicit writer authority are integrated at 0bb90ba1. Ordered Tasks persistence is source-qualified separately at 2296023f (11 exact cases / 110 retained attempts / 442 Rust); combined intake, durable recovery, tracked-today scheduling and both host selections remain pending. Recovery reuses existing private durable IO; custom processors stay explicitly client-dependent."
+      "detail": "Native Markdown, complete Tasks projections and opt-in Docs publication are source-qualified in Notes. Markdown parser/cache intake passes all 392 Rust cases and 54 retained API references. Guarded Tasks writes/cache intake and explicit one-writer ownership are active in separate workspaces. Daily/two-file coordination, custom-processor parity and both host selections remain; source qualification does not select a writer."
     },
     {
       "id": "R3.2.1.3",
@@ -656,6 +656,22 @@
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
       "detail": "[Coherent shared observer](spec/records/2026-10-26-native-search-observer.md) is integrated at 0bb90ba1. [Plugins Search/Bases/CSV source](spec/records/2026-10-26-search-bases-intake.md) is committed at bd305e58: 22 exact native Search, 16 cold Search, seven exact Bases and all 284 cold catalogue cases pass, plus package checks/tests/builds, static Storybook, specification, 47 runner/composition cases and public Search artifacts. Current-headless Chromium fixes the exact final-shard disconnect without changing assertions or coverage. Existing audit/CSV-style/lock findings remain recorded. Final Plugins replacement-App source e0144c6a, hosted 2a6f938a and Desktop a052be6b are now committed and qualified. Coherent main source intake remains active."
+    },
+    {
+      "id": "R3.2.2.6",
+      "area": "Hosted Search adoption",
+      "work": "Native Search through the retained hosted application",
+      "status": "Complete",
+      "spec": "spec/src/web-host/startup-and-plugins.md#ln-web-068",
+      "detail": "[Final hosted Search intake](spec/records/2026-10-26-native-search-app-replacement.md): Search 2e7f from committed Plugins e0144c6a and Design Core 6f33/0d7a9289 pass declaration, Markdown/Canvas results, writer refusal, refresh/rebuild, detached indexing, disabled replacement and recovered configuration/query/partial-save preservation. All 73 Web/six focused, 261 cold catalog/static and 22 browser cases pass across b47c2e12/2a78eca9. Source/API qualification and inherited baseline exceptions remain distinct. Ordinary defaults and complete R3 provider selection remain separate."
+    },
+    {
+      "id": "R3.2.3.3",
+      "area": "History indexing",
+      "work": "Shared indexed History controls and admitted HTTP bridge",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-history-indexing-lifetime.md#ln-core-011",
+      "detail": "[Qualified shared History controls](spec/records/2026-10-26-hosted-history-service.md): five exactHTTP, two wire and two admitted-core cases; all76server/16backup; full470Rust/2289package/261coldcatalog/static and22actualbrowser cases pass, including strict/publictypes/build/canonical78governance. Source is qualified at frozenec988ab. Explicit installation selection stays off; retained hosted-screen/controller and Desktop shared-adapter intake remain separate R3.2.3 gates."
     }
   ]
 }

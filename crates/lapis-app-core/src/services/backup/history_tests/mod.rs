@@ -1,3 +1,4 @@
+mod controls;
 mod read;
 
 use super::*;

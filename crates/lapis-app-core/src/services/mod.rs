@@ -23,10 +23,18 @@ pub use backup::{BackupStorage, HistoryIndexStatus};
 pub use client::Client;
 pub use database::DatabaseStorage;
 pub use error::{Error, Result};
-pub use indexing::{IndexingStatus, SearchIndexingConfiguration};
+pub use indexing::{
+    IndexingStatus, SearchIndexingConfiguration, TrackedTaskError, TrackedTaskFailure,
+    TrackedTaskProvider, TrackedTaskStatus,
+};
 pub use runtime::Runtime;
 pub use state::VaultService;
 pub use streams::FileSnapshot;
-pub use tasks::{TaskObservationWrite, TaskWriteError, TaskWriteResult};
+pub use tasks::{
+    PreparedTaskLifecycle, TaskLifecycleDisposition, TaskLifecycleError, TaskLifecycleFailure,
+    TaskLifecycleJournal, TaskLifecyclePartial, TaskLifecyclePolicy, TaskLifecycleRequest,
+    TaskLifecycleStatus, TaskLifecycleWrite, TaskObservationWrite, TaskRecoveryError,
+    TaskWriteError, TaskWriteResult,
+};
 pub use turns::{AgentPolicy, TurnStorage};
 pub use work::Work;

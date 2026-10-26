@@ -1,7 +1,7 @@
 //! Source-qualified daily policy; persistence stays with the admitted vault writer.
 mod error;
 mod format;
-mod io;
+pub(in crate::services) mod io;
 mod macros;
 mod observation_error;
 mod observations;

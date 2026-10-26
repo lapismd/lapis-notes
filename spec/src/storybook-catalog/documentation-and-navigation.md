@@ -334,3 +334,11 @@ The host compatibility story retains signed snapshot discovery and real PluginBr
 installation state under LN-PLUG-113. Its independent visual path is
 `workspace/plugins/desktop-only-ai`; review and capture remain
 pending without baseline changes.
+
+## Shared R3 source navigation
+
+The native daily Task lifecycle chapter is a canonical topic alongside indexing
+and History. SUMMARY, specification MDX mirrors and preview navigation retain
+the same chapter order when the qualified source lanes are integrated. This
+source intake adds documentation navigation; it does not add application
+screens, approve visual baselines or close the separate host-adoption gates.

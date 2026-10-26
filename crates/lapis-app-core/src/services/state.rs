@@ -21,6 +21,7 @@ pub struct VaultService {
     pub(super) backup: Mutex<Option<Arc<super::backup::Owner>>>,
     pub(super) history_indexing: Mutex<Option<Arc<super::backup::history::Owner>>>,
     pub(super) close_gate: Mutex<()>,
+    pub(super) task_lifecycle: Mutex<()>,
     pub(super) turn_storage: Option<Arc<super::TurnStorage>>,
     pub(super) turns: Mutex<Option<Arc<super::turns::Owner>>>,
 }
@@ -104,6 +105,7 @@ impl VaultService {
             backup: Mutex::new(None),
             history_indexing: Mutex::new(None),
             close_gate: Mutex::new(()),
+            task_lifecycle: Mutex::new(()),
             turn_storage: None,
             turns: Mutex::new(None),
         }

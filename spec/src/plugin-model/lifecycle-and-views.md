@@ -16,6 +16,17 @@ chooser supplies this host lifecycle policy; plugins keep their owned App and
 normal cleanup contracts. Installed-plugin delivery remains its own migration
 gate.
 
+LN-DB-065 reconciles retained native Search through the replacement App's owning
+plugin registry. An enabled Search plugin may declare its providers only after
+metadata readiness; absence, disabled state or failed activation instead drains
+the retained native selection. Passive plugin/App disposal keeps its existing
+observation-only lifetime and never creates a renderer writer.
+
+For Rust-hosted LN-WEB-068, Search declaration, registered rebuild controls and
+explicit disable use the admitted metadata/Search client. Recovered plugin
+configuration rehydrates the mounted Search controls without acquiring a native
+writer or replacing the existing UI; source admission remains a separate gate.
+
 LN-WS-101 allows an explicit layout-only close policy for views with no file
 writers and externally retained staged state. Existing plugin views keep full
 application writer protection unless they opt in; whole-host shutdown remains

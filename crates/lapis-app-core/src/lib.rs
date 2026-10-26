@@ -6,6 +6,7 @@ pub mod archive;
 pub mod database;
 pub mod embedding;
 pub mod plugins;
+mod record_store;
 pub mod services;
 mod text;
 pub mod turns;

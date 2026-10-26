@@ -66,6 +66,7 @@ const preview: Preview = {
               "Rust managed vaults",
               "Durable native turn admission",
               "Native indexing lifetime",
+              "Native daily Task lifecycle",
               "Native History indexing lifetime",
               "Backup service lifetime",
               "Editor integration",

@@ -267,3 +267,127 @@ it("reports Search progress using the existing observer and detaches its timer",
     port.call.mock.calls.some(([command]) => command.kind === "disable_search"),
   ).toBe(false);
 });
+
+it.each(["absent", "disabled", "failed"] as const)(
+  "drains retained native Search when the replacement App has Search %s",
+  async (mode) => {
+    const port = service();
+    const first = await fixture(port);
+    await first.app.backgroundIndexing!.selectSearch(selection);
+    await first.app.metadataCache.dispose();
+    expect(
+      port.call.mock.calls.some(([c]) => c.kind === "disable_search"),
+    ).toBe(false);
+    port.call.mockClear();
+    const { app, database } = await fixture(port);
+    if (mode !== "absent") {
+      class ReplacementSearch extends Plugin {
+        onload() {
+          throw new Error("Search startup failed");
+        }
+      }
+      const plugin = new ReplacementSearch(app, {
+        id: "search",
+        name: "Search",
+        version: "1",
+        author: "Lapis",
+      });
+      plugin.configureRuntime({ source: "core" });
+      app.plugins.plugins.set("search", plugin);
+      if (mode === "failed")
+        await expect(plugin.enable()).rejects.toThrow("Search startup failed");
+    }
+    const write = vi.spyOn(database, "rebuildSearchIndex");
+    await app.metadataCache.load();
+    const commands = port.call.mock.calls.map(([command]) => command.kind);
+    expect(commands.filter((kind) => kind === "disable_search")).toHaveLength(
+      1,
+    );
+    expect(commands.indexOf("disable_search")).toBeLessThan(
+      commands.indexOf("refresh"),
+    );
+    expect(commands).not.toContain("select_search");
+    expect(write).not.toHaveBeenCalled();
+  },
+);
+
+it("retains enabled Search while its declaration waits for metadata loaded", async () => {
+  const port = service();
+  const { app } = await fixture(port);
+  class DeferredSearch extends Plugin {
+    onload() {}
+  }
+  const plugin = new DeferredSearch(app, {
+    id: "search",
+    name: "Search",
+    version: "1",
+    author: "Lapis",
+  });
+  plugin.configureRuntime({ source: "core" });
+  app.plugins.plugins.set("search", plugin);
+  await plugin.enable();
+  await app.metadataCache.load();
+  expect(port.call.mock.calls.some(([c]) => c.kind === "disable_search")).toBe(
+    false,
+  );
+  await app.backgroundIndexing!.selectSearch(selection);
+  expect(app.metadataCache.nativeContributionStatuses).toEqual([
+    { projection_id: "search", placement: "native", message: null },
+  ]);
+});
+
+it("keeps a replacement drain failure visible without loading or a renderer rebuild", async () => {
+  const port = service();
+  const { app, database } = await fixture(port);
+  port.call.mockImplementation(async (command) => {
+    if (command.kind === "disable_search")
+      throw new Error("Native Search drain unavailable");
+    return { status, contribution: null };
+  });
+  const write = vi.spyOn(database, "rebuildSearchIndex");
+  await expect(app.metadataCache.load()).rejects.toThrow(
+    "Native Search drain unavailable",
+  );
+  expect(app.metadataCache.initialized).toBe(false);
+  expect(port.call.mock.calls.some(([c]) => c.kind === "refresh")).toBe(false);
+  expect(write).not.toHaveBeenCalled();
+});
+
+it("serializes a late Search declaration after replacement drain and preserves later disable", async () => {
+  const port = service();
+  const { app } = await fixture(port);
+  let finish!: () => void;
+  const drained = new Promise<void>((resolve) => {
+    finish = resolve;
+  });
+  port.call.mockImplementation(async (command) => {
+    if (command.kind === "disable_search") await drained;
+    return {
+      status,
+      contribution:
+        command.kind === "select_search"
+          ? { projection_id: "search", placement: "native", message: null }
+          : null,
+    };
+  });
+  const load = app.metadataCache.load();
+  await vi.waitFor(() =>
+    expect(port.call).toHaveBeenCalledWith({ kind: "disable_search" }),
+  );
+  const declare = app.backgroundIndexing!.selectSearch(selection);
+  expect(port.call.mock.calls.some(([c]) => c.kind === "select_search")).toBe(
+    false,
+  );
+  finish();
+  await Promise.all([load, declare]);
+  await app.metadataCache.disableNativeContributions("search");
+  const commands = port.call.mock.calls
+    .map(([command]) => command.kind)
+    .filter((kind) => kind === "disable_search" || kind === "select_search");
+  expect(commands).toEqual([
+    "disable_search",
+    "select_search",
+    "disable_search",
+  ]);
+  expect(app.metadataCache.nativeContributionStatuses).toEqual([]);
+});

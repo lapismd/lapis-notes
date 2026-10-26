@@ -1,6 +1,6 @@
 use super::support::*;
 use crate::vault::VaultRoot;
-use std::sync::atomic::AtomicBool;
+use std::sync::{Mutex, atomic::AtomicBool};
 use uuid::Uuid;
 
 #[test]
@@ -57,17 +57,24 @@ async fn a_source_deleted_after_enumeration_is_pending_without_partial_rows() {
     let vault = runtime.admit(Uuid::new_v4(), root.path()).unwrap();
     let database = vault.database().await.unwrap();
     let admitted = VaultRoot::open(root.path()).unwrap();
+    let work = vault.begin_work().unwrap();
     let pending = super::super::run(
+        &work,
         &database,
         &admitted,
         &[String::from("Gone.md")],
         &AtomicBool::new(false),
-        &AtomicBool::new(true),
-        "2026-08-20",
+        super::super::Selection {
+            selected: &AtomicBool::new(true),
+            tracked: &Mutex::new(None),
+            today: "2026-08-20",
+        },
     )
     .await
     .unwrap();
-    assert_eq!(pending, 1);
+    assert_eq!(pending.pending, 1);
+    assert!(pending.tracked.is_none());
     assert_eq!(query(&vault).await.unwrap()["rows"], serde_json::json!([]));
+    drop(work);
     close(runtime).await;
 }

@@ -1,7 +1,7 @@
 # Packages / Releases and exports
 
 Dependency-image reviews retain LN-GOV-050/LN-PKG-142; API Mira uses public ranges.
-`@lapis-notes/api/native-turns` exports generated DTOs, explicit continuation cursors, feature enable/disable commands and an admitted port. Activation observes native fence/drain policy and grants no executable, path, replay or resume authority.
+`@lapis-notes/api/native-turns` and `@lapis-notes/api/native-history-index` export generated DTOs and admitted ports. Turns retain explicit continuation cursors, feature enable/disable and native fence/drain policy; indexed History retains bounded immutable start/status/query/context. Neither grants executable, physical-path, replay, resume or renderer batch-scheduling authority.
 
 Release and validation containers consume shared image `2026.10.14.1` by
 digest. GitHub CLI 2.102.0 is supplied upstream so approved npm publication can

@@ -19,13 +19,13 @@ lifetime. R1.2/R1.3 retain those gates. Native directory witnesses are explicit
 capability handles, never renderer or HTTP values. Watch/resource/profile policy
 remains in Desktop while the common engine owns checked IO and publication.
 
-[Native indexing](rust-indexing-lifetime.md) stages qualified Markdown parsers, Tasks, Docs and configured Markdown/Canvas Search on one admitted worker with explicit client-writer fencing.
-Guarded Task transformations, daily provider policy, default IO and combined daily Task observation processing reuse existing source contracts and writers; [History scheduling](rust-history-indexing-lifetime.md) retains paused/cold reads and final backup notifications.
-Custom processors, complete provider scheduling and both hosts remain gated.
+[Native indexing](rust-indexing-lifetime.md) stages qualified Markdown/Canvas metadata and Search, Tasks and Docs on one admitted worker with explicit client-writer fencing; ordered Task lifecycle, typed cold recovery and explicit default-daily tracked-today selection are source-qualified separately.
+Guarded Task transformations reuse the existing writer and shared private turn-record IO, retaining pinned before/desired bytes and bounded typed cold failures; [History scheduling](rust-history-indexing-lifetime.md) retains paused/cold reads, final backup notifications and shared admitted transport.
+Custom processors, complete provider qualification and both complete host selections remain gated.
 
 The core boundary audit runs in normal checks and canonical specification checks.
-It rejects transport dependencies/source references, host source routing and new
-oversized source/test files. Native builds retain checkout-owned output and the
+It rejects transport dependencies/source references, bare renderer globals and host
+source routing while permitting ordinary Rust member fields; source/test limits remain enforced. Native builds retain checkout-owned output and the
 30 GiB free-space preflight, without automatic cache cleanup.
 
 R1.2 adds one service owner for each admitted vault ID and physical directory.

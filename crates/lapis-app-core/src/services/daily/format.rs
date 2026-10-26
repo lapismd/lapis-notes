@@ -1,9 +1,9 @@
 use super::{DailyDocumentError, tokens};
 use chrono::NaiveDate;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Captured source context is explicit; host Intl defaults do not select policy.
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct DailyFormatContext {
     pub locale: String,

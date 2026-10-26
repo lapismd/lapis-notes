@@ -618,9 +618,74 @@
         }
       ]
     },
+    "HistoryCheckpoint": {
+      "additionalProperties": false,
+      "properties": {
+        "change_id": { "type": "string" },
+        "commit": { "type": "string" },
+        "description": { "type": "string" },
+        "operation": { "type": "string" },
+        "timestamp_millis": { "format": "int64", "type": "integer" }
+      },
+      "required": [
+        "operation",
+        "commit",
+        "change_id",
+        "description",
+        "timestamp_millis"
+      ],
+      "type": "object"
+    },
     "HistoryEvent": {
       "enum": ["baseline", "create", "modify", "rename", "delete", "restore"],
       "type": "string"
+    },
+    "HistoryExpression": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "field": { "type": ["string", "null"] },
+            "type": { "const": "term", "type": "string" },
+            "value": { "type": "string" }
+          },
+          "required": ["type", "value"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "clauses": {
+              "items": { "$ref": "#/$defs/HistoryExpression" },
+              "type": "array"
+            },
+            "type": { "const": "and", "type": "string" }
+          },
+          "required": ["type", "clauses"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "clauses": {
+              "items": { "$ref": "#/$defs/HistoryExpression" },
+              "type": "array"
+            },
+            "type": { "const": "or", "type": "string" }
+          },
+          "required": ["type", "clauses"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operand": { "$ref": "#/$defs/HistoryExpression" },
+            "type": { "const": "not", "type": "string" }
+          },
+          "required": ["type", "operand"],
+          "type": "object"
+        }
+      ]
     },
     "HistoryFile": {
       "additionalProperties": false,
@@ -631,6 +696,126 @@
       },
       "required": ["fileId", "currentPath", "deleted"],
       "type": "object"
+    },
+    "HistoryIndexCommand": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "start", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "status", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "query", "type": "string" },
+            "search": { "$ref": "#/$defs/HistoryIndexQuery" }
+          },
+          "required": ["kind", "search"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "commit": { "type": "string" },
+            "end": { "format": "uint", "minimum": 0, "type": "integer" },
+            "kind": { "const": "context", "type": "string" },
+            "path": { "type": "string" },
+            "start": { "format": "uint", "minimum": 0, "type": "integer" }
+          },
+          "required": ["kind", "commit", "path", "start", "end"],
+          "type": "object"
+        }
+      ]
+    },
+    "HistoryIndexContext": {
+      "additionalProperties": false,
+      "properties": {
+        "after": { "type": "boolean" },
+        "before": { "type": "boolean" },
+        "end": { "format": "uint", "minimum": 0, "type": "integer" },
+        "start": { "format": "uint", "minimum": 0, "type": "integer" },
+        "text": { "type": "string" }
+      },
+      "required": ["text", "start", "end", "before", "after"],
+      "type": "object"
+    },
+    "HistoryIndexHit": {
+      "additionalProperties": false,
+      "properties": {
+        "excerpt": { "type": "string" },
+        "line": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": ["integer", "null"]
+        },
+        "record": { "$ref": "#/$defs/HistoryIndexRecord" }
+      },
+      "required": ["record", "excerpt"],
+      "type": "object"
+    },
+    "HistoryIndexPage": {
+      "additionalProperties": false,
+      "properties": {
+        "hits": {
+          "items": { "$ref": "#/$defs/HistoryIndexHit" },
+          "type": "array"
+        },
+        "next": { "type": ["string", "null"] },
+        "reset": { "type": "boolean" },
+        "status": { "$ref": "#/$defs/HistoryIndexProgress" }
+      },
+      "required": ["status", "hits", "reset"],
+      "type": "object"
+    },
+    "HistoryIndexProgress": {
+      "additionalProperties": false,
+      "properties": {
+        "complete": { "type": "boolean" },
+        "generation": { "format": "uint64", "minimum": 0, "type": "integer" },
+        "indexed": { "format": "uint64", "minimum": 0, "type": "integer" },
+        "omitted": { "format": "uint64", "minimum": 0, "type": "integer" }
+      },
+      "required": ["generation", "indexed", "omitted", "complete"],
+      "type": "object"
+    },
+    "HistoryIndexQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "case_sensitive": { "type": "boolean" },
+        "cursor": { "type": ["string", "null"] },
+        "expression": { "$ref": "#/$defs/HistoryExpression" },
+        "limit": { "format": "uint", "minimum": 0, "type": "integer" }
+      },
+      "required": ["expression", "case_sensitive", "limit"],
+      "type": "object"
+    },
+    "HistoryIndexRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "content_id": { "type": ["string", "null"] },
+        "deleted": { "type": "boolean" },
+        "parents": { "items": { "type": "string" }, "type": "array" },
+        "path": { "type": ["string", "null"] },
+        "previous": { "type": ["string", "null"] },
+        "revision": { "$ref": "#/$defs/HistorySavedRevision" },
+        "unavailable": { "type": "boolean" }
+      },
+      "required": ["revision", "parents", "deleted", "unavailable"],
+      "type": "object"
+    },
+    "HistoryIndexValue": {
+      "anyOf": [
+        { "$ref": "#/$defs/HistoryIndexProgress" },
+        { "$ref": "#/$defs/HistoryIndexPage" },
+        { "$ref": "#/$defs/HistoryIndexContext" }
+      ]
     },
     "HistoryRevision": {
       "additionalProperties": false,
@@ -656,6 +841,16 @@
         "contentHash",
         "content"
       ],
+      "type": "object"
+    },
+    "HistorySavedRevision": {
+      "additionalProperties": false,
+      "properties": {
+        "author": { "type": "string" },
+        "checkpoint": { "$ref": "#/$defs/HistoryCheckpoint" },
+        "email": { "type": "string" }
+      },
+      "required": ["checkpoint", "author", "email"],
       "type": "object"
     },
     "HostInfo": {
@@ -3283,6 +3478,8 @@
     "database_change": { "$ref": "#/$defs/ChangeSet" },
     "database_value": { "$ref": "#/$defs/DatabaseValue" },
     "file_history": { "$ref": "#/$defs/FileHistory" },
+    "history_index_command": { "$ref": "#/$defs/HistoryIndexCommand" },
+    "history_index_value": { "$ref": "#/$defs/HistoryIndexValue" },
     "host": { "$ref": "#/$defs/HostInfo" },
     "indexed_file": { "$ref": "#/$defs/IndexedFile" },
     "indexed_manifest_page": { "$ref": "#/$defs/ManifestPage" },
@@ -3347,6 +3544,8 @@
     "vault_name": { "$ref": "#/$defs/VaultName" }
   },
   "required": [
+    "history_index_command",
+    "history_index_value",
     "indexing_command",
     "indexing_value",
     "turn_command",

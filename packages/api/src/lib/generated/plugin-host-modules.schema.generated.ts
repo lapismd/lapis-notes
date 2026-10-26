@@ -479,6 +479,19 @@ export const pluginHostModuleRegistry = {
     "specifier": "@lapis-notes/api/metadata-value",
     "version": "0.1.4"
   },
+  "@lapis-notes/api/native-history-index": {
+    "entry": "@lapis-notes/api/native-history-index",
+    "moduleId": "lapis-notes-api-native-history-index",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/native-history-index",
+    "version": "0.1.4"
+  },
   "@lapis-notes/api/native-turns": {
     "entry": "@lapis-notes/api/native-turns",
     "moduleId": "lapis-notes-api-native-turns",

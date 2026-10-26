@@ -86,7 +86,7 @@ async fn compiled_registry_controls_continue_search_after_client_detach() {
         loop {
             let status = vault.indexing_status().unwrap();
             if !status.active {
-                break serde_json::to_value(status).unwrap();
+                break serde_json::to_value(status.progress).unwrap();
             }
             tokio::time::sleep(Duration::from_millis(20)).await;
         }

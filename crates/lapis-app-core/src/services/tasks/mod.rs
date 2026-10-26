@@ -1,5 +1,6 @@
 //! Explicit one-file transformations using the admitted vault's existing writer.
 mod error;
+mod lifecycle;
 mod observations;
 mod persistence;
 #[cfg(test)]
@@ -11,6 +12,11 @@ use lapis_app_protocol::{ExpectedVersion, TextSnapshot};
 use lapis_task_services::{
     TaskMutation, TaskOccurrenceCompletion, TaskOccurrenceMaterialization,
     TaskOccurrenceObservation,
+};
+pub use lifecycle::{
+    PreparedTaskLifecycle, TaskLifecycleDisposition, TaskLifecycleError, TaskLifecycleFailure,
+    TaskLifecycleJournal, TaskLifecyclePartial, TaskLifecyclePolicy, TaskLifecycleRequest,
+    TaskLifecycleStatus, TaskLifecycleWrite, TaskRecoveryError,
 };
 
 #[derive(Debug)]

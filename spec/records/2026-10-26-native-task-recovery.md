@@ -1,93 +1,128 @@
 # Native Task recovery through shared private record IO
 
-Status: shared private IO source-qualified; typed Task recovery remains active.
-Base: ordered lifecycle source `2296023f`, with all 442 Rust cases and full
-source/specification gates passing. Recovery is still unselected in both hosts.
+Status: shared private IO and native Task recovery are source-qualified.
+Source base: ordered lifecycle `2296023f` and shared IO extraction `86f360f8`.
+Neither application selects the new Task owner in this slice. Native default
+daily policy is qualified; tracked-today scheduling and host adoption remain
+separate gates.
 
-The existing native turn journal already owns capability-bound private profile
-admission, exclusive writer locking, bounded typed records, byte-conditional
-publication and retirement. This slice extracts that internal IO once and
-updates turns directly. Its layout, wire records, dispatch claims and cold
-recovery behavior remain unchanged. Typed Task stages reuse that IO rather than
-inventing another note writer or repurposing ACP turn records.
+## Authority and persistence
 
-Ordinary database submissions fence when close begins, so they cannot journal
-later stages of an already accepted Task operation. The Task coordinator must
-retain its own durable admitted authority through Work drain, pin its original
-action/date and before/after bytes, and reconcile physical content on cold open.
-Uncertain writes cannot be replayed. Same request identity can only observe or
-explicitly retry its pinned stage; it cannot advance a rolling Task twice.
+The existing native turn store is extracted once into private `record_store`.
+It retains capability-bound profile admission outside vault content, exclusive
+writer locking with inode verification, bounded catalogues, byte-conditional
+publication and retirement. TurnJournal uses the typed IO directly; no copy or
+compatibility module remains at its old location. Turn layout, serialized
+records, diagnostics, 8 MiB / 4096-record limits and dispatch/recovery semantics
+remain unchanged. Task records do not masquerade as turns.
 
-Exact shared-IO acceptance covers typed validation and conditional publication,
-lock exclusivity/retirement, file and catalogue bounds, profile/content overlap
-refusal and physical profile/lock replacement. Existing turn journal,
-continuation and native execution tests retain their original acceptance gates.
-Later Task acceptance adds first/second-stage loss and cold reconciliation;
-generic IO qualification alone does not claim that recovery or either host.
+The native Task journal binds to one admitted vault and consumes an existing
+Work lease. New submissions serialize through the existing lifecycle gate.
+Duplicate request lookup precedes fresh original-version preflight, so observing
+a completed request cannot advance it again or fail on its own changed version.
+Different inputs cannot reuse that identity. Original snapshots, source plans,
+actions, occurrence dates and native policy are pinned before daily mutation.
 
-## Coordinator acceptance after IO extraction
+Task records separately retain accepted, ensuring, observing, advancing and
+completed stages. Ensure and observation intents remain distinct: retained
+quantitative validation may fail after ensure, leaving a readable seed without
+an observation or Task advancement. Each intent pins physical before/desired
+bytes. Both daily and original mutations reuse existing guards/writers; no-op
+content retains writer checks without rewriting unchanged bytes.
 
-- Duplicate request lookup precedes a new original-version preflight. Otherwise
-  a completed request could fail observation merely because its own Task write
-  has already advanced that version. Reusing an ID with different action input
-  remains an error; observing an existing record never creates fresh authority.
-- Persist original action, occurrence date and exact replacement intent before
-  the first daily mutation. Daily provider configuration is native installation/
-  vault policy, not renderer authority; accepted retries cannot slide to a new
-  local date or next-occurrence plan after restart.
-- Keep the ensured-seed stage distinct from a recorded observation write.
-  Retained quantitative validation can fail after ensure; an ensured seed alone
-  is not proof that an observation or the original Task advanced.
-- Before each note mutation, retain its physical before/after bytes and journal
-  stage. Cold inspection classifies unchanged, desired and divergent content
-  without replaying writes. An uncertain original write that already matches
-  the pinned desired Task cannot create another advancement.
-- Keep accepted private-record authority alive through existing Work drain.
-  New admission remains fenced while Closing; background completion and a
-  detached caller share the same native job, rather than creating a renderer
-  queue or another indexed-file publisher.
-- Preserve readable daily results and handwritten external changes on partial
-  failure. Explicit retry reuses the recorded task/date observation identity;
-  unsupported or divergent states remain visible instead of falling back to
-  the retained TypeScript implementation.
+Cold inspect changes neither notes nor records. It classifies before, desired
+and divergent physical content. Explicit retry reuses the accepted task/date
+identity and policy; it never selects a new date or next occurrence. A desired
+original after uncertain publication is reconciled without another write or
+advancement. Handwritten changes and readable daily partials remain intact.
 
-## Shared IO extraction acceptance
+Known failures retain a bounded 128-byte code / 2048-byte message for cold
+inspection. Explicit retry clears that failure before starting another attempt.
+Unrecorded process loss has no fabricated domain failure. Task records are
+bounded to 16 MiB / 4096 requests. Existing case-insensitive `md` and `markdown`
+paths reuse the authoritative inventory predicate.
 
-- Before implementation, the exact `record_store::tests` target fails to compile
-  with one unresolved-import diagnostic for the deliberately absent engine;
-  no runtime cases run. Receipt `1ae178d5-fd15-4b5f-8a90-c4f5967d8efb`.
-- The unchanged `turn_journal` and `turn_continuation` baseline passes 14 cases
-  and retains one ignored crash-process helper. Receipt
-  `59102fd9-b23d-47e4-9752-c5316036d749`.
-- After extraction, all five exact private IO cases pass. Receipt
-  `d23c2c3c-a62a-467a-9cdc-bab2d4a08363`. The catalogue case additionally
-  covers malformed and non-v4 filenames; its final five-case pass is receipt
+Accepted Work remains valid through detach and close drain, while new Work
+admission fences. Private journaling does not reopen the fenced database for
+later stages. Application adoption must put journal construction/retirement in
+the native vault service, never a view. No timer, renderer queue, second note
+writer or extra database publisher is introduced. No `lapis-ai` or Tasks
+algorithm changes are needed for this slice.
+
+## Exact shared IO qualification
+
+- The absent-engine baseline fails the exact `record_store::tests` target with
+  one unresolved-import diagnostic and no runtime cases:
+  `1ae178d5-fd15-4b5f-8a90-c4f5967d8efb`.
+- The unchanged Turn journal/continuation baseline passes 14 cases, with one
+  isolated crash helper ignored: `59102fd9-b23d-47e4-9752-c5316036d749`.
+- All five shared IO cases pass after extraction, including typed validation,
+  stale publication, locks/retirement, profile replacement and catalogue bounds:
   `761404a7-225b-410f-8869-9d6b4091c2f5`.
-- The existing Turn engine is moved into the private generic record store;
-  no compatibility copy remains at the previous location. Turn validation
-  implements the local typed contract without changing serialized records,
-  request identity, 8 MiB / 4096-record limits, profile layout or diagnostics.
-- Native IO is reused from Notes itself. This prerequisite changes no
-  `lapis-ai`, Tasks source, browser package or application host selection.
+- The unchanged Turn replay passes all 14 after extraction, including actual
+  process loss and cold continuation heads:
+  `7d9edd37-2e5f-4925-b9a1-b72225134bfc`.
+- Extraction-wide check/test/build passes all 447 Rust cases with six prior
+  ignores plus strict/native/package lanes:
+  `f05ccb5c-fdfb-44aa-9bb0-5bfce9ffdce2`.
+- Extraction's final specification/78-governance gate passes:
+  `090a7a2b-a588-4155-a3ff-dc134a8c6e30`.
 
-## Complete source qualification
+## Exact Task recovery qualification
 
-The unchanged Turn journal and continuation replay passes all 14 cases after
-extraction, with the same ignored crash helper. Receipt
-`7d9edd37-2e5f-4925-b9a1-b72225134bfc` includes actual process-loss recovery,
-exclusive writers, unknown running outcomes and cold continuation head rules.
+The absent-coordinator baseline has one unresolved-import diagnostic and no
+runtime cases at `5aa67a04-2130-427c-9bb5-6a617e21eb39`. Test-channel capture
+and diagnostic helper-signature compile diagnostics were corrected before the
+complete focused pass; no assertion or fixture was weakened.
 
-`pnpm check:all` passes all 447 Rust cases with six existing ignores, six
-boundary-audit regressions, strict Clippy/fmt, native build and full package
-check/test/build. Receipt `f05ccb5c-fdfb-44aa-9bb0-5bfce9ffdce2`. Retained
-package/story/config inputs are unchanged; their existing valid Turbo receipts
-supply the unchanged-input package tasks.
+The first four exact recovery cases pass at
+`17c2ce02-79ec-40c4-af2b-30c076c5e611`. They cover duplicate observation,
+seven interrupted boundaries with read-only cold inspection/explicit retry,
+handwritten Task/daily preservation and accepted detach/close drain.
 
-`pnpm spec:check` passes canonical validation, mdBook, spec-first, App ownership,
-metadata query audit and all 78 governance cases. Receipt
-`81d156bc-e5c6-43a0-af5d-5f1f6ec55bb9`. The final ledger/evidence refresh is
-checked again before commit. Architecture remains within its 400-line bound.
+Expanded acceptance passes eleven cases plus one isolated crash helper at
+`25aa672b-824f-4024-bb47-bf794cb14d63`. It includes all 110 retained lifecycle
+attempts (92 original plus 18 valid-duration), quantitative ensured-seed failure,
+dirty original/hardlink partials and known failure details across cold inspect.
+Actual process loss after original publication retains the same Task inode,
+unchanged daily bytes and one advancement through explicit retry. Its child
+crash helper is invoked by that passing parent case.
 
-This closes only the shared private IO prerequisite. Typed Task admission,
-explicit retry/cold-stage reconciliation and tracked-today scheduling remain
-active/waiting; neither application selects a new Task owner here.
+Two further exact regressions are repaired at their owning source boundary:
+
+| Regression                                             | Before                                              | After                                                           |
+| ------------------------------------------------------ | --------------------------------------------------- | --------------------------------------------------------------- |
+| Daily dirty admission precedes quantitative validation | One failure: `138523aa-8e8b-44c2-a658-5aec1e3f1818` | One pass: `792a0336-23d7-4732-afc9-3a5da88cab45`                |
+| All supported existing daily Markdown extensions       | One failure: `5f49d0bd-0500-46de-8b18-df51aad3431e` | One pass/four spellings: `ad7f9463-fb0f-4d58-97c6-c3b12ebdd603` |
+
+The wider source boundary initially found one oversized private test file. Its
+fixture is now a separate test-only feature module, retaining every assertion
+and the audit's 300-line `src` bound. Exact audit qualification passes at
+`834a5f35-01e6-4520-9953-1a3049956c7b`.
+
+## Complete native/source qualification
+
+The final `pnpm check:all` passes **459 Rust cases**, seven ignores (six retained
+plus the invoked child-only Task crash peer), six boundary regressions, strict
+Clippy/fmt, native build and complete package check/test/build. Receipt
+`73be9116-aaa7-4fb7-af05-14a4c3de97af` includes the repaired daily-extension
+contract and every existing Turn/native execution case, including all twelve recovery
+cases. Earlier checkpoint
+`d1d7e420-4241-460f-b282-9916ea2491e8` passed 458 before that added regression.
+
+Retained package/story/config inputs are unchanged; their valid Turbo receipts
+supply the unchanged-input package tasks. The root architecture chapter remains
+exactly 400 physical lines. Complete canonical specification, mdBook, spec-first, App ownership, metadata
+query audit and all 78 governance cases pass at
+`498715c3-e968-441e-88bd-849c63905e17`. The initial specification run found one
+root-chapter mapping omission; the existing routing lines now reflect typed
+recovery while retaining exactly 400 lines. Final ledger/evidence formatting
+and complete specification are rechecked before commit.
+
+## Remaining application work
+
+This is source qualification, not either host's native Task selection. Tracked-
+today materialization must reuse the existing indexing owner and local-date
+refresh. Default/provider selection, native service-owned lifetime and both
+host adapters retain their separate application acceptance. No historical Deno
+code, default host, publication or distribution setting changes here.

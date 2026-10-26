@@ -7,6 +7,8 @@ mod properties;
 mod reconcile;
 pub(super) mod records;
 mod search;
+#[cfg(test)]
+mod status_tests;
 mod tasks;
 
 use super::{Error, Result, VaultService};
@@ -14,8 +16,25 @@ use lapis_app_protocol::ErrorCode;
 pub(super) use owner::Owner;
 pub use search::SearchIndexingConfiguration;
 use std::sync::Arc;
+pub use tasks::{TrackedTaskError, TrackedTaskFailure, TrackedTaskProvider, TrackedTaskStatus};
 
-pub use lapis_app_protocol::indexing::IndexingStatus;
+/// Native observations extend shared wire progress without duplicating its DTO.
+#[derive(Clone, Debug, Default)]
+pub struct IndexingStatus {
+    pub progress: lapis_app_protocol::indexing::IndexingStatus,
+    pub tracked: Option<TrackedTaskStatus>,
+}
+impl std::ops::Deref for IndexingStatus {
+    type Target = lapis_app_protocol::indexing::IndexingStatus;
+    fn deref(&self) -> &Self::Target {
+        &self.progress
+    }
+}
+impl std::ops::DerefMut for IndexingStatus {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.progress
+    }
+}
 impl VaultService {
     pub async fn start_markdown_indexing(self: &Arc<Self>) -> Result<()> {
         self.start_indexing(false, false, owner::Clock::default())

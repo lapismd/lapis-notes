@@ -29,6 +29,9 @@ impl Fixture {
         Self::start_with_database(true).await
     }
     async fn start_with_database(selected: bool) -> Self {
+        Self::start_with_services(selected, false).await
+    }
+    pub(crate) async fn start_with_services(selected: bool, indexed_history: bool) -> Self {
         let roots = [tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap()];
         let ids = [Uuid::new_v4(), Uuid::new_v4()];
         let config = Config {
@@ -42,6 +45,9 @@ impl Fixture {
         };
         let profile = selected.then(|| tempfile::tempdir().unwrap());
         let host = Arc::new(match &profile {
+            Some(profile) if indexed_history => {
+                Host::with_indexed_history(config, profile.path(), Vec::new()).unwrap()
+            }
             Some(profile) => Host::with_profile(config, profile.path()).unwrap(),
             None => Host::new(config).unwrap(),
         });
