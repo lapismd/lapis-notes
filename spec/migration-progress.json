@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 01:18:11 UTC",
+  "updated": "2026-10-26 01:26:11 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -599,7 +599,7 @@
       "work": "Paused and cold read-only index owner",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Qualified paused/cold History owner](spec/records/2026-10-25-native-history-read-lifetime.md): ten checkpoint cases, all 380 Rust cases, 2,253 package cases, strict/full check/test/build and complete specification gates pass. Cold cache repair retains checkpoint identity and unsnapshotted edits with no client; a new-vault read creates no repository. Backup pause retains the owner; explicit native disable and vault close drain it. Desktop passive observation/relocation intake is active; both complete host gates remain separate. [Final backup notification repair](spec/records/2026-10-26-history-final-notification.md) is committed at 211bff3c on bounded Desktop cohort 0b05c990: both closure failures are repaired, all three exact/14 backup/382 Rust cases and strict/build/specification pass. Newer-main and actual Desktop intake remain separate."
+      "detail": "[Qualified paused/cold History owner](spec/records/2026-10-25-native-history-read-lifetime.md): ten checkpoint cases, all 380 Rust cases, 2,253 package cases, strict/full check/test/build and complete specification gates pass. Cold cache repair retains checkpoint identity and unsnapshotted edits with no client; a new-vault read creates no repository. Backup pause retains the owner; explicit native disable and vault close drain it. Desktop passive observation/relocation intake is committed at 05d0e8ab and integrated in its clean default workspace; both complete R3 host gates remain separate. [Final backup notification repair](spec/records/2026-10-26-history-final-notification.md) is committed at 211bff3c on bounded Desktop cohort 0b05c990: both closure failures are repaired, all three exact/14 backup/382 Rust cases and strict/build/specification pass. Newer-main and actual Desktop intake remain separate."
     },
     {
       "id": "R3.2.1.2.10.2",
@@ -631,7 +631,7 @@
       "work": "Native daily provider creation and daily-before-rolling Task coordination",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "[Qualified pure daily policy](spec/records/2026-10-26-native-task-coordination.md), Notes 220b5cd7, passes four exact cases (200 filenames/errors, 45 complete provider outcomes, 19 registry steps and context refusal), 409 Rust/2,254 package cases, all 11 builds and complete specification gates. The source retains 455 prior API/fixture/lock/pin inputs. Physical processing, ordered persistence, partial/cold recovery, tracked-today scheduling and both hosts remain waiting. Tasks lifecycle source a2e9f126 is reserved for the consuming writer stage."
+      "detail": "[Pure daily policy](spec/records/2026-10-26-native-task-coordination.md) at 220b5cd7 and [guarded default daily IO](spec/records/2026-10-26-native-daily-document-io.md) at 974d0a39 are source-qualified. Physical IO passes 10 integration/three race cases, all 422 Rust, complete package check/test/build and specification/78 governance gates. Combined main intake is running. Daily observation processing, ordered Task advancement, partial/cold recovery, tracked-today scheduling and both host selections remain Waiting; aggregate stays Working."
     },
     {
       "id": "R3.2.2.3",
