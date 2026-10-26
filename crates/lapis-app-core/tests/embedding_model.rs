@@ -1,3 +1,6 @@
+#[path = "support/embedding_reference.rs"]
+mod embedding_reference;
+
 use lapis_app_core::embedding::OnnxEncoder;
 use serde_json::Value;
 use std::path::PathBuf;
@@ -10,10 +13,7 @@ fn real_minilm_inference_matches_retained_tokenization_and_cpu_vectors() {
     let models = PathBuf::from(
         std::env::var_os("LAPIS_TEST_ONNX_MODEL").expect("qualified model directory"),
     );
-    let fixture: Value = serde_json::from_str(include_str!(
-        "../../../packages/api/src/lib/__tests__/fixtures/search-semantic-model.json"
-    ))
-    .unwrap();
+    let fixture = embedding_reference::qualified_fixture();
     let mut encoder = OnnxEncoder::open(
         &runtime,
         &models.join("onnx/model_quantized.onnx"),

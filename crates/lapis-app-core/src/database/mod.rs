@@ -207,7 +207,7 @@ impl Database {
             )
         })?
     }
-    /// Fence admission across all clones, drain accepted work, then checkpoint.
+    /// Fence public admission, drain accepted operations/facades, then checkpoint.
     pub async fn close(&self) -> Result<()> {
         self.fence();
         self.completion().wait().await

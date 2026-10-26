@@ -12,7 +12,9 @@ pub mod files;
 pub mod history_index;
 pub mod indexing;
 pub mod native_tasks;
+pub mod repository_backup;
 pub mod repository_restore;
+pub mod repository_sources;
 pub mod turns;
 
 pub const PROTOCOL_MAJOR: u32 = 3;

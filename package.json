@@ -152,7 +152,15 @@
     "test:native-daily-reference": "node scripts/validation.mjs run test:native-daily-reference",
     "test:api:native-tasks": "node scripts/validation.mjs run test:api:native-tasks",
     "capture:native-daily-locales-reference": "node scripts/validation.mjs run capture:native-daily-locales-reference",
-    "test:native-daily-locales-reference": "node scripts/validation.mjs run test:native-daily-locales-reference"
+    "test:native-daily-locales-reference": "node scripts/validation.mjs run test:native-daily-locales-reference",
+    "test:web:native-tasks": "node scripts/validation.mjs run test:web:native-tasks",
+    "test:server:tasks": "node scripts/validation.mjs run test:server:tasks",
+    "test:web:native-editing-intents": "node scripts/validation.mjs run test:web:native-editing-intents",
+    "test:server:tasks:recovery": "node scripts/validation.mjs run test:server:tasks:recovery",
+    "test:server:tasks:references": "node scripts/validation.mjs run test:server:tasks:references",
+    "test:web:workspace-leave": "node scripts/validation.mjs run test:web:workspace-leave",
+    "test:server:tasks:editors": "node scripts/validation.mjs run test:server:tasks:editors",
+    "test:server:tasks:leave": "node scripts/validation.mjs run test:server:tasks:leave"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.7.0",

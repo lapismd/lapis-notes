@@ -168,3 +168,34 @@ Recovery presentation retains these boundaries:
   visible and stale actions cannot release newer protection.
 - Minimal real WorkspaceShell stories show recovery and failed admission without
   debug JSON, replacement screens or visual-baseline changes.
+
+## LN-CORE-028 — Protected saved-text reconciliation
+
+<a id="ln-core-028"></a>
+
+**Requirement.** After confirmed yield, clean interactive producers MUST reconcile
+authoritative saved bytes after native rearm and before releasing local input
+protection. This observation MUST NOT write content, clear dirty drafts or accept
+an out-of-guard mismatch. Expected absence MUST remain distinct from empty text;
+failed refresh MUST retain protection and observable explicit retry.
+
+### Acceptance details
+
+Protected saved-text refresh retains these boundaries:
+
+- Resume restores the native foreign-writer fence before reading authoritative
+  bytes, preventing a read-to-rearm race. A failed or lost rearm retains the
+  pending refresh boundary for explicit reconciliation.
+- API editors update their existing conditional baseline and clean buffer;
+  editable Markdown uses Mira's public protected text-recovery lease. Neither
+  path submits content writes or replays the native mutation.
+- Clean managed rename/delete retains expected absence and existing view
+  retirement; an unrelated changed file still fails the original yield check.
+  Dirty or failed persistence cannot be acknowledged by a saved-text refresh.
+
+Clean terminal retirement of a detached producer drains its existing save owner
+before observing the current destination version or expected absence. It releases
+only that clean intent and performs no content write or buffer acknowledgement.
+Live guards retain the original saved-baseline comparison; failed/dirty detached
+writers remain fenced. Host recovery preflight drains already admitted registry
+transitions before deciding whether a local issue remains unresolved.

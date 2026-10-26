@@ -2883,6 +2883,61 @@
       "required": ["protocol_version", "request_id", "outcome"],
       "type": "object"
     },
+    "RepositoryBackupCommand": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "status", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "capture", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "expected": { "$ref": "#/$defs/ExpectedVersion" },
+            "kind": { "const": "set_enabled", "type": "string" }
+          },
+          "required": ["kind", "enabled", "expected"],
+          "type": "object"
+        }
+      ]
+    },
+    "RepositoryBackupPhase": {
+      "enum": ["saving", "ready", "failed", "closed"],
+      "type": "string"
+    },
+    "RepositoryBackupSnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "configuration": { "$ref": "#/$defs/ExpectedVersion" },
+        "enabled": { "type": "boolean" },
+        "status": { "$ref": "#/$defs/RepositoryBackupStatus" }
+      },
+      "required": ["enabled", "configuration", "status"],
+      "type": "object"
+    },
+    "RepositoryBackupStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint": {
+          "anyOf": [
+            { "$ref": "#/$defs/RepositoryCheckpoint" },
+            { "type": "null" }
+          ]
+        },
+        "error": { "type": ["string", "null"] },
+        "phase": { "$ref": "#/$defs/RepositoryBackupPhase" }
+      },
+      "required": ["phase"],
+      "type": "object"
+    },
     "RepositoryCapture": {
       "additionalProperties": false,
       "properties": {
@@ -2994,6 +3049,33 @@
         { "$ref": "#/$defs/RepositoryFileRestorePreview" },
         { "$ref": "#/$defs/RepositoryVaultRestorePreview" },
         { "$ref": "#/$defs/RepositoryCapture" }
+      ]
+    },
+    "RepositorySources": {
+      "additionalProperties": false,
+      "properties": {
+        "original": { "type": "boolean" },
+        "token": { "type": ["string", "null"] }
+      },
+      "required": ["original"],
+      "type": "object"
+    },
+    "RepositorySourcesCommand": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "discover", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "open_original", "type": "string" }
+          },
+          "required": ["kind"],
+          "type": "object"
+        }
       ]
     },
     "RepositoryVaultRestorePreview": {
@@ -4533,10 +4615,18 @@
     "projection_result": { "$ref": "#/$defs/ProjectionQueryResult" },
     "projection_source": { "$ref": "#/$defs/ProjectionSource" },
     "reply": { "$ref": "#/$defs/Reply" },
+    "repository_backup_command": { "$ref": "#/$defs/RepositoryBackupCommand" },
+    "repository_backup_snapshot": {
+      "$ref": "#/$defs/RepositoryBackupSnapshot"
+    },
     "repository_restore_command": {
       "$ref": "#/$defs/RepositoryRestoreCommand"
     },
     "repository_restore_value": { "$ref": "#/$defs/RepositoryRestoreValue" },
+    "repository_sources": { "$ref": "#/$defs/RepositorySources" },
+    "repository_sources_command": {
+      "$ref": "#/$defs/RepositorySourcesCommand"
+    },
     "request": { "$ref": "#/$defs/Request" },
     "search_document": { "$ref": "#/$defs/SearchDocumentRecord" },
     "search_embedding_config": {
@@ -4566,6 +4656,10 @@
     "vault_name": { "$ref": "#/$defs/VaultName" }
   },
   "required": [
+    "repository_sources_command",
+    "repository_sources",
+    "repository_backup_command",
+    "repository_backup_snapshot",
     "editing_intent_command",
     "editing_intent_value",
     "repository_restore_command",

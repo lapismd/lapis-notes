@@ -11,7 +11,9 @@ mod indexing;
 mod lifetime;
 mod native_tasks;
 mod physical;
+mod repository_backup;
 mod repository_restore;
+mod repository_sources;
 mod streams;
 mod support;
 

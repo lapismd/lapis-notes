@@ -1,3 +1,7 @@
+import type {
+  NativeTaskCommand,
+  NativeTaskValue,
+} from "@lapis-notes/api/native-tasks";
 import type { Command } from "@lapismd/jj-history";
 import {
   PROTOCOL_MAJOR,
@@ -16,6 +20,10 @@ import {
   type IndexingValue,
   type RepositoryRestoreCommand,
   type RepositoryRestoreValue,
+  type RepositoryBackupCommand,
+  type RepositoryBackupSnapshot,
+  type RepositorySourcesCommand,
+  type RepositorySources,
 } from "../../../../../crates/lapis-app-protocol/bindings/protocol";
 import { RustHostError, type RustHttpClient } from "./client";
 
@@ -142,6 +150,38 @@ export class RustVaultClient {
     return result;
   }
 
+  async repositoryBackup(
+    command: RepositoryBackupCommand,
+  ): Promise<RepositoryBackupSnapshot> {
+    this.requireOpen();
+    const result = await this.host.json<RepositoryBackupSnapshot>(
+      `${this.path}/repository-backup`,
+      "POST",
+      command,
+    );
+    this.requireOpen();
+    return result;
+  }
+
+  async repositorySources(
+    command: RepositorySourcesCommand,
+  ): Promise<RepositorySources> {
+    this.requireOpen();
+    const result = await this.host.json<RepositorySources>(
+      `${this.path}/repository-sources`,
+      "POST",
+      command,
+    );
+    this.requireOpen();
+    if (
+      typeof result?.original !== "boolean" ||
+      (result.token !== null && typeof result.token !== "string") ||
+      (command.kind === "open_original" && (!result.original || !result.token))
+    )
+      throw new Error("Invalid repository source state");
+    return result;
+  }
+
   async history(command: Command, frame: string): Promise<string> {
     this.requireOpen();
     try {
@@ -166,6 +206,11 @@ export class RustVaultClient {
         throw error.details.history;
       throw error;
     }
+  }
+
+  async tasks(command: NativeTaskCommand): Promise<NativeTaskValue> {
+    this.requireOpen();
+    return this.host.json(`${this.path}/tasks`, "POST", command);
   }
 
   close(): Promise<void> {

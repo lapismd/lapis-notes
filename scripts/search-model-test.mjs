@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
+import { cpus } from "node:os";
 import {
   mkdir,
   readFile,
@@ -25,6 +26,19 @@ const fixture = JSON.parse(
 const fetchAssets = process.argv.slice(2).includes("--download");
 if (process.argv.slice(2).some((value) => value !== "--download"))
   throw new Error("Use pnpm test:search:onnx [--download]");
+const referenceContext =
+  process.env.LAPIS_TEST_ONNX_REFERENCE_CONTEXT ??
+  (process.platform === "darwin" && process.arch === "arm64"
+    ? "darwin-arm64-ort-1.30.0"
+    : process.platform === "linux" &&
+        process.arch === "x64" &&
+        cpus()[0]?.model === "AMD Ryzen 7 7800X3D 8-Core Processor"
+      ? "linux-x64-ort-1.30.0-amd-7800x3d"
+      : undefined);
+if (!referenceContext)
+  throw new Error(
+    "Native model parity requires a qualified CPU/runtime reference context",
+  );
 let folder = root;
 for (const part of [".local", "search-models", ...fixture.modelId.split("/")]) {
   folder = join(folder, part);
@@ -144,6 +158,7 @@ const result = spawnSync(
     env: {
       ...process.env,
       CARGO_BUILD_JOBS: process.env.CARGO_BUILD_JOBS ?? "2",
+      LAPIS_TEST_ONNX_REFERENCE_CONTEXT: referenceContext,
       LAPIS_TEST_ONNX_RUNTIME: runtime,
       LAPIS_TEST_ONNX_MODEL: folder,
       LAPIS_TEST_ONNX_CACHE_DOWNLOAD: fetchAssets ? "1" : "0",

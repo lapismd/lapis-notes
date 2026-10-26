@@ -20,8 +20,8 @@ capability handles, never renderer or HTTP values. Watch/resource/profile policy
 remains in Desktop while the common engine owns checked IO and publication.
 
 [Native indexing](rust-indexing-lifetime.md) stages qualified Markdown/Canvas metadata and Search, Tasks and Docs on one admitted worker with explicit client-writer fencing; ordered Task lifecycle, typed cold recovery and explicit default-daily tracked-today selection are source-qualified separately. [Daily locale source](../../records/2026-10-26-native-daily-locale-parity.md) qualifies the declared English contexts; actual host and timezone gates remain separate.
-Guarded Task transformations reuse the existing writer and shared private turn-record IO, retaining pinned before/desired bytes and bounded typed cold failures; [History scheduling](rust-history-indexing-lifetime.md) retains paused/cold reads, final backup notifications and shared admitted transport; [Repository reads](rust-history-reader.md) retain admitted scopes and native retirement; [remaining History parity](rust-history-parity.md) separates guarded restore, source selection and deferred optional legacy capture.
-[Native editor intents](native-editor-intents.md) add pre-edit native fencing and App-owned protected handoff. [LN-CORE-026](native-editor-intents.md#ln-core-026) scopes clean noninteractive state to admitted operations while preserving HTTP caller identity and foreign-editor fencing. Captured-state explicit recovery preserves file bytes and refuses stale decisions; both host adoptions remain pending. Custom processors, complete provider qualification and both complete host selections remain gated; [admitted Tasks](rust-task-host-port.md) supplies shared commands and observation.
+Guarded Task transformations reuse the existing writer and shared private turn-record IO, retaining pinned before/desired bytes and bounded typed cold failures; [History scheduling](rust-history-indexing-lifetime.md) retains paused/cold reads, final backup notifications and shared admitted transport; [Repository reads](rust-history-reader.md) retain admitted scopes and native retirement; [remaining History parity](rust-history-parity.md) separates guarded restore, native backup selection/passive status, [independent original scopes](rust-history-parity.md#ln-core-024) and deferred optional legacy capture.
+[Native editor intents](native-editor-intents.md) add pre-edit native fencing and App-owned protected handoff. [LN-CORE-026](native-editor-intents.md#ln-core-026) scopes clean noninteractive state to admitted operations while preserving HTTP caller identity and foreign-editor fencing. Captured-state explicit recovery preserves file bytes and refuses stale decisions; host adoption and combined intake retain separate gates. Custom processors, complete provider qualification and both complete host selections remain gated; [admitted Tasks](rust-task-host-port.md) supplies shared commands and observation; [staged hosted acceptance](../../records/2026-10-26-hosted-native-tasks.md) is qualified separately.
 
 The core boundary audit runs in normal checks and canonical specification checks; protocol export helpers are grouped by contract family.
 It rejects transport dependencies/source references, bare renderer globals and host
@@ -62,8 +62,8 @@ An operator-owned startup configuration admits opaque vault IDs and roots;
 requests cannot select native paths. A required owner bearer token and exact
 protocol-major header protect every API route. Browser Origin requests must
 match the configured public origin; no cross-origin permission is granted.
-Client attachments survive separate requests, and explicit detach retains dirty
-claims and accepted work. Core errors remain typed and omit native paths.
+Client attachments span requests; detach retains dirty claims and accepted work.
+Typed errors omit native paths and distinguish file permissions from client denial.
 Blocking file operations run outside the async executor. Bounded JSON commands
 qualify the initial adapter only; later R1.3 receipts qualify streamed bodies,
 browser login/shell and native backup. SSE and final delivery remain R7.
@@ -212,7 +212,7 @@ freshness, including incoming path-only edges and filtering before limits.
 Task facade intake retains the public v4 record, full recurrence/tracking and
 structural JSON, effective-occurrence view predicates, legacy path lookup and
 resolved task/list descendant traversal. One accepted actor operation completes
-all retained commit stages even after its waiter detaches. The publisher drains
+all retained commit stages even after its waiter detaches. Accepted generated facades retain database admission through close, including before their task starts. The publisher drains
 every committed stage in revision order, including stages committed before a
 later projection failure; a rolled-back stage never publishes.
 
@@ -349,7 +349,7 @@ Native semantic inference intake first qualifies the actual ONNX encoder against
 the retained model/tokenizer and mean-pooling/normalization contract. Model and
 runtime file inputs are native host authority, never deserialized renderer or
 HTTP fields. The inference component does not select a database adapter or
-qualify model download/configuration, vector/hybrid retrieval or scheduling.
+qualify model download/configuration, vector/hybrid retrieval or scheduling. Frozen source-reference vectors and tolerances belong to their qualified CPU/runtime context.
 The installed ONNX environment is process-owned and shared by independent model
 sessions. Reopening a session must retain inference after earlier sessions close;
 a different runtime installation cannot silently replace an initialized library.

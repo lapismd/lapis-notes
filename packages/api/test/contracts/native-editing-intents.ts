@@ -30,6 +30,9 @@ const registration: FileEditingRegistration = registry.register("note.md", {
     lifetime: "operation",
     hold: () => () => {},
     savedText: () => "saved",
+    refreshSavedText: (text: string | null) => {
+      void text;
+    },
   },
   async flush() {},
   async protect() {
@@ -40,6 +43,20 @@ void registration.ready();
 registration.changed();
 void registration.idle();
 registration();
+
+registry.register("invalid-refresh.md", {
+  dirty: false,
+  native: {
+    hold: () => () => {},
+    savedText: () => "saved",
+    // @ts-expect-error Saved refresh receives text or expected absence.
+    refreshSavedText: (_text: number) => {},
+  },
+  async flush() {},
+  async protect() {
+    return () => {};
+  },
+});
 
 const unsupported: FileEditingSession["native"] = {
   hold: () => () => {},

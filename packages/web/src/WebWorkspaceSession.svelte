@@ -45,6 +45,7 @@
     type WorkspaceStartupTask,
   } from "@lapismd/design-core/workspace/startup";
   import { onMount, untrack } from "svelte";
+  import { createWorkspaceLeave } from "./workspace/leave";
   import {
     webPluginRestrictionsFor,
     removeObsoleteServiceSecrets,
@@ -188,6 +189,37 @@
   let tasks = $state<WorkspaceStartupTask[]>(structuredClone(STARTUP_TASKS));
   let failure = $state<WorkspaceStartupFailure | null>(null);
   let disposed = false;
+  // Match Desktop's stop/drain/guard order; session closure stays outside the guard.
+  const leaveWorkspace = createWorkspaceLeave({
+    preflight: async () => {
+      await app.vaultChanges.stop();
+      await app.workspace.flushPluginChanges();
+      await app.plugins.flushPendingConfigWrites();
+      await app.fileEditingSessions.settleOperations();
+      await app.fileEditingSessions.preflightNativeRecovery();
+    },
+    commit: disposeOwnedWorkspace,
+    isDisposed: () => disposed,
+    onRefused: async (error) => {
+      let failure = error;
+      try {
+        await app.vaultChanges.start();
+      } catch (resume) {
+        failure = new AggregateError(
+          [error, resume],
+          "Leaving failed and file watching could not resume",
+        );
+      }
+      app.notifications.notify({
+        title: "Vault could not close",
+        message: failure instanceof Error ? failure.message : String(failure),
+        severity: "error",
+        source: "workspace",
+        persist: true,
+      });
+      if (failure !== error) throw failure;
+    },
+  });
   let booting = false;
   let corePluginsRegistered = false;
   let stopMetadataTracking: (() => void) | null = null;
@@ -307,9 +339,8 @@
     disposeDatabaseStatus = null;
     disposeVaultTransferSettings = null;
     await app.vaultChanges.stop().catch(() => undefined);
-    await app.workspace.disposeWorkspaceHost().catch(() => undefined);
-    await app.metadataCache.dispose().catch(() => undefined);
-    for (const plugin of [...app.plugins.corePlugins].reverse()) {
+    // Retry reuses this App. Its controller/cache observers retire on final dispose.
+    for (const plugin of [...app.plugins.plugins.values()].reverse()) {
       await plugin.disable().catch(() => undefined);
     }
   }
@@ -426,37 +457,55 @@
     await writeWorkspaceLayout();
   }
 
-  export async function dispose(persistLayout: boolean): Promise<void> {
+  export function canRecoverLeave(): boolean {
+    return !disposed;
+  }
+
+  export function dispose(persistLayout: boolean): Promise<void> {
+    return leaveWorkspace(persistLayout);
+  }
+
+  async function disposeOwnedWorkspace(persistLayout: boolean): Promise<void> {
     if (disposed) return;
-    disposed = true;
-    prepareNativeChatLeave(app, "detach");
     try {
-      if (persistLayout) await writeWorkspaceLayout();
-      ready = false;
-      await app.vaultChanges.stop();
-      await app.workspace.disposeWorkspaceHost();
-      stopMetadataTracking?.();
-      stopMetadataTracking = null;
-      await app.metadataCache.dispose();
-      for (const plugin of [...app.plugins.corePlugins].reverse()) {
-        await plugin.disable().catch(() => undefined);
-      }
-      disposeCoordinationListener?.();
-      disposeDatabaseStatus?.();
-      disposeVaultTransferSettings?.();
-      disposeCoordinationListener = null;
-      disposeDatabaseStatus = null;
-      disposeVaultTransferSettings = null;
+      await app.fileEditingSessions.guard(undefined, async () => {
+        await app.workspace.flushLayout();
+        if (persistLayout) await writeWorkspaceLayout();
+        // Every writer has flushed and remains protected before this fence.
+        disposed = true;
+        const nativeTasksDetached = app.nativeTasks?.detach();
+        prepareNativeChatLeave(app, "detach");
+        await nativeTasksDetached;
+        ready = false;
+        await app.workspace.disposeWorkspaceHost();
+        stopMetadataTracking?.();
+        stopMetadataTracking = null;
+        await app.metadataCache.dispose();
+        for (const plugin of [...app.plugins.plugins.values()].reverse()) {
+          await plugin.disable().catch(() => undefined);
+        }
+        disposeCoordinationListener?.();
+        disposeDatabaseStatus?.();
+        disposeVaultTransferSettings?.();
+        disposeCoordinationListener = null;
+        disposeDatabaseStatus = null;
+        disposeVaultTransferSettings = null;
+      });
+      // Closing the registry/session inside its queued guard would re-enter it.
+      await app.fileEditingSessions.dispose();
       await session.close();
     } finally {
-      disposeRepositoryBinding?.();
-      dailyDocumentProvider.dispose();
-      disposePluginBrowser();
-      disposePluginManagementSettings();
-      disposePwaRuntimeApplication();
-      disposeApplicationCompatibility();
+      if (disposed) {
+        disposeRepositoryBinding?.();
+        dailyDocumentProvider.dispose();
+        disposePluginBrowser();
+        disposePluginManagementSettings();
+        disposePwaRuntimeApplication();
+        disposeApplicationCompatibility();
+      }
     }
   }
+
 </script>
 
 <section

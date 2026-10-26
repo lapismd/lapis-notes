@@ -171,3 +171,49 @@ async fn cancelled_search_waiter_keeps_native_handover_fenced_until_publication_
         ErrorCode::PermissionDenied
     );
 }
+
+#[tokio::test]
+async fn detached_generated_facade_keeps_accepted_database_admission_through_close() {
+    use std::{future::Future, task::Poll, time::Duration};
+    let (database, mut actor) = database();
+    let mut pending = Box::pin(
+        database.call_from_client(call(DatabaseMethod::DeleteSearchDocument, json!("Note.md"))),
+    );
+    std::future::poll_fn(|context| {
+        assert!(pending.as_mut().poll(context).is_pending());
+        Poll::Ready(())
+    })
+    .await;
+    drop(pending);
+    database.fence();
+    let accepted = tokio::time::timeout(Duration::from_secs(2), actor.recv())
+        .await
+        .expect("accepted generated call must reach the existing worker")
+        .expect("closing cannot revoke an already admitted generated facade");
+    assert!(matches!(
+        accepted.operation,
+        Operation::Search(crate::database::search::Action::Delete(_))
+    ));
+    assert_eq!(
+        database
+            .call_from_client(call(
+                DatabaseMethod::DeleteSearchDocument,
+                json!("Other.md")
+            ))
+            .await
+            .unwrap_err()
+            .code(),
+        ErrorCode::Closed
+    );
+    accepted
+        .reply
+        .send(Ok(Output::Search(crate::database::search::Value::Done)))
+        .ok()
+        .unwrap();
+    assert!(
+        tokio::time::timeout(Duration::from_secs(2), actor.recv())
+            .await
+            .expect("completed accepted facade must release its admission")
+            .is_none()
+    );
+}

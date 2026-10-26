@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 23:37:54 UTC",
+  "updated": "2026-10-27 00:42:34 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -383,7 +383,7 @@
       "work": "Search index reconciliation and scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native Search source, shared replacement-App lifecycle, hosted 2a6f938a and Desktop a052be6b integrations are committed. Hosted passes 73 Web, 261 cold catalog and 22 browser cases; Desktop full native/catalog/portable/type/build/spec gates pass. Coherent main source intake and complete combined R3 provider/application qualification remain; ordinary defaults are unchanged."
+      "detail": "Both committed Search hosts remain qualified; current586Rust/2414package/263catalog/41browser source cohort passes. Separate real-model qualification exposed Linux reference-context drift (unchanged Node reproduces native output) and an accepted generated-facade/close race. The source-backed Linux reference passes3/3 with originalfixture/tolerances preserved; deterministic admission repair passes0/1before to1/1after. Combined five-model/full-native closure and final both-host provider/unattended R3 remain active."
     },
     {
       "id": "R3.2.3",
@@ -735,15 +735,15 @@
       "work": "Backup capture controls and passive status",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Qualified backup controls](../.workspaces/lapis-notes-native-history-capture-20261026/spec/records/2026-10-26-hosted-backup-controls.md), sourceedf1d76f, passes575Rust/2358package/261coldcatalog/25browser plus strict/build/public/static/canonical78governance. Persisted selection honors saved false before capture; passive status is an ordered barrier and accepted work survives reply loss/cancellation. History92b4dea6/e714source is qualified. Combined current CORE026/main intake remains active; original-source selection is separate."
+      "detail": "Backup sourceedf1d76f and current Original/editor/hosted composition0ff929b1 are qualified. [Current cohort](spec/records/2026-10-26-backup-problems-cohort.md) passes586Rust/2414package/263coldcatalog/static/26ordinarybrowser and fullcanonical78governance; retained backup selection/status/lost acknowledgement/cold restart passes. History92b4dea6/e714 remains fixed. Main/current Desktop intake and complete R3 retain separate gates."
     },
     {
       "id": "R3.2.3.6.3",
       "area": "Remaining History parity",
       "work": "Original repository source selection",
-      "status": "Working",
-      "spec": "spec/src/architecture/rust-history-reader.md#ln-core-016",
-      "detail": "Original-source candidatec6d8788e passes8nativeHTTP,8new/67affectedWeb and strict/protocol/Web gates. Fresh retained source picker, separate Backup/Original tabs, exact pins, source Op Log, metadata preservation, external advance and cold restart pass at75e6abb7 (ab2246a7). Root combined intake now merges backup/Original with committed hosted Tasks85fcb0ee and editor retirement6e76be48; broad source/catalog/browser/spec gate remains pending. Desktop shared Original-reader adoption is next; no new engine or source fallback."
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-history-parity.md#ln-core-024",
+      "detail": "[Qualified composed Original source](spec/records/2026-10-26-backup-problems-cohort.md), frozen0ff929b1/receipt823317ad:8exact nativeHTTP,8newWeb,full586Rust/2414package/263coldcatalog/static and26browser plus allcanonical78governance pass. Existing retained picker, independent tabs, exact pins, source Op Log, preserved bytes/metadata, external advance and cold restart pass. Desktop shared-reader adoption is active atM16.8; no new engine, source fallback or mutation authority."
     },
     {
       "id": "R3.2.3.6.4",
@@ -791,7 +791,7 @@
       "work": "Actual hosted and Desktop editor/Tasks acceptance",
       "status": "Working",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-020",
-      "detail": "Hosted85fcb0ee is committed and qualified:15actual Tasks/editor/leave plus24ordinary Rust/metadata/History/Node/local journeys, seven exact leave, full563Rust/2394package/263coldcatalog and final canonical78governance pass. Clean-retirement6e76be48 additionally passes all39journeys. Desktop editor/recoveryM16.7 is committed0dbf2307:58native/2068catalog and complete portable/native/build/spec gates. Desktop main adoption waits on overlapping independent tooling edits; native Tasks selection and final current-cohort acceptance remain separate."
+      "detail": "All41 current hosted/Node/local journeys pass:26ordinary at823317ad plus15Tasks/editor/leave atf532e00e; sources are tree-identical with all16archives/6nativepins equal. Complete586Rust/2414package/263coldcatalog/static/canonical78governance pass. Desktop M16.7 editor/recovery0dbf2307 passes58native/2068catalog, while native Tasks selectionM16.9 and shared-readerM16.8 remain active. Main adoption and final both-host/unattended R3 remain open."
     },
     {
       "id": "R3.2.4.2.1",
@@ -822,8 +822,16 @@
       "area": "Native writer reconciliation",
       "work": "Protected clean producer refresh after guarded native mutation",
       "status": "Source complete",
-      "spec": "spec/src/architecture/native-editor-intents.md#ln-core-020",
-      "detail": "[Qualified clean-retirement source](../.workspaces/lapis-notes-native-editor-retirement-20261026/spec/records/2026-10-26-native-editor-retirement.md) is committed at6e76be48: exact3/native31/API1689; full564Rust/2397package/263coldcatalog/static/strict/publicbuild and final78governance pass. All39hosted/Node/local journeys and seven leave cases pass. Markdown814f6d2d and Mira cb8f2b2b complete their owning source gates. DesktopM16.7 is committed0dbf2307 with58native/2068catalog; current combined source/main and final provider/Tasks gates remain separate."
+      "spec": "spec/src/architecture/native-editor-intents.md#ln-core-028",
+      "detail": "Protected refresh/clean retirement6e76be48 is qualified together with backup/Original/hosted source0ff929b1:586Rust/2414package/263coldcatalog/static/26ordinarybrowser and finalcanonical78governance pass; exact current15Tasks/editor/leave also passes atf532e00e on a tree-identical duplicate. API archive419b47c5; Markdown814f6d2d/4cc5 and Mira cb8f2b2b/03e1 remain fixed. Source/main intake and actual Desktop Tasks/native reader gates remain separate."
+    },
+    {
+      "id": "R3.2.1.2.10.6",
+      "area": "Tasks host adoption",
+      "work": "Staged hosted native Tasks and retained installed-plugin UI",
+      "status": "Complete",
+      "spec": "spec/src/web-host/startup-and-plugins.md#ln-web-070",
+      "detail": "[Qualified staged hosted Tasks/editor/leave](spec/records/2026-10-26-hosted-editing-leave.md): all 39 current browser journeys pass (15 actual installed Tasks/editor/leave at 8ae78527 and 24 ordinary Rust/metadata/History, Node/local Web at 562111c3). Seven exact leave cases pass df482368 after reproducing one failure/six passes. Full check/test/build 79cae593 passes 563 Rust, 2,394 package, twenty check and eleven build tasks; cold full catalog 05ee0b4b passes 263 interaction/accessibility cases. Final canonical/documentary closure accompanies this isolated host commit. API fe1d2dcd, Markdown ea9ea3bd/f1a6666d and Tasks 52270c2a/ff64c349 remain fixed. Main/combined intake, Desktop native-preview repair and complete R3 are separate; no defaults or publication change."
     }
   ]
 }

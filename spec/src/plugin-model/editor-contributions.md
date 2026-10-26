@@ -21,6 +21,8 @@ Contributed Problems fixes use the owning API editor's save queue for open
 resources before diagnostics refresh (LN-WS-034). Plugin providers do not add a
 second writer to that path.
 
+The separately selected native backup service distinguishes explicit persisted selection from observer disposal under LN-WEB-073, while retaining existing settings and default-profile ownership.
+
 The separately selected native Repository profile reuses the public restore
 controller and review dialog under LN-WEB-072. Its same-client adapter supplies
 native guarded restore without installing the optional legacy HistoryPlugin,

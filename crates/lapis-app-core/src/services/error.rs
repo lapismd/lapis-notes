@@ -57,11 +57,31 @@ impl From<io::Error> for Error {
                 Self::new(ErrorCode::Unsupported, "Operation is unavailable")
             }
             io::ErrorKind::NotFound => Self::new(ErrorCode::NotFound, "File does not exist"),
-            io::ErrorKind::PermissionDenied => Self::denied(),
+            io::ErrorKind::PermissionDenied => Self::new(
+                ErrorCode::PermissionDenied,
+                "File operation permission denied",
+            ),
             io::ErrorKind::InvalidInput | io::ErrorKind::InvalidData => {
                 Self::new(ErrorCode::InvalidRequest, "Invalid vault operation")
             }
             _ => Self::new(ErrorCode::Io, "Vault operation failed"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn filesystem_permission_denial_is_distinct_from_attachment_denial() {
+        let failure = Error::from(io::Error::new(
+            io::ErrorKind::PermissionDenied,
+            "/private/vault/Attachments is not writable",
+        ));
+        assert_eq!(failure.code(), ErrorCode::PermissionDenied);
+        assert!(failure.to_string().to_lowercase().contains("permission"));
+        assert!(!failure.to_string().contains("/private/"));
+        assert_eq!(Error::denied().to_string(), "Vault attachment is not valid");
     }
 }

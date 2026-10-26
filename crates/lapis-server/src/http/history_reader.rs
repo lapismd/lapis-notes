@@ -30,7 +30,7 @@ pub(super) async fn call(
         .map(|text| ([("content-type", "application/json")], text))
         .map_err(Failure)
 }
-pub(super) struct Failure(HistoryError);
+pub(super) struct Failure(pub(super) HistoryError);
 impl IntoResponse for Failure {
     fn into_response(self) -> Response {
         use HistoryError::*;

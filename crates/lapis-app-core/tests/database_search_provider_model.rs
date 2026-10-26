@@ -1,3 +1,6 @@
+#[path = "support/embedding_reference.rs"]
+mod embedding_reference;
+
 use lapis_app_core::{
     database::Database,
     embedding::host::{NativeEmbeddingHost, OnnxModelAssets},
@@ -6,7 +9,7 @@ use lapis_app_protocol::database::search::{
     embedding::{SearchEmbeddingProviderConfig, SearchEmbeddingRuntimePhase},
     records::SearchDocumentRecord,
 };
-use serde_json::{Value, json};
+use serde_json::json;
 use std::{future::Future, path::PathBuf, task::Poll};
 use uuid::Uuid;
 
@@ -14,10 +17,7 @@ use uuid::Uuid;
 #[ignore = "Requires qualified native assets; run pnpm test:search:onnx"]
 async fn admitted_real_model_publishes_after_detach_and_preserves_cold_configuration() {
     let models = PathBuf::from(std::env::var_os("LAPIS_TEST_ONNX_MODEL").unwrap());
-    let fixture: Value = serde_json::from_str(include_str!(
-        "../../../packages/api/src/lib/__tests__/fixtures/search-semantic-model.json"
-    ))
-    .unwrap();
+    let fixture = embedding_reference::qualified_fixture();
     let host = NativeEmbeddingHost::new(
         PathBuf::from(std::env::var_os("LAPIS_TEST_ONNX_RUNTIME").unwrap()),
         vec![OnnxModelAssets {
@@ -88,8 +88,15 @@ async fn admitted_real_model_publishes_after_detach_and_preserves_cold_configura
         let embedding = record.chunks.unwrap().pop().unwrap().embedding.unwrap();
         let vector = embedding.vector.unwrap();
         assert_eq!(vector.len(), 384);
-        for (actual, expected) in vector.iter().zip(row["vector"].as_array().unwrap()) {
-            assert!((actual - expected.as_f64().unwrap()).abs() < 0.00001);
+        for (dimension, (actual, expected)) in vector
+            .iter()
+            .zip(row["vector"].as_array().unwrap())
+            .enumerate()
+        {
+            assert!(
+                (actual - expected.as_f64().unwrap()).abs() < 0.00001,
+                "model case {index}, dimension {dimension}: actual {actual}, expected {expected}"
+            );
         }
         assert_eq!(
             embedding.fingerprint.as_deref(),

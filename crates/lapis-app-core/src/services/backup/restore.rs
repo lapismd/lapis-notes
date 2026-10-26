@@ -1,3 +1,4 @@
+use super::dto::capture;
 use crate::services::{Client, Error, Result};
 use lapis_app_protocol::{ErrorCode, repository_restore::*};
 
@@ -104,18 +105,4 @@ fn invalid() -> Error {
         ErrorCode::InvalidRequest,
         "Invalid repository restore request",
     )
-}
-fn capture(value: jj_vault::Capture) -> RepositoryRestoreValue {
-    RepositoryRestoreValue::Captured(RepositoryCapture {
-        changed: value.changed,
-        checkpoint: value.checkpoint.map(|value| RepositoryCheckpoint {
-            operation: value.operation,
-            commit: value.commit,
-            change_id: value.change_id,
-            description: value.description,
-            timestamp_millis: value.timestamp_millis,
-        }),
-        operation: value.operation,
-        working_copy: value.working_copy,
-    })
 }

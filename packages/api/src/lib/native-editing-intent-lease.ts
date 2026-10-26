@@ -28,6 +28,10 @@ export class NativeEditingIntentLease {
     return this.#state === "retired";
   }
 
+  get yielded(): boolean {
+    return this.#state === "yielded";
+  }
+
   #valid(value: EditingIntentValue): EditingIntentState {
     if (
       value.kind !== "state" ||
@@ -139,7 +143,11 @@ export class NativeEditingIntentLease {
     this.#resuming = undefined;
   }
 
-  async yield(): Promise<void> {
+  yield(): Promise<void> {
+    return this.#yield(true);
+  }
+
+  async #yield(requireSavedMatch: boolean): Promise<void> {
     await this.ready();
     await this.#tail.catch(() => {});
     await this.#settleChanges();
@@ -147,7 +155,11 @@ export class NativeEditingIntentLease {
     if (this.#state === "yielded") return;
     const saved = this.savedText();
     const current = await this.port.read(this.path);
-    if (saved !== undefined && saved !== (current?.text ?? null))
+    if (
+      requireSavedMatch &&
+      saved !== undefined &&
+      saved !== (current?.text ?? null)
+    )
       throw Object.assign(
         new Error(`Saved editor content changed: ${this.path}`),
         { code: "ECONFLICT" },
@@ -203,7 +215,9 @@ export class NativeEditingIntentLease {
   async retire(): Promise<void> {
     if (this.#state === "unknown" && this.#retiring) await this.#reconcile();
     if (this.retired) return;
-    await this.yield();
+    // The registry permits terminal retirement only after the producer is clean.
+    // External deletion/rename may change saved bytes; no mutation follows.
+    await this.#yield(false);
     this.#retiring = true;
     await this.#transition(
       { kind: "retire", editor_id: this.id, generation: this.#generation },

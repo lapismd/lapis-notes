@@ -316,6 +316,13 @@ screen adoption remain a separate R3 gate.
 
 The native Task route also exercises the source-qualified English default daily contexts (en-GB 1/4 and en-US 7/4 or 7/1) through the existing journal and writer. Locale support follows the [retained daily source gate](../../records/2026-10-26-native-daily-locale-parity.md); host defaults and signed-plugin adoption remain separate.
 
+The staged Rust browser backend reuses its existing `RustVaultClient` for this
+port and passes it into the owning vault session. It introduces no task retry,
+client-supplied filesystem authority or renderer writer. The initial single-user
+operator date policy is an explicit process `TZ` with a matching browser zone;
+[hosted Tasks acceptance](../../records/2026-10-26-hosted-native-tasks.md) tracks
+actual default-date/day-boundary and unsupported zone mismatch separately.
+
 ## LN-SRV-026 — Admitted Rust Repository transport
 
 <a id="ln-srv-026"></a>
@@ -331,3 +338,15 @@ MUST fail without fallback to the Node companion or browser-supplied authority.
 <a id="ln-srv-027"></a>
 
 **Requirement.** Rust hosted restore MUST use bounded typed actions on the existing authenticated vault attachment, protocol, Origin and CSRF policy. Admission and post-await delivery MUST reject retired or foreign clients. Requests MUST NOT supply roots, storage, generations or caller scopes. A lost acknowledgement MUST retain the native stable request and require explicit recovery rather than transport replay.
+
+## LN-SRV-028 — Admitted native backup controls
+
+<a id="ln-srv-028"></a>
+
+**Requirement.** Hosted backup status, manual capture and explicit selection MUST use the existing authenticated client, protocol, Origin and CSRF admission. Setting writes MUST carry only a Boolean and an opaque expected configuration version. Post-await delivery MUST reject revoked leases while accepted native work completes. Status MUST remain passive and MUST NOT accept filesystem or configuration authority.
+
+## LN-SRV-029 — Admitted original repository scopes
+
+<a id="ln-srv-029"></a>
+
+**Requirement.** Hosted original-source commands MUST require bounded authenticated, same-origin, live-client admission. Opening a source MUST NOT accept caller paths, witnesses or replacement scope tokens. Reply delivery MUST recheck client retirement, and returned tokens MUST grant only that client's immutable reads. Optional managed-backup startup failure MUST NOT prevent admitted original-source access.

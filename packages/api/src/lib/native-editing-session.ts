@@ -7,6 +7,11 @@ export interface NativeEditingSession {
   /** Block input synchronously, before native admission's first await. */
   hold(): () => void | Promise<void>;
   savedText(): string | null | undefined;
+  /**
+   * Observe native-owned saved bytes while the existing producer stays
+   * protected.
+   */
+  refreshSavedText?(text: string | null): void | Promise<void>;
   /** Logical state has no editable buffer while idle. Documents remain default. */
   readonly lifetime?: "interactive" | "operation";
 }
@@ -44,8 +49,10 @@ export class NativeRegisteredEditingSession implements FileEditingSession {
   readonly #scoped: boolean;
   #admitted = false;
   #idle = false;
+  #refreshPending = false;
   #issue: NativeEditingIssue | undefined;
   #epoch = 0;
+  readonly #pending = new Set<Promise<void>>();
   readonly #listeners = new Set<() => void>();
 
   constructor(
@@ -87,7 +94,14 @@ export class NativeRegisteredEditingSession implements FileEditingSession {
     }
   }
 
-  async #transition(phase: NativeEditingPhase, run: () => Promise<void>) {
+  async settle(): Promise<void> {
+    while (this.#pending.size) await Promise.allSettled([...this.#pending]);
+  }
+
+  #transition(
+    phase: NativeEditingPhase,
+    run: () => Promise<void>,
+  ): Promise<void> {
     this.#epoch++;
     const pending = Object.freeze({
       id: crypto.randomUUID(),
@@ -97,20 +111,27 @@ export class NativeRegisteredEditingSession implements FileEditingSession {
       message: `Native editor ${phase} is pending`,
     });
     this.#publish(pending);
-    try {
-      await run();
-      if (this.#issue === pending) this.#publish(undefined);
-    } catch (error) {
-      if (this.#issue === pending)
-        this.#publish(
-          Object.freeze({
-            ...pending,
-            status: "failed" as const,
-            message: `Native editor ${phase} requires retry`,
-          }),
-        );
-      throw error;
-    }
+    const transition = (async () => {
+      try {
+        await run();
+        if (this.#issue === pending) this.#publish(undefined);
+      } catch (error) {
+        if (this.#issue === pending)
+          this.#publish(
+            Object.freeze({
+              ...pending,
+              status: "failed" as const,
+              message: `Native editor ${phase} requires retry`,
+            }),
+          );
+        throw error;
+      }
+    })();
+    this.#pending.add(transition);
+    void transition
+      .finally(() => this.#pending.delete(transition))
+      .catch(() => {});
+    return transition;
   }
 
   #hold(): void {
@@ -134,6 +155,27 @@ export class NativeRegisteredEditingSession implements FileEditingSession {
     if (!this.#initialRelease) return;
     await this.#initialRelease();
     this.#initialRelease = undefined;
+  }
+
+  async #refreshSaved(): Promise<void> {
+    if (this.session.dirty)
+      throw new Error(
+        `Protected saved-text refresh requires clean state: ${this.path}`,
+      );
+    const native = this.session.native!;
+    const before = native.savedText();
+    const current = await this.port.read(this.path);
+    const text = current?.text ?? null;
+    if (before === undefined || before === text) return;
+    if (!native.refreshSavedText)
+      throw new Error(
+        `Protected saved-text refresh is unavailable: ${this.path}`,
+      );
+    await native.refreshSavedText(text);
+    if (this.session.dirty || native.savedText() !== text)
+      throw new Error(
+        `Protected saved-text refresh was not acknowledged: ${this.path}`,
+      );
   }
 
   async ready(): Promise<void> {
@@ -186,13 +228,16 @@ export class NativeRegisteredEditingSession implements FileEditingSession {
   }
 
   async flush(): Promise<void> {
+    if (this.#lease?.retired && !this.session.dirty) return;
     if (this.#scoped && !this.session.dirty) {
       await this.idle();
       return;
     }
     await this.ready();
     await this.session.flush();
-    if (this.#scoped) await this.idle();
+    if (this.retiring() && !this.session.dirty)
+      await this.#transition("retirement", () => this.#lease!.retire());
+    else if (this.#scoped) await this.idle();
     else if (this.#protected && !this.session.dirty)
       await this.#transition("handoff", () => this.#lease!.yield());
   }
@@ -208,7 +253,15 @@ export class NativeRegisteredEditingSession implements FileEditingSession {
       if (this.retiring() && !this.session.dirty && this.#lease)
         await this.#transition("retirement", () => this.#lease!.retire());
       else if (!this.#scoped || this.session.dirty)
-        await this.#transition("rearm", () => this.#intent().resume());
+        await this.#transition("rearm", async () => {
+          if (this.#lease?.yielded && !this.session.dirty)
+            this.#refreshPending = true;
+          await this.#intent().resume();
+          if (this.#refreshPending) {
+            await this.#refreshSaved();
+            this.#refreshPending = false;
+          }
+        });
       await release();
       held = false;
       this.#protected--;

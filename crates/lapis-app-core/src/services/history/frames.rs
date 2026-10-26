@@ -19,8 +19,8 @@ pub(super) async fn call(
             let data: frames::Vault = wire::decode(frame)?;
             let vault = policy.vault(client, &data.vault)?;
             // Empty admission is read-only and does not create a repo or cache.
-            if Policy::source(&vault)?.is_none() {
-                let (repository, generation) = Policy::identity(&vault);
+            if policy.resolve(client, &data.vault, &vault)?.is_none() {
+                let (repository, generation) = Policy::identity(&vault, None);
                 policy.vault(client, &data.vault)?;
                 return wire::encode(local::Heads {
                     version: 1,

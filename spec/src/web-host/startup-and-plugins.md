@@ -150,6 +150,20 @@ In-session copy progress verifies the notification message:
 
 **Requirement.** The web host MUST NOT statically import or register `@lapis-notes/lapis-plugin-tasks`. When installed and enabled, Tasks MUST load through configured plugin persistence and register its own workspace views.
 
+## LN-WEB-070 — Staged native Tasks ownership
+
+<a id="ln-web-070"></a>
+
+**Requirement.** When explicitly selected, the staged Rust-hosted App MUST receive the admitted native Tasks and required native metadata owner before construction. Installed Tasks MUST retain its existing UI and observe native projections. Final workspace teardown MUST detach and drain native observation before unloading every configured plugin and releasing its client. Unknown lifecycle results MUST remain inspectable through persisted plugin references without replay.
+
+Tasks selection is default-off through `VITE_LAPIS_NATIVE_TASKS`. Selecting it binds the shared native metadata owner and editor-intent transport together, so renderer metadata cannot compete with native Tasks publication. Startup reconciliation waits for settled declarations. Recoverable startup Retry keeps its existing App controller/cache observers live; only final teardown disposes them. The normal configured
+plugin loader retains installed-byte verification. Community/development plugin
+lifecycle receives the same passive teardown ordering as core plugins. The
+[hosted Tasks record](../../records/2026-10-26-hosted-native-tasks.md) separates
+source, actual UI, timezone and installed-plugin integrity acceptance from
+publication, default cutover and app signing. Standalone browser behavior is
+unchanged.
+
 ## LN-WEB-048 — Web development renderer: keep @lapis-notes/api outside dependency optimization and resolve
 
 <a id="ln-web-048"></a>
@@ -224,8 +238,37 @@ drain accepted reads and release its handles before detaching its admitted
 client. It MUST NOT add a replacement screen, renderer indexing scheduler or
 fake navigation. Ordinary hosted and standalone defaults MUST remain unchanged.
 
+## LN-WEB-071 — Hosted editing-intent binding
+
+<a id="ln-web-071"></a>
+
+**Requirement.** The Rust-hosted App MUST receive native editing intents through its existing vault admission before editable surfaces become ready. The binding MUST preserve typed commands and snapshots, map only a typed missing-file result to absence, and retain all other failures without replay. Existing editing registry guards MUST coordinate flush, yield, native mutation and rearm.
+
+[Hosted Tasks acceptance](../../records/2026-10-26-hosted-native-tasks.md) tracks
+actual two-browser editor/refusal/rearm behavior separately from transport source
+checks. Native authority and intent contracts belong to the shared application
+services; the hosted binding adds no second journal, save path or scheduler.
+
 ## LN-WEB-072 — Retained hosted restore review
 
 <a id="ln-web-072"></a>
 
 **Requirement.** The selected Rust Repository profile MUST adapt the public RestoreService and retain its existing file/vault review, pending intent and explicit recovery controls. It MUST preserve exact request identities, validate preview identity and fence late responses. Workspace close MUST reject new restores and drain accepted observations. The adapter MUST NOT add a screen, writer, retry policy or automatic replay.
+
+## LN-WEB-073 — Retained backup settings and observation
+
+<a id="ln-web-073"></a>
+
+**Requirement.** The selected hosted Repository MUST reuse its public backup settings/status components and optional persisted-selection service. Observer start/stop MUST remain passive. Explicit selection MUST join the App configuration-file guard, fetch its expected version after pending writes, and enqueue read-only baseline reconciliation before later configuration saves. Failed acknowledgements MUST reconcile without automatically replaying setting or file mutations.
+
+## LN-WEB-074 — Guarded hosted workspace leave
+
+<a id="ln-web-074"></a>
+
+**Requirement.** Hosted vault switch, archive and logout MUST preflight native recovery and flush registered writers under their guard before disposing views, plugins, registry or clients. Refusal MUST retain the same App, draft and Problems, report through existing notifications and permit explicit retry. Concurrent callers MUST join complete disposal. Later cleanup failure MUST remain distinct from refusal and failed on subsequent leave requests without replay or admission release.
+
+## LN-WEB-075 — Retained independent repository sources
+
+<a id="ln-web-075"></a>
+
+**Requirement.** Hosted Repository surfaces MUST retain each selected source, exact operation pin and independent tab/read lifetime. Opening, refreshing or closing a view MUST NOT initialize, capture or mutate either repository. Both source clients MUST use the existing preparation queue and drain their own handles before release. An unavailable or fenced original scope MUST refuse without falling back to managed backup.

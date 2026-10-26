@@ -56,6 +56,7 @@ async function mountHosted(target: HTMLElement) {
         {
           nativeMetadata: import.meta.env.VITE_LAPIS_NATIVE_METADATA === "1",
           nativeHistory: import.meta.env.VITE_LAPIS_NATIVE_HISTORY === "1",
+          nativeTasks: import.meta.env.VITE_LAPIS_NATIVE_TASKS === "1",
         },
       )
     : (await import("./hosted/node-backend")).createNodeHostedBackend();

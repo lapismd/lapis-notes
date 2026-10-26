@@ -1031,6 +1031,7 @@ export class Configuration extends EventDispatcher<{
   async reloadFromDisk(
     options: {
       emitPluginDataEvents?: boolean;
+      materializeDefaults?: boolean;
       origin?: PluginDataUpdateOrigin;
     } = {},
   ): Promise<void> {
@@ -1044,7 +1045,8 @@ export class Configuration extends EventDispatcher<{
       return;
     this.values = loaded;
     this.loaded = true;
-    await this.materializeSchemaDefaults();
+    if (options.materializeDefaults !== false)
+      await this.materializeSchemaDefaults();
 
     if (options.emitPluginDataEvents !== false) {
       this.emitPluginDataDiffs(

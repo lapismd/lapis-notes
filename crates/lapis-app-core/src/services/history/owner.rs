@@ -1,6 +1,7 @@
 use super::{HistoryMethod, frames, policy::Policy};
 use crate::services::{VaultService, Work};
 use jj_history_service::{Error, History, Result};
+use lapis_app_protocol::repository_sources::RepositorySources;
 use std::{
     path::PathBuf,
     sync::{Arc, Mutex, Weak, mpsc},
@@ -10,6 +11,12 @@ use tokio::sync::{OwnedSemaphorePermit, Semaphore, oneshot};
 use uuid::Uuid;
 
 enum Command {
+    Sources {
+        client: Uuid,
+        reply: oneshot::Sender<Result<RepositorySources>>,
+        _work: Work,
+        _permit: OwnedSemaphorePermit,
+    },
     Call {
         client: Uuid,
         method: HistoryMethod,
@@ -45,6 +52,14 @@ impl Owner {
                 ready.send(()).map_err(|_| Error::Unavailable)?;
                 for command in receiver {
                     match command {
+                        Command::Sources {
+                            client,
+                            reply,
+                            _work,
+                            _permit,
+                        } => {
+                            let _ = reply.send(policy.open_original(client));
+                        }
                         Command::Call {
                             client,
                             method,
@@ -99,6 +114,23 @@ impl Owner {
                 client,
                 method,
                 frame,
+                reply,
+                _work: work,
+                _permit: permit,
+            })
+            .map_err(|_| Error::Unavailable)?;
+        response.await.map_err(|_| Error::Unavailable)?
+    }
+    pub async fn sources(&self, client: Uuid, work: Work) -> Result<RepositorySources> {
+        let permit = self
+            .queue
+            .clone()
+            .try_acquire_owned()
+            .map_err(|_| Error::Busy)?;
+        let (reply, response) = oneshot::channel();
+        self.sender
+            .send(Command::Sources {
+                client,
                 reply,
                 _work: work,
                 _permit: permit,

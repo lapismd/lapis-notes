@@ -29,6 +29,7 @@ export class RustServerRuntime {
     readonly origin: string,
     readonly password: string,
     readonly agentsConfig?: string,
+    readonly operatorTimezone?: string,
   ) {}
   get logs(): string {
     return this.#logs;
@@ -81,6 +82,7 @@ export class RustServerRuntime {
       LAPIS_SERVER_BOOTSTRAP_PASSWORD_FILE: secret,
       LAPIS_SERVER_BUILD_ID: "rust-browser-acceptance",
     };
+    if (this.operatorTimezone) environment.TZ = this.operatorTimezone;
     delete environment.LAPIS_SERVER_TOKEN;
     if (this.agentsConfig)
       environment.LAPIS_SERVER_AGENTS_CONFIG = this.agentsConfig;
@@ -155,7 +157,11 @@ export class RustServerRuntime {
           new Promise<never>((_, reject) => {
             timer = setTimeout(() => {
               child.kill("SIGKILL");
-              reject(new Error("Test host exceeded its shutdown deadline"));
+              reject(
+                new Error(
+                  `Test host ${child.spawnfile} exceeded its shutdown deadline\n${this.logs}`,
+                ),
+              );
             }, 15_000);
           }),
         ]);

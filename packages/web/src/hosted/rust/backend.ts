@@ -1,6 +1,8 @@
+import { createRustNativeEditingIntents } from "./native-editing-intents";
 import { HistoryClient } from "@lapismd/jj-history";
 import { createHostedRepository } from "../../history/services";
 import { createHostedRestore } from "../../history/restore";
+import { createHostedBackup } from "../../history/backup";
 import type { HostedBackend } from "../backend";
 import { RustHttpClient } from "./client";
 import { RustDatabaseProvider } from "./database-provider";
@@ -14,7 +16,12 @@ export function createRustHostedBackend(
   {
     nativeMetadata = false,
     nativeHistory = false,
-  }: { nativeMetadata?: boolean; nativeHistory?: boolean } = {},
+    nativeTasks = false,
+  }: {
+    nativeMetadata?: boolean;
+    nativeHistory?: boolean;
+    nativeTasks?: boolean;
+  } = {},
 ): HostedBackend {
   const capabilities = { manageVaults: false, transferVaults: false };
   return {
@@ -67,8 +74,14 @@ export function createRustHostedBackend(
       const adapter = new RustVaultAdapter(client, profile.name);
       return {
         adapter,
+        nativeTasks: nativeTasks
+          ? { call: (command) => client.tasks(command) }
+          : undefined,
+        nativeEditingIntents: nativeTasks
+          ? createRustNativeEditingIntents(client)
+          : undefined,
         repositoryFactory: nativeHistory
-          ? () =>
+          ? (app) =>
               createHostedRepository(
                 new HistoryClient(profile.id, {
                   invoke: (command, frame) => client.history(command, frame),
@@ -76,11 +89,28 @@ export function createRustHostedBackend(
                 createHostedRestore((command) =>
                   client.repositoryRestore(command),
                 ),
+                createHostedBackup(app, (command) =>
+                  client.repositoryBackup(command),
+                ),
+                {
+                  discover: () =>
+                    client.repositorySources({ kind: "discover" }),
+                  open: async () => {
+                    const source = await client.repositorySources({
+                      kind: "open_original",
+                    });
+                    return new HistoryClient(source.token!, {
+                      invoke: (command, frame) =>
+                        client.history(command, frame),
+                    });
+                  },
+                },
               )
           : undefined,
-        backgroundIndexing: nativeMetadata
-          ? { call: (command) => client.indexing(command) }
-          : undefined,
+        backgroundIndexing:
+          nativeMetadata || nativeTasks
+            ? { call: (command) => client.indexing(command) }
+            : undefined,
         nativeHistoryIndex: nativeHistory
           ? { call: (command) => client.historyIndex(command) }
           : undefined,

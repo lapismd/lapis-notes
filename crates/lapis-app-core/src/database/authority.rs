@@ -7,7 +7,10 @@ use lapis_app_protocol::{
     ErrorCode,
     database::call::{DatabaseCall, DatabaseMethod, DatabaseValue},
 };
-use std::collections::BTreeSet;
+use std::{
+    collections::BTreeSet,
+    sync::{Arc, Mutex},
+};
 
 #[derive(Default)]
 pub(super) struct Authority {
@@ -44,7 +47,7 @@ impl Database {
                 "Generated index writes belong to the selected native service",
             ));
         }
-        let database = self.clone();
+        let database = self.admitted_facade()?;
         // A dropped response must not release authority while an accepted
         // facade is still submitting its later publication stages.
         tokio::spawn(async move {
@@ -58,6 +61,21 @@ impl Database {
                 "Database outcome is unavailable; do not retry",
             )
         })?
+    }
+
+    fn admitted_facade(&self) -> Result<Self> {
+        let sender = self
+            .admission
+            .lock()
+            .map_err(|_| super::closed())?
+            .as_ref()
+            .ok_or_else(super::closed)?
+            .clone();
+        let mut database = self.clone();
+        // Closing fences public callers; this accepted facade keeps the same
+        // bounded worker alive until every stage has completed.
+        database.admission = Arc::new(Mutex::new(Some(sender)));
+        Ok(database)
     }
 }
 impl Authority {

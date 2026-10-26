@@ -1,3 +1,6 @@
+#[path = "support/embedding_reference.rs"]
+mod embedding_reference;
+
 use lapis_app_core::{
     database::Database,
     embedding::host::{NativeEmbeddingHost, OnnxModelAssets},
@@ -5,17 +8,14 @@ use lapis_app_core::{
 use lapis_app_protocol::database::search::{
     embedding::SearchEmbeddingRuntimePhase, records::SearchDocumentRecord,
 };
-use serde_json::{Value, json};
+use serde_json::json;
 use std::{future::Future, path::PathBuf, task::Poll};
 use uuid::Uuid;
 
 #[tokio::test]
 #[ignore = "Requires qualified native assets; run pnpm test:search:onnx"]
 async fn admitted_onnx_queries_retain_model_ranks_after_reopen_and_detach() {
-    let fixture: Value = serde_json::from_str(include_str!(
-        "../../../packages/api/src/lib/__tests__/fixtures/search-semantic-model.json"
-    ))
-    .unwrap();
+    let fixture = embedding_reference::qualified_fixture();
     let folder = PathBuf::from(std::env::var_os("LAPIS_TEST_ONNX_MODEL").unwrap());
     let host = NativeEmbeddingHost::new(
         PathBuf::from(std::env::var_os("LAPIS_TEST_ONNX_RUNTIME").unwrap()),

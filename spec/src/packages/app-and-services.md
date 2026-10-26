@@ -10,6 +10,8 @@ The profile also owns retained workspace routing: History stays visible while
 its rows open exact main-area conversations. Native metadata is a read-only
 projection; draft creation and view selection never submit prompts.
 
+Native backup settings use the same saved configuration and admitted owner under LN-CORE-022/LN-WEB-073; LN-PKG-186 permits read-only post-mutation baseline reconciliation without a second writer.
+
 The selected Rust Repository profile adapts the existing public RestoreService
 through its admitted client under LN-CORE-023/LN-SRV-027/LN-WEB-072. Core owns the
 existing backup engine and guarded writer; the retained controller owns pending
@@ -203,3 +205,9 @@ and default cutover remain distinct recorded gates.
 ## Admitted native Task port
 
 `@lapis-notes/api/native-tasks` exports generated commands, typed retained outcomes and an App-owned observer under [CORE013–015](../architecture/rust-task-host-port.md#ln-core-013). `VaultSession.nativeTasks` takes precedence over the explicit App option. The public host-module registry includes that entry for installed Tasks plugins; final plugin startup awaits declaration reconciliation.
+
+The staged Rust-hosted session supplies the same admitted native Tasks port
+before constructing its App. Passive host teardown drains the App observer
+before unloading configured plugins or releasing the attachment. The host never
+registers a replacement Tasks view or a static Tasks plugin; [hosted intake](../../records/2026-10-26-hosted-native-tasks.md)
+retains separate actual UI, timezone and installed-integrity gates.
