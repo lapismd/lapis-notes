@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 01:08:13 UTC",
+  "updated": "2026-10-26 01:18:11 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -640,6 +640,14 @@
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
       "detail": "[Qualified configured native Search intake](spec/records/2026-10-26-native-search-provider-intake.md) passes six exact, 37 affected indexing, 411 complete Rust and 54 retained API cases plus locked native build/strict checks. Final ten-lane specification closure and all 78 governance regressions pass after tracker and mapped-overview repairs; product/input bytes match the full functional snapshot. Full provider/status parity and both hosts remain separate; Markdown-only defaults stay unchanged."
+    },
+    {
+      "id": "R3.2.2.4",
+      "area": "Native Search controls",
+      "work": "Bounded provider selection, writer authority and explicit unavailable callbacks",
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "[Native Search controls](spec/records/2026-10-26-native-search-controls.md): the original five missing-command failures are repaired; three authority/two protocol cases pass. Follow-up progress/rebuild baseline has two failures; both now pass on d021e91d (five controls plus one rebuild). The final timestamp-retention regression, regenerated contract and broad combined source qualification are running. Both host selections remain separate."
     }
   ]
 }
