@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 01:23:31 UTC",
+  "updated": "2026-10-26 01:44:13 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -631,7 +631,7 @@
       "work": "Native daily provider creation and daily-before-rolling Task coordination",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "[Daily policy and registry](spec/records/2026-10-26-native-task-coordination.md) is source-qualified at 220b5cd7. [Guarded physical lookup/ensure](spec/records/2026-10-26-native-daily-document-io.md) is source-qualified: ten exact native integration cases, three injected publication races, all 422 Rust cases, complete check/test/build and specification/78 governance gates pass. Daily observation processing, ordered two-file writes, partial/cold recovery and existing-owner scheduling remain before either host selection."
+      "detail": "[Daily policy](spec/records/2026-10-26-native-task-coordination.md) is source-qualified at 220b5cd7 and [guarded physical lookup/ensure](spec/records/2026-10-26-native-daily-document-io.md) at 974d0a39. [Combined daily observation processing](spec/records/2026-10-26-native-daily-task-observations.md) is source-qualified: nine exact native cases, 38 retained daily outcomes, eight complete LF/CRLF tracking outcomes, all 431 Rust cases and full source/specification/78 governance gates pass. Ordered original-Task admission/persistence, valid-duration lifecycle reference, partial/cold recovery and existing-owner scheduling remain before either host selection."
     }
   ]
 }

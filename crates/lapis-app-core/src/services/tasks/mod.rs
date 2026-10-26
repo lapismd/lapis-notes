@@ -1,5 +1,6 @@
 //! Explicit one-file transformations using the admitted vault's existing writer.
 mod error;
+mod observations;
 mod persistence;
 #[cfg(test)]
 mod tests;
@@ -12,7 +13,29 @@ use lapis_task_services::{
     TaskOccurrenceObservation,
 };
 
+#[derive(Debug)]
+pub struct TaskObservationWrite {
+    pub document: TextSnapshot,
+    pub observation: TaskOccurrenceObservation,
+}
+
 impl Work {
+    pub fn process_task_occurrence(
+        &self,
+        path: &str,
+        expected: &ExpectedVersion,
+        input: &TaskOccurrenceMaterialization,
+        completion: Option<&TaskOccurrenceCompletion>,
+    ) -> TaskWriteResult<TaskObservationWrite> {
+        let (document, observation) = persistence::apply_with(self, path, expected, |raw| {
+            observations::process(raw, path, input, completion)
+        })?;
+        Ok(TaskObservationWrite {
+            document,
+            observation,
+        })
+    }
+
     pub fn mutate_task(
         &self,
         path: &str,

@@ -160,6 +160,17 @@ visible native inventory contract MUST remain unavailable. The
 [default IO record](../../records/2026-10-26-native-daily-document-io.md) tracks
 this physical boundary separately from provider-owner and host selection.
 
+A separate native-only stage MAY process an explicit daily occurrence before
+ordered lifecycle admission is selected. It MUST compose the existing Tasks
+materialization and optional completion transforms within one existing-file
+write, returning that published snapshot and exactly one matching observation.
+Default processing MUST reuse qualified ensure followed by this guarded stage;
+provider and transform/service failures remain typed. Processing failures MAY
+leave an ensured seed, as the retained source does, but MUST NOT publish partial
+observation content or advance a Task. The [daily processing
+record](../../records/2026-10-26-native-daily-task-observations.md) keeps this
+source boundary separate from ordered persistence, recovery and host selection.
+
 An admitted Task operation MUST verify its original Task version and source
 plan before the first daily mutation. It MUST resolve the plan's occurrence
 date, combine daily materialization and optional completion within one guarded
