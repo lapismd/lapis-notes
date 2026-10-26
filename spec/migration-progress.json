@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 03:14:35 UTC",
+  "updated": "2026-10-26 03:31:29 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Shared native indexing, Search controls, daily observations and both opt-in Markdown metadata hosts pass the combined source gate at frozen 9c207ac5: 461 Rust/2,289 package cases, 261 cold catalog and complete strict/build/specification gates. Remaining: native Search host adoption, ordered daily/Task recovery and scheduling, hosted History, custom-processor/provider acceptance and complete R3 selections. Defaults remain staged; R4–R7 are unchanged."
+      "detail": "Both metadata hosts are committed at Notes d133a31b and Desktop 4bcb7e09. Active in parallel: native Search adoption and replacement-App reconciliation; typed Task recovery final governance; shared hosted History controls. Tasks final source check passes 459 Rust cases, but recovery is not yet committed/adopted. R3 still requires tracked-today scheduling, both complete native writer selections and provider journeys. R4–R7 remain waiting as planned."
     },
     {
       "id": "R4",
@@ -391,7 +391,7 @@
       "work": "History-index scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Paused/cold native History ownership and final backup notifications are source-qualified; notifications are adopted in Notes `19cd103a`. Desktop `05d0e8ab` is committed in its clean default workspace with final-close, three backup, 12 native API and 2,016 catalog cases passing. Hosted selection, remaining renderer-scheduler retirement and complete default cutover remain."
+      "detail": "Native History owner and Desktop 05d0e8ab are qualified. Shared typed controls and admitted HTTP access are active in workspace hosted-history-20261026 on d133a31b. Saved-context, vault isolation and replaced-root tests are running before complete source qualification. Retained hosted-screen adoption, shared Desktop extraction and renderer-scheduler retirement remain open."
     },
     {
       "id": "R1.3.9.1",
