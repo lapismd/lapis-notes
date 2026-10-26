@@ -1,4 +1,14 @@
 import { FileTextConflictRegistry } from "./file-text-conflicts";
+import type { NativeEditingIntents } from "./native-editing-intents";
+import {
+  NativeRegisteredEditingSession,
+  type NativeEditingSession,
+  type FileEditingRegistration,
+} from "./native-editing-session";
+export type {
+  NativeEditingSession,
+  FileEditingRegistration,
+} from "./native-editing-session";
 export * from "./file-text-conflicts";
 export * from "./file-text-persistence";
 
@@ -7,6 +17,8 @@ export * from "./file-text-persistence";
  * renderer.
  */
 export interface FileEditingSession {
+  /** Required only when the App selects native editing intents. */
+  readonly native?: NativeEditingSession;
   /** Includes queued, in-flight and failed persistence. */
   readonly dirty: boolean;
   flush(): Promise<void>;
@@ -21,6 +33,8 @@ type Registration = {
   path: string;
   session: FileEditingSession;
   references: number;
+  native?: NativeRegisteredEditingSession;
+  retirement?: Promise<unknown>;
 };
 type Release = {
   barrier: object;
@@ -67,6 +81,8 @@ export class FileEditingSessionRegistry {
   #closing = false;
   #closed = false;
   #disposal: Promise<void> | undefined;
+
+  constructor(private readonly native?: NativeEditingIntents) {}
 
   get closed(): boolean {
     return this.#closing;
@@ -128,7 +144,7 @@ export class FileEditingSessionRegistry {
       await Promise.all([...this.#pendingOperations]);
   }
 
-  register(path: string, session: FileEditingSession): () => void {
+  register(path: string, session: FileEditingSession): FileEditingRegistration {
     this.#assertOpen();
     const capturedPath = filePath(path);
     if (
@@ -149,16 +165,32 @@ export class FileEditingSessionRegistry {
       throw new Error("An editing session cannot change its registered file");
     if (!entry) {
       entry = { path: capturedPath, session, references: 0 };
+      if (this.native) {
+        entry.native = new NativeRegisteredEditingSession(
+          session,
+          this.native,
+          capturedPath,
+          () => this.#closing || entry!.references === 0,
+        );
+        entry.session = entry.native;
+      }
       this.#sessions.set(session, entry);
     }
     entry.references++;
     let registered = true;
-    return () => {
-      if (!registered) return;
-      registered = false;
-      entry.references--;
-      this.#prune(entry);
-    };
+    return Object.assign(
+      () => {
+        if (!registered) return;
+        registered = false;
+        entry.references--;
+        this.#prune(entry);
+      },
+      {
+        native: !!entry.native,
+        ready: () => entry.native?.ready() ?? Promise.resolve(),
+        changed: () => entry.native?.changed(),
+      },
+    );
   }
 
   /** Flush the captured sessions; protection is required for mutation admission. */
@@ -213,9 +245,18 @@ export class FileEditingSessionRegistry {
       )
         throw new Error("Invalid file editing session");
       const entry = { path: scope, session, references: 0 };
+      if (this.native) {
+        const native = new NativeRegisteredEditingSession(
+          session,
+          this.native,
+          scope,
+          () => true,
+        );
+        Object.assign(entry, { native, session: native });
+      }
       this.#sessions.set(session, entry);
       try {
-        await session.flush();
+        await entry.session.flush();
         if (session.dirty)
           throw new Error(`File mutation remains dirty: ${scope}`);
       } finally {
@@ -292,11 +333,25 @@ export class FileEditingSessionRegistry {
     if (
       entry.references ||
       this.#held.has(entry) ||
-      this.#sessions.get(entry.session) !== entry
+      ![...this.#sessions.values()].includes(entry)
     )
       return;
     try {
-      if (!entry.session.dirty) this.#sessions.delete(entry.session);
+      if (entry.session.dirty) return;
+      if (entry.native && !entry.native.retired) {
+        if (!entry.retirement) {
+          entry.retirement = this.#enqueue(
+            () => this.#guard(entry.path, async () => undefined),
+            this.#closing,
+          );
+          void entry.retirement.catch(() => {
+            entry.retirement = undefined;
+          });
+        }
+        return;
+      }
+      for (const [session, registered] of this.#sessions)
+        if (registered === entry) this.#sessions.delete(session);
     } catch {
       // A failing dirty-state getter must not silently remove a writer.
     }

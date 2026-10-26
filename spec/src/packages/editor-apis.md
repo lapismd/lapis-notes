@@ -1,5 +1,12 @@
 # Packages / Editor APIs
 
+Native hosts select the optional [editor-intent lifecycle](../architecture/native-editor-intents.md)
+through `AppStateProperties.nativeEditingIntents` or the admitted `VaultSession`.
+The public `@lapis-notes/api/native-editing-intents` entry carries generated
+transport DTOs and read-only saved-snapshot access. Existing generic writer
+registrations add native input protection and saved-text authority when that
+port is selected; ordinary browser writers retain their existing behavior.
+
 LN-ARCH-137 and LN-ARCH-138 define guarded atomic `Editor.loadDocument` and
 publication cancellation. Text file views use that boundary while independent
 Mira and host flush/shutdown integration remain required for production Sync.

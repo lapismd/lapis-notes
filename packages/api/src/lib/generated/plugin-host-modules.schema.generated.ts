@@ -373,6 +373,16 @@ export const pluginHostModuleRegistry = {
     specifier: "@lapis-notes/api/metadata-value",
     version: "0.1.4",
   },
+  "@lapis-notes/api/native-editing-intents": {
+    entry: "@lapis-notes/api/native-editing-intents",
+    moduleId: "lapis-notes-api-native-editing-intents",
+    packageName: "@lapis-notes/api",
+    platforms: ["web", "electron-renderer"],
+    public: true,
+    source: "package-json-export",
+    specifier: "@lapis-notes/api/native-editing-intents",
+    version: "0.1.4",
+  },
   "@lapis-notes/api/native-history-index": {
     entry: "@lapis-notes/api/native-history-index",
     moduleId: "lapis-notes-api-native-history-index",

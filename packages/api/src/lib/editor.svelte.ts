@@ -21,6 +21,7 @@ import {
 } from "./editor-save-context";
 import { resolveApplication } from "./application-compatibility";
 import { FileTextPersistence } from "./file-text-persistence";
+import type { FileEditingRegistration } from "./file-editing-sessions";
 
 export type EditorPosition = { line: number; ch: number };
 export interface EditorRange {
@@ -93,7 +94,7 @@ interface EditorDocumentBinding {
   writer?: EditorPersistenceWriter;
   saves: EditorSaveContext;
   text?: FileTextPersistence;
-  unregister?: () => void;
+  unregister?: FileEditingRegistration;
   loading?: Promise<void>;
 }
 export interface MarkdownFileInfo {
@@ -319,6 +320,7 @@ export class Editor extends EventDispatcher<{
     persistence: EditorPersistence,
     writer?: EditorPersistenceWriter,
   ): EditorDocumentBinding {
+    const initialText = this.data;
     const document = {
       application,
       file,
@@ -330,6 +332,7 @@ export class Editor extends EventDispatcher<{
       unownedExternal: persistence === "external" && !writer,
       serialize: (run) => this.#serializeWrite(run),
       persist: async (snapshot) => {
+        if (document.unregister?.native) await document.unregister.ready();
         if (file?.path !== document.path)
           throw new Error("Editor persistence target changed");
         if (document.text) await document.text.persist(snapshot.content);
@@ -406,6 +409,13 @@ export class Editor extends EventDispatcher<{
       document.unregister = application.fileEditingSessions.register(
         file.path,
         {
+          native: {
+            hold: () => this.#holdEditing(),
+            savedText: () =>
+              document.text
+                ? document.text.baseline
+                : (document.saves.latest?.content ?? initialText),
+          },
           get dirty() {
             return !!document.loading || document.saves.dirty;
           },
@@ -553,6 +563,13 @@ export class Editor extends EventDispatcher<{
     this.#loading = load;
     let published = false;
     try {
+      if (document.unregister?.native) {
+        const admission = await Promise.race([
+          document.unregister.ready().then(() => ({ ready: true as const })),
+          cancellation,
+        ]);
+        if ("canceled" in admission || canceled) return false;
+      }
       const drained = await Promise.race([
         this.flushChanges().then(() => ({ drained: true as const })),
         cancellation,
@@ -654,10 +671,9 @@ export class Editor extends EventDispatcher<{
   readonly save = Object.assign(
     () => {
       this.#assertWritable();
-      return this.#currentDocument().saves.queue(
-        this.captureChange(this.getValue()),
-        true,
-      );
+      const document = this.#currentDocument();
+      document.unregister?.changed();
+      return document.saves.queue(this.captureChange(this.getValue()), true);
     },
     {
       flush: () => this.#document?.saves.flushSave(),
@@ -680,6 +696,7 @@ export class Editor extends EventDispatcher<{
   queueChange(data: string): void {
     this.#assertWritable();
     const document = this.#currentDocument();
+    document.unregister?.changed();
     document.saves.queue(this.captureChange(data));
     document.text?.updateLocal(data);
   }

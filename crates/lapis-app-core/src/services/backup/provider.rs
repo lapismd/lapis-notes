@@ -123,7 +123,7 @@ impl Provider {
         if state.phase == VaultPhase::Closed {
             return Err("Vault service is closed".into());
         }
-        if writes && state.dirty(None) {
+        if writes && state.editors_blocked(None) {
             return Err("Vault has unresolved editor state".into());
         }
         state

@@ -15,6 +15,7 @@
   - [Architecture / Admitted native History reader](./architecture/rust-history-reader.md)
   - [Architecture / Backup service lifetime](./architecture/rust-backup-lifetime.md)
   - [Architecture / Editor integration](./architecture/editor-integration.md)
+  - [Architecture / Native editor intents](./architecture/native-editor-intents.md)
   - [Architecture / Build and validation](./architecture/build-and-validation.md)
   - [Architecture / Application ownership](./architecture/application-ownership.md)
   - [Architecture / Plugin integration](./architecture/core-contract.md)

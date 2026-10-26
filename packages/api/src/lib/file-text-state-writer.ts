@@ -1,5 +1,8 @@
 import type { App } from "./context.svelte";
-import type { FileEditingSession } from "./file-editing-sessions";
+import type {
+  FileEditingSession,
+  FileEditingRegistration,
+} from "./file-editing-sessions";
 import { FileTextPersistence } from "./file-text-persistence";
 import type { TFile } from "./storage/fs";
 import { dirname } from "./storage/path";
@@ -11,7 +14,7 @@ import { dirname } from "./storage/path";
 export class FileTextStateWriter implements FileEditingSession {
   readonly #path: string;
   #persistence: FileTextPersistence | undefined;
-  readonly #unregister: () => void;
+  readonly #unregister: FileEditingRegistration;
   #contents: string;
   #dirty = false;
   #locks = 0;
@@ -66,6 +69,11 @@ export class FileTextStateWriter implements FileEditingSession {
     return this.#dirty || !!this.#persistence?.hasConflict;
   }
 
+  readonly native = {
+    hold: () => this.#protect(),
+    savedText: () => this.#persistence?.baseline,
+  };
+
   acceptBaseline(contents: string | null): boolean {
     if (this.dirty || this.#locks || this.#disposed) return false;
     if (this.#persistence) this.#persistence.acceptBaseline(contents);
@@ -83,9 +91,18 @@ export class FileTextStateWriter implements FileEditingSession {
   }
 
   set(contents: string): Promise<void> {
+    return this.#unregister.native
+      ? this.app.fileEditingSessions.track(() =>
+          this.#unregister.ready().then(() => this.#setContents(contents)),
+        )
+      : this.#setContents(contents);
+  }
+
+  #setContents(contents: string): Promise<void> {
     this.assertEditable();
     this.#contents = contents;
     this.#dirty = true;
+    this.#unregister.changed();
     this.#persistence?.updateLocal(contents);
     return this.app.fileEditingSessions.recover(this, () => this.flush());
   }
@@ -94,13 +111,18 @@ export class FileTextStateWriter implements FileEditingSession {
   update(
     calculate: () => { contents: string; onSaved(): void } | undefined,
   ): Promise<void> {
-    this.assertEditable();
+    if (!this.#unregister.native) this.assertEditable();
     return this.app.fileEditingSessions.recover(this, async () => {
+      if (this.#unregister.native) {
+        await this.#unregister.ready();
+        this.assertEditable();
+      }
       await this.flush();
       const change = calculate();
       if (!change) return;
       this.#contents = change.contents;
       this.#dirty = true;
+      this.#unregister.changed();
       this.#onSaved = change.onSaved;
       await this.flush();
     });

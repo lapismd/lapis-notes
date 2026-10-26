@@ -30,6 +30,13 @@ const generated = JSON.parse(
 const outputs = [
   [
     new URL(
+      "../packages/api/src/lib/native-editing-intents-protocol.ts",
+      import.meta.url,
+    ),
+    await format(generated.editingIntentTypescript, { parser: "typescript" }),
+  ],
+  [
+    new URL(
       "../packages/api/src/lib/native-tasks-protocol.ts",
       import.meta.url,
     ),

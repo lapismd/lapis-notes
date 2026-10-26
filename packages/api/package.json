@@ -104,6 +104,9 @@
       ],
       "native-tasks": [
         "dist/native-tasks.d.ts"
+      ],
+      "native-editing-intents": [
+        "dist/native-editing-intents.d.ts"
       ]
     }
   },
@@ -284,6 +287,11 @@
       "types": "./dist/native-tasks.d.ts",
       "import": "./dist/native-tasks.js",
       "default": "./dist/native-tasks.js"
+    },
+    "./native-editing-intents": {
+      "types": "./dist/native-editing-intents.d.ts",
+      "import": "./dist/native-editing-intents.js",
+      "default": "./dist/native-editing-intents.js"
     }
   },
   "devDependencies": {

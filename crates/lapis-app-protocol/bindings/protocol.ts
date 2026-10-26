@@ -71,6 +71,34 @@ export type HistoryIndexValue =
   | HistoryIndexProgress
   | HistoryIndexPage
   | HistoryIndexContext;
+export type EditingIntentState = {
+  editor_id: string;
+  path: string;
+  generation: number;
+  revision: number;
+  dirty: boolean;
+  active: boolean;
+  detached: boolean;
+};
+export type EditingIntentCommand =
+  | { kind: "acquire"; editor_id: string; path: string }
+  | { kind: "changed"; editor_id: string; generation: number; revision: number }
+  | {
+      kind: "yield";
+      editor_id: string;
+      generation: number;
+      revision: number;
+      expected: ExpectedVersion;
+    }
+  | { kind: "resume"; editor_id: string; generation: number }
+  | { kind: "retire"; editor_id: string; generation: number }
+  | { kind: "inspect"; editor_id: string }
+  | { kind: "list" };
+export type EditingIntentValue =
+  | { kind: "state"; state: EditingIntentState }
+  | { kind: "states"; states: Array<EditingIntentState> }
+  | { kind: "retired" }
+  | { kind: "missing" };
 export type ProjectionContribution = {
   projection_id: string;
   owner_plugin_id: string;
@@ -1371,6 +1399,7 @@ export type ExpectedVersion =
   | { kind: "missing" }
   | { kind: "version"; version: string };
 export type VaultCommand =
+  | { kind: "editing_intents"; command: EditingIntentCommand }
   | { kind: "files"; operation: FileCommand }
   | { kind: "read_text"; path: string }
   | {
@@ -1416,6 +1445,7 @@ export type EditorClaim = {
 };
 export type TextSnapshot = { path: string; text: string; version: string };
 export type VaultValue =
+  | { kind: "editing_intents"; value: EditingIntentValue }
   | { kind: "files"; value: FileValue }
   | { kind: "text"; snapshot: TextSnapshot }
   | { kind: "written"; version: string }

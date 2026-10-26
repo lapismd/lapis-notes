@@ -4,6 +4,7 @@ mod byte_writes;
 mod client;
 pub mod daily;
 mod database;
+mod editing_intents;
 mod editors;
 mod error;
 mod files;

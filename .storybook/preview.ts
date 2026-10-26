@@ -72,6 +72,7 @@ const preview: Preview = {
               "Admitted native History reader",
               "Backup service lifetime",
               "Editor integration",
+              "Native editor intents",
               "Build and validation",
               "Application ownership",
               "Plugin integration",

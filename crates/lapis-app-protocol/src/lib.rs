@@ -7,6 +7,7 @@ use uuid::Uuid;
 
 pub mod browser;
 pub mod database;
+pub mod editing_intents;
 pub mod files;
 pub mod history_index;
 pub mod indexing;
@@ -43,6 +44,9 @@ pub enum ExpectedVersion {
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 #[ts(tag = "kind", rename_all = "snake_case")]
 pub enum VaultCommand {
+    EditingIntents {
+        command: editing_intents::EditingIntentCommand,
+    },
     Files {
         operation: files::FileCommand,
     },
@@ -138,13 +142,30 @@ pub struct TextSnapshot {
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 #[ts(tag = "kind", rename_all = "snake_case")]
 pub enum VaultValue {
-    Files { value: files::FileValue },
-    Text { snapshot: TextSnapshot },
-    Written { version: String },
-    Status { status: VaultStatus },
-    Editor { editor_id: Uuid },
-    Saved { cleared: bool },
-    EditorClaims { claims: Vec<EditorClaim> },
+    EditingIntents {
+        value: editing_intents::EditingIntentValue,
+    },
+    Files {
+        value: files::FileValue,
+    },
+    Text {
+        snapshot: TextSnapshot,
+    },
+    Written {
+        version: String,
+    },
+    Status {
+        status: VaultStatus,
+    },
+    Editor {
+        editor_id: Uuid,
+    },
+    Saved {
+        cleared: bool,
+    },
+    EditorClaims {
+        claims: Vec<EditorClaim>,
+    },
     Done {},
 }
 

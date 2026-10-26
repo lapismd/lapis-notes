@@ -1,5 +1,11 @@
 # Workspace Shell / View lifecycle
 
+When an App selects [native editing intents](../architecture/native-editor-intents.md),
+its existing writer registry retains admission through document, view and App
+teardown. Failed retirement or rearm keeps local input protected and preserves
+the original writer. Workspace disposal does not silently release the native
+fence or add another save path.
+
 ## LN-WS-101 — Explicit close persistence scope
 
 <a id="ln-ws-101"></a>

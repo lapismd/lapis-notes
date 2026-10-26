@@ -1,5 +1,11 @@
 # Plugin Model / Application services
 
+The App-owned `fileEditingSessions` registry may bind an admitted native
+editing-intent port under [LN-CORE-019–021](../architecture/native-editor-intents.md).
+Plugins register their real writer and saved text through that registry; native
+readiness, protection and protected yield/rearm remain App-owned. The port
+grants no path, secret or persistence authority beyond the admitted host client.
+
 The public `NativeTurnService` is an already-admitted host port. Its generated
 DTOs carry portable commands and observations; plugins cannot nominate native
 launch paths or credentials. Accepted work and transcript writes stay in Core

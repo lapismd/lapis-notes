@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 14:04:21 UTC",
+  "updated": "2026-10-26 14:50:21 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -720,6 +720,46 @@
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-task-host-port.md#ln-core-015",
       "detail": "[English default daily source](spec/records/2026-10-26-native-daily-locale-parity.md) preserves current en-US 7/4 and qualifies en-GB 1/4 plus declared legacy-Intl en-US 7/1 with 200 filenames, 45 provider flows and 19 registry traces per context, plus 16 focused physical IO cases. All 12 exact native cases, five adapter context cases, three TypeScript replay cases and all-context HTTP journal/IO pass. Complete source gates pass 489 Rust, 2,266 package, 261 cold Notes catalog and 2,864 Tasks units/27 Rust/62 cold catalog cases. No transport, arbitrary-provider or default change. Coherent API/host adoption, actual WebView, timezone/day-boundary and installed-plugin integrity and native host acceptance remain open. Final source document/static receipts accompany the qualified commit."
+    },
+    {
+      "id": "R3.2.4",
+      "area": "Native writer admission",
+      "work": "Shared editing intent integration",
+      "status": "Working",
+      "spec": "spec/src/architecture/native-editor-intents.md#ln-core-019",
+      "detail": "Core/API source foundation is qualified separately from explicit stale-safe recovery, source Markdown/Mira bridge and both actual host adoptions. Native intent is distinct from dirty state; no second save engine or automatic discard is introduced."
+    },
+    {
+      "id": "R3.2.4.1",
+      "area": "Native writer admission",
+      "work": "Core protocol and App registry foundation",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/native-editor-intents.md#ln-core-019",
+      "detail": "[Qualified Core/App foundation](spec/records/2026-10-26-native-editor-intent-foundation.md): ten exact Core and seventeen exact App registry/real-writer cases pass, including initial-admission and one-shot retry regressions. All 118 affected, 1,658 API, 2,343 package and 547 native cases pass with seven explicit asset/provider ignores. Root check20/test20/build11, public build/publint/packed types, 261 cold catalogue/static and specification gates pass. Captured-state recovery, source Markdown binding and actual host adoption remain separate."
+    },
+    {
+      "id": "R3.2.4.2",
+      "area": "Native writer recovery",
+      "work": "Captured-generation explicit recovery through existing Problems",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/native-editor-intents.md#ln-core-021",
+      "detail": "List, adopt and discard detached blocking intents, including active-clean claims, through existing Problems/recovery presentation. Bind actions to captured generation/revision, refuse stale actions, and never replay uncertain content mutations or clear unknown buffers automatically."
+    },
+    {
+      "id": "R3.2.4.3",
+      "area": "Native writer producers",
+      "work": "Source-owned Mira raw input lease and Markdown binding",
+      "status": "Working",
+      "spec": "spec/src/architecture/native-editor-intents.md#ln-core-020",
+      "detail": "Mira raw-input lease is qualified and committed at c5d1e4b6 with five exact, 31 affected, 504 package, 170 cold catalogue and 60 browser cases plus public/specification gates. The source-owned Markdown adapter uses that public lease with existing conditional persistence; three exact and 19 binding cases pass while public FileEmbed/browser qualification continues. Both actual host adoptions remain pending."
+    },
+    {
+      "id": "R3.2.4.4",
+      "area": "Native writer hosts",
+      "work": "Actual hosted and Desktop editor/Tasks acceptance",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/native-editor-intents.md#ln-core-020",
+      "detail": "After source qualification and captured-generation recovery, select thin same-client adapters in both hosts. Prove foreign dirty refusal, saved-generation handoff/rearm, retained failed/detached writers and cold/crash recovery in the real applications. Headless browser and actual native WebView acceptance remain distinct."
     }
   ]
 }

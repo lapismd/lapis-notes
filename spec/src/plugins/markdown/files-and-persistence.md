@@ -1,5 +1,12 @@
 # Markdown Plugin / Files and persistence
 
+API-backed Markdown editors inherit the native editing-intent admission in
+[LN-CORE-019–021](../../architecture/native-editor-intents.md) when their App
+selects it. Raw editing stays protected until readiness, and protected mutations
+yield only the captured saved generation before rearming. Independent Mira
+preview binding and both actual host selections retain separate acceptance
+gates; the shared API never imports Mira internals.
+
 LN-WS-005/063 foreground file reveal selects the original Markdown leaf after
 queued host projection. LN-MD-001 ownership and existing editor state, save
 guards and persistence remain unchanged; no replacement editor is constructed.

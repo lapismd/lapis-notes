@@ -9,6 +9,7 @@ import { CommandManager, Keymap, Scope, type UserEvent } from "./command.svelte"
 import { MetadataCache } from "./cache.svelte";
 import type { NativeBackgroundIndexingObserver } from "./native-background-indexing";
 import type { NativeHistoryIndex } from "./native-history-index";
+import type { NativeEditingIntents } from "./native-editing-intents";
 import type { MarkdownDirectiveRenderer, MarkdownPostProcessor, MarkdownViewMenuItemProvider } from "./markdown";
 import { type Logger } from "./logging";
 import type { Component } from "./view.svelte";
@@ -64,6 +65,7 @@ export type AppStateProperties = {
     adapter?: DataAdapter;
     session?: VaultSession;
     nativeHistoryIndex?: NativeHistoryIndex;
+    nativeEditingIntents?: NativeEditingIntents;
     nativeTasks?: NativeTasks;
     appDatabase?: AppDatabase;
     safeMode?: AppSafeModeState;

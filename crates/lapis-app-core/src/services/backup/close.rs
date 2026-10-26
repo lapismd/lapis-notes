@@ -11,7 +11,7 @@ impl VaultService {
             if state.phase == VaultPhase::Closed {
                 return Ok(());
             }
-            if state.dirty(None) {
+            if state.editors_blocked(None) {
                 return Err(Error::busy());
             }
             state.phase = VaultPhase::Closing;

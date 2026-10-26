@@ -1,5 +1,11 @@
 # Search result and Problems provider boundaries
 
+The shared [native editing-intent foundation](../../../architecture/native-editor-intents.md)
+returns admission, dirty and uncertain-transition state to the owning App. This
+source port does not create a Problems collection or discard an abandoned
+writer. Captured-generation recovery through existing Problems actions remains
+a separately qualified host contribution.
+
 LN-SRCH-051 adds query-result sources to the owning App. These registrations
 return navigation targets and presentation data only. They do not contribute
 Problems, diagnostic collections, editor markers, fixes or permissions.

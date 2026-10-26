@@ -1,5 +1,10 @@
 # Architecture / Editor integration
 
+Selected native hosts additionally use the [native editor-intent contract](native-editor-intents.md).
+The App registry admits that fence before input, yields only under its existing
+writer guard and rearms before local protection releases. Existing persistence
+and standalone browser behavior remain owned by these editor contracts.
+
 Popup attachment under LN-WS-064 retargets the retained CodeMirror view to its
 new owner document. State, drafts and undo history remain on that same editor;
 LN-WS-099 uses the existing App-owned registry for close admission.

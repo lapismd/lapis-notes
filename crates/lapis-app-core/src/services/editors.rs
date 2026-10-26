@@ -5,7 +5,7 @@ use super::{
 use lapis_app_protocol::{EditorClaim, ErrorCode};
 use uuid::Uuid;
 
-fn owned(state: &mut State, client: Uuid, id: Uuid) -> Result<&mut Editor> {
+pub(super) fn owned(state: &mut State, client: Uuid, id: Uuid) -> Result<&mut Editor> {
     state.require_client(client)?;
     state
         .editors
@@ -48,6 +48,7 @@ impl Client {
                 dirty: false,
                 revision: 0,
                 detached: false,
+                intent: None,
             },
         );
         Ok(id)
@@ -80,22 +81,42 @@ impl Client {
     }
     pub fn close_editor(&self, id: Uuid) -> Result<()> {
         let mut state = self.vault.lock()?;
-        if owned(&mut state, self.id, id)?.dirty {
+        if owned(&mut state, self.id, id)?.blocked() {
             return Err(Error::busy());
         }
-        state.editors.remove(&id);
+        if state
+            .editors
+            .remove(&id)
+            .is_some_and(|editor| editor.intent.is_some())
+        {
+            state.retired_editor_intents.insert(id, self.id);
+        }
         Ok(())
     }
     /// An explicit user discard, not a disconnect or timeout.
     pub fn discard_editor(&self, id: Uuid) -> Result<()> {
         let mut state = self.vault.lock()?;
         owned(&mut state, self.id, id)?;
-        state.editors.remove(&id);
+        if state
+            .editors
+            .remove(&id)
+            .is_some_and(|editor| editor.intent.is_some())
+        {
+            state.retired_editor_intents.insert(id, self.id);
+        }
         Ok(())
     }
     pub fn recover_editor(&self, id: Uuid) -> Result<()> {
         let mut state = self.vault.lock()?;
         state.require_client(self.id)?;
+        if state
+            .editors
+            .get(&id)
+            .is_some_and(|editor| editor.intent.is_some())
+            && !super::editing_intents::can_admit(&state, self.id)
+        {
+            return Err(Error::busy());
+        }
         let editor = state.editors.get_mut(&id).ok_or_else(Error::denied)?;
         if !editor.detached {
             return Err(Error::busy());

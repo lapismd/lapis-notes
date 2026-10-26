@@ -17,6 +17,7 @@ Defines runtime ownership, dependency boundaries, host integration, and build an
 - [Admitted native History reader](architecture/rust-history-reader.md)
 - [Backup service lifetime](architecture/rust-backup-lifetime.md)
 - [Editor integration](architecture/editor-integration.md)
+- [Native editor intents](architecture/native-editor-intents.md)
 - [Build and validation](architecture/build-and-validation.md)
 - [Application ownership](architecture/application-ownership.md)
 - [Plugin integration](architecture/core-contract.md)

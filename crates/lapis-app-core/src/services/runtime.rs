@@ -128,7 +128,7 @@ impl Runtime {
         for vault in &vaults {
             states.push(vault.lock()?);
         }
-        if states.iter().any(|state| state.dirty(None)) {
+        if states.iter().any(|state| state.editors_blocked(None)) {
             return Err(Error::busy());
         }
         registry.closing = true;

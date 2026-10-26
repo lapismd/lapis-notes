@@ -34,6 +34,11 @@ class TextMutation implements FileEditingSession {
     return this.#dirty || !!this.#persistence?.hasConflict;
   }
 
+  readonly native = {
+    hold: () => () => {},
+    savedText: () => this.#persistence?.baseline,
+  };
+
   async flush(): Promise<void> {
     if (!this.dirty) return;
     if (this.file.path !== this.#path)

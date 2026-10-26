@@ -52,8 +52,11 @@ impl Client {
                 return true;
             }
             editor.detached = true;
-            editor.dirty
+            editor.blocked()
         });
+        state
+            .retired_editor_intents
+            .retain(|_, client| *client != self.id);
         drop(state);
         self.vault.revoke_history_reader(self.id)
     }

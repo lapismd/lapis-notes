@@ -78,6 +78,7 @@ import { FileEditingSessionRegistry } from "./file-editing-sessions";
 import { SearchDocumentProviderRegistry } from "./search-document-provider";
 import type { NativeBackgroundIndexingObserver } from "./native-background-indexing";
 import type { NativeHistoryIndex } from "./native-history-index";
+import type { NativeEditingIntents } from "./native-editing-intents";
 import { SearchResultProviderRegistry } from "./search-result-provider";
 import { DailyDocumentProviderRegistry } from "./daily-document-provider";
 import { AppToolRegistry } from "./agent-tools";
@@ -147,6 +148,7 @@ export type AppStateProperties = {
   session?: VaultSession;
   /** Already admitted by the host; construction does not start native work. */
   nativeHistoryIndex?: NativeHistoryIndex;
+  nativeEditingIntents?: NativeEditingIntents;
   nativeTasks?: NativeTasks;
   appDatabase?: AppDatabase;
   safeMode?: AppSafeModeState;
@@ -345,7 +347,7 @@ export class App {
   readonly agentResultViews = new AppResultViewRegistry();
   readonly markdownExtensions = new MarkdownExtensionRegistry();
   readonly markdownFileSurfaces = new MarkdownFileSurfaceRegistry();
-  readonly fileEditingSessions = new FileEditingSessionRegistry();
+  readonly fileEditingSessions: FileEditingSessionRegistry;
   lastEvent: UserEvent | null = $state(null);
   renderContext: RenderContext = new RenderContext();
   secretStorage: SecretStorage = new SecretStorage();
@@ -385,6 +387,9 @@ export class App {
       throw new Error("App requires a vault adapter or vault session");
     }
     this.session = props.session;
+    this.fileEditingSessions = new FileEditingSessionRegistry(
+      props.nativeEditingIntents ?? props.session?.nativeEditingIntents,
+    );
     this.nativeHistoryIndex =
       props.nativeHistoryIndex ?? props.session?.nativeHistoryIndex;
     this.safeMode = props.safeMode ?? createDefaultAppSafeModeState();

@@ -10,6 +10,7 @@ import {
 } from "./app-database";
 import type { NativeBackgroundIndexing } from "../native-background-indexing";
 import type { NativeHistoryIndex } from "../native-history-index";
+import type { NativeEditingIntents } from "../native-editing-intents";
 import { BrowserCoordinatedAppDatabase } from "./browser-coordinated-app-database";
 import { BrowserAppDatabaseCoordinator } from "./browser-app-database-coordination";
 import type { VaultAdapter, VaultIdentityAdapter } from "./fs";
@@ -50,6 +51,7 @@ export interface VaultSession {
   appDatabase?: AppDatabase;
   backgroundIndexing?: NativeBackgroundIndexing;
   nativeHistoryIndex?: NativeHistoryIndex;
+  nativeEditingIntents?: NativeEditingIntents;
   nativeTasks?: NativeTasks;
   appDatabaseState: VaultSessionAppDatabaseState;
   awaitAppDatabase?: (options?: {

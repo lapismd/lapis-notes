@@ -34,6 +34,16 @@ pub(super) struct Editor {
     pub dirty: bool,
     pub revision: u32,
     pub detached: bool,
+    pub intent: Option<EditingIntent>,
+}
+pub(super) struct EditingIntent {
+    pub generation: u32,
+    pub active: bool,
+}
+impl Editor {
+    pub fn blocked(&self) -> bool {
+        self.dirty || self.intent.as_ref().is_some_and(|intent| intent.active)
+    }
 }
 pub(super) struct State {
     pub root: VaultRoot,
@@ -41,6 +51,7 @@ pub(super) struct State {
     pub clients: HashSet<Uuid>,
     pub work: usize,
     pub editors: HashMap<Uuid, Editor>,
+    pub retired_editor_intents: HashMap<Uuid, Uuid>,
     pub database: Option<Database>,
     pub database_starting: bool,
     pub database_error: Option<lapis_app_protocol::ServiceError>,
@@ -60,10 +71,10 @@ impl State {
         }
         Ok(())
     }
-    pub fn dirty(&self, path: Option<&str>) -> bool {
+    pub fn editors_blocked(&self, path: Option<&str>) -> bool {
         self.editors
             .values()
-            .any(|e| e.dirty && path.is_none_or(|path| e.path == path))
+            .any(|e| e.blocked() && path.is_none_or(|path| e.path == path))
     }
     pub fn begin_close(&mut self) {
         if let Some(database) = &self.database {
@@ -94,6 +105,7 @@ impl VaultService {
                 clients: HashSet::new(),
                 work: 0,
                 editors: HashMap::new(),
+                retired_editor_intents: HashMap::new(),
                 database: None,
                 database_starting: false,
                 database_error: None,
@@ -145,7 +157,7 @@ impl VaultService {
             self.finish_backup()?;
         } else {
             let mut state = self.lock()?;
-            if state.dirty(None) {
+            if state.editors_blocked(None) {
                 return Err(Error::busy());
             }
             state.begin_close();
@@ -154,7 +166,7 @@ impl VaultService {
         self.finish_history_indexing()?;
         self.finish_indexing()?;
         let mut state = self.lock()?;
-        if state.dirty(None) {
+        if state.editors_blocked(None) {
             return Err(Error::busy());
         }
         state.begin_close();

@@ -201,6 +201,159 @@
         }
       ]
     },
+    "EditingIntentCommand": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "editor_id": { "format": "uuid", "type": "string" },
+            "kind": { "const": "acquire", "type": "string" },
+            "path": { "type": "string" }
+          },
+          "required": ["kind", "editor_id", "path"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "editor_id": { "format": "uuid", "type": "string" },
+            "generation": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "kind": { "const": "changed", "type": "string" },
+            "revision": { "format": "uint32", "minimum": 0, "type": "integer" }
+          },
+          "required": ["kind", "editor_id", "generation", "revision"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "editor_id": { "format": "uuid", "type": "string" },
+            "expected": { "$ref": "#/$defs/ExpectedVersion" },
+            "generation": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "kind": { "const": "yield", "type": "string" },
+            "revision": { "format": "uint32", "minimum": 0, "type": "integer" }
+          },
+          "required": [
+            "kind",
+            "editor_id",
+            "generation",
+            "revision",
+            "expected"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "editor_id": { "format": "uuid", "type": "string" },
+            "generation": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "kind": { "const": "resume", "type": "string" }
+          },
+          "required": ["kind", "editor_id", "generation"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "editor_id": { "format": "uuid", "type": "string" },
+            "generation": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "kind": { "const": "retire", "type": "string" }
+          },
+          "required": ["kind", "editor_id", "generation"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "editor_id": { "format": "uuid", "type": "string" },
+            "kind": { "const": "inspect", "type": "string" }
+          },
+          "required": ["kind", "editor_id"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "list", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        }
+      ]
+    },
+    "EditingIntentState": {
+      "additionalProperties": false,
+      "properties": {
+        "active": { "type": "boolean" },
+        "detached": { "type": "boolean" },
+        "dirty": { "type": "boolean" },
+        "editor_id": { "format": "uuid", "type": "string" },
+        "generation": { "format": "uint32", "minimum": 0, "type": "integer" },
+        "path": { "type": "string" },
+        "revision": { "format": "uint32", "minimum": 0, "type": "integer" }
+      },
+      "required": [
+        "editor_id",
+        "path",
+        "generation",
+        "revision",
+        "dirty",
+        "active",
+        "detached"
+      ],
+      "type": "object"
+    },
+    "EditingIntentValue": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "state", "type": "string" },
+            "state": { "$ref": "#/$defs/EditingIntentState" }
+          },
+          "required": ["kind", "state"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "states", "type": "string" },
+            "states": {
+              "items": { "$ref": "#/$defs/EditingIntentState" },
+              "type": "array"
+            }
+          },
+          "required": ["kind", "states"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "retired", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "missing", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        }
+      ]
+    },
     "EditorClaim": {
       "additionalProperties": false,
       "properties": {
@@ -3944,6 +4097,15 @@
         {
           "additionalProperties": false,
           "properties": {
+            "command": { "$ref": "#/$defs/EditingIntentCommand" },
+            "kind": { "const": "editing_intents", "type": "string" }
+          },
+          "required": ["kind", "command"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
             "kind": { "const": "files", "type": "string" },
             "operation": { "$ref": "#/$defs/FileCommand" }
           },
@@ -4075,6 +4237,15 @@
         {
           "additionalProperties": false,
           "properties": {
+            "kind": { "const": "editing_intents", "type": "string" },
+            "value": { "$ref": "#/$defs/EditingIntentValue" }
+          },
+          "required": ["kind", "value"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
             "kind": { "const": "files", "type": "string" },
             "value": { "$ref": "#/$defs/FileValue" }
           },
@@ -4155,6 +4326,8 @@
     "database_call": { "$ref": "#/$defs/DatabaseCall" },
     "database_change": { "$ref": "#/$defs/ChangeSet" },
     "database_value": { "$ref": "#/$defs/DatabaseValue" },
+    "editing_intent_command": { "$ref": "#/$defs/EditingIntentCommand" },
+    "editing_intent_value": { "$ref": "#/$defs/EditingIntentValue" },
     "file_history": { "$ref": "#/$defs/FileHistory" },
     "history_index_command": { "$ref": "#/$defs/HistoryIndexCommand" },
     "history_index_value": { "$ref": "#/$defs/HistoryIndexValue" },
@@ -4224,6 +4397,8 @@
     "vault_name": { "$ref": "#/$defs/VaultName" }
   },
   "required": [
+    "editing_intent_command",
+    "editing_intent_value",
     "native_task_command",
     "native_task_value",
     "history_index_command",

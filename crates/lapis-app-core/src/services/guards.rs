@@ -11,7 +11,7 @@ pub(super) fn write(
     state.root.validate_path(path, false)?;
     let target = state.root.entry_metadata(path).ok();
     for editor in state.editors.values() {
-        if !editor.dirty || (!editor.detached && Some(editor.client) == writer) {
+        if !editor.blocked() || (!editor.detached && Some(editor.client) == writer) {
             continue;
         }
         let lexical = editor.path == path
