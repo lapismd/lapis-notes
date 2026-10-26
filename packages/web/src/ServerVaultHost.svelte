@@ -195,6 +195,7 @@
           appDatabaseProvider: resources.database,
         });
         session.backgroundIndexing = resources.backgroundIndexing;
+        session.nativeHistoryIndex = resources.nativeHistoryIndex;
         prepared = { ...resources, profile, session };
       } catch (error) {
         await resources.release();

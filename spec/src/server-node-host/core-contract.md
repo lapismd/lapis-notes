@@ -296,3 +296,17 @@ The ordinary hosted build keeps renderer ownership until explicit cutover.
 <a id="ln-srv-024"></a>
 
 **Requirement.** Rust hosted indexed History MUST use the existing authenticated vault client and its physical source/generation checks. Typed start, status, query and context calls MUST retain the native selection and failure semantics. Revoked, foreign or detached clients MUST lose access; no browser request may supply a filesystem root, profile, exclusion policy or caller scope.
+
+The Rust hosted optional History renderer port reuses its existing admitted
+client and the generated History-index route. App construction does not select
+native work, create another attachment or fall back after failure. This changes
+neither Node serving nor ordinary Rust defaults; complete Repository reader and
+screen adoption remain a separate R3 gate.
+
+## LN-SRV-025 — Same-client native Tasks transport
+
+<a id="ln-srv-025"></a>
+
+**Requirement.** Rust hosted Tasks MUST use the existing authenticated vault attachment, physical-root and generation admission. Typed commands MUST retain shared native selection, writer, journal and explicit-retry semantics. Revoked, expired or foreign clients MUST lose access. No request may supply a physical root, profile, caller scope or renderer callback.
+
+The native Task route also exercises the source-qualified English default daily contexts (en-GB 1/4 and en-US 7/4 or 7/1) through the existing journal and writer. Locale support follows the [retained daily source gate](../../records/2026-10-26-native-daily-locale-parity.md); host defaults and signed-plugin adoption remain separate.

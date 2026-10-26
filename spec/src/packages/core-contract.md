@@ -154,3 +154,10 @@ install the UI package's development dependencies.
 The same private core owns the installed-asset verifier extracted from Desktop
 under LN-CORE-004/007. Tauri and HTTP adapters retain URL and caller authority;
 Core receives only an admitted vault capability and installation coordinates.
+
+The optional App `nativeHistoryIndex` property and matching `VaultSession` field
+carry the already admitted public native History port. Explicit App construction
+wins over its session; absence retains the existing host profile. Construction
+performs no selection or network operation. The Repository plugin observes this
+port only after the host separately binds its admitted repository services;
+transport availability alone cannot create a replacement Repository view.

@@ -1,3 +1,4 @@
+import type { NativeHistoryIndex } from "@lapis-notes/api/native-history-index";
 import type { App, NativeBackgroundIndexing } from "@lapis-notes/api";
 import type { NativeChatHost } from "@lapis-notes/app-profile/native-chat";
 import type { AppDatabaseProvider } from "@lapis-notes/api/app-database";
@@ -15,6 +16,7 @@ export type HostedVault = {
 export type HostedResources = {
   nativeChat?: (app: App) => NativeChatHost;
   backgroundIndexing?: NativeBackgroundIndexing;
+  nativeHistoryIndex?: NativeHistoryIndex;
   adapter: VaultAdapter;
   database: AppDatabaseProvider;
   pluginAssetServer?: PluginAssetServer;

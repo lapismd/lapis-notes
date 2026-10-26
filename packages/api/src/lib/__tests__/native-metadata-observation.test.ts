@@ -5,6 +5,7 @@ import { MemoryAppDatabase } from "../storage/app-database";
 import { TFile } from "../storage/fs";
 import { NoopTelemetryService } from "../telemetry";
 import { md5 } from "../utils";
+import { NativeTasksSession, type NativeTaskValue } from "../native-tasks";
 import { InMemoryDataAdapter } from "./data-adapter-conformance";
 
 const cleanups: Array<() => Promise<void>> = [];
@@ -12,7 +13,7 @@ afterEach(async () => {
   for (const cleanup of cleanups.splice(0)) await cleanup();
 });
 
-async function fixture() {
+async function fixture(nativeTasks?: NativeTasksSession) {
   const adapter = new InMemoryDataAdapter();
   const text = "# Native source\n";
   await adapter.write("Note.md", text);
@@ -45,6 +46,7 @@ async function fixture() {
     contribution: null,
   }));
   const app = {
+    nativeTasks,
     plugins: { plugins: new Map() },
     session: { backgroundIndexing: { call } },
     appDatabase: database,
@@ -215,4 +217,40 @@ it("does not deliver a pending facade read after App detach", async () => {
   finish(f.text);
   await read.mock.results[0].value;
   expect(f.changed).not.toHaveBeenCalled();
+});
+
+it("awaits native Tasks detach before completing passive native metadata disposal", async () => {
+  let release!: (value: NativeTaskValue) => void;
+  const call = vi.fn(
+    () =>
+      new Promise<NativeTaskValue>((resolve) => {
+        release = resolve;
+      }),
+  );
+  const tasks = new NativeTasksSession({ call });
+  const f = await fixture(tasks);
+  const snapshots = vi.spyOn(f.database, "saveMetadataSnapshot");
+  const operation = tasks.call({ kind: "status" });
+  await Promise.resolve();
+  let disposed = false;
+  const disposal = f.cache.dispose().then(() => {
+    disposed = true;
+  });
+  try {
+    expect(tasks.detached).toBe(true);
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    expect(disposed).toBe(false);
+    await expect(tasks.call({ kind: "status" })).rejects.toThrow(/detached/);
+  } finally {
+    release({
+      kind: "status",
+      status: { enabled: false, configuration: null, tracked: null },
+    });
+    await operation;
+    await disposal;
+  }
+  expect(disposed).toBe(true);
+  expect(call).toHaveBeenCalledExactlyOnceWith({ kind: "status" });
+  expect(f.call).not.toHaveBeenCalled();
+  expect(snapshots).not.toHaveBeenCalled();
 });

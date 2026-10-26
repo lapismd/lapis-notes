@@ -1,3 +1,4 @@
+import type { NativeTasks } from "../native-tasks";
 import {
   EMPTY_APP_DATABASE_CAPABILITIES,
   MemoryAppDatabase,
@@ -8,6 +9,7 @@ import {
   type RuntimeTarget,
 } from "./app-database";
 import type { NativeBackgroundIndexing } from "../native-background-indexing";
+import type { NativeHistoryIndex } from "../native-history-index";
 import { BrowserCoordinatedAppDatabase } from "./browser-coordinated-app-database";
 import { BrowserAppDatabaseCoordinator } from "./browser-app-database-coordination";
 import type { VaultAdapter, VaultIdentityAdapter } from "./fs";
@@ -47,6 +49,8 @@ export interface VaultSession {
   vaultAdapter: VaultAdapter;
   appDatabase?: AppDatabase;
   backgroundIndexing?: NativeBackgroundIndexing;
+  nativeHistoryIndex?: NativeHistoryIndex;
+  nativeTasks?: NativeTasks;
   appDatabaseState: VaultSessionAppDatabaseState;
   awaitAppDatabase?: (options?: {
     signal?: AbortSignal;

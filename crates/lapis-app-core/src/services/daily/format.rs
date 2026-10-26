@@ -12,7 +12,10 @@ pub struct DailyFormatContext {
 }
 impl DailyFormatContext {
     pub(super) fn validate(&self) -> Result<(), DailyDocumentError> {
-        if self.locale != "en-US" || self.first_day != 7 || self.minimal_days != 4 {
+        if !matches!(
+            (self.locale.as_str(), self.first_day, self.minimal_days),
+            ("en-US", 7, 4) | ("en-US", 7, 1) | ("en-GB", 1, 4)
+        ) {
             return Err(DailyDocumentError::new(
                 "Native daily formatting context is not qualified.",
             ));

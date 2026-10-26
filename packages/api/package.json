@@ -101,6 +101,9 @@
       ],
       "native-history-index": [
         "dist/native-history-index.d.ts"
+      ],
+      "native-tasks": [
+        "dist/native-tasks.d.ts"
       ]
     }
   },
@@ -276,6 +279,11 @@
       "types": "./dist/native-history-index.d.ts",
       "import": "./dist/native-history-index.js",
       "default": "./dist/native-history-index.js"
+    },
+    "./native-tasks": {
+      "types": "./dist/native-tasks.d.ts",
+      "import": "./dist/native-tasks.js",
+      "default": "./dist/native-tasks.js"
     }
   },
   "devDependencies": {

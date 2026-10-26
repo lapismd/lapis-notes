@@ -22,6 +22,8 @@ pub struct VaultService {
     pub(super) history_indexing: Mutex<Option<Arc<super::backup::history::Owner>>>,
     pub(super) close_gate: Mutex<()>,
     pub(super) task_lifecycle: Mutex<()>,
+    pub(super) task_storage: Option<Arc<super::TaskStorage>>,
+    pub(super) tasks: Mutex<Option<Arc<super::tasks::service::Owner>>>,
     pub(super) turn_storage: Option<Arc<super::TurnStorage>>,
     pub(super) turns: Mutex<Option<Arc<super::turns::Owner>>>,
 }
@@ -106,6 +108,8 @@ impl VaultService {
             history_indexing: Mutex::new(None),
             close_gate: Mutex::new(()),
             task_lifecycle: Mutex::new(()),
+            task_storage: None,
+            tasks: Mutex::new(None),
             turn_storage: None,
             turns: Mutex::new(None),
         }
@@ -163,6 +167,7 @@ impl VaultService {
         let database_error = state.database_error.clone();
         drop(state);
         self.retire_turns()?;
+        self.retire_tasks()?;
         match database_error {
             Some(error) => Err(Error(error)),
             None => Ok(()),

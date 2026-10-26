@@ -194,3 +194,7 @@ LN-WEB-068 verifies this boundary through the retained hosted Search UI. The
 admitted native client supplies metadata and Search while the plugin owns its
 query and recovered settings. Source qualification, the selected hosted profile
 and default cutover remain distinct recorded gates.
+
+## Admitted native Task port
+
+`@lapis-notes/api/native-tasks` exports generated commands, typed retained outcomes and an App-owned observer under [CORE013–015](../architecture/rust-task-host-port.md#ln-core-013). `VaultSession.nativeTasks` takes precedence over the explicit App option. The public host-module registry includes that entry for installed Tasks plugins; final plugin startup awaits declaration reconciliation.

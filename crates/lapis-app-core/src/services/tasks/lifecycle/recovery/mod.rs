@@ -113,6 +113,9 @@ fn conflict() -> Error {
     )
 }
 impl TaskLifecycleJournal {
+    pub(in crate::services::tasks) fn retire(&mut self) -> io::Result<()> {
+        self.storage.retire()
+    }
     /// Native installation construction only; views cannot own this lifetime.
     pub fn open(directory: &Path, vault: &Arc<VaultService>) -> Result<Self> {
         let state = vault.lock()?;

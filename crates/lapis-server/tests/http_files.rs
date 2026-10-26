@@ -7,6 +7,7 @@ mod database;
 mod history_indexing;
 mod indexing;
 mod lifetime;
+mod native_tasks;
 mod physical;
 mod streams;
 mod support;

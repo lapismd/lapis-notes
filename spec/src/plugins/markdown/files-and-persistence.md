@@ -99,3 +99,7 @@ Mira's public registration hook; API must not import Mira session internals.
 <a id="ln-md-097"></a>
 
 **Requirement.** Markdown `extractMetadata` MUST run off the renderer thread through a worker. Vault I/O, link resolution, `$state` apply, and `AppDatabase` writes MUST stay on the main thread. `read()` MAY use the same parse synchronously when a worker is unavailable.
+
+## Native Task ownership during metadata reads
+
+[CORE015](../../architecture/rust-task-host-port.md#ln-core-015) separates metadata reads from native Task startup policy. A compatibility snapshot may load before Tasks finishes activation. Final plugin startup reconciles the Task declaration, while passive metadata disposal detaches observation before plugin teardown. Selected Task transformations retain their admitted native writer and source-version guard.

@@ -281,3 +281,8 @@ registration, code-action ownership, and save failure contracts still apply.
 The status-host repair preserves diagnostic collections, Problems presentation
 and quick-fix lifetimes. Only the generic Plugin status-element mount changes;
 diagnostic content remains outside that mount (LN-WS-054).
+
+Adding the optional App/session History port changes no Problems registration,
+file-conflict navigation, diagnostic selection or error presentation. History
+observation keeps its explicitly owned App and existing notification feedback;
+it introduces no alternative Problems panel or inline failure surface.

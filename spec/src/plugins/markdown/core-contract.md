@@ -57,3 +57,8 @@ activate the JavaScript metadata writer.
 The shared App indexing facade reuses that same MetadataCache-owned session
 for Search declarations and progress; it does not change Markdown presentation
 parsing or create another metadata writer.
+
+The optional App-native History observation port changes no Markdown editor,
+preview, embed, parser or authoring contract. Markdown keeps its explicit owning
+App; immutable saved-version reads remain a separately admitted Repository
+capability rather than a Markdown file writer or editor fallback.

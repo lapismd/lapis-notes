@@ -75,3 +75,7 @@ Successful app-link navigation dismisses owning Settings under
 <a id="ln-ws-093"></a>
 
 **Requirement.** Manual plugin installation MUST accept a portable Nostr `.lapis-plugin` through the existing file action, retain its verified source provenance, and surface a persistent revocation-refresh warning until an online relay-quorum verification succeeds. Workspace presentation MUST NOT independently verify or reinterpret its Nostr proof.
+
+## Native Task startup observation
+
+[CORE015](../architecture/rust-task-host-port.md#ln-core-015) binds Task declaration reconciliation to completed plugin loading. The App waits for that observer before reporting `plugins-loaded`. Existing plugin views and settings stay registered by their owning plugin; window teardown detaches the App observer before explicit plugin cleanup can change native policy.

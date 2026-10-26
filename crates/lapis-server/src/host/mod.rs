@@ -4,6 +4,7 @@ mod database;
 mod history_index;
 mod indexing;
 mod management;
+mod tasks;
 pub mod turns;
 pub(crate) use management::Command as ManagementCommand;
 

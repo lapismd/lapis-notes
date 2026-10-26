@@ -43,12 +43,18 @@ pub(super) fn render(date: NaiveDate, token: &str, context: &DailyFormatContext)
     let day = macros::DAYS[date.weekday().num_days_from_monday() as usize];
     let iso = date.iso_week();
     let local = local_week(date, context);
+    let before_christ = context.locale == "en-GB" && date.year() <= 0;
     match token {
         "S" | "s" | "m" | "H" | "uuu" => "0".into(),
         "u" | "SSS" => "000".into(),
         "uu" | "ss" | "mm" | "HH" => "00".into(),
         "h" | "hh" => "12".into(),
-        "a" => "AM".into(),
+        "a" => if context.locale == "en-GB" {
+            "am"
+        } else {
+            "AM"
+        }
+        .into(),
         "Z" => "+0".into(),
         "ZZ" => "+00:00".into(),
         "ZZZ" => "+0000".into(),
@@ -68,9 +74,14 @@ pub(super) fn render(date: NaiveDate, token: &str, context: &DailyFormatContext)
         "yy" => number(last_two(date.year()), 2),
         "yyyy" => number(date.year() as i64, 4),
         "yyyyyy" => number(date.year() as i64, 6),
-        "G" => "AD".into(),
-        "GG" => "Anno Domini".into(),
-        "GGGGG" => "A".into(),
+        "G" => if before_christ { "BC" } else { "AD" }.into(),
+        "GG" => if before_christ {
+            "Before Christ"
+        } else {
+            "Anno Domini"
+        }
+        .into(),
+        "GGGGG" => if before_christ { "B" } else { "A" }.into(),
         "kk" => number(last_two(iso.year()), 2),
         "kkkk" => number(iso.year() as i64, 4),
         "W" => iso.week().to_string(),
@@ -95,6 +106,6 @@ pub(super) fn render(date: NaiveDate, token: &str, context: &DailyFormatContext)
             .and_utc()
             .timestamp_millis()
             .to_string(),
-        _ => macros::render(date, token).unwrap_or_else(|| token.into()),
+        _ => macros::render(date, token, context).unwrap_or_else(|| token.into()),
     }
 }

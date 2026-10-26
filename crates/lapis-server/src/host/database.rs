@@ -40,7 +40,8 @@ impl Host {
         }
         let (database, backup) = storage(profile, &config)?;
         let mut runtime = Runtime::with_database(database)
-            .with_backup(backup.with_history_indexing(indexed_history));
+            .with_backup(backup.with_history_indexing(indexed_history))
+            .with_tasks(super::tasks::storage::select(profile)?);
         if let Some(storage) = super::turns::storage::select(profile, &config, agents)? {
             runtime = runtime.with_turns(storage);
         }

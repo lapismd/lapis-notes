@@ -1,3 +1,4 @@
+import type { NativeTasks, NativeTasksSession } from "./native-tasks";
 import { Workspace } from "./workspace.svelte";
 import { TFile, Vault, type AppDatabase, type DataAdapter, type VaultSession } from "./storage";
 import { AppSettings } from "./settings.svelte";
@@ -7,6 +8,7 @@ import { Configuration } from "./configuration.svelte";
 import { CommandManager, Keymap, Scope, type UserEvent } from "./command.svelte";
 import { MetadataCache } from "./cache.svelte";
 import type { NativeBackgroundIndexingObserver } from "./native-background-indexing";
+import type { NativeHistoryIndex } from "./native-history-index";
 import type { MarkdownDirectiveRenderer, MarkdownPostProcessor, MarkdownViewMenuItemProvider } from "./markdown";
 import { type Logger } from "./logging";
 import type { Component } from "./view.svelte";
@@ -61,6 +63,8 @@ export type AppStateProperties = {
     configPath?: string;
     adapter?: DataAdapter;
     session?: VaultSession;
+    nativeHistoryIndex?: NativeHistoryIndex;
+    nativeTasks?: NativeTasks;
     appDatabase?: AppDatabase;
     safeMode?: AppSafeModeState;
     createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
@@ -165,6 +169,8 @@ export declare class App {
     readonly vault: Vault;
     readonly appDatabase: AppDatabase;
     readonly session?: VaultSession;
+    readonly nativeHistoryIndex?: NativeHistoryIndex;
+    readonly nativeTasks?: NativeTasksSession;
     readonly safeMode: AppSafeModeState;
     plugins: PluginManager;
     scope: Scope;

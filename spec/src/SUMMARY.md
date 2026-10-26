@@ -10,6 +10,7 @@
   - [Architecture / Durable native turn admission](./architecture/rust-turn-admission.md)
   - [Architecture / Native indexing lifetime](./architecture/rust-indexing-lifetime.md)
   - [Architecture / Native daily Task lifecycle](./architecture/rust-task-lifecycle.md)
+  - [Architecture / Admitted native Tasks port](./architecture/rust-task-host-port.md)
   - [Architecture / Native History indexing lifetime](./architecture/rust-history-indexing-lifetime.md)
   - [Architecture / Backup service lifetime](./architecture/rust-backup-lifetime.md)
   - [Architecture / Editor integration](./architecture/editor-integration.md)

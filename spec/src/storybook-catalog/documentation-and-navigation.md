@@ -342,3 +342,7 @@ and History. SUMMARY, specification MDX mirrors and preview navigation retain
 the same chapter order when the qualified source lanes are integrated. This
 source intake adds documentation navigation; it does not add application
 screens, approve visual baselines or close the separate host-adoption gates.
+
+## Admitted Tasks specification navigation
+
+The [native Task port chapter](../architecture/rust-task-host-port.md) is indexed inside Architecture. Its metadata-only mirror and specification-first sidebar order are generated from SUMMARY alongside the existing service-lifetime chapters. Source service, API and owning-plugin evidence remain distinct from actual host catalog acceptance.

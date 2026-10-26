@@ -3,6 +3,8 @@ mod error;
 mod lifecycle;
 mod observations;
 mod persistence;
+pub(in crate::services) mod service;
+pub use service::TaskStorage;
 #[cfg(test)]
 mod tests;
 

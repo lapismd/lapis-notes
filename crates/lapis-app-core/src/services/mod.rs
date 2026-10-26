@@ -33,7 +33,7 @@ pub use streams::FileSnapshot;
 pub use tasks::{
     PreparedTaskLifecycle, TaskLifecycleDisposition, TaskLifecycleError, TaskLifecycleFailure,
     TaskLifecycleJournal, TaskLifecyclePartial, TaskLifecyclePolicy, TaskLifecycleRequest,
-    TaskLifecycleStatus, TaskLifecycleWrite, TaskObservationWrite, TaskRecoveryError,
+    TaskLifecycleStatus, TaskLifecycleWrite, TaskObservationWrite, TaskRecoveryError, TaskStorage,
     TaskWriteError, TaskWriteResult,
 };
 pub use turns::{AgentPolicy, TurnStorage};

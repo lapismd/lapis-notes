@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 12:43:31 UTC",
+  "updated": "2026-10-26 13:20:28 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Coherent shared source 8bd2f3d8 is integrated in main. Both Search hosts and Desktop shared History fa13c1ce/M16.6 are adopted and qualified. The current Tasks/History API and English daily cohort passes 1,641 API, 79 Web, 48 observer and 45 HTTP cases; complete aggregate gates are active. Hosted Tasks, native editor-claim registration in real hosts, retained hosted Repository reader and legacy History capture/restore/original-source selection remain. Provider/timezone/unattended checks precede R3 closure; R4-R7 keep their original dependencies."
+      "detail": "Shared source, both Search hosts and Desktop History are integrated and qualified. [Coherent Tasks/History API and daily intake](spec/records/2026-10-26-r3-adapters-intake.md) passes 529 Rust, 2,317 package, 261 cold catalog, 22 browser cases and final specification gates; generated/public declarations retain all port families. Actual hosted Tasks, real editor-intent/dirty registration, retained hosted reader intake and legacy History capture/restore/original-source work remain. Provider/timezone and unattended application checks precede R3 closure; R4-R7 keep their original dependencies."
     },
     {
       "id": "R4",
@@ -704,6 +704,22 @@
       "status": "Complete",
       "spec": "spec/src/architecture/rust-history-indexing-lifetime.md#ln-core-011",
       "detail": "[Desktop E-CORE-032](../lapis-desktop/spec/src/history/E-CORE-032.md) closes M16.6 at fa13c1ce and is integrated in clean Desktop default. All 2,056 cold catalog, 507 Node, 744 AI, 250 Rust, two native lifetime and two actual WebView cases pass; strict normal/e2e, both ARM64 bundles, production-marker audit and full specification pass. All 27 archives and 9,386 public files match the qualified payloads. The accepted immutable E-AI-109 formatting exception is byte-identical to its parent. This closes this Desktop adapter gate, not hosted reader, legacy History, app signing or full R3."
+    },
+    {
+      "id": "R3.2.1.2.10.4",
+      "area": "Tasks application coordination",
+      "work": "Admitted native Task protocol and source-owned plugin adapter",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-task-host-port.md#ln-core-013",
+      "detail": "[Shared port source](spec/records/2026-10-26-native-task-host-port.md) is qualified: 13 exact native/HTTP cases, all 10 App observer/startup cases, 480 complete Rust, 2,264 package and 261 cold catalog/a11y cases; strict/protocol/check/build, public type pack, static Storybook and specification/78-governance gates pass. Startup reconciliation waits for settled plugin declarations; passive metadata reads never select Task policy. Owning Tasks adapter 7ae46a74 passes 2,859 units, 14 native and 62 cold catalog/a11y cases plus all source gates. Both host selections, verified installed-plugin native acceptance and common-locale/provider parity remain separate waiting work; no defaults change."
+    },
+    {
+      "id": "R3.2.1.2.10.5",
+      "area": "Tasks application coordination",
+      "work": "Retained English daily locale/week settings and native provider parity",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-task-host-port.md#ln-core-015",
+      "detail": "[English default daily source](spec/records/2026-10-26-native-daily-locale-parity.md) preserves current en-US 7/4 and qualifies en-GB 1/4 plus declared legacy-Intl en-US 7/1 with 200 filenames, 45 provider flows and 19 registry traces per context, plus 16 focused physical IO cases. All 12 exact native cases, five adapter context cases, three TypeScript replay cases and all-context HTTP journal/IO pass. Complete source gates pass 489 Rust, 2,266 package, 261 cold Notes catalog and 2,864 Tasks units/27 Rust/62 cold catalog cases. No transport, arbitrary-provider or default change. Coherent API/host adoption, actual WebView, timezone/day-boundary and installed-plugin integrity and native host acceptance remain open. Final source document/static receipts accompany the qualified commit."
     }
   ]
 }

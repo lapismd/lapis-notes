@@ -118,3 +118,7 @@ reconciliation. Array adapters preserve it; the frozen Deno host is unchanged.
 LN-PKG-178 and LN-PKG-179 add opt-in exclusive creation and source-owned new-file
 intent. Existing low-level overwrite behavior and unsupported legacy hosts stay
 explicit; Deno host source remains frozen. Admission spans creation projection.
+
+## Native Task service observation
+
+The optional `VaultSession.nativeTasks` port uses the same admitted native owner as its database and vault. A session-supplied port wins over an explicit App option. [CORE013–015](../architecture/rust-task-host-port.md#ln-core-013) governs source-derived actions, startup reconciliation and detached observation; neither metadata-cache disposal nor window closure disables accepted native work.

@@ -19,11 +19,11 @@ lifetime. R1.2/R1.3 retain those gates. Native directory witnesses are explicit
 capability handles, never renderer or HTTP values. Watch/resource/profile policy
 remains in Desktop while the common engine owns checked IO and publication.
 
-[Native indexing](rust-indexing-lifetime.md) stages qualified Markdown/Canvas metadata and Search, Tasks and Docs on one admitted worker with explicit client-writer fencing; ordered Task lifecycle, typed cold recovery and explicit default-daily tracked-today selection are source-qualified separately.
+[Native indexing](rust-indexing-lifetime.md) stages qualified Markdown/Canvas metadata and Search, Tasks and Docs on one admitted worker with explicit client-writer fencing; ordered Task lifecycle, typed cold recovery and explicit default-daily tracked-today selection are source-qualified separately. [Daily locale source](../../records/2026-10-26-native-daily-locale-parity.md) qualifies the declared English contexts; actual host and timezone gates remain separate.
 Guarded Task transformations reuse the existing writer and shared private turn-record IO, retaining pinned before/desired bytes and bounded typed cold failures; [History scheduling](rust-history-indexing-lifetime.md) retains paused/cold reads, final backup notifications and shared admitted transport.
-Custom processors, complete provider qualification and both complete host selections remain gated.
+Custom processors, complete provider qualification and both complete host selections remain gated; [admitted Tasks](rust-task-host-port.md) supplies shared commands and observation.
 
-The core boundary audit runs in normal checks and canonical specification checks.
+The core boundary audit runs in normal checks and canonical specification checks; protocol export helpers are grouped by contract family.
 It rejects transport dependencies/source references, bare renderer globals and host
 source routing while permitting ordinary Rust member fields; source/test limits remain enforced. Native builds retain checkout-owned output and the
 30 GiB free-space preflight, without automatic cache cleanup.

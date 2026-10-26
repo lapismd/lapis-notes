@@ -10,6 +10,7 @@ pub mod database;
 pub mod files;
 pub mod history_index;
 pub mod indexing;
+pub mod native_tasks;
 pub mod turns;
 
 pub const PROTOCOL_MAJOR: u32 = 3;

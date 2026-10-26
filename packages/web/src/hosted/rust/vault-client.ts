@@ -9,6 +9,8 @@ import {
   type VaultValue,
   type TurnCommand,
   type TurnValue,
+  type HistoryIndexCommand,
+  type HistoryIndexValue,
   type IndexingCommand,
   type IndexingValue,
 } from "../../../../../crates/lapis-app-protocol/bindings/protocol";
@@ -117,6 +119,11 @@ export class RustVaultClient {
   async indexing(command: IndexingCommand): Promise<IndexingValue> {
     this.requireOpen();
     return this.host.json(`${this.path}/indexing`, "POST", command);
+  }
+
+  async historyIndex(command: HistoryIndexCommand): Promise<HistoryIndexValue> {
+    this.requireOpen();
+    return this.host.json(`${this.path}/history-index`, "POST", command);
   }
 
   close(): Promise<void> {

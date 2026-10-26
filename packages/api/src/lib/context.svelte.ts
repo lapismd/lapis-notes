@@ -28,6 +28,7 @@ import {
   Scope,
   type UserEvent,
 } from "./command.svelte";
+import { NativeTasksSession, type NativeTasks } from "./native-tasks";
 import { MetadataCache } from "./cache.svelte";
 import type {
   MarkdownDirectiveRenderer,
@@ -76,6 +77,7 @@ import { flushWorkspaceEditors } from "./sync-editor-flush";
 import { FileEditingSessionRegistry } from "./file-editing-sessions";
 import { SearchDocumentProviderRegistry } from "./search-document-provider";
 import type { NativeBackgroundIndexingObserver } from "./native-background-indexing";
+import type { NativeHistoryIndex } from "./native-history-index";
 import { SearchResultProviderRegistry } from "./search-result-provider";
 import { DailyDocumentProviderRegistry } from "./daily-document-provider";
 import { AppToolRegistry } from "./agent-tools";
@@ -143,6 +145,9 @@ export type AppStateProperties = {
   configPath?: string;
   adapter?: DataAdapter;
   session?: VaultSession;
+  /** Already admitted by the host; construction does not start native work. */
+  nativeHistoryIndex?: NativeHistoryIndex;
+  nativeTasks?: NativeTasks;
   appDatabase?: AppDatabase;
   safeMode?: AppSafeModeState;
   createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
@@ -293,6 +298,8 @@ export class App {
   readonly vault: Vault = $state()!;
   readonly appDatabase: AppDatabase;
   readonly session?: VaultSession;
+  readonly nativeHistoryIndex?: NativeHistoryIndex;
+  readonly nativeTasks?: NativeTasksSession;
   readonly safeMode: AppSafeModeState;
   plugins: PluginManager = $state()!;
   scope: Scope = $state(new Scope(undefined, this));
@@ -378,6 +385,8 @@ export class App {
       throw new Error("App requires a vault adapter or vault session");
     }
     this.session = props.session;
+    this.nativeHistoryIndex =
+      props.nativeHistoryIndex ?? props.session?.nativeHistoryIndex;
     this.safeMode = props.safeMode ?? createDefaultAppSafeModeState();
     const appDatabase = props.session?.appDatabase ?? props.appDatabase;
     if (!appDatabase) {
@@ -439,6 +448,13 @@ export class App {
     hostSyncServices.set(this, this.#syncHost);
     this.workspaceTrust = new WorkspaceTrustService(adapter);
     this.metadataCache = new MetadataCache(this);
+    const nativeTasks = props.session?.nativeTasks ?? props.nativeTasks;
+    this.nativeTasks = nativeTasks
+      ? new NativeTasksSession(nativeTasks, () => {
+          const state = this.plugins?.plugins.get("tasks")?.state;
+          return state === "enabled" || state === "enabling";
+        })
+      : undefined;
     installVaultMaintenanceCommands(this);
     this.plugins = new PluginManager(
       this,

@@ -1578,6 +1578,684 @@
         }
       ]
     },
+    "NativeTaskCommand": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "configuration": { "$ref": "#/$defs/NativeTaskConfiguration" },
+            "kind": { "const": "configure", "type": "string" }
+          },
+          "required": ["kind", "configuration"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "disable", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "status", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "expected_version": { "type": "string" },
+            "kind": { "const": "mutate", "type": "string" },
+            "mutation": { "$ref": "#/$defs/NativeTaskMutation" },
+            "path": { "type": "string" }
+          },
+          "required": ["kind", "path", "expected_version", "mutation"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "submit", "type": "string" },
+            "request": { "$ref": "#/$defs/NativeTaskLifecycleRequest" }
+          },
+          "required": ["kind", "request"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "inspect", "type": "string" },
+            "request_id": { "format": "uuid", "type": "string" }
+          },
+          "required": ["kind", "request_id"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "retry", "type": "string" },
+            "request_id": { "format": "uuid", "type": "string" }
+          },
+          "required": ["kind", "request_id"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "completion": {
+              "anyOf": [
+                { "$ref": "#/$defs/NativeTaskCompletion" },
+                { "type": "null" }
+              ]
+            },
+            "date": { "type": "string" },
+            "expected_version": { "type": "string" },
+            "kind": { "const": "occurrence", "type": "string" },
+            "path": { "type": "string" }
+          },
+          "required": ["kind", "path", "expected_version", "date"],
+          "type": "object"
+        }
+      ]
+    },
+    "NativeTaskCompletion": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": { "type": { "const": "boolean", "type": "string" } },
+          "required": ["type"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "type": { "const": "count", "type": "string" },
+            "unit": { "type": "string" },
+            "value": { "format": "double", "type": "number" }
+          },
+          "required": ["type", "value", "unit"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "durationMinutes": { "format": "double", "type": "number" },
+            "type": { "const": "duration", "type": "string" }
+          },
+          "required": ["type", "durationMinutes"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "type": { "const": "number", "type": "string" },
+            "unit": { "type": "string" },
+            "value": { "format": "double", "type": "number" }
+          },
+          "required": ["type", "value", "unit"],
+          "type": "object"
+        }
+      ]
+    },
+    "NativeTaskConfiguration": {
+      "additionalProperties": false,
+      "properties": {
+        "daily": { "$ref": "#/$defs/NativeTaskDailySettings" },
+        "day_parts": { "$ref": "#/$defs/NativeTaskDayParts" },
+        "format": { "$ref": "#/$defs/NativeTaskDailyFormat" },
+        "provider": { "$ref": "#/$defs/NativeTaskProvider" }
+      },
+      "required": ["day_parts", "daily", "format", "provider"],
+      "type": "object"
+    },
+    "NativeTaskDailyFormat": {
+      "additionalProperties": false,
+      "properties": {
+        "firstDay": { "format": "uint32", "minimum": 0, "type": "integer" },
+        "locale": { "type": "string" },
+        "minimalDays": { "format": "uint32", "minimum": 0, "type": "integer" }
+      },
+      "required": ["locale", "firstDay", "minimalDays"],
+      "type": "object"
+    },
+    "NativeTaskDailySettings": {
+      "additionalProperties": false,
+      "properties": {
+        "date_format": { "type": "string" },
+        "folder": { "type": "string" }
+      },
+      "required": ["folder", "date_format"],
+      "type": "object"
+    },
+    "NativeTaskDayPart": {
+      "enum": ["anytime", "morning", "afternoon", "evening"],
+      "type": "string"
+    },
+    "NativeTaskDayParts": {
+      "additionalProperties": false,
+      "properties": {
+        "afternoonStartsAt": { "type": "string" },
+        "eveningStartsAt": { "type": "string" }
+      },
+      "required": ["afternoonStartsAt", "eveningStartsAt"],
+      "type": "object"
+    },
+    "NativeTaskDisposition": {
+      "enum": ["retryable", "divergent", "completed"],
+      "type": "string"
+    },
+    "NativeTaskFailure": {
+      "additionalProperties": false,
+      "properties": {
+        "code": { "type": ["string", "null"] },
+        "message": { "type": "string" },
+        "name": { "type": "string" },
+        "operation": {
+          "anyOf": [
+            { "$ref": "#/$defs/NativeTaskOperation" },
+            { "type": "null" }
+          ]
+        },
+        "parts": { "items": { "type": "string" }, "type": ["array", "null"] },
+        "request_id": { "format": "uuid", "type": ["string", "null"] },
+        "uncertain": { "type": "boolean" }
+      },
+      "required": ["name", "message", "uncertain"],
+      "type": "object"
+    },
+    "NativeTaskKnownFailure": {
+      "additionalProperties": false,
+      "properties": {
+        "code": { "type": "string" },
+        "message": { "type": "string" }
+      },
+      "required": ["code", "message"],
+      "type": "object"
+    },
+    "NativeTaskLifecycleAction": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "at": { "type": "string" },
+            "localDate": { "type": "string" },
+            "trackedValue": { "format": "double", "type": ["number", "null"] },
+            "type": { "const": "complete", "type": "string" }
+          },
+          "required": ["type", "at", "localDate"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "at": { "type": "string" },
+            "localDate": { "type": "string" },
+            "type": { "const": "skip", "type": "string" }
+          },
+          "required": ["type", "at", "localDate"],
+          "type": "object"
+        }
+      ]
+    },
+    "NativeTaskLifecycleRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "action": { "$ref": "#/$defs/NativeTaskLifecycleAction" },
+        "expected_version": { "type": "string" },
+        "path": { "type": "string" },
+        "request_id": { "format": "uuid", "type": "string" }
+      },
+      "required": ["request_id", "path", "expected_version", "action"],
+      "type": "object"
+    },
+    "NativeTaskMutation": {
+      "description": "Complete and skip use the journal route, never this one-file route.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "checked": { "type": "boolean" },
+            "expectedText": { "type": "string" },
+            "position": { "format": "double", "type": "number" },
+            "type": { "const": "checklist", "type": "string" }
+          },
+          "required": ["type", "position", "expectedText", "checked"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "at": { "type": "string" },
+            "plan": {
+              "anyOf": [
+                { "$ref": "#/$defs/NativeTaskPlan" },
+                { "type": "null" }
+              ]
+            },
+            "type": { "const": "plan", "type": "string" }
+          },
+          "required": ["type", "at"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "at": { "type": "string" },
+            "start": { "$ref": "#/$defs/NativeTaskStart" },
+            "type": { "const": "start", "type": "string" }
+          },
+          "required": ["type", "start", "at"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "at": { "type": "string" },
+            "deadline": { "type": ["string", "null"] },
+            "type": { "const": "deadline", "type": "string" }
+          },
+          "required": ["type", "at"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "at": { "type": "string" },
+            "inbox": { "type": "boolean" },
+            "type": { "const": "inbox", "type": "string" }
+          },
+          "required": ["type", "inbox", "at"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "at": { "type": "string" },
+            "repeat": {
+              "anyOf": [
+                { "$ref": "#/$defs/NativeTaskRepeat" },
+                { "type": "null" }
+              ]
+            },
+            "type": { "const": "repeat", "type": "string" }
+          },
+          "required": ["type", "at"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "at": { "type": "string" },
+            "tracking": {
+              "anyOf": [
+                { "$ref": "#/$defs/NativeTaskTracking" },
+                { "type": "null" }
+              ]
+            },
+            "type": { "const": "tracking", "type": "string" }
+          },
+          "required": ["type", "at"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "at": { "type": "string" },
+            "localDate": { "type": ["string", "null"] },
+            "type": { "const": "pause", "type": "string" }
+          },
+          "required": ["type", "at"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "at": { "type": "string" },
+            "localDate": { "type": ["string", "null"] },
+            "type": { "const": "resume", "type": "string" }
+          },
+          "required": ["type", "at"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "at": { "type": "string" },
+            "type": { "const": "cancel", "type": "string" }
+          },
+          "required": ["type", "at"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "at": { "type": "string" },
+            "type": { "const": "reopen", "type": "string" }
+          },
+          "required": ["type", "at"],
+          "type": "object"
+        }
+      ]
+    },
+    "NativeTaskObservation": {
+      "additionalProperties": false,
+      "properties": {
+        "checked": { "type": "boolean" },
+        "dailyDocumentPath": { "type": "string" },
+        "dayPart": { "$ref": "#/$defs/NativeTaskDayPart" },
+        "durationMinutes": { "format": "double", "type": ["number", "null"] },
+        "href": { "type": "string" },
+        "observationId": { "type": "string" },
+        "occurrenceDate": { "type": "string" },
+        "outcome": { "$ref": "#/$defs/NativeTaskOutcome" },
+        "projectionVersion": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "source": { "type": "string" },
+        "sourceEnd": { "format": "uint", "minimum": 0, "type": "integer" },
+        "sourceStart": { "format": "uint", "minimum": 0, "type": "integer" },
+        "taskId": { "type": "string" },
+        "taskPath": { "type": "string" },
+        "title": { "type": "string" },
+        "trackingKind": { "$ref": "#/$defs/NativeTaskTrackingKind" },
+        "unit": { "type": ["string", "null"] },
+        "value": { "format": "double", "type": ["number", "null"] }
+      },
+      "required": [
+        "observationId",
+        "taskId",
+        "taskPath",
+        "dailyDocumentPath",
+        "occurrenceDate",
+        "outcome",
+        "trackingKind",
+        "sourceStart",
+        "sourceEnd",
+        "projectionVersion",
+        "checked",
+        "title",
+        "href",
+        "dayPart",
+        "source"
+      ],
+      "type": "object"
+    },
+    "NativeTaskOperation": {
+      "additionalProperties": false,
+      "properties": {
+        "daily": {
+          "anyOf": [{ "$ref": "#/$defs/TextSnapshot" }, { "type": "null" }]
+        },
+        "daily_replacement": { "type": ["string", "null"] },
+        "disposition": { "$ref": "#/$defs/NativeTaskDisposition" },
+        "last_failure": {
+          "anyOf": [
+            { "$ref": "#/$defs/NativeTaskKnownFailure" },
+            { "type": "null" }
+          ]
+        },
+        "original": { "$ref": "#/$defs/TextSnapshot" },
+        "request": { "$ref": "#/$defs/NativeTaskLifecycleRequest" },
+        "task_replacement": { "type": "string" }
+      },
+      "required": ["request", "disposition", "original", "task_replacement"],
+      "type": "object"
+    },
+    "NativeTaskOutcome": { "enum": ["completed", "pending"], "type": "string" },
+    "NativeTaskPauseRange": {
+      "additionalProperties": false,
+      "properties": {
+        "end": { "type": "string" },
+        "start": { "type": "string" }
+      },
+      "required": ["start", "end"],
+      "type": "object"
+    },
+    "NativeTaskPlan": {
+      "additionalProperties": false,
+      "properties": {
+        "at": { "$ref": "#/$defs/NativeTaskPlanAt" },
+        "date": { "type": "string" },
+        "duration": { "type": ["string", "null"] },
+        "durationMinutes": { "format": "double", "type": ["number", "null"] },
+        "time": { "type": ["string", "null"] }
+      },
+      "required": ["date", "at"],
+      "type": "object"
+    },
+    "NativeTaskPlanAt": {
+      "enum": ["anytime", "morning", "afternoon", "evening", "time"],
+      "type": "string"
+    },
+    "NativeTaskProvider": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "default", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "unavailable", "type": "string" },
+            "message": { "type": "string" }
+          },
+          "required": ["kind", "message"],
+          "type": "object"
+        }
+      ]
+    },
+    "NativeTaskRepeat": {
+      "additionalProperties": false,
+      "properties": {
+        "anchor": { "$ref": "#/$defs/NativeTaskRepeatAnchor" },
+        "completionCount": { "format": "double", "type": ["number", "null"] },
+        "exdate": { "items": { "type": "string" }, "type": ["array", "null"] },
+        "lastCompletedAt": { "type": ["string", "null"] },
+        "missed": { "$ref": "#/$defs/NativeTaskRepeatMissed" },
+        "pauseRanges": {
+          "items": { "$ref": "#/$defs/NativeTaskPauseRange" },
+          "type": ["array", "null"]
+        },
+        "paused": { "type": ["boolean", "null"] },
+        "pausedSince": { "type": ["string", "null"] },
+        "rdate": { "items": { "type": "string" }, "type": ["array", "null"] },
+        "resetChecklist": { "type": ["boolean", "null"] },
+        "rrule": { "type": "string" },
+        "start": { "type": ["string", "null"] }
+      },
+      "required": ["rrule", "anchor", "missed"],
+      "type": "object"
+    },
+    "NativeTaskRepeatAnchor": {
+      "enum": ["schedule", "completion"],
+      "type": "string"
+    },
+    "NativeTaskRepeatMissed": { "enum": ["carry", "skip"], "type": "string" },
+    "NativeTaskStart": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "anytime", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "someday", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "date": { "type": "string" },
+            "kind": { "const": "date", "type": "string" }
+          },
+          "required": ["kind", "date"],
+          "type": "object"
+        }
+      ]
+    },
+    "NativeTaskTrackedFailure": {
+      "additionalProperties": false,
+      "properties": {
+        "daily_path": { "type": ["string", "null"] },
+        "daily_version": { "type": ["string", "null"] },
+        "message": { "type": "string" },
+        "path": { "type": "string" }
+      },
+      "required": ["path", "message"],
+      "type": "object"
+    },
+    "NativeTaskTrackedStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "attempted": { "format": "uint", "minimum": 0, "type": "integer" },
+        "changed": { "format": "uint", "minimum": 0, "type": "integer" },
+        "date": { "type": "string" },
+        "failures": {
+          "items": { "$ref": "#/$defs/NativeTaskTrackedFailure" },
+          "type": "array"
+        },
+        "materialized": { "format": "uint", "minimum": 0, "type": "integer" },
+        "omitted_failures": {
+          "format": "uint",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "date",
+        "attempted",
+        "materialized",
+        "changed",
+        "failures",
+        "omitted_failures"
+      ],
+      "type": "object"
+    },
+    "NativeTaskTracking": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": { "type": { "const": "boolean", "type": "string" } },
+          "required": ["type"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "target": { "format": "double", "type": ["number", "null"] },
+            "type": { "const": "count", "type": "string" },
+            "unit": { "type": "string" }
+          },
+          "required": ["type", "unit"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "target": { "type": ["string", "null"] },
+            "type": { "const": "duration", "type": "string" }
+          },
+          "required": ["type"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "target": { "format": "double", "type": ["number", "null"] },
+            "type": { "const": "number", "type": "string" },
+            "unit": { "type": "string" }
+          },
+          "required": ["type", "unit"],
+          "type": "object"
+        }
+      ]
+    },
+    "NativeTaskTrackingKind": {
+      "enum": ["boolean", "count", "duration", "number"],
+      "type": "string"
+    },
+    "NativeTaskValue": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "status", "type": "string" },
+            "status": { "$ref": "#/$defs/NativeTasksStatus" }
+          },
+          "required": ["kind", "status"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "snapshot", "type": "string" },
+            "snapshot": { "$ref": "#/$defs/TextSnapshot" }
+          },
+          "required": ["kind", "snapshot"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "operation", "type": "string" },
+            "operation": {
+              "anyOf": [
+                { "$ref": "#/$defs/NativeTaskOperation" },
+                { "type": "null" }
+              ]
+            }
+          },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "document": { "$ref": "#/$defs/TextSnapshot" },
+            "kind": { "const": "observation", "type": "string" },
+            "observation": { "$ref": "#/$defs/NativeTaskObservation" }
+          },
+          "required": ["kind", "document", "observation"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "failure": { "$ref": "#/$defs/NativeTaskFailure" },
+            "kind": { "const": "failure", "type": "string" }
+          },
+          "required": ["kind", "failure"],
+          "type": "object"
+        }
+      ]
+    },
+    "NativeTasksStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "configuration": {
+          "anyOf": [
+            { "$ref": "#/$defs/NativeTaskConfiguration" },
+            { "type": "null" }
+          ]
+        },
+        "enabled": { "type": "boolean" },
+        "tracked": {
+          "anyOf": [
+            { "$ref": "#/$defs/NativeTaskTrackedStatus" },
+            { "type": "null" }
+          ]
+        }
+      },
+      "required": ["enabled"],
+      "type": "object"
+    },
     "NotebookCell": {
       "additionalProperties": false,
       "properties": {
@@ -3506,6 +4184,8 @@
     "metadata_page": { "$ref": "#/$defs/MetadataPage" },
     "metadata_page_query": { "$ref": "#/$defs/MetadataPageQuery" },
     "metadata_snapshot": { "$ref": "#/$defs/MetadataSnapshot" },
+    "native_task_command": { "$ref": "#/$defs/NativeTaskCommand" },
+    "native_task_value": { "$ref": "#/$defs/NativeTaskValue" },
     "notebook": { "$ref": "#/$defs/NotebookState" },
     "notification": { "$ref": "#/$defs/NotificationRecord" },
     "projection_definition": { "$ref": "#/$defs/ProjectionDefinition" },
@@ -3544,6 +4224,8 @@
     "vault_name": { "$ref": "#/$defs/VaultName" }
   },
   "required": [
+    "native_task_command",
+    "native_task_value",
     "history_index_command",
     "history_index_value",
     "indexing_command",

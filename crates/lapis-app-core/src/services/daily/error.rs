@@ -7,7 +7,7 @@ pub struct DailyDocumentError {
     pub message: String,
 }
 impl DailyDocumentError {
-    pub(super) fn new(message: impl Into<String>) -> Self {
+    pub(in crate::services) fn new(message: impl Into<String>) -> Self {
         Self {
             name: "Error",
             message: message.into(),

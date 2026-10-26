@@ -75,3 +75,18 @@ or foreign attachments use the existing `PERMISSION_DENIED` policy. Generated
 DTOs and the public API `native-history-index` type boundary retain Desktop's
 query/page/context shape. Complete retained-screen and Desktop extraction gates
 remain separate from source and HTTP qualification.
+
+## Retained History adoption backlog
+
+R3.1.3 qualifies database-only file-history storage, not the legacy
+`HistoryPlugin` event capture or either application's complete History parity.
+The public observer/port source gate is R3.2.3.4. R3.2.3.5 supplies the admitted
+Repository reader and retained hosted read/search/blame screen. Neither selects
+another renderer scheduler or changes legacy capture automatically.
+
+R3.2.3.6 remains Waiting under LN-CORE-003/006/008 for legacy database revision
+capture/retention ownership, existing guarded restore integration and supported
+original-repository source parity. Reuse the qualified database/writer/backup
+and History engines plus saved H03 contracts; do not create features or another
+engine. Acceptance must distinguish native storage from unattended capture,
+exact restore/dirty-buffer protection and source selection in both hosts.
