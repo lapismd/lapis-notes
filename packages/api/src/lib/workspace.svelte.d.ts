@@ -8,7 +8,7 @@ import { HistoryManager } from "./history.svelte";
 import type { TransactionSpec } from "@codemirror/state";
 import type { App } from "./context.svelte";
 import type { DiagnosticLocation, DiagnosticsManager } from "./diagnostics";
-import { EditorViewRegistry, type EditorViewContribution, type RegisteredEditorViewContribution } from "./editor-view-registry";
+import { EditorViewRegistry, type EditorViewContribution, type ExtensionRegistrationOptions, type RegisteredEditorViewContribution } from "./editor-view-registry";
 /** @public */
 export type Constructor<T> = abstract new (...args: any[]) => T;
 /**
@@ -579,7 +579,9 @@ export declare class Workspace extends EventDispatcher<{
         view?: RegisteredEditorViewContribution;
     } | undefined;
     private resolveEditorAssociationViewType;
-    registerExtensions(extensions: string[], viewType: string): void;
+    getFileIconForPath(path: string): string | undefined;
+    onFileIconsChanged(listener: () => void): () => void;
+    registerExtensions(extensions: string[], viewType: string, options?: ExtensionRegistrationOptions): () => void;
     unregisterExtensions(extensions: string[], viewType: string): void;
     determineViewType(type: string): string | undefined;
     determineViewTypeForPath(path: string): string | undefined;

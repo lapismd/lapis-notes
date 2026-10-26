@@ -5458,3 +5458,75 @@ describe("Workspace compatibility", () => {
     expect(workspace.activeLeaf).toBeNull();
   });
 });
+
+describe("plugin file icon routing", () => {
+  it("uses compound patterns and user associations without constructing views", () => {
+    const { workspace } = createWorkspaceHarness({ "*.diagram.json": "plain" });
+    const creator = vi.fn();
+    workspace.registerView("diagram", creator);
+    workspace.registerView("plain", creator);
+    workspace.registerEditorView({
+      id: "diagram",
+      label: "Diagram",
+      filenamePatterns: ["*.json", "*.diagram.json"],
+      priority: "default",
+      fileIcon: "workflow",
+    });
+    workspace.registerEditorView({
+      id: "plain",
+      label: "Plain",
+      filenamePatterns: ["*.json"],
+      fileIcon: "file-text",
+    });
+    expect(workspace.getFileIconForPath("a.diagram.json")).toBe("file-text");
+    expect(workspace.getFileIconForPath("other.json")).toBe("workflow");
+    expect(creator).not.toHaveBeenCalled();
+  });
+  it("keeps suffix icons and cleanup independent for a shared view type", () => {
+    const { workspace } = createWorkspaceHarness();
+    workspace.registerView("diagram", vi.fn());
+    const one = workspace.registerExtensions([".ONE"], "diagram", {
+      fileIcon: "star",
+    });
+    const two = workspace.registerExtensions(["two"], "diagram", {
+      fileIcon: "circle",
+    });
+    expect(workspace.getFileIconForPath("a.one")).toBe("star");
+    expect(workspace.getFileIconForPath("a.two")).toBe("circle");
+    one();
+    one();
+    expect(workspace.getFileIconForPath("a.one")).toBeUndefined();
+    expect(workspace.getFileIconForPath("a.two")).toBe("circle");
+    two();
+  });
+  it("notifies on associations and registry changes and disposes listeners", () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const configurationEvents = new EventDispatcher<{
+      updated: [{ key: string; value: unknown; prev: unknown }];
+    }>();
+    Object.assign(app.configuration, {
+      on: configurationEvents.on.bind(configurationEvents),
+      offref: configurationEvents.offref.bind(configurationEvents),
+    });
+    const listener = vi.fn();
+    const stop = workspace.onFileIconsChanged(listener);
+    workspace.registerEditorView({
+      id: "lazy",
+      label: "Lazy",
+      source: "manifest",
+      filenamePatterns: ["*.lazy"],
+      fileIcon: "workflow",
+    });
+    expect(workspace.getFileIconForPath("a.lazy")).toBe("workflow");
+    expect(listener).toHaveBeenCalledTimes(1);
+    configurationEvents.trigger("updated", {
+      key: "workspace.editorAssociations",
+      value: {},
+      prev: {},
+    });
+    expect(listener).toHaveBeenCalledTimes(2);
+    stop();
+    workspace.editorViews.unregister("lazy");
+    expect(listener).toHaveBeenCalledTimes(2);
+  });
+});

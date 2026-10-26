@@ -44,6 +44,7 @@ import type { PluginCatalogEntry } from "./plugin-distribution";
 import {
   EditorViewRegistry,
   type EditorViewContribution,
+  type ExtensionRegistrationOptions,
   type RegisteredEditorViewContribution,
 } from "./editor-view-registry";
 import {
@@ -2047,6 +2048,12 @@ export class Workspace extends EventDispatcher<{
   private viewTypes: Map<string, ViewCreator> = new Map([
     ["empty", (leaf) => new EmptyView(leaf)],
   ]);
+  private readonly fileIconListeners = new Set<() => void>();
+  private iconExtensionSequence = 0;
+  private readonly iconExtensions = new Map<
+    string,
+    { keys: string[]; viewType: string; dispose: () => void }
+  >();
   private viewExtensions: Map<string, string> = new Map();
   readonly editorViews: EditorViewRegistry = new EditorViewRegistry();
   private sidebarViewPlacements: Map<string, SidebarViewPlacementOptions> =
@@ -3308,6 +3315,7 @@ export class Workspace extends EventDispatcher<{
     await this.#layoutSaveTail;
     this.#layoutPersistenceDisposed = true;
     this.saveLayoutDebounced.cancel();
+    this.app.icons?.dispose();
     this.app.languageServices.unbindDiagnostics();
     this.#configurationBridgeDisposer?.();
     this.#configurationBridgeDisposer = null;
@@ -3869,9 +3877,19 @@ export class Workspace extends EventDispatcher<{
   registerView(type: string, viewCreator: ViewCreator): void {
     this.viewTypes.set(type, viewCreator);
     this.registerWorkspaceHostView(type);
+    for (const listener of this.fileIconListeners) listener();
   }
 
   registerEditorView(contribution: EditorViewContribution): () => void {
+    const existing = this.editorViews.get(contribution.id);
+    if (
+      existing?.source === "manifest" &&
+      contribution.source === "plugin" &&
+      existing.pluginId &&
+      existing.pluginId === contribution.pluginId
+    ) {
+      return this.editorViews.overlay(contribution);
+    }
     return this.editorViews.register(contribution);
   }
 
@@ -3921,7 +3939,9 @@ export class Workspace extends EventDispatcher<{
   unregisterView(type: string) {
     this.#workspaceHostViewDisposers.get(type)?.();
     this.#workspaceHostViewDisposers.delete(type);
-    return this.viewTypes.delete(type);
+    const removed = this.viewTypes.delete(type);
+    if (removed) for (const listener of this.fileIconListeners) listener();
+    return removed;
   }
 
   private normalizeExtensionKey(extension: string): string {
@@ -3940,7 +3960,12 @@ export class Workspace extends EventDispatcher<{
       return undefined;
     }
 
-    return this.viewExtensions.get(extensionKey);
+    return (
+      [...this.iconExtensions.values()]
+        .reverse()
+        .find((entry) => entry.keys.includes(extensionKey))?.viewType ??
+      this.viewExtensions.get(extensionKey)
+    );
   }
 
   private resolveViewTypeForPath(path: string): string | undefined {
@@ -3979,6 +4004,7 @@ export class Workspace extends EventDispatcher<{
 
   private registeredEditorViewForPath(
     path: string,
+    metadataOnly = false,
   ): RegisteredEditorViewContribution | undefined {
     return this.editorViews
       .getAll()
@@ -3987,7 +4013,11 @@ export class Workspace extends EventDispatcher<{
           .filter((pattern) => matchesEditorAssociationGlob(pattern, path))
           .map((pattern) => ({ view, viewIndex, pattern })),
       )
-      .filter(({ view }) => this.viewTypes.has(view.viewType))
+      .filter(
+        ({ view }) =>
+          this.viewTypes.has(view.viewType) ||
+          (metadataOnly && view.source === "manifest"),
+      )
       .sort((left, right) => {
         const priority = { option: 0, default: 1, exclusive: 2 };
         const priorityDelta =
@@ -4058,7 +4088,65 @@ export class Workspace extends EventDispatcher<{
     return this.registeredEditorViewForPath(path)?.viewType;
   }
 
-  registerExtensions(extensions: string[], viewType: string): void {
+  /** Resolve presentation metadata without activating plugins or creating views. */
+  getFileIconForPath(path: string): string | undefined {
+    const association = this.getEditorAssociationForPath(path)?.view;
+    const eligible =
+      association &&
+      (this.viewTypes.has(association.viewType) ||
+        association.source === "manifest");
+    return (
+      eligible ? association : this.registeredEditorViewForPath(path, true)
+    )?.fileIcon;
+  }
+
+  onFileIconsChanged(listener: () => void): () => void {
+    this.fileIconListeners.add(listener);
+    const view = this.editorViews.on("changed", listener);
+    const config = this.app.configuration.on("updated", ({ key }) => {
+      if (key === "workspace.editorAssociations") listener();
+    });
+    return () => {
+      this.fileIconListeners.delete(listener);
+      this.editorViews.offref(view);
+      this.app.configuration.offref(config);
+    };
+  }
+
+  registerExtensions(
+    extensions: string[],
+    viewType: string,
+    options?: ExtensionRegistrationOptions,
+  ): () => void {
+    if (options) {
+      const keys = [
+        ...new Set(
+          extensions
+            .map((ext) => this.normalizeExtensionKey(ext))
+            .filter(Boolean),
+        ),
+      ];
+      if (!keys.length) return () => {};
+      const id = `compat:${viewType}:${++this.iconExtensionSequence}`;
+      const dispose = this.editorViews.register({
+        id,
+        viewType,
+        label: this.humanizeViewType(viewType),
+        filenamePatterns: keys.map((key) =>
+          this.extensionKeyToFilenamePattern(key),
+        ),
+        priority: "default",
+        source: "compat",
+        fileIcon: options.fileIcon,
+      });
+      const entry = { keys, viewType, dispose };
+      this.iconExtensions.set(id, entry);
+      return () => {
+        if (this.iconExtensions.get(id) !== entry) return;
+        this.iconExtensions.delete(id);
+        dispose();
+      };
+    }
     const filenamePatterns: string[] = [];
     extensions.forEach((ext) => {
       const extensionKey = this.normalizeExtensionKey(ext);
@@ -4071,13 +4159,13 @@ export class Workspace extends EventDispatcher<{
     });
 
     if (filenamePatterns.length === 0) {
-      return;
+      return () => {};
     }
 
     const existing = this.editorViews.getByViewType(viewType)[0];
     if (existing) {
       this.editorViews.update(existing.id, { filenamePatterns });
-      return;
+      return () => this.unregisterExtensions(extensions, viewType);
     }
 
     this.editorViews.upsert({
@@ -4088,9 +4176,21 @@ export class Workspace extends EventDispatcher<{
       priority: "default",
       source: "compat",
     });
+    return () => this.unregisterExtensions(extensions, viewType);
   }
 
   unregisterExtensions(extensions: string[], viewType: string) {
+    const removed = new Set(
+      extensions.map((ext) => this.normalizeExtensionKey(ext)),
+    );
+    for (const [id, entry] of this.iconExtensions) {
+      if (entry.viewType !== viewType) continue;
+      entry.keys = entry.keys.filter((key) => !removed.has(key));
+      if (!entry.keys.length) {
+        this.iconExtensions.delete(id);
+        entry.dispose();
+      }
+    }
     const filenamePatterns: string[] = [];
     extensions.forEach((ext) => {
       const extensionKey = this.normalizeExtensionKey(ext);

@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-26 18:23:58 UTC**.
+Last updated **2026-10-26 23:41:04 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -52,7 +52,7 @@ the host gates. Optional legacy database History capture remains Deferred.
 
 ## Current work and next handoff
 
-**Active checkpoint — 2026-10-26 18:23:58 UTC.** The four remaining R3 gates
+**Active checkpoint — 2026-10-26 23:06:50 UTC.** The four remaining R3 gates
 above are active across three implementation lanes. Original-source cold
 acceptance, the complete hosted suite and one combined source qualification
 are queued within the shared Docker worker cap. R3 stays Working.
@@ -120,25 +120,22 @@ Participant publication follows separately; concurrent writers must not publish
 stale whole-conversation snapshots. This is a documentation-only source audit
 at `2c74eec4`; R4 remains Waiting and no runtime/default changes follow.
 
-**Plugin file icons planned:** the [saved API/Explorer plan](PLUGIN_FILE_ICONS_PLAN.md)
-adds optional editor-view `fileIcon` metadata, deterministic path resolution and
-live plugin-lifecycle refresh. The first version includes plugin-registered SVGs
-and synchronous/asynchronous icon packs, with an upstream scoped Design Core
-resolver and explicit legacy/owned registration lifetimes. Implementation and
-first-party adoption remain Planned. This documentation-only feature plan does
-not change R3–R7 status, runtime behavior or package versions. Source and consumer
-qualification remain future implementation gates.
-
-**Current acceptance:** the refreshed real hosted editor/Tasks/close journey and
-five guarded-leave journeys pass, preserving drafts, claim retirement and
-explicit retry. The final 15-case hosted suite, Plugins source closure and
-Original-source Op Log/cold-restart target remain active. Independent validation
-jobs currently occupy the shared Docker capacity; our remaining tests are
-queued within the worker cap. No unrelated jobs are stopped. The root is
-preparing one combined current-source gate rather than repeating that gate for
-each source merge. The latest Plugins full attempt retained a browser
-disconnect before its final story ran; its exact cold retry and remaining
-catalog/static/specification gates are pending, not counted as passed.
+**Plugin file icons main intake:** [combined qualification](spec/records/2026-10-26-plugin-file-icons-main-intake.md)
+merges the feature with current editing/recovery work. All 222 exact API,
+2,384 package and 562 Rust cases, check20/test20/build11, 264 cold catalog,
+static build and canonical/78 governance checks pass. Five public packages pass
+build/prepack/publint/pack with unchanged frozen inputs. Plugins main adopts
+`5b147147`; its 13 preview lifecycle failures reproduce on original main and
+are explicitly accepted separately. Desktop main adopts `f276120b` after all
+2,060 catalog, 511 Node/744 AI/246 Rust, strict type/Clippy, renderer/static and
+final governance checks. Its accepted immutable formatting exception is retained.
+All 103 migration task objects and pending default dependency/Markdown work are
+preserved. Design Core main adopts `99fa0952`; publication/native gates remain.
+The [archived plan](spec/archive/2026-10-26-plugin-file-icons.md) and
+[original execution record](spec/records/2026-10-26-plugin-file-icons.md) retain
+feature, signed Web installation, Bases/CSV Docs and original consumer evidence.
+Accepted pre-existing findings, publication, installed-app replacement, native
+and Rust migration gates remain separate.
 
 **Next:** finish native editor ownership/recovery and actual Tasks host
 acceptance, then close the remaining Repository controls/status/source and provider

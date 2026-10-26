@@ -389,7 +389,7 @@ The native Search encoder is an independent Notes-owned component under
 `lapis-app-core::embedding`; runtime/tokenizer files remain native host authority.
 `test:search:onnx` qualifies model math, publication and retrieval under LN-DB-007.
 
-AppDatabase owns portable Search configuration and invalidation. Memory and
+AppDatabase owns portable Search configuration and invalidation. Remote schemas use patched Zod `^4.6.6` through its compatible `zod/v3` entry. Memory and
 Turso reuse the API's pending-record policy; native publication uses its actor.
 Native model/cache file registration stays outside serialized configuration.
 

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v3";
 
 const nonEmptyString = z.string().min(1);
 const sha256 = z.string().regex(/^[0-9a-f]{64}$/u);
@@ -114,6 +114,7 @@ const registryContributionsSchema = z
         z
           .object({
             id: nonEmptyString,
+            fileIcon: z.string().optional(),
             label: nonEmptyString.optional(),
             filenamePatterns: z.array(nonEmptyString).optional(),
           })

@@ -1,5 +1,7 @@
 import { EventDispatcher } from "./events";
 
+export type ExtensionRegistrationOptions = { fileIcon?: string };
+
 export type EditorViewPriority = "default" | "option" | "exclusive";
 
 export type EditorViewContribution = {
@@ -7,6 +9,8 @@ export type EditorViewContribution = {
   viewType?: string;
   label: string;
   description?: string;
+  /** Registered API icon ID used for matching file rows. */
+  fileIcon?: string;
   filenamePatterns?: string[];
   priority?: EditorViewPriority;
   pluginId?: string;
@@ -51,6 +55,7 @@ function normalizeContribution(
     id,
     viewType: normalizeString(contribution.viewType ?? id),
     label,
+    fileIcon: contribution.fileIcon?.trim() || undefined,
     filenamePatterns: uniqueStrings(contribution.filenamePatterns),
     priority: contribution.priority ?? "option",
   };
@@ -74,6 +79,10 @@ function mergeContribution(
 export class EditorViewRegistry extends EventDispatcher<{
   changed: [change: EditorViewRegistryChange];
 }> {
+  private readonly layers = new Map<
+    string,
+    Array<{ owner: object; contribution: RegisteredEditorViewContribution }>
+  >();
   private readonly views = new Map<string, RegisteredEditorViewContribution>();
 
   register(contribution: EditorViewContribution): () => void {
@@ -83,12 +92,51 @@ export class EditorViewRegistry extends EventDispatcher<{
       return () => {};
     }
 
+    const owner = {};
+    this.layers.set(normalized.id, [{ owner, contribution: normalized }]);
     this.views.set(normalized.id, normalized);
     this.emit("changed", { id: normalized.id, action: "registered" });
 
     return () => {
-      this.unregister(normalized.id);
+      this.removeLayer(normalized.id, owner);
     };
+  }
+
+  /** Overlay runtime metadata on the same plugin's admitted manifest entry. */
+  overlay(contribution: EditorViewContribution): () => void {
+    const current = this.views.get(contribution.id);
+    if (!current) return this.register(contribution);
+    const normalized = mergeContribution(current, contribution);
+    const owner = {};
+    this.layers.get(normalized.id)!.push({ owner, contribution: normalized });
+    this.views.set(normalized.id, normalized);
+    this.emit("changed", { id: normalized.id, action: "updated" });
+    return () => this.removeLayer(normalized.id, owner);
+  }
+
+  private removeLayer(id: string, owner: object): void {
+    const entries = this.layers.get(id);
+    const index = entries?.findIndex((entry) => entry.owner === owner) ?? -1;
+    if (!entries || index < 0) return;
+    const visible = index === entries.length - 1;
+    entries.splice(index, 1);
+    if (!entries.length) {
+      this.unregister(id);
+      return;
+    }
+    if (visible) {
+      this.views.set(id, entries.at(-1)!.contribution);
+      this.emit("changed", { id, action: "updated" });
+    }
+  }
+
+  private setVisible(
+    id: string,
+    contribution: RegisteredEditorViewContribution,
+  ): void {
+    this.views.set(id, contribution);
+    const top = this.layers.get(id)?.at(-1);
+    if (top) top.contribution = contribution;
   }
 
   upsert(contribution: EditorViewContribution): () => void {
@@ -99,7 +147,7 @@ export class EditorViewRegistry extends EventDispatcher<{
     }
 
     const merged = mergeContribution(existing, normalized);
-    this.views.set(merged.id, merged);
+    this.setVisible(merged.id, merged);
     this.emit("changed", { id: merged.id, action: "updated" });
     return () => {};
   }
@@ -116,7 +164,7 @@ export class EditorViewRegistry extends EventDispatcher<{
       id: existing.id,
       label: contribution.label ?? existing.label,
     });
-    this.views.set(existing.id, merged);
+    this.setVisible(existing.id, merged);
     this.emit("changed", { id: existing.id, action: "updated" });
     return true;
   }
@@ -137,16 +185,18 @@ export class EditorViewRegistry extends EventDispatcher<{
 
     if (filenamePatterns.length === 0 && existing.source === "compat") {
       this.views.delete(id);
+      this.layers.delete(id);
       this.emit("changed", { id, action: "unregistered" });
       return true;
     }
 
-    this.views.set(id, { ...existing, filenamePatterns });
+    this.setVisible(id, { ...existing, filenamePatterns });
     this.emit("changed", { id, action: "updated" });
     return true;
   }
 
   unregister(id: string): boolean {
+    this.layers.delete(id);
     const deleted = this.views.delete(id);
     if (deleted) {
       this.emit("changed", { id, action: "unregistered" });

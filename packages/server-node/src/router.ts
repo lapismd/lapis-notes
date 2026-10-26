@@ -1,5 +1,5 @@
 import { initTRPC, tracked, TRPCError } from "@trpc/server";
-import { z } from "zod";
+import { z } from "zod/v3";
 
 import {
   LAPIS_SERVER_PROTOCOL_MAJOR,
