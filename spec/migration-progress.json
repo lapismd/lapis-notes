@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 02:53:16 UTC",
+  "updated": "2026-10-26 03:05:46 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -375,7 +375,7 @@
       "work": "Unattended metadata and projection reconciliation",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native metadata/projection ownership and the shared App observer are integrated at 0bb90ba1 (461 Rust, 2,277 package, 261 cold catalog). Desktop portable/catalog acceptance is complete; its final affected native journeys and hosted strict/build/browser acceptance are active against the source-owned API event-order repair. Custom processors, complete service selections and default cutover remain separate."
+      "detail": "Native metadata/projection ownership and shared App observer are integrated at 0bb90ba1 (461 Rust, 2,277 package, 261 cold catalog). Desktop metadata-only service adoption is committed at 4bcb7e09 with complete catalogue/native gates. The corrected API event-order candidate passes owner and both application journeys; hosted combined source/host closure is active. Complete processor/Tasks and Search selections, plus default cutover, remain separate."
     },
     {
       "id": "R3.2.2",
@@ -463,7 +463,7 @@
       "work": "Tauri and HTTP unattended metadata adoption",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "Desktop metadata opt-in passes 17 renderer/admission, 16 shell-story, 506 renderer/governance, 744 AI, 245 Rust, both strict modes, normal native build, two exact metadata, 14 hidden API and all 2,032 catalog cases across 16 modes. The API committed-row/Vault event-order race is repaired and owner-qualified at snapshot 863f6b50 (28 observer / 1,619 API cases); Desktop final affected native acceptance uses that candidate plus the previously qualified Graph source. Hosted startup wiring passes six exact cases and is running its strict/build/browser gates. Source/host commits and combined adoption remain pending; both defaults remain renderer-owned."
+      "detail": "Desktop metadata-only opt-in is committed and adopted in its clean default at 4bcb7e09: 17 renderer/admission, 16 shell-story, 506 renderer/governance, 744 AI, 245 Rust, both strict modes, native builds/audit, all 2,032 catalog cases, final 88 affected cases, 14 native Metadata/Search/Graph/ACP and 14 hidden API cases pass. Corrected API candidate 4b15f37a/ce16 passes 28 observer / 1,619 API cases and both hosts actual external-create Search journeys. Hosted wiring passes six exact, 73 Web and real browser/detach acceptance; its combined full source/host closure is active. Both defaults and Search writer adoption remain separate."
     },
     {
       "id": "R3.2.1.2.1",
@@ -653,9 +653,9 @@
       "id": "R3.2.2.5",
       "area": "Search application adapter",
       "work": "Shared App observer and native Search plugin lifecycle",
-      "status": "Working",
+      "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Coherent shared observer](spec/records/2026-10-26-native-search-observer.md) is source-qualified with 22 exact, 1,613 API/2,277 package, 461 Rust and 261 cold catalog cases plus strict/build/static/specification gates. Combined Plugins Search/Bases/CSV intake preserves qualified runtime bytes and passes 22 exact native Search, 16 cold Search and seven exact Bases cases; complete four-shard/catalog/artifact/source closure is active. Correct tracked private Sync installation repairs the temporary runner omission; already-qualified Bases/CSV source is integrated rather than reimplemented. Existing audit/style/release-lockfile findings remain separately recorded. Both host Search selections remain Waiting."
+      "detail": "[Coherent shared observer](spec/records/2026-10-26-native-search-observer.md) is integrated at 0bb90ba1. [Plugins Search/Bases/CSV source](spec/records/2026-10-26-search-bases-intake.md) is committed at bd305e58: 22 exact native Search, 16 cold Search, seven exact Bases and all 284 cold catalogue cases pass, plus package checks/tests/builds, static Storybook, specification, 47 runner/composition cases and public Search artifacts. Current-headless Chromium fixes the exact final-shard disconnect without changing assertions or coverage. Existing audit/CSV-style/lock findings remain recorded. Both native Search host adoptions remain Waiting."
     }
   ]
 }
