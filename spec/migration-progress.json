@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 11:12:29 UTC",
+  "updated": "2026-10-26 11:25:08 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -391,7 +391,7 @@
       "work": "History-index scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Shared indexed History controls and admitted HTTP source are committed at 7cbb8713; full 470 Rust, 2,289 package, 261 cold catalog, 22 actual browser and strict/build/specification gates pass. Native owner and Desktop 05d0e8ab were previously qualified. Hosted App/session observer plumbing and retained Repository reader/screen, Desktop shared adapter and combined both-host qualification remain active."
+      "detail": "Shared indexed History controls and admitted HTTP source 7cbb8713 are qualified and integrated in coherent source 8bd2f3d8. [Shared History observer source](../.workspaces/lapis-plugins-native-history-observer-20261026/spec/records/2026-10-26-native-history-observer.md) is committed at Plugins 214917c8: 1,101 package and 285 cold catalog cases plus strict/build/static/specification and deterministic payload/signature checks pass; accepted unchanged audit/CSV/release-lock baselines remain explicit. Notes App/session field intake, retained hosted Repository reader/screen and Desktop shared-adapter native qualification remain active. Complete R3/provider and default cutover gates stay open."
     },
     {
       "id": "R1.3.9.1",
