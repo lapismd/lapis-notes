@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 11:25:08 UTC",
+  "updated": "2026-10-26 11:48:02 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -391,7 +391,7 @@
       "work": "History-index scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Shared indexed History controls and admitted HTTP source 7cbb8713 are qualified and integrated in coherent source 8bd2f3d8. [Shared History observer source](../.workspaces/lapis-plugins-native-history-observer-20261026/spec/records/2026-10-26-native-history-observer.md) is committed at Plugins 214917c8: 1,101 package and 285 cold catalog cases plus strict/build/static/specification and deterministic payload/signature checks pass; accepted unchanged audit/CSV/release-lock baselines remain explicit. Notes App/session field intake, retained hosted Repository reader/screen and Desktop shared-adapter native qualification remain active. Complete R3/provider and default cutover gates stay open."
+      "detail": "Shared indexed History controls and admitted HTTP source 7cbb8713 are qualified and integrated in coherent source 8bd2f3d8. [Shared History observer source](../.workspaces/lapis-plugins-native-history-observer-20261026/spec/records/2026-10-26-native-history-observer.md) is committed at Plugins 214917c8: 1,101 package and 285 cold catalog cases plus strict/build/static/specification and deterministic payload/signature checks pass; accepted unchanged audit/CSV/release-lock baselines remain explicit. Notes App/session field intake, retained hosted Repository reader/screen and Desktop shared-adapter native qualification remain active. Complete R3/provider and default cutover gates stay open. [Notes App/hosted port](spec/records/2026-10-26-hosted-history-adapter.md) is now source-qualified and committed at 2d250f66; aggregate API intake remains active. R3.2.3.5 tracks the retained Repository reader, and R3.2.3.6 explicitly keeps legacy revision capture, restore and original-repository selection Waiting."
     },
     {
       "id": "R1.3.9.1",
@@ -672,6 +672,30 @@
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-history-indexing-lifetime.md#ln-core-011",
       "detail": "[Qualified shared History controls](spec/records/2026-10-26-hosted-history-service.md): five exactHTTP, two wire and two admitted-core cases; all76server/16backup; full470Rust/2289package/261coldcatalog/static and22actualbrowser cases pass, including strict/publictypes/build/canonical78governance. Source is qualified at frozenec988ab. Explicit installation selection stays off; retained hosted-screen/controller and Desktop shared-adapter intake remain separate R3.2.3 gates."
+    },
+    {
+      "id": "R3.2.3.4",
+      "area": "History application adapter",
+      "work": "Public History observer and admitted hosted port",
+      "status": "Source complete",
+      "spec": "spec/src/web-host/startup-and-plugins.md#ln-web-067",
+      "detail": "[Qualified port/source intake](spec/records/2026-10-26-hosted-history-adapter.md): 3App/6hosted exact, full507Rust/2304package/261coldcatalog/static and22browser cases plus strict/build/publicdeclarations pass. Shared History producer214917c8 passes1101package/285catalog and artifact gates with unchanged accepted baselines. Final ten-lane canonical closure and all78governance regressions pass after six mapped-chapter confirmations. This source gate does not supply the admitted reader/screen or complete R3."
+    },
+    {
+      "id": "R3.2.3.5",
+      "area": "Hosted Repository adoption",
+      "work": "Admitted native reader and retained Repository read/search/blame screen",
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-history-indexing-lifetime.md#ln-core-011",
+      "detail": "Reuse preserved hosted-services RepositoryFactory/lifetime/screen and jj-history-service version1 frames through the existing CoreClient; no companion, replacement screen, fake navigation or renderer index scheduler. Canonical read/lifetime contract precedes implementation; actual retained hosted screen and passive/cold indexing acceptance remain required."
+    },
+    {
+      "id": "R3.2.3.6",
+      "area": "Remaining History parity",
+      "work": "Legacy revision capture, guarded restore and original repository source",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "R3.1.3 qualifies database-only storage, not HistoryPlugin capture ownership. Under LN-CORE003/006/008, reuse existing capture/database/writer/backup/restore and savedH03 engines/contracts; qualify unattended revision capture/retention, guarded restore and supported original-source parity in both hosts. The index/reader slices leave these existing behaviors unchanged and do not close this gate."
     }
   ]
 }
