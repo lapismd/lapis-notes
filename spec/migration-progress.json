@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 14:10:13 UTC",
+  "updated": "2026-10-26 14:41:11 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Shared source, both Search hosts, Desktop History and the hosted Repository reader are integrated and qualified. [Current reader/Tasks cohort](spec/records/2026-10-26-reader-current-intake.md) passes 537 Rust, 2,326 package, 261 cold catalog, 23 browser and full specification gates. Actual Tasks hosts, native editor intents and guarded recovery, repository restore, backup settings/status and original-source selection remain active. Provider/timezone and unattended acceptance precede R3 closure; R4-R7 retain their original dependencies. The portable Mira input lease is now source-qualified and committed at c5d1e4b6: 504 package, 170 cold catalog and 60 cold browser cases plus full public/source/specification gates pass. Markdown binding and actual host ownership remain separate."
+      "detail": "Shared source, both Search hosts, Desktop History and the hosted Repository reader are integrated and qualified. [Current reader/Tasks cohort](spec/records/2026-10-26-reader-current-intake.md) passes 537 Rust, 2,326 package, 261 cold catalog, 23 browser and full specification gates. Actual Tasks hosts, native editor intents and guarded recovery, repository restore, backup settings/status and original-source selection remain active. Provider/timezone and unattended acceptance precede R3 closure; R4-R7 retain their original dependencies. The portable Mira input lease is now source-qualified and committed at c5d1e4b6: 504 package, 170 cold catalog and 60 cold browser cases plus full public/source/specification gates pass. Markdown binding and actual host ownership remain separate. Active lanes: the shared editor foundation is closing its final source checks, captured-state recovery and legacy bypass guards are under qualification, source Markdown binding has three exact passes, actual Tasks composition/recovery is being rerun, and both retained restore/cold-ack browser journeys pass before aggregate History closure. These active slices are not yet adopted in main."
     },
     {
       "id": "R4",
