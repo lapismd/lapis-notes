@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 02:10:58 UTC",
+  "updated": "2026-10-26 02:26:22 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -455,7 +455,7 @@
       "work": "Remaining native plugin projection processors",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Native Markdown, Tasks/occurrence and Docs projections plus explicit writer authority are integrated. The coherent App observer/daily observation intake passes 461 Rust, 2,277 package and 261 cold catalog cases with complete strict/build/specification gates. Ordered Tasks persistence passes 11 exact cases in its separate source lane; full qualification, durable recovery, tracked-today scheduling and complete host selections remain pending. Custom processors stay explicitly client-dependent."
+      "detail": "Native Markdown, Tasks/occurrence and Docs projections plus explicit writer authority are integrated at 0bb90ba1, with 461 Rust/2,277 package/261 cold catalog cases and full source gates passing. Ordered Tasks persistence is source-qualified separately at 2296023f; combined intake, durable recovery, tracked-today scheduling and complete host selections remain pending. Custom processors stay explicitly client-dependent; host acceptance separately exposed an API metadata-event ordering bug under repair."
     },
     {
       "id": "R3.2.1.3",
@@ -463,7 +463,7 @@
       "work": "Tauri and HTTP unattended metadata adoption",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "Desktop opt-in draft preserves renderer default and shares the admitted database connection. Its 17 exact renderer/admission and 16 minimal-shell cases, type checks, strict normal/e2e checks, 506 renderer/governance, 744 AI and 245 Rust cases pass; two existing native ignores remain. Normal macOS build/audit pass. Full catalog, final e2e build and native acceptance remain active; hosted selection and complete R3 host adoption are Waiting."
+      "detail": "Desktop metadata opt-in passes 17 renderer/admission, 16 shell-story, complete portable/strict, normal native build, two exact native metadata and all 14 hidden API cases. Final native UI exposes a Core-only external-create Search ordering bug in API metadata.changed delivery; source-owned repair is active alongside hosted opt-in wiring. The same Graph save failures reproduce with renderer defaults; qualified source 147ba6e2 is missing from the cohort and is being admitted. Full catalog remains active. Both metadata defaults remain renderer-owned."
     },
     {
       "id": "R3.2.1.2.1",
@@ -631,7 +631,7 @@
       "work": "Native daily provider creation and daily-before-rolling Task coordination",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "Daily policy 220b5cd7 and physical IO 974d0a39 are adopted at 19cd103a; daily observations 20263848 are now included in the [coherent observer intake](spec/records/2026-10-26-native-search-observer.md) with 461 Rust/2,277 package/261 cold catalog cases and full gates passing. Valid-duration source reference da17eba0 preserves all old corpora and adds 18 complete attempts; 29 native/2,849 unit/62 cold catalog cases and source/static/spec gates pass. The separate ordered original-Task admission/persistence lane passes 11 exact cases covering 110 retained attempts plus races/partials; full source qualification is active. Durable journal/cold recovery, tracked-today scheduling and both host selections remain Waiting."
+      "detail": "Daily policy/physical IO and daily observations are adopted in coherent Notes 0bb90ba1 with 461 Rust/2,277 package/261 cold catalog cases. [Ordered lifecycle source](spec/records/2026-10-26-native-task-lifecycle.md) is committed separately at 2296023f using qualified Tasks da17eba0: all 11 exact cases replay 110 complete retained attempts and cover races/partials; 442 Rust, all 20 package check/test tasks, 11 builds, strict source and final specification/78 governance pass. It is not yet adopted in this main workspace. Durable journal/cold recovery, tracked-today scheduling and both host selections remain Waiting; aggregate stays Working."
     },
     {
       "id": "R3.2.2.3",
