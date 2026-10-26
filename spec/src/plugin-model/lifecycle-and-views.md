@@ -22,6 +22,11 @@ metadata readiness; absence, disabled state or failed activation instead drains
 the retained native selection. Passive plugin/App disposal keeps its existing
 observation-only lifetime and never creates a renderer writer.
 
+For Rust-hosted LN-WEB-068, Search declaration, registered rebuild controls and
+explicit disable use the admitted metadata/Search client. Recovered plugin
+configuration rehydrates the mounted Search controls without acquiring a native
+writer or replacing the existing UI; source admission remains a separate gate.
+
 LN-WS-101 allows an explicit layout-only close policy for views with no file
 writers and externally retained staged state. Existing plugin views keep full
 application writer protection unless they opt in; whole-host shutdown remains

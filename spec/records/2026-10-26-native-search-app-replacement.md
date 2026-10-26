@@ -225,3 +225,54 @@ had been included with the API commit. Add hosted-specific context to those
 three chapters so the staged hosted adoption has complete mappings of its own.
 No product, test, assertion or validator changes are needed; its full stack is
 rechecked before the documentary tracker closure.
+
+## Hosted admission closure — 2026-10-26 09:19:36 UTC
+
+Search recovery source is committed at Plugins
+`e0144c6a88f52fd2f71108728980830dc127fa1e`. Its public archive remains exactly
+`2e7f0c428c04344105305a755a657c53ff61b710ed47c95d2ad9596d2476f680`; all
+production/test/story bytes match owner-qualified `ba1d987a`. Design Core remains
+committed `0d7a9289` / archive `6f33b681`. No consumer runtime input changes after
+the passing `b47c2e12` and `2a78eca9` receipts.
+
+The source owner records the previously accepted parent Zod/CSV/release-lock
+findings and demonstrably unrelated catalog orchestration failure under the
+user's standing instruction to choose the logical answer and keep the backlog
+moving. The original failed aggregate remains failed. The exact two missing
+Link Preview cases pass independently; the source parent reproduces the same
+browser disconnect. One bounded resumed retry again streams 69 passes/one
+orchestration error, then remote SSH refuses the result transfer. It is not a
+new complete receipt or a passing test.
+
+Fresh source documentary formatting, all three specification lanes and the App
+ownership audit pass. The committed source closes hosted input admission. This
+Notes slice closes LN-WEB-068 using its existing 73 Web/six focused, 261 cold
+catalog/static and all 22 browser results. Full source/API and owner artifact
+qualification remain their named prior receipts, not a fictitious rerun.
+Ordinary profiles, complete provider/custom-processor coverage, Desktop adoption,
+publication and default cutover retain their separate gates.
+
+The fresh documentary Docker allocation cannot start reliably: both the explicit
+SSH transport and ordinary Docker context transport report connection refusal
+before a new worker starts. The prior complete `2fd97154` specification receipt
+is preserved. No product test is rerun or represented as a host fallback.
+
+Documentary tools are installed with scripts disabled through the same ten
+checksummed public archives used by the qualified hosted worker. The attempted
+frozen install rejects the pre-existing four Mira specifier differences; a
+registry-only attempt cannot fetch the deliberately unpublished Agent UI. The
+qualified temporary archive overlay succeeds in 18 seconds. All original root
+manifest, lockfile and workspace bytes are restored in `finally` and retain
+their captured SHA-256 identities. No dependency policy or committed lock changes.
+
+Only changed-document formatting, progress generation/check, structural
+validation, mdBook, spec-first and the documentary governance regressions run
+locally for this closing checkpoint. The unchanged native protocol/core and
+functional consumer qualification retain their named complete earlier receipts.
+
+Final documentary closure at 2026-10-26 09:33:47 UTC passes Prettier 3.3.3, the generated
+83-task grouped/sorted/spec-linked ledger, structural validation (11 validators,
+182 chapters, 1,521 requirements), mdBook, spec-first and all **78/78** governance
+regressions. The local tooling setup changes no tracked package inputs. The
+complete prior product/protocol/core receipts and final public source bytes
+remain unchanged; only documentary qualification is added at this checkpoint.

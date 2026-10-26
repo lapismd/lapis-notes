@@ -285,3 +285,8 @@ The explicit hosted native-metadata profile under
 [LN-WEB-066](../web-host/startup-and-plugins.md#ln-web-066) observes those controls
 through the existing client admission. Node remains the serving baseline;
 metadata staging does not switch final hosted or Search defaults.
+
+Selected hosted Search reuses the native metadata/indexing port and qualified
+plugin adapter. Its existing refresh and semantic-rebuild controls use native
+work; App replacement reconciles persisted disable through the shared observer.
+The ordinary hosted build keeps renderer ownership until explicit cutover.

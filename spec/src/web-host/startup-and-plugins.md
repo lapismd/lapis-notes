@@ -200,3 +200,9 @@ The private build flag `VITE_LAPIS_NATIVE_METADATA=1` selects this staged profil
 It supplies no new scheduler or native path authority. Native Search remains a
 separate plugin/archive and host-acceptance gate; metadata-only selection keeps
 the retained Search writer available until that gate is admitted.
+
+## LN-WEB-068 — Selected hosted native Search
+
+<a id="ln-web-068"></a>
+
+**Requirement.** The qualified Search plugin MUST use the existing native indexing opt-in and admitted Rust client for provider/chunk declarations, refresh and rebuild. The renderer MUST retain existing Search presentation and queries without publishing Search rows. Native work MUST survive detach. A replacement App with persisted Search disabled MUST drain that selection while retaining native metadata and saved files; ordinary hosted profiles MUST remain renderer-owned.

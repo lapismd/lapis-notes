@@ -391,3 +391,8 @@ Native Search App replacement reconciles the current App-owned plugin registry
 before metadata startup completes. An omitted or disabled Search declaration
 explicitly drains the retained native selection; passive detach keeps it alive.
 Enabled Search may declare after metadata-loaded without losing its owner.
+
+LN-WEB-068 exercises hosted Search through the same admitted native connection as
+metadata. Plugin declaration, refresh/rebuild and explicit disable retain that
+authority; external settings recovery uses App configuration observation. A
+browser detach never transfers native writer ownership to its replacement view.

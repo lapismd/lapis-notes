@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 05:03:18 UTC",
+  "updated": "2026-10-26 09:33:47 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Both metadata hosts remain committed at Notes d133a31b and Desktop 4bcb7e09. Search replacement-App API repair is independently committed at a1b0dfde. Final Search 2e7f/Design Core 6f33 passes exact recovery, 261 cold catalog, all 22 hosted/standalone browser cases and full specification; hosted/Desktop adoption awaits inherited required Search source failures. Task recovery 8e09a5de and tracked-today source ad968536 are committed with 467 Rust cases; main runtime and both host adapters remain. Shared hosted History and complete native writer/scheduler selections remain. R4\u2013R7 keep their existing scope and dependencies."
+      "detail": "Both metadata hosts remain committed at Notes d133a31b and Desktop 4bcb7e09. Search replacement-App API repair is independently committed at a1b0dfde. Final Search 2e7f/Design Core 6f33 passes exact recovery, 261 cold catalog, all 22 hosted/standalone browser cases and full specification; hosted/Desktop adoption awaits inherited required Search source failures. Task recovery 8e09a5de and tracked-today source ad968536 are committed with 467 Rust cases; main runtime and both host adapters remain. Shared hosted History and complete native writer/scheduler selections remain. R4–R7 keep their existing scope and dependencies."
     },
     {
       "id": "R4",
@@ -383,7 +383,7 @@
       "work": "Search index reconciliation and scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native Markdown/Canvas extraction, configured chunking, provider controls, writer fencing, progress and rebuild are qualified and adopted at 19cd103a. Shared App/Search adapter R3.2.2.5 and replacement startup repair are committed at 0bb90ba1/a1b0dfde. Final recovery/cohort consumer acceptance passes; hosted/Desktop adoption waits for the latest Search source-input gate. Complete configured-provider/custom-processor journeys, actual semantic-provider acceptance and both default selections remain separate."
+      "detail": "Native Markdown/Canvas extraction, chunking, provider controls, writer fencing and progress/rebuild are source-qualified. Shared App replacement is committed at a1b0dfde and Plugins recovery at e0144c6a. Hosted native-profile adoption R3.2.2.6 is complete with final Search 2e7f and Design Core 6f33. Desktop selection is being committed separately; full configured-provider/custom-processor journeys and default cutover remain open."
     },
     {
       "id": "R3.2.3",
@@ -631,7 +631,7 @@
       "work": "Native daily provider creation and daily-before-rolling Task coordination",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "Daily policy/physical IO and daily observations are adopted in coherent Notes 0bb90ba1 with 461 Rust/2,277 package/261 cold catalog cases. [Ordered lifecycle source](spec/records/2026-10-26-native-task-lifecycle.md) is committed separately at 2296023f using qualified Tasks da17eba0: all 11 exact cases replay 110 complete retained attempts and cover races/partials; 442 Rust, all 20 package check/test tasks, 11 builds, strict source and final specification/78 governance pass. It is not yet adopted in this main workspace. Durable journal/cold recovery, tracked-today scheduling and both host selections remain Waiting; aggregate stays Working. [Shared private IO prerequisite](spec/records/2026-10-26-native-task-recovery.md) is committed at 86f360f8 with five exact, 14 unchanged Turn and 447 full Rust cases plus complete source/specification gates. It is source-qualified separately; typed Task recovery is active and no additional host is selected."
+      "detail": "Ordered lifecycle 2296023f, private journal IO 86f360f8, typed cold recovery 8e09a5de and tracked-today scheduling ad968536 are committed source prerequisites. Final scheduling source passes 467 Rust cases and canonical gates; one existing metadata owner applies the retained tracking/current/today policy and guarded daily writer. These revisions are not yet integrated into the main runtime or either host. Combined intake and both complete Task selections remain Waiting; aggregate stays Working."
     },
     {
       "id": "R3.2.2.3",
@@ -655,7 +655,15 @@
       "work": "Shared App observer and native Search plugin lifecycle",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Search App replacement and hosted receipts](spec/records/2026-10-26-native-search-app-replacement.md): independent API repair is committed at a1b0dfde and passes all 16 exact lifecycle/34 native/1,625 API cases and the complete d4f08b8c gate: 461 Rust, 2,295 package, 261 cold catalog and all 22 browser cases. Final recovery Search 2e7f/Design Core 6f33 passes exact hosted config recovery, six focused/73 Web, strict/build, all 261 cold catalog, all 22 browser cases and full specification at b47c2e12/2a78eca9. Latest Search source has inherited required failures pending acceptance/repair, so hosted/Desktop adoption remains uncommitted; configured-provider coverage, defaults and declarative Search Settings remain separate."
+      "detail": "[Shared Search lifecycle and hosted receipts](spec/records/2026-10-26-native-search-app-replacement.md): API repair a1b0dfde and Plugins recovery e0144c6a are committed. Public artifacts retain qualified API aa1a5d52 and Search 2e7f0c42 bytes. The API passes 16 lifecycle, 34 native and 1,625 unit cases; the earlier complete source gate passes 461 Rust and 2,295 package cases. Final consumer qualification passes 73 Web, all 261 cold catalog/static and all 22 browser cases. Inherited source baseline exceptions remain explicit. Hosted adoption is Complete at R3.2.2.6; Desktop commit, defaults and configured-provider coverage remain separate."
+    },
+    {
+      "id": "R3.2.2.6",
+      "area": "Hosted Search adoption",
+      "work": "Native Search through the retained hosted application",
+      "status": "Complete",
+      "spec": "spec/src/web-host/startup-and-plugins.md#ln-web-068",
+      "detail": "[Final hosted Search intake](spec/records/2026-10-26-native-search-app-replacement.md): Search 2e7f from committed Plugins e0144c6a and Design Core 6f33/0d7a9289 pass declaration, Markdown/Canvas results, writer refusal, refresh/rebuild, detached indexing, disabled replacement and recovered configuration/query/partial-save preservation. All 73 Web/six focused, 261 cold catalog/static and 22 browser cases pass across b47c2e12/2a78eca9. Source/API qualification and inherited baseline exceptions remain distinct. Ordinary defaults and complete R3 provider selection remain separate."
     }
   ]
 }
