@@ -60,7 +60,12 @@ export class FileTextStateWriter implements FileEditingSession {
           },
         };
       },
-      serialize: (run) => this.app.fileEditingSessions.recover(this, run),
+      serialize: (run) =>
+        this.app.fileEditingSessions.recover(this, async () => {
+          const result = await run();
+          await this.#unregister.idle();
+          return result;
+        }),
       recoverOutsideQueue: this.options.recoverOutsideQueue,
     });
   }
@@ -70,6 +75,7 @@ export class FileTextStateWriter implements FileEditingSession {
   }
 
   readonly native = {
+    lifetime: "operation" as const,
     hold: () => this.#protect(),
     savedText: () => this.#persistence?.baseline,
   };
@@ -93,17 +99,25 @@ export class FileTextStateWriter implements FileEditingSession {
   set(contents: string): Promise<void> {
     return this.#unregister.native
       ? this.app.fileEditingSessions.track(() =>
-          this.#unregister.ready().then(() => this.#setContents(contents)),
+          this.app.fileEditingSessions.recover(this, async () => {
+            await this.#unregister.ready();
+            this.#captureContents(contents);
+            await this.flush();
+          }),
         )
       : this.#setContents(contents);
   }
 
-  #setContents(contents: string): Promise<void> {
+  #captureContents(contents: string): void {
     this.assertEditable();
     this.#contents = contents;
     this.#dirty = true;
     this.#unregister.changed();
     this.#persistence?.updateLocal(contents);
+  }
+
+  #setContents(contents: string): Promise<void> {
+    this.#captureContents(contents);
     return this.app.fileEditingSessions.recover(this, () => this.flush());
   }
 
@@ -113,13 +127,16 @@ export class FileTextStateWriter implements FileEditingSession {
   ): Promise<void> {
     if (!this.#unregister.native) this.assertEditable();
     return this.app.fileEditingSessions.recover(this, async () => {
+      await this.flush();
       if (this.#unregister.native) {
         await this.#unregister.ready();
         this.assertEditable();
       }
-      await this.flush();
       const change = calculate();
-      if (!change) return;
+      if (!change) {
+        await this.#unregister.idle();
+        return;
+      }
       this.#contents = change.contents;
       this.#dirty = true;
       this.#unregister.changed();
@@ -129,7 +146,11 @@ export class FileTextStateWriter implements FileEditingSession {
   }
 
   async flush(): Promise<void> {
-    if (!this.#dirty) return;
+    if (!this.#dirty) {
+      await this.#unregister.idle();
+      return;
+    }
+    if (this.#unregister.native) await this.#unregister.ready();
     const contents = this.#contents;
     const notify = this.#onSaved;
     try {
@@ -150,6 +171,7 @@ export class FileTextStateWriter implements FileEditingSession {
     this.#dirty = this.#contents !== contents;
     if (!this.#dirty) this.#onSaved = undefined;
     notify?.();
+    if (!this.#dirty) await this.#unregister.idle();
   }
 
   #protect(): () => void {

@@ -88,6 +88,29 @@ Host adoption and real two-client browser/native acceptance are separate from
 source qualification. Existing Deno hosts remain frozen. Signing and final
 distribution remain deferred.
 
+## LN-CORE-026 — Operation-scoped noninteractive state
+
+<a id="ln-core-026"></a>
+
+**Requirement.** Noninteractive state writers MUST acquire native ownership
+before applying an admitted logical change and yield after acknowledged clean
+persistence. Idle clean state MUST NOT retain an active fence. Failed, dirty or
+uncertain operations MUST retain their recovery boundary. Interactive document
+and preview writers MUST retain their full editing-lifetime fence.
+
+### Acceptance details
+
+Operation-scoped state retains these boundaries:
+
+- Ordinary settings, layout and plugin state use the existing conditional
+  writer and serialized App queue; another idle App cannot block their saves.
+- Successful operations reuse bounded native identity and version checks.
+  Native foreign interactive, dirty and detached claims keep their existing
+  strict fence; there is no global caller exemption or content-write replay.
+- Pending and failed local transitions expose passive, captured-identity state.
+  Explicit protected retry may reconcile the fence; observing it does not
+  retry persistence, discard a buffer or submit native Tasks.
+
 ## LN-CORE-025 — Captured-state explicit intent recovery
 
 <a id="ln-core-025"></a>

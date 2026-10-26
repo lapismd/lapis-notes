@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 17:01:31 UTC",
+  "updated": "2026-10-26 17:19:57 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -79,7 +79,7 @@
       "work": "AI/tools/Changes",
       "status": "Waiting",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "After R3 (R2 is complete): existing queues, participants/context, approvals, native tools and guarded undo through both hosts."
+      "detail": "After R3: follow [R4 delivery checkpoints](RUST_CORE_MIGRATION_PLAN.md#r4-delivery-checkpoints). Current source audit confirms the first slice is lossless retained queue captures plus a service-owned bounded FIFO reusing RecordStore/TurnJournal/portable files. Participant aggregate publication, context/skills/handoff, native approvals/tools and Changes/undo remain separate checkpoints within the original scope. R2 minimal chat is not full workflow parity; defaults and deferred features stay unchanged."
     },
     {
       "id": "R5",
@@ -391,7 +391,7 @@
       "work": "History-index scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native History controls, admitted observer/reader, guarded restore and retained hosted backup settings/status qualify their source/host gates. Latest controls cohort passes 575 Rust/2,358 package/261 cold catalog/25 browser cases plus canonical 78 governance cases. Original repository source remains Waiting; optional legacy database capture is Deferred; both-host combined R3 remains separate."
+      "detail": "Indexed History, public App ports, admitted retained Repository reads and guarded hosted restore are committed and qualified. Desktop M16.6 is adopted at fa13c1ce. [Restore evidence](spec/records/2026-10-26-hosted-repository-restore.md) includes both real restore/cold-acknowledgement journeys, saved-byte preservation and complete source/browser/specification closure. Remaining current-profile parity is backup controls/status/passive observation and original-source selection. Optional legacy AppDatabase capture is explicitly Deferred outside the current profile. Complete R3/provider and default cutover remain open."
     },
     {
       "id": "R1.3.9.1",
@@ -695,7 +695,7 @@
       "work": "Guarded restore, backup controls and original repository source",
       "status": "Working",
       "spec": "spec/src/architecture/rust-history-parity.md#ln-core-023",
-      "detail": "Guarded restore and backup capture controls/passive status are qualified separately. Required original repository detection/read-source selection remains Waiting. Optional legacy HistoryPlugin database capture ownership remains Deferred because it is not bundled in the current profile and is client-driven in both hosts. Combined R3 and default cutover remain separate."
+      "detail": "Guarded native file/vault restore and retained hosted review/recovery are qualified atR3.2.3.6.1. Required backup controls/passive status and original repository source remain Waiting. Optional legacy AppDatabase capture ownership is Deferred because the current Desktop/hosted profiles do not bundle HistoryPlugin and installed behavior is client-driven in both. Combined both-host R3 remains separate."
     },
     {
       "id": "R3.2.3.7",
@@ -733,17 +733,17 @@
       "id": "R3.2.3.6.2",
       "area": "Remaining History parity",
       "work": "Backup capture controls and passive status",
-      "status": "Complete",
-      "spec": "spec/src/architecture/rust-history-parity.md#ln-core-022",
-      "detail": "[Qualified native controls and retained hosted adoption](spec/records/2026-10-26-hosted-backup-controls.md): seven native/three order-liveness/one retirement/three HTTP cases, three API/19 Web cases, full 575 Rust/2,358 package/261 cold catalog/25 browser cases and strict/build/canonical 78 governance cases pass. Saved false is read before initial capture; explicit guarded selection preserves other settings; passive status is ordered behind accepted work, and lost acknowledgements reconcile without replay. Upstream History source 92b4dea6 is separately qualified; combined both-host R3 remains separate."
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "[Qualified backup controls](../.workspaces/lapis-notes-native-history-capture-20261026/spec/records/2026-10-26-native-backup-selection.md), sourceedf1d76f, passes575Rust/2358package/261coldcatalog/25browser plus strict/build/public/static/canonical78governance. Persisted selection honors saved false before capture; passive status is an ordered barrier and accepted work survives reply loss/cancellation. History92b4dea6/e714source is qualified. Combined current CORE026/main intake remains active; original-source selection is separate."
     },
     {
       "id": "R3.2.3.6.3",
       "area": "Remaining History parity",
       "work": "Original repository source selection",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/architecture/rust-history-reader.md#ln-core-016",
-      "detail": "Reuse existing original-source validation and History engine without capture, initialization or recovery."
+      "detail": "Original-source read-only parity is starting after qualified backup controls. Reuse existing source witnesses, History Owner/Policy and PreparationQueue with native-minted per-client read tokens; no capture, initialization, recovery or new engine. CORE024/SRV029/WEB075 source and host gates remain open."
     },
     {
       "id": "R3.2.3.6.4",
@@ -789,9 +789,9 @@
       "id": "R3.2.4.4",
       "area": "Native writer hosts",
       "work": "Actual hosted and Desktop editor/Tasks acceptance",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-020",
-      "detail": "After source qualification and captured-generation recovery, select thin same-client adapters in both hosts. Prove foreign dirty refusal, saved-generation handoff/rearm, retained failed/detached writers and cold/crash recovery in the real applications. Headless browser and actual native WebView acceptance remain distinct."
+      "detail": "Both staged host bindings and native/local recovery preflight are under actual application qualification. Hosted dirty-writer/Tasks/flush/yield/rearm assertions pass; final tab close currently retains an active clean claim and is being traced at the source lifetime boundary. Desktop thin transport and stopped-watch/guarded leave are prepared, with13focused leave cases passing. Actual host acceptance remains open."
     },
     {
       "id": "R3.2.4.2.1",
@@ -805,9 +805,17 @@
       "id": "R3.2.4.2.2",
       "area": "Native writer recovery presentation",
       "work": "Existing Problems discovery and explicit recovery actions",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/workspace-shell/panels/problems/core-contract.md#ln-ws-029",
-      "detail": "After native captured-state qualification, adapt retained intent discovery and guarded decisions into the App-owned diagnostic collection and existing Problems actions. No new screen, automatic discard or content recovery engine; host/cold-crash qualification remains separate."
+      "detail": "Existing Problems bridge passes39combined model/local/registry/state cases and two cold real-shell/axe stories with current qualified Markdown/Mira. Saved-file Reading review is repaired through explicit captured-leaf activation/reveal and its full source/catalog/browser gate is running. Actual host preflight remains separately open; no new recovery screen."
+    },
+    {
+      "id": "R3.2.4.1.1",
+      "area": "Native writer admission",
+      "work": "Scope noninteractive state ownership to admitted logical operations",
+      "status": "Complete",
+      "spec": "spec/src/architecture/native-editor-intents.md#ln-core-026",
+      "detail": "[Source qualification](spec/records/2026-10-26-native-state-intents.md): five exact state, 22 registry/state, 118 persistence, 1,663 API and actual conditional HTTP cases pass; complete source passes 562 Rust, 2,354 package and 261 cold catalog cases plus strict/public-build/static/spec gates. Idle clean state no longer fences another App. Interactive/foreign guards remain intact. Actual hosted and Desktop adoptions stay at their separate host gates."
     }
   ]
 }

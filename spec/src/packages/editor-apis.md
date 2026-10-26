@@ -1,5 +1,11 @@
 # Packages / Editor APIs
 
+Noninteractive logical state uses operation-scoped native intent under
+[LN-CORE-026](../architecture/native-editor-intents.md#ln-core-026). The existing
+App queue captures changes after admission and yields only after acknowledged
+conditional persistence. Editors and Mira previews keep their full-duration
+editing fence; pending/failed local transition snapshots are passive.
+
 Native hosts select the optional [editor-intent lifecycle](../architecture/native-editor-intents.md)
 through `AppStateProperties.nativeEditingIntents` or the admitted `VaultSession`.
 The public `@lapis-notes/api/native-editing-intents` entry carries generated

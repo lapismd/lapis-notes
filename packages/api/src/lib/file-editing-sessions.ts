@@ -189,6 +189,7 @@ export class FileEditingSessionRegistry {
         native: !!entry.native,
         ready: () => entry.native?.ready() ?? Promise.resolve(),
         changed: () => entry.native?.changed(),
+        idle: () => entry.native?.idle() ?? Promise.resolve(),
       },
     );
   }
