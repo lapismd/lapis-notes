@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 16:59:26 UTC",
+  "updated": "2026-10-26 17:05:17 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -733,17 +733,17 @@
       "id": "R3.2.3.6.2",
       "area": "Remaining History parity",
       "work": "Backup capture controls and passive status",
-      "status": "Working",
+      "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native persisted backup selection/passive status and source History observer changes are under focused qualification. Saved false must be honored before capture; status observers must not disable the owner. Complete source and host gates remain pending. Owning History source92b4dea6 qualifies persisted selection versus passive observer lifetime:1013Vitest/96RepositoryNode/285coldcatalog and strict/build/public/static/spec pass. [Source record](../.workspaces/lapis-plugins-native-backup-observer-20261026/spec/records/2026-10-26-native-backup-selection.md) records identical parent Zod/CSV/release-graph findings. Native focused7/HTTP3/API3/Web19 and three actual hosted controls/restore cases pass; full combined Notes gate remains active."
+      "detail": "[Qualified backup controls](../.workspaces/lapis-notes-native-history-capture-20261026/spec/records/2026-10-26-native-backup-selection.md), sourceedf1d76f, passes575Rust/2358package/261coldcatalog/25browser plus strict/build/public/static/canonical78governance. Persisted selection honors saved false before capture; passive status is an ordered barrier and accepted work survives reply loss/cancellation. History92b4dea6/e714source is qualified. Combined current CORE026/main intake remains active; original-source selection is separate."
     },
     {
       "id": "R3.2.3.6.3",
       "area": "Remaining History parity",
       "work": "Original repository source selection",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/architecture/rust-history-reader.md#ln-core-016",
-      "detail": "Reuse existing original-source validation and History engine without capture, initialization or recovery."
+      "detail": "Original-source read-only parity is starting after qualified backup controls. Reuse existing source witnesses, History Owner/Policy and PreparationQueue with native-minted per-client read tokens; no capture, initialization, recovery or new engine. CORE024/SRV029/WEB075 source and host gates remain open."
     },
     {
       "id": "R3.2.3.6.4",
