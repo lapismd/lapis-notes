@@ -184,3 +184,8 @@ The explicit Rust hosted metadata profile supplies that port on its existing
 admitted client before App startup (LN-WEB-066). Metadata compatibility reads
 retain copied Vault facade values and database/Vault event ordering under
 LN-DB-064, without adding renderer parsing or publication.
+
+Native Search App replacement reconciles the current App-owned plugin registry
+before metadata startup completes. An omitted or disabled Search declaration
+explicitly drains the retained native selection; passive detach keeps it alive.
+Enabled Search may declare after metadata-loaded without losing its owner.

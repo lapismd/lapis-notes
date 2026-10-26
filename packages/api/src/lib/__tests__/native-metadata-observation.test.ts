@@ -45,6 +45,7 @@ async function fixture() {
     contribution: null,
   }));
   const app = {
+    plugins: { plugins: new Map() },
     session: { backgroundIndexing: { call } },
     appDatabase: database,
     vault,

@@ -386,3 +386,8 @@ its owned App to Notice; native error handling keeps the existing presentation.
 LN-PKG-178 and LN-PKG-179 add opt-in exclusive creation and source-owned new-file
 intent. Existing low-level overwrite behavior and unsupported legacy hosts stay
 explicit; Deno host source remains frozen. Admission spans creation projection.
+
+Native Search App replacement reconciles the current App-owned plugin registry
+before metadata startup completes. An omitted or disabled Search declaration
+explicitly drains the retained native selection; passive detach keeps it alive.
+Enabled Search may declare after metadata-loaded without losing its owner.

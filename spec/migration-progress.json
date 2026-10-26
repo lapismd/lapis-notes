@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 03:31:29 UTC",
+  "updated": "2026-10-26 04:58:20 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Both metadata hosts are committed at Notes d133a31b and Desktop 4bcb7e09. Active in parallel: native Search adoption and replacement-App reconciliation; typed Task recovery final governance; shared hosted History controls. Tasks final source check passes 459 Rust cases, but recovery is not yet committed/adopted. R3 still requires tracked-today scheduling, both complete native writer selections and provider journeys. R4–R7 remain waiting as planned."
+      "detail": "Both metadata hosts remain committed at Notes d133a31b and Desktop 4bcb7e09. Search replacement-App API repair is independently qualified for its separate commit. Final Search 2e7f/Design Core 6f33 passes exact recovery, 261 cold catalog, all 22 hosted/standalone browser cases and full specification; hosted/Desktop adoption awaits inherited required Search source failures. Task recovery 8e09a5de and tracked-today source ad968536 are committed with 467 Rust cases; main runtime and both host adapters remain. Shared hosted History and complete native writer/scheduler selections remain. R4\u2013R7 keep their existing scope and dependencies."
     },
     {
       "id": "R4",
@@ -655,7 +655,7 @@
       "work": "Shared App observer and native Search plugin lifecycle",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Coherent shared observer](spec/records/2026-10-26-native-search-observer.md) is integrated at 0bb90ba1. [Plugins Search/Bases/CSV source](spec/records/2026-10-26-search-bases-intake.md) is committed at bd305e58: 22 exact native Search, 16 cold Search, seven exact Bases and all 284 cold catalogue cases pass, plus package checks/tests/builds, static Storybook, specification, 47 runner/composition cases and public Search artifacts. Current-headless Chromium fixes the exact final-shard disconnect without changing assertions or coverage. Existing audit/CSV-style/lock findings remain recorded. Both native Search host adoptions remain Waiting."
+      "detail": "[Search App replacement and hosted receipts](spec/records/2026-10-26-native-search-app-replacement.md): independent API repair passes all 16 exact lifecycle/34 native/1,625 API cases and the complete d4f08b8c gate: 461 Rust, 2,295 package, 261 cold catalog and all 22 browser cases. Final recovery Search 2e7f/Design Core 6f33 passes exact hosted config recovery, six focused/73 Web, strict/build, all 261 cold catalog, all 22 browser cases and full specification at b47c2e12/2a78eca9. Latest Search source has inherited required failures pending acceptance/repair, so hosted/Desktop adoption remains uncommitted; configured-provider coverage, defaults and declarative Search Settings remain separate."
     }
   ]
 }

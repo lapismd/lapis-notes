@@ -38,6 +38,8 @@ export class NativeBackgroundIndexingSession
 {
   private isDetached = false;
   private searchDeclared = false;
+  private searchVersion = 0;
+  private searchControl: Promise<void> = Promise.resolve();
   private readonly pending = new Map<string, Promise<unknown>[]>();
   private readonly contributions = new Map<
     string,
@@ -58,6 +60,7 @@ export class NativeBackgroundIndexingSession
     selection: SearchIndexingSelection,
   ): Promise<ContributionStatus> {
     if (this.detached) throw new Error("Native indexing observer is detached");
+    this.searchVersion += 1;
     this.searchDeclared = true;
     const contribution = await this.register("search", {
       kind: "select_search",
@@ -70,10 +73,10 @@ export class NativeBackgroundIndexingSession
 
   async disableSearch(): Promise<void> {
     if (this.detached) return;
-    // A failed response does not prove selection was rejected. Explicit disable
-    // is a separate drain request, after all attempted declarations settle.
-    await Promise.allSettled(this.pending.get("search") ?? []);
-    await this.port.call({ kind: "disable_search" });
+    // Controls share one order even when selection's response is uncertain.
+    const version = ++this.searchVersion;
+    await this.callSearch({ kind: "disable_search" });
+    if (version !== this.searchVersion) return;
     this.searchDeclared = false;
     this.contributions.delete("search");
     this.pending.delete("search");
@@ -114,7 +117,9 @@ export class NativeBackgroundIndexingSession
     owner: string,
     command: IndexingCommand,
   ): Promise<ContributionStatus | null> {
-    const operation = this.port.call(command).then(({ contribution }) => {
+    const request =
+      owner === "search" ? this.callSearch(command) : this.port.call(command);
+    const operation = request.then(({ contribution }) => {
       if (!contribution || this.detached) return contribution;
       this.contributions.set(contribution.projection_id, {
         owner,
@@ -134,6 +139,19 @@ export class NativeBackgroundIndexingSession
     // Activation/load observes failures; do not create an unhandled rejection
     // while a synchronous plugin declaration is still returning its query handle.
     void operation.catch(() => {});
+    return operation;
+  }
+
+  private callSearch(command: IndexingCommand): Promise<IndexingValue> {
+    const operation = this.searchControl.then(() => {
+      if (this.detached)
+        throw new Error("Native indexing observer is detached");
+      return this.port.call(command);
+    });
+    this.searchControl = operation.then(
+      () => undefined,
+      () => undefined,
+    );
     return operation;
   }
 
@@ -173,6 +191,14 @@ export class NativeBackgroundIndexingSession
     const selected = await this.port.call({ kind: "select_metadata" });
     if (!selected.status)
       throw new Error("Native metadata owner was not selected");
+    await this.ready();
+    // Search declares after metadata-loaded. Its owning plugin can already be
+    // enabled; a replacement App without that plugin must retire the old owner.
+    if (
+      !this.searchDeclared &&
+      !this.app.plugins.plugins.get("search")?.enabled
+    )
+      await this.disableSearch();
     await this.ready();
     await this.refresh(false);
   }

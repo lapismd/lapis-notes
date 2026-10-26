@@ -352,3 +352,9 @@ client MUST NOT publish Search documents, chunks or reconciliation checkpoints;
 queries retain the existing AppDatabase contract.
 Progress MUST retain native failures and pending convergence without announcing
 the Search index ready.
+
+## LN-DB-065 — Search selection during App replacement
+
+<a id="ln-db-065"></a>
+
+**Requirement.** A new native App whose Search plugin is absent, disabled or failed MUST explicitly drain retained native Search before completing metadata startup. An enabled plugin awaiting metadata-loaded declaration MUST retain its owner. Search controls MUST preserve declaration/disable order, including a late enable during startup drain. Passive App detach MUST retain native work; failed drains MUST remain visible without renderer fallback.
