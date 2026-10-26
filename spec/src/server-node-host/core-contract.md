@@ -302,3 +302,13 @@ client and the generated History-index route. App construction does not select
 native work, create another attachment or fall back after failure. This changes
 neither Node serving nor ordinary Rust defaults; complete Repository reader and
 screen adoption remain a separate R3 gate.
+
+## LN-SRV-026 — Admitted Rust Repository transport
+
+<a id="ln-srv-026"></a>
+
+**Requirement.** Rust hosted Repository methods MUST reuse the authenticated
+vault attachment, protocol, Origin and CSRF policy. Raw text frames MUST obey
+native byte limits and method allowlisting. Lease retirement during an await
+MUST prevent data delivery. Unknown methods, malformed frames and foreign vaults
+MUST fail without fallback to the Node companion or browser-supplied authority.

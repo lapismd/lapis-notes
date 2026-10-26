@@ -5,6 +5,7 @@ mod browser_auth;
 mod credentials;
 mod database;
 mod history_indexing;
+mod history_reader;
 mod indexing;
 mod lifetime;
 mod physical;

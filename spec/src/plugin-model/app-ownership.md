@@ -1,5 +1,10 @@
 # Plugin Model / App ownership
 
+The optional hosted Repository binding is scoped to the explicitly owned App
+before plugin loading. Plugin teardown drains its read handles before the binding
+and native attachment are released. It neither assigns a compatibility App nor
+changes legacy HistoryPlugin capture or any ordinary hosted default.
+
 LN-PKG-185 registers core file-listing settings on the owned App before plugins.
 Enabling or disabling a plugin cannot own or remove that shared policy or its
 Workspace settings list.

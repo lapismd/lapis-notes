@@ -51,7 +51,7 @@ impl BackupStorage {
         }
         Ok(())
     }
-    pub(super) fn history_source(
+    pub(in crate::services) fn history_source(
         &self,
         vault: &VaultService,
     ) -> Result<jj_vault::search::NativeHistory> {
@@ -76,6 +76,18 @@ impl BackupStorage {
             binding: storage.binding().map_err(|_| failure())?,
             exclusions: vec![],
         })
+    }
+    pub(in crate::services) fn history_cache(
+        &self,
+        vault: &VaultService,
+    ) -> Result<std::path::PathBuf> {
+        self.root.verify_physical_root()?;
+        self.validate_vault(&vault.lock()?.root)?;
+        Ok(self
+            .root
+            .path()
+            .join(".reader-cache")
+            .join(vault.id.to_string()))
     }
     pub(super) fn start(&self, vault: &Arc<VaultService>) -> Result<Owner> {
         let root = {

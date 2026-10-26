@@ -1,3 +1,4 @@
+import type { Command } from "@lapismd/jj-history";
 import {
   PROTOCOL_MAJOR,
   type ClientDescriptor,
@@ -124,6 +125,32 @@ export class RustVaultClient {
   async historyIndex(command: HistoryIndexCommand): Promise<HistoryIndexValue> {
     this.requireOpen();
     return this.host.json(`${this.path}/history-index`, "POST", command);
+  }
+
+  async history(command: Command, frame: string): Promise<string> {
+    this.requireOpen();
+    try {
+      const response = await this.host.response(
+        `${this.path}/history/${command}`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: frame,
+        },
+      );
+      const text = await response.text();
+      this.requireOpen();
+      return text;
+    } catch (error) {
+      if (
+        error instanceof RustHostError &&
+        error.details &&
+        typeof error.details === "object" &&
+        "history" in error.details
+      )
+        throw error.details.history;
+      throw error;
+    }
   }
 
   close(): Promise<void> {

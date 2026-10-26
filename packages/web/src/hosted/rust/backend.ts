@@ -1,3 +1,5 @@
+import { HistoryClient } from "@lapismd/jj-history";
+import { createHostedRepository } from "../../history/services";
 import type { HostedBackend } from "../backend";
 import { RustHttpClient } from "./client";
 import { RustDatabaseProvider } from "./database-provider";
@@ -64,6 +66,14 @@ export function createRustHostedBackend(
       const adapter = new RustVaultAdapter(client, profile.name);
       return {
         adapter,
+        repositoryFactory: nativeHistory
+          ? () =>
+              createHostedRepository(
+                new HistoryClient(profile.id, {
+                  invoke: (command, frame) => client.history(command, frame),
+                }),
+              )
+          : undefined,
         backgroundIndexing: nativeMetadata
           ? { call: (command) => client.indexing(command) }
           : undefined,

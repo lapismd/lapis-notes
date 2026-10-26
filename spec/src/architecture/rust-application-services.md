@@ -20,7 +20,7 @@ capability handles, never renderer or HTTP values. Watch/resource/profile policy
 remains in Desktop while the common engine owns checked IO and publication.
 
 [Native indexing](rust-indexing-lifetime.md) stages qualified Markdown/Canvas metadata and Search, Tasks and Docs on one admitted worker with explicit client-writer fencing; ordered Task lifecycle, typed cold recovery and explicit default-daily tracked-today selection are source-qualified separately.
-Guarded Task transformations reuse the existing writer and shared private turn-record IO, retaining pinned before/desired bytes and bounded typed cold failures; [History scheduling](rust-history-indexing-lifetime.md) retains paused/cold reads, final backup notifications and shared admitted transport.
+Guarded Task transformations reuse the existing writer and shared private turn-record IO, retaining pinned before/desired bytes and bounded typed cold failures; [History scheduling](rust-history-indexing-lifetime.md) retains paused/cold reads, final backup notifications and shared admitted transport. [Admitted History reads](rust-history-reader.md) reuse the shared native engine and scoped reader lifetime.
 Custom processors, complete provider qualification and both complete host selections remain gated.
 
 The core boundary audit runs in normal checks and canonical specification checks.

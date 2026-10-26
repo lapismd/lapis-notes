@@ -11,6 +11,7 @@ export class RustHostError extends Error {
     readonly code: string,
     message: string,
     readonly status: number,
+    readonly details?: unknown,
   ) {
     super(message);
     this.name = "RustHostError";
@@ -55,6 +56,7 @@ export class RustHttpClient {
         error?.code ?? "IO",
         error?.message ?? `Server request failed (${response.status})`,
         response.status,
+        error,
       );
     }
     return response;

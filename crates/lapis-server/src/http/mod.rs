@@ -3,6 +3,7 @@ mod browser;
 mod cookies;
 mod database;
 mod history_index;
+mod history_reader;
 mod identity;
 mod indexing;
 pub use identity::Authentication;
@@ -89,6 +90,10 @@ pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::R
         .route(
             "/api/v3/clients/{client}/indexing",
             post(indexing::call).layer(DefaultBodyLimit::max(16 * 1024)),
+        )
+        .route(
+            "/api/v3/clients/{client}/history/{method}",
+            post(history_reader::call).layer(DefaultBodyLimit::max(128 * 1024)),
         )
         .route(
             "/api/v3/clients/{client}/history-index",

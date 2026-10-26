@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 11:32:25 UTC",
+  "updated": "2026-10-26 13:10:51 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -391,7 +391,7 @@
       "work": "History-index scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Shared indexed History controls and admitted HTTP source are committed at 7cbb8713; full 470 Rust, 2,289 package, 261 cold catalog, 22 actual browser and strict/build/specification gates pass. Native owner and Desktop 05d0e8ab were previously qualified. Hosted App/session observer plumbing and retained Repository reader/screen, Desktop shared adapter and combined both-host qualification remain active."
+      "detail": "Shared controls7cbb8713, observer214917c8 and hosted App/session port2d250f66 are qualified. [Hosted read-only Repository](spec/records/2026-10-26-hosted-repository-reader.md) now qualifies native scope/read ownership and retained diff/Search/blame with full514native/2313package/261coldcatalog/23browser and canonical gates. Desktop shared-adapter/intake and combined both-host qualification remain separate; legacy capture, guarded restore and original-source parity remain explicitly Waiting atR3.2.3.6."
     },
     {
       "id": "R1.3.9.1",
@@ -685,9 +685,9 @@
       "id": "R3.2.3.5",
       "area": "Hosted Repository adoption",
       "work": "Admitted native reader and retained Repository read/search/blame screen",
-      "status": "Working",
-      "spec": "spec/src/architecture/rust-history-indexing-lifetime.md#ln-core-011",
-      "detail": "Reuse preserved hosted-services RepositoryFactory/lifetime/screen and jj-history-service version1 frames through the existing CoreClient; no companion, replacement screen, fake navigation or renderer index scheduler. Canonical read/lifetime contract precedes implementation; actual retained hosted screen and passive/cold indexing acceptance remain required."
+      "status": "Complete",
+      "spec": "spec/src/architecture/rust-history-reader.md#ln-core-016",
+      "detail": "[Qualified read-only hosted Repository](spec/records/2026-10-26-hosted-repository-reader.md): shared native reader/lifetime, lossless same-client HTTP and private application-profile registration reuse the retained revision/diff/Search/blame screens. All514native/2313package/261coldcatalog/23browser pass, with unchanged7nativeignores/1DenoSkip. Ten canonical lanes and78governance regressions close the two final mapped-doc findings. Ordinary defaults, SDK publication and R3.2.3.6 are separate."
     },
     {
       "id": "R3.2.3.6",

@@ -3015,6 +3015,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "jj-history-service"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "jj-store-jj",
+ "jj-store-model",
+ "schemars",
+ "serde",
+ "serde_json",
+ "tokio",
+ "uuid",
+]
+
+[[package]]
 name = "jj-lib"
 version = "0.45.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3309,12 +3323,15 @@ dependencies = [
 name = "lapis-app-core"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "base64 0.22.1",
  "cap-std",
  "cap-tempfile",
  "chrono",
  "icu_collator",
+ "jj-history-service",
  "jj-store-jj",
+ "jj-store-model",
  "jj-vault",
  "lapis-ai-service",
  "lapis-app-protocol",

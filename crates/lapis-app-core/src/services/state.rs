@@ -20,6 +20,7 @@ pub struct VaultService {
     pub(super) backup_storage: Option<Arc<super::BackupStorage>>,
     pub(super) backup: Mutex<Option<Arc<super::backup::Owner>>>,
     pub(super) history_indexing: Mutex<Option<Arc<super::backup::history::Owner>>>,
+    pub(super) history_reader: Mutex<Option<Arc<super::history::Owner>>>,
     pub(super) close_gate: Mutex<()>,
     pub(super) task_lifecycle: Mutex<()>,
     pub(super) turn_storage: Option<Arc<super::TurnStorage>>,
@@ -104,6 +105,7 @@ impl VaultService {
             backup_storage: None,
             backup: Mutex::new(None),
             history_indexing: Mutex::new(None),
+            history_reader: Mutex::new(None),
             close_gate: Mutex::new(()),
             task_lifecycle: Mutex::new(()),
             turn_storage: None,
@@ -144,6 +146,7 @@ impl VaultService {
             }
             state.begin_close();
         }
+        self.finish_history_reader()?;
         self.finish_history_indexing()?;
         self.finish_indexing()?;
         let mut state = self.lock()?;

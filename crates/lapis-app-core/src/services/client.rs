@@ -42,8 +42,9 @@ impl Client {
         operations::write(&state, path, text, expected, Some(self.id))
     }
 }
-impl Drop for Client {
-    fn drop(&mut self) {
+impl Client {
+    /// Native attachment retirement fences retained callers before reader drain.
+    pub fn detach(&self) -> Result<()> {
         let mut state = self.vault.state.lock().unwrap_or_else(|e| e.into_inner());
         state.clients.remove(&self.id);
         state.editors.retain(|_, editor| {
@@ -53,5 +54,12 @@ impl Drop for Client {
             editor.detached = true;
             editor.dirty
         });
+        drop(state);
+        self.vault.revoke_history_reader(self.id)
+    }
+}
+impl Drop for Client {
+    fn drop(&mut self) {
+        let _ = self.detach();
     }
 }

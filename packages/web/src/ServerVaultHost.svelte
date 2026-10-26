@@ -400,6 +400,7 @@
         pluginAssetServer={prepared.pluginAssetServer}
         pluginDistributionOptions={prepared.pluginDistributionOptions}
         nativeChat={prepared.nativeChat}
+        repositoryFactory={prepared.repositoryFactory}
         onReady={() => (hostState = "workspace")}
         onOpenRecent={async (profile) => {
           const row = vaults.find((vault) => vault.id === profile.id);
