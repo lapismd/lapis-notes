@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 15:49:25 UTC",
+  "updated": "2026-10-26 15:51:32 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -799,7 +799,7 @@
       "work": "Captured-state recovery and discard contract",
       "status": "Source complete",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-025",
-      "detail": "[Qualified captured-state recovery](spec/records/2026-10-26-native-intent-recovery.md): seven exact recovery, ten original intents and all51HTTP cases pass. Full combined cohort passes561Rust/2349package/261coldcatalog/24browser, strict/build/publicpack/static and canonical78governance gates. Legacy ID-only managed bypasses are refused. Existing Problems and both actual host adoptions remain separate."
+      "detail": "[Qualified captured-state recovery](spec/records/2026-10-26-native-intent-recovery.md): seven exact recovery, ten original intents and all51HTTP cases pass. Full combined cohort passes561Rust/2349package/261coldcatalog/24browser, strict/build/publicpack/static and canonical78governance gates. Legacy ID-only managed bypasses are refused. Existing Problems and both actual host adoptions remain separate. Adopted in Notes main atb55e03c5; [main intake](spec/records/2026-10-26-editor-recovery-main-intake.md) preserves all qualified runtime/protocol/test/configuration bytes."
     },
     {
       "id": "R3.2.4.2.2",
