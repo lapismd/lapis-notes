@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 17:21:49 UTC",
+  "updated": "2026-10-26 17:22:00 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -816,6 +816,14 @@
       "status": "Complete",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-026",
       "detail": "[Source qualification](spec/records/2026-10-26-native-state-intents.md): five exact state, 22 registry/state, 118 persistence, 1,663 API and actual conditional HTTP cases pass; complete source passes 562 Rust, 2,354 package and 261 cold catalog cases plus strict/public-build/static/spec gates. Idle clean state no longer fences another App. Interactive/foreign guards remain intact. Actual hosted and Desktop adoptions stay at their separate host gates."
+    },
+    {
+      "id": "R3.2.4.6",
+      "area": "Native writer protected refresh",
+      "work": "Reconcile clean producer saved text before releasing a native handoff",
+      "status": "Working",
+      "spec": "spec/src/architecture/native-editor-intents.md#ln-core-028",
+      "detail": "Exact real Editor goes from one stale-baseline failure to passing; 28 native/state,118 persistence and1686API cases plus strict/public build/pack pass. The actual hosted editor/Tasks close now passes while preserving drafts, foreign fences and same identities. Complete coherent source and Markdown saved-refresh qualification remain pending; both host aggregate gates are separate."
     }
   ]
 }

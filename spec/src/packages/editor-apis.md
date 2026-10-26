@@ -12,6 +12,10 @@ The public `@lapis-notes/api/native-editing-intents` entry carries generated
 transport DTOs and read-only saved-snapshot access. Existing generic writer
 registrations add native input protection and saved-text authority when that
 port is selected; ordinary browser writers retain their existing behavior.
+Interactive producers may expose `native.refreshSavedText` to reconcile saved
+bytes while their existing local protection remains held. The registry invokes
+it only after confirmed handoff and native rearm, never as a content writer or
+an out-of-guard conflict fallback (LN-CORE-028).
 
 LN-ARCH-137 and LN-ARCH-138 define guarded atomic `Editor.loadDocument` and
 publication cancellation. Text file views use that boundary while independent

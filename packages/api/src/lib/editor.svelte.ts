@@ -415,6 +415,23 @@ export class Editor extends EventDispatcher<{
               document.text
                 ? document.text.baseline
                 : (document.saves.latest?.content ?? initialText),
+            refreshSavedText: (contents) => {
+              if (document.loading || document.saves.dirty || !document.text)
+                throw new Error(
+                  "Native editor refresh requires clean conditional text authority",
+                );
+              document.text.acceptBaseline(contents);
+              if (
+                !this.destroyed &&
+                this.#document === document &&
+                contents !== null
+              ) {
+                if (this.getValue() !== contents)
+                  this.#replaceContent(contents);
+                this.data = contents;
+                this.onChange(contents);
+              }
+            },
           },
           get dirty() {
             return !!document.loading || document.saves.dirty;

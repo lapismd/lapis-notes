@@ -353,6 +353,27 @@ async function editorFixture() {
 }
 
 describe("actual App writer producers", () => {
+  it("closes a real editor after a protected native mutation without replaying old saved text", async () => {
+    const f = await editorFixture();
+    await f.editor.loadDocument(f.file, () => f.adapter.read("note.md"));
+    try {
+      await f.native.registry.guard("note.md", async () => {
+        await f.adapter.write("note.md", "native task saved text");
+        f.native.text = "native task saved text";
+      });
+      await expect(
+        f.native.registry.guard("note.md", async () => {
+          f.editor.destroy();
+        }),
+      ).resolves.toBeUndefined();
+      await f.native.registry.afterMutations(async () => {});
+      expect(f.native.state).toBeUndefined();
+      expect(await f.adapter.read("note.md")).toBe("native task saved text");
+    } finally {
+      f.editor.destroy();
+    }
+  });
+
   it("drains an admitted state update before native clean retirement", async () => {
     const f = await editorFixture();
     let admit!: () => void;

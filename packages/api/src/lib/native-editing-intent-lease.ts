@@ -28,6 +28,10 @@ export class NativeEditingIntentLease {
     return this.#state === "retired";
   }
 
+  get yielded(): boolean {
+    return this.#state === "yielded";
+  }
+
   #valid(value: EditingIntentValue): EditingIntentState {
     if (
       value.kind !== "state" ||
