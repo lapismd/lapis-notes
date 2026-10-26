@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 00:25:03 UTC",
+  "updated": "2026-10-26 01:23:31 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -631,7 +631,7 @@
       "work": "Native daily provider creation and daily-before-rolling Task coordination",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "Following qualified one-file Task intake, the Tasks lane is mapping retained API daily-document and Tasks occurrence/repository policy. Reuse the existing service owner and guarded writer for deterministic provider resolution, creation and two-file ordering/idempotence. Qualify ordinary and recurrence outcomes, conflicts and cold recovery before either host selection."
+      "detail": "[Daily policy and registry](spec/records/2026-10-26-native-task-coordination.md) is source-qualified at 220b5cd7. [Guarded physical lookup/ensure](spec/records/2026-10-26-native-daily-document-io.md) is source-qualified: ten exact native integration cases, three injected publication races, all 422 Rust cases, complete check/test/build and specification/78 governance gates pass. Daily observation processing, ordered two-file writes, partial/cold recovery and existing-owner scheduling remain before either host selection."
     }
   ]
 }

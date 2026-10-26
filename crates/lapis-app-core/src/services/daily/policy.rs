@@ -32,6 +32,16 @@ pub fn plan_daily_document(
     settings: &DailyDocumentSettings,
     context: &DailyFormatContext,
 ) -> Result<Option<DailyDocumentPlan>, DailyDocumentError> {
+    let existing = locate(date, candidates)?;
+    if existing.is_some() || !create {
+        return Ok(existing);
+    }
+    create_plan(date, candidates, settings, context).map(Some)
+}
+pub(super) fn locate(
+    date: &str,
+    candidates: &[DailyDocumentCandidate],
+) -> Result<Option<DailyDocumentPlan>, DailyDocumentError> {
     format::date(date)?;
     let canonical = candidates
         .iter()
@@ -54,9 +64,14 @@ pub fn plan_daily_document(
             path: candidate.path.clone(),
         }));
     }
-    if !create {
-        return Ok(None);
-    }
+    Ok(None)
+}
+fn create_plan(
+    date: &str,
+    candidates: &[DailyDocumentCandidate],
+    settings: &DailyDocumentSettings,
+    context: &DailyFormatContext,
+) -> Result<DailyDocumentPlan, DailyDocumentError> {
     let folder = crate::text::trim(&settings.folder).replace('\\', "/");
     let folder = folder.trim_matches('/');
     if folder.is_empty()
@@ -77,8 +92,8 @@ pub fn plan_daily_document(
             "Cannot create daily note for {date}: {path} already exists without matching daily-note front matter."
         )));
     }
-    Ok(Some(DailyDocumentPlan::Create {
+    Ok(DailyDocumentPlan::Create {
         path,
         text: format!("---\ntype: daily-note\ndate: {date}\n---\n\n# {date}\n"),
-    }))
+    })
 }

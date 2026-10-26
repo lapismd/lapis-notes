@@ -4,7 +4,7 @@ use crate::{
 };
 use lapis_app_protocol::ErrorCode;
 
-pub(super) fn collect(
+pub(in crate::services) fn collect(
     root: &VaultRoot,
     cancelled: impl Fn() -> bool,
 ) -> Result<Option<Vec<String>>> {

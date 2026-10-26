@@ -149,6 +149,17 @@ write intent; source capture cannot imply parity for another runtime's Intl
 defaults. The initial source parity gate uses its captured en-US Gregorian
 context and does not select application hosts.
 
+Before provider-owner selection, native `Work` MAY qualify explicit default
+lookup/ensure operations. Those operations MUST use the existing visible
+manifest and physical-root admission, bound retained snapshots to 32 MiB and
+recheck their inventory and exact bytes before creation. Existing canonical
+targets remain read-only lookup results. New targets MUST use the admitted
+missing-file writer and existing dirty/alias guards. These helpers grant no
+renderer-selected provider, scheduler or host default. Creation outside the
+visible native inventory contract MUST remain unavailable. The
+[default IO record](../../records/2026-10-26-native-daily-document-io.md) tracks
+this physical boundary separately from provider-owner and host selection.
+
 An admitted Task operation MUST verify its original Task version and source
 plan before the first daily mutation. It MUST resolve the plan's occurrence
 date, combine daily materialization and optional completion within one guarded

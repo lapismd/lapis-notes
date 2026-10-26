@@ -1,10 +1,10 @@
 mod docs;
-mod manifest;
+pub(super) mod manifest;
 mod occurrences;
 mod owner;
 mod properties;
 mod reconcile;
-mod records;
+pub(super) mod records;
 mod search;
 mod tasks;
 
