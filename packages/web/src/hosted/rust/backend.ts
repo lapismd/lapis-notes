@@ -1,5 +1,6 @@
 import { HistoryClient } from "@lapismd/jj-history";
 import { createHostedRepository } from "../../history/services";
+import { createHostedRestore } from "../../history/restore";
 import type { HostedBackend } from "../backend";
 import { RustHttpClient } from "./client";
 import { RustDatabaseProvider } from "./database-provider";
@@ -72,6 +73,9 @@ export function createRustHostedBackend(
                 new HistoryClient(profile.id, {
                   invoke: (command, frame) => client.history(command, frame),
                 }),
+                createHostedRestore((command) =>
+                  client.repositoryRestore(command),
+                ),
               )
           : undefined,
         backgroundIndexing: nativeMetadata

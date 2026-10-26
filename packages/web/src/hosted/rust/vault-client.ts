@@ -14,6 +14,8 @@ import {
   type HistoryIndexValue,
   type IndexingCommand,
   type IndexingValue,
+  type RepositoryRestoreCommand,
+  type RepositoryRestoreValue,
 } from "../../../../../crates/lapis-app-protocol/bindings/protocol";
 import { RustHostError, type RustHttpClient } from "./client";
 
@@ -125,6 +127,19 @@ export class RustVaultClient {
   async historyIndex(command: HistoryIndexCommand): Promise<HistoryIndexValue> {
     this.requireOpen();
     return this.host.json(`${this.path}/history-index`, "POST", command);
+  }
+
+  async repositoryRestore(
+    command: RepositoryRestoreCommand,
+  ): Promise<RepositoryRestoreValue> {
+    this.requireOpen();
+    const result = await this.host.json<RepositoryRestoreValue>(
+      `${this.path}/repository-restore`,
+      "POST",
+      command,
+    );
+    this.requireOpen();
+    return result;
   }
 
   async history(command: Command, frame: string): Promise<string> {

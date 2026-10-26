@@ -10,6 +10,7 @@ mod indexing;
 mod lifetime;
 mod native_tasks;
 mod physical;
+mod repository_restore;
 mod streams;
 mod support;
 

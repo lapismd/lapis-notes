@@ -3,8 +3,8 @@
 The R3.2.3.5 intake reuses `jj-history-service` and the retained Repository
 screen. Core owns one bounded reader executor per selected vault; HTTP and
 workspace views are transport and observation adapters. This slice reads the
-managed backup source only. Original-source parity, legacy revision capture
-and guarded restore remain R3.2.3.6, Waiting.
+managed backup source only. Original-source selection and guarded restore remain
+[R3.2.3.6](rust-history-parity.md); optional legacy revision capture is Deferred.
 
 ## LN-CORE-016 — Immutable admitted Repository reads
 

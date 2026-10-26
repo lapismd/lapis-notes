@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 14:41:11 UTC",
+  "updated": "2026-10-26 15:06:09 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Shared source, both Search hosts, Desktop History and the hosted Repository reader are integrated and qualified. [Current reader/Tasks cohort](spec/records/2026-10-26-reader-current-intake.md) passes 537 Rust, 2,326 package, 261 cold catalog, 23 browser and full specification gates. Actual Tasks hosts, native editor intents and guarded recovery, repository restore, backup settings/status and original-source selection remain active. Provider/timezone and unattended acceptance precede R3 closure; R4-R7 retain their original dependencies. The portable Mira input lease is now source-qualified and committed at c5d1e4b6: 504 package, 170 cold catalog and 60 cold browser cases plus full public/source/specification gates pass. Markdown binding and actual host ownership remain separate. Active lanes: the shared editor foundation is closing its final source checks, captured-state recovery and legacy bypass guards are under qualification, source Markdown binding has three exact passes, actual Tasks composition/recovery is being rerun, and both retained restore/cold-ack browser journeys pass before aggregate History closure. These active slices are not yet adopted in main."
+      "detail": "Shared source, both Search hosts, Desktop History, hosted Repository reads and guarded hosted restore are qualified. [Restore source qualification](spec/records/2026-10-26-hosted-repository-restore.md) passes 543 Rust, 2,332 package, 261 cold catalog, 24 browser and complete canonical/78 governance cases; main intake preserves identical product/test/config bytes. Actual Tasks hosts, native editor intents/recovery, backup controls/status, original-source selection and final provider/timezone/unattended acceptance remain active. Mira input lease c5d1e4b6 is source-qualified; Markdown binding and host adoption remain separate. R4-R7 retain their original dependencies."
     },
     {
       "id": "R4",
@@ -391,7 +391,7 @@
       "work": "History-index scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Shared indexed History controls, [App/hosted ports](spec/records/2026-10-26-hosted-history-adapter.md), the [admitted Repository reader](spec/records/2026-10-26-hosted-repository-reader.md) and [coherent current Tasks intake](spec/records/2026-10-26-reader-current-intake.md) are qualified. Desktop M16.6 is adopted at fa13c1ce with all native/bundle/catalog gates. Remaining current-profile parity is guarded restore, backup settings/status and original-source selection under R3.2.3.6. The optional legacy AppDatabase capture scheduler is outside the default Desktop profile. Full R3/provider and default cutover stay open; historical source evidence remains in the child rows."
+      "detail": "Indexed History, public App ports, admitted retained Repository reads and guarded hosted restore are committed and qualified. Desktop M16.6 is adopted at fa13c1ce. [Restore evidence](spec/records/2026-10-26-hosted-repository-restore.md) includes both real restore/cold-acknowledgement journeys, saved-byte preservation and complete source/browser/specification closure. Remaining current-profile parity is backup controls/status/passive observation and original-source selection. Optional legacy AppDatabase capture is explicitly Deferred outside the current profile. Complete R3/provider and default cutover remain open."
     },
     {
       "id": "R1.3.9.1",
@@ -692,10 +692,10 @@
     {
       "id": "R3.2.3.6",
       "area": "Remaining History parity",
-      "work": "Guarded repository restore, backup settings/status and original source",
+      "work": "Guarded restore, backup controls and original repository source",
       "status": "Working",
-      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Current Desktop uses jj-vault capture and Repository screens; required parity reuses those engines for guarded restore, backup selection/status/passive observation and original .jj source. The restore lane is active with exact native/HTTP/retained-screen checks; remaining source and full host gates stay open. Optional legacy AppDatabase HistoryPlugin capture ownership is outside both current default profiles and deferred; database-only storage remains available. The reader slice does not close these gates."
+      "spec": "spec/src/architecture/rust-history-parity.md#ln-core-023",
+      "detail": "Guarded native file/vault restore and retained hosted review/recovery are qualified atR3.2.3.6.1. Required backup controls/passive status and original repository source remain Waiting. Optional legacy AppDatabase capture ownership is Deferred because the current Desktop/hosted profiles do not bundle HistoryPlugin and installed behavior is client-driven in both. Combined both-host R3 remains separate."
     },
     {
       "id": "R3.2.3.7",
@@ -720,6 +720,38 @@
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-task-host-port.md#ln-core-015",
       "detail": "[English default daily source](spec/records/2026-10-26-native-daily-locale-parity.md) preserves current en-US 7/4 and qualifies en-GB 1/4 plus declared legacy-Intl en-US 7/1 with 200 filenames, 45 provider flows and 19 registry traces per context, plus 16 focused physical IO cases. All 12 exact native cases, five adapter context cases, three TypeScript replay cases and all-context HTTP journal/IO pass. Complete source gates pass 489 Rust, 2,266 package, 261 cold Notes catalog and 2,864 Tasks units/27 Rust/62 cold catalog cases. No transport, arbitrary-provider or default change. Coherent API/host adoption, actual WebView, timezone/day-boundary and installed-plugin integrity and native host acceptance remain open. Final source document/static receipts accompany the qualified commit."
+    },
+    {
+      "id": "R3.2.3.6.1",
+      "area": "Remaining History parity",
+      "work": "Guarded file/vault restore and retained review",
+      "status": "Complete",
+      "spec": "spec/src/architecture/rust-history-parity.md#ln-core-023",
+      "detail": "[Qualified guarded Repository restore](spec/records/2026-10-26-hosted-repository-restore.md): all6 exact native/13 adapter, full543Rust/2332package/261coldcatalog/24browser pass, including actual lost acknowledgement/cold recovery/exact receipt retry without overwriting newer saved files. Complete root/strict/build and canonical78governance pass; final two mapped-chapter findings are repaired without product changes. Both-host combined R3 remains separate."
+    },
+    {
+      "id": "R3.2.3.6.2",
+      "area": "Remaining History parity",
+      "work": "Backup capture controls and passive status",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
+      "detail": "Reuse existing native selection/settings/status and retain passive lifetime; no new engine."
+    },
+    {
+      "id": "R3.2.3.6.3",
+      "area": "Remaining History parity",
+      "work": "Original repository source selection",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-history-reader.md#ln-core-016",
+      "detail": "Reuse existing original-source validation and History engine without capture, initialization or recovery."
+    },
+    {
+      "id": "R3.2.3.6.4",
+      "area": "Remaining History parity",
+      "work": "Optional legacy database History capture ownership",
+      "status": "Deferred",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "Current Desktop and hosted profile do not bundle the optional HistoryPlugin; installed behavior stays client-dependent in both. A new native scheduler is separately scoped functionality."
     }
   ]
 }
