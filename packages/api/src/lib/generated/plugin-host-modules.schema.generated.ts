@@ -479,6 +479,19 @@ export const pluginHostModuleRegistry = {
     "specifier": "@lapis-notes/api/metadata-value",
     "version": "0.1.4"
   },
+  "@lapis-notes/api/native-tasks": {
+    "entry": "@lapis-notes/api/native-tasks",
+    "moduleId": "lapis-notes-api-native-tasks",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/native-tasks",
+    "version": "0.1.4"
+  },
   "@lapis-notes/api/native-turns": {
     "entry": "@lapis-notes/api/native-turns",
     "moduleId": "lapis-notes-api-native-turns",

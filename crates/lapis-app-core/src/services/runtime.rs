@@ -12,6 +12,7 @@ use uuid::Uuid;
 pub struct Runtime {
     registry: Mutex<Registry>,
     storage: Option<Arc<DatabaseStorage>>,
+    tasks: Option<Arc<super::TaskStorage>>,
     backup: Option<Arc<super::BackupStorage>>,
     turns: Option<Arc<super::TurnStorage>>,
 }
@@ -22,6 +23,10 @@ struct Registry {
     roots: HashMap<(u64, u64), Uuid>,
 }
 impl Runtime {
+    pub fn with_tasks(mut self, storage: super::TaskStorage) -> Self {
+        self.tasks = Some(Arc::new(storage));
+        self
+    }
     pub fn with_turns(mut self, storage: super::TurnStorage) -> Self {
         self.turns = Some(Arc::new(storage));
         self
@@ -62,6 +67,9 @@ impl Runtime {
         if let Some(storage) = &self.backup {
             storage.validate_vault(&root)?;
         }
+        if let Some(storage) = &self.tasks {
+            storage.validate_vault(&root)?;
+        }
         if let Some(storage) = &self.turns {
             storage.validate_vault(&root)?;
         }
@@ -85,6 +93,7 @@ impl Runtime {
         let mut vault = VaultService::new(id, root, self.storage.clone());
         vault.backup_storage = self.backup.clone();
         vault.turn_storage = self.turns.clone();
+        vault.task_storage = self.tasks.clone();
         let vault = Arc::new(vault);
         registry.roots.insert(identity, id);
         registry.vaults.insert(id, vault.clone());

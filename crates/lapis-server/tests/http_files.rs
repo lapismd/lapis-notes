@@ -5,6 +5,7 @@ mod browser_auth;
 mod credentials;
 mod database;
 mod lifetime;
+mod native_tasks;
 mod physical;
 mod streams;
 mod support;

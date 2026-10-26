@@ -21,7 +21,7 @@ remains in Desktop while the common engine owns checked IO and publication.
 
 [Native indexing](rust-indexing-lifetime.md) stages qualified Markdown parsers, Tasks, Docs and Search on one admitted owner, with daily provider/formatting policy, guarded default IO, daily observations, ordered lifecycle and typed cold Task recovery qualified before explicit default-daily tracked-today selection; both native host adoptions remain separate gates.
 Guarded Task transformations reuse the existing native writer; Task recovery shares private record IO with turns, pins before/desired bytes and retains bounded cold failures in separately typed stages. [History scheduling](rust-history-indexing-lifetime.md) retains paused/cold read-only work.
-Custom processors, complete provider scheduling and both hosts remain gated.
+Custom processors and both hosts remain gated; [admitted Tasks](rust-task-host-port.md) stages the shared command and observation boundary.
 
 The core boundary audit runs in normal checks and canonical specification checks.
 It rejects transport dependencies/source references, bare renderer globals and host

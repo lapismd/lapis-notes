@@ -169,3 +169,7 @@ key bytes.
 <a id="ln-pkg-080"></a>
 
 **Requirement.** `@lapis-notes/api` MUST own transport-neutral app-tool contracts, lifecycle, and Vault-backed file-tool wrappers. Search MUST own `notes_search` and Markdown MUST own `notes_list`. AI MUST own snapshots and policy. `@lapismd/ai-host` plus Deno desktop MUST own live MCP transport without becoming durable tool, note-content, or conversation authorities.
+
+## Admitted native Task port
+
+`@lapis-notes/api/native-tasks` exports generated commands, typed retained outcomes and an App-owned observer under [CORE013–015](../architecture/rust-task-host-port.md#ln-core-013). `VaultSession.nativeTasks` takes precedence over the explicit App option. The public host-module registry includes that entry for installed Tasks plugins; final plugin startup awaits declaration reconciliation.

@@ -57,3 +57,7 @@ the compatibility lease; the owning desktop session retains those lifetimes.
 <a id="ln-plug-109"></a>
 
 **Requirement.** Successful `plugins` App URL navigation MUST dismiss the owning App's Settings dialog so the selected plugin page is reachable. Rejected or disposed navigation MUST NOT close Settings after its owning registration is removed.
+
+## Admitted native Tasks observation
+
+[CORE013–015](../architecture/rust-task-host-port.md#ln-core-015) defines the optional App-owned native Task observer. Plugin startup awaits final declaration before publishing `plugins-loaded` and reconciles absent, disabled or failed Tasks. Passive metadata reads do not select native Task policy. Passive teardown detaches before plugin unload; explicit plugin disable fences future native admissions. Existing plugin views and standalone browser behavior remain unchanged.

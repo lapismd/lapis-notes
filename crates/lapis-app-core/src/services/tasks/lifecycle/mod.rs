@@ -31,7 +31,11 @@ pub struct TaskLifecycleWrite {
     pub daily: Option<TaskObservationWrite>,
 }
 
-fn original(work: &Work, path: &str, expected: &ExpectedVersion) -> TaskWriteResult<TextSnapshot> {
+pub(super) fn original(
+    work: &Work,
+    path: &str,
+    expected: &ExpectedVersion,
+) -> TaskWriteResult<TextSnapshot> {
     let state = work.vault.lock()?;
     if state.phase == VaultPhase::Closed {
         return Err(Error::closed().into());

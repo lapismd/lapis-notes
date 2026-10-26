@@ -1,3 +1,4 @@
+import type { NativeTasks, NativeTasksSession } from "./native-tasks";
 import { Workspace } from "./workspace.svelte";
 import { TFile, Vault, type AppDatabase, type DataAdapter, type VaultSession } from "./storage";
 import { AppSettings } from "./settings.svelte";
@@ -60,6 +61,7 @@ export type AppStateProperties = {
     configPath?: string;
     adapter?: DataAdapter;
     session?: VaultSession;
+    nativeTasks?: NativeTasks;
     appDatabase?: AppDatabase;
     safeMode?: AppSafeModeState;
     createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
@@ -164,6 +166,7 @@ export declare class App {
     readonly vault: Vault;
     readonly appDatabase: AppDatabase;
     readonly session?: VaultSession;
+    readonly nativeTasks?: NativeTasksSession;
     readonly safeMode: AppSafeModeState;
     plugins: PluginManager;
     scope: Scope;

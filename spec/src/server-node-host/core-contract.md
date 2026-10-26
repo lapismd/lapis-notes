@@ -275,3 +275,9 @@ automatic backup, restore and shared UI integration are H03 acceptance gates.
 External history lives under the managed vault's persistent `history` directory,
 separate from disposable `state/app.turso`. Original colocated repositories are
 explicit read sources; absence never creates a repository.
+
+## LN-SRV-025 — Same-client native Tasks transport
+
+<a id="ln-srv-025"></a>
+
+**Requirement.** Rust hosted Tasks MUST use the existing authenticated vault attachment, physical-root and generation admission. Typed commands MUST retain shared native selection, writer, journal and explicit-retry semantics. Revoked, expired or foreign clients MUST lose access. No request may supply a physical root, profile, caller scope or renderer callback.

@@ -28,6 +28,7 @@ import {
   Scope,
   type UserEvent,
 } from "./command.svelte";
+import { NativeTasksSession, type NativeTasks } from "./native-tasks";
 import { MetadataCache } from "./cache.svelte";
 import type {
   MarkdownDirectiveRenderer,
@@ -142,6 +143,7 @@ export type AppStateProperties = {
   configPath?: string;
   adapter?: DataAdapter;
   session?: VaultSession;
+  nativeTasks?: NativeTasks;
   appDatabase?: AppDatabase;
   safeMode?: AppSafeModeState;
   createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
@@ -292,6 +294,7 @@ export class App {
   readonly vault: Vault = $state()!;
   readonly appDatabase: AppDatabase;
   readonly session?: VaultSession;
+  readonly nativeTasks?: NativeTasksSession;
   readonly safeMode: AppSafeModeState;
   plugins: PluginManager = $state()!;
   scope: Scope = $state(new Scope(undefined, this));
@@ -435,6 +438,13 @@ export class App {
     hostSyncServices.set(this, this.#syncHost);
     this.workspaceTrust = new WorkspaceTrustService(adapter);
     this.metadataCache = new MetadataCache(this);
+    const nativeTasks = props.session?.nativeTasks ?? props.nativeTasks;
+    this.nativeTasks = nativeTasks
+      ? new NativeTasksSession(nativeTasks, () => {
+          const state = this.plugins?.plugins.get("tasks")?.state;
+          return state === "enabled" || state === "enabling";
+        })
+      : undefined;
     installVaultMaintenanceCommands(this);
     this.plugins = new PluginManager(
       this,

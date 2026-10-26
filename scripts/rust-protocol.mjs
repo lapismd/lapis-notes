@@ -29,6 +29,13 @@ const generated = JSON.parse(
 );
 const outputs = [
   [
+    new URL(
+      "../packages/api/src/lib/native-tasks-protocol.ts",
+      import.meta.url,
+    ),
+    await format(generated.tasksTypescript, { parser: "typescript" }),
+  ],
+  [
     new URL("../packages/api/src/lib/native-turn-protocol.ts", import.meta.url),
     await format(generated.turnTypescript, { parser: "typescript" }),
   ],

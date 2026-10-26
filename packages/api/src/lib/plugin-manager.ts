@@ -1346,6 +1346,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         });
         await this.activateIndexedExtensionsForWorkspace();
         this.#loaded = true;
+        if (this.app.nativeTasks) await this.app.nativeTasks.load();
         this.emit("plugins-loaded");
         await this.activateByEvent("onStartupFinished");
       },

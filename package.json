@@ -149,7 +149,8 @@
     "validation:consumer-pack": "node scripts/validation.mjs run validation:consumer-pack",
     "validation:rust": "node scripts/validation.mjs run validation:rust",
     "capture:native-daily-reference": "node scripts/validation.mjs run capture:native-daily-reference",
-    "test:native-daily-reference": "node scripts/validation.mjs run test:native-daily-reference"
+    "test:native-daily-reference": "node scripts/validation.mjs run test:native-daily-reference",
+    "test:api:native-tasks": "node scripts/validation.mjs run test:api:native-tasks"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.7.0",

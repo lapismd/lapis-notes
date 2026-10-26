@@ -9,6 +9,7 @@ mod files;
 mod management;
 mod plugins;
 mod routes;
+mod tasks;
 mod transfers;
 mod turns;
 
@@ -83,6 +84,10 @@ pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::R
         .route(
             "/api/v3/clients/{client}/database",
             post(database::call).layer(DefaultBodyLimit::max(database::JSON_LIMIT)),
+        )
+        .route(
+            "/api/v3/clients/{client}/tasks",
+            post(tasks::call).layer(DefaultBodyLimit::max(64 * 1024)),
         )
         .route(
             "/api/v3/clients/{client}/turns",

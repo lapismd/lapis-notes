@@ -23,7 +23,9 @@ impl Host {
             config.validate()?;
         }
         let (database, backup) = storage(profile, &config)?;
-        let mut runtime = Runtime::with_database(database).with_backup(backup);
+        let mut runtime = Runtime::with_database(database)
+            .with_backup(backup)
+            .with_tasks(super::tasks::storage::select(profile)?);
         if let Some(storage) = super::turns::storage::select(profile, &config, agents)? {
             runtime = runtime.with_turns(storage);
         }

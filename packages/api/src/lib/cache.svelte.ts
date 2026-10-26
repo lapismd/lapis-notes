@@ -710,6 +710,7 @@ export class MetadataCache extends EventDispatcher<{
 
   async dispose(options: { persist?: boolean } = {}): Promise<void> {
     if (this.disposePromise) return this.disposePromise;
+    const nativeTasksDetached = this.app.nativeTasks?.detach();
     this.disposed = true;
     this.app.vault.off("all", this.handleVaultChange);
     this.app.vault.off("rename", this.handleVaultRename);
@@ -720,6 +721,7 @@ export class MetadataCache extends EventDispatcher<{
     this.snapshotLeaseValue = null;
     this.saveSnapshotDebounced.cancel();
     this.disposePromise = (async () => {
+      if (nativeTasksDetached) await nativeTasksDetached;
       await Promise.allSettled([...this.pendingOperations]);
       await this.persistReconcileCheckpoint({ allowDisposed: true });
       void options;
@@ -1039,8 +1041,8 @@ export class MetadataCache extends EventDispatcher<{
 
   /**
    * Return the current vault/parser manifest fingerprint used to validate the
-   * durable metadata index and disposable indexed-consumer snapshots.
-   * Consumers may restrict the fingerprint to their accepted metadata files.
+   * durable metadata index and disposable indexed-consumer snapshots. Consumers
+   * may restrict the fingerprint to their accepted metadata files.
    */
   getReconciliationFingerprint(acceptsFile?: (file: TFile) => boolean): string {
     const fingerprint = new StreamingManifestFingerprint();

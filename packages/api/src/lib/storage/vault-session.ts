@@ -1,3 +1,4 @@
+import type { NativeTasks } from "../native-tasks";
 import {
   EMPTY_APP_DATABASE_CAPABILITIES,
   MemoryAppDatabase,
@@ -45,6 +46,7 @@ export interface VaultSession {
   profile?: VaultProfile;
   vaultAdapter: VaultAdapter;
   appDatabase?: AppDatabase;
+  nativeTasks?: NativeTasks;
   appDatabaseState: VaultSessionAppDatabaseState;
   awaitAppDatabase?: (options?: {
     signal?: AbortSignal;

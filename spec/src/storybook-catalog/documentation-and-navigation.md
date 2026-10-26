@@ -334,3 +334,7 @@ The host compatibility story retains signed snapshot discovery and real PluginBr
 installation state under LN-PLUG-113. Its independent visual path is
 `workspace/plugins/desktop-only-ai`; review and capture remain
 pending without baseline changes.
+
+## Admitted Tasks specification navigation
+
+The [native Task port chapter](../architecture/rust-task-host-port.md) is indexed inside Architecture. Its metadata-only mirror and specification-first sidebar order are generated from SUMMARY alongside the existing service-lifetime chapters. Source service, API and owning-plugin evidence remain distinct from actual host catalog acceptance.
