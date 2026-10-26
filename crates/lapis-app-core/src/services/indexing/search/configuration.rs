@@ -31,19 +31,31 @@ impl SearchIndexingConfiguration {
 #[derive(Default)]
 pub(in crate::services::indexing) struct Selection {
     generation: AtomicU64,
-    value: Mutex<Option<SearchIndexingConfiguration>>,
+    value: Mutex<Option<Policy>>,
+}
+#[derive(Clone)]
+pub(in crate::services::indexing) struct Policy {
+    pub options: SearchIndexingConfiguration,
+    pub markdown: bool,
+    pub prune_unselected: bool,
+}
+impl From<SearchIndexingConfiguration> for Policy {
+    fn from(options: SearchIndexingConfiguration) -> Self {
+        Self {
+            options,
+            markdown: true,
+            prune_unselected: false,
+        }
+    }
 }
 impl Selection {
-    pub(super) fn snapshot(&self) -> Result<Option<(SearchIndexingConfiguration, u64)>> {
+    pub(super) fn snapshot(&self) -> Result<Option<(Policy, u64)>> {
         let value = self.value.lock().map_err(|_| super::super::unavailable())?;
         Ok(value
             .clone()
             .map(|value| (value, self.generation.load(Ordering::Acquire))))
     }
-    pub(in crate::services::indexing) fn configure(
-        &self,
-        value: Option<SearchIndexingConfiguration>,
-    ) -> Result<()> {
+    pub(in crate::services::indexing) fn configure(&self, value: Option<Policy>) -> Result<()> {
         let mut current = self.value.lock().map_err(|_| super::super::unavailable())?;
         *current = value;
         self.generation.fetch_add(1, Ordering::AcqRel);

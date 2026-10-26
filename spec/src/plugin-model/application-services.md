@@ -79,3 +79,10 @@ authority, and production Sync apply still requires every writer's integration.
 <a id="ln-plug-062"></a>
 
 **Requirement.** Plugin detail Back navigation MUST use a compact left-aligned icon button with a circular hover treatment, a tooltip and visible keyboard focus. It MUST return to the originating Plugins homepage or filtered directory without clearing its filters or scroll state.
+
+Under LN-CORE-005/006, selected native indexing receives bounded processor and
+projection identities, never JavaScript callbacks. Known compiled Tasks/Docs
+contributions retain query handles; client-dependent contributions report
+unavailability. Explicit plugin disable drains and fences its native projection;
+App/view detach releases observation only. See the
+[native ownership contract](../architecture/rust-indexing-lifetime.md).

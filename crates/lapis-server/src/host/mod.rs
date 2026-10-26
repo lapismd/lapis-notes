@@ -1,6 +1,7 @@
 mod attachments;
 mod backup;
 mod database;
+mod indexing;
 mod management;
 pub mod turns;
 pub(crate) use management::Command as ManagementCommand;

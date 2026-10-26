@@ -7,6 +7,7 @@ import {
   type AppDatabaseProvider,
   type RuntimeTarget,
 } from "./app-database";
+import type { NativeBackgroundIndexing } from "../native-background-indexing";
 import { BrowserCoordinatedAppDatabase } from "./browser-coordinated-app-database";
 import { BrowserAppDatabaseCoordinator } from "./browser-app-database-coordination";
 import type { VaultAdapter, VaultIdentityAdapter } from "./fs";
@@ -45,6 +46,7 @@ export interface VaultSession {
   profile?: VaultProfile;
   vaultAdapter: VaultAdapter;
   appDatabase?: AppDatabase;
+  backgroundIndexing?: NativeBackgroundIndexing;
   appDatabaseState: VaultSessionAppDatabaseState;
   awaitAppDatabase?: (options?: {
     signal?: AbortSignal;

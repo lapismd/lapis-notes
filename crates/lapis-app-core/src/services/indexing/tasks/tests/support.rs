@@ -83,26 +83,3 @@ pub(super) async fn close(runtime: Arc<Runtime>) {
         .unwrap()
         .unwrap();
 }
-
-impl VaultService {
-    pub(super) async fn set_task_document_indexing(
-        self: &Arc<Self>,
-        enabled: bool,
-    ) -> crate::services::Result<()> {
-        if enabled {
-            return self
-                .start_indexing(false, true, super::super::super::owner::Clock::default())
-                .await;
-        }
-        let _work = self.begin_work()?;
-        if let Some(owner) = self
-            .indexing
-            .lock()
-            .map_err(|_| super::super::super::unavailable())?
-            .as_ref()
-        {
-            owner.select(None, Some(false));
-        }
-        Ok(())
-    }
-}

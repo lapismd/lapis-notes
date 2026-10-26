@@ -24,14 +24,22 @@ pub(super) fn run(
             Err(mpsc::TryRecvError::Empty) => {}
         }
         let changed = match backup.lock() {
-            Ok(mut receiver) => receiver.as_mut().is_some_and(|backup| {
-                if backup.has_changed().unwrap_or(false) {
-                    backup.borrow_and_update();
-                    true
-                } else {
-                    false
-                }
-            }),
+            Ok(mut receiver) => match receiver.as_mut() {
+                Some(backup) => match backup.has_changed() {
+                    Ok(true) => {
+                        backup.borrow_and_update();
+                        true
+                    }
+                    Ok(false) => false,
+                    Err(_) => {
+                        // Tokio reports closed even with an unseen final value.
+                        // Reconcile once, then retire the closed notification source.
+                        *receiver = None;
+                        true
+                    }
+                },
+                None => false,
+            },
             Err(_) => return,
         };
         if changed || requested.swap(false, Ordering::AcqRel) {

@@ -4,12 +4,12 @@ use crate::{
     services::{Error, Result, VaultService},
     vault::VaultRoot,
 };
-use lapis_app_protocol::ErrorCode;
+use lapis_app_protocol::{ErrorCode, indexing::IndexingPhase};
 use notify::{EventKind, RecursiveMode, Watcher};
 use std::{
     sync::{
         Arc, Mutex, Weak,
-        atomic::{AtomicBool, Ordering},
+        atomic::{AtomicBool, AtomicU64, Ordering},
         mpsc,
     },
     thread,
@@ -25,6 +25,9 @@ pub(in crate::services) struct Owner {
     documents: Arc<AtomicBool>,
     search: Arc<search::Selection>,
     docs: Arc<Mutex<Option<String>>>,
+    requested: Arc<AtomicU64>,
+    rebuild: Arc<AtomicBool>,
+    completed: tokio::sync::watch::Receiver<u64>,
 }
 pub(super) struct Clock {
     pub today: Arc<dyn Fn() -> String + Send + Sync>,
@@ -95,6 +98,11 @@ impl Owner {
         let selected_search = search.clone();
         let docs = Arc::new(Mutex::new(None));
         let selected_docs = docs.clone();
+        let requested = Arc::new(AtomicU64::new(0));
+        let revision = requested.clone();
+        let rebuild = Arc::new(AtomicBool::new(false));
+        let force = rebuild.clone();
+        let (completion, completed) = tokio::sync::watch::channel(0);
         let worker = thread::Builder::new()
             .name("lapis-metadata".into())
             .spawn(move || {
@@ -103,6 +111,14 @@ impl Owner {
                     if cancelled.load(Ordering::Acquire) {
                         break;
                     }
+                    let target = revision.load(Ordering::Acquire);
+                    {
+                        let mut status = progress.lock().unwrap_or_else(|error| error.into_inner());
+                        status.active = true;
+                        status.phase = IndexingPhase::Discovering;
+                        status.processed = 0;
+                        status.total = 0;
+                    }
                     let today = (clock.today)();
                     let selection = reconcile::Selection {
                         occurrences: &selected,
@@ -110,6 +126,8 @@ impl Owner {
                         search: &selected_search,
                         docs: &selected_docs,
                         today: &today,
+                        force: force.swap(false, Ordering::AcqRel),
+                        progress: &progress,
                     };
                     let result = runtime.block_on(reconcile::run(
                         &vault, &database, &root, &cancelled, &selection,
@@ -119,8 +137,17 @@ impl Owner {
                     current.indexed = current.indexed.saturating_add(result.indexed);
                     current.deleted = current.deleted.saturating_add(result.deleted);
                     current.pending = result.pending;
+                    if result.error.is_none()
+                        && result.pending == 0
+                        && !cancelled.load(Ordering::Acquire)
+                    {
+                        current.completed_at = Some(chrono::Utc::now().timestamp_millis() as f64);
+                    }
                     current.error = result.error;
+                    current.active = false;
+                    current.phase = IndexingPhase::Idle;
                     drop(current);
+                    completion.send_replace(target);
                     if result.pending > 0 {
                         let _ = retry.try_send(());
                     }
@@ -145,12 +172,23 @@ impl Owner {
             documents,
             search,
             docs,
+            requested,
+            rebuild,
+            completed,
         })
     }
-    pub(super) fn select_search(
-        &self,
-        configuration: Option<search::SearchIndexingConfiguration>,
-    ) -> Result<()> {
+    pub(super) fn refresh(&self, rebuild: bool) -> Refresh {
+        if rebuild {
+            self.rebuild.store(true, Ordering::Release);
+        }
+        let target = self.requested.fetch_add(1, Ordering::AcqRel) + 1;
+        let _ = self.signal.try_send(());
+        Refresh {
+            target,
+            completed: self.completed.clone(),
+        }
+    }
+    pub(super) fn select_search(&self, configuration: Option<search::Policy>) -> Result<()> {
         self.search.configure(configuration)?;
         let _ = self.signal.try_send(());
         Ok(())
@@ -183,5 +221,23 @@ impl Owner {
 impl Drop for Owner {
     fn drop(&mut self) {
         let _ = self.finish();
+    }
+}
+
+pub(super) struct Refresh {
+    target: u64,
+    completed: tokio::sync::watch::Receiver<u64>,
+}
+impl Refresh {
+    pub(super) async fn wait(mut self) -> Result<()> {
+        loop {
+            if *self.completed.borrow_and_update() >= self.target {
+                return Ok(());
+            }
+            self.completed
+                .changed()
+                .await
+                .map_err(|_| Error::closed())?;
+        }
     }
 }

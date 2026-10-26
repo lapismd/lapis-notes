@@ -9,3 +9,7 @@ remain unchanged. This boundary confirmation accompanies the additive Plugin and
 App registry exports; it does not qualify any new diagnostic behavior.
 Declinable Markdown embedders register on `EmbedRegistry` and do not contribute
 Problems, diagnostic collections, editor markers, or fixes.
+
+Indexing contribution unavailability under LN-CORE-005 remains service status
+and notification data. Selecting the native background port does not introduce
+a diagnostic model, callback transport or competing Problems presentation.

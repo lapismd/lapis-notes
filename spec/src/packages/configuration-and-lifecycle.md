@@ -107,6 +107,14 @@ Successful profile URL navigation dismisses owning Settings under
 
 **Requirement.** `@lapis-notes/api` MUST own a daily-document provider registry, the desktop and web hosts MUST register the shared default provider before configuration loads, and generated settings MUST persist `dailyNotes.folder` and Luxon `dailyNotes.dateFormat` with defaults `daily` and `yyyy-MM-dd`. The default provider MUST locate canonical `type: daily-note` plus `date: YYYY-MM-DD` front matter before deriving a path, MUST fail visibly on duplicate dates or occupied generated paths, and MUST never move an existing note after configuration changes.
 
+The native Task coordination intake freezes the unchanged public provider and
+formatter against explicit storage and metadata fixtures. Full traces retain
+non-creating lookup, exact configured paths and canonical seeds, source errors,
+registry priority/ambiguity/disposal and the effective formatting locale.
+`pnpm capture:native-daily-reference` writes only a collected authoring artifact;
+`pnpm test:native-daily-reference` compares the frozen artifact without replacing
+it. Capturing reference data alone grants no native persistence or host default.
+
 Registration does not itself express data removal. LN-PLUG-112 preserves unadopted
 compatibility files; confirmed canonical removals retain their existing mirror
 cleanup. Both paths keep LN-PKG-174 writer ownership and recovery unchanged.

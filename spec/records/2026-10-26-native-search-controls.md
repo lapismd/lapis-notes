@@ -2,8 +2,7 @@
 
 This R3.2.2.4 slice extends the existing indexing control port with bounded
 compiled-provider selection. It builds on Canvas/chunking `98590492` and the
-fixed indexing-port product snapshot `05b82662`; the latter remains in final
-source qualification. Neither application default is selected here.
+indexing-port source `56df650d`, whose qualified product snapshot is `05b82662`. Neither application default is selected here.
 
 The exact regression is authored before implementation:
 
@@ -14,8 +13,8 @@ pnpm rust:core -- test -p lapis-app-core --test service_search_controls --locked
 Five scenarios cover client-independent compiled sources, generated writer
 fencing and disable/drain, explicit client-dependent callbacks, provider removal
 with foreign-row preservation, and invalid/versioned declarations. The baseline
-will run after combining the unchanged parent sources, before adding Search
-commands or authority implementation. Parent source qualification and combined
+combined the unchanged parent sources before adding Search commands or authority
+implementation. Parent source qualification and combined
 intake remain separate from both host activation gates.
 
 The exact baseline `0e4b809b-6b02-4afc-9199-1ce0f4f360e9`, snapshot
@@ -23,8 +22,8 @@ The exact baseline `0e4b809b-6b02-4afc-9199-1ce0f4f360e9`, snapshot
 is not a recognized command (zero passes/five failures). First implementation
 run `8d2aece0-35fc-47bf-899e-537c60048ac0`, snapshot `6184f720`, passes all
 five cases. Additional acceptance now checks Search-checkpoint release and a
-cancelled generated Search writer's handover; final affected/full checks remain
-pending. Parent source qualification and both host gates remain separate.
+cancelled generated Search writer's handover; final affected/full checks were
+still pending at that checkpoint. Parent source qualification and both host gates remain separate.
 
 The authority/protocol follow-up `39d3d22a-d58f-4658-b868-6524c6f12882`
 passes five controls, three authority cases and two protocol cases; its generated
@@ -78,3 +77,34 @@ Its daily product/test paths are byte-identical to that qualified source;
 metadata visibility changes compose with the existing native indexing port.
 An authenticated real-HTTP Search selection/detach/rebuild/disable test is added
 before final qualification. Neither host default changes.
+
+## Final combined qualification
+
+Receipt `a2cbabd7-e003-44eb-82db-9c88e05fc093` passes on frozen product
+`72b059e30a8a7bbb827d46ed79882255426b4b41`, finished
+2026-10-26T01:38:42.104Z. Exact acceptance passes six controls, authenticated
+real-HTTP selection/detach/rebuild/disable, the unchanged-source rebuild,
+38 indexing, ten physical daily IO, three daily race and 54 retained API cases.
+All 452 Rust cases pass with six existing native-asset ignores; all 2,267 package
+cases pass with one existing retained Deno skip. Complete check/test/build,
+strict protocol/native checks, all 11 production builds, all 261 cold catalog
+cases, static Storybook and full specification/78 governance checks pass.
+
+This combines source-qualified indexing `56df650d`, final History notification
+repair `211bff3c` and daily physical IO `974d0a39` with the current main parser
+and Canvas/chunking source. Fourteen daily product/test paths match `974d0a39`.
+Final ledger/evidence changes and the latest master-checkpoint rebase contain
+no functional changes relative to the complete passing snapshot.
+
+R3.2.2.4 is Source complete. The newer App/Search adapter, daily observation
+processing, ordered Task recovery, both host selections and actual-provider
+journeys remain independent gates. No app default, Node serving default, Deno
+source, dependency range, publication, deployment or installed app is changed.
+
+Final documentation closure `03d1ee7f-0de9-467c-9dbb-b1820a37dff1`, snapshot
+`ef11c03b`, passes the complete specification gate and all 78 governance cases
+after the latest master-checkpoint rebase. The local attempt had no validator
+installed (exit 127, no assertions run); the isolated Docker closure is the
+qualification result. The final delta from `72b059e3` contains only migration
+ledger/activity and evidence/verification Markdown; all functional inputs remain
+byte-identical. Tracker regeneration and all 11 tracker regressions pass.

@@ -7,6 +7,7 @@ use lapis_app_protocol::database::{
 use lapis_plugin_services::{markdown::content_hash, search::canvas_text};
 use serde_json::json;
 use std::collections::BTreeMap;
+use std::sync::Mutex;
 
 pub(super) const PROVIDER: &str = "search:canvas";
 pub(super) fn accepts(path: &str) -> bool {
@@ -19,6 +20,7 @@ pub(super) async fn run(
     files: &[String],
     manifest: &mut BTreeMap<String, SearchManifestRecord>,
     chunking: &SearchChunkingSettings,
+    progress: &Mutex<super::super::IndexingStatus>,
     cancelled: impl Fn() -> bool,
 ) -> Result<usize> {
     let mut pending = 0usize;
@@ -27,6 +29,7 @@ pub(super) async fn run(
         if cancelled() {
             return Ok(pending);
         }
+        progress.lock().unwrap_or_else(|e| e.into_inner()).processed += 1;
         let existing = manifest.remove(path);
         if existing
             .as_ref()

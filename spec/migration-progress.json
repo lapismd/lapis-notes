@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 01:26:11 UTC",
+  "updated": "2026-10-26 01:42:46 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -631,7 +631,7 @@
       "work": "Native daily provider creation and daily-before-rolling Task coordination",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "[Pure daily policy](spec/records/2026-10-26-native-task-coordination.md) at 220b5cd7 and [guarded default daily IO](spec/records/2026-10-26-native-daily-document-io.md) at 974d0a39 are source-qualified. Physical IO passes 10 integration/three race cases, all 422 Rust, complete package check/test/build and specification/78 governance gates. Combined main intake is running. Daily observation processing, ordered Task advancement, partial/cold recovery, tracked-today scheduling and both host selections remain Waiting; aggregate stays Working."
+      "detail": "[Pure daily policy](spec/records/2026-10-26-native-task-coordination.md) at 220b5cd7 and [guarded default daily IO](spec/records/2026-10-26-native-daily-document-io.md) at 974d0a39 are source-qualified. Physical IO passes 10 integration/three race cases, all 422 Rust, complete package check/test/build and specification/78 governance gates. Combined Notes intake passes all 452 Rust/2,267 package cases, 261 cold catalog cases and complete native/build/specification gates. Daily observation processing is independently qualifying its nine exact cases; it is not part of this intake. Daily observation processing, ordered Task advancement, partial/cold recovery, tracked-today scheduling and both host selections remain Waiting; aggregate stays Working."
     },
     {
       "id": "R3.2.2.3",
@@ -645,9 +645,17 @@
       "id": "R3.2.2.4",
       "area": "Native Search controls",
       "work": "Bounded provider selection, writer authority and explicit unavailable callbacks",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "[Qualified native Search controls and combined intake](spec/records/2026-10-26-native-search-controls.md): six controls, authenticated HTTP selection/rebuild/disable, exact rebuild, 38 indexing, 13 daily IO/race and 54 API reference cases pass. Full 452 Rust/2,267 package cases, strict native/protocol, all 11 builds, 261 cold catalog cases, static Storybook and complete specification/78 governance pass. Original selection/progress/rebuild, generator-export and Clippy failures remain recorded separately. Both host adoptions stay separate."
+    },
+    {
+      "id": "R3.2.2.5",
+      "area": "Search application adapter",
+      "work": "Shared App observer and native Search plugin lifecycle",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Native Search controls](spec/records/2026-10-26-native-search-controls.md): the original five missing-command failures are repaired; three authority/two protocol cases pass. Follow-up progress/rebuild baseline has two failures; both now pass on d021e91d (five controls plus one rebuild). The final timestamp-retention regression, regenerated contract and broad combined source qualification are running. Both host selections remain separate."
+      "detail": "API owner candidate c7786ebb passes 22 focused and all 1,612 API cases, strict/build/pack. Plugins native adapter passes 22 exact lifecycle/settings/provider/rebuild/disposal cases; full source/catalog qualification is running. Unchanged parent CSV metadata/styling and one high Zod audit finding are reproduced and recorded separately. Coherent Notes intake and both application selections remain pending."
     }
   ]
 }

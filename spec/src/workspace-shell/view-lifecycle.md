@@ -134,3 +134,8 @@ their complete lifetime boundary before releasing backing storage.
 Link-preview pointer acceptance follows the current
 `plugins-markdown-panels-link-preview-acceptance` catalog family. Renamed
 catalog paths retain the original preview interaction assertions.
+
+Native background indexing under LN-CORE-003 is owned by the admitted vault.
+Disposing a MetadataCache or workspace view MUST NOT disable or unregister
+service-owned projections. Explicit plugin disable is the separate draining
+control described in the [native indexing contract](../architecture/rust-indexing-lifetime.md).

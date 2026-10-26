@@ -6,7 +6,7 @@ use serde_json::Value;
 #[cfg(test)]
 mod tests;
 
-pub(super) fn markdown(path: &str) -> bool {
+pub(in crate::services) fn markdown(path: &str) -> bool {
     path.rsplit_once('.').is_some_and(|(_, extension)| {
         extension.eq_ignore_ascii_case("md") || extension.eq_ignore_ascii_case("markdown")
     })

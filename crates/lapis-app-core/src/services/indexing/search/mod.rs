@@ -2,7 +2,8 @@ mod canvas;
 mod checksum;
 mod configuration;
 pub use configuration::SearchIndexingConfiguration;
-pub(super) use configuration::Selection;
+pub(super) use configuration::{Policy, Selection};
+mod controls;
 mod envelope;
 mod manifest;
 mod source;
@@ -17,7 +18,7 @@ use crate::{
 use lapis_app_protocol::database::indexed::queries::ManifestQuery;
 use lapis_plugin_services::markdown::PARSER_VERSION;
 use std::sync::{
-    Arc, Weak,
+    Arc, Mutex, Weak,
     atomic::{AtomicBool, Ordering},
 };
 
@@ -33,6 +34,11 @@ impl VaultService {
         configuration: SearchIndexingConfiguration,
     ) -> Result<()> {
         configuration.validate()?;
+        let _control = self.indexing_control.lock().await;
+        self.start_search_policy(configuration.into()).await
+    }
+    async fn start_search_policy(self: &Arc<Self>, configuration: Policy) -> Result<()> {
+        self.database().await?.claim_native_search().await;
         self.start_markdown_indexing().await?;
         let _work = self.begin_work()?;
         let slot = self.indexing.lock().map_err(|_| super::unavailable())?;
@@ -58,8 +64,10 @@ pub(super) async fn run(
     root: &VaultRoot,
     stop: &AtomicBool,
     selected: &Selection,
+    progress: &Mutex<super::IndexingStatus>,
+    rebuild: bool,
 ) -> Result<usize> {
-    let Some((configuration, generation)) = selected.snapshot()? else {
+    let Some((policy, generation)) = selected.snapshot()? else {
         return Ok(0);
     };
     if stop.load(Ordering::Acquire) {
@@ -78,53 +86,70 @@ pub(super) async fn run(
     let Some(mut search) = manifest::collect(database, cancelled).await? else {
         return Ok(0);
     };
+    {
+        let mut status = progress.lock().unwrap_or_else(|e| e.into_inner());
+        status.processed = 0;
+        status.total = files
+            .iter()
+            .filter(|path| {
+                policy.markdown && super::records::markdown(path)
+                    || policy.options.canvas && canvas::accepts(path)
+            })
+            .count();
+    }
     let mut after = None;
     let mut pending = 0usize;
     let mut failure = None;
-    loop {
-        if cancelled() {
-            return Ok(pending);
-        }
-        let page = database
-            .list_indexed_file_manifest(ManifestQuery {
-                after,
-                limit: Some(500),
-                ..Default::default()
-            })
-            .await?;
-        for file in page.rows {
+    let configuration = &policy.options;
+    if policy.markdown {
+        loop {
             if cancelled() {
                 return Ok(pending);
             }
-            if !super::records::markdown(&file.path) || files.binary_search(&file.path).is_err() {
-                continue;
-            }
-            let existing = search.remove(&file.path);
-            if existing
-                .as_ref()
-                .is_some_and(|row| row.source_provider_id.as_deref() != Some(envelope::PROVIDER))
-            {
-                continue;
-            }
-            if file.parser_version.as_deref() != Some(PARSER_VERSION) {
-                continue;
-            }
-            if existing
-                .as_ref()
-                .is_some_and(|row| source::unchanged(&file, row, &configuration.chunking))
-            {
-                continue;
-            }
-            match source::publish(database, root, &file, &configuration.chunking, cancelled).await {
-                Ok(count) => pending = pending.saturating_add(count),
-                Err(error) => {
-                    failure.get_or_insert(error);
+            let page = database
+                .list_indexed_file_manifest(ManifestQuery {
+                    after,
+                    limit: Some(500),
+                    ..Default::default()
+                })
+                .await?;
+            for file in page.rows {
+                if cancelled() {
+                    return Ok(pending);
+                }
+                if !super::records::markdown(&file.path) || files.binary_search(&file.path).is_err()
+                {
+                    continue;
+                }
+                progress.lock().unwrap_or_else(|e| e.into_inner()).processed += 1;
+                let existing = search.remove(&file.path);
+                if existing.as_ref().is_some_and(|row| {
+                    row.source_provider_id.as_deref() != Some(envelope::PROVIDER)
+                }) {
+                    continue;
+                }
+                if file.parser_version.as_deref() != Some(PARSER_VERSION) {
+                    continue;
+                }
+                if existing
+                    .as_ref()
+                    .is_some_and(|row| source::unchanged(&file, row, &configuration.chunking))
+                {
+                    continue;
+                }
+                match source::publish(database, root, &file, &configuration.chunking, cancelled)
+                    .await
+                {
+                    Ok(count) => pending = pending.saturating_add(count),
+                    Err(error) => {
+                        failure.get_or_insert(error);
+                    }
                 }
             }
-        }
-        after = page.next_cursor;
-        if after.is_none() {
-            break;
+            after = page.next_cursor;
+            if after.is_none() {
+                break;
+            }
         }
     }
     if configuration.canvas {
@@ -134,6 +159,7 @@ pub(super) async fn run(
             &files,
             &mut search,
             &configuration.chunking,
+            progress,
             cancelled,
         )
         .await
@@ -146,12 +172,13 @@ pub(super) async fn run(
     }
     for row in search.into_values().filter(|row| {
         row.source_provider_id.as_deref() == Some(envelope::PROVIDER)
-            || configuration.canvas && row.source_provider_id.as_deref() == Some(canvas::PROVIDER)
+            || (configuration.canvas || policy.prune_unselected)
+                && row.source_provider_id.as_deref() == Some(canvas::PROVIDER)
     }) {
         if cancelled() {
             return Ok(pending);
         }
-        let supported = super::records::markdown(&row.path)
+        let supported = policy.markdown && super::records::markdown(&row.path)
             || configuration.canvas && canvas::accepts(&row.path);
         if files.binary_search(&row.path).is_ok() && supported {
             continue;
@@ -164,6 +191,9 @@ pub(super) async fn run(
             continue;
         }
         database.delete_search_document(&row.path).await?;
+    }
+    if rebuild && failure.is_none() && !cancelled() {
+        database.rebuild_search_index().await?;
     }
     failure.map_or(Ok(pending), Err)
 }

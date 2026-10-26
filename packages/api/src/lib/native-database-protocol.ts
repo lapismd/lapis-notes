@@ -94,3 +94,8 @@ export type ChangeSet = {
   reset?: boolean;
   committedAt: number;
 };
+export type SearchChunkingSettings = {
+  targetChars: number;
+  breakpointWindowChars: number;
+  breakpointDecay: number;
+};
