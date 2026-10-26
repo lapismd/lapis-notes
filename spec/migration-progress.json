@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 02:40:32 UTC",
+  "updated": "2026-10-26 02:53:16 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -631,7 +631,7 @@
       "work": "Native daily provider creation and daily-before-rolling Task coordination",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "Daily policy/physical IO and daily observations are adopted in coherent Notes 0bb90ba1 with 461 Rust/2,277 package/261 cold catalog cases. [Ordered lifecycle source](spec/records/2026-10-26-native-task-lifecycle.md) is committed separately at 2296023f using qualified Tasks da17eba0: all 11 exact cases replay 110 complete retained attempts and cover races/partials; 442 Rust, all 20 package check/test tasks, 11 builds, strict source and final specification/78 governance pass. It is not yet adopted in this main workspace. Durable journal/cold recovery, tracked-today scheduling and both host selections remain Waiting; aggregate stays Working."
+      "detail": "Daily policy/physical IO and daily observations are adopted in coherent Notes 0bb90ba1 with 461 Rust/2,277 package/261 cold catalog cases. [Ordered lifecycle source](spec/records/2026-10-26-native-task-lifecycle.md) is committed separately at 2296023f using qualified Tasks da17eba0: all 11 exact cases replay 110 complete retained attempts and cover races/partials; 442 Rust, all 20 package check/test tasks, 11 builds, strict source and final specification/78 governance pass. It is not yet adopted in this main workspace. Durable journal/cold recovery, tracked-today scheduling and both host selections remain Waiting; aggregate stays Working. [Shared private IO prerequisite](spec/records/2026-10-26-native-task-recovery.md) is committed at 86f360f8 with five exact, 14 unchanged Turn and 447 full Rust cases plus complete source/specification gates. It is source-qualified separately; typed Task recovery is active and no additional host is selected."
     },
     {
       "id": "R3.2.2.3",
