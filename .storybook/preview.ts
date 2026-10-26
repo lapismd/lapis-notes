@@ -69,6 +69,7 @@ const preview: Preview = {
               "Native daily Task lifecycle",
               "Admitted native Tasks port",
               "Native History indexing lifetime",
+              "Admitted native History reader",
               "Backup service lifetime",
               "Editor integration",
               "Build and validation",

@@ -212,3 +212,14 @@ the retained Search writer available until that gate is admitted.
 <a id="ln-web-068"></a>
 
 **Requirement.** The qualified Search plugin MUST use the existing native indexing opt-in and admitted Rust client for provider/chunk declarations, refresh and rebuild. The renderer MUST retain existing Search presentation and queries without publishing Search rows. Native work MUST survive detach. A replacement App with persisted Search disabled MUST drain that selection while retaining native metadata and saved files; ordinary hosted profiles MUST remain renderer-owned.
+
+## LN-WEB-069 — Retained hosted Repository screen
+
+<a id="ln-web-069"></a>
+
+**Requirement.** The explicitly selected Rust History profile MUST bind the
+public RepositoryFactory before plugin loading and use the retained Repository
+screen for reads, Search and blame. Workspace close MUST fence new requests,
+drain accepted reads and release its handles before detaching its admitted
+client. It MUST NOT add a replacement screen, renderer indexing scheduler or
+fake navigation. Ordinary hosted and standalone defaults MUST remain unchanged.

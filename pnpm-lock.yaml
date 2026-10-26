@@ -490,6 +490,9 @@ importers:
 
   packages/app-profile:
     dependencies:
+      '@lapis-notes/history':
+        specifier: ^0.1.4
+        version: 0.1.4(@lapis-notes/api@packages+api)(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapis-notes/api':
         specifier: workspace:*
         version: link:../api
@@ -870,6 +873,12 @@ importers:
 
   packages/web:
     dependencies:
+      '@lapis-notes/history':
+        specifier: ^0.1.4
+        version: 0.1.4(@lapis-notes/api@packages+api)(svelte@5.56.10)(tailwindcss@4.3.3)
+      '@lapismd/jj-history':
+        specifier: link:../../../jj-store/packages/jj-history
+        version: link:../../../jj-store/packages/jj-history
       '@lapis-notes/api':
         specifier: workspace:*
         version: link:../api

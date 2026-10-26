@@ -33,6 +33,10 @@
     prepareNativeChatLeave,
     type NativeChatHost,
   } from "@lapis-notes/app-profile/native-chat";
+  import {
+    registerNativeRepository,
+    type RepositoryFactory,
+  } from "@lapis-notes/app-profile/native-repository";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
   import {
@@ -61,6 +65,7 @@
     pluginAssetServer,
     pluginDistributionOptions,
     nativeChat,
+    repositoryFactory,
   }: {
     adapter: VaultAdapter;
     profile: VaultProfile;
@@ -73,6 +78,7 @@
     pluginAssetServer?: PluginAssetServer;
     pluginDistributionOptions?: AppPluginDistributionOptions;
     nativeChat?: (app: App) => NativeChatHost;
+    repositoryFactory?: RepositoryFactory;
   } = $props();
 
   const staticPluginDistributionOptions = untrack(() =>
@@ -169,6 +175,7 @@
     hostSync = takeHostSyncService(ownedApp);
     return ownedApp;
   });
+  let disposeRepositoryBinding: (() => void) | undefined;
   provideApplicationState(app);
   const disposeApplicationCompatibility = installApplicationCompatibility(app);
   const disposePluginManagementSettings = registerNotesPluginSettings(app);
@@ -322,6 +329,8 @@
       setTask(activeTask, "active");
       if (!corePluginsRegistered) {
         app.plugins.registerStaticPlugins(notesPluginProfile);
+        if (repositoryFactory)
+          disposeRepositoryBinding = registerNativeRepository(app, repositoryFactory);
         if (nativeChat)
           app.plugins.registerStaticPlugins([
             {
@@ -440,6 +449,7 @@
       disposeVaultTransferSettings = null;
       await session.close();
     } finally {
+      disposeRepositoryBinding?.();
       dailyDocumentProvider.dispose();
       disposePluginBrowser();
       disposePluginManagementSettings();

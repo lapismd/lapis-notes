@@ -30,7 +30,9 @@
     "@lucide/svelte": "^0.523.0",
     "fflate": "^0.8.3",
     "workbox-window": "^7.4.1",
-    "@lapis-notes/server-node": "workspace:*"
+    "@lapis-notes/server-node": "workspace:*",
+    "@lapis-notes/history": "^0.1.4",
+    "@lapismd/jj-history": "link:../../../jj-store/packages/jj-history"
   },
   "devDependencies": {
     "@playwright/test": "1.61.1",

@@ -2,6 +2,7 @@ mod attachments;
 mod backup;
 mod database;
 mod history_index;
+mod history_reader;
 mod indexing;
 mod management;
 mod tasks;

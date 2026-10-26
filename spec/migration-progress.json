@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 13:20:28 UTC",
+  "updated": "2026-10-26 14:04:21 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Shared source, both Search hosts and Desktop History are integrated and qualified. [Coherent Tasks/History API and daily intake](spec/records/2026-10-26-r3-adapters-intake.md) passes 529 Rust, 2,317 package, 261 cold catalog, 22 browser cases and final specification gates; generated/public declarations retain all port families. Actual hosted Tasks, real editor-intent/dirty registration, retained hosted reader intake and legacy History capture/restore/original-source work remain. Provider/timezone and unattended application checks precede R3 closure; R4-R7 keep their original dependencies."
+      "detail": "Shared source, both Search hosts, Desktop History and the hosted Repository reader are integrated and qualified. [Current reader/Tasks cohort](spec/records/2026-10-26-reader-current-intake.md) passes 537 Rust, 2,326 package, 261 cold catalog, 23 browser and full specification gates. Actual Tasks hosts, native editor intents and guarded recovery, repository restore, backup settings/status and original-source selection remain active. Provider/timezone and unattended acceptance precede R3 closure; R4-R7 retain their original dependencies."
     },
     {
       "id": "R4",
@@ -391,7 +391,7 @@
       "work": "History-index scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Shared indexed History controls and admitted HTTP source 7cbb8713 are qualified and integrated in coherent source 8bd2f3d8. [Shared History observer source](../.workspaces/lapis-plugins-native-history-observer-20261026/spec/records/2026-10-26-native-history-observer.md) is committed at Plugins 214917c8: 1,101 package and 285 cold catalog cases plus strict/build/static/specification and deterministic payload/signature checks pass; accepted unchanged audit/CSV/release-lock baselines remain explicit. Notes App/session field intake, retained hosted Repository reader/screen and Desktop shared-adapter native qualification remain active. Complete R3/provider and default cutover gates stay open. [Notes App/hosted port](spec/records/2026-10-26-hosted-history-adapter.md) is now source-qualified and committed at 2d250f66; aggregate API intake remains active. R3.2.3.5 tracks the retained Repository reader, and R3.2.3.6 explicitly keeps legacy revision capture, restore and original-repository selection Waiting. Desktop shared-controller/Core delegation is now adopted in clean default at fa13c1ce, E-CORE-032: 2,056 cold catalog, 507 Node, 744 AI, 250 Rust and four native cases plus strict/bundle/specification gates pass. Hosted reader, legacy History and complete R3/provider gates remain."
+      "detail": "Shared indexed History controls, [App/hosted ports](spec/records/2026-10-26-hosted-history-adapter.md), the [admitted Repository reader](spec/records/2026-10-26-hosted-repository-reader.md) and [coherent current Tasks intake](spec/records/2026-10-26-reader-current-intake.md) are qualified. Desktop M16.6 is adopted at fa13c1ce with all native/bundle/catalog gates. Remaining current-profile parity is guarded restore, backup settings/status and original-source selection under R3.2.3.6. The optional legacy AppDatabase capture scheduler is outside the default Desktop profile. Full R3/provider and default cutover stay open; historical source evidence remains in the child rows."
     },
     {
       "id": "R1.3.9.1",
@@ -685,17 +685,17 @@
       "id": "R3.2.3.5",
       "area": "Hosted Repository adoption",
       "work": "Admitted native reader and retained Repository read/search/blame screen",
-      "status": "Working",
-      "spec": "spec/src/architecture/rust-history-indexing-lifetime.md#ln-core-011",
-      "detail": "Reuse preserved hosted-services RepositoryFactory/lifetime/screen and jj-history-service version1 frames through the existing CoreClient; no companion, replacement screen, fake navigation or renderer index scheduler. Canonical read/lifetime contract precedes implementation; actual retained hosted screen and passive/cold indexing acceptance remain required."
+      "status": "Complete",
+      "spec": "spec/src/architecture/rust-history-reader.md#ln-core-016",
+      "detail": "[Qualified read-only hosted Repository](spec/records/2026-10-26-hosted-repository-reader.md) reuses the retained revision/diff/Search/blame screens through shared native lifetime, lossless same-client HTTP and private profile registration. [Current Tasks/reader intake](spec/records/2026-10-26-reader-current-intake.md) additionally passes the retained-Arc Task fence, all537Rust/2326package/261coldcatalog/23browser and full specification gates. The same7nativeignores/1DenoSkip remain explicit. Ordinary defaults, SDK publication, restore/source parity and complete R3 are separate."
     },
     {
       "id": "R3.2.3.6",
       "area": "Remaining History parity",
-      "work": "Legacy revision capture, guarded restore and original repository source",
-      "status": "Waiting",
+      "work": "Guarded repository restore, backup settings/status and original source",
+      "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "R3.1.3 qualifies database-only storage, not HistoryPlugin capture ownership. Under LN-CORE003/006/008, reuse existing capture/database/writer/backup/restore and savedH03 engines/contracts; qualify unattended revision capture/retention, guarded restore and supported original-source parity in both hosts. The index/reader slices leave these existing behaviors unchanged and do not close this gate."
+      "detail": "Current Desktop uses jj-vault capture and Repository screens; required parity reuses those engines for guarded restore, backup selection/status/passive observation and original .jj source. The restore lane is active with exact native/HTTP/retained-screen checks; remaining source and full host gates stay open. Optional legacy AppDatabase HistoryPlugin capture ownership is outside both current default profiles and deferred; database-only storage remains available. The reader slice does not close these gates."
     },
     {
       "id": "R3.2.3.7",
@@ -711,7 +711,7 @@
       "work": "Admitted native Task protocol and source-owned plugin adapter",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-task-host-port.md#ln-core-013",
-      "detail": "[Shared port source](spec/records/2026-10-26-native-task-host-port.md) is qualified: 13 exact native/HTTP cases, all 10 App observer/startup cases, 480 complete Rust, 2,264 package and 261 cold catalog/a11y cases; strict/protocol/check/build, public type pack, static Storybook and specification/78-governance gates pass. Startup reconciliation waits for settled plugin declarations; passive metadata reads never select Task policy. Owning Tasks adapter 7ae46a74 passes 2,859 units, 14 native and 62 cold catalog/a11y cases plus all source gates. Both host selections, verified installed-plugin native acceptance and common-locale/provider parity remain separate waiting work; no defaults change."
+      "detail": "[Shared port source](spec/records/2026-10-26-native-task-host-port.md) is qualified: 13 exact native/HTTP cases, all 10 App observer/startup cases, 480 complete Rust, 2,264 package and 261 cold catalog/a11y cases; strict/protocol/check/build, public type pack, static Storybook and specification/78-governance gates pass. Startup reconciliation waits for settled plugin declarations; passive metadata reads never select Task policy. Owning Tasks adapter 7ae46a74 passes 2,859 units, 14 native and 62 cold catalog/a11y cases plus all source gates. Both host selections, verified installed-plugin native acceptance and common-locale/provider parity remain separate waiting work; no defaults change. Latest owning Tasks recovery/guard source is committed at 703a88e0: 2,875 units, 27 native and 63 cold catalog cases plus strict/build/public/static/spec gates pass; public archive SHA9522bdb7 is retained. Native mutations reread within the existing editing guard; bounded lost-response references and explicit inspection survive reload without replay. Both actual host integrations remain separately gated."
     },
     {
       "id": "R3.2.1.2.10.5",

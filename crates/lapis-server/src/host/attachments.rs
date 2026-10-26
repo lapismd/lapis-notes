@@ -1,3 +1,5 @@
+#[cfg(test)]
+mod tests;
 use super::{CLIENT_IDLE_TIMEOUT, Principal, Result, error};
 use lapis_app_core::services::Client;
 use lapis_app_protocol::ErrorCode;
@@ -45,8 +47,8 @@ impl Attachments {
         Ok(entry.client.clone())
     }
     pub fn remove(&self, id: Uuid, principal: Principal) -> Result<()> {
-        // Release native clients outside the registry lock: their Drop marks
-        // dirty claims detached under the shared vault's own lock.
+        // Fence retained native clients and drain History outside this lock.
+        // Dirty claims remain detached under the shared vault's own lock.
         let client = {
             let mut clients = self.lock()?;
             if clients
@@ -57,8 +59,7 @@ impl Attachments {
             }
             clients.remove(&id).ok_or_else(denied)?
         };
-        drop(client);
-        Ok(())
+        client.client.detach().map_err(|error| error.0)
     }
     pub fn expire(&self, now: Instant) -> Result<usize> {
         let retired = {
@@ -75,7 +76,7 @@ impl Attachments {
                 .collect::<Vec<_>>()
         };
         let count = retired.len();
-        drop(retired);
+        Self::drain(retired)?;
         Ok(count)
     }
     pub fn retire(&self, vault: Option<Uuid>) -> Result<()> {
@@ -92,8 +93,7 @@ impl Attachments {
                 .filter_map(|id| clients.remove(&id))
                 .collect::<Vec<_>>()
         };
-        drop(retired);
-        Ok(())
+        Self::drain(retired)
     }
     pub fn retire_principal(&self, principal: Principal) -> Result<()> {
         let retired = {
@@ -107,8 +107,16 @@ impl Attachments {
                 .filter_map(|id| clients.remove(&id))
                 .collect::<Vec<_>>()
         };
-        drop(retired);
-        Ok(())
+        Self::drain(retired)
+    }
+    fn drain(retired: Vec<Attachment>) -> Result<()> {
+        let mut failure = None;
+        for entry in retired {
+            if let Err(error) = entry.client.detach() {
+                failure.get_or_insert(error.0);
+            }
+        }
+        failure.map_or(Ok(()), Err)
     }
 }
 fn denied() -> lapis_app_protocol::ServiceError {

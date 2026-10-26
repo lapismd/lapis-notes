@@ -8,6 +8,7 @@ mod editors;
 mod error;
 mod files;
 mod guards;
+mod history;
 mod indexing;
 mod operations;
 mod plugins;
@@ -23,6 +24,7 @@ pub use backup::{BackupStorage, HistoryIndexStatus};
 pub use client::Client;
 pub use database::DatabaseStorage;
 pub use error::{Error, Result};
+pub use history::{HistoryError, HistoryMethod};
 pub use indexing::{
     IndexingStatus, SearchIndexingConfiguration, TrackedTaskError, TrackedTaskFailure,
     TrackedTaskProvider, TrackedTaskStatus,

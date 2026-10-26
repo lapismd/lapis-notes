@@ -1,5 +1,14 @@
 # Packages / Host and plugin integration
 
+The private application profile owns optional Repository registration and its
+App-scoped binding before configured plugin loading. The generic Web session
+selects that public private-profile entry; it does not import plugin classes.
+
+The private Rust-hosted History profile consumes the retained public Repository
+plugin and lossless History SDK through the same App/session and admitted client.
+It adds no published API export or alternate plugin engine. The unpublished SDK
+uses the documented private-app sibling exception and exact public validation archive.
+
 The private native-chat application profile consumes host-authored target
 `default_mode` metadata under LN-CORE-009/010. It resolves the exact target again
 before Send, refuses missing or invalid metadata and preserves explicit native

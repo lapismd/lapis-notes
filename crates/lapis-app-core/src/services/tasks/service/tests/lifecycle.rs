@@ -177,3 +177,42 @@ async fn native_tasks_port_derives_occurrence_identity_from_guarded_task_source(
     );
     close(runtime).await;
 }
+
+#[tokio::test]
+async fn retired_reader_client_cannot_readmit_native_tasks_through_retained_arc() {
+    let f = Fixture::new("complete / schedule / count");
+    let runtime = f.runtime();
+    let (vault, client) = configured(&f, &runtime).await;
+    let retained = Arc::new(client);
+    let request = f.request(&vault);
+    let before = snapshot(&vault);
+    retained.detach().unwrap();
+    retained.detach().unwrap();
+    for command in [
+        NativeTaskCommand::Status {},
+        NativeTaskCommand::Submit {
+            request: request.clone(),
+        },
+    ] {
+        assert_eq!(
+            retained.control_tasks(command).await.unwrap_err().code(),
+            lapis_app_protocol::ErrorCode::PermissionDenied
+        );
+    }
+    assert_eq!(snapshot(&vault).text, before.text);
+    let peer = vault.attach().unwrap();
+    assert!(
+        matches!(peer.control_tasks(NativeTaskCommand::Status {}).await.unwrap(),
+        NativeTaskValue::Status { status } if status.enabled)
+    );
+    assert!(matches!(
+        peer.control_tasks(NativeTaskCommand::Inspect {
+            request_id: request.request_id
+        })
+        .await
+        .unwrap(),
+        NativeTaskValue::Operation { operation: None }
+    ));
+    drop(retained);
+    close(runtime).await;
+}

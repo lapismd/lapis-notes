@@ -310,3 +310,13 @@ screen adoption remain a separate R3 gate.
 **Requirement.** Rust hosted Tasks MUST use the existing authenticated vault attachment, physical-root and generation admission. Typed commands MUST retain shared native selection, writer, journal and explicit-retry semantics. Revoked, expired or foreign clients MUST lose access. No request may supply a physical root, profile, caller scope or renderer callback.
 
 The native Task route also exercises the source-qualified English default daily contexts (en-GB 1/4 and en-US 7/4 or 7/1) through the existing journal and writer. Locale support follows the [retained daily source gate](../../records/2026-10-26-native-daily-locale-parity.md); host defaults and signed-plugin adoption remain separate.
+
+## LN-SRV-026 — Admitted Rust Repository transport
+
+<a id="ln-srv-026"></a>
+
+**Requirement.** Rust hosted Repository methods MUST reuse the authenticated
+vault attachment, protocol, Origin and CSRF policy. Raw text frames MUST obey
+native byte limits and method allowlisting. Lease retirement during an await
+MUST prevent data delivery. Unknown methods, malformed frames and foreign vaults
+MUST fail without fallback to the Node companion or browser-supplied authority.
