@@ -19,11 +19,28 @@ impl Host {
         profile: &Path,
         agents: Vec<super::turns::AgentConfig>,
     ) -> io::Result<Self> {
+        Self::profile(config, profile, agents, false)
+    }
+    /// Explicit installation selection. Browser commands cannot select storage.
+    pub fn with_indexed_history(
+        config: Config,
+        profile: &Path,
+        agents: Vec<super::turns::AgentConfig>,
+    ) -> io::Result<Self> {
+        Self::profile(config, profile, agents, true)
+    }
+    fn profile(
+        config: Config,
+        profile: &Path,
+        agents: Vec<super::turns::AgentConfig>,
+        indexed_history: bool,
+    ) -> io::Result<Self> {
         if !config.vaults.is_empty() {
             config.validate()?;
         }
         let (database, backup) = storage(profile, &config)?;
-        let mut runtime = Runtime::with_database(database).with_backup(backup);
+        let mut runtime = Runtime::with_database(database)
+            .with_backup(backup.with_history_indexing(indexed_history));
         if let Some(storage) = super::turns::storage::select(profile, &config, agents)? {
             runtime = runtime.with_turns(storage);
         }

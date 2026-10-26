@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 03:14:35 UTC",
+  "updated": "2026-10-26 09:58:45 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -391,7 +391,7 @@
       "work": "History-index scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Paused/cold native History ownership and final backup notifications are source-qualified; notifications are adopted in Notes `19cd103a`. Desktop `05d0e8ab` is committed in its clean default workspace with final-close, three backup, 12 native API and 2,016 catalog cases passing. Hosted selection, remaining renderer-scheduler retirement and complete default cutover remain."
+      "detail": "Existing native owner and Desktop05d0e8ab are qualified. Shared typed core/HTTP controls now pass full470Rust/2289package/261catalog/22browser plus strict/build/specification gates at ec988ab. Remaining: adopt shared public controller, finish admitted hosted HistoryReader/screen wiring and thin Desktop CoreClient extraction; retain default-cutover as a separate gate."
     },
     {
       "id": "R1.3.9.1",
@@ -656,6 +656,14 @@
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
       "detail": "[Coherent shared observer](spec/records/2026-10-26-native-search-observer.md) is integrated at 0bb90ba1. [Plugins Search/Bases/CSV source](spec/records/2026-10-26-search-bases-intake.md) is committed at bd305e58: 22 exact native Search, 16 cold Search, seven exact Bases and all 284 cold catalogue cases pass, plus package checks/tests/builds, static Storybook, specification, 47 runner/composition cases and public Search artifacts. Current-headless Chromium fixes the exact final-shard disconnect without changing assertions or coverage. Existing audit/CSV-style/lock findings remain recorded. Both native Search host adoptions remain Waiting."
+    },
+    {
+      "id": "R3.2.3.3",
+      "area": "History indexing",
+      "work": "Shared indexed History controls and admitted HTTP bridge",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-history-indexing-lifetime.md#ln-core-011",
+      "detail": "[Qualified shared History controls](spec/records/2026-10-26-hosted-history-service.md): five exactHTTP, two wire and two admitted-core cases; all76server/16backup; full470Rust/2289package/261coldcatalog/static and22actualbrowser cases pass, including strict/publictypes/build/canonical78governance. Source is qualified at frozenec988ab. Explicit installation selection stays off; retained hosted-screen/controller and Desktop shared-adapter intake remain separate R3.2.3 gates."
     }
   ]
 }

@@ -200,3 +200,9 @@ The private build flag `VITE_LAPIS_NATIVE_METADATA=1` selects this staged profil
 It supplies no new scheduler or native path authority. Native Search remains a
 separate plugin/archive and host-acceptance gate; metadata-only selection keeps
 the retained Search writer available until that gate is admitted.
+
+## LN-WEB-067 — Thin hosted indexed History adapter
+
+<a id="ln-web-067"></a>
+
+**Requirement.** An explicitly selected Rust hosted History adapter MUST expose the shared start, status, query and context service through its existing admitted client. Views MUST observe the native owner without renderer batch scheduling. Teardown MUST fence later requests and drain accepted observation without disabling native work. Ordinary Node, Rust and standalone Web defaults MUST retain their existing profiles until separately qualified.

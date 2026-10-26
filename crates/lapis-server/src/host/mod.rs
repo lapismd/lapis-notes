@@ -1,6 +1,7 @@
 mod attachments;
 mod backup;
 mod database;
+mod history_index;
 mod indexing;
 mod management;
 pub mod turns;

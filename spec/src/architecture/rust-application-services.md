@@ -21,7 +21,7 @@ remains in Desktop while the common engine owns checked IO and publication.
 
 [Native indexing](rust-indexing-lifetime.md) stages qualified Markdown parsers, Tasks, Docs and configured Markdown/Canvas Search on one admitted worker with explicit client-writer fencing.
 Guarded Task transformations, daily provider policy, default IO and combined daily Task observation processing reuse existing source contracts and writers; [History scheduling](rust-history-indexing-lifetime.md) retains paused/cold reads and final backup notifications.
-Custom processors, complete provider scheduling and both hosts remain gated.
+Custom processors and both hosts remain gated; History transport is staged.
 
 The core boundary audit runs in normal checks and canonical specification checks.
 It rejects transport dependencies/source references, host source routing and new

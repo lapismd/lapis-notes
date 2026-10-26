@@ -52,11 +52,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 Some(path) => serde_json::from_slice(&std::fs::read(path)?)?,
                 None => Vec::new(),
             };
-            Host::with_profile_and_agents(config, std::path::Path::new(&profile), agents)?
+            if std::env::var("LAPIS_SERVER_NATIVE_HISTORY").as_deref() == Ok("1") {
+                Host::with_indexed_history(config, std::path::Path::new(&profile), agents)?
+            } else {
+                Host::with_profile_and_agents(config, std::path::Path::new(&profile), agents)?
+            }
         }
         None => {
-            if std::env::var_os("LAPIS_SERVER_AGENTS_CONFIG").is_some() {
-                return Err("Native agents require LAPIS_SERVER_DATA_ROOT".into());
+            if std::env::var_os("LAPIS_SERVER_AGENTS_CONFIG").is_some()
+                || std::env::var("LAPIS_SERVER_NATIVE_HISTORY").as_deref() == Ok("1")
+            {
+                return Err("Native services require LAPIS_SERVER_DATA_ROOT".into());
             }
             Host::new(config)?
         }

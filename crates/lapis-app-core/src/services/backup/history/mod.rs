@@ -1,4 +1,6 @@
 //! Vault-owned derived work remains independent of backup capture and clients.
+mod controls;
+mod requests;
 mod selection;
 #[cfg(test)]
 mod tests;

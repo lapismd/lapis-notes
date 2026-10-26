@@ -285,3 +285,9 @@ The explicit hosted native-metadata profile under
 [LN-WEB-066](../web-host/startup-and-plugins.md#ln-web-066) observes those controls
 through the existing client admission. Node remains the serving baseline;
 metadata staging does not switch final hosted or Search defaults.
+
+## LN-SRV-024 — Same-client indexed History transport
+
+<a id="ln-srv-024"></a>
+
+**Requirement.** Rust hosted indexed History MUST use the existing authenticated vault client and its physical source/generation checks. Typed start, status, query and context calls MUST retain the native selection and failure semantics. Revoked, foreign or detached clients MUST lose access; no browser request may supply a filesystem root, profile, exclusion policy or caller scope.
