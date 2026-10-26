@@ -179,6 +179,14 @@ MUST retain that snapshot, replacement intent, action and published observation.
 This stage grants no retry API, unattended scheduling or application selection;
 durable recovery remains a separate gate.
 
+The next recovery stage MUST reuse the existing private turn journal's physical
+record-store implementation for profile admission, exclusive writer locks,
+bounded records, conditional publication and retirement. Shared IO MUST retain
+the existing turn layout, serialized records and dispatch/recovery semantics.
+Domain validation and workflow stages remain separately typed; Task records
+MUST NOT masquerade as turns. Extracting IO grants no additional dispatch,
+filesystem authority, retry, scheduling or host selection.
+
 An admitted Task operation MUST verify its original Task version and source
 plan before the first daily mutation. It MUST resolve the plan's occurrence
 date, combine daily materialization and optional completion within one guarded

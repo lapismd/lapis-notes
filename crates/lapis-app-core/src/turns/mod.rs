@@ -1,18 +1,17 @@
 //! Private durable dispatch authority. Live vault and execution admission remain required.
 mod continuation;
-mod storage;
 mod types;
+use crate::record_store::RecordStore;
 use crate::vault::VaultRoot;
 use lapis_app_protocol::turns::{TurnInput, TurnPhase, TurnRecord, TurnSummary};
 use std::{io, path::Path};
-use storage::Storage;
 pub use types::TurnOutcome;
 pub(crate) use types::{MAX_OUTPUT_BYTES, normalize};
 use types::{MAX_RECORDS, invalid, now};
 use uuid::Uuid;
 
 pub struct TurnJournal {
-    storage: Storage,
+    storage: RecordStore<TurnRecord>,
 }
 
 /// Only fresh durable acceptance creates this non-serializable, single-use value.
@@ -41,7 +40,7 @@ impl TurnJournal {
     /// Native installation inputs only. Recovery changes state, never dispatches.
     pub fn open(directory: &Path, vault: Uuid, content: &VaultRoot) -> io::Result<Self> {
         let journal = Self {
-            storage: Storage::open(directory, vault, content)?,
+            storage: RecordStore::open(directory, vault, content)?,
         };
         for id in journal.storage.ids()? {
             let (mut record, bytes) = journal

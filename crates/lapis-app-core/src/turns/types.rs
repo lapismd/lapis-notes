@@ -110,3 +110,15 @@ pub(super) fn now() -> io::Result<u64> {
     )
     .map_err(|_| invalid("Native clock exceeds its bound"))
 }
+
+impl crate::record_store::StoredRecord for TurnRecord {
+    const KIND: &'static str = "turn";
+    const MAX_RECORD_BYTES: usize = MAX_RECORD_BYTES;
+    const MAX_RECORDS: usize = MAX_RECORDS;
+    fn id(&self) -> Uuid {
+        self.input.request_id
+    }
+    fn validate(&self, vault: Uuid, id: Uuid) -> io::Result<()> {
+        validate(self, vault, id)
+    }
+}

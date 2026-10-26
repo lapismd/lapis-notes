@@ -1,15 +1,25 @@
-use super::types::{MAX_RECORD_BYTES, MAX_RECORDS, invalid, validate};
 use crate::vault::{VaultRoot, WriteOptions, sync_directory};
 use cap_std::fs::MetadataExt;
-use lapis_app_protocol::turns::TurnRecord;
+use serde::{Serialize, de::DeserializeOwned};
 use std::{
     fs::File,
     io::{self, Read},
+    marker::PhantomData,
     path::Path,
 };
 use uuid::Uuid;
 
-pub(super) struct Storage {
+/// Private record IO shared by independently typed native journals.
+pub(crate) trait StoredRecord: Serialize + DeserializeOwned {
+    const KIND: &'static str;
+    const MAX_RECORD_BYTES: usize;
+    const MAX_RECORDS: usize;
+    fn id(&self) -> Uuid;
+    fn validate(&self, vault: Uuid, id: Uuid) -> io::Result<()>;
+}
+
+pub(crate) struct RecordStore<T: StoredRecord> {
+    record: PhantomData<T>,
     profile: VaultRoot,
     root: VaultRoot,
     lock: File,
@@ -17,21 +27,25 @@ pub(super) struct Storage {
     pub vault: Uuid,
     pub generation: Uuid,
 }
-impl Storage {
+impl<T: StoredRecord> RecordStore<T> {
+    fn invalid(message: &str) -> io::Error {
+        io::Error::new(
+            io::ErrorKind::InvalidData,
+            format!("Native {} {message}", T::KIND),
+        )
+    }
     pub fn open(directory: &Path, vault: Uuid, content: &VaultRoot) -> io::Result<Self> {
         if vault.is_nil()
             || !directory.is_absolute()
             || !std::fs::symlink_metadata(directory)?.is_dir()
         {
-            return Err(invalid("Native turn storage requires a physical profile"));
+            return Err(Self::invalid("storage requires a physical profile"));
         }
         content.verify_physical_root()?;
         let profile = VaultRoot::open(directory)?;
         if profile.path().starts_with(content.path()) || content.path().starts_with(profile.path())
         {
-            return Err(invalid(
-                "Native turn authority must remain outside vault content",
-            ));
+            return Err(Self::invalid("authority must remain outside vault content"));
         }
         let name = vault.to_string();
         match profile.mkdir(&name, false) {
@@ -49,6 +63,7 @@ impl Storage {
         let lock = root.open_file(".owner.lock")?.into_std();
         lock.try_lock().map_err(io::Error::from)?;
         let value = Self {
+            record: PhantomData,
             profile,
             root,
             lock,
@@ -64,7 +79,7 @@ impl Storage {
         if self.retired {
             return Err(io::Error::new(
                 io::ErrorKind::NotConnected,
-                "Native turn writer is retired",
+                format!("Native {} writer is retired", T::KIND),
             ));
         }
         self.profile.verify_physical_root()?;
@@ -74,7 +89,7 @@ impl Storage {
         if !current.is_file() || current.dev() != held.dev() || current.ino() != held.ino() {
             return Err(io::Error::new(
                 io::ErrorKind::PermissionDenied,
-                "Native turn writer changed",
+                format!("Native {} writer changed", T::KIND),
             ));
         }
         Ok(())
@@ -93,36 +108,38 @@ impl Storage {
         let directory = self.root.directory_handle()?;
         for (index, entry) in directory.entries()?.enumerate() {
             // Records, the writer lock and one interrupted temporary publication.
-            if index >= MAX_RECORDS + 2 {
-                return Err(invalid(
-                    "Native turn journal exceeds its supported catalogue",
-                ));
+            if index >= T::MAX_RECORDS + 2 {
+                return Err(Self::invalid("journal exceeds its supported catalogue"));
             }
             let entry = entry?;
             let name = entry
                 .file_name()
                 .into_string()
-                .map_err(|_| invalid("Native turn filename is not UTF-8"))?;
+                .map_err(|_| Self::invalid("filename is not UTF-8"))?;
             let Some(id) = name.strip_suffix(".json") else {
                 continue;
             };
             if !entry.file_type()?.is_file() {
-                return Err(invalid("Native turn record is not a regular file"));
+                return Err(Self::invalid("record is not a regular file"));
             }
-            let parsed =
-                Uuid::parse_str(id).map_err(|_| invalid("Invalid native turn filename"))?;
-            if parsed.get_version_num() != 4 || parsed.to_string() != id || ids.len() >= MAX_RECORDS
+            let parsed = Uuid::parse_str(id).map_err(|_| {
+                io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    format!("Invalid native {} filename", T::KIND),
+                )
+            })?;
+            if parsed.get_version_num() != 4
+                || parsed.to_string() != id
+                || ids.len() >= T::MAX_RECORDS
             {
-                return Err(invalid(
-                    "Native turn journal exceeds its supported catalogue",
-                ));
+                return Err(Self::invalid("journal exceeds its supported catalogue"));
             }
             ids.push(parsed);
         }
         ids.sort();
         Ok(ids)
     }
-    pub fn read(&self, id: Uuid) -> io::Result<Option<(TurnRecord, Vec<u8>)>> {
+    pub fn read(&self, id: Uuid) -> io::Result<Option<(T, Vec<u8>)>> {
         self.verify()?;
         let file = match self.root.open_file(&format!("{id}.json")) {
             Ok(file) => file,
@@ -130,25 +147,25 @@ impl Storage {
             Err(e) => return Err(e),
         };
         let mut bytes = Vec::new();
-        file.take(MAX_RECORD_BYTES as u64 + 1)
+        file.take(T::MAX_RECORD_BYTES as u64 + 1)
             .read_to_end(&mut bytes)?;
-        if bytes.len() > MAX_RECORD_BYTES {
-            return Err(invalid("Native turn record exceeds its bound"));
+        if bytes.len() > T::MAX_RECORD_BYTES {
+            return Err(Self::invalid("record exceeds its bound"));
         }
-        let record: TurnRecord = serde_json::from_slice(&bytes)
-            .map_err(|_| invalid("Native turn record is unreadable"))?;
-        validate(&record, self.vault, id)?;
+        let record: T =
+            serde_json::from_slice(&bytes).map_err(|_| Self::invalid("record is unreadable"))?;
+        record.validate(self.vault, id)?;
         Ok(Some((record, bytes)))
     }
-    pub fn write(&self, record: &TurnRecord, expected: Option<&[u8]>) -> io::Result<Vec<u8>> {
+    pub fn write(&self, record: &T, expected: Option<&[u8]>) -> io::Result<Vec<u8>> {
         self.verify()?;
-        validate(record, self.vault, record.input.request_id)?;
-        let bytes = serde_json::to_vec(record)
-            .map_err(|_| invalid("Native turn record is not serializable"))?;
-        if bytes.len() > MAX_RECORD_BYTES {
-            return Err(invalid("Native turn record exceeds its bound"));
+        record.validate(self.vault, record.id())?;
+        let bytes =
+            serde_json::to_vec(record).map_err(|_| Self::invalid("record is not serializable"))?;
+        if bytes.len() > T::MAX_RECORD_BYTES {
+            return Err(Self::invalid("record exceeds its bound"));
         }
-        let path = format!("{}.json", record.input.request_id);
+        let path = format!("{}.json", record.id());
         match expected {
             Some(expected) => self.root.write_if_unchanged(
                 &path,
@@ -164,3 +181,6 @@ impl Storage {
         Ok(bytes)
     }
 }
+
+#[cfg(test)]
+mod tests;
