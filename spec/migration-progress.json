@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 17:33:14 UTC",
+  "updated": "2026-10-26 18:16:14 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -743,7 +743,7 @@
       "work": "Original repository source selection",
       "status": "Working",
       "spec": "spec/src/architecture/rust-history-reader.md#ln-core-016",
-      "detail": "Original-source read-only parity is starting after qualified backup controls. Reuse existing source witnesses, History Owner/Policy and PreparationQueue with native-minted per-client read tokens; no capture, initialization, recovery or new engine. CORE024/SRV029/WEB075 source and host gates remain open."
+      "detail": "Original-source owner proves8nativeHTTP,8new/67affectedWeb, strict/protocol and read-only separate source/token/witness/pin behavior. Built picker/pin/tabs/read-only/metadata preservation assertions pass; final corrected Op Log control/cold-restart target remains queued. Root will include the owner-qualified candidate in the batched full current cohort; Desktop adapter/native acceptance remains separate."
     },
     {
       "id": "R3.2.3.6.4",
@@ -791,7 +791,7 @@
       "work": "Actual hosted and Desktop editor/Tasks acceptance",
       "status": "Working",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-020",
-      "detail": "Both staged hosts remain under actual qualification. The owning API reproduces and repairs stale saved-baseline refusal after native Tasks writes; the original actual hosted dirty-writer/Tasks/rearm/tab-close/clean-native-shutdown case now passes1/1 on focused repair. API28narrow/118persistence/1686unit owner gates pass, with complete source/Markdown and final both-host cohorts still pending. Desktop thin transport and native lifetime checks continue; no default changes."
+      "detail": "Actual current API/Markdown editor journey passes1/1 and guarded leave5/5: foreign dirty rejection, native Tasks completion, retained draft, same-ID rearm, actual tab/native-claim removal, saved-file review and switch/archive/logout refusal/retry all pass with strict runtime/Svelte and native shutdown. Final complete15 hosted cases and broad source/Markdown/Desktop qualification remain queued within the shared Docker worker cap. No production exemption or default change."
     },
     {
       "id": "R3.2.4.2.1",
@@ -816,6 +816,14 @@
       "status": "Complete",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-026",
       "detail": "[Source qualification](spec/records/2026-10-26-native-state-intents.md): five exact state, 22 registry/state, 118 persistence, 1,663 API and actual conditional HTTP cases pass; complete source passes 562 Rust, 2,354 package and 261 cold catalog cases plus strict/public-build/static/spec gates. Idle clean state no longer fences another App. Interactive/foreign guards remain intact. Actual hosted and Desktop adoptions stay at their separate host gates."
+    },
+    {
+      "id": "R3.2.4.6",
+      "area": "Native writer reconciliation",
+      "work": "Protected clean producer refresh after guarded native mutation",
+      "status": "Working",
+      "spec": "spec/src/architecture/native-editor-intents.md#ln-core-020",
+      "detail": "Owner-qualified API10051 passes28focused/118persistence/1686API and strict/publicpack; corresponding Markdownad89 passes3new/3original/23affected/142Markdown and strict/publicpack. Existing Mira protected recovery is reused; read follows confirmed native rearm before local protection releases. Complete source/Plugins and final actual host cohorts remain active. No draft clearing, save replay, retirement or caller-fence exemption."
     }
   ]
 }
