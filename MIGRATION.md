@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-26 00:41:53 UTC**.
+Last updated **2026-10-26 00:52:29 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -41,27 +41,33 @@ the committed Docs/History integration (`5ee783f1`).
 
 Four independent implementation lanes are active:
 
-| Lane                      | Current work                                                          | Gate before completion                                                                                   |
-| ------------------------- | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| Tasks                     | Qualified one-file transformations; next daily/two-file policy        | Daily provider creation and daily-before-rolling Task coordination                                       |
-| Native indexing ownership | Explicit App/service selection and metadata/projection writer fencing | Cancellation/drain and cache/projection/HTTP tests; full source qualification, then actual host adoption |
-| Desktop History           | Passive observation, paused/cold reads and relocation drain           | Complete catalog/source lanes and hidden native acceptance, then Desktop commit                          |
-| Search source             | Canvas source/publication and explicit chunking source-qualified      | Remaining provider/status parity, typed configuration seam and both application selections               |
+| Lane                      | Current work                                                            | Gate before completion                                                                        |
+| ------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Tasks                     | Lifecycle planner source-qualified; native daily/two-file policy active | Daily provider creation and daily-before-rolling Task coordination                            |
+| Native indexing ownership | Explicit App/service selection and metadata/projection writer fencing   | Final cold catalog/static/specification qualification, then combined intake and host adoption |
+| Desktop History           | Passive observation, paused/cold reads and relocation drain             | Complete catalog/source lanes and hidden native acceptance, then Desktop commit               |
+| Search source             | Canvas source/publication and explicit chunking source-qualified        | Remaining provider/status parity, typed configuration seam and both application selections    |
 
-The separate Search source lane now has 37 frozen Canvas outcomes and five
-native cases passing. It is source-qualified and committed at Plugins `5e0dffc3`; all 87 Search
-package cases, strict/native/package build and specification gates pass. Tasks one-file intake is committed at `9f99eee8` after all 404 native
-and 2,253 package cases plus full check/test/build and specification gates.
-Combined-main acceptance also passes; daily provider/two-file coordination is
-the next Tasks implementation slice.
-Desktop’s expanded hidden suite exposed a History read-admission failure under
-background indexing. The narrow jj-vault repair now passes four exact and 33
-complete source cases; its source repair is committed at `5f4bf729`; Desktop consumer qualification is running.
-The native Canvas/chunking intake passes all six exact cases in the isolated
-`lapis-notes-native-search-providers-20261026` workspace; all 411 Rust and 54 API-reference cases plus strict native/build checks pass.
-Final complete specification closure and all 78 governance regressions pass.
-R3.2.2.3 is Source complete; typed host configuration/status and remaining
-provider parity are the next Search steps.
+Canvas/chunking intake is committed in this main workspace at `98590492`:
+six exact cases, all 411 Rust and 54 API reference cases, native build/strict
+checks and the complete specification/78 governance gates pass. The next Search
+control slice has improved its five exact cases from 0/5 to 5/5 in an isolated
+integration workspace; broader authority/protocol/host checks remain pending.
+
+The Tasks lifecycle planner is committed at Tasks `a2e9f126`: all 95 retained
+scenarios/98 planner attempts, 26 native, 2,848 unit and 62 cold catalog cases
+plus strict/build/publint/static/specification gates pass. Native daily-provider
+resolution, ordered persistence/recovery and scheduling remain application work;
+the pure planner does not close R3.2.1.2.10.3.
+
+The native indexing-port source passes its final 403 Rust and 2,266 package
+cases; cold catalog/static/specification qualification is running. That source
+includes both retained Markdown extensions and explicit client-dependent custom
+configuration hashes. It is not yet admitted into this main workspace.
+
+Desktop has rebuilt the normal app against the committed jj-store History read
+repair `5f4bf729`. Native final-capture readiness and the remaining cold catalog
+gates are still being checked; Desktop History intake remains uncommitted.
 
 Both metadata host selections remain off. Full Search provider/configuration
 parity and custom-processor handling remain before the complete R3 host gate.
@@ -181,15 +187,15 @@ not host adoption or native/hosted application acceptance.
 
 ### Gate status: Working
 
-| Task ID                                                                         | Area                           | Work                                                                      | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| ------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)            | Roadmap                        | Indexed vault                                                             | Native database and qualified metadata/Tasks/Docs/Search/History source owners are integrated. [Combined Tasks/parser intake](spec/records/2026-10-26-tasks-parser-source-integration.md) passes 405 Rust, 54 API references, strict native/build and complete specification gates. Remaining: daily/two-file Tasks coordination, full Search/custom-processor parity, explicit one-writer ownership and both host adoptions. Defaults stay unchanged. |
-| [R3.2.1](spec/src/architecture/rust-application-services.md#ln-core-003)        | Service ownership              | Unattended metadata and projection reconciliation                         | Native Markdown, complete Tasks projections and opt-in Docs publication are source-qualified in Notes. Markdown parser/cache intake passes all 392 Rust cases and 54 retained API references. Guarded Tasks writes/cache intake and explicit one-writer ownership are active in separate workspaces. Daily/two-file coordination, custom-processor parity and both host selections remain; source qualification does not select a writer.              |
-| [R3.2.1.2](spec/src/architecture/rust-application-services.md#ln-core-005)      | Unattended metadata            | Remaining native plugin projection processors                             | Native Markdown, complete Tasks projections and opt-in Docs publication are source-qualified in Notes. Markdown parser/cache intake passes all 392 Rust cases and 54 retained API references. Guarded Tasks writes/cache intake and explicit one-writer ownership are active in separate workspaces. Daily/two-file coordination, custom-processor parity and both host selections remain; source qualification does not select a writer.              |
-| [R3.2.1.2.10.3](spec/src/architecture/rust-application-services.md#ln-core-006) | Tasks application coordination | Native daily provider creation and daily-before-rolling Task coordination | Following qualified one-file Task intake, the Tasks lane is mapping retained API daily-document and Tasks occurrence/repository policy. Reuse the existing service owner and guarded writer for deterministic provider resolution, creation and two-file ordering/idempotence. Qualify ordinary and recurrence outcomes, conflicts and cold recovery before either host selection.                                                                     |
-| [R3.2.1.3](spec/src/architecture/rust-application-services.md#ln-core-004)      | Unattended metadata            | Tauri and HTTP unattended metadata adoption                               | Source foundation is active in an isolated Notes workspace: explicit App-owned native indexing port, typed selection/refresh/status and native database writer-authority enforcement. Preserve metadata/query/events facades, make detach passive and retain absent-port browser processing. Known Tasks/Docs projection ownership is staged; Search provider/configuration parity and both actual host gates remain separate.                         |
-| [R3.2.2](spec/src/architecture/rust-application-services.md#ln-core-003)        | Service ownership              | Search index reconciliation and scheduling                                | Qualified native Markdown reconciliation and 33 retained SearchManager envelopes are integrated. Canvas extraction is source-qualified at Plugins 5e0dffc3; its Notes publication/chunking intake is active in R3.2.2.3. Full provider registration, configuration persistence, refresh/checkpoint/progress parity and both host adoption gates remain; no host default changes.                                                                       |
-| [R3.2.3](spec/src/architecture/rust-application-services.md#ln-core-003)        | Service ownership              | History-index scheduling                                                  | [Vault-owned native History source](spec/records/2026-10-25-native-history-read-lifetime.md) now retains paused/cold immutable reads. Ten checkpoint cases, 380 complete Rust cases, 2,253 package cases and full check/test/build/specification gates pass. Desktop passive observation and native relocation drain are being implemented; HTTP selection and removal of remaining renderer scheduling remain. Defaults stay unchanged in the source. |
+| Task ID                                                                         | Area                           | Work                                                                      | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)            | Roadmap                        | Indexed vault                                                             | Native database and qualified metadata/Tasks/Docs/Search/History source owners are integrated. [Combined Tasks/parser intake](spec/records/2026-10-26-tasks-parser-source-integration.md) passes 405 Rust, 54 API references, strict native/build and complete specification gates. Remaining: daily/two-file Tasks coordination, full Search/custom-processor parity, explicit one-writer ownership and both host adoptions. Defaults stay unchanged.                               |
+| [R3.2.1](spec/src/architecture/rust-application-services.md#ln-core-003)        | Service ownership              | Unattended metadata and projection reconciliation                         | Native Markdown, complete Tasks projections and opt-in Docs publication are source-qualified in Notes. Markdown parser/cache intake passes all 392 Rust cases and 54 retained API references. Guarded Tasks writes/cache intake and explicit one-writer ownership are active in separate workspaces. Daily/two-file coordination, custom-processor parity and both host selections remain; source qualification does not select a writer.                                            |
+| [R3.2.1.2](spec/src/architecture/rust-application-services.md#ln-core-005)      | Unattended metadata            | Remaining native plugin projection processors                             | Native Markdown, complete Tasks projections and opt-in Docs publication are source-qualified in Notes. Markdown parser/cache intake passes all 392 Rust cases and 54 retained API references. Guarded Tasks writes/cache intake and explicit one-writer ownership are active in separate workspaces. Daily/two-file coordination, custom-processor parity and both host selections remain; source qualification does not select a writer.                                            |
+| [R3.2.1.2.10.3](spec/src/architecture/rust-application-services.md#ln-core-006) | Tasks application coordination | Native daily provider creation and daily-before-rolling Task coordination | The Tasks pure lifecycle planner is source-qualified at a2e9f126: 95 retained scenarios/98 attempts, 26 native, 2,848 unit and 62 cold catalog cases plus strict/build/publint/static/specification pass. Notes daily-provider reference capture retains 200 filenames, 45 provider outcomes and 19 registry steps. Native provider resolution/creation, ordered writes, partial/cold recovery and tracked-today scheduling are still being implemented before both host selections. |
+| [R3.2.1.3](spec/src/architecture/rust-application-services.md#ln-core-004)      | Unattended metadata            | Tauri and HTTP unattended metadata adoption                               | The isolated explicit App/service indexing port has passed its final 403 Rust and 2,266 package cases, strict/protocol/build and packed API declaration checks. Final cold catalog/static/specification qualification is running. Both Markdown extensions and fail-closed custom configuration are retained. Combined source intake, Search controls and both actual host gates remain separate; neither metadata host is selected.                                                 |
+| [R3.2.2](spec/src/architecture/rust-application-services.md#ln-core-003)        | Service ownership              | Search index reconciliation and scheduling                                | Qualified Markdown/Canvas reconciliation and explicit chunking source intake is committed at 98590492: six exact, 411 Rust, 54 retained API cases plus native strict/build and complete specification gates pass. Native provider/writer controls now pass five exact cases in an isolated integration workspace; broad combined intake, configuration persistence, checkpoint/progress parity and both hosts remain open.                                                           |
+| [R3.2.3](spec/src/architecture/rust-application-services.md#ln-core-003)        | Service ownership              | History-index scheduling                                                  | [Vault-owned native History source](spec/records/2026-10-25-native-history-read-lifetime.md) now retains paused/cold immutable reads. Ten checkpoint cases, 380 complete Rust cases, 2,253 package cases and full check/test/build/specification gates pass. Desktop passive observation and native relocation drain are being implemented; HTTP selection and removal of remaining renderer scheduling remain. Defaults stay unchanged in the source.                               |
 
 ### Gate status: Waiting
 

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 00:41:53 UTC",
+  "updated": "2026-10-26 00:52:29 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -383,7 +383,7 @@
       "work": "Search index reconciliation and scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Qualified native Markdown reconciliation and 33 retained SearchManager envelopes are integrated. Canvas extraction is source-qualified at Plugins 5e0dffc3; its Notes publication/chunking intake is active in R3.2.2.3. Full provider registration, configuration persistence, refresh/checkpoint/progress parity and both host adoption gates remain; no host default changes."
+      "detail": "Qualified Markdown/Canvas reconciliation and explicit chunking source intake is committed at 98590492: six exact, 411 Rust, 54 retained API cases plus native strict/build and complete specification gates pass. Native provider/writer controls now pass five exact cases in an isolated integration workspace; broad combined intake, configuration persistence, checkpoint/progress parity and both hosts remain open."
     },
     {
       "id": "R3.2.3",
@@ -463,7 +463,7 @@
       "work": "Tauri and HTTP unattended metadata adoption",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "Source foundation is active in an isolated Notes workspace: explicit App-owned native indexing port, typed selection/refresh/status and native database writer-authority enforcement. Preserve metadata/query/events facades, make detach passive and retain absent-port browser processing. Known Tasks/Docs projection ownership is staged; Search provider/configuration parity and both actual host gates remain separate."
+      "detail": "The isolated explicit App/service indexing port has passed its final 403 Rust and 2,266 package cases, strict/protocol/build and packed API declaration checks. Final cold catalog/static/specification qualification is running. Both Markdown extensions and fail-closed custom configuration are retained. Combined source intake, Search controls and both actual host gates remain separate; neither metadata host is selected."
     },
     {
       "id": "R3.2.1.2.1",
@@ -631,7 +631,7 @@
       "work": "Native daily provider creation and daily-before-rolling Task coordination",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "Following qualified one-file Task intake, the Tasks lane is mapping retained API daily-document and Tasks occurrence/repository policy. Reuse the existing service owner and guarded writer for deterministic provider resolution, creation and two-file ordering/idempotence. Qualify ordinary and recurrence outcomes, conflicts and cold recovery before either host selection."
+      "detail": "The Tasks pure lifecycle planner is source-qualified at a2e9f126: 95 retained scenarios/98 attempts, 26 native, 2,848 unit and 62 cold catalog cases plus strict/build/publint/static/specification pass. Notes daily-provider reference capture retains 200 filenames, 45 provider outcomes and 19 registry steps. Native provider resolution/creation, ordered writes, partial/cold recovery and tracked-today scheduling are still being implemented before both host selections."
     },
     {
       "id": "R3.2.2.3",
