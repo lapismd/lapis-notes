@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-26 03:31:29 UTC**.
+Last updated **2026-10-26 09:12:05 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -18,13 +18,13 @@ already presents the existing login, multi-vault chooser, workspace and plugin
 installation. Node remains the hosted default until R7; Desktop's native AI
 owner is staged, with renderer AI still the default.
 
-| Stage                       | Current gate                                             | Concrete work still required                                                                                                                                                                                               |
-| --------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `R3` Indexed vault          | Working                                                  | Finish guarded Tasks writes and daily/two-file coordination, Search/custom-processor parity, then select one native writer and schedulers in both hosts. Docs publication and Markdown parser intake are source-qualified. |
-| `R4` AI workflows and tools | Waiting on R3                                            | Move queues, participants, context/skills/handoff, approvals, first-party app tools, Changes and guarded undo to the service; retain existing screens and extension limits.                                                |
-| `R5` Memory                 | Waiting on R4                                            | Move capture/recall, claims, scheduled maintenance, forget and relocation into native jobs; prove handwritten-edit preservation and restart recovery. Storage alone is already implemented.                                |
-| `R6` Durable operations     | Waiting; independent source work can run alongside R3–R5 | Adapt retained imports/capture, Forge/transfer, Compute, installation transactions and desktop terminal lifetime to accepted service jobs with progress/cancel/recovery. Reuse existing engines.                           |
-| `R7` Hosted cutover         | Waiting on feature gates                                 | Run complete hosted/desktop parity and Linux delivery checks; switch the hosted default to Rust; remove Node, the companion and obsolete orchestration. Preserve standalone offline Web.                                   |
+| Stage                       | Current gate                                             | Concrete work still required                                                                                                                                                                                                            |
+| --------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `R3` Indexed vault          | Working                                                  | Land verified Search host slices; adopt the qualified Tasks service and shared History controls; finish combined unattended/provider acceptance in both hosts. The source writers, recovery and tracked-today scheduling are qualified. |
+| `R4` AI workflows and tools | Waiting on R3                                            | Move queues, participants, context/skills/handoff, approvals, first-party app tools, Changes and guarded undo to the service; retain existing screens and extension limits.                                                             |
+| `R5` Memory                 | Waiting on R4                                            | Move capture/recall, claims, scheduled maintenance, forget and relocation into native jobs; prove handwritten-edit preservation and restart recovery. Storage alone is already implemented.                                             |
+| `R6` Durable operations     | Waiting; independent source work can run alongside R3–R5 | Adapt retained imports/capture, Forge/transfer, Compute, installation transactions and desktop terminal lifetime to accepted service jobs with progress/cancel/recovery. Reuse existing engines.                                        |
+| `R7` Hosted cutover         | Waiting on feature gates                                 | Run complete hosted/desktop parity and Linux delivery checks; switch the hosted default to Rust; remove Node, the companion and obsolete orchestration. Preserve standalone offline Web.                                                |
 
 These **five remaining delivery stages (R3–R7)** have different amounts of work.
 The detailed ledger includes parent stages, child slices and source-only
@@ -32,90 +32,34 @@ checkpoints; its row count is not a count of independent unfinished jobs.
 
 ## Current work and next handoff
 
-**Active checkpoint — 2026-10-26 03:31:29 UTC:** metadata is committed in both main
-workspaces. Three independent implementation lanes are running:
+**Active checkpoint — 2026-10-26 09:12:05 UTC.** Implementation and qualification
+have advanced beyond the last main-workspace intake. The rows below separate
+source completion from code that has landed in an application.
 
-- **Search:** native adoption in Desktop and Rust hosted; replacement Apps must
-  disable retained native Search when the plugin is disabled or absent. Desktop
-  recovery also needs to route rebuilds through the selected native owner.
-- **Tasks:** typed cold recovery passes its focused cases and final 459-case
-  Rust/full-source gate; final governance and commit are being finished.
-  Tracked-today scheduling and both host selections remain after that commit.
-- **History:** shared typed source/HTTP controls are being implemented. The
-  missing-route baseline is recorded; saved-context, vault isolation and
-  replaced-root acceptance are running before source qualification.
+| Lane                     | Completed and verified                                                                                                          | Concrete work still required                                                                                                      |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Metadata                 | Adopted in both main applications: Notes `d133a31b`, Desktop `4bcb7e09`                                                         | None for this staged metadata slice                                                                                               |
+| Search                   | Both isolated host integrations pass their application checks; shared replacement-App API repair is committed at `a1b0dfde`     | Close the shared Search source prerequisite, commit both hosts and integrate their verified cohorts                               |
+| Tasks                    | Ordered writes `2296023f`, typed recovery `8e09a5de` and tracked-today scheduling `ad968536` are committed and source-qualified | Integrate the source into main, expose the existing native service through admitted plugin/host adapters, then qualify both hosts |
+| History                  | Shared typed source/HTTP bridge passes five exact HTTP cases, all 76 server cases, all 16 backup cases and strict Clippy        | Finish complete source/public-package qualification, adopt the retained hosted screen and extract Desktop's matching adapter      |
+| Design Core prerequisite | Selected-picker contrast repair `0d7a9289` is committed; all 986 source stories and required source/browser/package gates pass  | The verified archive is already in both pending Search host cohorts; publication stays deferred                                   |
 
-These are implementation checkpoints, not completed host gates. Desktop also
-exposed an upstream dark-mode selected-picker contrast defect; its owning
-Design Core repair is being handled as a direct prerequisite.
+Tasks scheduling passes all **467 Rust cases** and its complete source/specification
+gates. Its eight native cases replay all 45 retained-plugin attempts. These
+results complete that source slice; neither host has selected the new Tasks
+service yet. The [handoff checkpoint](spec/records/2026-10-26-r3-handoff-checkpoint.md)
+records revisions and the remaining adoption boundaries.
 
-The [both-host metadata closure](spec/records/2026-10-26-hosted-native-metadata.md)
-extends the coherent App observer and daily Task observations. Frozen combined
-runtime `9c207ac5` passes **461 Rust cases, 2,289 package cases and all 261 cold
-catalog cases**, all 20 strict check tasks, all 11 production builds, static
-Storybook and complete specification/78 governance checks. The API contributes
-1,619 cases. Actual browser lanes pass native metadata **1/1**, ordinary Rust
-hosted **8/8**, Node hosted **1/1** and standalone Web **12/12**. Desktop's matching
-metadata-only intake is committed at `4bcb7e09`. Existing asset-dependent native
-ignores and one retained Deno skip remain recorded; defaults stay renderer-owned.
+Metadata remains the latest fully integrated application gate. Its frozen
+combined source passed 461 Rust, 2,289 package and all 261 cold catalog cases,
+plus all 22 hosted/standalone browser cases. The source and both host records
+remain authoritative: [shared/hosted metadata](spec/records/2026-10-26-hosted-native-metadata.md)
+and [Desktop metadata](../lapis-desktop/spec/src/history/E-CORE-029.md).
 
-| Lane                  | Qualified now                                                                                                                                         | Still being finished                                                                         |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| Shared native source  | Metadata, Docs/Tasks projections, Search controls, shared App observer and daily observations pass the coherent full gate                             | Complete service selections and retained provider journeys                                   |
-| Search plugin adapter | Source committed at `bd305e58`: 22 exact native, 16 cold Search, seven exact Bases and all 284 catalogue cases; complete source/static/artifact gates | Native Search writer adoption in both hosts and actual provider journeys                     |
-| Tasks coordination    | Ordered persistence source `2296023f` and shared private journal IO `86f360f8` are committed and source-qualified separately                          | Typed cold recovery, tracked-today scheduling, combined main intake and both host selections |
-| Desktop metadata      | Metadata-only opt-in committed and adopted in clean default at `4bcb7e09`; 2,032 catalogue, final 88 affected, 14 native and 14 hidden API cases pass | Separate native Search/Tasks adoption; renderer remains default                              |
-| Hosted metadata       | Same-client opt-in, corrected API and complete source/catalogue/all 22 browser cases pass                                                             | Separate native Search/Tasks adoption and default cutover                                    |
-
-The combined Plugins source also integrates the already-qualified Bases
-accessibility fix `1faa35a1` and CSV metadata prerequisite `aa71d8fc`, which were
-missing from its native source branch. Runtime inputs match their qualified
-parents byte for byte. This avoids reimplementing known fixes. The original cold
-parent reproduces six Bases failures; the seven exact combined cases now pass.
-
-Its temporary validation runner omitted the private Sync installation already
-present in the tracked Docker worker. Restoring that install fixes dependency
-scanning without a production tooling workaround. The final-shard disconnect is
-resolved by Playwright's current Chromium headless channel: the original target
-passes all 71 cases, and all four cold shards pass **284/284**. The [committed source
-record](spec/records/2026-10-26-search-bases-intake.md) retains failed experiments,
-exact artifact hashes and final 47-case tooling/specification closure. Existing
-audit, CSV styling and release-lockfile findings stay separately recorded;
-publication and visual baseline approval remain deferred.
-
-Desktop History `05d0e8ab` is committed in its clean default workspace, including
-final-close, all three backup, 12 hidden API and all 2,016 catalog cases. Its new
-metadata slice shares that existing admitted database connection. It leaves
-Search's renderer writer selected until the native Search adapter is admitted.
-
-[Daily observations](spec/records/2026-10-26-native-daily-task-observations.md)
-are adopted in this coherent Notes intake. The next ordered write slice replays
-110 complete retained repository attempts, including 18 valid-duration cases.
-Its 11 exact physical/reference/race/partial checks pass; [full source qualification](spec/records/2026-10-26-native-task-lifecycle.md) is
-committed separately at `2296023f`, with all 442 Rust cases and complete
-check/test/build/specification gates passing. Its combined main-workspace intake
-is pending. Durable recovery and scheduling remain separate
-unfinished gates rather than being implied by those passing transformations.
-The [shared private journal IO prerequisite](spec/records/2026-10-26-native-task-recovery.md)
-is now committed separately at `86f360f8`: five exact store cases, all 14
-unchanged conversation recovery cases, 447 Rust cases and full source/specification
-gates pass. It reuses Notes-owned IO without a Lapis AI change. Typed Task cold
-recovery is active; this source has not yet been adopted in main or either host.
-
-Native acceptance found a metadata event-order race: a committed row could arrive
-before its renderer file object. The first source repair also assumed object
-identity, while real vault lookups return copies. The corrected API candidate
-`4b15f37a` passes all 28 observer and 1,619 API cases and the actual external-create
-Search journey in both hosts. Desktop's complete native intake is committed at
-`4bcb7e09`; hosted complete source/catalogue/host closure now passes at `9c207ac5`. The qualified Graph
-archive fixes the independently reproduced settings failures. Both host defaults
-remain renderer-owned, and metadata-only adoption does not select native Search.
-
-**Next:** adopt the qualified native Search adapter in both hosts, finish
-Tasks recovery/scheduling and the shared hosted History service, then
-qualify both complete R3 application selections. R4–R7 retain
-their existing dependencies and scope; their work has not been completed by
-these source gates.
+**Next:** land the already-verified Search host slices, finish the shared
+History bridge and native Tasks host adapters, then run one coherent R3 intake
+and both complete application selections. R4–R7 remain the four later delivery
+stages; signing, publication and unrelated Desktop experiments remain deferred.
 
 <details>
 <summary>Completed tooling, dependency and R2 intake</summary>
@@ -232,14 +176,14 @@ not host adoption or native/hosted application acceptance.
 
 ### Gate status: Working
 
-| Task ID                                                                         | Area                           | Work                                                                      | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| ------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)            | Roadmap                        | Indexed vault                                                             | Both metadata hosts are committed at Notes d133a31b and Desktop 4bcb7e09. Active in parallel: native Search adoption and replacement-App reconciliation; typed Task recovery final governance; shared hosted History controls. Tasks final source check passes 459 Rust cases, but recovery is not yet committed/adopted. R3 still requires tracked-today scheduling, both complete native writer selections and provider journeys. R4–R7 remain waiting as planned.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| [R3.2.1](spec/src/architecture/rust-application-services.md#ln-core-003)        | Service ownership              | Unattended metadata and projection reconciliation                         | Native metadata/projection ownership and shared App observer are integrated at 0bb90ba1 (461 Rust, 2,277 package, 261 cold catalog). Desktop metadata-only service adoption is committed at 4bcb7e09 with complete catalogue/native gates. The corrected API event-order candidate passes owner and both application journeys; hosted combined source/host closure is active. Complete processor/Tasks and Search selections, plus default cutover, remain separate.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| [R3.2.1.2](spec/src/architecture/rust-application-services.md#ln-core-005)      | Unattended metadata            | Remaining native plugin projection processors                             | Native Markdown, Tasks/occurrence and Docs projections plus explicit writer authority are integrated at 0bb90ba1. Ordered Tasks persistence is source-qualified separately at 2296023f (11 exact cases / 110 retained attempts / 442 Rust); combined intake, durable recovery, tracked-today scheduling and both host selections remain pending. Recovery reuses existing private durable IO; custom processors stay explicitly client-dependent.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| [R3.2.1.2.10.3](spec/src/architecture/rust-application-services.md#ln-core-006) | Tasks application coordination | Native daily provider creation and daily-before-rolling Task coordination | Daily policy/physical IO and daily observations are adopted in coherent Notes 0bb90ba1 with 461 Rust/2,277 package/261 cold catalog cases. [Ordered lifecycle source](spec/records/2026-10-26-native-task-lifecycle.md) is committed separately at 2296023f using qualified Tasks da17eba0: all 11 exact cases replay 110 complete retained attempts and cover races/partials; 442 Rust, all 20 package check/test tasks, 11 builds, strict source and final specification/78 governance pass. It is not yet adopted in this main workspace. Durable journal/cold recovery, tracked-today scheduling and both host selections remain Waiting; aggregate stays Working. [Shared private IO prerequisite](spec/records/2026-10-26-native-task-recovery.md) is committed at 86f360f8 with five exact, 14 unchanged Turn and 447 full Rust cases plus complete source/specification gates. It is source-qualified separately; typed Task recovery is active and no additional host is selected. |
-| [R3.2.2](spec/src/architecture/rust-application-services.md#ln-core-003)        | Service ownership              | Search index reconciliation and scheduling                                | Native Markdown/Canvas extraction, configured chunking, provider controls, writer fencing, progress and rebuild are qualified and adopted at 19cd103a. Shared App/Search adapter R3.2.2.5 is being qualified against the public API candidate. Both host selections, complete provider/application journeys and actual semantic-provider acceptance remain separate.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| [R3.2.3](spec/src/architecture/rust-application-services.md#ln-core-003)        | Service ownership              | History-index scheduling                                                  | Native History owner and Desktop 05d0e8ab are qualified. Shared typed controls and admitted HTTP access are active in workspace hosted-history-20261026 on d133a31b. Saved-context, vault isolation and replaced-root tests are running before complete source qualification. Retained hosted-screen adoption, shared Desktop extraction and renderer-scheduler retirement remain open.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Task ID                                                                         | Area                           | Work                                                                      | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)            | Roadmap                        | Indexed vault                                                             | Metadata is integrated in both main applications. Search application checks pass in both isolated host workspaces; their shared source prerequisite and host commits are being closed. Tasks ordered writes, typed recovery and tracked-today scheduling are source-qualified through ad968536 (467 Rust cases), but combined main intake and both host adapters remain. Shared indexed History source/HTTP controls pass focused gates; complete qualification and retained-screen/Desktop intake remain. R4-R7 retain their planned dependencies. |
+| [R3.2.1](spec/src/architecture/rust-application-services.md#ln-core-003)        | Service ownership              | Unattended metadata and projection reconciliation                         | Native metadata/projection ownership and shared App observer are integrated at 0bb90ba1 (461 Rust, 2,277 package, 261 cold catalog). Desktop metadata-only service adoption is committed at 4bcb7e09 with complete catalogue/native gates. The corrected API event-order candidate passes owner and both application journeys; hosted combined source/host closure is active. Complete processor/Tasks and Search selections, plus default cutover, remain separate.                                                                                |
+| [R3.2.1.2](spec/src/architecture/rust-application-services.md#ln-core-005)      | Unattended metadata            | Remaining native plugin projection processors                             | Native Markdown, Tasks/occurrence and Docs projections plus explicit writer authority are integrated at 0bb90ba1. Ordered Tasks persistence is source-qualified separately at 2296023f (11 exact cases / 110 retained attempts / 442 Rust); combined intake, durable recovery, tracked-today scheduling and both host selections remain pending. Recovery reuses existing private durable IO; custom processors stay explicitly client-dependent.                                                                                                   |
+| [R3.2.1.2.10.3](spec/src/architecture/rust-application-services.md#ln-core-006) | Tasks application coordination | Native daily provider creation and daily-before-rolling Task coordination | Ordered writes2296023f, shared journal IO86f360f8, typed recovery8e09a5de and tracked-today schedulingad968536 are committed in the isolated source lane. Recovery passes459 Rust cases and tracked-today467, with all78 governance/full source gates. No lapis-ai changes. Remaining: combined main intake, admitted Tasks protocol/plugin adapters and both native host selections; source completion does not imply host adoption.                                                                                                               |
+| [R3.2.2](spec/src/architecture/rust-application-services.md#ln-core-003)        | Service ownership              | Search index reconciliation and scheduling                                | Native Markdown/Canvas extraction, configured chunking, provider controls, writer fencing, progress and rebuild are qualified and adopted at 19cd103a. Shared App/Search adapter R3.2.2.5 is being qualified against the public API candidate. Both host selections, complete provider/application journeys and actual semantic-provider acceptance remain separate.                                                                                                                                                                                |
+| [R3.2.3](spec/src/architecture/rust-application-services.md#ln-core-003)        | Service ownership              | History-index scheduling                                                  | Native History owner and Desktop05d0e8ab are qualified. Shared generated DTOs and admitted core/HTTP controls in hosted-history-20261026 pass five exact HTTP, two wire, two admitted controls, all76 server and all16 backup cases plus strict Clippy. The canonical page-length stop is repaired; complete source/public-package qualification is running. Retained hosted-screen adapter, shared Desktop extraction and default cutover remain separate.                                                                                         |
 
 ### Gate status: Waiting
 

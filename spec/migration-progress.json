@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 03:31:29 UTC",
+  "updated": "2026-10-26 09:12:05 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Both metadata hosts are committed at Notes d133a31b and Desktop 4bcb7e09. Active in parallel: native Search adoption and replacement-App reconciliation; typed Task recovery final governance; shared hosted History controls. Tasks final source check passes 459 Rust cases, but recovery is not yet committed/adopted. R3 still requires tracked-today scheduling, both complete native writer selections and provider journeys. R4–R7 remain waiting as planned."
+      "detail": "Metadata is integrated in both main applications. Search application checks pass in both isolated host workspaces; their shared source prerequisite and host commits are being closed. Tasks ordered writes, typed recovery and tracked-today scheduling are source-qualified through ad968536 (467 Rust cases), but combined main intake and both host adapters remain. Shared indexed History source/HTTP controls pass focused gates; complete qualification and retained-screen/Desktop intake remain. R4-R7 retain their planned dependencies."
     },
     {
       "id": "R4",
@@ -391,7 +391,7 @@
       "work": "History-index scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native History owner and Desktop 05d0e8ab are qualified. Shared typed controls and admitted HTTP access are active in workspace hosted-history-20261026 on d133a31b. Saved-context, vault isolation and replaced-root tests are running before complete source qualification. Retained hosted-screen adoption, shared Desktop extraction and renderer-scheduler retirement remain open."
+      "detail": "Native History owner and Desktop05d0e8ab are qualified. Shared generated DTOs and admitted core/HTTP controls in hosted-history-20261026 pass five exact HTTP, two wire, two admitted controls, all76 server and all16 backup cases plus strict Clippy. The canonical page-length stop is repaired; complete source/public-package qualification is running. Retained hosted-screen adapter, shared Desktop extraction and default cutover remain separate."
     },
     {
       "id": "R1.3.9.1",
@@ -631,7 +631,7 @@
       "work": "Native daily provider creation and daily-before-rolling Task coordination",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "Daily policy/physical IO and daily observations are adopted in coherent Notes 0bb90ba1 with 461 Rust/2,277 package/261 cold catalog cases. [Ordered lifecycle source](spec/records/2026-10-26-native-task-lifecycle.md) is committed separately at 2296023f using qualified Tasks da17eba0: all 11 exact cases replay 110 complete retained attempts and cover races/partials; 442 Rust, all 20 package check/test tasks, 11 builds, strict source and final specification/78 governance pass. It is not yet adopted in this main workspace. Durable journal/cold recovery, tracked-today scheduling and both host selections remain Waiting; aggregate stays Working. [Shared private IO prerequisite](spec/records/2026-10-26-native-task-recovery.md) is committed at 86f360f8 with five exact, 14 unchanged Turn and 447 full Rust cases plus complete source/specification gates. It is source-qualified separately; typed Task recovery is active and no additional host is selected."
+      "detail": "Ordered writes2296023f, shared journal IO86f360f8, typed recovery8e09a5de and tracked-today schedulingad968536 are committed in the isolated source lane. Recovery passes459 Rust cases and tracked-today467, with all78 governance/full source gates. No lapis-ai changes. Remaining: combined main intake, admitted Tasks protocol/plugin adapters and both native host selections; source completion does not imply host adoption."
     },
     {
       "id": "R3.2.2.3",
