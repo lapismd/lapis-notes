@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 16:45:07 UTC",
+  "updated": "2026-10-26 16:59:26 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -789,9 +789,9 @@
       "id": "R3.2.4.4",
       "area": "Native writer hosts",
       "work": "Actual hosted and Desktop editor/Tasks acceptance",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-020",
-      "detail": "After source qualification and captured-generation recovery, select thin same-client adapters in both hosts. Prove foreign dirty refusal, saved-generation handoff/rearm, retained failed/detached writers and cold/crash recovery in the real applications. Headless browser and actual native WebView acceptance remain distinct."
+      "detail": "Both staged host bindings and native/local recovery preflight are under actual application qualification. Hosted dirty-writer/Tasks/flush/yield/rearm assertions pass; final tab close currently retains an active clean claim and is being traced at the source lifetime boundary. Desktop thin transport and stopped-watch/guarded leave are prepared, with13focused leave cases passing. Actual host acceptance remains open."
     },
     {
       "id": "R3.2.4.2.1",
@@ -807,7 +807,15 @@
       "work": "Existing Problems discovery and explicit recovery actions",
       "status": "Working",
       "spec": "spec/src/workspace-shell/panels/problems/core-contract.md#ln-ws-029",
-      "detail": "[Existing Problems bridge](../.workspaces/lapis-notes-editor-problems-20261026/spec/records/2026-10-26-editing-problems.md) passes11native-recovery model and5local-issue identity cases. Product collection/menu, passive shell binding and minimal real-shell stories are implemented but unqualified, awaiting coherent CORE026 hooks and full source/story/host gates. No replacement screen or native draft storage."
+      "detail": "Existing Problems bridge passes39combined model/local/registry/state cases and two cold real-shell/axe stories with current qualified Markdown/Mira. Saved-file Reading review is repaired through explicit captured-leaf activation/reveal and its full source/catalog/browser gate is running. Actual host preflight remains separately open; no new recovery screen."
+    },
+    {
+      "id": "R3.2.4.1.1",
+      "area": "Native writer admission",
+      "work": "Scope noninteractive state ownership to admitted logical operations",
+      "status": "Complete",
+      "spec": "spec/src/architecture/native-editor-intents.md#ln-core-026",
+      "detail": "[Source qualification](spec/records/2026-10-26-native-state-intents.md): five exact state, 22 registry/state, 118 persistence, 1,663 API and actual conditional HTTP cases pass; complete source passes 562 Rust, 2,354 package and 261 cold catalog cases plus strict/public-build/static/spec gates. Idle clean state no longer fences another App. Interactive/foreign guards remain intact. Actual hosted and Desktop adoptions stay at their separate host gates."
     }
   ]
 }

@@ -2,6 +2,7 @@ import {
   FileEditingSessionRegistry,
   type AppStateProperties,
   type FileEditingRegistration,
+  type FileEditingSession,
   type NativeEditingIntents,
   type VaultSession,
 } from "@lapis-notes/api";
@@ -23,7 +24,11 @@ const session: Pick<VaultSession, "nativeEditingIntents"> = properties;
 const registry = new FileEditingSessionRegistry(session.nativeEditingIntents);
 const registration: FileEditingRegistration = registry.register("note.md", {
   dirty: false,
-  native: { hold: () => () => {}, savedText: () => "saved" },
+  native: {
+    lifetime: "operation",
+    hold: () => () => {},
+    savedText: () => "saved",
+  },
   async flush() {},
   async protect() {
     return () => {};
@@ -31,7 +36,16 @@ const registration: FileEditingRegistration = registry.register("note.md", {
 });
 void registration.ready();
 registration.changed();
+void registration.idle();
 registration();
+
+const unsupported: FileEditingSession["native"] = {
+  hold: () => () => {},
+  savedText: () => "saved",
+  // @ts-expect-error Lifetime cannot select an ungoverned writer policy.
+  lifetime: "window",
+};
+void unsupported;
 
 void port.call({
   kind: "recover",
