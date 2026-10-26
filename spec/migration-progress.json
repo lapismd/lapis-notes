@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 09:12:05 UTC",
+  "updated": "2026-10-26 10:42:00 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Metadata is integrated in both main applications. Search application checks pass in both isolated host workspaces; their shared source prerequisite and host commits are being closed. Tasks ordered writes, typed recovery and tracked-today scheduling are source-qualified through ad968536 (467 Rust cases), but combined main intake and both host adapters remain. Shared indexed History source/HTTP controls pass focused gates; complete qualification and retained-screen/Desktop intake remain. R4-R7 retain their planned dependencies."
+      "detail": "Metadata is integrated in both main applications. Hosted Search 2a6f938a and Desktop Search a052be6b are committed and application-qualified. Tasks writers/recovery/tracked-today source ad968536 and the owning plugin adapter 7ae46a74 are committed; Notes port startup-order gates and both host selections remain. Shared indexed History source 7cbb8713 is fully qualified; retained-screen/Desktop adapters and coherent main intake remain active. R4-R7 retain their planned dependencies."
     },
     {
       "id": "R4",
@@ -383,7 +383,7 @@
       "work": "Search index reconciliation and scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native Markdown/Canvas extraction, configured chunking, provider controls, writer fencing, progress and rebuild are qualified and adopted at 19cd103a. Shared App/Search adapter R3.2.2.5 is being qualified against the public API candidate. Both host selections, complete provider/application journeys and actual semantic-provider acceptance remain separate."
+      "detail": "Native Search source, shared replacement-App lifecycle, hosted 2a6f938a and Desktop a052be6b integrations are committed. Hosted passes 73 Web, 261 cold catalog and 22 browser cases; Desktop full native/catalog/portable/type/build/spec gates pass. Coherent main source intake and complete combined R3 provider/application qualification remain; ordinary defaults are unchanged."
     },
     {
       "id": "R3.2.3",
@@ -391,7 +391,7 @@
       "work": "History-index scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native History owner and Desktop05d0e8ab are qualified. Shared generated DTOs and admitted core/HTTP controls in hosted-history-20261026 pass five exact HTTP, two wire, two admitted controls, all76 server and all16 backup cases plus strict Clippy. The canonical page-length stop is repaired; complete source/public-package qualification is running. Retained hosted-screen adapter, shared Desktop extraction and default cutover remain separate."
+      "detail": "Shared indexed History controls and admitted HTTP source are committed at 7cbb8713; full 470 Rust, 2,289 package, 261 cold catalog, 22 actual browser and strict/build/specification gates pass. Native owner and Desktop 05d0e8ab were previously qualified. Hosted App/session observer plumbing and retained Repository reader/screen, Desktop shared adapter and combined both-host qualification remain active."
     },
     {
       "id": "R1.3.9.1",
@@ -631,7 +631,7 @@
       "work": "Native daily provider creation and daily-before-rolling Task coordination",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "Ordered writes2296023f, shared journal IO86f360f8, typed recovery8e09a5de and tracked-today schedulingad968536 are committed in the isolated source lane. Recovery passes459 Rust cases and tracked-today467, with all78 governance/full source gates. No lapis-ai changes. Remaining: combined main intake, admitted Tasks protocol/plugin adapters and both native host selections; source completion does not imply host adoption."
+      "detail": "Ordered writes 2296023f, shared journal IO 86f360f8, typed recovery 8e09a5de and tracked-today scheduling ad968536 are committed in the isolated source lane. Recovery passes 459 Rust cases and tracked-today 467, with all 78 governance/full source gates. The owning Tasks plugin adapter 7ae46a74 is committed with 2,859 unit, 14 native and 62 cold catalog cases plus complete source gates. Notes generated port is completing final startup reconciliation after plugin load. Remaining: combined main intake, both host selections and daily-provider/locale parity. No lapis-ai changes."
     },
     {
       "id": "R3.2.2.3",
@@ -655,7 +655,7 @@
       "work": "Shared App observer and native Search plugin lifecycle",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Coherent shared observer](spec/records/2026-10-26-native-search-observer.md) is integrated at 0bb90ba1. [Plugins Search/Bases/CSV source](spec/records/2026-10-26-search-bases-intake.md) is committed at bd305e58: 22 exact native Search, 16 cold Search, seven exact Bases and all 284 cold catalogue cases pass, plus package checks/tests/builds, static Storybook, specification, 47 runner/composition cases and public Search artifacts. Current-headless Chromium fixes the exact final-shard disconnect without changing assertions or coverage. Existing audit/CSV-style/lock findings remain recorded. Both native Search host adoptions remain Waiting."
+      "detail": "[Coherent shared observer](spec/records/2026-10-26-native-search-observer.md) is integrated at 0bb90ba1. [Plugins Search/Bases/CSV source](spec/records/2026-10-26-search-bases-intake.md) is committed at bd305e58: 22 exact native Search, 16 cold Search, seven exact Bases and all 284 cold catalogue cases pass, plus package checks/tests/builds, static Storybook, specification, 47 runner/composition cases and public Search artifacts. Current-headless Chromium fixes the exact final-shard disconnect without changing assertions or coverage. Existing audit/CSV-style/lock findings remain recorded. Final Plugins replacement-App source e0144c6a, hosted 2a6f938a and Desktop a052be6b are now committed and qualified. Coherent main source intake remains active."
     }
   ]
 }
