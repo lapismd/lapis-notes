@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v3";
 import type { App } from "./context.svelte";
 import { SettingTab } from "./settings.svelte";
 import { EventDispatcher } from "./events";

@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-26 16:45:07 UTC**.
+Last updated **2026-10-26 19:18:19 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -32,8 +32,9 @@ checkpoints; its row count is not a count of independent unfinished jobs.
 
 ## Current work and next handoff
 
-**Active checkpoint — 2026-10-26 16:45:07 UTC.** The admitted hosted Repository reader is
-qualified together with current Tasks/English daily/API source. Actual host
+**Active checkpoint — 2026-10-26 19:18:19 UTC.** Plugin file icons are qualified in
+isolated source and consumer workspaces. The admitted hosted Repository reader
+remains qualified with current Tasks/English daily/API source. Actual host
 ownership and remaining Repository parity are next; R3 stays Working.
 
 | Lane              | Completed and verified                                                                                                                                              | Concrete work still required                                                                                        |
@@ -100,14 +101,20 @@ Participant publication follows separately; concurrent writers must not publish
 stale whole-conversation snapshots. This is a documentation-only source audit
 at `2c74eec4`; R4 remains Waiting and no runtime/default changes follow.
 
-**Plugin file icons planned:** the [saved API/Explorer plan](PLUGIN_FILE_ICONS_PLAN.md)
-adds optional editor-view `fileIcon` metadata, deterministic path resolution and
-live plugin-lifecycle refresh. The first version includes plugin-registered SVGs
-and synchronous/asynchronous icon packs, with an upstream scoped Design Core
-resolver and explicit legacy/owned registration lifetimes. Implementation and
-first-party adoption remain Planned. This documentation-only feature plan does
-not change R3–R7 status, runtime behavior or package versions. Source and consumer
-qualification remain future implementation gates.
+**Plugin file icons complete in isolated workspaces:** the
+[archived API/Explorer plan](spec/archive/2026-10-26-plugin-file-icons.md) and
+[execution record](spec/records/2026-10-26-plugin-file-icons.md) cover owned SVGs,
+icon packs, metadata, lifecycle and filename fallback. All ten initial/edge
+regressions, 190 affected API cases, 1,671 full API cases, 262 cold catalog cases,
+all root check/test/build tasks and 12 built Web cases pass. The actual new
+signed Bases install/open/reload case also passes. Design Core is committed at
+`99fa0952`; Bases and the requested CSV Docs repair at `67c763aa` pass all 19
+Bases/five CSV cases, 48 package tasks and public/test-signed artifact checks.
+Desktop `102c5c1e` passes all 2,060 final-cohort cases, types and both
+builds; E-ICONS-001 retains consumer evidence. Accepted pre-existing ICU,
+prerequisite advisory, CSV metadata/style and release-tooling findings remain
+separate. Default checkouts, Rust statuses and runtime defaults are preserved;
+publication and installed-app replacement retain their existing gates.
 
 **Next:** finish native editor ownership/recovery and actual Tasks host
 acceptance, then close the remaining Repository controls/status/source and provider

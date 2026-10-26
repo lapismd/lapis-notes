@@ -1,8 +1,14 @@
 # Plugin file icons in File Explorer
 
-Status: **Planned; implementation has not started.**
+Status: **Implemented and qualified in isolated Jujutsu workspaces; publication deferred.**
 Source audit: **2026-10-26**, Notes parent `f705ff72`.
 Custom-icon scope added on **2026-10-26**, extending plan `feee7333`.
+
+The [execution record](../records/2026-10-26-plugin-file-icons.md) records
+completed source, installed Web and Desktop qualification. The original plan
+below is retained as historical design and planning evidence.
+
+## Historical implementation plan
 
 Plugins should be able to declare an icon for the file extensions or filename
 patterns served by their editor views. File Explorer should display that icon
@@ -12,9 +18,9 @@ through the Lapis icon API. Files without a contribution retain today's
 filename-based icons.
 
 This is a saved implementation plan, not evidence of a shipped API. The
-[plugin model](spec/src/plugin-model/editor-contributions.md),
-[Workspace API](spec/src/packages/workspace-apis.md) and
-[Explorer contract](spec/src/plugins/explorer/index.md) remain authoritative.
+[plugin model](../src/plugin-model/editor-contributions.md),
+[Workspace API](../src/packages/workspace-apis.md) and
+[Explorer contract](../src/plugins/explorer/index.md) remain authoritative.
 Add their atomic requirements and Planned verification rows before runtime work.
 This feature is separate from the R3–R7 Rust migration and adds no migration gate.
 

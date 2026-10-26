@@ -331,3 +331,8 @@ MUST fail without fallback to the Node companion or browser-supplied authority.
 <a id="ln-srv-027"></a>
 
 **Requirement.** Rust hosted restore MUST use bounded typed actions on the existing authenticated vault attachment, protocol, Origin and CSRF policy. Admission and post-await delivery MUST reject retired or foreign clients. Requests MUST NOT supply roots, storage, generations or caller scopes. A lost acknowledgement MUST retain the native stable request and require explicit recovery rather than transport replay.
+
+The file-icon dependency intake keeps API and hosted validation on the same
+patched Zod package through its public v3 entry. Router inputs, vault-role
+admission and typed remote-database schemas retain their existing behavior;
+no host policy or default changes follow from this dependency alignment.

@@ -41,3 +41,7 @@
 <a id="ln-cat-117"></a>
 
 **Requirement.** Development Storybook acceptance MUST start from the installed registry-compatible dependency graph without requiring sibling release artifacts. Preparing local plugin tarballs MUST remain an explicitly selected development preflight and MUST NOT run as a prerequisite of portable CI test-server startup.
+
+API's patched Zod package retains its public `zod/v3` schema entry. The shared
+development and browser-test optimization list includes that actual entry so
+loading an editor story does not discover it late and reload the active test.

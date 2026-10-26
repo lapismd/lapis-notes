@@ -142,3 +142,9 @@ explicit; Deno host source remains frozen. Admission spans creation projection.
 <a id="ln-exp-013"></a>
 
 **Requirement.** Explorer enable MUST complete when the workspace host binding is not yet visible. Settings and the Files palette MUST attach once that binding can be read, including a retry on `layout-ready`. A missing binding MUST NOT reject plugin enable.
+
+## LN-EXP-014 — Plugin file icons
+
+<a id="ln-exp-014"></a>
+
+**Requirement.** Explorer MUST render the owning App's selected file-view icon through Design Core's public scoped resolver, with filename fallback while artwork is missing, loading or failed. Registration, removal, plugin lifecycle and editor-association changes MUST refresh icons without resetting selection, focus, expansion or rename state. Teardown MUST remove subscriptions and fence pending resolution.

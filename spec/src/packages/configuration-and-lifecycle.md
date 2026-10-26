@@ -126,3 +126,8 @@ introducing timezone policy; actual-host and signed acceptance remain separate.
 Registration does not itself express data removal. LN-PLUG-112 preserves unadopted
 compatibility files; confirmed canonical removals retain their existing mirror
 cleanup. Both paths keep LN-PKG-174 writer ownership and recovery unchanged.
+
+The file-icon intake upgrades API-owned Zod to the patched `^4.6.6` package
+while using its public `zod/v3` entry to preserve the existing configuration,
+registry and remote-database schema contracts. This closes the dependency audit
+finding GHSA-mrhx-c7xc-m3w5 without adding an advisory suppression.

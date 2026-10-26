@@ -129,3 +129,21 @@ changing the four-plugin default, or creating another plugin-owned writer.
 <a id="ln-plug-108"></a>
 
 **Requirement.** Plugin installation from details MUST retain the selected verified version, including when a newer update is available. An update MUST NOT substitute a different recovery target for that selection. Historical installation MUST use the existing confirmation and verification flow. Bundled plugins MUST remain non-installable through registry actions.
+
+## LN-PLUG-122 — File-view icon metadata
+
+<a id="ln-plug-122"></a>
+
+**Requirement.** Editor-view contributions MUST accept optional serializable `fileIcon` metadata in runtime and admitted manifests. Path lookup MUST use existing association, priority and pattern-specificity rules without constructing a view or activating a plugin. Disabled or catalog-only plugins MUST NOT contribute file icons. The selected contribution without artwork MUST retain the filename fallback.
+
+## LN-PLUG-123 — Owned plugin artwork
+
+<a id="ln-plug-123"></a>
+
+**Requirement.** Plugins MUST be able to register custom SVGs and icon packs through their explicitly owned App and receive namespaced icon IDs. Unload MUST dispose only those registrations; stale cleanup or loader results MUST NOT remove replacements. Legacy global icon registration MUST remain a compatibility fallback. Registry changes MUST invalidate artwork availability and notify subscribers.
+
+## LN-PLUG-124 — Registered icon resolution
+
+<a id="ln-plug-124"></a>
+
+**Requirement.** The API icon resolver MUST distinguish found, missing and failed artwork for registered SVGs, aliases and synchronous or asynchronous icon packs. It MUST deduplicate concurrent loads, retain explicit retry by re-registration, reject executable SVG content and preserve valid geometry and local definitions. Pending or failed artwork MUST NOT trigger plugin activation or repeat loads per Explorer row.

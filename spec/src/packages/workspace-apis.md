@@ -127,3 +127,8 @@ for Tauri intake. Publication remains at the migration release gate.
 The existing `Workspace.revealLeaf` promise joins in-flight host projection and
 publishes the requested selection under LN-WS-005. Package signatures and
 instance ownership remain unchanged; a superseding navigation fences the reveal.
+
+LN-PLUG-122–124 expose optional editor-view `fileIcon`, extension-registration
+options, `Workspace.getFileIconForPath`/`onFileIconsChanged` and the App-owned
+icon registry. Plugin helpers register lifecycle-owned SVGs and icon packs;
+Explorer consumes the public Design Core resolver under LN-EXP-014.

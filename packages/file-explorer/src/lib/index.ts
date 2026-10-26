@@ -124,10 +124,22 @@ async function withNotice<T>(
 function createExplorerController(app: App, loading: boolean) {
   const controller = new ExplorerController({
     loading,
+    getIcon: (node) =>
+      node.kind === "file"
+        ? app.workspace.getFileIconForPath(node.path)
+        : undefined,
+    iconResolver: app.icons,
     tree: {
       listEntries: () =>
         listExplorerVaultEntries(app.vault.getAllLoadedFiles()),
-      subscribe: (onChange) => subscribeExplorerVaultTreeChanges(app, onChange),
+      subscribe: (onChange) => {
+        const stopTree = subscribeExplorerVaultTreeChanges(app, onChange);
+        const stopIcons = app.workspace.onFileIconsChanged(onChange);
+        return () => {
+          stopTree();
+          stopIcons();
+        };
+      },
     },
     selection: {
       subscribe: (onActivePath) => {
