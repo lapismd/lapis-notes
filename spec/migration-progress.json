@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 02:26:22 UTC",
+  "updated": "2026-10-26 02:40:32 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -375,7 +375,7 @@
       "work": "Unattended metadata and projection reconciliation",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "The native metadata/projection owner, writer fences and shared App observer are qualified in the coherent source intake with 461 Rust, 2,277 package and 261 cold catalog cases. Desktop metadata opt-in passes exact/portable/strict and normal native build gates; final native/catalog acceptance remains active. Hosted startup selection is next. Client-dependent custom processors, complete application acceptance and final default cutover remain separate."
+      "detail": "Native metadata/projection ownership and the shared App observer are integrated at 0bb90ba1 (461 Rust, 2,277 package, 261 cold catalog). Desktop portable/catalog acceptance is complete; its final affected native journeys and hosted strict/build/browser acceptance are active against the source-owned API event-order repair. Custom processors, complete service selections and default cutover remain separate."
     },
     {
       "id": "R3.2.2",
@@ -455,7 +455,7 @@
       "work": "Remaining native plugin projection processors",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Native Markdown, Tasks/occurrence and Docs projections plus explicit writer authority are integrated at 0bb90ba1, with 461 Rust/2,277 package/261 cold catalog cases and full source gates passing. Ordered Tasks persistence is source-qualified separately at 2296023f; combined intake, durable recovery, tracked-today scheduling and complete host selections remain pending. Custom processors stay explicitly client-dependent; host acceptance separately exposed an API metadata-event ordering bug under repair."
+      "detail": "Native Markdown, Tasks/occurrence and Docs projections plus explicit writer authority are integrated at 0bb90ba1. Ordered Tasks persistence is source-qualified separately at 2296023f (11 exact cases / 110 retained attempts / 442 Rust); combined intake, durable recovery, tracked-today scheduling and both host selections remain pending. Recovery reuses existing private durable IO; custom processors stay explicitly client-dependent."
     },
     {
       "id": "R3.2.1.3",
@@ -463,7 +463,7 @@
       "work": "Tauri and HTTP unattended metadata adoption",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "Desktop metadata opt-in passes 17 renderer/admission, 16 shell-story, complete portable/strict, normal native build, two exact native metadata and all 14 hidden API cases. Final native UI exposes a Core-only external-create Search ordering bug in API metadata.changed delivery; source-owned repair is active alongside hosted opt-in wiring. The same Graph save failures reproduce with renderer defaults; qualified source 147ba6e2 is missing from the cohort and is being admitted. Full catalog remains active. Both metadata defaults remain renderer-owned."
+      "detail": "Desktop metadata opt-in passes 17 renderer/admission, 16 shell-story, 506 renderer/governance, 744 AI, 245 Rust, both strict modes, normal native build, two exact metadata, 14 hidden API and all 2,032 catalog cases across 16 modes. The API committed-row/Vault event-order race is repaired and owner-qualified at snapshot 863f6b50 (28 observer / 1,619 API cases); Desktop final affected native acceptance uses that candidate plus the previously qualified Graph source. Hosted startup wiring passes six exact cases and is running its strict/build/browser gates. Source/host commits and combined adoption remain pending; both defaults remain renderer-owned."
     },
     {
       "id": "R3.2.1.2.1",
