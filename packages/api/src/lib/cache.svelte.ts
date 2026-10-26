@@ -28,7 +28,10 @@ import {
 } from "$lib/storage";
 import { debounce } from "lodash-es";
 import { dirname, resolvePath } from "./storage/path";
-import { NativeBackgroundIndexingSession } from "./native-background-indexing";
+import {
+  NativeBackgroundIndexingSession,
+  type NativeBackgroundIndexingObserver,
+} from "./native-background-indexing";
 import type { IndexProjectionRegistration } from "./storage/index-projection";
 import type { NotificationProgressHandle } from "./notifications";
 
@@ -670,6 +673,10 @@ export class MetadataCache extends EventDispatcher<{
       app.appDatabase.subscribeToChanges?.((change) =>
         this.handleDatabaseChange(change),
       ) ?? null;
+  }
+
+  get backgroundIndexing(): NativeBackgroundIndexingObserver | undefined {
+    return this.nativeIndexing;
   }
 
   get metadataCache() {

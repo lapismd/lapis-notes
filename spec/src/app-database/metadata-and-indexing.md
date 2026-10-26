@@ -338,3 +338,11 @@ changing either the Task document or the daily note.
 <a id="ln-db-044"></a>
 
 **Requirement.** The memory schema migration MUST be additive and transactional. Deleting all derived memory tables and Search rows MUST permit a deterministic rebuild from transcripts, curated Markdown, revision files, reviews, and exclusions without touching unrelated AppDatabase domains.
+
+## Native Search observation
+
+Search uses the same App-owned observer when a native port is selected. Its
+client MUST NOT publish Search documents, chunks or reconciliation checkpoints;
+queries retain the existing AppDatabase contract.
+Progress MUST retain native failures and pending convergence without announcing
+the Search index ready.

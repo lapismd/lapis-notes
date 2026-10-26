@@ -5,6 +5,7 @@ import type {
   IndexingCommand,
   IndexingStatus,
   IndexingValue,
+  SearchIndexingSelection,
 } from "./native-indexing-protocol";
 export type * from "./native-indexing-protocol";
 
@@ -13,10 +14,31 @@ export interface NativeBackgroundIndexing {
   call(command: IndexingCommand): Promise<IndexingValue>;
 }
 
+export interface NativeIndexingProgressPresentation {
+  title: string;
+  source: string;
+  readyMessage: string;
+}
+
+/** One App-owned observation boundary; native work outlives renderer detach. */
+export interface NativeBackgroundIndexingObserver {
+  readonly detached: boolean;
+  selectSearch(selection: SearchIndexingSelection): Promise<ContributionStatus>;
+  disableSearch(): Promise<void>;
+  getStatus(): Promise<IndexingStatus | null>;
+  refresh(
+    rebuild: boolean,
+    presentation?: NativeIndexingProgressPresentation,
+  ): Promise<IndexingStatus>;
+}
+
 /** App-owned observer and declaration adapter; never an indexing writer. */
-export class NativeBackgroundIndexingSession {
-  private detached = false;
-  private readonly pending = new Map<string, Promise<void>[]>();
+export class NativeBackgroundIndexingSession
+  implements NativeBackgroundIndexingObserver
+{
+  private isDetached = false;
+  private searchDeclared = false;
+  private readonly pending = new Map<string, Promise<unknown>[]>();
   private readonly contributions = new Map<
     string,
     { owner: string; status: ContributionStatus }
@@ -27,6 +49,41 @@ export class NativeBackgroundIndexingSession {
     private readonly app: App,
     private readonly port: NativeBackgroundIndexing,
   ) {}
+
+  get detached(): boolean {
+    return this.isDetached;
+  }
+
+  async selectSearch(
+    selection: SearchIndexingSelection,
+  ): Promise<ContributionStatus> {
+    if (this.detached) throw new Error("Native indexing observer is detached");
+    this.searchDeclared = true;
+    const contribution = await this.register("search", {
+      kind: "select_search",
+      selection,
+    });
+    if (!contribution || contribution.projection_id !== "search")
+      throw new Error("Native Search selection is unavailable");
+    return contribution;
+  }
+
+  async disableSearch(): Promise<void> {
+    if (this.detached) return;
+    // A failed response does not prove selection was rejected. Explicit disable
+    // is a separate drain request, after all attempted declarations settle.
+    await Promise.allSettled(this.pending.get("search") ?? []);
+    await this.port.call({ kind: "disable_search" });
+    this.searchDeclared = false;
+    this.contributions.delete("search");
+    this.pending.delete("search");
+  }
+
+  async getStatus(): Promise<IndexingStatus | null> {
+    return this.detached
+      ? null
+      : (await this.port.call({ kind: "status" })).status;
+  }
 
   registerProcessor(owner: string, extension: string): void {
     this.register(owner, {
@@ -53,9 +110,12 @@ export class NativeBackgroundIndexingSession {
     });
   }
 
-  private register(owner: string, command: IndexingCommand): void {
+  private register(
+    owner: string,
+    command: IndexingCommand,
+  ): Promise<ContributionStatus | null> {
     const operation = this.port.call(command).then(({ contribution }) => {
-      if (!contribution || this.detached) return;
+      if (!contribution || this.detached) return contribution;
       this.contributions.set(contribution.projection_id, {
         owner,
         status: contribution,
@@ -68,11 +128,13 @@ export class NativeBackgroundIndexingSession {
           message: `${contribution.projection_id}: ${contribution.message ?? "Requires a client processor"}`,
         });
       }
+      return contribution;
     });
     this.pending.set(owner, [...(this.pending.get(owner) ?? []), operation]);
     // Activation/load observes failures; do not create an unhandled rejection
     // while a synchronous plugin declaration is still returning its query handle.
     void operation.catch(() => {});
+    return operation;
   }
 
   async ready(owner?: string): Promise<void> {
@@ -84,10 +146,13 @@ export class NativeBackgroundIndexingSession {
 
   async disable(owner: string): Promise<void> {
     if (this.detached) return;
+    if (owner === "search" && this.searchDeclared) await this.disableSearch();
     await this.ready(owner);
     for (const [id, contribution] of this.contributions) {
       if (contribution.owner !== owner) continue;
-      if (
+      if (id === "search") {
+        await this.disableSearch();
+      } else if (
         contribution.status.placement === "native" &&
         !id.startsWith("processor:")
       ) {
@@ -112,11 +177,17 @@ export class NativeBackgroundIndexingSession {
     await this.refresh(false);
   }
 
-  async refresh(rebuild: boolean): Promise<void> {
-    await this.app.notifications.withProgress(
+  async refresh(
+    rebuild: boolean,
+    presentation?: NativeIndexingProgressPresentation,
+  ): Promise<IndexingStatus> {
+    if (this.detached) throw new Error("Native indexing observer is detached");
+    return this.app.notifications.withProgress(
       {
-        title: rebuild ? "Rebuilding metadata cache" : "Loading metadata cache",
-        source: "Metadata",
+        title:
+          presentation?.title ??
+          (rebuild ? "Rebuilding metadata cache" : "Loading metadata cache"),
+        source: presentation?.source ?? "Metadata",
         location: "status",
         persistOnError: true,
       },
@@ -127,9 +198,13 @@ export class NativeBackgroundIndexingSession {
           progress.report({
             current: status.processed,
             total: status.total,
-            message: status.active
-              ? `Indexing ${status.phase}`
-              : "Metadata index ready",
+            message:
+              status.error ??
+              (status.active
+                ? `Indexing ${status.phase}`
+                : status.pending > 0
+                  ? "Indexing pending changes"
+                  : (presentation?.readyMessage ?? "Metadata index ready")),
           });
         };
         const observe = async () => {
@@ -151,6 +226,7 @@ export class NativeBackgroundIndexingSession {
             throw new Error("Native metadata owner is unavailable");
           report(result.status);
           if (result.status.error) throw new Error(result.status.error);
+          return result.status;
         } finally {
           clearInterval(timer);
           this.observers.delete(timer);
@@ -160,7 +236,7 @@ export class NativeBackgroundIndexingSession {
   }
 
   dispose(): void {
-    this.detached = true;
+    this.isDetached = true;
     for (const timer of this.observers) clearInterval(timer);
     this.observers.clear();
   }

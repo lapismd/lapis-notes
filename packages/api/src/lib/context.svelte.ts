@@ -75,6 +75,7 @@ import type { Editor } from "./editor.svelte";
 import { flushWorkspaceEditors } from "./sync-editor-flush";
 import { FileEditingSessionRegistry } from "./file-editing-sessions";
 import { SearchDocumentProviderRegistry } from "./search-document-provider";
+import type { NativeBackgroundIndexingObserver } from "./native-background-indexing";
 import { SearchResultProviderRegistry } from "./search-result-provider";
 import { DailyDocumentProviderRegistry } from "./daily-document-provider";
 import { AppToolRegistry } from "./agent-tools";
@@ -322,6 +323,9 @@ export class App {
   settingsOpen: boolean = $state(false);
   settingsTabId: string | null = $state(null);
   metadataCache: MetadataCache = $state()!;
+  get backgroundIndexing(): NativeBackgroundIndexingObserver | undefined {
+    return this.metadataCache.backgroundIndexing;
+  }
   embedRegistry: EmbedRegistry = new EmbedRegistry();
   readonly configurationOptionSources = new ConfigurationOptionSourceRegistry();
   readonly searchDocumentProviders = new SearchDocumentProviderRegistry();

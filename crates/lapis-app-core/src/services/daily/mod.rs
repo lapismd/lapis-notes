@@ -3,6 +3,8 @@ mod error;
 mod format;
 mod io;
 mod macros;
+mod observation_error;
+mod observations;
 mod policy;
 mod registry;
 mod snapshot;
@@ -12,6 +14,7 @@ mod tokens;
 
 pub use error::{DailyDocumentError, DailyDocumentOperationError, DailyDocumentOperationResult};
 pub use format::{DailyFormatContext, format_daily_document_filename};
+pub use observation_error::DefaultTaskObservationError;
 pub use policy::{
     DailyDocumentCandidate, DailyDocumentPlan, DailyDocumentSettings, plan_daily_document,
 };

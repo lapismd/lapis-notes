@@ -8,7 +8,11 @@ export * from "./components/editor/extensions/lint";
 export * from "./components/editor/language-service";
 export * from "./menu.svelte";
 export * from "./cache.svelte";
-export type { NativeBackgroundIndexing } from "./native-background-indexing";
+export type {
+  NativeBackgroundIndexing,
+  NativeBackgroundIndexingObserver,
+  NativeIndexingProgressPresentation,
+} from "./native-background-indexing";
 export * from "./plugin";
 export * from "./plugin-capability-facade";
 export * from "./sync-host";

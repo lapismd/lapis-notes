@@ -6,6 +6,7 @@ import { PluginManager } from "./plugin-manager";
 import { Configuration } from "./configuration.svelte";
 import { CommandManager, Keymap, Scope, type UserEvent } from "./command.svelte";
 import { MetadataCache } from "./cache.svelte";
+import type { NativeBackgroundIndexingObserver } from "./native-background-indexing";
 import type { MarkdownDirectiveRenderer, MarkdownPostProcessor, MarkdownViewMenuItemProvider } from "./markdown";
 import { type Logger } from "./logging";
 import type { Component } from "./view.svelte";
@@ -189,6 +190,7 @@ export declare class App {
     settingsOpen: boolean;
     settingsTabId: string | null;
     metadataCache: MetadataCache;
+    get backgroundIndexing(): NativeBackgroundIndexingObserver | undefined;
     embedRegistry: EmbedRegistry;
     readonly searchDocumentProviders: SearchDocumentProviderRegistry;
     readonly searchResultProviders: SearchResultProviderRegistry;

@@ -1,10 +1,13 @@
 import type {
+  App,
   MetadataCache,
   NativeBackgroundIndexing,
+  NativeBackgroundIndexingObserver,
   VaultSession,
 } from "../../dist/index.js";
 
 declare const cache: MetadataCache;
+declare const app: App;
 declare const session: VaultSession;
 const port: NativeBackgroundIndexing = {
   async call(command) {
@@ -33,3 +36,23 @@ cache.addProcessor(
   "markdown",
 );
 void [ready, disabled, availability];
+
+const observer: NativeBackgroundIndexingObserver | undefined =
+  app.backgroundIndexing;
+void observer?.selectSearch({
+  providers: [{ provider_id: "search:markdown", version: "1", priority: 0 }],
+  chunking: {
+    targetChars: 1400,
+    breakpointWindowChars: 280,
+    breakpointDecay: 0.92,
+  },
+});
+void observer?.refresh(true, {
+  title: "Refreshing search index",
+  source: "Search",
+  readyMessage: "Search index ready",
+});
+void observer?.getStatus();
+void observer?.disableSearch();
+const detached: boolean | undefined = observer?.detached;
+void detached;

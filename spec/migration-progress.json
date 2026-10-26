@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 01:42:46 UTC",
+  "updated": "2026-10-26 02:10:58 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native database and qualified metadata/Tasks/Docs/Search/History source owners are integrated. [Combined Tasks/parser intake](spec/records/2026-10-26-tasks-parser-source-integration.md) passes 405 Rust, 54 API references, strict native/build and complete specification gates. Remaining: daily/two-file Tasks coordination, full Search/custom-processor parity, explicit one-writer ownership and both host adoptions. Defaults stay unchanged."
+      "detail": "Core indexing, Search controls/progress/rebuild, final History notifications and physical daily IO are integrated at 19cd103a; 452 Rust/2,267 package cases, 261 cold catalog and complete strict/build/specification gates pass. Remaining: coherent App/Search adapter adoption, ordered daily/Task persistence and recovery, custom processors, both host selections and application/provider acceptance. Defaults stay unchanged."
     },
     {
       "id": "R4",
@@ -375,7 +375,7 @@
       "work": "Unattended metadata and projection reconciliation",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native Markdown, complete Tasks projections and opt-in Docs publication are source-qualified in Notes. Markdown parser/cache intake passes all 392 Rust cases and 54 retained API references. Guarded Tasks writes/cache intake and explicit one-writer ownership are active in separate workspaces. Daily/two-file coordination, custom-processor parity and both host selections remain; source qualification does not select a writer."
+      "detail": "The native metadata/projection owner, writer fences and shared App observer are qualified in the coherent source intake with 461 Rust, 2,277 package and 261 cold catalog cases. Desktop metadata opt-in passes exact/portable/strict and normal native build gates; final native/catalog acceptance remains active. Hosted startup selection is next. Client-dependent custom processors, complete application acceptance and final default cutover remain separate."
     },
     {
       "id": "R3.2.2",
@@ -383,7 +383,7 @@
       "work": "Search index reconciliation and scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Qualified Markdown/Canvas reconciliation and explicit chunking source intake is committed at 98590492: six exact, 411 Rust, 54 retained API cases plus native strict/build and complete specification gates pass. Native provider/writer controls now pass five exact cases in an isolated integration workspace; broad combined intake, configuration persistence, checkpoint/progress parity and both hosts remain open."
+      "detail": "Native Markdown/Canvas extraction, configured chunking, provider controls, writer fencing, progress and rebuild are qualified and adopted at 19cd103a. Shared App/Search adapter R3.2.2.5 is being qualified against the public API candidate. Both host selections, complete provider/application journeys and actual semantic-provider acceptance remain separate."
     },
     {
       "id": "R3.2.3",
@@ -391,7 +391,7 @@
       "work": "History-index scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Vault-owned native History source](spec/records/2026-10-25-native-history-read-lifetime.md) now retains paused/cold immutable reads. Ten checkpoint cases, 380 complete Rust cases, 2,253 package cases and full check/test/build/specification gates pass. Desktop passive observation and native relocation drain are being implemented; HTTP selection and removal of remaining renderer scheduling remain. Defaults stay unchanged in the source."
+      "detail": "Paused/cold native History ownership and final backup notifications are source-qualified; notifications are adopted in Notes `19cd103a`. Desktop `05d0e8ab` is committed in its clean default workspace with final-close, three backup, 12 native API and 2,016 catalog cases passing. Hosted selection, remaining renderer-scheduler retirement and complete default cutover remain."
     },
     {
       "id": "R1.3.9.1",
@@ -455,7 +455,7 @@
       "work": "Remaining native plugin projection processors",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Native Markdown, complete Tasks projections and opt-in Docs publication are source-qualified in Notes. Markdown parser/cache intake passes all 392 Rust cases and 54 retained API references. Guarded Tasks writes/cache intake and explicit one-writer ownership are active in separate workspaces. Daily/two-file coordination, custom-processor parity and both host selections remain; source qualification does not select a writer."
+      "detail": "Native Markdown, Tasks/occurrence and Docs projections plus explicit writer authority are integrated. The coherent App observer/daily observation intake passes 461 Rust, 2,277 package and 261 cold catalog cases with complete strict/build/specification gates. Ordered Tasks persistence passes 11 exact cases in its separate source lane; full qualification, durable recovery, tracked-today scheduling and complete host selections remain pending. Custom processors stay explicitly client-dependent."
     },
     {
       "id": "R3.2.1.3",
@@ -463,7 +463,7 @@
       "work": "Tauri and HTTP unattended metadata adoption",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "[Explicit indexing-port source](spec/records/2026-10-26-native-indexing-port.md) is committed at 56df650d: 403 Rust, 2,266 package and 261 cold catalog cases, strict/protocol/build/pack and final specification gates pass. Product bytes equal its qualified snapshot. Combined newer-parser/Search/daily intake and both actual host gates remain separate; neither metadata host is selected."
+      "detail": "Desktop opt-in draft preserves renderer default and shares the admitted database connection. Its 17 exact renderer/admission and 16 minimal-shell cases, type checks, strict normal/e2e checks, 506 renderer/governance, 744 AI and 245 Rust cases pass; two existing native ignores remain. Normal macOS build/audit pass. Full catalog, final e2e build and native acceptance remain active; hosted selection and complete R3 host adoption are Waiting."
     },
     {
       "id": "R3.2.1.2.1",
@@ -631,7 +631,7 @@
       "work": "Native daily provider creation and daily-before-rolling Task coordination",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "[Pure daily policy](spec/records/2026-10-26-native-task-coordination.md) at 220b5cd7 and [guarded default daily IO](spec/records/2026-10-26-native-daily-document-io.md) at 974d0a39 are source-qualified. Physical IO passes 10 integration/three race cases, all 422 Rust, complete package check/test/build and specification/78 governance gates. Combined Notes intake passes all 452 Rust/2,267 package cases, 261 cold catalog cases and complete native/build/specification gates. Daily observation processing is independently qualifying its nine exact cases; it is not part of this intake. Daily observation processing, ordered Task advancement, partial/cold recovery, tracked-today scheduling and both host selections remain Waiting; aggregate stays Working."
+      "detail": "Daily policy 220b5cd7 and physical IO 974d0a39 are adopted at 19cd103a; daily observations 20263848 are now included in the [coherent observer intake](spec/records/2026-10-26-native-search-observer.md) with 461 Rust/2,277 package/261 cold catalog cases and full gates passing. Valid-duration source reference da17eba0 preserves all old corpora and adds 18 complete attempts; 29 native/2,849 unit/62 cold catalog cases and source/static/spec gates pass. The separate ordered original-Task admission/persistence lane passes 11 exact cases covering 110 retained attempts plus races/partials; full source qualification is active. Durable journal/cold recovery, tracked-today scheduling and both host selections remain Waiting."
     },
     {
       "id": "R3.2.2.3",
@@ -655,7 +655,7 @@
       "work": "Shared App observer and native Search plugin lifecycle",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "API owner candidate c7786ebb passes 22 focused and all 1,612 API cases, strict/build/pack. Plugins native adapter passes 22 exact lifecycle/settings/provider/rebuild/disposal cases; full source/catalog qualification is running. Unchanged parent CSV metadata/styling and one high Zod audit finding are reproduced and recorded separately. Coherent Notes intake and both application selections remain pending."
+      "detail": "[Coherent shared observer](spec/records/2026-10-26-native-search-observer.md) is source-qualified with 22 exact, 1,613 API/2,277 package, 461 Rust and 261 cold catalog cases plus strict/build/static/specification gates. Combined Plugins Search/Bases/CSV intake preserves qualified runtime bytes and passes 22 exact native Search, 16 cold Search and seven exact Bases cases; complete four-shard/catalog/artifact/source closure is active. Correct tracked private Sync installation repairs the temporary runner omission; already-qualified Bases/CSV source is integrated rather than reimplemented. Existing audit/style/release-lockfile findings remain separately recorded. Both host Search selections remain Waiting."
     }
   ]
 }

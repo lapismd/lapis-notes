@@ -53,3 +53,7 @@ With an explicitly supplied native background port, Markdown registration
 retains its local pure parser for presentation while background publication
 belongs to the compiled service under LN-CORE-005/006. No native failure may
 activate the JavaScript metadata writer.
+
+The shared App indexing facade reuses that same MetadataCache-owned session
+for Search declarations and progress; it does not change Markdown presentation
+parsing or create another metadata writer.

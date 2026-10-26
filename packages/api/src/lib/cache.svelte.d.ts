@@ -312,6 +312,7 @@ export declare class MetadataCache extends EventDispatcher<{
     readonly logger: import("./logging").Logger;
     private readonly saveSnapshotDebounced;
     constructor(app: App);
+    get backgroundIndexing(): import("./native-background-indexing").NativeBackgroundIndexingObserver | undefined;
     get metadataCache(): Record<string, CachedMetadata>;
     get resolvedLinks(): Record<string, Record<string, number>>;
     get unresolvedLinks(): Record<string, Record<string, number>>;

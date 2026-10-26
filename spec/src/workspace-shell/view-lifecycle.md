@@ -139,3 +139,7 @@ Native background indexing under LN-CORE-003 is owned by the admitted vault.
 Disposing a MetadataCache or workspace view MUST NOT disable or unregister
 service-owned projections. Explicit plugin disable is the separate draining
 control described in the [native indexing contract](../architecture/rust-indexing-lifetime.md).
+
+Search views observe the same App-owned indexing session. View/manager disposal
+MUST NOT wait for an accepted native refresh or stop it. Explicit plugin disable
+remains a separate native drain; native pending convergence is not ready.

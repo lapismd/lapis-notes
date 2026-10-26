@@ -13,3 +13,6 @@ Problems, diagnostic collections, editor markers, or fixes.
 Indexing contribution unavailability under LN-CORE-005 remains service status
 and notification data. Selecting the native background port does not introduce
 a diagnostic model, callback transport or competing Problems presentation.
+
+Shared native Search selection failures remain indexing status/notification
+data. Observer sharing does not add a Problems collection or competing panel.

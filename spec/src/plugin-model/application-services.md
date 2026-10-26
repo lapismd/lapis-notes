@@ -86,3 +86,7 @@ contributions retain query handles; client-dependent contributions report
 unavailability. Explicit plugin disable drains and fences its native projection;
 App/view detach releases observation only. See the
 [native ownership contract](../architecture/rust-indexing-lifetime.md).
+
+The shared App indexing observer admits Search provider identities and chunk
+settings without callbacks. Explicit Search plugin disable drains the native
+owner, including after an uncertain selection response; App detach is passive.

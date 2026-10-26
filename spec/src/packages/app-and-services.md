@@ -175,3 +175,7 @@ port selects the existing native metadata owner. The retained MetadataCache
 remains the query/cache/event facade; absence preserves standalone browser
 processing. Declaration and passive status controls follow the
 [native indexing contract](../architecture/rust-indexing-lifetime.md).
+
+`App.backgroundIndexing` exposes that existing session as a shared declaration
+and observation facade. MetadataCache remains its sole passive teardown
+boundary; consumers MUST NOT construct a second indexing controller.
