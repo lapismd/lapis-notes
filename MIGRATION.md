@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-26 16:22:37 UTC**.
+Last updated **2026-10-26 16:27:12 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -32,7 +32,7 @@ checkpoints; its row count is not a count of independent unfinished jobs.
 
 ## Current work and next handoff
 
-**Active checkpoint — 2026-10-26 16:22:37 UTC.** The admitted hosted Repository reader is
+**Active checkpoint — 2026-10-26 16:27:12 UTC.** The admitted hosted Repository reader is
 qualified together with current Tasks/English daily/API source. Actual host
 ownership and remaining Repository parity are next; R3 stays Working.
 
@@ -99,6 +99,14 @@ and receipts, then a bounded service-owned FIFO on the existing journal/writer.
 Participant publication follows separately; concurrent writers must not publish
 stale whole-conversation snapshots. This is a documentation-only source audit
 at `2c74eec4`; R4 remains Waiting and no runtime/default changes follow.
+
+**Plugin file icons planned:** the [saved API/Explorer plan](PLUGIN_FILE_ICONS_PLAN.md)
+adds optional editor-view `fileIcon` metadata, deterministic path resolution and
+live plugin-lifecycle refresh through Design Core's existing Explorer icon hook.
+Implementation and first-party adoption are Planned; the initial icon vocabulary
+is Lucide, with custom artwork deferred. This documentation-only feature plan
+does not change R3–R7 status, runtime behavior or package versions. Source and
+consumer qualification remain future implementation gates.
 
 **Next:** finish native editor ownership/recovery and actual Tasks host
 acceptance, then close the remaining Repository controls/status/source and provider
