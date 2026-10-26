@@ -14,7 +14,9 @@ use lapis_task_services::{
     TaskOccurrenceObservation,
 };
 pub use lifecycle::{
-    PreparedTaskLifecycle, TaskLifecycleError, TaskLifecyclePartial, TaskLifecycleWrite,
+    PreparedTaskLifecycle, TaskLifecycleDisposition, TaskLifecycleError, TaskLifecycleFailure,
+    TaskLifecycleJournal, TaskLifecyclePartial, TaskLifecyclePolicy, TaskLifecycleRequest,
+    TaskLifecycleStatus, TaskLifecycleWrite, TaskRecoveryError,
 };
 
 #[derive(Debug)]

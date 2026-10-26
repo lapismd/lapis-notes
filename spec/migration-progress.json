@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 02:51:17 UTC",
+  "updated": "2026-10-26 03:34:30 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -631,7 +631,7 @@
       "work": "Native daily provider creation and daily-before-rolling Task coordination",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "[Daily policy](spec/records/2026-10-26-native-task-coordination.md), [guarded physical IO](spec/records/2026-10-26-native-daily-document-io.md), [daily observation processing](spec/records/2026-10-26-native-daily-task-observations.md) and [ordered lifecycle](spec/records/2026-10-26-native-task-lifecycle.md) are source-qualified at Notes 2296023f with eleven exact cases, 110 retained attempts, all 442 Rust cases and complete source/specification gates. [Typed recovery](spec/records/2026-10-26-native-task-recovery.md) is active: shared private record IO is source-qualified with five exact cases, unchanged 14-case Turn baseline/replay, all 447 Rust cases, strict/native build and full source/specification gates. Task journal acceptance is staged next. Task cold-stage reconciliation, retained retry identity, tracked-today scheduling and both hosts remain waiting."
+      "detail": "[Daily policy](spec/records/2026-10-26-native-task-coordination.md), [physical IO](spec/records/2026-10-26-native-daily-document-io.md), [daily observations](spec/records/2026-10-26-native-daily-task-observations.md), [ordered lifecycle](spec/records/2026-10-26-native-task-lifecycle.md) and [native recovery](spec/records/2026-10-26-native-task-recovery.md) are source-qualified. Shared private record IO is committed at 86f360f8. Recovery passes twelve native cases, all 110 retained attempts, actual process loss, cold explicit retry and bounded known failure details. All 459 Rust cases, seven intentional ignores, strict/native/package lanes and final specification/78 governance cases pass. Remaining: tracked-today scheduling through the existing indexing owner and both host Task adoptions. No native host default is selected here."
     }
   ]
 }

@@ -2,7 +2,8 @@ use super::{DailyDocumentError, DailyFormatContext, format};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct DailyDocumentSettings {
     pub folder: String,
     pub date_format: String,

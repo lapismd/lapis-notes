@@ -187,6 +187,17 @@ Domain validation and workflow stages remain separately typed; Task records
 MUST NOT masquerade as turns. Extracting IO grants no additional dispatch,
 filesystem authority, retry, scheduling or host selection.
 
+The separately typed native Task journal MUST bind to admitted vault authority.
+Fresh submit consumes existing Work; duplicate identity lookup MUST precede fresh
+original-version preflight. Inspect MUST NOT replay writes. Explicit retry MUST
+reuse the accepted action/date, source plan and native daily policy. It MUST pin
+ensure and observation stages separately before publication, preserve ensured
+seeds after later validation failure, and classify physical before/desired/
+divergent bytes. A view MUST NOT own journal or Task job lifetime. Source
+qualification alone MUST NOT select either host or an unattended scheduler.
+Known failed stages MUST retain a bounded code/message for cold inspection;
+unrecorded process loss MUST NOT be presented as a recorded domain failure.
+
 An admitted Task operation MUST verify its original Task version and source
 plan before the first daily mutation. It MUST resolve the plan's occurrence
 date, combine daily materialization and optional completion within one guarded

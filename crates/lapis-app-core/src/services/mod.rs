@@ -28,8 +28,10 @@ pub use runtime::Runtime;
 pub use state::VaultService;
 pub use streams::FileSnapshot;
 pub use tasks::{
-    PreparedTaskLifecycle, TaskLifecycleError, TaskLifecyclePartial, TaskLifecycleWrite,
-    TaskObservationWrite, TaskWriteError, TaskWriteResult,
+    PreparedTaskLifecycle, TaskLifecycleDisposition, TaskLifecycleError, TaskLifecycleFailure,
+    TaskLifecycleJournal, TaskLifecyclePartial, TaskLifecyclePolicy, TaskLifecycleRequest,
+    TaskLifecycleStatus, TaskLifecycleWrite, TaskObservationWrite, TaskRecoveryError,
+    TaskWriteError, TaskWriteResult,
 };
 pub use turns::{AgentPolicy, TurnStorage};
 pub use work::Work;

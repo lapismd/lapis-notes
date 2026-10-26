@@ -1,5 +1,10 @@
 //! Native-only ordered persistence. Durable retry and host selection remain gated.
 mod error;
+mod recovery;
+pub use recovery::{
+    TaskLifecycleDisposition, TaskLifecycleFailure, TaskLifecycleJournal, TaskLifecyclePolicy,
+    TaskLifecycleRequest, TaskLifecycleStatus, TaskRecoveryError,
+};
 #[cfg(test)]
 mod tests;
 
