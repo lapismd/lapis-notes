@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-26 23:44:26 UTC**.
+Last updated **2026-10-26 23:50:17 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -129,6 +129,9 @@ are explicitly accepted separately. Desktop main adopts `f276120b` after all
 final governance checks. Its accepted immutable formatting exception is retained.
 All 103 migration task objects and pending default dependency/Markdown work are
 preserved. Design Core main adopts `99fa0952`; publication/native gates remain.
+[Main workspace preparation](spec/records/2026-10-26-plugin-file-icons-local-refresh.md)
+completes 16 verified prerequisite archives, 74 Notes import routes and 778
+owning build files; tracked dependency metadata and concurrent patches remain exact.
 The [archived plan](spec/archive/2026-10-26-plugin-file-icons.md) and
 [original execution record](spec/records/2026-10-26-plugin-file-icons.md) retain
 feature, signed Web installation, Bases/CSV Docs and original consumer evidence.
