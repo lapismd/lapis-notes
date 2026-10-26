@@ -44,7 +44,7 @@ export function auditRustSources(files) {
       errors.push(`${file}: LN-CORE-001 split oversized native responsibility`);
     if (
       production &&
-      /\b(?:tauri|axum|hyper|tower|web_sys|js_sys|wasm_bindgen)::|\b(?:window|document|globalThis)\./u.test(
+      /\b(?:tauri|axum|hyper|tower|web_sys|js_sys|wasm_bindgen)::|(?<!\w|\.\s*)\b(?:window|document|globalThis)\./u.test(
         source,
       )
     )

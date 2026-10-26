@@ -19,13 +19,13 @@ lifetime. R1.2/R1.3 retain those gates. Native directory witnesses are explicit
 capability handles, never renderer or HTTP values. Watch/resource/profile policy
 remains in Desktop while the common engine owns checked IO and publication.
 
-[Native indexing](rust-indexing-lifetime.md) stages qualified Markdown parsers, Tasks, Docs and Search on one admitted owner, with daily provider/formatting policy, guarded default IO and combined daily Task observation processing qualified separately.
+[Native indexing](rust-indexing-lifetime.md) stages qualified Markdown parsers, Tasks, Docs and Search on one admitted owner, with daily provider/formatting policy, guarded default IO, daily observation processing and ordered Task lifecycle admission qualified separately from durable recovery and both hosts.
 Guarded Task transformations reuse the existing native writer; [History scheduling](rust-history-indexing-lifetime.md) retains paused/cold read-only work.
 Custom processors, complete provider scheduling and both hosts remain gated.
 
 The core boundary audit runs in normal checks and canonical specification checks.
-It rejects transport dependencies/source references, host source routing and new
-oversized source/test files. Native builds retain checkout-owned output and the
+It rejects transport dependencies/source references, bare renderer globals and host
+source routing while permitting ordinary Rust member fields; source/test limits remain enforced. Native builds retain checkout-owned output and the
 30 GiB free-space preflight, without automatic cache cleanup.
 
 R1.2 adds one service owner for each admitted vault ID and physical directory.

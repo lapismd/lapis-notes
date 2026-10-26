@@ -171,6 +171,14 @@ observation content or advance a Task. The [daily processing
 record](../../records/2026-10-26-native-daily-task-observations.md) keeps this
 source boundary separate from ordered persistence, recovery and host selection.
 
+Before durable recovery selection, an explicit native-only ordered stage MAY
+consume one opaque prepared operation. Preparation MUST pin the checked original
+Task snapshot, source plan and action. Execution MUST serialize lifecycle
+operations and recheck the original before any daily mutation. Partial outcomes
+MUST retain that snapshot, replacement intent, action and published observation.
+This stage grants no retry API, unattended scheduling or application selection;
+durable recovery remains a separate gate.
+
 An admitted Task operation MUST verify its original Task version and source
 plan before the first daily mutation. It MUST resolve the plan's occurrence
 date, combine daily materialization and optional completion within one guarded

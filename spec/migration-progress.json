@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 01:44:13 UTC",
+  "updated": "2026-10-26 02:22:44 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -631,7 +631,7 @@
       "work": "Native daily provider creation and daily-before-rolling Task coordination",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "[Daily policy](spec/records/2026-10-26-native-task-coordination.md) is source-qualified at 220b5cd7 and [guarded physical lookup/ensure](spec/records/2026-10-26-native-daily-document-io.md) at 974d0a39. [Combined daily observation processing](spec/records/2026-10-26-native-daily-task-observations.md) is source-qualified: nine exact native cases, 38 retained daily outcomes, eight complete LF/CRLF tracking outcomes, all 431 Rust cases and full source/specification/78 governance gates pass. Ordered original-Task admission/persistence, valid-duration lifecycle reference, partial/cold recovery and existing-owner scheduling remain before either host selection."
+      "detail": "[Daily policy](spec/records/2026-10-26-native-task-coordination.md), [guarded physical IO](spec/records/2026-10-26-native-daily-document-io.md) and [daily observation processing](spec/records/2026-10-26-native-daily-task-observations.md) are source-qualified. [Ordered lifecycle application](spec/records/2026-10-26-native-task-lifecycle.md) is source-qualified: all eleven exact native cases, 110 retained attempts, all 442 workspace Rust cases, strict/native build and complete check/test/build pass. The source-owned Rust audit repair passes all six regressions and exact Docker acceptance; final specification qualification passes all 78 governance cases. Durable/cold recovery, retained retry identity, tracked-today scheduling and both hosts remain waiting."
     }
   ]
 }

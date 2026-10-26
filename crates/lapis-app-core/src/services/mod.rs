@@ -27,6 +27,9 @@ pub use indexing::IndexingStatus;
 pub use runtime::Runtime;
 pub use state::VaultService;
 pub use streams::FileSnapshot;
-pub use tasks::{TaskObservationWrite, TaskWriteError, TaskWriteResult};
+pub use tasks::{
+    PreparedTaskLifecycle, TaskLifecycleError, TaskLifecyclePartial, TaskLifecycleWrite,
+    TaskObservationWrite, TaskWriteError, TaskWriteResult,
+};
 pub use turns::{AgentPolicy, TurnStorage};
 pub use work::Work;
