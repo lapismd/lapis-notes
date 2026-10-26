@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 00:25:03 UTC",
+  "updated": "2026-10-26 00:28:55 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -383,7 +383,7 @@
       "work": "Search index reconciliation and scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Qualified native Markdown Search source](spec/records/2026-10-25-native-search-owner.md): exact startup regression, 13 native Search and 33 retained SearchManager cases pass; complete source checks/builds pass with 369 Rust and 2,253 unique package cases. Final ten-archive cohort passes all 1,590 API cases, API build/check and all 13 native Search cases. Canonical specification/progress qualification passes all 78 regression cases. Complete provider/configuration/checkpoint parity and both host adoption gates remain; no host default changes."
+      "detail": "Qualified native Markdown reconciliation and 33 retained SearchManager envelopes are integrated. Canvas extraction is source-qualified at Plugins 5e0dffc3; its Notes publication/chunking intake is active in R3.2.2.3. Full provider registration, configuration persistence, refresh/checkpoint/progress parity and both host adoption gates remain; no host default changes."
     },
     {
       "id": "R3.2.3",
@@ -632,6 +632,14 @@
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
       "detail": "Following qualified one-file Task intake, the Tasks lane is mapping retained API daily-document and Tasks occurrence/repository policy. Reuse the existing service owner and guarded writer for deterministic provider resolution, creation and two-file ordering/idempotence. Qualify ordinary and recurrence outcomes, conflicts and cold recovery before either host selection."
+    },
+    {
+      "id": "R3.2.2.3",
+      "area": "Native Search intake",
+      "work": "Canvas publication and explicit chunking selection on the existing owner",
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "Isolated lapis-notes-native-search-providers-20261026 adopts qualified Plugins 5e0dffc3. Exact baseline records four expected missing-contract compiler errors and no executed cases; native-only options now stage Canvas and chunking on the existing worker. Exact external-change/cache-signature tests are running. Markdown-only defaults, full custom-provider/refresh/checkpoint parity and both hosts remain separate."
     }
   ]
 }
