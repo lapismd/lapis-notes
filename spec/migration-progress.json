@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 15:51:32 UTC",
+  "updated": "2026-10-26 16:44:00 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -808,6 +808,14 @@
       "status": "Waiting",
       "spec": "spec/src/workspace-shell/panels/problems/core-contract.md#ln-ws-029",
       "detail": "After native captured-state qualification, adapt retained intent discovery and guarded decisions into the App-owned diagnostic collection and existing Problems actions. No new screen, automatic discard or content recovery engine; host/cold-crash qualification remains separate."
+    },
+    {
+      "id": "R3.2.4.1.1",
+      "area": "Native writer admission",
+      "work": "Scope noninteractive state ownership to admitted logical operations",
+      "status": "Complete",
+      "spec": "spec/src/architecture/native-editor-intents.md#ln-core-026",
+      "detail": "[Source qualification](spec/records/2026-10-26-native-state-intents.md): five exact state, 22 registry/state, 118 persistence, 1,663 API and actual conditional HTTP cases pass; complete source passes 562 Rust, 2,354 package and 261 cold catalog cases plus strict/public-build/static/spec gates. Idle clean state no longer fences another App. Interactive/foreign guards remain intact. Actual hosted and Desktop adoptions stay at their separate host gates."
     }
   ]
 }

@@ -88,7 +88,7 @@ export class NativeEditingIntentLease {
     return this.#admission;
   }
 
-  changed(): void {
+  changed(): Promise<void> {
     const revision = ++this.#revision;
     this.#changes.set(revision, {
       kind: "changed",
@@ -102,6 +102,7 @@ export class NativeEditingIntentLease {
     this.#tail = changed;
     // Native failures are observed by ready/flush/guard, including debounce callers.
     void changed.catch(() => {});
+    return changed;
   }
 
   async #settleChanges(): Promise<void> {

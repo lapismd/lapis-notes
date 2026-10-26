@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-26 15:51:32 UTC**.
+Last updated **2026-10-26 16:44:00 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -82,6 +82,13 @@ reference source `9551ce2a` and evidence `52270c2a` pass 2,882 units, 27 Rust an
 passes. Current editor-cohort host acceptance awaits the source fix for idle
 clean configuration-writer claims. Backup controls/status and original-source
 selection continue in parallel.
+
+**Scoped state source complete — 2026-10-26 16:44:00 UTC:** [CORE026](spec/records/2026-10-26-native-state-intents.md)
+passes five exact cases, all 22 registry/state and 118 affected persistence
+cases, plus the actual own-client/foreign-fence HTTP regression. Complete source
+checks pass 562 native, 2,354 package and 261 cold catalog cases with strict,
+public-build, static and specification gates. Both actual host adoptions and the
+existing Problems facade remain separate, active work.
 
 **Guarded restore complete:** [qualified source](spec/records/2026-10-26-hosted-repository-restore.md)
 at `d398f208` passes 543 Rust, 2,332 package, 261 cold catalog and 24 browser
@@ -333,6 +340,7 @@ not host adoption or native/hosted application acceptance.
 | [R3.2.3.5](spec/src/architecture/rust-history-reader.md#ln-core-016)            | Hosted Repository adoption | Admitted native reader and retained Repository read/search/blame screen      | [Qualified read-only hosted Repository](spec/records/2026-10-26-hosted-repository-reader.md) reuses the retained revision/diff/Search/blame screens through shared native lifetime, lossless same-client HTTP and private profile registration. [Current Tasks/reader intake](spec/records/2026-10-26-reader-current-intake.md) additionally passes the retained-Arc Task fence, all537Rust/2326package/261coldcatalog/23browser and full specification gates. The same7nativeignores/1DenoSkip remain explicit. Ordinary defaults, SDK publication, restore/source parity and complete R3 are separate.                                                                                                      |
 | [R3.2.3.6.1](spec/src/architecture/rust-history-parity.md#ln-core-023)          | Remaining History parity   | Guarded file/vault restore and retained review                               | [Qualified guarded Repository restore](spec/records/2026-10-26-hosted-repository-restore.md): all6 exact native/13 adapter, full543Rust/2332package/261coldcatalog/24browser pass, including actual lost acknowledgement/cold recovery/exact receipt retry without overwriting newer saved files. Complete root/strict/build and canonical78governance pass; final two mapped-chapter findings are repaired without product changes. Both-host combined R3 remains separate.                                                                                                                                                                                                                                  |
 | [R3.2.3.7](spec/src/architecture/rust-history-indexing-lifetime.md#ln-core-011) | Desktop History adoption   | Shared immutable History controls and observer in the existing Desktop shell | [Desktop E-CORE-032](../lapis-desktop/spec/src/history/E-CORE-032.md) closes M16.6 at fa13c1ce and is integrated in clean Desktop default. All 2,056 cold catalog, 507 Node, 744 AI, 250 Rust, two native lifetime and two actual WebView cases pass; strict normal/e2e, both ARM64 bundles, production-marker audit and full specification pass. All 27 archives and 9,386 public files match the qualified payloads. The accepted immutable E-AI-109 formatting exception is byte-identical to its parent. This closes this Desktop adapter gate, not hosted reader, legacy History, app signing or full R3.                                                                                                |
+| [R3.2.4.1.1](spec/src/architecture/native-editor-intents.md#ln-core-026)        | Native writer admission    | Scope noninteractive state ownership to admitted logical operations          | [Source qualification](spec/records/2026-10-26-native-state-intents.md): five exact state, 22 registry/state, 118 persistence, 1,663 API and actual conditional HTTP cases pass; complete source passes 562 Rust, 2,354 package and 261 cold catalog cases plus strict/public-build/static/spec gates. Idle clean state no longer fences another App. Interactive/foreign guards remain intact. Actual hosted and Desktop adoptions stay at their separate host gates.                                                                                                                                                                                                                                        |
 
 <!-- migration-tasks:end -->
 
