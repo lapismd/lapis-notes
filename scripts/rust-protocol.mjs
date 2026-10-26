@@ -29,6 +29,13 @@ const generated = JSON.parse(
 );
 const outputs = [
   [
+    new URL(
+      "../packages/api/src/lib/native-indexing-protocol.ts",
+      import.meta.url,
+    ),
+    await format(generated.indexingTypescript, { parser: "typescript" }),
+  ],
+  [
     new URL("../packages/api/src/lib/native-turn-protocol.ts", import.meta.url),
     await format(generated.turnTypescript, { parser: "typescript" }),
   ],

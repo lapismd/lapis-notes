@@ -3,6 +3,7 @@ mod browser;
 mod cookies;
 mod database;
 mod identity;
+mod indexing;
 pub use identity::Authentication;
 mod errors;
 mod files;
@@ -83,6 +84,10 @@ pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::R
         .route(
             "/api/v3/clients/{client}/database",
             post(database::call).layer(DefaultBodyLimit::max(database::JSON_LIMIT)),
+        )
+        .route(
+            "/api/v3/clients/{client}/indexing",
+            post(indexing::call).layer(DefaultBodyLimit::max(16 * 1024)),
         )
         .route(
             "/api/v3/clients/{client}/turns",

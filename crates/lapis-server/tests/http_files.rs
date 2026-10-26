@@ -4,6 +4,7 @@ mod backup;
 mod browser_auth;
 mod credentials;
 mod database;
+mod indexing;
 mod lifetime;
 mod physical;
 mod streams;

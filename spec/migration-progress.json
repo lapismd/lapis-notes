@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 23:57:48 UTC",
+  "updated": "2026-10-26 00:58:49 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -463,7 +463,7 @@
       "work": "Tauri and HTTP unattended metadata adoption",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "Source foundation is active in an isolated Notes workspace: explicit App-owned native indexing port, typed selection/refresh/status and native database writer-authority enforcement. Preserve metadata/query/events facades, make detach passive and retain absent-port browser processing. Known Tasks/Docs projection ownership is staged; Search provider/configuration parity and both actual host gates remain separate."
+      "detail": "[Source-qualified foundation](spec/records/2026-10-26-native-indexing-port.md) at 05b82662: seven native control/contribution cases, two cancellation/authority cases, 36 indexing, 24 protocol, two HTTP, 121 cache/plugin and ten hosted-client cases; full source passes 403 Rust, 2,266 package and 261 cold catalog cases, public API build/packed types, strict native, both renderer/static builds and specification lanes. Both retained Markdown extensions are native; custom configuration hashes remain client-dependent. Neither host selects the port yet. Complete Search provider/configuration adoption, actual host acceptance and cutover remain waiting."
     },
     {
       "id": "R3.2.1.2.1",

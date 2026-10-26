@@ -179,3 +179,22 @@ describe("Rust hosted transport", () => {
     }
   });
 });
+
+it("routes generated indexing controls through the admitted lease without selecting startup", async () => {
+  const response = { status: null, contribution: null };
+  const fetch = vi
+    .fn<typeof globalThis.fetch>()
+    .mockResolvedValueOnce(json(admission))
+    .mockResolvedValueOnce(json(response))
+    .mockResolvedValueOnce(new Response(null, { status: 204 }));
+  const client = await new RustHttpClient("", fetch).attach("vault");
+  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(await client.indexing({ kind: "status" })).toEqual(response);
+  expect(fetch.mock.calls[1][0]).toBe("/api/v3/clients/client/indexing");
+  expect(JSON.parse(String(fetch.mock.calls[1][1]?.body))).toEqual({
+    kind: "status",
+  });
+  await client.close();
+  await expect(client.indexing({ kind: "select_metadata" })).rejects.toThrow();
+  expect(fetch).toHaveBeenCalledTimes(3);
+});

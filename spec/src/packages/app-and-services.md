@@ -169,3 +169,9 @@ key bytes.
 <a id="ln-pkg-080"></a>
 
 **Requirement.** `@lapis-notes/api` MUST own transport-neutral app-tool contracts, lifecycle, and Vault-backed file-tool wrappers. Search MUST own `notes_search` and Markdown MUST own `notes_list`. AI MUST own snapshots and policy. `@lapismd/ai-host` plus Deno desktop MUST own live MCP transport without becoming durable tool, note-content, or conversation authorities.
+
+Under LN-CORE-003/004/006, an explicitly owned `VaultSession.backgroundIndexing`
+port selects the existing native metadata owner. The retained MetadataCache
+remains the query/cache/event facade; absence preserves standalone browser
+processing. Declaration and passive status controls follow the
+[native indexing contract](../architecture/rust-indexing-lifetime.md).

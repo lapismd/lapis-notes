@@ -48,3 +48,8 @@ persistence and editor lifecycle boundaries.
 The status-host repair preserves Markdown editor, file-surface and extension
 registration contracts. Only the shared Plugin status-element mount changes;
 Markdown contributes no replacement status host (LN-WS-054).
+
+With an explicitly supplied native background port, Markdown registration
+retains its local pure parser for presentation while background publication
+belongs to the compiled service under LN-CORE-005/006. No native failure may
+activate the JavaScript metadata writer.

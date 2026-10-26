@@ -1,3 +1,4 @@
+mod controls;
 mod docs;
 mod manifest;
 mod occurrences;
@@ -13,14 +14,7 @@ use lapis_app_protocol::ErrorCode;
 pub(super) use owner::Owner;
 use std::sync::Arc;
 
-#[derive(Clone, Debug, Default)]
-pub struct IndexingStatus {
-    pub passes: u64,
-    pub indexed: usize,
-    pub deleted: usize,
-    pub pending: usize,
-    pub error: Option<String>,
-}
+pub use lapis_app_protocol::indexing::IndexingStatus;
 impl VaultService {
     pub async fn start_markdown_indexing(self: &Arc<Self>) -> Result<()> {
         self.start_indexing(false, false, owner::Clock::default())
@@ -46,6 +40,13 @@ impl VaultService {
         clock: owner::Clock,
     ) -> Result<()> {
         let database = self.database().await?;
+        database.claim_native_metadata().await;
+        if occurrences {
+            database.claim_native_projection("tasks/occurrence").await;
+        }
+        if documents {
+            database.claim_native_projection("tasks/task").await;
+        }
         // Never retain work across this gate: close drains accepted work while
         // holding it, and a concurrent start must observe the retired phase.
         let _close = self.close_gate.try_lock().map_err(|error| match error {
@@ -91,8 +92,8 @@ impl VaultService {
             .map_err(|_| unavailable())
     }
     pub(super) fn finish_indexing(&self) -> Result<()> {
-        let mut slot = self.indexing.lock().map_err(|_| unavailable())?;
-        if let Some(owner) = slot.take() {
+        let owner = self.indexing.lock().map_err(|_| unavailable())?.take();
+        if let Some(owner) = owner {
             owner.finish()?;
         }
         Ok(())
@@ -100,4 +101,22 @@ impl VaultService {
 }
 fn unavailable() -> Error {
     Error::new(ErrorCode::Io, "Native metadata index owner is unavailable")
+}
+
+impl VaultService {
+    pub async fn set_task_document_indexing(
+        self: &Arc<Self>,
+        enabled: bool,
+    ) -> crate::services::Result<()> {
+        if enabled {
+            return self
+                .start_indexing(false, true, owner::Clock::default())
+                .await;
+        }
+        let _work = self.begin_work()?;
+        if let Some(owner) = self.indexing.lock().map_err(|_| unavailable())?.as_ref() {
+            owner.select(None, Some(false));
+        }
+        Ok(())
+    }
 }

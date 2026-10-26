@@ -19,6 +19,10 @@ impl VaultService {
     pub async fn start_docs_indexing(self: &Arc<Self>, docs_root: &str) -> Result<()> {
         let root = definition::root(docs_root);
         self.start_markdown_indexing().await?;
+        self.database()
+            .await?
+            .claim_native_projection("docs/note")
+            .await;
         let _work = self.begin_work()?;
         if let Some(owner) = self
             .indexing

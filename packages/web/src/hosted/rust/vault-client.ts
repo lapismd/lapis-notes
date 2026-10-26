@@ -9,6 +9,8 @@ import {
   type VaultValue,
   type TurnCommand,
   type TurnValue,
+  type IndexingCommand,
+  type IndexingValue,
 } from "../../../../../crates/lapis-app-protocol/bindings/protocol";
 import { RustHostError, type RustHttpClient } from "./client";
 
@@ -110,6 +112,11 @@ export class RustVaultClient {
   async turns(command: TurnCommand): Promise<TurnValue> {
     this.requireOpen();
     return this.host.json(`${this.path}/turns`, "POST", command);
+  }
+
+  async indexing(command: IndexingCommand): Promise<IndexingValue> {
+    this.requireOpen();
+    return this.host.json(`${this.path}/indexing`, "POST", command);
   }
 
   close(): Promise<void> {

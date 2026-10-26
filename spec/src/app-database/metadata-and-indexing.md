@@ -4,6 +4,11 @@ LN-PKG-185 filters the core Vault enumeration used by discovery consumers.
 The retained resource map, explicit metadata reads and database persistence
 formats remain unchanged; discovery exclusions are not backup or access policy.
 
+An explicitly selected [native background owner](../architecture/rust-indexing-lifetime.md)
+fences client-generated metadata and its known projections under LN-CORE-006.
+Accepted client writes drain before ownership changes; queries and unrelated
+domains remain available. An absent App-owned port retains browser processing.
+
 ## LN-DB-002 — Database: expose a descriptor with provider, engine, transport
 
 <a id="ln-db-002"></a>

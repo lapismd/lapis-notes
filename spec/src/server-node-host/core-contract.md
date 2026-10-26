@@ -275,3 +275,8 @@ automatic backup, restore and shared UI integration are H03 acceptance gates.
 External history lives under the managed vault's persistent `history` directory,
 separate from disposable `state/app.turso`. Original colocated repositories are
 explicit read sources; absence never creates a repository.
+
+The staged Rust HTTP host exposes admitted, generated background-indexing
+controls under LN-CORE-004. Authentication, protocol/origin admission and vault
+isolation apply equally to selection, progress and refresh. This source endpoint
+does not select hosted startup or the default backend.

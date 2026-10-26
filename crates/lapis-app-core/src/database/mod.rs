@@ -1,5 +1,6 @@
 //! Native high-level AppDatabase operations; SQL and paths never enter requests.
 mod actor;
+mod authority;
 mod call;
 mod changes;
 mod history_client;
@@ -56,6 +57,7 @@ impl DatabaseCompletion {
 #[derive(Clone)]
 pub struct Database {
     admission: Arc<Mutex<Option<mpsc::Sender<actor::Envelope>>>>,
+    authority: Arc<tokio::sync::RwLock<authority::Authority>>,
     bytes: Arc<Semaphore>,
     finished: watch::Receiver<Completion>,
     changes: Arc<broadcast::Receiver<ChangeSet>>,
@@ -122,6 +124,7 @@ impl Database {
         tokio::spawn(actor::run(store, receiver, done, publisher));
         Ok(Self {
             admission: Arc::new(Mutex::new(Some(sender))),
+            authority: Arc::default(),
             bytes: Arc::new(Semaphore::new(MAX_BYTES)),
             finished,
             changes: Arc::new(changes),

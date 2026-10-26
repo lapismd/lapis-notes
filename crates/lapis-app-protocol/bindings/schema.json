@@ -64,6 +64,20 @@
       "required": ["client_id", "vault_id", "generation"],
       "type": "object"
     },
+    "ContributionPlacement": {
+      "enum": ["native", "client_dependent"],
+      "type": "string"
+    },
+    "ContributionStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "message": { "type": ["string", "null"] },
+        "placement": { "$ref": "#/$defs/ContributionPlacement" },
+        "projection_id": { "type": "string" }
+      },
+      "required": ["projection_id", "placement"],
+      "type": "object"
+    },
     "CoreIndexedFile": {
       "additionalProperties": false,
       "description": "Core publication is independent of optional plugin projection work.",
@@ -699,6 +713,113 @@
         "tags": { "items": { "$ref": "#/$defs/TagRecord" }, "type": "array" }
       },
       "required": ["file", "properties", "tags", "links"],
+      "type": "object"
+    },
+    "IndexingCommand": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "select_metadata", "type": "string" }
+          },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "extension": { "maxLength": 32, "minLength": 1, "type": "string" },
+            "kind": { "const": "register_processor", "type": "string" },
+            "owner_plugin_id": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": ["kind", "owner_plugin_id", "extension"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "contribution": { "$ref": "#/$defs/ProjectionContribution" },
+            "kind": { "const": "register_projection", "type": "string" }
+          },
+          "required": ["kind", "contribution"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "disable_projection", "type": "string" },
+            "projection_id": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": ["kind", "projection_id"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "refresh", "type": "string" },
+            "rebuild": { "type": "boolean" }
+          },
+          "required": ["kind", "rebuild"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "status", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        }
+      ]
+    },
+    "IndexingPhase": {
+      "enum": ["idle", "discovering", "metadata", "tasks", "docs", "search"],
+      "type": "string"
+    },
+    "IndexingStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "active": { "type": "boolean" },
+        "deleted": { "format": "uint", "minimum": 0, "type": "integer" },
+        "error": { "type": ["string", "null"] },
+        "indexed": { "format": "uint", "minimum": 0, "type": "integer" },
+        "passes": { "format": "uint64", "minimum": 0, "type": "integer" },
+        "pending": { "format": "uint", "minimum": 0, "type": "integer" },
+        "phase": { "$ref": "#/$defs/IndexingPhase" },
+        "processed": { "format": "uint", "minimum": 0, "type": "integer" },
+        "total": { "format": "uint", "minimum": 0, "type": "integer" }
+      },
+      "required": [
+        "passes",
+        "indexed",
+        "deleted",
+        "pending",
+        "active",
+        "processed",
+        "total",
+        "phase"
+      ],
+      "type": "object"
+    },
+    "IndexingValue": {
+      "additionalProperties": false,
+      "properties": {
+        "contribution": {
+          "anyOf": [
+            { "$ref": "#/$defs/ContributionStatus" },
+            { "type": "null" }
+          ]
+        },
+        "status": {
+          "anyOf": [{ "$ref": "#/$defs/IndexingStatus" }, { "type": "null" }]
+        }
+      },
       "type": "object"
     },
     "LinkDirection": { "enum": ["incoming", "outgoing"], "type": "string" },
@@ -1344,6 +1465,31 @@
     "ProjectionComparison": {
       "enum": ["eq", "ne", "lt", "lte", "gt", "gte"],
       "type": "string"
+    },
+    "ProjectionContribution": {
+      "additionalProperties": false,
+      "properties": {
+        "configuration_hash": { "maxLength": 1024, "type": "string" },
+        "owner_plugin_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "path_prefix": {
+          "default": null,
+          "maxLength": 1024,
+          "type": ["string", "null"]
+        },
+        "projection_id": { "maxLength": 128, "minLength": 1, "type": "string" },
+        "schema_version": { "format": "double", "type": "number" }
+      },
+      "required": [
+        "projection_id",
+        "owner_plugin_id",
+        "schema_version",
+        "configuration_hash"
+      ],
+      "type": "object"
     },
     "ProjectionDefinition": {
       "additionalProperties": false,
@@ -3100,6 +3246,8 @@
     "indexed_file": { "$ref": "#/$defs/IndexedFile" },
     "indexed_manifest_page": { "$ref": "#/$defs/ManifestPage" },
     "indexed_manifest_query": { "$ref": "#/$defs/ManifestQuery" },
+    "indexing_command": { "$ref": "#/$defs/IndexingCommand" },
+    "indexing_value": { "$ref": "#/$defs/IndexingValue" },
     "login": { "$ref": "#/$defs/LoginRequest" },
     "logout": { "$ref": "#/$defs/LogoutReply" },
     "memory_candidate": { "$ref": "#/$defs/MemoryCandidateInput" },
@@ -3158,6 +3306,8 @@
     "vault_name": { "$ref": "#/$defs/VaultName" }
   },
   "required": [
+    "indexing_command",
+    "indexing_value",
     "turn_command",
     "turn_value",
     "database_call",

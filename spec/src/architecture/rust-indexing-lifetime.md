@@ -137,6 +137,37 @@ records the confirmed native-only selection and qualified plugin revision.
 Source qualification does not select either application host or migrate Docs UI,
 editing, FSRS, custom processors or Tasks mutations.
 
+## Explicit native background ownership
+
+Under LN-CORE-003/004/005/006, an optional App-owned native indexing port MAY
+select the admitted service's existing metadata owner and compiled Tasks/Docs
+projections. Absent selection MUST retain standalone Web processing. Native
+selection MUST fence client-generated metadata and owned projection mutations
+before starting its writer, while previously accepted operations drain.
+
+Selection, contribution, refresh and status commands MUST use generated bounded
+DTOs and existing client admission. Callbacks, executables and host roots MUST
+NOT become transport values. Unknown client-dependent processors MUST report
+unavailability without a JavaScript fallback. Search's complete provider and
+configuration adoption remains separately gated.
+
+Known Tasks/Docs selection admits their retained empty configuration hash;
+nonempty client hashes MUST remain client-dependent. The native implementation
+owns a separate cache identity. Docs' normalized root is the retained output
+setting and MUST travel as its path prefix. Both `md` and `markdown` processor
+declarations select the same qualified native Markdown algorithm.
+
+MetadataCache MUST retain its query, cache and compatibility-event facade. Its
+selected backend MUST own reconciliation, rebuild and projection publication.
+View detach MUST only remove observers; explicit plugin disable MUST fence its
+selected projection independently. Native progress MUST describe the service's
+work and remain observable after detach and reattachment. Neither an observer
+nor an unpolled response MAY own the worker or delay its closure.
+
+The [bounded source foundation](../../records/2026-10-26-native-indexing-port.md)
+records exact writer authority and transport acceptance separately from both
+hosts' default selection, complete processor parity and Tasks mutation intake.
+
 ## Lifetime and failure
 
 Only one native owner starts for a vault. File watchers are hints; startup and

@@ -28,6 +28,8 @@ import {
 } from "$lib/storage";
 import { debounce } from "lodash-es";
 import { dirname, resolvePath } from "./storage/path";
+import { NativeBackgroundIndexingSession } from "./native-background-indexing";
+import type { IndexProjectionRegistration } from "./storage/index-projection";
 import type { NotificationProgressHandle } from "./notifications";
 
 export const METADATA_CACHE_BACKUP_PATH = ".lapis/cache/metadata-cache.json";
@@ -626,6 +628,7 @@ export class MetadataCache extends EventDispatcher<{
   #unresolvedLinks: Record<string, Record<string, number>> = $state({});
   readonly logger = logging.getLogger("cache");
   private disposed = false;
+  private readonly nativeIndexing?: NativeBackgroundIndexingSession;
   private didLoad = false;
   private loadPromise: Promise<void> | null = null;
   private disposePromise: Promise<void> | null = null;
@@ -658,6 +661,9 @@ export class MetadataCache extends EventDispatcher<{
 
   constructor(readonly app: App) {
     super();
+    const port = app.session?.backgroundIndexing;
+    if (port)
+      this.nativeIndexing = new NativeBackgroundIndexingSession(app, port);
     app.vault.on("all", this.handleVaultChange);
     app.vault.on("rename", this.handleVaultRename);
     this.databaseChangeUnsubscribe =
@@ -699,7 +705,8 @@ export class MetadataCache extends EventDispatcher<{
   }
 
   scheduleSnapshotSave(): void {
-    if (this.disposed || this.snapshotLeaseCount === 0) return;
+    if (this.nativeIndexing || this.disposed || this.snapshotLeaseCount === 0)
+      return;
     this.saveSnapshotDebounced();
   }
 
@@ -711,6 +718,7 @@ export class MetadataCache extends EventDispatcher<{
   async dispose(options: { persist?: boolean } = {}): Promise<void> {
     if (this.disposePromise) return this.disposePromise;
     this.disposed = true;
+    this.nativeIndexing?.dispose();
     this.app.vault.off("all", this.handleVaultChange);
     this.app.vault.off("rename", this.handleVaultRename);
     this.databaseChangeUnsubscribe?.();
@@ -720,8 +728,10 @@ export class MetadataCache extends EventDispatcher<{
     this.snapshotLeaseValue = null;
     this.saveSnapshotDebounced.cancel();
     this.disposePromise = (async () => {
+      if (this.nativeIndexing) return;
       await Promise.allSettled([...this.pendingOperations]);
-      await this.persistReconcileCheckpoint({ allowDisposed: true });
+      if (!this.nativeIndexing)
+        await this.persistReconcileCheckpoint({ allowDisposed: true });
       void options;
     })();
     return this.disposePromise;
@@ -730,6 +740,7 @@ export class MetadataCache extends EventDispatcher<{
   async saveSnapshotNow(
     _options: { forceBackup?: boolean } = {},
   ): Promise<void> {
+    if (this.nativeIndexing) return;
     const snapshot = await this.buildCompatibilitySnapshot();
     try {
       await this.app.appDatabase.saveMetadataSnapshot(snapshot);
@@ -769,6 +780,13 @@ export class MetadataCache extends EventDispatcher<{
   }
 
   private async performLoad(): Promise<void> {
+    if (this.nativeIndexing) {
+      await this.nativeIndexing.load();
+      if (this.disposed) return;
+      this.didLoad = true;
+      this.trigger("loaded");
+      return;
+    }
     try {
       await this.app.telemetry.measureAsync(
         "metadata.cache.load",
@@ -1039,8 +1057,8 @@ export class MetadataCache extends EventDispatcher<{
 
   /**
    * Return the current vault/parser manifest fingerprint used to validate the
-   * durable metadata index and disposable indexed-consumer snapshots.
-   * Consumers may restrict the fingerprint to their accepted metadata files.
+   * durable metadata index and disposable indexed-consumer snapshots. Consumers
+   * may restrict the fingerprint to their accepted metadata files.
    */
   getReconciliationFingerprint(acceptsFile?: (file: TFile) => boolean): string {
     const fingerprint = new StreamingManifestFingerprint();
@@ -1414,6 +1432,7 @@ export class MetadataCache extends EventDispatcher<{
   }
 
   rebuild(progress?: NotificationProgressHandle) {
+    if (this.nativeIndexing) return this.nativeIndexing.refresh(true);
     if (progress) {
       return this.performRebuild(progress);
     }
@@ -1480,13 +1499,34 @@ export class MetadataCache extends EventDispatcher<{
     await this.persistReconcileCheckpoint();
   }
 
-  addProcessor(ext: string, processor: MetadataProcessor) {
+  registerNativeProjection(
+    owner: string,
+    id: string,
+    registration: IndexProjectionRegistration,
+  ): void {
+    this.nativeIndexing?.registerProjection(owner, id, registration);
+  }
+
+  async finishNativeContributions(owner: string): Promise<void> {
+    await this.nativeIndexing?.ready(owner);
+  }
+
+  async disableNativeContributions(owner: string): Promise<void> {
+    await this.nativeIndexing?.disable(owner);
+  }
+
+  get nativeContributionStatuses() {
+    return this.nativeIndexing?.getContributionStatuses() ?? [];
+  }
+
+  addProcessor(ext: string, processor: MetadataProcessor, owner?: string) {
     if (!ext?.trim()) return;
     ext = ext.trim().toLowerCase();
     if (!this.processors.has(ext)) {
       this.processors.set(ext, new Set());
     }
     this.processors.get(ext)!.add(processor);
+    this.nativeIndexing?.registerProcessor(owner ?? "application", ext);
   }
 
   removeProcessor(ext: string, processor: MetadataProcessor): boolean {
@@ -1615,6 +1655,14 @@ export class MetadataCache extends EventDispatcher<{
 
   private handleDatabaseChange(change: AppDatabaseChangeSet): void {
     if (this.disposed) return;
+    if (this.nativeIndexing) {
+      this.trackOperation(
+        this.observeNativeChange(change).finally(() => {
+          if (!this.disposed) this.trigger("index-changed", change);
+        }),
+      );
+      return;
+    }
     if (this.snapshotLeaseCount > 0) {
       this.trackOperation(this.refreshCompatibilitySnapshot(change));
     } else if (change.reset) {
@@ -1634,6 +1682,41 @@ export class MetadataCache extends EventDispatcher<{
       return;
     }
     this.trigger("index-changed", change);
+  }
+
+  private async observeNativeChange(
+    change: AppDatabaseChangeSet,
+  ): Promise<void> {
+    if (change.reset) {
+      if (this.snapshotLeaseCount > 0)
+        await this.refreshCompatibilitySnapshot(change);
+      else
+        for (const path of [...this.hotPathOrder.keys()])
+          this.evictHotPath(path);
+    }
+    if (change.domains.includes("metadata")) {
+      for (const path of change.paths) {
+        if (this.disposed) return;
+        const row = await this.app.appDatabase.getIndexedFile(path);
+        if (this.disposed) return;
+        this.evictHotPath(path);
+        const file = this.app.vault.getFileByPath(path);
+        if (row?.metadata) {
+          this.cacheDatabaseRow(row);
+          if (!file) continue;
+          const text = await this.app.vault.read(file);
+          if (this.disposed) return;
+          if (md5(text) === row.metadata.hash) {
+            this.trigger(
+              "changed",
+              file,
+              text,
+              row.metadata.metadata as CachedMetadata,
+            );
+          }
+        }
+      }
+    }
   }
 
   private deferReconcileIndexChange(change: AppDatabaseChangeSet): void {
@@ -1735,6 +1818,13 @@ export class MetadataCache extends EventDispatcher<{
   private handleChange(event: string, file: TAbstractFile) {
     if (this.disposed) return;
     if (!(file instanceof TFile)) return;
+    if (this.nativeIndexing) {
+      if (event === "delete") {
+        this.trigger("deleted", file, this.getCache(file.path));
+        this.evictHotPath(file.path);
+      }
+      return;
+    }
     switch (event) {
       case "create":
       case "modify":
@@ -1764,6 +1854,11 @@ export class MetadataCache extends EventDispatcher<{
   private handleRename(file: TAbstractFile, oldPath: string) {
     if (this.disposed) return;
     if (!(file instanceof TFile)) return;
+    if (this.nativeIndexing) {
+      this.evictHotPath(oldPath);
+      this.evictHotPath(file.path);
+      return;
+    }
     const existing = this.fileCache[oldPath];
     if (existing) {
       this.fileCache[file.path] = {

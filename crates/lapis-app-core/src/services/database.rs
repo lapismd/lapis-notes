@@ -131,7 +131,7 @@ impl Client {
         // Once opened, the worker owns admission and drain. A parked response
         // waiter must not hold a native work lease or postpone vault closure.
         drop(opening);
-        database.call(request).await
+        database.call_from_client(request).await
     }
 }
 impl Work {

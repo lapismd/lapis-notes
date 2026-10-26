@@ -386,9 +386,20 @@ export abstract class Plugin extends Component {
         this.register(() => lease.release());
       }
       await this.loadAsync();
+      await this.app.metadataCache?.finishNativeContributions?.(this.id);
       this.#runtimeState = "enabled";
       this.emit("enable");
     } catch (error) {
+      if (this.app.session?.backgroundIndexing && this.loaded) {
+        try {
+          await this.unloadAsync();
+        } catch (cleanupError) {
+          console.error(
+            "Failed to rollback native plugin activation",
+            cleanupError,
+          );
+        }
+      }
       this.#runtimeState = "failed";
       this.#failureMessage = formatPluginError(error);
       this.#lastFailureMessage = this.#failureMessage;
@@ -543,6 +554,7 @@ export abstract class Plugin extends Component {
   async disable(): Promise<void> {
     if (!this.loaded) {
       try {
+        await this.app.metadataCache?.disableNativeContributions?.(this.id);
         await this.#revokeSyncHostCapabilities?.();
       } finally {
         this.#syncHostCapabilities = null;
@@ -555,6 +567,7 @@ export abstract class Plugin extends Component {
     this.#runtimeState = "disabling";
 
     try {
+      await this.app.metadataCache?.disableNativeContributions?.(this.id);
       try {
         await this.unloadAsync();
       } finally {
@@ -1105,7 +1118,7 @@ export abstract class Plugin extends Component {
   }
 
   registerMetadataProcessor(processor: MetadataProcessor, ext: string = "md") {
-    this.app.metadataCache.addProcessor(ext, processor);
+    this.app.metadataCache.addProcessor(ext, processor, this.id);
     this.register(() => {
       this.app.metadataCache.removeProcessor(ext, processor);
     });
@@ -1115,23 +1128,34 @@ export abstract class Plugin extends Component {
     registration: IndexProjectionRegistration,
   ): RegisteredIndexProjectionHandle<T> {
     const recorded = this.app.indexProjections.register(this.id, registration);
-    void this.app.appDatabase.registerProjectionDefinition({
-      projectionId: recorded.projectionId,
-      ownerPluginId: this.id,
-      schemaVersion: registration.version,
-      configHash: registration.configurationHash ?? "",
-      visibility: registration.visibility ?? "public",
-      fields: registration.fields,
-      active: true,
-      updatedAt: Date.now(),
-    });
-    this.register(() => {
-      this.app.indexProjections.unregister(recorded.projectionId);
-      void this.app.appDatabase.unregisterProjectionDefinition(
+    if (this.app.session?.backgroundIndexing) {
+      this.app.metadataCache.registerNativeProjection(
+        this.id,
         recorded.projectionId,
+        registration,
       );
-    });
-    void this.backfillIndexProjection(recorded.projectionId);
+      this.register(() =>
+        this.app.indexProjections.unregister(recorded.projectionId),
+      );
+    } else {
+      void this.app.appDatabase.registerProjectionDefinition({
+        projectionId: recorded.projectionId,
+        ownerPluginId: this.id,
+        schemaVersion: registration.version,
+        configHash: registration.configurationHash ?? "",
+        visibility: registration.visibility ?? "public",
+        fields: registration.fields,
+        active: true,
+        updatedAt: Date.now(),
+      });
+      this.register(() => {
+        this.app.indexProjections.unregister(recorded.projectionId);
+        void this.app.appDatabase.unregisterProjectionDefinition(
+          recorded.projectionId,
+        );
+      });
+      void this.backfillIndexProjection(recorded.projectionId);
+    }
     return {
       id: recorded.projectionId,
       query: (query) =>

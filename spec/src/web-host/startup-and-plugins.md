@@ -185,3 +185,7 @@ In-session copy progress verifies the notification message:
 <a id="ln-web-064"></a>
 
 **Requirement.** Web plugin asset readiness MUST report `asset-server-unavailable` after thirty seconds without control. Completion and failure MUST remove their controller-change listeners and timer handles.
+
+The Rust client exposes generated native indexing controls under LN-CORE-004.
+This source seam does not inject `VaultSession.backgroundIndexing` into hosted
+startup: actual host selection and provider parity remain separate R3 gates.

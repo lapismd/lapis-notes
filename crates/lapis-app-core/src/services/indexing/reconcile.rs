@@ -4,7 +4,9 @@ use crate::{
     services::{Error, Result, VaultService},
     vault::VaultRoot,
 };
-use lapis_app_protocol::{ErrorCode, database::indexed::queries::ManifestQuery};
+use lapis_app_protocol::{
+    ErrorCode, database::indexed::queries::ManifestQuery, indexing::IndexingPhase,
+};
 use std::sync::{
     Mutex, Weak,
     atomic::{AtomicBool, Ordering},
@@ -16,6 +18,8 @@ pub(super) struct Selection<'a> {
     pub search: &'a AtomicBool,
     pub docs: &'a Mutex<Option<String>>,
     pub today: &'a str,
+    pub force: bool,
+    pub progress: &'a Mutex<IndexingStatus>,
 }
 pub(super) async fn run(
     vault: &Weak<VaultService>,
@@ -28,12 +32,22 @@ pub(super) async fn run(
     if let Err(error) = process(vault, database, root, stop, selection, &mut status).await {
         status.error = Some(error.to_string());
     }
+    selection
+        .progress
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .phase = IndexingPhase::Docs;
     match docs::run(vault, database, root, stop, selection.docs).await {
         Ok(pending) => status.pending = status.pending.saturating_add(pending),
         Err(error) => {
             status.error.get_or_insert_with(|| error.to_string());
         }
     }
+    selection
+        .progress
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .phase = IndexingPhase::Search;
     match search::run(vault, database, root, stop, selection.search).await {
         Ok(pending) => status.pending = status.pending.saturating_add(pending),
         Err(error) => {
@@ -75,6 +89,11 @@ async fn process(
     else {
         return Ok(());
     };
+    {
+        let mut progress = selection.progress.lock().unwrap_or_else(|e| e.into_inner());
+        progress.phase = IndexingPhase::Metadata;
+        progress.total = files.iter().filter(|path| records::markdown(path)).count();
+    }
     let mut after = None;
     loop {
         let page = database
@@ -107,6 +126,11 @@ async fn process(
         if stop.load(Ordering::Acquire) || work.cancellation_requested() {
             return Ok(());
         }
+        selection
+            .progress
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .processed += 1;
         root.verify_physical_root()?;
         let Some(before) = root.stat(path)? else {
             continue;
@@ -151,7 +175,7 @@ async fn process(
                 && serde_json::to_value(&row.properties).ok()
                     == serde_json::to_value(&record.properties).ok()
         });
-        if !same {
+        if selection.force || !same {
             database.upsert_indexed_metadata(record).await?;
             status.indexed += 1;
         }
@@ -165,6 +189,11 @@ async fn process(
             status.error = Some(error.to_string());
         }
     }
+    selection
+        .progress
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .phase = IndexingPhase::Tasks;
     status.pending += tasks::run(
         database,
         root,
