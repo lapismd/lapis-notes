@@ -53,5 +53,7 @@
   "validation:rust": "pnpm rust:core --",
   "capture:native-daily-reference": "LAPIS_NOTES_CAPTURE_DAILY_REFERENCE=1 pnpm --filter @lapis-notes/api exec vitest run src/lib/native-daily-reference.test.ts",
   "test:native-daily-reference": "pnpm --filter @lapis-notes/api exec vitest run src/lib/native-daily-reference.test.ts",
-  "test:api:native-tasks": "pnpm --filter @lapis-notes/api exec vitest run src/lib/__tests__/native-tasks.test.ts"
+  "test:api:native-tasks": "pnpm --filter @lapis-notes/api exec vitest run src/lib/__tests__/native-tasks.test.ts",
+  "capture:native-daily-locales-reference": "LAPIS_NOTES_CAPTURE_DAILY_LOCALES_REFERENCE=1 pnpm --filter @lapis-notes/api exec vitest run src/lib/native-daily-reference.test.ts src/lib/native-daily-en-gb-reference.test.ts src/lib/native-daily-en-us-week-reference.test.ts",
+  "test:native-daily-locales-reference": "pnpm --filter @lapis-notes/api exec vitest run src/lib/native-daily-reference.test.ts src/lib/native-daily-en-gb-reference.test.ts src/lib/native-daily-en-us-week-reference.test.ts"
 }

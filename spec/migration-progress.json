@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 10:57:41 UTC",
+  "updated": "2026-10-26 11:56:16 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -640,6 +640,14 @@
       "status": "Complete",
       "spec": "spec/src/architecture/rust-task-host-port.md#ln-core-013",
       "detail": "[Shared port source](spec/records/2026-10-26-native-task-host-port.md) is qualified: 13 exact native/HTTP cases, all 10 App observer/startup cases, 480 complete Rust, 2,264 package and 261 cold catalog/a11y cases; strict/protocol/check/build, public type pack, static Storybook and specification/78-governance gates pass. Startup reconciliation waits for settled plugin declarations; passive metadata reads never select Task policy. Owning Tasks adapter 7ae46a74 passes 2,859 units, 14 native and 62 cold catalog/a11y cases plus all source gates. Both host selections, signed native acceptance and common-locale/provider parity remain separate waiting work; no defaults change."
+    },
+    {
+      "id": "R3.2.1.2.10.5",
+      "area": "Tasks application coordination",
+      "work": "Retained English daily locale/week settings and native provider parity",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-task-host-port.md#ln-core-015",
+      "detail": "[English default daily source](spec/records/2026-10-26-native-daily-locale-parity.md) preserves current en-US 7/4 and qualifies en-GB 1/4 plus declared legacy-Intl en-US 7/1 with 200 filenames, 45 provider flows and 19 registry traces per context, plus 16 focused physical IO cases. All 12 exact native cases, five adapter context cases, three TypeScript replay cases and all-context HTTP journal/IO pass. Complete source gates pass 489 Rust, 2,266 package, 261 cold Notes catalog and 2,864 Tasks units/27 Rust/62 cold catalog cases. No transport, arbitrary-provider or default change. Coherent API/host adoption, actual WebView, timezone/day-boundary and signed host acceptance remain open. Final source document/static receipts accompany the qualified commit."
     }
   ]
 }

@@ -19,7 +19,7 @@ lifetime. R1.2/R1.3 retain those gates. Native directory witnesses are explicit
 capability handles, never renderer or HTTP values. Watch/resource/profile policy
 remains in Desktop while the common engine owns checked IO and publication.
 
-[Native indexing](rust-indexing-lifetime.md) stages qualified Markdown parsers, Tasks, Docs and Search on one admitted owner, with daily provider/formatting policy, guarded default IO, daily observations, ordered lifecycle and typed cold Task recovery qualified before explicit default-daily tracked-today selection; both native host adoptions remain separate gates.
+[Native indexing](rust-indexing-lifetime.md) stages qualified Markdown parsers, Tasks, Docs and Search on one admitted owner, with daily provider/formatting policy, guarded default IO, daily observations, ordered lifecycle and typed cold Task recovery qualified before explicit default-daily tracked-today selection; both native host adoptions remain separate gates. The [daily locale intake](../../records/2026-10-26-native-daily-locale-parity.md) qualifies complete retained en-GB 1/4 and both en-US 7/4 and declared legacy-Intl 7/1 contexts; actual host and timezone gates remain separate.
 Guarded Task transformations reuse the existing native writer; Task recovery shares private record IO with turns, pins before/desired bytes and retains bounded cold failures in separately typed stages. [History scheduling](rust-history-indexing-lifetime.md) retains paused/cold read-only work.
 Custom processors and both hosts remain gated; [admitted Tasks](rust-task-host-port.md) stages the shared command and observation boundary.
 

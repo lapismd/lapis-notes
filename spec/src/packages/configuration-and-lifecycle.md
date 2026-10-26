@@ -115,6 +115,14 @@ registry priority/ambiguity/disposal and the effective formatting locale.
 `pnpm test:native-daily-reference` compares the frozen artifact without replacing
 it. Capturing reference data alone grants no native persistence or host default.
 
+`pnpm capture:native-daily-locales-reference` and
+`pnpm test:native-daily-locales-reference` retain the original en-US 7/4 corpus,
+actual en-GB 1/4 defaults and a separately declared legacy-Intl en-US 7/1 profile.
+Each complete source corpus preserves all 200 filename, 45 provider and 19
+registry outcomes. [Native source qualification](../../records/2026-10-26-native-daily-locale-parity.md)
+adds guarded default-provider IO without selecting either application or
+introducing timezone policy; actual-host and signed acceptance remain separate.
+
 Registration does not itself express data removal. LN-PLUG-112 preserves unadopted
 compatibility files; confirmed canonical removals retain their existing mirror
 cleanup. Both paths keep LN-PKG-174 writer ownership and recovery unchanged.
