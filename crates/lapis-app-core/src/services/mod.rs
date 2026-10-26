@@ -2,6 +2,7 @@
 mod backup;
 mod byte_writes;
 mod client;
+pub mod daily;
 mod database;
 mod editors;
 mod error;

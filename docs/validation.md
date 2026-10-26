@@ -73,6 +73,12 @@ identity and checksum are verified; tracked manifests and locks stay portable.
 
 ## Reports and cleanup
 
+Native daily-provider authoring uses `pnpm capture:native-daily-reference` to
+collect `test-results/daily-provider.json` from the actual API provider and
+Luxon formatter. The artifact is reviewed and frozen separately; ordinary
+`pnpm test:native-daily-reference` compares it without rewriting expected bytes.
+Neither capture nor source replay qualifies native persistence or host defaults.
+
 Reports are copied to `.local/validation/runs/<run>/`, including the exact source,
 image/tool identities, invocation outcomes and available test/build reports.
 Npm pack outputs persist in the run’s `.release_npm/` directory, including the

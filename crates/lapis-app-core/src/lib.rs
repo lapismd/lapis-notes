@@ -7,5 +7,6 @@ pub mod database;
 pub mod embedding;
 pub mod plugins;
 pub mod services;
+mod text;
 pub mod turns;
 pub mod vault;

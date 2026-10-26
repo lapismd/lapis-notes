@@ -50,5 +50,7 @@
   "check:storybook-parity": "node scripts/spec-validation/check-storybook-parity.mjs",
   "test:storybook-parity": "node scripts/run-turbo.mjs test:storybook-parity:run --task-args",
   "validation:consumer-pack": "node scripts/validation/pack-consumers.mjs",
-  "validation:rust": "pnpm rust:core --"
+  "validation:rust": "pnpm rust:core --",
+  "capture:native-daily-reference": "LAPIS_NOTES_CAPTURE_DAILY_REFERENCE=1 pnpm --filter @lapis-notes/api exec vitest run src/lib/native-daily-reference.test.ts",
+  "test:native-daily-reference": "pnpm --filter @lapis-notes/api exec vitest run src/lib/native-daily-reference.test.ts"
 }
