@@ -1,6 +1,9 @@
 // Retained Desktop/hosted-services physical-source witnesses; Notes owns admission.
 use std::os::unix::fs::MetadataExt;
-use std::{io, path::PathBuf};
+use std::{
+    io,
+    path::{Path, PathBuf},
+};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct Witness {
@@ -59,6 +62,65 @@ pub(crate) struct Source {
     witnesses: Vec<Witness>,
 }
 impl Source {
+    pub fn fingerprint(&self) -> [u8; 32] {
+        use sha2::{Digest, Sha256};
+        let mut hash = Sha256::new_with_prefix(b"lapis-history-source-witness-v1\0");
+        for witness in &self.witnesses {
+            let path = witness.path.as_os_str().as_encoded_bytes();
+            hash.update((path.len() as u64).to_be_bytes());
+            hash.update(path);
+            hash.update(witness.identity.0.to_be_bytes());
+            hash.update(witness.identity.1.to_be_bytes());
+            hash.update([u8::from(witness.directory)]);
+            if let Some(contents) = &witness.contents {
+                hash.update((contents.len() as u64).to_be_bytes());
+                hash.update(contents);
+            }
+        }
+        hash.finalize().into()
+    }
+    /// Retained Desktop inspection; it neither initializes nor snapshots JJ.
+    pub fn original(root: &Path) -> io::Result<Option<Self>> {
+        match std::fs::symlink_metadata(root.join(".jj")) {
+            Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(None),
+            Err(error) => return Err(error),
+            Ok(_) => {}
+        }
+        let jj_store_jj::local_repository::WorkspaceInfo {
+            path,
+            metadata,
+            git,
+            ..
+        } = jj_store_jj::local_repository::inspect_workspace(root).map_err(|_| denied())?;
+        if path != root {
+            return Err(denied());
+        }
+        let mut witnesses = Vec::new();
+        for directory in [
+            path.clone(),
+            path.join(".jj"),
+            path.join(".jj/working_copy"),
+            metadata.clone(),
+            metadata.join("store"),
+            git,
+        ] {
+            witnesses.push(Witness::capture(directory, true)?);
+        }
+        let link = path.join(".jj/repo");
+        witnesses.push(Witness::capture(
+            link.clone(),
+            std::fs::symlink_metadata(&link)?.is_dir(),
+        )?);
+        for name in ["type", "git_target"] {
+            witnesses.push(Witness::capture(metadata.join("store").join(name), false)?);
+        }
+        let source = Self {
+            metadata,
+            witnesses,
+        };
+        source.verify()?;
+        Ok(Some(source))
+    }
     /// Both paths come from the admitted native backup owner, never a read frame.
     pub fn existing(binding: &jj_vault::Binding, physical: (u64, u64)) -> io::Result<Option<Self>> {
         let state = &binding.state;

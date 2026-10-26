@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 17:19:57 UTC",
+  "updated": "2026-10-26 18:35:46 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -742,8 +742,8 @@
       "area": "Remaining History parity",
       "work": "Original repository source selection",
       "status": "Working",
-      "spec": "spec/src/architecture/rust-history-reader.md#ln-core-016",
-      "detail": "Original-source read-only parity is starting after qualified backup controls. Reuse existing source witnesses, History Owner/Policy and PreparationQueue with native-minted per-client read tokens; no capture, initialization, recovery or new engine. CORE024/SRV029/WEB075 source and host gates remain open."
+      "spec": "spec/src/architecture/rust-history-parity.md#ln-core-024",
+      "detail": "[Owner-qualified original source](spec/records/2026-10-26-original-repository-sources.md): eight native original HTTP, five Core History/one reader/three backup regressions, eight new Web and all 67 affected adapter cases pass, with native strict/protocol and Web typing/build. Fresh built source-picker/tabs/pin/Op Log/preservation/refresh/cold restart passes at 75e6abb7 (ab2246a7). Complete source/catalog/browser/specification qualification is batched with current main intake; Desktop shared-reader adoption remains separate. Runtime files exactly match qualified output."
     },
     {
       "id": "R3.2.3.6.4",

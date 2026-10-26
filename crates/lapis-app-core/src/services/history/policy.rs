@@ -13,20 +13,29 @@ use uuid::Uuid;
 pub(super) const ORIGIN: &str = "lapis-core://repository";
 #[derive(Clone)]
 pub(super) struct Policy {
-    vault: Weak<VaultService>,
+    pub(super) vault: Weak<VaultService>,
     grants: Arc<Mutex<HashMap<Uuid, Source>>>,
+    pub(super) originals: Arc<Mutex<HashMap<Uuid, super::original::Grant>>>,
 }
 impl Policy {
     pub fn new(vault: Weak<VaultService>) -> Self {
         Self {
             vault,
             grants: Arc::default(),
+            originals: Arc::default(),
         }
     }
     pub fn vault(&self, client: Uuid, requested: &str) -> Result<Arc<VaultService>> {
         let vault = self.vault.upgrade().ok_or(Error::Denied)?;
         if requested != vault.id.to_string() {
-            return Err(Error::Denied);
+            let grants = self.originals.lock().map_err(|_| Error::Unavailable)?;
+            let grant = grants
+                .get(&client)
+                .filter(|grant| grant.token == requested)
+                .ok_or(Error::Denied)?;
+            if grant.revoked {
+                return Err(Error::EpochChanged);
+            }
         }
         vault
             .lock()
@@ -50,16 +59,34 @@ impl Policy {
             .map_err(|_| Error::Denied)?;
         Source::existing(&native.binding, physical).map_err(|_| Error::Denied)
     }
-    pub fn identity(vault: &VaultService) -> (RepositoryId, u64) {
-        let mut hash = Sha256::new_with_prefix(b"lapis-managed-repository-v1\0");
+    pub fn identity(vault: &VaultService, original: Option<&Source>) -> (RepositoryId, u64) {
+        let prefix: &[u8] = if original.is_some() {
+            b"lapis-original-repository-v1\0"
+        } else {
+            b"lapis-managed-repository-v1\0"
+        };
+        let mut hash = Sha256::new_with_prefix(prefix);
         hash.update(vault.id.as_bytes());
         let digest: [u8; 32] = hash.finalize().into();
+        let generation = if let Some(source) = original {
+            let mut epoch = Sha256::new_with_prefix(b"lapis-original-epoch-v1\0");
+            epoch.update(vault.generation.as_bytes());
+            epoch.update(source.fingerprint());
+            let digest: [u8; 32] = epoch.finalize().into();
+            u64::from_be_bytes(digest[..8].try_into().unwrap()).max(1)
+        } else {
+            u64::from_be_bytes(vault.generation.as_bytes()[..8].try_into().unwrap()).max(1)
+        };
         (
             RepositoryId::new(digest[..16].try_into().unwrap()),
-            u64::from_be_bytes(vault.generation.as_bytes()[..8].try_into().unwrap()).max(1),
+            generation,
         )
     }
     pub fn revoke(&self, client: Uuid) -> Result<()> {
+        self.originals
+            .lock()
+            .map_err(|_| Error::Unavailable)?
+            .remove(&client);
         self.grants
             .lock()
             .map_err(|_| Error::Unavailable)?
@@ -87,8 +114,11 @@ impl Admission for Policy {
         tokio::task::spawn_blocking(move || {
             let vault = policy.vault(client, &requested)?;
             let work = vault.begin_work().map_err(|_| Error::Denied)?;
-            let source = Self::source(&vault)?.ok_or(Error::Unavailable)?;
-            {
+            let original = requested != vault.id.to_string();
+            let source = policy
+                .resolve(client, &requested, &vault)?
+                .ok_or(Error::Unavailable)?;
+            if !original {
                 let mut grants = policy.grants.lock().map_err(|_| Error::Unavailable)?;
                 if let Some(previous) = grants.get(&client) {
                     if previous != &source {
@@ -102,7 +132,7 @@ impl Admission for Policy {
                 }
             }
             Ok(Arc::new(Access {
-                identity: Self::identity(&vault),
+                identity: Self::identity(&vault, original.then_some(&source)),
                 policy,
                 client,
                 vault: requested,
@@ -132,8 +162,13 @@ impl local::Access for Access {
         let expected = self.source.clone();
         tokio::task::spawn_blocking(move || {
             let vault = policy.vault(client, &requested)?;
-            expected.verify().map_err(|_| Error::EpochChanged)?;
-            if Policy::source(&vault)?.as_ref() != Some(&expected) {
+            if policy.resolve(client, &requested, &vault)?.as_ref() != Some(&expected) {
+                return Err(Error::EpochChanged);
+            }
+            if expected.verify().is_err() {
+                if requested != vault.id.to_string() {
+                    policy.revoke_original(client)?;
+                }
                 return Err(Error::EpochChanged);
             }
             policy.vault(client, &requested)?;

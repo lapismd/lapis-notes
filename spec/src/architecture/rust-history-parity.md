@@ -19,7 +19,7 @@ four-plugin profile.
 | ---------- | ---------------------------------------------------------------------------- | -------- |
 | R3.2.3.6.1 | Guarded file/vault restore through native backup and retained dialog         | Complete |
 | R3.2.3.6.2 | Backup capture selection, passive status and explicit pause/restart controls | Complete |
-| R3.2.3.6.3 | Original repository detection and immutable source selection                 | Waiting  |
+| R3.2.3.6.3 | Original repository detection and immutable source selection                 | Working  |
 | R3.2.3.6.4 | Native ownership of optional legacy AppDatabase History capture              | Deferred |
 
 The deferred legacy scheduler is additional functionality rather than a blocker
@@ -71,3 +71,37 @@ later Status cannot overtake a previously accepted selection whose worker has
 not yet reached the mutex. Failed or abandoned reservations release their turn;
 waiting turns use async notification instead of occupying the blocking pool.
 The queue adds no repository, writer or persistent state.
+
+## LN-CORE-024 — Independent immutable original repository source
+
+<a id="ln-core-024"></a>
+
+**Requirement.** Original repository discovery and reads MUST use the admitted physical vault and immutable JJ/Git witnesses without initialization, capture, recovery or fallback. Native scopes MUST be opaque, client-bound and independent of backup selection, with distinct source identities and pinned operations. Replacement, retirement and closure MUST revoke or drain retained access. Both sources MUST share the existing reader worker and preparation queue.
+
+### Acceptance details
+
+Original-source admission retains these boundaries:
+
+- Existing JJ workspaces include internal/colocated Git and supported shared
+  repository links. A plain folder or bare Git marker does not become a JJ
+  workspace. Discovery cannot create backup state, repository metadata or caches.
+- Native code resolves and retains the physical vault, JJ/working-copy/store/Git
+  directories and bounded link/type/target files. Changed witnesses refuse the
+  retained source until fresh client admission; ordinary external operations may
+  advance heads without replacing an already selected pin.
+- Opening the original source returns a native-minted read token for that client
+  and source. Reopening an unchanged source reuses its scope. Caller paths,
+  replacement tokens, alternate roots and caller-selected generations are absent.
+- Managed and original scopes have separate identities and handles. Original
+  reads remain independent of paused or unavailable managed capture. The existing
+  native reader owner, client retirement and controlled vault drain cover both.
+- Retained history, operation-log and blame views keep their selected source and
+  operation through refresh, concurrent tabs and cold reopening. Original reads
+  cannot restore, adopt, transfer or mutate that source; those existing native
+  operations retain their separately governed migration boundaries.
+
+The implementation adapts Desktop's existing source witness and source-reader
+composition. There is no second engine, snapshotter, writer or persistent store.
+Qualification preserves dirty files and complete original metadata bytes, proves
+foreign/stale scope refusal and source replacement, and exercises both real
+retained source selections through authenticated hosted transport.

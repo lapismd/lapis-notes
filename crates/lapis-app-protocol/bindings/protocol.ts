@@ -164,6 +164,10 @@ export type RepositoryRestoreValue =
   | RepositoryFileRestorePreview
   | RepositoryVaultRestorePreview
   | RepositoryCapture;
+export type RepositorySourcesCommand =
+  | { kind: "discover" }
+  | { kind: "open_original" };
+export type RepositorySources = { original: boolean; token: string | null };
 export type ProjectionContribution = {
   projection_id: string;
   owner_plugin_id: string;

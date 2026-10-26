@@ -1,3 +1,5 @@
+mod contracts;
+pub use contracts::Contracts;
 mod database;
 mod editing_intents;
 mod history_index;
@@ -5,6 +7,7 @@ mod indexing;
 mod native_tasks;
 mod repository_backup;
 mod repository_restore;
+mod repository_sources;
 mod turns;
 use lapis_app_protocol::database::call::*;
 use lapis_app_protocol::database::indexed::{mutations::IndexedFile, queries::*, records::*};
@@ -19,83 +22,9 @@ use lapis_app_protocol::database::tasks::{enums::*, record::*, recurrence::*, st
 use lapis_app_protocol::database::{changes::*, history::*, state::*};
 use lapis_app_protocol::turns::*;
 use lapis_app_protocol::{browser::*, database::*, files::*, *};
-use schemars::JsonSchema;
 use serde_json::json;
 use ts_rs::{Config, TS};
 
-#[derive(JsonSchema)]
-pub struct Contracts {
-    pub repository_backup_command: lapis_app_protocol::repository_backup::RepositoryBackupCommand,
-    pub repository_backup_snapshot: lapis_app_protocol::repository_backup::RepositoryBackupSnapshot,
-    pub editing_intent_command: lapis_app_protocol::editing_intents::EditingIntentCommand,
-    pub editing_intent_value: lapis_app_protocol::editing_intents::EditingIntentValue,
-    pub repository_restore_command:
-        lapis_app_protocol::repository_restore::RepositoryRestoreCommand,
-    pub repository_restore_value: lapis_app_protocol::repository_restore::RepositoryRestoreValue,
-    pub native_task_command: lapis_app_protocol::native_tasks::NativeTaskCommand,
-    pub native_task_value: lapis_app_protocol::native_tasks::NativeTaskValue,
-    pub history_index_command: lapis_app_protocol::history_index::HistoryIndexCommand,
-    pub history_index_value: lapis_app_protocol::history_index::HistoryIndexValue,
-    pub indexing_command: lapis_app_protocol::indexing::IndexingCommand,
-    pub indexing_value: lapis_app_protocol::indexing::IndexingValue,
-    pub turn_command: TurnCommand,
-    pub turn_value: TurnValue,
-    pub database_call: DatabaseCall,
-    pub database_value: DatabaseValue,
-    pub request: Request,
-    pub reply: Reply,
-    pub client: ClientDescriptor,
-    pub vault: ManagedVault,
-    pub attach: AttachClient,
-    pub login: LoginRequest,
-    pub session: SessionInfo,
-    pub host: HostInfo,
-    pub logout: LogoutReply,
-    pub vault_name: VaultName,
-    pub meta_transaction: MetaTransaction,
-    pub meta_scan: MetaScan,
-    pub meta_page: MetaPage,
-    pub notebook: NotebookState,
-    pub metadata_snapshot: MetadataSnapshot,
-    pub notification: NotificationRecord,
-    pub database_change: ChangeSet,
-    pub file_history: FileHistory,
-    pub store_history: StoreHistory,
-    pub stored_history: StoredHistory,
-    pub core_indexed_file: CoreIndexedFile,
-    pub indexed_file: IndexedFile,
-    pub indexed_manifest_query: ManifestQuery,
-    pub indexed_manifest_page: ManifestPage,
-    pub metadata_page_query: MetadataPageQuery,
-    pub metadata_page: MetadataPage,
-    pub metadata_facet_query: FacetQuery,
-    pub metadata_facets: Vec<FacetRow>,
-    pub metadata_link_query: LinkQuery,
-    pub projection_definition: ProjectionDefinition,
-    pub projection_source: ProjectionSource,
-    pub projection_error: ProjectionSourceError,
-    pub projection_query: ProjectionQuery,
-    pub projection_related: ProjectionRelatedQuery,
-    pub projection_result: ProjectionQueryResult,
-    pub memory_source: MemorySource,
-    pub memory_candidate: MemoryCandidateInput,
-    pub memory_candidate_query: MemoryCandidateQuery,
-    pub memory_signal: MemoryRecallSignal,
-    pub memory_job_claim: MemoryJobClaim,
-    pub memory_job_update: MemoryJobUpdate,
-    pub task_record: TaskRecord,
-    pub task_query: TaskQuery,
-    pub task_lookup: TaskLookup,
-    pub task_children: TaskChildQuery,
-    pub search_document: SearchDocumentRecord,
-    pub search_manifest_query: SearchManifestQuery,
-    pub search_manifest: SearchManifestPage,
-    pub search_stats: SearchIndexStats,
-    pub search_options: SearchOptions,
-    pub search_embedding_config: SearchEmbeddingProviderConfig,
-    pub search_embedding_status: SearchEmbeddingRuntimeStatus,
-    pub search_results: Vec<SearchResult>,
-}
 fn main() {
     let config = Config::default();
     let declarations = [
@@ -283,6 +212,7 @@ fn main() {
             .chain(repository_backup::declarations(&config).iter())
             .chain(editing_intents::declarations(&config).iter())
             .chain(repository_restore::declarations(&config).iter())
+            .chain(repository_sources::declarations(&config).iter())
             .chain(indexing::declarations(&config).iter())
             .chain(native_tasks::declarations(&config).iter())
             .chain(turns::declarations(&config).iter())

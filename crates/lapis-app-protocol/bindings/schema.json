@@ -3051,6 +3051,33 @@
         { "$ref": "#/$defs/RepositoryCapture" }
       ]
     },
+    "RepositorySources": {
+      "additionalProperties": false,
+      "properties": {
+        "original": { "type": "boolean" },
+        "token": { "type": ["string", "null"] }
+      },
+      "required": ["original"],
+      "type": "object"
+    },
+    "RepositorySourcesCommand": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "discover", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "open_original", "type": "string" }
+          },
+          "required": ["kind"],
+          "type": "object"
+        }
+      ]
+    },
     "RepositoryVaultRestorePreview": {
       "additionalProperties": false,
       "properties": {
@@ -4596,6 +4623,10 @@
       "$ref": "#/$defs/RepositoryRestoreCommand"
     },
     "repository_restore_value": { "$ref": "#/$defs/RepositoryRestoreValue" },
+    "repository_sources": { "$ref": "#/$defs/RepositorySources" },
+    "repository_sources_command": {
+      "$ref": "#/$defs/RepositorySourcesCommand"
+    },
     "request": { "$ref": "#/$defs/Request" },
     "search_document": { "$ref": "#/$defs/SearchDocumentRecord" },
     "search_embedding_config": {
@@ -4625,6 +4656,8 @@
     "vault_name": { "$ref": "#/$defs/VaultName" }
   },
   "required": [
+    "repository_sources_command",
+    "repository_sources",
     "repository_backup_command",
     "repository_backup_snapshot",
     "editing_intent_command",

@@ -337,3 +337,9 @@ MUST fail without fallback to the Node companion or browser-supplied authority.
 <a id="ln-srv-028"></a>
 
 **Requirement.** Hosted backup status, manual capture and explicit selection MUST use the existing authenticated client, protocol, Origin and CSRF admission. Setting writes MUST carry only a Boolean and an opaque expected configuration version. Post-await delivery MUST reject revoked leases while accepted native work completes. Status MUST remain passive and MUST NOT accept filesystem or configuration authority.
+
+## LN-SRV-029 — Admitted original repository scopes
+
+<a id="ln-srv-029"></a>
+
+**Requirement.** Hosted original-source commands MUST require bounded authenticated, same-origin, live-client admission. Opening a source MUST NOT accept caller paths, witnesses or replacement scope tokens. Reply delivery MUST recheck client retirement, and returned tokens MUST grant only that client's immutable reads. Optional managed-backup startup failure MUST NOT prevent admitted original-source access.

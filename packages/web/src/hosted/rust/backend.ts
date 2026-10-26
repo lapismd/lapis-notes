@@ -80,6 +80,19 @@ export function createRustHostedBackend(
                 createHostedBackup(app, (command) =>
                   client.repositoryBackup(command),
                 ),
+                {
+                  discover: () =>
+                    client.repositorySources({ kind: "discover" }),
+                  open: async () => {
+                    const source = await client.repositorySources({
+                      kind: "open_original",
+                    });
+                    return new HistoryClient(source.token!, {
+                      invoke: (command, frame) =>
+                        client.history(command, frame),
+                    });
+                  },
+                },
               )
           : undefined,
         backgroundIndexing: nativeMetadata

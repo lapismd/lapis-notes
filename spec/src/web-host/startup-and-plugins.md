@@ -235,3 +235,9 @@ fake navigation. Ordinary hosted and standalone defaults MUST remain unchanged.
 <a id="ln-web-073"></a>
 
 **Requirement.** The selected hosted Repository MUST reuse its public backup settings/status components and optional persisted-selection service. Observer start/stop MUST remain passive. Explicit selection MUST join the App configuration-file guard, fetch its expected version after pending writes, and enqueue read-only baseline reconciliation before later configuration saves. Failed acknowledgements MUST reconcile without automatically replaying setting or file mutations.
+
+## LN-WEB-075 — Retained independent repository sources
+
+<a id="ln-web-075"></a>
+
+**Requirement.** Hosted Repository surfaces MUST retain each selected source, exact operation pin and independent tab/read lifetime. Opening, refreshing or closing a view MUST NOT initialize, capture or mutate either repository. Both source clients MUST use the existing preparation queue and drain their own handles before release. An unavailable or fenced original scope MUST refuse without falling back to managed backup.

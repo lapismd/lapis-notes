@@ -18,6 +18,8 @@ import {
   type RepositoryRestoreValue,
   type RepositoryBackupCommand,
   type RepositoryBackupSnapshot,
+  type RepositorySourcesCommand,
+  type RepositorySources,
 } from "../../../../../crates/lapis-app-protocol/bindings/protocol";
 import { RustHostError, type RustHttpClient } from "./client";
 
@@ -154,6 +156,25 @@ export class RustVaultClient {
       command,
     );
     this.requireOpen();
+    return result;
+  }
+
+  async repositorySources(
+    command: RepositorySourcesCommand,
+  ): Promise<RepositorySources> {
+    this.requireOpen();
+    const result = await this.host.json<RepositorySources>(
+      `${this.path}/repository-sources`,
+      "POST",
+      command,
+    );
+    this.requireOpen();
+    if (
+      typeof result?.original !== "boolean" ||
+      (result.token !== null && typeof result.token !== "string") ||
+      (command.kind === "open_original" && (!result.original || !result.token))
+    )
+      throw new Error("Invalid repository source state");
     return result;
   }
 
