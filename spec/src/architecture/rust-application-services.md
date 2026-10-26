@@ -20,7 +20,7 @@ capability handles, never renderer or HTTP values. Watch/resource/profile policy
 remains in Desktop while the common engine owns checked IO and publication.
 
 [Native indexing](rust-indexing-lifetime.md) stages Markdown, Tasks and R3.2.2 Search
-on one admitted worker; [History scheduling](rust-history-indexing-lifetime.md) retains paused/cold read-only work.
+on one admitted worker; [History scheduling](rust-history-indexing-lifetime.md) retains paused/cold reads and final backup notifications.
 Custom processors, complete provider scheduling and both hosts remain gated.
 
 The core boundary audit runs in normal checks and canonical specification checks.

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25 23:50:59 UTC",
+  "updated": "2026-10-26 01:02:26 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -599,7 +599,7 @@
       "work": "Paused and cold read-only index owner",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Qualified paused/cold History owner](spec/records/2026-10-25-native-history-read-lifetime.md): ten checkpoint cases, all 380 Rust cases, 2,253 package cases, strict/full check/test/build and complete specification gates pass. Cold cache repair retains checkpoint identity and unsnapshotted edits with no client; a new-vault read creates no repository. Backup pause retains the owner; explicit native disable and vault close drain it. Desktop passive observation/relocation intake is active; both complete host gates remain separate."
+      "detail": "[Qualified paused/cold History owner](spec/records/2026-10-25-native-history-read-lifetime.md): ten checkpoint cases, all 380 Rust cases, 2,253 package cases, strict/full check/test/build and complete specification gates pass. Cold cache repair retains checkpoint identity and unsnapshotted edits with no client; a new-vault read creates no repository. Backup pause retains the owner; explicit native disable and vault close drain it. Desktop passive observation/relocation intake is active; both complete host gates remain separate. [Bounded final-notification repair](spec/records/2026-10-26-history-final-notification.md) is source-qualified on Desktop cohort 0b05c990: both closed-watch failures are repaired; all three exact/14 backup/382 Rust cases plus locked build, strict and complete specification gates pass. Main migration progress and consumer acceptance remain separate."
     },
     {
       "id": "R3.2.1.2.10.2",

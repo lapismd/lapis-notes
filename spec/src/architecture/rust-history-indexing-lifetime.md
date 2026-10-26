@@ -34,6 +34,10 @@ derived failure MUST NOT disable capture or invoke a renderer fallback. Retrying
 derived work is allowed because it cannot replay authoritative effects.
 
 Pausing backup capture MUST retain the index owner and immutable Search access.
+Closing the backup-status sender MUST trigger one final derived reconciliation,
+including when its last publication was not yet observed. The worker MUST retire
+that closed receiver after the notification; closure MUST NOT create a busy loop
+or wait for periodic repair. This MUST NOT capture files or step from a query.
 Cold read admission and cache repair MUST NOT start capture, initialize a
 repository, run storage recovery or include unsnapshotted disk bytes. Explicit
 History-index disable and vault close MUST retire and join the index worker.
