@@ -11,6 +11,7 @@ mod errors;
 mod files;
 mod management;
 mod plugins;
+mod repository_backup;
 mod repository_restore;
 mod routes;
 mod tasks;
@@ -108,6 +109,10 @@ pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::R
         .route(
             "/api/v3/clients/{client}/repository-restore",
             post(repository_restore::call).layer(DefaultBodyLimit::max(16 * 1024)),
+        )
+        .route(
+            "/api/v3/clients/{client}/repository-backup",
+            post(repository_backup::call).layer(DefaultBodyLimit::max(16 * 1024)),
         )
         .route(
             "/api/v3/clients/{client}/turns",

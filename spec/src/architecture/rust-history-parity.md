@@ -18,7 +18,7 @@ four-plugin profile.
 | Child      | Work                                                                         | Gate     |
 | ---------- | ---------------------------------------------------------------------------- | -------- |
 | R3.2.3.6.1 | Guarded file/vault restore through native backup and retained dialog         | Complete |
-| R3.2.3.6.2 | Backup capture selection, passive status and explicit pause/restart controls | Waiting  |
+| R3.2.3.6.2 | Backup capture selection, passive status and explicit pause/restart controls | Complete |
 | R3.2.3.6.3 | Original repository detection and immutable source selection                 | Waiting  |
 | R3.2.3.6.4 | Native ownership of optional legacy AppDatabase History capture              | Deferred |
 
@@ -45,3 +45,29 @@ bytes, unresolved detached editor claims, different vaults, malformed authority,
 file/vault preview and apply, and cancellation of an accepted reply. Shared
 source, authenticated transport, retained review UI and both-host intake remain
 separate evidence.
+
+## LN-CORE-022 — Native backup selection and passive status
+
+<a id="ln-core-022"></a>
+
+**Requirement.** Native backup MUST read the saved `.lapis/app.json` automatic-history selection before initial capture. Explicit conditional selection MUST preserve unrelated configuration through the existing guarded writer and own accepted transitions independently of reply waiters. Status and observer disposal MUST NOT initialize, capture or stop backup. A lost setting acknowledgement MUST be reconciled through saved status without replaying the mutation.
+
+The sole setting is `pluginData["repository-history"].automaticBackup`, with
+existing true-default semantics. Native status returns the saved value, an opaque
+configuration version and the existing backup phase/checkpoint/error. Selection
+accepts that version, not roots, configuration contents or caller scope. Cold
+false selection cannot initialize repository metadata. Invalid saved JSON and
+stale/dirty configuration refuse publication.
+
+Native selection and existing start/stop share the per-vault backup slot gate.
+Manual capture reuses the selected engine. Host detach, view disposal and polling
+cancellation only stop observation. Explicit disable drains the existing worker;
+failed transitions retain honest saved selection and engine status for repair.
+Only the caller's explicit setting action may retry a setting write.
+
+Start, stop and controls reserve accepted turns synchronously before native
+worker scheduling. The existing backup slot retains one ordered queue, so a
+later Status cannot overtake a previously accepted selection whose worker has
+not yet reached the mutex. Failed or abandoned reservations release their turn;
+waiting turns use async notification instead of occupying the blocking pool.
+The queue adds no repository, writer or persistent state.

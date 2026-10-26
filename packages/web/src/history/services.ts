@@ -2,21 +2,23 @@ import type { HistoryClient, Handle } from "@lapismd/jj-history";
 import type { RepositoryServices } from "@lapis-notes/history/repository/controllers/history-reader";
 import type { RestoreService } from "@lapis-notes/history/repository/controllers/restore";
 import { PreparationQueue } from "@lapis-notes/history/repository/controllers/preparation-queue";
+import type { BackupService } from "@lapis-notes/history/repository/controllers/backup";
 
 /** Owns this workspace's reads only. Capture and indexing belong to the native vault owner. */
 export function createHostedRepository(
   reader: HistoryClient,
   restore?: RestoreService,
+  backup?: BackupService,
 ): RepositoryServices {
   const preparations = new PreparationQueue(reader);
   const pending = new Set<Promise<unknown>>();
   const handles = new Set<Handle>();
   let closed = false;
   let closing: Promise<void> | undefined;
-  function track<T>(action: () => Promise<T>): Promise<T> {
+  function track<T>(action: () => Promise<T>, immediate = false): Promise<T> {
     if (closed)
       return Promise.reject(new Error("Repository history is closed"));
-    const job = Promise.resolve().then(action);
+    const job = immediate ? action() : Promise.resolve().then(action);
     pending.add(job);
     void job.finally(() => pending.delete(job)).catch(() => {});
     return job;
@@ -26,6 +28,19 @@ export function createHostedRepository(
     handles.delete(handle);
   }
   return {
+    backup: backup
+      ? {
+          start: (changed) => track(() => backup.start(changed)),
+          stop: () => track(() => backup.stop()),
+          capture: () => track(() => backup.capture()),
+          ...(backup.setEnabled
+            ? {
+                setEnabled: (enabled: boolean) =>
+                  track(() => backup.setEnabled!(enabled), true),
+              }
+            : {}),
+        }
+      : undefined,
     restore: restore
       ? {
           preview: (checkpoint, path) =>
@@ -69,6 +84,7 @@ export function createHostedRepository(
       preparations.stop();
       return (closing ??= (async () => {
         while (pending.size) await Promise.allSettled([...pending]);
+        await backup?.stop();
         const results = await Promise.allSettled([...handles].map(closeHandle));
         const failure = results.find((result) => result.status === "rejected");
         if (failure?.status === "rejected") throw failure.reason;

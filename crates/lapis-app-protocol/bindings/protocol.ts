@@ -71,6 +71,21 @@ export type HistoryIndexValue =
   | HistoryIndexProgress
   | HistoryIndexPage
   | HistoryIndexContext;
+export type RepositoryBackupCommand =
+  | { kind: "status" }
+  | { kind: "capture" }
+  | { kind: "set_enabled"; enabled: boolean; expected: ExpectedVersion };
+export type RepositoryBackupPhase = "saving" | "ready" | "failed" | "closed";
+export type RepositoryBackupStatus = {
+  phase: RepositoryBackupPhase;
+  checkpoint: RepositoryCheckpoint | null;
+  error: string | null;
+};
+export type RepositoryBackupSnapshot = {
+  enabled: boolean;
+  configuration: ExpectedVersion;
+  status: RepositoryBackupStatus;
+};
 export type EditingIntentState = {
   editor_id: string;
   path: string;

@@ -1,6 +1,7 @@
 import { expect, it, vi } from "vitest";
 import type { Handle, HistoryClient } from "@lapismd/jj-history";
 import { createHostedRepository } from "./services";
+import type { BackupService } from "@lapis-notes/history/repository/controllers/backup";
 
 function fixture() {
   const handle = "prepared-handle" as Handle;
@@ -59,4 +60,36 @@ it("closing one workspace neither stops backup nor closes another workspace's ha
   expect(first.services.backup).toBeUndefined();
   await second.services.reader.heads();
   await second.services.close("close");
+});
+
+it("admits native settings synchronously and drains accepted selection before observer cleanup", async () => {
+  const f = fixture();
+  let finish!: () => void;
+  const setEnabled = vi.fn(
+    () =>
+      new Promise<void>((resolve) => {
+        finish = resolve;
+      }),
+  );
+  const stop = vi.fn(async () => {});
+  const backup = {
+    setEnabled,
+    stop,
+    start: vi.fn(),
+    capture: vi.fn(),
+  } as BackupService;
+  const services = createHostedRepository(
+    f.reader as unknown as HistoryClient,
+    undefined,
+    backup,
+  );
+  const selecting = services.backup!.setEnabled!(false);
+  expect(setEnabled).toHaveBeenCalledExactlyOnceWith(false);
+  const closing = services.close("reload");
+  expect(stop).not.toHaveBeenCalled();
+  await expect(services.backup!.setEnabled!(true)).rejects.toThrow("closed");
+  finish();
+  await Promise.all([selecting, closing]);
+  expect(stop).toHaveBeenCalledOnce();
+  expect(setEnabled).toHaveBeenCalledOnce();
 });

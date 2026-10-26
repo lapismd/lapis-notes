@@ -229,3 +229,9 @@ fake navigation. Ordinary hosted and standalone defaults MUST remain unchanged.
 <a id="ln-web-072"></a>
 
 **Requirement.** The selected Rust Repository profile MUST adapt the public RestoreService and retain its existing file/vault review, pending intent and explicit recovery controls. It MUST preserve exact request identities, validate preview identity and fence late responses. Workspace close MUST reject new restores and drain accepted observations. The adapter MUST NOT add a screen, writer, retry policy or automatic replay.
+
+## LN-WEB-073 — Retained backup settings and observation
+
+<a id="ln-web-073"></a>
+
+**Requirement.** The selected hosted Repository MUST reuse its public backup settings/status components and optional persisted-selection service. Observer start/stop MUST remain passive. Explicit selection MUST join the App configuration-file guard, fetch its expected version after pending writes, and enqueue read-only baseline reconciliation before later configuration saves. Failed acknowledgements MUST reconcile without automatically replaying setting or file mutations.

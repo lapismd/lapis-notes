@@ -61,31 +61,35 @@ impl Client {
         self.vault.lock()?.require_client(self.id)?;
         let work = self.vault.begin_work()?;
         let vault = self.vault.clone();
-        tokio::task::spawn_blocking(move || {
-            let _work = work;
-            let storage = vault.backup_storage.as_ref().ok_or_else(|| {
-                Error::new(
-                    lapis_app_protocol::ErrorCode::Unsupported,
-                    "Automatic backup is not selected",
-                )
-            })?;
-            storage.validate_vault(&vault.lock()?.root)?;
-            let mut slot = vault.backup.lock().map_err(|_| failure())?;
-            let Some(owner) = slot.clone() else {
-                return Ok(());
-            };
-            let mut engine = owner.engine.blocking_lock();
-            tokio::runtime::Builder::new_current_thread()
-                .enable_all()
-                .build()
-                .map_err(|_| failure())?
-                .block_on(engine.try_close())
-                .map_err(|_| failure())?;
-            owner.watch.lock().map_err(|_| failure())?.take();
-            *slot = None;
-            Ok(())
-        })
-        .await
-        .map_err(|_| failure())?
+        let ticket = vault.backup.reserve()?;
+        ticket
+            .run(work, move || {
+                let storage = vault.backup_storage.as_ref().ok_or_else(|| {
+                    Error::new(
+                        lapis_app_protocol::ErrorCode::Unsupported,
+                        "Automatic backup is not selected",
+                    )
+                })?;
+                storage.validate_vault(&vault.lock()?.root)?;
+                let mut slot = vault.backup.lock().map_err(|_| failure())?;
+                stop(&mut slot)
+            })
+            .await
     }
+}
+
+pub(super) fn stop(slot: &mut Option<Arc<Owner>>) -> Result<()> {
+    let Some(owner) = slot.clone() else {
+        return Ok(());
+    };
+    let mut engine = owner.engine.blocking_lock();
+    tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .map_err(|_| failure())?
+        .block_on(engine.try_close())
+        .map_err(|_| failure())?;
+    owner.watch.lock().map_err(|_| failure())?.take();
+    *slot = None;
+    Ok(())
 }

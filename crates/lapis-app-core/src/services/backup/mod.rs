@@ -1,11 +1,16 @@
 //! The vault owns the existing native engine; clients own passive status views.
 mod close;
 mod commands;
+mod configuration;
+mod control;
+mod dto;
 pub(super) mod history;
 #[cfg(test)]
 mod history_tests;
 mod provider;
 mod restore;
+mod slot;
+pub(in crate::services) use slot::Slot;
 mod storage;
 #[cfg(test)]
 mod tests;
@@ -36,25 +41,39 @@ impl Client {
         self.vault.lock()?.require_client(self.id)?;
         let vault = self.vault.clone();
         let work = vault.begin_work()?;
-        let owner = tokio::task::spawn_blocking(move || {
-            let _work = work;
-            let storage = vault.backup_storage.as_ref().ok_or_else(|| {
-                Error::new(
-                    lapis_app_protocol::ErrorCode::Unsupported,
-                    "Automatic backup is not selected",
-                )
-            })?;
-            storage.validate_vault(&vault.lock()?.root)?;
-            let mut slot = vault.backup.lock().map_err(|_| failure())?;
-            if let Some(owner) = slot.as_ref() {
-                return Ok(owner.clone());
+        let ticket = vault.backup.reserve()?;
+        let owner = ticket
+            .run(work, move || {
+                let storage = vault.backup_storage.as_ref().ok_or_else(|| {
+                    Error::new(
+                        lapis_app_protocol::ErrorCode::Unsupported,
+                        "Automatic backup is not selected",
+                    )
+                })?;
+                storage.validate_vault(&vault.lock()?.root)?;
+                let mut slot = vault.backup.lock().map_err(|_| failure())?;
+                if !configuration::read(&vault)?.enabled {
+                    commands::stop(&mut slot)?;
+                    return Ok(None);
+                }
+                if let Some(owner) = slot.as_ref() {
+                    return Ok(Some(owner.clone()));
+                }
+                let owner = Arc::new(storage.start(&vault)?);
+                *slot = Some(owner.clone());
+                Ok::<_, Error>(Some(owner))
+            })
+            .await?;
+        Ok(match owner {
+            Some(owner) => owner.status.clone(),
+            None => {
+                tokio::sync::watch::channel(Status {
+                    phase: jj_vault::Phase::Closed,
+                    checkpoint: None,
+                    error: None,
+                })
+                .1
             }
-            let owner = Arc::new(storage.start(&vault)?);
-            *slot = Some(owner.clone());
-            Ok::<_, Error>(owner)
         })
-        .await
-        .map_err(|_| failure())??;
-        Ok(owner.status.clone())
     }
 }

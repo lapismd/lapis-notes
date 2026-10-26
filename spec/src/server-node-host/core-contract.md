@@ -331,3 +331,9 @@ MUST fail without fallback to the Node companion or browser-supplied authority.
 <a id="ln-srv-027"></a>
 
 **Requirement.** Rust hosted restore MUST use bounded typed actions on the existing authenticated vault attachment, protocol, Origin and CSRF policy. Admission and post-await delivery MUST reject retired or foreign clients. Requests MUST NOT supply roots, storage, generations or caller scopes. A lost acknowledgement MUST retain the native stable request and require explicit recovery rather than transport replay.
+
+## LN-SRV-028 — Admitted native backup controls
+
+<a id="ln-srv-028"></a>
+
+**Requirement.** Hosted backup status, manual capture and explicit selection MUST use the existing authenticated client, protocol, Origin and CSRF admission. Setting writes MUST carry only a Boolean and an opaque expected configuration version. Post-await delivery MUST reject revoked leases while accepted native work completes. Status MUST remain passive and MUST NOT accept filesystem or configuration authority.

@@ -16,6 +16,8 @@ import {
   type IndexingValue,
   type RepositoryRestoreCommand,
   type RepositoryRestoreValue,
+  type RepositoryBackupCommand,
+  type RepositoryBackupSnapshot,
 } from "../../../../../crates/lapis-app-protocol/bindings/protocol";
 import { RustHostError, type RustHttpClient } from "./client";
 
@@ -135,6 +137,19 @@ export class RustVaultClient {
     this.requireOpen();
     const result = await this.host.json<RepositoryRestoreValue>(
       `${this.path}/repository-restore`,
+      "POST",
+      command,
+    );
+    this.requireOpen();
+    return result;
+  }
+
+  async repositoryBackup(
+    command: RepositoryBackupCommand,
+  ): Promise<RepositoryBackupSnapshot> {
+    this.requireOpen();
+    const result = await this.host.json<RepositoryBackupSnapshot>(
+      `${this.path}/repository-backup`,
       "POST",
       command,
     );

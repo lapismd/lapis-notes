@@ -10,6 +10,12 @@ Web retirement removes dedicated connection tokens through the existing
 serialized configuration writer. LN-PLUG-113 does not reset plugin data,
 conversations, unrelated secrets or retained workspace state.
 
+## LN-PKG-186 — Read-only configuration reconciliation
+
+<a id="ln-pkg-186"></a>
+
+**Requirement.** Configuration reload MUST accept an optional read-only reconciliation mode that updates its saved baseline and visible values without materializing schema defaults or enqueueing persistence. Default reload behavior MUST remain unchanged. Hosts MAY run read-only reconciliation after an externally admitted guarded mutation; later queued saves MUST calculate from the reconciled state without reentering the registry queue.
+
 ## LN-PKG-173 — Serialized configuration changes
 
 <a id="ln-pkg-173"></a>

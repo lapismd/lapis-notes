@@ -5,6 +5,7 @@ mod history_index;
 mod history_reader;
 mod indexing;
 mod management;
+mod repository_backup;
 mod repository_restore;
 mod tasks;
 pub mod turns;

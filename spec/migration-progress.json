@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 15:51:32 UTC",
+  "updated": "2026-10-26 17:01:31 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -391,7 +391,7 @@
       "work": "History-index scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Indexed History, public App ports, admitted retained Repository reads and guarded hosted restore are committed and qualified. Desktop M16.6 is adopted at fa13c1ce. [Restore evidence](spec/records/2026-10-26-hosted-repository-restore.md) includes both real restore/cold-acknowledgement journeys, saved-byte preservation and complete source/browser/specification closure. Remaining current-profile parity is backup controls/status/passive observation and original-source selection. Optional legacy AppDatabase capture is explicitly Deferred outside the current profile. Complete R3/provider and default cutover remain open."
+      "detail": "Native History controls, admitted observer/reader, guarded restore and retained hosted backup settings/status qualify their source/host gates. Latest controls cohort passes 575 Rust/2,358 package/261 cold catalog/25 browser cases plus canonical 78 governance cases. Original repository source remains Waiting; optional legacy database capture is Deferred; both-host combined R3 remains separate."
     },
     {
       "id": "R1.3.9.1",
@@ -695,7 +695,7 @@
       "work": "Guarded restore, backup controls and original repository source",
       "status": "Working",
       "spec": "spec/src/architecture/rust-history-parity.md#ln-core-023",
-      "detail": "Guarded native file/vault restore and retained hosted review/recovery are qualified atR3.2.3.6.1. Required backup controls/passive status and original repository source remain Waiting. Optional legacy AppDatabase capture ownership is Deferred because the current Desktop/hosted profiles do not bundle HistoryPlugin and installed behavior is client-driven in both. Combined both-host R3 remains separate."
+      "detail": "Guarded restore and backup capture controls/passive status are qualified separately. Required original repository detection/read-source selection remains Waiting. Optional legacy HistoryPlugin database capture ownership remains Deferred because it is not bundled in the current profile and is client-driven in both hosts. Combined R3 and default cutover remain separate."
     },
     {
       "id": "R3.2.3.7",
@@ -733,9 +733,9 @@
       "id": "R3.2.3.6.2",
       "area": "Remaining History parity",
       "work": "Backup capture controls and passive status",
-      "status": "Working",
-      "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native persisted backup selection/passive status and source History observer changes are under focused qualification. Saved false must be honored before capture; status observers must not disable the owner. Complete source and host gates remain pending."
+      "status": "Complete",
+      "spec": "spec/src/architecture/rust-history-parity.md#ln-core-022",
+      "detail": "[Qualified native controls and retained hosted adoption](spec/records/2026-10-26-hosted-backup-controls.md): seven native/three order-liveness/one retirement/three HTTP cases, three API/19 Web cases, full 575 Rust/2,358 package/261 cold catalog/25 browser cases and strict/build/canonical 78 governance cases pass. Saved false is read before initial capture; explicit guarded selection preserves other settings; passive status is ordered behind accepted work, and lost acknowledgements reconcile without replay. Upstream History source 92b4dea6 is separately qualified; combined both-host R3 remains separate."
     },
     {
       "id": "R3.2.3.6.3",

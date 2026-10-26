@@ -10,6 +10,8 @@ The profile also owns retained workspace routing: History stays visible while
 its rows open exact main-area conversations. Native metadata is a read-only
 projection; draft creation and view selection never submit prompts.
 
+Native backup settings use the same saved configuration and admitted owner under LN-CORE-022/LN-WEB-073; LN-PKG-186 permits read-only post-mutation baseline reconciliation without a second writer.
+
 The selected Rust Repository profile adapts the existing public RestoreService
 through its admitted client under LN-CORE-023/LN-SRV-027/LN-WEB-072. Core owns the
 existing backup engine and guarded writer; the retained controller owns pending
