@@ -67,6 +67,14 @@ the compatibility lease; the owning desktop session retains those lifetimes.
 
 [CORE013–015](../architecture/rust-task-host-port.md#ln-core-015) defines the optional App-owned native Task observer. Plugin startup awaits final declaration before publishing `plugins-loaded` and reconciles absent, disabled or failed Tasks. Passive metadata reads do not select native Task policy. Passive teardown detaches before plugin unload; explicit plugin disable fences future native admissions. Existing plugin views and standalone browser behavior remain unchanged.
 
+[Staged hosted Tasks](../web-host/startup-and-plugins.md#ln-web-070) binds its
+required native metadata owner before App construction, preserving one
+authoritative generated-state writer. Final teardown detaches and drains
+observation before unloading every configured plugin. Recoverable startup Retry
+reuses its live App controller/cache observers and re-enables declarations; it
+does not call terminal App disposal during partial cleanup. Existing installed
+plugin integrity remains independent of app signing.
+
 ## Admitted native History observation
 
 An optional host-authored `nativeHistoryIndex` App property takes precedence

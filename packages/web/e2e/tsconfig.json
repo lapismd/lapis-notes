@@ -13,6 +13,7 @@
     "../playwright.server.config.ts",
     "../playwright.rust-server.config.ts",
     "../playwright.rust-metadata.config.ts",
-    "../playwright.rust-provider.config.ts"
+    "../playwright.rust-provider.config.ts",
+    "../playwright.rust-tasks.config.ts"
   ]
 }

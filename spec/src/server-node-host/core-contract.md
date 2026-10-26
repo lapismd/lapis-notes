@@ -316,6 +316,13 @@ screen adoption remain a separate R3 gate.
 
 The native Task route also exercises the source-qualified English default daily contexts (en-GB 1/4 and en-US 7/4 or 7/1) through the existing journal and writer. Locale support follows the [retained daily source gate](../../records/2026-10-26-native-daily-locale-parity.md); host defaults and signed-plugin adoption remain separate.
 
+The staged Rust browser backend reuses its existing `RustVaultClient` for this
+port and passes it into the owning vault session. It introduces no task retry,
+client-supplied filesystem authority or renderer writer. The initial single-user
+operator date policy is an explicit process `TZ` with a matching browser zone;
+[hosted Tasks acceptance](../../records/2026-10-26-hosted-native-tasks.md) tracks
+actual default-date/day-boundary and unsupported zone mismatch separately.
+
 ## LN-SRV-026 — Admitted Rust Repository transport
 
 <a id="ln-srv-026"></a>

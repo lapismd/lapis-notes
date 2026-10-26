@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 17:22:00 UTC",
+  "updated": "2026-10-26 20:13:45 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -791,7 +791,7 @@
       "work": "Actual hosted and Desktop editor/Tasks acceptance",
       "status": "Working",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-020",
-      "detail": "Both staged hosts are under actual qualification. Hosted Tasks/dirty writer/flush/yield/rearm semantics pass, but the next close correctly refuses a stale saved baseline after native mutation. Owning API reproduces1failure and is implementing a protected clean producer refresh; no fence is weakened. Desktop thin transport,13leave and2newpreflight cases are prepared. Complete actual host recovery, file lifecycles and native acceptance remain open."
+      "detail": "[Hosted editor/Tasks/leave acceptance](spec/records/2026-10-26-hosted-editing-leave.md) is qualified in its isolated workspace: all 39 affected browser journeys, seven leave regressions, full source and 263 cold catalog cases pass. Desktop thin transport, native startup/recovery and owned memory-writer admission are under separate actual qualification. Its native-preview Mira reactive dependency repair and complete combined source/host intake remain Working; this is not R3 completion."
     },
     {
       "id": "R3.2.4.2.1",
@@ -824,6 +824,14 @@
       "status": "Working",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-028",
       "detail": "Exact real Editor goes from one stale-baseline failure to passing; 28 native/state,118 persistence and1686API cases plus strict/public build/pack pass. The actual hosted editor/Tasks close now passes while preserving drafts, foreign fences and same identities. Complete coherent source and Markdown saved-refresh qualification remain pending; both host aggregate gates are separate."
+    },
+    {
+      "id": "R3.2.1.2.10.6",
+      "area": "Tasks host adoption",
+      "work": "Staged hosted native Tasks and retained installed-plugin UI",
+      "status": "Complete",
+      "spec": "spec/src/web-host/startup-and-plugins.md#ln-web-070",
+      "detail": "[Qualified staged hosted Tasks/editor/leave](spec/records/2026-10-26-hosted-editing-leave.md): all 39 current browser journeys pass (15 actual installed Tasks/editor/leave at 8ae78527 and 24 ordinary Rust/metadata/History, Node/local Web at 562111c3). Seven exact leave cases pass df482368 after reproducing one failure/six passes. Full check/test/build 79cae593 passes 563 Rust, 2,394 package, twenty check and eleven build tasks; cold full catalog 05ee0b4b passes 263 interaction/accessibility cases. Final canonical/documentary closure accompanies this isolated host commit. API fe1d2dcd, Markdown ea9ea3bd/f1a6666d and Tasks 52270c2a/ff64c349 remain fixed. Main/combined intake, Desktop native-preview repair and complete R3 are separate; no defaults or publication change."
     }
   ]
 }

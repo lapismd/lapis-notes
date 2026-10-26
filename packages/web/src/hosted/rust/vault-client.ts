@@ -1,3 +1,7 @@
+import type {
+  NativeTaskCommand,
+  NativeTaskValue,
+} from "@lapis-notes/api/native-tasks";
 import type { Command } from "@lapismd/jj-history";
 import {
   PROTOCOL_MAJOR,
@@ -166,6 +170,11 @@ export class RustVaultClient {
         throw error.details.history;
       throw error;
     }
+  }
+
+  async tasks(command: NativeTaskCommand): Promise<NativeTaskValue> {
+    this.requireOpen();
+    return this.host.json(`${this.path}/tasks`, "POST", command);
   }
 
   close(): Promise<void> {

@@ -1,3 +1,4 @@
+import { createRustNativeEditingIntents } from "./native-editing-intents";
 import { HistoryClient } from "@lapismd/jj-history";
 import { createHostedRepository } from "../../history/services";
 import { createHostedRestore } from "../../history/restore";
@@ -14,7 +15,12 @@ export function createRustHostedBackend(
   {
     nativeMetadata = false,
     nativeHistory = false,
-  }: { nativeMetadata?: boolean; nativeHistory?: boolean } = {},
+    nativeTasks = false,
+  }: {
+    nativeMetadata?: boolean;
+    nativeHistory?: boolean;
+    nativeTasks?: boolean;
+  } = {},
 ): HostedBackend {
   const capabilities = { manageVaults: false, transferVaults: false };
   return {
@@ -67,6 +73,12 @@ export function createRustHostedBackend(
       const adapter = new RustVaultAdapter(client, profile.name);
       return {
         adapter,
+        nativeTasks: nativeTasks
+          ? { call: (command) => client.tasks(command) }
+          : undefined,
+        nativeEditingIntents: nativeTasks
+          ? createRustNativeEditingIntents(client)
+          : undefined,
         repositoryFactory: nativeHistory
           ? () =>
               createHostedRepository(
@@ -78,9 +90,10 @@ export function createRustHostedBackend(
                 ),
               )
           : undefined,
-        backgroundIndexing: nativeMetadata
-          ? { call: (command) => client.indexing(command) }
-          : undefined,
+        backgroundIndexing:
+          nativeMetadata || nativeTasks
+            ? { call: (command) => client.indexing(command) }
+            : undefined,
         nativeHistoryIndex: nativeHistory
           ? { call: (command) => client.historyIndex(command) }
           : undefined,

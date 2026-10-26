@@ -42,6 +42,7 @@
   };
   type SessionComponent = {
     dispose(persistLayout: boolean): Promise<void>;
+    canRecoverLeave(): boolean;
     persistLayout(): Promise<void>;
   };
 
@@ -194,6 +195,8 @@
           profile,
           appDatabaseProvider: resources.database,
         });
+        session.nativeTasks = resources.nativeTasks;
+        session.nativeEditingIntents = resources.nativeEditingIntents;
         session.backgroundIndexing = resources.backgroundIndexing;
         session.nativeHistoryIndex = resources.nativeHistoryIndex;
         prepared = { ...resources, profile, session };
@@ -204,14 +207,20 @@
       await tick();
     } catch (error) {
       errorMessage = error instanceof Error ? error.message : String(error);
-      hostState = "vaults";
+      hostState = sessionComponent?.canRecoverLeave() ? "workspace" : "vaults";
     }
   }
 
   async function disposeWorkspace(persistLayout: boolean): Promise<void> {
     const active = prepared;
-    if (sessionComponent) await sessionComponent.dispose(persistLayout);
-    else if (active) await active.session.close();
+    if (sessionComponent) {
+      try {
+        await sessionComponent.dispose(persistLayout);
+      } catch (error) {
+        if (sessionComponent.canRecoverLeave()) hostState = "workspace";
+        throw error;
+      }
+    } else if (active) await active.session.close();
     await active?.release();
     sessionComponent = null;
     prepared = null;
@@ -375,11 +384,17 @@
   }
 
   async function logout(): Promise<void> {
-    await disposeWorkspace(true);
-    await backend.logout();
-    vaults = [];
-    username = "";
-    hostState = "login";
+    errorMessage = "";
+    try {
+      await disposeWorkspace(true);
+      await backend.logout();
+      vaults = [];
+      username = "";
+      hostState = "login";
+    } catch (error) {
+      errorMessage = error instanceof Error ? error.message : String(error);
+      hostState = sessionComponent?.canRecoverLeave() ? "workspace" : "vaults";
+    }
   }
 </script>
 

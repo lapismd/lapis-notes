@@ -203,3 +203,9 @@ and default cutover remain distinct recorded gates.
 ## Admitted native Task port
 
 `@lapis-notes/api/native-tasks` exports generated commands, typed retained outcomes and an App-owned observer under [CORE013–015](../architecture/rust-task-host-port.md#ln-core-013). `VaultSession.nativeTasks` takes precedence over the explicit App option. The public host-module registry includes that entry for installed Tasks plugins; final plugin startup awaits declaration reconciliation.
+
+The staged Rust-hosted session supplies the same admitted native Tasks port
+before constructing its App. Passive host teardown drains the App observer
+before unloading configured plugins or releasing the attachment. The host never
+registers a replacement Tasks view or a static Tasks plugin; [hosted intake](../../records/2026-10-26-hosted-native-tasks.md)
+retains separate actual UI, timezone and installed-integrity gates.

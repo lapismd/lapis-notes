@@ -70,6 +70,11 @@ const nativeLanes = new Set([
   "test:rust-core",
   "build:rust-core",
   "test:server:native",
+  "test:server:tasks",
+  "test:server:tasks:recovery",
+  "test:server:tasks:references",
+  "test:server:tasks:editors",
+  "test:server:tasks:leave",
 ]);
 export const laneImage = (lane) => (nativeLanes.has(lane) ? "full" : "ui");
 
