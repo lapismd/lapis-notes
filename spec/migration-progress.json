@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 11:48:02 UTC",
+  "updated": "2026-10-26 12:43:31 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Metadata and both committed Search host lanes are qualified. [Coherent shared source intake](spec/records/2026-10-26-r3-shared-intake.md) passes 507 Rust, 2,295 package, 261 cold catalog, 22 actual browser cases and final specification gates. Tasks port d6e0427f is separately committed; its aggregate API/host intake and daily en-GB parity remain active. Shared History controls are qualified, while its retained hosted reader/screen and Desktop shared-adapter adoption remain open. R4-R7 retain their original dependencies."
+      "detail": "Coherent shared source 8bd2f3d8 is integrated in main. Both Search hosts and Desktop shared History fa13c1ce/M16.6 are adopted and qualified. The current Tasks/History API and English daily cohort passes 1,641 API, 79 Web, 48 observer and 45 HTTP cases; complete aggregate gates are active. Hosted Tasks, native editor-claim registration in real hosts, retained hosted Repository reader and legacy History capture/restore/original-source selection remain. Provider/timezone/unattended checks precede R3 closure; R4-R7 keep their original dependencies."
     },
     {
       "id": "R4",
@@ -391,7 +391,7 @@
       "work": "History-index scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Shared indexed History controls and admitted HTTP source 7cbb8713 are qualified and integrated in coherent source 8bd2f3d8. [Shared History observer source](../.workspaces/lapis-plugins-native-history-observer-20261026/spec/records/2026-10-26-native-history-observer.md) is committed at Plugins 214917c8: 1,101 package and 285 cold catalog cases plus strict/build/static/specification and deterministic payload/signature checks pass; accepted unchanged audit/CSV/release-lock baselines remain explicit. Notes App/session field intake, retained hosted Repository reader/screen and Desktop shared-adapter native qualification remain active. Complete R3/provider and default cutover gates stay open. [Notes App/hosted port](spec/records/2026-10-26-hosted-history-adapter.md) is now source-qualified and committed at 2d250f66; aggregate API intake remains active. R3.2.3.5 tracks the retained Repository reader, and R3.2.3.6 explicitly keeps legacy revision capture, restore and original-repository selection Waiting."
+      "detail": "Shared indexed History controls and admitted HTTP source 7cbb8713 are qualified and integrated in coherent source 8bd2f3d8. [Shared History observer source](../.workspaces/lapis-plugins-native-history-observer-20261026/spec/records/2026-10-26-native-history-observer.md) is committed at Plugins 214917c8: 1,101 package and 285 cold catalog cases plus strict/build/static/specification and deterministic payload/signature checks pass; accepted unchanged audit/CSV/release-lock baselines remain explicit. Notes App/session field intake, retained hosted Repository reader/screen and Desktop shared-adapter native qualification remain active. Complete R3/provider and default cutover gates stay open. [Notes App/hosted port](spec/records/2026-10-26-hosted-history-adapter.md) is now source-qualified and committed at 2d250f66; aggregate API intake remains active. R3.2.3.5 tracks the retained Repository reader, and R3.2.3.6 explicitly keeps legacy revision capture, restore and original-repository selection Waiting. Desktop shared-controller/Core delegation is now adopted in clean default at fa13c1ce, E-CORE-032: 2,056 cold catalog, 507 Node, 744 AI, 250 Rust and four native cases plus strict/bundle/specification gates pass. Hosted reader, legacy History and complete R3/provider gates remain."
     },
     {
       "id": "R1.3.9.1",
@@ -696,6 +696,14 @@
       "status": "Waiting",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
       "detail": "R3.1.3 qualifies database-only storage, not HistoryPlugin capture ownership. Under LN-CORE003/006/008, reuse existing capture/database/writer/backup/restore and savedH03 engines/contracts; qualify unattended revision capture/retention, guarded restore and supported original-source parity in both hosts. The index/reader slices leave these existing behaviors unchanged and do not close this gate."
+    },
+    {
+      "id": "R3.2.3.7",
+      "area": "Desktop History adoption",
+      "work": "Shared immutable History controls and observer in the existing Desktop shell",
+      "status": "Complete",
+      "spec": "spec/src/architecture/rust-history-indexing-lifetime.md#ln-core-011",
+      "detail": "[Desktop E-CORE-032](../lapis-desktop/spec/src/history/E-CORE-032.md) closes M16.6 at fa13c1ce and is integrated in clean Desktop default. All 2,056 cold catalog, 507 Node, 744 AI, 250 Rust, two native lifetime and two actual WebView cases pass; strict normal/e2e, both ARM64 bundles, production-marker audit and full specification pass. All 27 archives and 9,386 public files match the qualified payloads. The accepted immutable E-AI-109 formatting exception is byte-identical to its parent. This closes this Desktop adapter gate, not hosted reader, legacy History, app signing or full R3."
     }
   ]
 }
