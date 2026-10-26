@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 15:51:32 UTC",
+  "updated": "2026-10-26 16:09:00 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -79,7 +79,7 @@
       "work": "AI/tools/Changes",
       "status": "Waiting",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "After R3 (R2 is complete): existing queues, participants/context, approvals, native tools and guarded undo through both hosts."
+      "detail": "After R3: follow [R4 delivery checkpoints](RUST_CORE_MIGRATION_PLAN.md#r4-delivery-checkpoints). Current source audit confirms the first slice is lossless retained queue captures plus a service-owned bounded FIFO reusing RecordStore/TurnJournal/portable files. Participant aggregate publication, context/skills/handoff, native approvals/tools and Changes/undo remain separate checkpoints within the original scope. R2 minimal chat is not full workflow parity; defaults and deferred features stay unchanged."
     },
     {
       "id": "R5",
