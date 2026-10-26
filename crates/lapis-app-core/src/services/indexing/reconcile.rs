@@ -1,4 +1,6 @@
-use super::{IndexingStatus, docs, manifest, occurrences, records, search, tasks};
+use super::{
+    IndexingStatus, TrackedTaskProvider, docs, manifest, occurrences, records, search, tasks,
+};
 use crate::{
     database::Database,
     services::{Error, Result, VaultService},
@@ -15,6 +17,7 @@ pub(super) struct Selection<'a> {
     pub documents: &'a AtomicBool,
     pub search: &'a AtomicBool,
     pub docs: &'a Mutex<Option<String>>,
+    pub tracked: &'a Mutex<Option<TrackedTaskProvider>>,
     pub today: &'a str,
 }
 pub(super) async fn run(
@@ -165,14 +168,29 @@ async fn process(
             status.error = Some(error.to_string());
         }
     }
-    status.pending += tasks::run(
+    let task_pass = tasks::run(
+        &work,
         database,
         root,
         &files,
         stop,
-        selection.documents,
-        selection.today,
+        tasks::Selection {
+            selected: selection.documents,
+            tracked: selection.tracked,
+            today: selection.today,
+        },
     )
     .await?;
+    status.pending += task_pass.pending;
+    if let Some(failure) = task_pass
+        .tracked
+        .as_ref()
+        .and_then(|report| report.failures.first())
+    {
+        status
+            .error
+            .get_or_insert_with(|| failure.cause.to_string());
+    }
+    status.tracked = task_pass.tracked;
     Ok(())
 }

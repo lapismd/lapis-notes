@@ -226,6 +226,13 @@ add a timer, renderer authority or separate database publisher. Native source
 errors, unavailable providers, dirty conflicts and retained partial outcomes
 remain observable through the owning service.
 
+Selection MUST remain explicit and off by default. The same owner MUST retain
+the selected default-provider policy or its unavailable-provider error, wake on
+selection changes and stop admitting new materializations when deselected.
+Per-pass status MUST retain source/provider/daily failures and readable daily
+partials. Same-date refresh MUST preserve observation identity and unchanged
+physical bytes; a date refresh MUST NOT advance the authored Task itself.
+
 Acceptance MUST freeze complete retained provider and repository reference
 outputs before native implementation, preserve existing fixture bytes and
 compare exact Markdown, resolved paths, selected providers, errors, stage order

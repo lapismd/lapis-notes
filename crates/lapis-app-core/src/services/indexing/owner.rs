@@ -1,4 +1,4 @@
-use super::{IndexingStatus, reconcile};
+use super::{IndexingStatus, TrackedTaskProvider, reconcile};
 use crate::{
     database::Database,
     services::{Error, Result, VaultService},
@@ -25,6 +25,7 @@ pub(in crate::services) struct Owner {
     documents: Arc<AtomicBool>,
     search: Arc<AtomicBool>,
     docs: Arc<Mutex<Option<String>>>,
+    tracked: Arc<Mutex<Option<TrackedTaskProvider>>>,
 }
 pub(super) struct Clock {
     pub today: Arc<dyn Fn() -> String + Send + Sync>,
@@ -95,6 +96,8 @@ impl Owner {
         let selected_search = search.clone();
         let docs = Arc::new(Mutex::new(None));
         let selected_docs = docs.clone();
+        let tracked = Arc::new(Mutex::new(None));
+        let selected_tracking = tracked.clone();
         let worker = thread::Builder::new()
             .name("lapis-metadata".into())
             .spawn(move || {
@@ -109,6 +112,7 @@ impl Owner {
                         documents: &selected_documents,
                         search: &selected_search,
                         docs: &selected_docs,
+                        tracked: &selected_tracking,
                         today: &today,
                     };
                     let result = runtime.block_on(reconcile::run(
@@ -120,6 +124,7 @@ impl Owner {
                     current.deleted = current.deleted.saturating_add(result.deleted);
                     current.pending = result.pending;
                     current.error = result.error;
+                    current.tracked = result.tracked;
                     drop(current);
                     if result.pending > 0 {
                         let _ = retry.try_send(());
@@ -145,11 +150,17 @@ impl Owner {
             documents,
             search,
             docs,
+            tracked,
         })
     }
     pub(super) fn select_search(&self, enabled: bool) {
         self.search.store(enabled, Ordering::Release);
         let _ = self.signal.try_send(());
+    }
+    pub(super) fn select_tracking(&self, provider: Option<TrackedTaskProvider>) -> Result<()> {
+        *self.tracked.lock().map_err(|_| failure())? = provider;
+        let _ = self.signal.try_send(());
+        Ok(())
     }
     pub(super) fn select_docs(&self, root: Option<String>) -> Result<()> {
         *self.docs.lock().map_err(|_| failure())? = root;

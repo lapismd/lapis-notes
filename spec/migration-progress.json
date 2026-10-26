@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 03:34:30 UTC",
+  "updated": "2026-10-26 04:47:09 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -631,7 +631,7 @@
       "work": "Native daily provider creation and daily-before-rolling Task coordination",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "[Daily policy](spec/records/2026-10-26-native-task-coordination.md), [physical IO](spec/records/2026-10-26-native-daily-document-io.md), [daily observations](spec/records/2026-10-26-native-daily-task-observations.md), [ordered lifecycle](spec/records/2026-10-26-native-task-lifecycle.md) and [native recovery](spec/records/2026-10-26-native-task-recovery.md) are source-qualified. Shared private record IO is committed at 86f360f8. Recovery passes twelve native cases, all 110 retained attempts, actual process loss, cold explicit retry and bounded known failure details. All 459 Rust cases, seven intentional ignores, strict/native/package lanes and final specification/78 governance cases pass. Remaining: tracked-today scheduling through the existing indexing owner and both host Task adoptions. No native host default is selected here."
+      "detail": "[Daily policy](spec/records/2026-10-26-native-task-coordination.md), [physical IO](spec/records/2026-10-26-native-daily-document-io.md), [daily observations](spec/records/2026-10-26-native-daily-task-observations.md), [ordered lifecycle](spec/records/2026-10-26-native-task-lifecycle.md) and [native recovery](spec/records/2026-10-26-native-task-recovery.md) are source-qualified through 8e09a5de. [Tracked-today source](spec/records/2026-10-26-native-tracked-today.md) is qualified by eight native cases and all 45 retained plugin attempts, explicit/off existing-owner selection, provider availability, dirty/detached/alias guards, readable seeds/cold retry and accepted close drain. All 467 Rust cases, seven retained ignores, strict/native/package lanes and final specification/78-governance gates pass. Remaining: both native host Task adapters/default selections and their separate functional/native acceptance. No host default is selected."
     }
   ]
 }

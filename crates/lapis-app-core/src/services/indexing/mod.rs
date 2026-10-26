@@ -12,6 +12,7 @@ use super::{Error, Result, VaultService};
 use lapis_app_protocol::ErrorCode;
 pub(super) use owner::Owner;
 use std::sync::Arc;
+pub use tasks::{TrackedTaskError, TrackedTaskFailure, TrackedTaskProvider, TrackedTaskStatus};
 
 #[derive(Clone, Debug, Default)]
 pub struct IndexingStatus {
@@ -20,6 +21,7 @@ pub struct IndexingStatus {
     pub deleted: usize,
     pub pending: usize,
     pub error: Option<String>,
+    pub tracked: Option<TrackedTaskStatus>,
 }
 impl VaultService {
     pub async fn start_markdown_indexing(self: &Arc<Self>) -> Result<()> {
