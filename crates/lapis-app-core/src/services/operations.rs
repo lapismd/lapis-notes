@@ -36,3 +36,42 @@ pub(super) fn write(
         writer,
     )
 }
+
+/// Validate an explicit existing-file write, including when its result is a no-op.
+pub(super) fn guard_existing_write(
+    state: &State,
+    path: &str,
+    expected: &ExpectedVersion,
+    writer: Option<uuid::Uuid>,
+) -> Result<TextSnapshot> {
+    state.root.verify_physical_root()?;
+    super::guards::write(state, path, writer, false)?;
+    let ExpectedVersion::Version { version } = expected else {
+        return Err(Error::new(
+            ErrorCode::InvalidRequest,
+            "Existing content version is required",
+        ));
+    };
+    let bytes = super::byte_writes::read_versioned(state, path, version)?;
+    let text = String::from_utf8(bytes)
+        .map_err(|_| Error::new(ErrorCode::InvalidRequest, "Invalid vault operation"))?;
+    Ok(TextSnapshot {
+        path: path.into(),
+        text,
+        version: version.clone(),
+    })
+}
+
+pub(super) fn write_if_changed(
+    state: &State,
+    path: &str,
+    text: &str,
+    expected: &ExpectedVersion,
+    writer: Option<uuid::Uuid>,
+) -> Result<String> {
+    let current = guard_existing_write(state, path, expected, writer)?;
+    if current.text == text {
+        return Ok(current.version);
+    }
+    write(state, path, text, expected, writer)
+}

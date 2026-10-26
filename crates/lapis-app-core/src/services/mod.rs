@@ -14,6 +14,7 @@ mod protocol;
 mod runtime;
 mod state;
 mod streams;
+mod tasks;
 mod turns;
 mod work;
 
@@ -25,5 +26,6 @@ pub use indexing::IndexingStatus;
 pub use runtime::Runtime;
 pub use state::VaultService;
 pub use streams::FileSnapshot;
+pub use tasks::{TaskWriteError, TaskWriteResult};
 pub use turns::{AgentPolicy, TurnStorage};
 pub use work::Work;

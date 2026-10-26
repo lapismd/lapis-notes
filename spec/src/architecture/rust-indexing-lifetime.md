@@ -93,6 +93,32 @@ Host/plugin admission, unattended application acceptance and all mutations remai
 separate gates. The bounded [Notes intake](../../records/2026-10-25-native-task-documents-intake.md)
 records source progress and exact acceptance.
 
+## Guarded native Task transformations
+
+Under LN-CORE-003/005/006, an already admitted `Work` MAY explicitly mutate an
+existing Task document, materialize an observation in an existing daily note,
+or complete an existing observation. These Rust-only operations MUST consume
+the qualified Tasks transformation functions directly. They MUST NOT add a
+writer, timer, database publisher, transport operation or host selection.
+
+The existing native writer boundary MUST verify the physical root, requested
+content revision and dirty/aliased editor claims before persistence. Unchanged
+replacement text MUST still pass these checks without rewriting the file.
+Accepted work MAY drain during close; new work MUST remain fenced. Task source
+errors MUST retain their complete name, code, message and recurrence parts,
+distinct from existing native service admission failures.
+
+Task reader adoption MUST advance only the private native projection config
+identity. Same-byte sources seeded with an old derived row MUST refresh after
+cold reopen. Public Task projection version 4, occurrence version 1 and retained
+compatibility envelopes MUST remain unchanged.
+
+Daily document provider selection/creation, tracked-today scheduling, ordered
+daily/rolling-Task writes and accepted-operation recovery remain application
+coordination. This one-file intake does not qualify those gates or either host's
+default selection. Its source and acceptance are recorded separately in
+[the guarded Tasks intake](../../records/2026-10-25-native-task-writes.md).
+
 ## Native Markdown Search preparation
 
 R3.2.2 first stages a Markdown source gate under LN-CORE-003/005/006. Explicit

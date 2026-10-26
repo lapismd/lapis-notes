@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 00:17:08 UTC",
+  "updated": "2026-10-26 00:25:03 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native database and qualified metadata/Tasks/Docs/Search/History source owners are integrated. The parser/cache intake passes all 392 Rust cases, 54 retained API references, strict native/build and complete specification gates. Guarded Task write/cache intake, full Search/custom-processor parity, explicit one-writer selection and both host adoptions remain; defaults stay unchanged."
+      "detail": "Native database and qualified metadata/Tasks/Docs/Search/History source owners are integrated. [Combined Tasks/parser intake](spec/records/2026-10-26-tasks-parser-source-integration.md) passes 405 Rust, 54 API references, strict native/build and complete specification gates. Remaining: daily/two-file Tasks coordination, full Search/custom-processor parity, explicit one-writer ownership and both host adoptions. Defaults stay unchanged."
     },
     {
       "id": "R4",
@@ -605,9 +605,9 @@
       "id": "R3.2.1.2.10.2",
       "area": "Tasks application intake",
       "work": "Guarded native Task writes and occurrence materialization",
-      "status": "Working",
+      "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "Qualified Tasks fde58de0 is being consumed in the isolated lapis-native-task-writes-20261025 workspace. Reuse accepted Work and the existing guarded byte writer for one-file mutations/materialization/completion; retain dirty/alias/revision/physical-root guards, a private projection cache-identity bump and same-byte cold-reopen evidence. Daily/two-file application coordination and both host selections remain."
+      "detail": "[Qualified guarded Task writes](spec/records/2026-10-25-native-task-writes.md), Notes 9f99eee8, consumes Tasks fde58de0 through admitted Work and the existing guarded writer. Parent source passes 404 Rust/2,253 package cases and full check/test/build/specification. [Combined current-parser intake](spec/records/2026-10-26-tasks-parser-source-integration.md) passes all 405 Rust/54 API reference cases, native strict/build/specification; 14 product/test paths match qualified parents. Daily creation/two-file coordination and both hosts remain separate."
     },
     {
       "id": "R3.2.1.2.12.1",
@@ -621,9 +621,17 @@
       "id": "R3.2.2.2",
       "area": "Native Search source",
       "work": "Retained Canvas document source extraction",
-      "status": "Working",
+      "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Owning Plugins workspace lapis-plugins-native-search-20261026 captures 37 complete outcomes directly from the unchanged TypeScript Canvas provider. Exact native comparison improves from zero passes/one failure to one pass/zero failures; all five native cases, strict checks and native build pass. Search package/source specification qualification is running; Notes publication, chunking/custom-provider parity and both hosts remain separate."
+      "detail": "[Qualified native Canvas extractor](../.workspaces/lapis-plugins-native-search-20261026/spec/records/2026-10-26-native-canvas-search-source.md), owning Plugins 5e0dffc3, preserves all 37 complete unchanged-TypeScript outcomes. All five native, 37 focused and 87 complete Search package cases, strict checks/build/publint/pack/ownership/specification pass. No production TypeScript or npm input changes. Notes publication, configuration/custom-provider parity and both hosts remain separate."
+    },
+    {
+      "id": "R3.2.1.2.10.3",
+      "area": "Tasks application coordination",
+      "work": "Native daily provider creation and daily-before-rolling Task coordination",
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
+      "detail": "Following qualified one-file Task intake, the Tasks lane is mapping retained API daily-document and Tasks occurrence/repository policy. Reuse the existing service owner and guarded writer for deterministic provider resolution, creation and two-file ordering/idempotence. Qualify ordinary and recurrence outcomes, conflicts and cold recovery before either host selection."
     }
   ]
 }
