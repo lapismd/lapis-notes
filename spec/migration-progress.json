@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 03:05:46 UTC",
+  "updated": "2026-10-26 03:14:35 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Core indexing, Search controls/progress/rebuild, final History notifications and physical daily IO are integrated at 19cd103a; 452 Rust/2,267 package cases, 261 cold catalog and complete strict/build/specification gates pass. Remaining: coherent App/Search adapter adoption, ordered daily/Task persistence and recovery, custom processors, both host selections and application/provider acceptance. Defaults stay unchanged."
+      "detail": "Shared native indexing, Search controls, daily observations and both opt-in Markdown metadata hosts pass the combined source gate at frozen 9c207ac5: 461 Rust/2,289 package cases, 261 cold catalog and complete strict/build/specification gates. Remaining: native Search host adoption, ordered daily/Task recovery and scheduling, hosted History, custom-processor/provider acceptance and complete R3 selections. Defaults remain staged; R4–R7 are unchanged."
     },
     {
       "id": "R4",
@@ -461,9 +461,9 @@
       "id": "R3.2.1.3",
       "area": "Unattended metadata",
       "work": "Tauri and HTTP unattended metadata adoption",
-      "status": "Working",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-004",
-      "detail": "Desktop metadata-only opt-in is committed and adopted in its clean default at 4bcb7e09: 17 renderer/admission, 16 shell-story, 506 renderer/governance, 744 AI, 245 Rust, both strict modes, native builds/audit, all 2,032 catalog cases, final 88 affected cases, 14 native Metadata/Search/Graph/ACP and 14 hidden API cases pass. Corrected API candidate 4b15f37a/ce16 passes 28 observer / 1,619 API cases and both hosts actual external-create Search journeys. Hosted wiring passes six exact, 73 Web and real browser/detach acceptance; its combined full source/host closure is active. Both defaults and Search writer adoption remain separate."
+      "detail": "[Both opt-in metadata hosts](spec/records/2026-10-26-hosted-native-metadata.md) are qualified. Desktop 4bcb7e09 is adopted in its clean default with 2,032 catalogue, final 88 affected, 14 native and 14 hidden API cases. Hosted combined 9c207ac5 / worker 642cdaa7 passes all 20 strict tasks, 461 Rust, 2,289 package, 11 builds, 261 cold catalogue, static Storybook, native metadata 1, ordinary Rust 8, Node 1, Web 12 and complete specification/78 governance cases. Corrected API 4b15f37a/ce16 fixes copied-file/event ordering. The metadata-only cohort retains old Search 39ba; native Search/Tasks adoption and default cutover remain separate. Both metadata defaults stay renderer-owned."
     },
     {
       "id": "R3.2.1.2.1",

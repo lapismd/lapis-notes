@@ -51,7 +51,12 @@ if (!target) throw new Error("Web renderer root is missing");
 async function mountHosted(target: HTMLElement) {
   const Host = (await import("./ServerVaultHost.svelte")).default;
   const backend = __LAPIS_RUST_SERVER__
-    ? (await import("./hosted/rust/backend")).createRustHostedBackend()
+    ? (await import("./hosted/rust/backend")).createRustHostedBackend(
+        undefined,
+        {
+          nativeMetadata: import.meta.env.VITE_LAPIS_NATIVE_METADATA === "1",
+        },
+      )
     : (await import("./hosted/node-backend")).createNodeHostedBackend();
   return mount(Host, { target, props: { backend } });
 }

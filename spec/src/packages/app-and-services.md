@@ -179,3 +179,8 @@ processing. Declaration and passive status controls follow the
 `App.backgroundIndexing` exposes that existing session as a shared declaration
 and observation facade. MetadataCache remains its sole passive teardown
 boundary; consumers MUST NOT construct a second indexing controller.
+
+The explicit Rust hosted metadata profile supplies that port on its existing
+admitted client before App startup (LN-WEB-066). Metadata compatibility reads
+retain copied Vault facade values and database/Vault event ordering under
+LN-DB-064, without adding renderer parsing or publication.

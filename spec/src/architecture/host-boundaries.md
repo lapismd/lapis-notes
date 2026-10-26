@@ -4,6 +4,11 @@ Required native-service admission uses the host's existing capability registry
 (LN-PLUG-121). A missing entry is unsupported; an unavailable entry is a disabled
 supported service. Checking availability does not launch or authorize services.
 
+[LN-WEB-066](../web-host/startup-and-plugins.md#ln-web-066) stages hosted native
+metadata on the existing admitted Rust connection before App construction.
+Its compatibility facade follows [LN-DB-064](../app-database/metadata-and-indexing.md#ln-db-064);
+neither host selection nor event-order repair introduces another native writer.
+
 Signed plugin installation consults the owning App's static profile and runtime
 retirement boundary. The API keeps identities generic, preserves configured
 startup choices during retirement and blocks stale activation until a new App

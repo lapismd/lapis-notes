@@ -280,3 +280,8 @@ The staged Rust HTTP host exposes admitted, generated background-indexing
 controls under LN-CORE-004. Authentication, protocol/origin admission and vault
 isolation apply equally to selection, progress and refresh. This source endpoint
 does not select hosted startup or the default backend.
+
+The explicit hosted native-metadata profile under
+[LN-WEB-066](../web-host/startup-and-plugins.md#ln-web-066) observes those controls
+through the existing client admission. Node remains the serving baseline;
+metadata staging does not switch final hosted or Search defaults.

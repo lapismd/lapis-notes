@@ -1703,27 +1703,34 @@ export class MetadataCache extends EventDispatcher<{
     }
     if (change.domains.includes("metadata")) {
       for (const path of change.paths) {
-        if (this.disposed) return;
-        const row = await this.app.appDatabase.getIndexedFile(path);
-        if (this.disposed) return;
-        this.evictHotPath(path);
-        const file = this.app.vault.getFileByPath(path);
-        if (row?.metadata) {
-          this.cacheDatabaseRow(row);
-          if (!file) continue;
-          const text = await this.app.vault.read(file);
-          if (this.disposed) return;
-          if (md5(text) === row.metadata.hash) {
-            this.trigger(
-              "changed",
-              file,
-              text,
-              row.metadata.metadata as CachedMetadata,
-            );
-          }
-        }
+        await this.observeNativeFile(path);
       }
     }
+  }
+
+  private async observeNativeFile(path: string): Promise<void> {
+    if (this.disposed) return;
+    const row = await this.app.appDatabase.getIndexedFile(path);
+    if (this.disposed) return;
+    this.evictHotPath(path);
+    const file = this.app.vault.getFileByPath(path);
+    if (!row?.metadata) return;
+    this.cacheDatabaseRow(row);
+    if (!file) return;
+    const text = await this.app.vault.read(file);
+    if (
+      this.disposed ||
+      file.path !== path ||
+      !this.app.vault.getFileByPath(path) ||
+      md5(text) !== row.metadata.hash
+    )
+      return;
+    this.trigger(
+      "changed",
+      file,
+      text,
+      row.metadata.metadata as CachedMetadata,
+    );
   }
 
   private deferReconcileIndexChange(change: AppDatabaseChangeSet): void {
@@ -1829,6 +1836,8 @@ export class MetadataCache extends EventDispatcher<{
       if (event === "delete") {
         this.trigger("deleted", file, this.getCache(file.path));
         this.evictHotPath(file.path);
+      } else if (event === "create" || event === "modify") {
+        this.trackOperation(this.observeNativeFile(file.path));
       }
       return;
     }
@@ -1864,6 +1873,7 @@ export class MetadataCache extends EventDispatcher<{
     if (this.nativeIndexing) {
       this.evictHotPath(oldPath);
       this.evictHotPath(file.path);
+      this.trackOperation(this.observeNativeFile(file.path));
       return;
     }
     const existing = this.fileCache[oldPath];

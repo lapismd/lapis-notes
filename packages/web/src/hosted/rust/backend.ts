@@ -8,6 +8,7 @@ import type { ManagedVault } from "../../../../../crates/lapis-app-protocol/bind
 
 export function createRustHostedBackend(
   host = new RustHttpClient(),
+  { nativeMetadata = false }: { nativeMetadata?: boolean } = {},
 ): HostedBackend {
   const capabilities = { manageVaults: false, transferVaults: false };
   return {
@@ -60,6 +61,9 @@ export function createRustHostedBackend(
       const adapter = new RustVaultAdapter(client, profile.name);
       return {
         adapter,
+        backgroundIndexing: nativeMetadata
+          ? { call: (command) => client.indexing(command) }
+          : undefined,
         nativeChat: (app) => ({
           allowed: () =>
             app.workspaceTrust.trusted &&

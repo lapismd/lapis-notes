@@ -90,3 +90,8 @@ App/view detach releases observation only. See the
 The shared App indexing observer admits Search provider identities and chunk
 settings without callbacks. Explicit Search plugin disable drains the native
 owner, including after an uncertain selection response; App detach is passive.
+
+Native metadata compatibility events follow
+[LN-DB-064](../app-database/metadata-and-indexing.md#ln-db-064). Plugins receive
+the matching committed metadata after either database-first or Vault-first
+delivery, rather than gaining a second metadata writer to repair ordering.

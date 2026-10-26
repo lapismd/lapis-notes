@@ -194,6 +194,7 @@
           profile,
           appDatabaseProvider: resources.database,
         });
+        session.backgroundIndexing = resources.backgroundIndexing;
         prepared = { ...resources, profile, session };
       } catch (error) {
         await resources.release();

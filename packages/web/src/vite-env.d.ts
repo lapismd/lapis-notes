@@ -6,6 +6,7 @@ declare const __LAPIS_RUST_SERVER__: boolean;
 
 interface ImportMetaEnv {
   readonly VITE_APP_COMMIT_HASH: string;
+  readonly VITE_LAPIS_NATIVE_METADATA?: string;
   readonly VITE_LAPIS_NOSTR_REGISTRY_RELAYS?: string;
   readonly VITE_LAPIS_NOSTR_CURATOR_PUBKEYS?: string;
   readonly VITE_LAPIS_NOSTR_INSTALL_QUORUM?: string;

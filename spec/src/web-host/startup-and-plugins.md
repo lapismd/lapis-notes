@@ -187,5 +187,16 @@ In-session copy progress verifies the notification message:
 **Requirement.** Web plugin asset readiness MUST report `asset-server-unavailable` after thirty seconds without control. Completion and failure MUST remove their controller-change listeners and timer handles.
 
 The Rust client exposes generated native indexing controls under LN-CORE-004.
-This source seam does not inject `VaultSession.backgroundIndexing` into hosted
-startup: actual host selection and provider parity remain separate R3 gates.
+The ordinary hosted profile keeps its renderer selection; the explicit native
+metadata option below stages hosted observation separately from final R3 parity.
+
+## LN-WEB-066 — Opt-in hosted native metadata
+
+<a id="ln-web-066"></a>
+
+**Requirement.** An explicitly selected Rust hosted native-metadata profile MUST pass its existing admitted indexing transport into `VaultSession` before App construction. It MUST reuse the admitted vault/database connection and existing App observer, with passive detach and visible service failure. Node, standalone Web and the default Rust profile MUST retain their current indexing selection.
+
+The private build flag `VITE_LAPIS_NATIVE_METADATA=1` selects this staged profile.
+It supplies no new scheduler or native path authority. Native Search remains a
+separate plugin/archive and host-acceptance gate; metadata-only selection keeps
+the retained Search writer available until that gate is admitted.

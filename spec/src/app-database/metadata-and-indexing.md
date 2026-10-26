@@ -9,6 +9,12 @@ fences client-generated metadata and its known projections under LN-CORE-006.
 Accepted client writes drain before ownership changes; queries and unrelated
 domains remain available. An absent App-owned port retains browser processing.
 
+## LN-DB-064 — Native metadata observation ordering
+
+<a id="ln-db-064"></a>
+
+**Requirement.** The native metadata facade MUST deliver compatible metadata changes whether a committed database change precedes or follows its Vault create, modify or rename event. Delivery MUST use the current committed row and matching readable source bytes, without renderer parsing or publication. Detach MUST prevent late compatibility events while leaving native work admitted.
+
 ## LN-DB-002 — Database: expose a descriptor with provider, engine, transport
 
 <a id="ln-db-002"></a>
