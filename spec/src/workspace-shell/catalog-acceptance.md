@@ -15,3 +15,8 @@ content and absence of a retained file conflict before the story completes.
 <a id="ln-ws-024"></a>
 
 **Requirement.** Authored shell MDX MUST identify every scenario and render its canonical Storybook description immediately before the corresponding canvas.
+
+LN-CORE-027 editing recovery stories boot a real App and persisted shell, then
+exercise the existing Problems collection/menu. Claim counts and local issue
+changes remain ephemeral diagnostics; they do not become layout state or a
+second file persistence owner.

@@ -138,3 +138,33 @@ Legacy compatibility retains these boundaries:
   budget without removing another live client's protection.
 - Explicit discard MUST preserve saved file bytes and leave detached draft
   content outside native recovery authority.
+
+## LN-CORE-027 — Existing Problems editing-claim recovery
+
+<a id="ln-core-027"></a>
+
+**Requirement.** Native-intent hosts MUST expose unresolved editing claims and
+local pending or failed admission through the existing Problems collection.
+Explicit actions MUST validate captured claim or local issue identity, join App
+operation admission, and preserve saved bytes. Closing the host MUST preflight
+unresolved claims before disposing recovery ownership; observation MUST NOT
+recover, discard or replay mutations.
+
+### Acceptance details
+
+Recovery presentation retains these boundaries:
+
+- Detached claims and claims explicitly adopted through recovery remain visible;
+  ordinary healthy attached writers do not become Problems.
+- Native dirty metadata describes an unacknowledged generation, not retained
+  draft bytes. Saved-file review must not promise recovery of unsaved content.
+- Local admission and rearm remain observable even when Acquire never reached
+  native service and List has no corresponding record.
+- Claim recovery/discard use LN-CORE-025. Local retries use the captured
+  registration and issue through existing protected registry paths.
+- Shared shells reference-count passive observation for one App. Construction
+  performs no native calls; final unmount fences pending publication.
+- Lost acknowledgements reconcile by read-only inspection. Failures remain
+  visible and stale actions cannot release newer protection.
+- Minimal real WorkspaceShell stories show recovery and failed admission without
+  debug JSON, replacement screens or visual-baseline changes.

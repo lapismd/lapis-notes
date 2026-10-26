@@ -154,3 +154,9 @@ The optional native History port is supplied before App construction and does
 not create a view, restore navigation or alter workspace startup. The shared
 Repository plugin still needs its admitted reader/factory. Existing shell,
 leaf disposal, guarded editing and layout contracts remain unchanged.
+
+Under LN-CORE-027, WorkspaceShell binds one App-owned editing Problems
+collection across its main and detached surfaces. Final unmount disposes the
+observer and fences pending publication. Host leave preflights unresolved
+claims before destructive App/registry disposal; a failed leave preserves its
+existing editors and explicit recovery actions.

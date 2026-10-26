@@ -101,3 +101,7 @@ Native metadata compatibility events follow
 [LN-DB-064](../app-database/metadata-and-indexing.md#ln-db-064). Plugins receive
 the matching committed metadata after either database-first or Vault-first
 delivery, rather than gaining a second metadata writer to repair ordering.
+
+Native editing Problems under LN-CORE-027 are App-owned service diagnostics.
+They do not give a plugin claim ownership or a second persistence path; local
+retry and native captured-state actions remain within App operation admission.

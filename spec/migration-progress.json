@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 17:08:37 UTC",
+  "updated": "2026-10-26 17:33:14 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -695,7 +695,7 @@
       "work": "Guarded restore, backup controls and original repository source",
       "status": "Working",
       "spec": "spec/src/architecture/rust-history-parity.md#ln-core-023",
-      "detail": "Guarded native file/vault restore and retained hosted review/recovery are qualified atR3.2.3.6.1. Required backup controls/passive status and original repository source remain Waiting. Optional legacy AppDatabase capture ownership is Deferred because the current Desktop/hosted profiles do not bundle HistoryPlugin and installed behavior is client-driven in both. Combined both-host R3 remains separate."
+      "detail": "Guarded restore is Complete. Backup controls/passive status are source-qualified atedf1d76f and completing current CORE026/main composition. Original-source selection is Working; optional legacy AppDatabase capture remains Deferred. Combined both-host R3 is separate."
     },
     {
       "id": "R3.2.3.7",
@@ -773,9 +773,9 @@
       "id": "R3.2.4.2",
       "area": "Native writer recovery",
       "work": "Captured-generation explicit recovery through existing Problems",
-      "status": "Working",
+      "status": "Source complete",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-025",
-      "detail": "Root lane owns captured-generation/revision recovery/discard and existing Problems actions. Native source and App presentation are separate child gates; stale decisions, foreign live owners, lost acknowledgements and unchanged saved bytes must be qualified before either actual host selects the feature."
+      "detail": "Captured-generation/revision native recovery/discard and the existing Problems/local admission presentation are source-qualified. Actual hosted/Desktop editor acceptance remains in R3.2.4.4; no native draft storage, automatic discard or replay."
     },
     {
       "id": "R3.2.4.3",
@@ -791,7 +791,7 @@
       "work": "Actual hosted and Desktop editor/Tasks acceptance",
       "status": "Working",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-020",
-      "detail": "Both staged host bindings and native/local recovery preflight are under actual application qualification. Hosted dirty-writer/Tasks/flush/yield/rearm assertions pass; final tab close currently retains an active clean claim and is being traced at the source lifetime boundary. Desktop thin transport and stopped-watch/guarded leave are prepared, with13focused leave cases passing. Actual host acceptance remains open."
+      "detail": "Both staged hosts remain under actual qualification. The owning API reproduces and repairs stale saved-baseline refusal after native Tasks writes; the original actual hosted dirty-writer/Tasks/rearm/tab-close/clean-native-shutdown case now passes1/1 on focused repair. API28narrow/118persistence/1686unit owner gates pass, with complete source/Markdown and final both-host cohorts still pending. Desktop thin transport and native lifetime checks continue; no default changes."
     },
     {
       "id": "R3.2.4.2.1",
@@ -805,9 +805,9 @@
       "id": "R3.2.4.2.2",
       "area": "Native writer recovery presentation",
       "work": "Existing Problems discovery and explicit recovery actions",
-      "status": "Working",
-      "spec": "spec/src/workspace-shell/panels/problems/core-contract.md#ln-ws-029",
-      "detail": "Existing Problems bridge passes39combined model/local/registry/state cases and two cold real-shell/axe stories with current qualified Markdown/Mira. Saved-file Reading review is repaired through explicit captured-leaf activation/reveal and its full source/catalog/browser gate is running. Actual host preflight remains separately open; no new recovery screen."
+      "status": "Source complete",
+      "spec": "spec/src/architecture/native-editor-intents.md#ln-core-027",
+      "detail": "[Qualified existing Problems bridge](spec/records/2026-10-26-editing-problems.md):39exact combined model/local/registry/state and two real saved-file/Problems/axe stories pass. Full562Rust/2371package/263coldcatalog/24browser, strict/build/publicAPI+Workspacepacks/static/canonical78governance pass. Native/local captured actions, passive shared binding and saved-file Reading review use existing presentation. Both actual host editor/preflight acceptance remain separate. Adopted in clean Notes main fromfa77eb1a; [intake equality](spec/records/2026-10-26-editing-problems-main-intake.md) preserves all qualified runtime/test/protocol/configuration bytes."
     },
     {
       "id": "R3.2.4.1.1",

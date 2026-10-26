@@ -127,3 +127,9 @@ for Tauri intake. Publication remains at the migration release gate.
 The existing `Workspace.revealLeaf` promise joins in-flight host projection and
 publishes the requested selection under LN-WS-005. Package signatures and
 instance ownership remain unchanged; a superseding navigation fences the reveal.
+
+LN-CORE-027 exposes the App-owned native editing recovery/issue facade and
+`bindNativeEditingProblems(app)` through public API exports. WorkspaceShell
+reference-counts that disposable collection binding per App; the source model
+is passive until mounted or explicitly refreshed. Hosts call the registry
+preflight before destructive teardown, preserving failed-leave recovery.
