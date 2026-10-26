@@ -127,6 +127,35 @@ These divide the existing scope; they do not add another migration.
 R2.3 remains the actual-provider, detach and cold-application gate after these
 checkpoints. A configured-binary protocol fixture is source evidence only.
 
+### R4 delivery checkpoints
+
+The [current source review](spec/records/2026-10-26-r4-service-ownership-review.md)
+confirms R4's existing scope. R4 remains Waiting on R3; these checkpoints divide
+that scope and do not change defaults or grant feature completion.
+
+| Task | Deliverable                                                                                    | Acceptance boundary                                                                                                                                                                                                                                                  |
+| ---- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R4.1 | Lossless retained queue captures and a vault-owned bounded FIFO over the existing turn journal | Freeze source format/receipt fixtures first. Then accept a queued explicit message durably, complete it after the preceding confirmed turn with no client, and prove cancel/Stop, capacity, competing clients, lost replies and cold explicit resume without replay. |
+| R4.2 | Logical participants and one conversation publication owner                                    | Preserve authored parent/delivery/binding identities and independent outcomes; simultaneous participant workers cannot replace one another's transcript output.                                                                                                      |
+| R4.3 | Native preparation of retained context, skills, commands and handoff                           | Preserve immutable instructions/modes, dispatch-time bounded attachment reads and hashes; retain explicit client-dependent capture limits and authored/context separation.                                                                                           |
+| R4.4 | Native approvals and first-party application tools                                             | Preserve exact offered option IDs, current approval policy, cancellation/unknown effects and source authorization; execute supported first-party tools without JavaScript clients.                                                                                   |
+| R4.5 | Changes/guarded undo and complete both-host workflow acceptance                                | Reuse exact operation/revision pins and the R3 writer/intent guard; qualify retained public screens, rich workflow payloads, detach and cold recovery through both transports.                                                                                       |
+
+R4.1 starts with the currently declared single-recipient plain-text Core profile;
+unsupported rich payloads remain visibly unavailable rather than accepted and
+dropped. Its source codecs preserve the complete retained queue format before
+other controls are enabled. Application request UUIDs and authored message IDs
+remain distinct. Provider-default effort must retain its existing omission
+semantics. A source-codec pass alone does not complete the service/host gate.
+
+Reuse Notes `RecordStore`, `TurnJournal`, portable conversation files and the
+existing `lapis-ai-service` execution port. Keep the current single execution
+lane until participant publication is explicitly coordinated. A passive client
+detach does not stop an accepted live native queue; explicit Stop, disable,
+vault close and Quit retain their pause/drain authority. Cold restore reads a
+paused queue and never dispatches it automatically. Explicit resume can admit
+only still-unstarted items, never replay started or unknown deliveries.
+
 ## Work retained from the hosted parity plan
 
 The original [AI/history plan](AI_HISTORY_PARITY_PLAN.md) is a historical roadmap
