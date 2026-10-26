@@ -148,6 +148,22 @@ observable without a JavaScript fallback. Complete provider registration,
 configuration, checkpoint/progress parity, host activation, semantic-provider
 journeys and broader R3.2.2 acceptance remain separate gates.
 
+## Configured built-in Search sources
+
+Under LN-CORE-003/005/006/008, native-only Search options MAY additionally
+select the qualified Canvas provider and explicit chunking settings on this
+same owner. Existing Markdown-only selection and host defaults MUST remain
+unchanged. Canvas extraction MUST use its plugin-owned pure algorithm; Notes
+MUST retain admitted physical-file reads, same-byte checks and database
+publication rather than copying a parser or scheduling another worker.
+
+Changed options MUST wake reconciliation and invalidate private derived cache
+signatures. New options or disable MUST fence further stale source admissions;
+already admitted database effects retain their drain contract. Sources from
+unselected or unknown providers MUST remain untouched. Options MUST NOT admit
+JavaScript callbacks. Complete custom-provider/refresh/checkpoint parity,
+persisted host configuration and both application selections remain separate.
+
 ## Optional Docs note projection
 
 Under LN-CORE-003/005/006, explicit native-only Docs selection MAY publish

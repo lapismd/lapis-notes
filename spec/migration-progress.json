@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 00:28:55 UTC",
+  "updated": "2026-10-26 00:41:53 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -637,9 +637,9 @@
       "id": "R3.2.2.3",
       "area": "Native Search intake",
       "work": "Canvas publication and explicit chunking selection on the existing owner",
-      "status": "Working",
+      "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Isolated lapis-notes-native-search-providers-20261026 adopts qualified Plugins 5e0dffc3. Exact baseline records four expected missing-contract compiler errors and no executed cases; native-only options now stage Canvas and chunking on the existing worker. Exact external-change/cache-signature tests are running. Markdown-only defaults, full custom-provider/refresh/checkpoint parity and both hosts remain separate."
+      "detail": "[Qualified configured native Search intake](spec/records/2026-10-26-native-search-provider-intake.md) passes six exact, 37 affected indexing, 411 complete Rust and 54 retained API cases plus locked native build/strict checks. Final ten-lane specification closure and all 78 governance regressions pass after tracker and mapped-overview repairs; product/input bytes match the full functional snapshot. Full provider/status parity and both hosts remain separate; Markdown-only defaults stay unchanged."
     }
   ]
 }

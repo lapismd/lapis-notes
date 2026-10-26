@@ -1,4 +1,4 @@
-use super::{IndexingStatus, reconcile};
+use super::{IndexingStatus, reconcile, search};
 use crate::{
     database::Database,
     services::{Error, Result, VaultService},
@@ -23,7 +23,7 @@ pub(in crate::services) struct Owner {
     pub status: Arc<Mutex<IndexingStatus>>,
     occurrences: Arc<AtomicBool>,
     documents: Arc<AtomicBool>,
-    search: Arc<AtomicBool>,
+    search: Arc<search::Selection>,
     docs: Arc<Mutex<Option<String>>>,
 }
 pub(super) struct Clock {
@@ -91,7 +91,7 @@ impl Owner {
         let selected = occurrences.clone();
         let documents = Arc::new(AtomicBool::new(documents));
         let selected_documents = documents.clone();
-        let search = Arc::new(AtomicBool::new(false));
+        let search = Arc::new(search::Selection::default());
         let selected_search = search.clone();
         let docs = Arc::new(Mutex::new(None));
         let selected_docs = docs.clone();
@@ -147,9 +147,13 @@ impl Owner {
             docs,
         })
     }
-    pub(super) fn select_search(&self, enabled: bool) {
-        self.search.store(enabled, Ordering::Release);
+    pub(super) fn select_search(
+        &self,
+        configuration: Option<search::SearchIndexingConfiguration>,
+    ) -> Result<()> {
+        self.search.configure(configuration)?;
         let _ = self.signal.try_send(());
+        Ok(())
     }
     pub(super) fn select_docs(&self, root: Option<String>) -> Result<()> {
         *self.docs.lock().map_err(|_| failure())? = root;

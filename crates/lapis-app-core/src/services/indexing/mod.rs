@@ -11,6 +11,7 @@ mod tasks;
 use super::{Error, Result, VaultService};
 use lapis_app_protocol::ErrorCode;
 pub(super) use owner::Owner;
+pub use search::SearchIndexingConfiguration;
 use std::sync::Arc;
 
 #[derive(Clone, Debug, Default)]

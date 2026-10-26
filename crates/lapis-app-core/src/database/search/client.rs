@@ -99,3 +99,11 @@ impl Database {
         }
     }
 }
+
+impl crate::database::Database {
+    pub(crate) fn validate_search_chunking(
+        chunking: &lapis_app_protocol::database::search::source::SearchChunkingSettings,
+    ) -> crate::services::Result<()> {
+        super::preparation::validate_chunking(chunking)
+    }
+}

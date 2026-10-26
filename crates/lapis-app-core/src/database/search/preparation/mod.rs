@@ -47,14 +47,24 @@ fn unique(values: impl IntoIterator<Item = String>) -> Vec<String> {
         .filter(|v| seen.insert(v.clone()))
         .collect()
 }
-fn settings(source: &SearchSourceMetadata, text: &[u16]) -> Result<()> {
+pub(super) fn validate_chunking(
+    chunking: &lapis_app_protocol::database::search::source::SearchChunkingSettings,
+) -> Result<()> {
     let integer = |n: f64| n >= 0. && n.fract() == 0. && n <= usize::MAX as f64;
-    if source.chunking.target_chars < 1.
-        || !integer(source.chunking.target_chars)
-        || !integer(source.chunking.breakpoint_window_chars)
+    if chunking.target_chars < 1.
+        || !integer(chunking.target_chars)
+        || !integer(chunking.breakpoint_window_chars)
     {
         return Err(invalid("Invalid Search chunk settings"));
     }
+    if !chunking.breakpoint_decay.is_finite() {
+        return Err(invalid("Invalid Search numeric data"));
+    }
+    Ok(())
+}
+fn settings(source: &SearchSourceMetadata, text: &[u16]) -> Result<()> {
+    validate_chunking(&source.chunking)?;
+    let integer = |n: f64| n >= 0. && n.fract() == 0. && n <= usize::MAX as f64;
     let offsets = source
         .headings
         .iter()

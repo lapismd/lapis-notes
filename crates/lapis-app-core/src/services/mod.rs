@@ -22,7 +22,7 @@ pub use backup::{BackupStorage, HistoryIndexStatus};
 pub use client::Client;
 pub use database::DatabaseStorage;
 pub use error::{Error, Result};
-pub use indexing::IndexingStatus;
+pub use indexing::{IndexingStatus, SearchIndexingConfiguration};
 pub use runtime::Runtime;
 pub use state::VaultService;
 pub use streams::FileSnapshot;

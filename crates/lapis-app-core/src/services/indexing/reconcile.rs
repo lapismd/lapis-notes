@@ -13,7 +13,7 @@ use std::sync::{
 pub(super) struct Selection<'a> {
     pub occurrences: &'a AtomicBool,
     pub documents: &'a AtomicBool,
-    pub search: &'a AtomicBool,
+    pub search: &'a search::Selection,
     pub docs: &'a Mutex<Option<String>>,
     pub today: &'a str,
 }

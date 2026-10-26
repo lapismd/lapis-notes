@@ -1,4 +1,8 @@
+mod canvas;
 mod checksum;
+mod configuration;
+pub use configuration::SearchIndexingConfiguration;
+pub(super) use configuration::Selection;
 mod envelope;
 mod manifest;
 mod source;
@@ -20,11 +24,20 @@ use std::sync::{
 impl VaultService {
     /// Select the native Markdown Search source; other providers and host defaults stay separate.
     pub async fn start_search_indexing(self: &Arc<Self>) -> Result<()> {
+        self.start_search_indexing_with(SearchIndexingConfiguration::default())
+            .await
+    }
+    /// Select built-in sources and validated chunking on the existing indexing worker.
+    pub async fn start_search_indexing_with(
+        self: &Arc<Self>,
+        configuration: SearchIndexingConfiguration,
+    ) -> Result<()> {
+        configuration.validate()?;
         self.start_markdown_indexing().await?;
         let _work = self.begin_work()?;
         let slot = self.indexing.lock().map_err(|_| super::unavailable())?;
         if let Some(owner) = slot.as_ref() {
-            owner.select_search(true);
+            owner.select_search(Some(configuration))?;
         }
         Ok(())
     }
@@ -33,7 +46,7 @@ impl VaultService {
         let _work = self.begin_work()?;
         let slot = self.indexing.lock().map_err(|_| super::unavailable())?;
         if let Some(owner) = slot.as_ref() {
-            owner.select_search(false);
+            owner.select_search(None)?;
         }
         Ok(())
     }
@@ -44,16 +57,19 @@ pub(super) async fn run(
     database: &Database,
     root: &VaultRoot,
     stop: &AtomicBool,
-    selected: &AtomicBool,
+    selected: &Selection,
 ) -> Result<usize> {
-    if stop.load(Ordering::Acquire) || !selected.load(Ordering::Acquire) {
+    let Some((configuration, generation)) = selected.snapshot()? else {
+        return Ok(0);
+    };
+    if stop.load(Ordering::Acquire) {
         return Ok(0);
     }
     let vault = vault.upgrade().ok_or_else(Error::closed)?;
     let work = vault.begin_work()?;
     let cancelled = || {
         stop.load(Ordering::Acquire)
-            || !selected.load(Ordering::Acquire)
+            || !selected.current(generation)
             || work.cancellation_requested()
     };
     let Some(files) = super::manifest::collect(root, cancelled)? else {
@@ -95,11 +111,11 @@ pub(super) async fn run(
             }
             if existing
                 .as_ref()
-                .is_some_and(|row| source::unchanged(&file, row))
+                .is_some_and(|row| source::unchanged(&file, row, &configuration.chunking))
             {
                 continue;
             }
-            match source::publish(database, root, &file, cancelled).await {
+            match source::publish(database, root, &file, &configuration.chunking, cancelled).await {
                 Ok(count) => pending = pending.saturating_add(count),
                 Err(error) => {
                     failure.get_or_insert(error);
@@ -111,20 +127,39 @@ pub(super) async fn run(
             break;
         }
     }
-    for row in search
-        .into_values()
-        .filter(|row| row.source_provider_id.as_deref() == Some(envelope::PROVIDER))
-    {
+    if configuration.canvas {
+        match canvas::run(
+            database,
+            root,
+            &files,
+            &mut search,
+            &configuration.chunking,
+            cancelled,
+        )
+        .await
+        {
+            Ok(count) => pending = pending.saturating_add(count),
+            Err(error) => {
+                failure.get_or_insert(error);
+            }
+        }
+    }
+    for row in search.into_values().filter(|row| {
+        row.source_provider_id.as_deref() == Some(envelope::PROVIDER)
+            || configuration.canvas && row.source_provider_id.as_deref() == Some(canvas::PROVIDER)
+    }) {
         if cancelled() {
             return Ok(pending);
         }
-        if files.binary_search(&row.path).is_ok() && super::records::markdown(&row.path) {
+        let supported = super::records::markdown(&row.path)
+            || configuration.canvas && canvas::accepts(&row.path);
+        if files.binary_search(&row.path).is_ok() && supported {
             continue;
         }
         root.verify_physical_root()?;
         // A visible file created after enumeration must wait for the next pass.
         let hidden = row.path.split('/').any(|part| part.starts_with('.'));
-        if !hidden && super::records::markdown(&row.path) && root.stat(&row.path)?.is_some() {
+        if !hidden && supported && root.stat(&row.path)?.is_some() {
             pending = pending.saturating_add(1);
             continue;
         }

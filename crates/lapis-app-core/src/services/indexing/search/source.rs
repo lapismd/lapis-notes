@@ -1,13 +1,21 @@
 use super::envelope;
 use crate::{database::Database, services::Result, vault::VaultRoot};
-use lapis_app_protocol::database::{indexed::records::FileRecord, search::SearchManifestRecord};
+use lapis_app_protocol::database::{
+    indexed::records::FileRecord,
+    search::{SearchManifestRecord, source::SearchChunkingSettings},
+};
 use lapis_plugin_services::markdown::{PARSER_VERSION, content_hash};
 
-pub(super) fn unchanged(file: &FileRecord, row: &SearchManifestRecord) -> bool {
+pub(super) fn unchanged(
+    file: &FileRecord,
+    row: &SearchManifestRecord,
+    chunking: &SearchChunkingSettings,
+) -> bool {
     row.source_provider_id.as_deref() == Some(envelope::PROVIDER)
         && row.metadata_hash.as_deref() == Some(file.hash.as_str())
         && row.provider_version.as_deref() == Some("1")
-        && row.projection_signature.as_deref() == Some(envelope::signature().as_str())
+        && row.projection_signature.as_deref()
+            == Some(envelope::signature(envelope::PROVIDER, chunking).as_str())
         && row.source_mtime == Some(file.mtime)
         && row.source_size == Some(file.size)
 }
@@ -16,6 +24,7 @@ pub(super) async fn publish(
     database: &Database,
     root: &VaultRoot,
     file: &FileRecord,
+    chunking: &SearchChunkingSettings,
     cancelled: impl Fn() -> bool,
 ) -> Result<usize> {
     root.verify_physical_root()?;
@@ -42,7 +51,7 @@ pub(super) async fn publish(
     if metadata.hash != file.hash || metadata.parser_version != PARSER_VERSION {
         return Ok(1);
     }
-    let record = envelope::record(file, &metadata, &text)?;
+    let record = envelope::record(file, &metadata, &text, chunking)?;
     root.verify_physical_root()?;
     let Some(after) = root.stat(&file.path)? else {
         return Ok(1);
