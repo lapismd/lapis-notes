@@ -57,3 +57,9 @@ the compatibility lease; the owning desktop session retains those lifetimes.
 <a id="ln-plug-109"></a>
 
 **Requirement.** Successful `plugins` App URL navigation MUST dismiss the owning App's Settings dialog so the selected plugin page is reachable. Rejected or disposed navigation MUST NOT close Settings after its owning registration is removed.
+
+An optional host-authored `nativeHistoryIndex` App property takes precedence
+over the matching session port. Construction performs no selection or IO.
+Persisted plugin/layout state grants no History authority; the Repository plugin
+still requires its separately bound reader and owned lifecycle. Other plugin
+registration and enablement contracts are unchanged.

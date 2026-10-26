@@ -39,3 +39,11 @@
 Custom status controls retain plugin domain ownership. The API projects the
 public status mount/disposer into Design Core without depending on the controls'
 implementation; desktop repository status remains downstream-owned (LN-WS-054).
+
+Native History observation follows explicit App ownership: an optional
+`nativeHistoryIndex` construction property takes precedence over the matching
+session port and remains absent otherwise. Both are host-authored admitted
+capabilities, without persistence or transport discovery. App construction does
+not start work; the shared Repository plugin observes the selected native owner
+through the public API contract. Repository read admission and full-screen
+activation remain independently required before mounting that plugin.

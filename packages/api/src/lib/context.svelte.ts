@@ -76,6 +76,7 @@ import { flushWorkspaceEditors } from "./sync-editor-flush";
 import { FileEditingSessionRegistry } from "./file-editing-sessions";
 import { SearchDocumentProviderRegistry } from "./search-document-provider";
 import type { NativeBackgroundIndexingObserver } from "./native-background-indexing";
+import type { NativeHistoryIndex } from "./native-history-index";
 import { SearchResultProviderRegistry } from "./search-result-provider";
 import { DailyDocumentProviderRegistry } from "./daily-document-provider";
 import { AppToolRegistry } from "./agent-tools";
@@ -143,6 +144,8 @@ export type AppStateProperties = {
   configPath?: string;
   adapter?: DataAdapter;
   session?: VaultSession;
+  /** Already admitted by the host; construction does not start native work. */
+  nativeHistoryIndex?: NativeHistoryIndex;
   appDatabase?: AppDatabase;
   safeMode?: AppSafeModeState;
   createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
@@ -293,6 +296,7 @@ export class App {
   readonly vault: Vault = $state()!;
   readonly appDatabase: AppDatabase;
   readonly session?: VaultSession;
+  readonly nativeHistoryIndex?: NativeHistoryIndex;
   readonly safeMode: AppSafeModeState;
   plugins: PluginManager = $state()!;
   scope: Scope = $state(new Scope(undefined, this));
@@ -378,6 +382,8 @@ export class App {
       throw new Error("App requires a vault adapter or vault session");
     }
     this.session = props.session;
+    this.nativeHistoryIndex =
+      props.nativeHistoryIndex ?? props.session?.nativeHistoryIndex;
     this.safeMode = props.safeMode ?? createDefaultAppSafeModeState();
     const appDatabase = props.session?.appDatabase ?? props.appDatabase;
     if (!appDatabase) {

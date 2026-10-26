@@ -29,3 +29,8 @@ conflicts leave the existing memory bytes and modification count unchanged.
 <a id="ln-db-050"></a>
 
 **Requirement.** External file identity bindings MUST be namespaced by the authenticated plugin context. One plugin MUST NOT read, write, replace, or delete another plugin's bindings, and conflicting external IDs MUST fail closed.
+
+The optional App/session native History index port is separate from
+AppDatabase file-history persistence. It changes neither the 68-method database
+allowlist nor file-revision capture, retention or restore semantics. Its
+immutable queries reuse host admission without adding a database writer.

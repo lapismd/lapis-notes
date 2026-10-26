@@ -143,3 +143,8 @@ control described in the [native indexing contract](../architecture/rust-indexin
 Search views observe the same App-owned indexing session. View/manager disposal
 MUST NOT wait for an accepted native refresh or stop it. Explicit plugin disable
 remains a separate native drain; native pending convergence is not ready.
+
+The optional native History port is supplied before App construction and does
+not create a view, restore navigation or alter workspace startup. The shared
+Repository plugin still needs its admitted reader/factory. Existing shell,
+leaf disposal, guarded editing and layout contracts remain unchanged.

@@ -54,3 +54,10 @@ vault/profile data stays isolated; Linux delivery remains a separate gate.
 <a id="ln-web-051"></a>
 
 **Requirement.** The server login surface MUST show the Lapis app mark centered above its fields and compose Design Core inputs and theme-backed primary actions.
+
+The private Rust-hosted build flag `VITE_LAPIS_NATIVE_HISTORY=1` supplies the
+same admitted client through `HostedResources` and `VaultSession` before App
+construction. The port uses the generated start/status/query/context commands;
+its lifetime is the existing client lease. It does not enable a Repository
+screen without an admitted history reader. Node, standalone Web and ordinary
+Rust profiles keep the port absent until their separate cutover gates.
