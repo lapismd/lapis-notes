@@ -5,6 +5,7 @@ pub(super) mod history;
 #[cfg(test)]
 mod history_tests;
 mod provider;
+mod restore;
 mod storage;
 #[cfg(test)]
 mod tests;

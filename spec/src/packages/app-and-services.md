@@ -10,6 +10,11 @@ The profile also owns retained workspace routing: History stays visible while
 its rows open exact main-area conversations. Native metadata is a read-only
 projection; draft creation and view selection never submit prompts.
 
+The selected Rust Repository profile adapts the existing public RestoreService
+through its admitted client under LN-CORE-023/LN-SRV-027/LN-WEB-072. Core owns the
+existing backup engine and guarded writer; the retained controller owns pending
+intent and explicit recovery. No public npm export or replacement screen is added.
+
 The private Rust-hosted chooser adapter consumes generated native protocol types
 and the existing public App/Vault interfaces. Managed-vault mutation authority
 and catalogue persistence stay in the Rust host; no public npm export, browser

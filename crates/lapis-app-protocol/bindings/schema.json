@@ -2700,6 +2700,141 @@
       "required": ["protocol_version", "request_id", "outcome"],
       "type": "object"
     },
+    "RepositoryCapture": {
+      "additionalProperties": false,
+      "properties": {
+        "changed": { "type": "boolean" },
+        "checkpoint": {
+          "anyOf": [
+            { "$ref": "#/$defs/RepositoryCheckpoint" },
+            { "type": "null" }
+          ]
+        },
+        "operation": { "type": "string" },
+        "working_copy": { "type": "string" }
+      },
+      "required": ["changed", "operation", "working_copy"],
+      "type": "object"
+    },
+    "RepositoryCheckpoint": {
+      "additionalProperties": false,
+      "properties": {
+        "change_id": { "type": "string" },
+        "commit": { "type": "string" },
+        "description": { "type": "string" },
+        "operation": { "type": "string" },
+        "timestamp_millis": { "format": "int64", "type": "integer" }
+      },
+      "required": [
+        "operation",
+        "commit",
+        "change_id",
+        "description",
+        "timestamp_millis"
+      ],
+      "type": "object"
+    },
+    "RepositoryFileRestorePreview": {
+      "additionalProperties": false,
+      "properties": {
+        "bytes": { "format": "uint", "minimum": 0, "type": "integer" },
+        "checkpoint": { "type": "string" },
+        "deleted": { "type": "boolean" },
+        "expected": { "type": "string" },
+        "path": { "type": "string" }
+      },
+      "required": ["checkpoint", "path", "expected", "bytes", "deleted"],
+      "type": "object"
+    },
+    "RepositoryFileRestoreRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint": { "type": "string" },
+        "expected": { "type": "string" },
+        "path": { "type": "string" },
+        "request_id": { "type": "string" }
+      },
+      "required": ["request_id", "checkpoint", "path", "expected"],
+      "type": "object"
+    },
+    "RepositoryRestoreCommand": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "checkpoint": { "type": "string" },
+            "kind": { "const": "preview", "type": "string" },
+            "path": { "type": "string" }
+          },
+          "required": ["kind", "checkpoint", "path"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "apply", "type": "string" },
+            "request": { "$ref": "#/$defs/RepositoryFileRestoreRequest" }
+          },
+          "required": ["kind", "request"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "checkpoint": { "type": "string" },
+            "kind": { "const": "preview_vault", "type": "string" }
+          },
+          "required": ["kind", "checkpoint"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "apply_vault", "type": "string" },
+            "request": { "$ref": "#/$defs/RepositoryVaultRestoreRequest" }
+          },
+          "required": ["kind", "request"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "keep_current", "type": "string" }
+          },
+          "required": ["kind"],
+          "type": "object"
+        }
+      ]
+    },
+    "RepositoryRestoreValue": {
+      "anyOf": [
+        { "$ref": "#/$defs/RepositoryFileRestorePreview" },
+        { "$ref": "#/$defs/RepositoryVaultRestorePreview" },
+        { "$ref": "#/$defs/RepositoryCapture" }
+      ]
+    },
+    "RepositoryVaultRestorePreview": {
+      "additionalProperties": false,
+      "properties": {
+        "added": { "format": "uint", "minimum": 0, "type": "integer" },
+        "checkpoint": { "type": "string" },
+        "deleted": { "format": "uint", "minimum": 0, "type": "integer" },
+        "expected": { "type": "string" },
+        "modified": { "format": "uint", "minimum": 0, "type": "integer" }
+      },
+      "required": ["checkpoint", "expected", "added", "modified", "deleted"],
+      "type": "object"
+    },
+    "RepositoryVaultRestoreRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint": { "type": "string" },
+        "expected": { "type": "string" },
+        "request_id": { "type": "string" }
+      },
+      "required": ["request_id", "checkpoint", "expected"],
+      "type": "object"
+    },
     "Request": {
       "additionalProperties": false,
       "properties": {
@@ -4195,6 +4330,10 @@
     "projection_result": { "$ref": "#/$defs/ProjectionQueryResult" },
     "projection_source": { "$ref": "#/$defs/ProjectionSource" },
     "reply": { "$ref": "#/$defs/Reply" },
+    "repository_restore_command": {
+      "$ref": "#/$defs/RepositoryRestoreCommand"
+    },
+    "repository_restore_value": { "$ref": "#/$defs/RepositoryRestoreValue" },
     "request": { "$ref": "#/$defs/Request" },
     "search_document": { "$ref": "#/$defs/SearchDocumentRecord" },
     "search_embedding_config": {
@@ -4224,6 +4363,8 @@
     "vault_name": { "$ref": "#/$defs/VaultName" }
   },
   "required": [
+    "repository_restore_command",
+    "repository_restore_value",
     "native_task_command",
     "native_task_value",
     "history_index_command",

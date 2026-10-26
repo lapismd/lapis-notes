@@ -184,3 +184,12 @@ standalone local/offline web. Deno desktop stays frozen. Docker execution,
 multi-user collaboration, hosted terminal, an OS daemon and new deferred feature
 expansions are outside this migration. Do not revive the deferred native
 AgentStore/ThreadStore conversation experiment.
+
+## Remaining History scope (2026-10-26)
+
+R3.2.3.6 is split in [remaining native History parity](spec/src/architecture/rust-history-parity.md):
+guarded restore first, capture/settings controls next, then original-repository
+source selection. Optional legacy AppDatabase History capture ownership is
+Deferred: current Desktop and hosted profiles do not bundle that plugin, and its
+installed behavior remains client-driven in both. Native repository restore and
+original-source parity remain mandatory; no replacement scheduler or UI is added.

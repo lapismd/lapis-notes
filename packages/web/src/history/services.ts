@@ -1,10 +1,12 @@
 import type { HistoryClient, Handle } from "@lapismd/jj-history";
 import type { RepositoryServices } from "@lapis-notes/history/repository/controllers/history-reader";
+import type { RestoreService } from "@lapis-notes/history/repository/controllers/restore";
 import { PreparationQueue } from "@lapis-notes/history/repository/controllers/preparation-queue";
 
 /** Owns this workspace's reads only. Capture and indexing belong to the native vault owner. */
 export function createHostedRepository(
   reader: HistoryClient,
+  restore?: RestoreService,
 ): RepositoryServices {
   const preparations = new PreparationQueue(reader);
   const pending = new Set<Promise<unknown>>();
@@ -24,6 +26,31 @@ export function createHostedRepository(
     handles.delete(handle);
   }
   return {
+    restore: restore
+      ? {
+          preview: (checkpoint, path) =>
+            track(() => restore.preview(checkpoint, path)),
+          apply: (request) => track(() => restore.apply(request)),
+          ...(restore.previewVault
+            ? {
+                previewVault: (checkpoint: string) =>
+                  track(() => restore.previewVault!(checkpoint)),
+              }
+            : {}),
+          ...(restore.applyVault
+            ? {
+                applyVault: (
+                  request: Parameters<
+                    NonNullable<RestoreService["applyVault"]>
+                  >[0],
+                ) => track(() => restore.applyVault!(request)),
+              }
+            : {}),
+          ...(restore.keepCurrent
+            ? { keepCurrent: () => track(() => restore.keepCurrent!()) }
+            : {}),
+        }
+      : undefined,
     reader: {
       heads: () => track(() => reader.heads()),
       open: (operation) =>

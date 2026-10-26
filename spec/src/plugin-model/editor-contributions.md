@@ -21,6 +21,11 @@ Contributed Problems fixes use the owning API editor's save queue for open
 resources before diagnostics refresh (LN-WS-034). Plugin providers do not add a
 second writer to that path.
 
+The separately selected native Repository profile reuses the public restore
+controller and review dialog under LN-WEB-072. Its same-client adapter supplies
+native guarded restore without installing the optional legacy HistoryPlugin,
+changing the four-plugin default, or creating another plugin-owned writer.
+
 ## LN-PLUG-007 — Disabling a plugin with open owned views: replace those leaves with persisted missing-view placeholders
 
 <a id="ln-plug-007"></a>

@@ -15,6 +15,7 @@ Defines runtime ownership, dependency boundaries, host integration, and build an
 - [Admitted native Tasks port](architecture/rust-task-host-port.md)
 - [Native History indexing lifetime](architecture/rust-history-indexing-lifetime.md)
 - [Admitted native History reader](architecture/rust-history-reader.md)
+- [Remaining native History parity](architecture/rust-history-parity.md)
 - [Backup service lifetime](architecture/rust-backup-lifetime.md)
 - [Editor integration](architecture/editor-integration.md)
 - [Build and validation](architecture/build-and-validation.md)
