@@ -192,3 +192,10 @@ Protected saved-text refresh retains these boundaries:
 - Clean managed rename/delete retains expected absence and existing view
   retirement; an unrelated changed file still fails the original yield check.
   Dirty or failed persistence cannot be acknowledged by a saved-text refresh.
+
+Clean terminal retirement of a detached producer drains its existing save owner
+before observing the current destination version or expected absence. It releases
+only that clean intent and performs no content write or buffer acknowledgement.
+Live guards retain the original saved-baseline comparison; failed/dirty detached
+writers remain fenced. Host recovery preflight drains already admitted registry
+transitions before deciding whether a local issue remains unresolved.

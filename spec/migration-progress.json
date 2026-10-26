@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 20:13:45 UTC",
+  "updated": "2026-10-26 21:22:29 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -821,9 +821,9 @@
       "id": "R3.2.4.6",
       "area": "Native writer protected refresh",
       "work": "Reconcile clean producer saved text before releasing a native handoff",
-      "status": "Working",
+      "status": "Source complete",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-028",
-      "detail": "Exact real Editor goes from one stale-baseline failure to passing; 28 native/state,118 persistence and1686API cases plus strict/public build/pack pass. The actual hosted editor/Tasks close now passes while preserving drafts, foreign fences and same identities. Complete coherent source and Markdown saved-refresh qualification remain pending; both host aggregate gates are separate."
+      "detail": "[Protected refresh and clean retirement qualification](spec/records/2026-10-26-native-editor-retirement.md): exact3/native31/API1689; complete564Rust/2397package/263coldcatalog/static, strict/build/publicpack and final78governance pass. All39current hosted/Node/local journeys and seven leave cases pass. Native retirement/preview6 and provisional Properties4 pass; final Desktop aggregate and main/combined intake remain separate. API public archive SHAa1fc412f; no content-write replay, code/default or authority change."
     },
     {
       "id": "R3.2.1.2.10.6",

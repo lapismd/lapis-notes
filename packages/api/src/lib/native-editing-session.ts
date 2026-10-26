@@ -52,6 +52,7 @@ export class NativeRegisteredEditingSession implements FileEditingSession {
   #refreshPending = false;
   #issue: NativeEditingIssue | undefined;
   #epoch = 0;
+  readonly #pending = new Set<Promise<void>>();
   readonly #listeners = new Set<() => void>();
 
   constructor(
@@ -93,7 +94,14 @@ export class NativeRegisteredEditingSession implements FileEditingSession {
     }
   }
 
-  async #transition(phase: NativeEditingPhase, run: () => Promise<void>) {
+  async settle(): Promise<void> {
+    while (this.#pending.size) await Promise.allSettled([...this.#pending]);
+  }
+
+  #transition(
+    phase: NativeEditingPhase,
+    run: () => Promise<void>,
+  ): Promise<void> {
     this.#epoch++;
     const pending = Object.freeze({
       id: crypto.randomUUID(),
@@ -103,20 +111,27 @@ export class NativeRegisteredEditingSession implements FileEditingSession {
       message: `Native editor ${phase} is pending`,
     });
     this.#publish(pending);
-    try {
-      await run();
-      if (this.#issue === pending) this.#publish(undefined);
-    } catch (error) {
-      if (this.#issue === pending)
-        this.#publish(
-          Object.freeze({
-            ...pending,
-            status: "failed" as const,
-            message: `Native editor ${phase} requires retry`,
-          }),
-        );
-      throw error;
-    }
+    const transition = (async () => {
+      try {
+        await run();
+        if (this.#issue === pending) this.#publish(undefined);
+      } catch (error) {
+        if (this.#issue === pending)
+          this.#publish(
+            Object.freeze({
+              ...pending,
+              status: "failed" as const,
+              message: `Native editor ${phase} requires retry`,
+            }),
+          );
+        throw error;
+      }
+    })();
+    this.#pending.add(transition);
+    void transition
+      .finally(() => this.#pending.delete(transition))
+      .catch(() => {});
+    return transition;
   }
 
   #hold(): void {
@@ -213,13 +228,16 @@ export class NativeRegisteredEditingSession implements FileEditingSession {
   }
 
   async flush(): Promise<void> {
+    if (this.#lease?.retired && !this.session.dirty) return;
     if (this.#scoped && !this.session.dirty) {
       await this.idle();
       return;
     }
     await this.ready();
     await this.session.flush();
-    if (this.#scoped) await this.idle();
+    if (this.retiring() && !this.session.dirty)
+      await this.#transition("retirement", () => this.#lease!.retire());
+    else if (this.#scoped) await this.idle();
     else if (this.#protected && !this.session.dirty)
       await this.#transition("handoff", () => this.#lease!.yield());
   }

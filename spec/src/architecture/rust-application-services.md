@@ -62,8 +62,8 @@ An operator-owned startup configuration admits opaque vault IDs and roots;
 requests cannot select native paths. A required owner bearer token and exact
 protocol-major header protect every API route. Browser Origin requests must
 match the configured public origin; no cross-origin permission is granted.
-Client attachments survive separate requests, and explicit detach retains dirty
-claims and accepted work. Core errors remain typed and omit native paths.
+Client attachments span requests; detach retains dirty claims and accepted work.
+Typed errors omit native paths and distinguish file permissions from client denial.
 Blocking file operations run outside the async executor. Bounded JSON commands
 qualify the initial adapter only; later R1.3 receipts qualify streamed bodies,
 browser login/shell and native backup. SSE and final delivery remain R7.

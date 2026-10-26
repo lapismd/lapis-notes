@@ -97,6 +97,15 @@ export class FileEditingSessionRegistry {
   /** Hosts preflight before disposing the App, preserving failed-leave recovery. */
   async preflightNativeRecovery(): Promise<void> {
     await this.settleOperations();
+    // Observe already admitted work without retrying a failed transition.
+    let tail: Promise<void>;
+    do {
+      tail = this.#tail;
+      await tail;
+      await Promise.all(
+        [...this.#sessions.values()].map((entry) => entry.native?.settle()),
+      );
+    } while (tail !== this.#tail);
     await this.nativeRecovery?.assertClear();
     if (this.nativeIssues.entries.length)
       throw new Error(
