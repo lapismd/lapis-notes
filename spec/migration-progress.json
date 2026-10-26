@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 18:16:14 UTC",
+  "updated": "2026-10-26 18:23:58 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -823,7 +823,7 @@
       "work": "Protected clean producer refresh after guarded native mutation",
       "status": "Working",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-020",
-      "detail": "Owner-qualified API10051 passes28focused/118persistence/1686API and strict/publicpack; corresponding Markdownad89 passes3new/3original/23affected/142Markdown and strict/publicpack. Existing Mira protected recovery is reused; read follows confirmed native rearm before local protection releases. Complete source/Plugins and final actual host cohorts remain active. No draft clearing, save replay, retirement or caller-fence exemption."
+      "detail": "Owner-qualified API10051 passes28focused/118persistence/1686API and strict/publicpack; Markdown passes3new/3original/23affected/142Markdown and strict/publicpack. The final formatted Markdown archive f1a6666d changes only equivalent JavaScript formatting and declaration-map coordinates from ad896d65; cold FileEmbed passes. Full Plugins attempt76098596 retained a browser disconnect before the final story; exact cold retry and remaining catalog/static/specification gates are pending. Existing Mira protected recovery is reused; read follows confirmed native rearm before local protection releases. Complete combined source and both actual host gates remain open; no draft clearing, save replay or fencing exemption."
     }
   ]
 }
