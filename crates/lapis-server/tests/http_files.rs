@@ -4,12 +4,14 @@ mod backup;
 mod browser_auth;
 mod credentials;
 mod database;
+mod editing_recovery;
 mod history_indexing;
 mod history_reader;
 mod indexing;
 mod lifetime;
 mod native_tasks;
 mod physical;
+mod repository_restore;
 mod streams;
 mod support;
 

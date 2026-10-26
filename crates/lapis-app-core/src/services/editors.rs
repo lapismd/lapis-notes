@@ -96,14 +96,13 @@ impl Client {
     /// An explicit user discard, not a disconnect or timeout.
     pub fn discard_editor(&self, id: Uuid) -> Result<()> {
         let mut state = self.vault.lock()?;
-        owned(&mut state, self.id, id)?;
-        if state
-            .editors
-            .remove(&id)
-            .is_some_and(|editor| editor.intent.is_some())
-        {
-            state.retired_editor_intents.insert(id, self.id);
+        if owned(&mut state, self.id, id)?.intent.is_some() {
+            return Err(Error::new(
+                ErrorCode::InvalidRequest,
+                "Editor intents require captured-state discard",
+            ));
         }
+        state.editors.remove(&id);
         Ok(())
     }
     pub fn recover_editor(&self, id: Uuid) -> Result<()> {
@@ -113,9 +112,11 @@ impl Client {
             .editors
             .get(&id)
             .is_some_and(|editor| editor.intent.is_some())
-            && !super::editing_intents::can_admit(&state, self.id)
         {
-            return Err(Error::busy());
+            return Err(Error::new(
+                ErrorCode::InvalidRequest,
+                "Editor intents require captured-state recovery",
+            ));
         }
         let editor = state.editors.get_mut(&id).ok_or_else(Error::denied)?;
         if !editor.detached {

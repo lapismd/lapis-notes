@@ -102,7 +102,7 @@ test("master tracker groups gates and links naturally sorted task IDs", () => {
   const headings = [...source.matchAll(/^### Gate status: (.+)$/gmu)];
   assert.deepEqual(
     headings.map((match) => match[1]),
-    ["Working", "Waiting", "Source complete", "Complete"],
+    ["Working", "Waiting", "Deferred", "Source complete", "Complete"],
   );
   let total = 0;
   for (const [index, heading] of headings.entries()) {

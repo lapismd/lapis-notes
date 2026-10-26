@@ -43,6 +43,16 @@ pub enum EditingIntentCommand {
         editor_id: Uuid,
         generation: u32,
     },
+    Recover {
+        editor_id: Uuid,
+        generation: u32,
+        revision: u32,
+    },
+    Discard {
+        editor_id: Uuid,
+        generation: u32,
+        revision: u32,
+    },
     Inspect {
         editor_id: Uuid,
     },

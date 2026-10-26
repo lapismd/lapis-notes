@@ -1,5 +1,10 @@
 # Node Server Host / Integration contracts
 
+Managed editor recovery uses the existing admitted Rust client command route.
+Captured generation/revision checks follow LN-CORE-025; legacy ID-only commands
+cannot recover or discard managed intents. Origin, client/vault admission and
+physical-root checks remain unchanged, and recovery never writes file content.
+
 The staged Rust chat retains History in its workspace sidebar and reopens exact
 scope/conversation pairs through the shared App-owned navigator. Cold hosted
 acceptance reopens the managed vault through the existing chooser and verifies
@@ -320,3 +325,9 @@ vault attachment, protocol, Origin and CSRF policy. Raw text frames MUST obey
 native byte limits and method allowlisting. Lease retirement during an await
 MUST prevent data delivery. Unknown methods, malformed frames and foreign vaults
 MUST fail without fallback to the Node companion or browser-supplied authority.
+
+## LN-SRV-027 — Same-client guarded Repository restore
+
+<a id="ln-srv-027"></a>
+
+**Requirement.** Rust hosted restore MUST use bounded typed actions on the existing authenticated vault attachment, protocol, Origin and CSRF policy. Admission and post-await delivery MUST reject retired or foreign clients. Requests MUST NOT supply roots, storage, generations or caller scopes. A lost acknowledgement MUST retain the native stable request and require explicit recovery rather than transport replay.

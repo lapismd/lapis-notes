@@ -10,6 +10,8 @@ use lapis_app_protocol::{
 };
 use uuid::Uuid;
 
+mod recovery;
+
 const MAX_CLIENT_IDENTITIES: usize = 16_384;
 
 pub(super) fn can_admit(state: &State, client: Uuid) -> bool {
@@ -189,6 +191,16 @@ impl Client {
                 state.retired_editor_intents.insert(editor_id, self.id);
                 Ok(EditingIntentValue::Retired {})
             }
+            EditingIntentCommand::Recover {
+                editor_id,
+                generation,
+                revision,
+            } => recovery::recover(&mut state, self.id, editor_id, generation, revision),
+            EditingIntentCommand::Discard {
+                editor_id,
+                generation,
+                revision,
+            } => recovery::discard(&mut state, self.id, editor_id, generation, revision),
             EditingIntentCommand::Inspect { editor_id } => {
                 if state.editors.contains_key(&editor_id) {
                     return state_value(editor_id, owned(&mut state, self.id, editor_id)?);

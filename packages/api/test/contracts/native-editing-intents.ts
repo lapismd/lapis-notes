@@ -32,3 +32,20 @@ const registration: FileEditingRegistration = registry.register("note.md", {
 void registration.ready();
 registration.changed();
 registration();
+
+void port.call({
+  kind: "recover",
+  editor_id: "00000000-0000-0000-0000-000000000001",
+  generation: 1,
+  revision: 2,
+});
+void port.call({
+  kind: "discard",
+  editor_id: "00000000-0000-0000-0000-000000000001",
+  generation: 2,
+  revision: 2,
+});
+// @ts-expect-error Captured revision is required for recovery decisions.
+void port.call({ kind: "recover", editor_id: "id", generation: 1 });
+// @ts-expect-error ID-only managed discard is not part of the public port.
+void port.call({ kind: "discard", editor_id: "id" });

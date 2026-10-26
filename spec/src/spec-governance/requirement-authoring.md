@@ -119,6 +119,9 @@ link to their owning canonical spec. `pnpm check:progress` rejects stale tables,
 invalid task metadata and broken spec links; normal and specification checks
 run it. Update the ledger timestamp and the authored activity checkpoint before
 regenerating. Historical intake remains outside the generated block.
+The real-ledger regression includes the first Deferred History-capture task as
+a distinct group in the existing gate order; no completed or waiting group is
+substituted for it. Synthetic generator cases retain their empty-group checks.
 Routine ledger status, evidence and timestamp updates follow `MIGRATION.md`'s
 documentation-only spec-first treatment and remain validated by
 `check:progress`. Generator implementation changes still require this canonical

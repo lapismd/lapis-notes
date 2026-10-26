@@ -199,11 +199,15 @@ fn client_retirement_retains_clean_intent_until_explicit_recovery() {
     assert_eq!(list["states"][0]["active"], true);
     assert_eq!(list["states"][0]["detached"], true);
     assert_eq!(vault.close().unwrap_err().code(), ErrorCode::Busy);
-    reconnect.recover_editor(id).unwrap();
-    yield_intent(&reconnect, id, 1, 0, expected(&reconnect, "note.md"));
     call(
         &reconnect,
-        json!({"kind":"retire", "editor_id":id, "generation":1}),
+        json!({"kind":"recover", "editor_id":id, "generation":1, "revision":0}),
+    )
+    .unwrap();
+    yield_intent(&reconnect, id, 2, 0, expected(&reconnect, "note.md"));
+    call(
+        &reconnect,
+        json!({"kind":"retire", "editor_id":id, "generation":2}),
     )
     .unwrap();
     assert!(
@@ -375,7 +379,11 @@ fn explicit_discard_does_not_let_delayed_acquire_restore_an_old_intent() {
     let owner = vault.attach().unwrap();
     let id = Uuid::new_v4();
     acquire(&owner, id, "note.md");
-    owner.discard_editor(id).unwrap();
+    call(
+        &owner,
+        json!({"kind":"discard", "editor_id":id, "generation":1, "revision":0}),
+    )
+    .unwrap();
     assert_eq!(
         call(
             &owner,

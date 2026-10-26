@@ -3,6 +3,7 @@ mod editing_intents;
 mod history_index;
 mod indexing;
 mod native_tasks;
+mod repository_restore;
 mod turns;
 use lapis_app_protocol::database::call::*;
 use lapis_app_protocol::database::indexed::{mutations::IndexedFile, queries::*, records::*};
@@ -25,6 +26,9 @@ use ts_rs::{Config, TS};
 pub struct Contracts {
     pub editing_intent_command: lapis_app_protocol::editing_intents::EditingIntentCommand,
     pub editing_intent_value: lapis_app_protocol::editing_intents::EditingIntentValue,
+    pub repository_restore_command:
+        lapis_app_protocol::repository_restore::RepositoryRestoreCommand,
+    pub repository_restore_value: lapis_app_protocol::repository_restore::RepositoryRestoreValue,
     pub native_task_command: lapis_app_protocol::native_tasks::NativeTaskCommand,
     pub native_task_value: lapis_app_protocol::native_tasks::NativeTaskValue,
     pub history_index_command: lapis_app_protocol::history_index::HistoryIndexCommand,
@@ -274,6 +278,7 @@ fn main() {
         history_index::declarations(&config)
             .iter()
             .chain(editing_intents::declarations(&config).iter())
+            .chain(repository_restore::declarations(&config).iter())
             .chain(indexing::declarations(&config).iter())
             .chain(native_tasks::declarations(&config).iter())
             .chain(turns::declarations(&config).iter())

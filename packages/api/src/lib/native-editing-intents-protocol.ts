@@ -24,6 +24,8 @@ export type EditingIntentCommand =
     }
   | { kind: "resume"; editor_id: string; generation: number }
   | { kind: "retire"; editor_id: string; generation: number }
+  | { kind: "recover"; editor_id: string; generation: number; revision: number }
+  | { kind: "discard"; editor_id: string; generation: number; revision: number }
   | { kind: "inspect"; editor_id: string }
   | { kind: "list" };
 export type EditingIntentValue =

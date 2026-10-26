@@ -9,7 +9,8 @@ The generated specification navigation includes
 [Native indexing lifetime](../architecture/rust-indexing-lifetime.md) beside the
 shared Rust architecture chapters, including the separate
 [Native History indexing lifetime](../architecture/rust-history-indexing-lifetime.md)
-and [Admitted native History reader](../architecture/rust-history-reader.md).
+[Admitted native History reader](../architecture/rust-history-reader.md) and
+[Remaining native History parity](../architecture/rust-history-parity.md).
 Their metadata-only MDX mirrors render canonical sources in SUMMARY order;
 these documentation entries do not select an application index owner or qualify
 the independent desktop/native acceptance gates.

@@ -13,6 +13,7 @@
   - [Architecture / Admitted native Tasks port](./architecture/rust-task-host-port.md)
   - [Architecture / Native History indexing lifetime](./architecture/rust-history-indexing-lifetime.md)
   - [Architecture / Admitted native History reader](./architecture/rust-history-reader.md)
+  - [Architecture / Remaining native History parity](./architecture/rust-history-parity.md)
   - [Architecture / Backup service lifetime](./architecture/rust-backup-lifetime.md)
   - [Architecture / Editor integration](./architecture/editor-integration.md)
   - [Architecture / Native editor intents](./architecture/native-editor-intents.md)

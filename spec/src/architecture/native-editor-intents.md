@@ -87,3 +87,31 @@ Reconciliation retains these boundaries:
 Host adoption and real two-client browser/native acceptance are separate from
 source qualification. Existing Deno hosts remain frozen. Signing and final
 distribution remain deferred.
+
+## LN-CORE-025 — Captured-state explicit intent recovery
+
+<a id="ln-core-025"></a>
+
+**Requirement.** Explicit recovery and discard MUST match the retained intent's
+captured generation and revision. Recovery MUST require detached ownership,
+advance its generation and preserve dirty/active state. Discard MUST require
+detached or caller-owned state and retire its identity; stale actions, foreign
+live owners and retired clients MUST remain fenced. Both operations MUST NOT
+write files, acknowledge unknown drafts or replay mutations.
+
+Read-only inspection MAY reconcile lost acknowledgements. Exact terminal
+discard repeats remain harmless because retired identities cannot be acquired
+again. Recovery consumes the existing per-client identity budget. Both actions
+retain physical-root validation and run under the vault's existing state lock.
+Application-owned Problems actions remain a separate presentation gate.
+
+### Acceptance details
+
+Legacy compatibility retains these boundaries:
+
+- ID-only legacy recovery/discard MUST reject managed intents. Existing
+  unmanaged editor claims MUST retain their current behavior.
+- Recovery and cross-owner discard MUST retain the existing per-client identity
+  budget without removing another live client's protection.
+- Explicit discard MUST preserve saved file bytes and leave detached draft
+  content outside native recovery authority.

@@ -94,3 +94,71 @@ it("fences accepted replies and later reads after admitted client release", asyn
   await expect(service.reader.heads()).rejects.toThrow("closed");
   await service.close("close");
 });
+
+it("binds retained restore to the same admitted client and keeps exact request identities", async () => {
+  const { resource, fetch } = await fixture();
+  const service = resource.repositoryFactory!({} as App);
+  const request = {
+    request_id: "stable",
+    checkpoint: "checkpoint",
+    path: "Note.md",
+    expected: "exact",
+  };
+  fetch.mockResolvedValueOnce(
+    Response.json({
+      checkpoint: "checkpoint",
+      path: "Note.md",
+      expected: "exact",
+      bytes: 12,
+      deleted: false,
+    }),
+  );
+  expect(await service.restore!.preview("checkpoint", "Note.md")).toMatchObject(
+    { expected: "exact" },
+  );
+  fetch.mockResolvedValueOnce(Response.json({ changed: false }));
+  await service.restore!.apply(request);
+  expect(
+    fetch.mock.calls
+      .slice(1)
+      .map(([url, init]) => [url, JSON.parse(String(init!.body))]),
+  ).toEqual([
+    [
+      "/api/v3/clients/client/repository-restore",
+      { kind: "preview", checkpoint: "checkpoint", path: "Note.md" },
+    ],
+    ["/api/v3/clients/client/repository-restore", { kind: "apply", request }],
+  ]);
+  await service.close("close");
+});
+
+it("fences a restore acknowledgement after admitted client release without replay", async () => {
+  const { resource, fetch } = await fixture();
+  const service = resource.repositoryFactory!({} as App);
+  let deliver!: (value: Response) => void;
+  fetch.mockImplementationOnce(
+    () =>
+      new Promise((resolve) => {
+        deliver = resolve;
+      }),
+  );
+  const request = {
+    request_id: "pending",
+    checkpoint: "checkpoint",
+    path: "Note.md",
+    expected: "exact",
+  };
+  const apply = service.restore!.apply(request);
+  const failed = expect(apply).rejects.toThrow("closed");
+  await vi.waitFor(() => expect(deliver).toBeTypeOf("function"));
+  await resource.release();
+  deliver(Response.json({ changed: false }));
+  await failed;
+  await expect(service.restore!.apply(request)).rejects.toThrow("closed");
+  expect(
+    fetch.mock.calls.filter(([url]) =>
+      String(url).endsWith("/repository-restore"),
+    ),
+  ).toHaveLength(1);
+  await service.close("close");
+});

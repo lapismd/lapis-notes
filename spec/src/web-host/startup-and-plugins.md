@@ -223,3 +223,9 @@ screen for reads, Search and blame. Workspace close MUST fence new requests,
 drain accepted reads and release its handles before detaching its admitted
 client. It MUST NOT add a replacement screen, renderer indexing scheduler or
 fake navigation. Ordinary hosted and standalone defaults MUST remain unchanged.
+
+## LN-WEB-072 — Retained hosted restore review
+
+<a id="ln-web-072"></a>
+
+**Requirement.** The selected Rust Repository profile MUST adapt the public RestoreService and retain its existing file/vault review, pending intent and explicit recovery controls. It MUST preserve exact request identities, validate preview identity and fence late responses. Workspace close MUST reject new restores and drain accepted observations. The adapter MUST NOT add a screen, writer, retry policy or automatic replay.

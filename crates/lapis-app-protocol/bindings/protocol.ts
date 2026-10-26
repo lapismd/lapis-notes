@@ -92,6 +92,8 @@ export type EditingIntentCommand =
     }
   | { kind: "resume"; editor_id: string; generation: number }
   | { kind: "retire"; editor_id: string; generation: number }
+  | { kind: "recover"; editor_id: string; generation: number; revision: number }
+  | { kind: "discard"; editor_id: string; generation: number; revision: number }
   | { kind: "inspect"; editor_id: string }
   | { kind: "list" };
 export type EditingIntentValue =
@@ -99,6 +101,54 @@ export type EditingIntentValue =
   | { kind: "states"; states: Array<EditingIntentState> }
   | { kind: "retired" }
   | { kind: "missing" };
+export type RepositoryRestoreCommand =
+  | { kind: "preview"; checkpoint: string; path: string }
+  | { kind: "apply"; request: RepositoryFileRestoreRequest }
+  | { kind: "preview_vault"; checkpoint: string }
+  | { kind: "apply_vault"; request: RepositoryVaultRestoreRequest }
+  | { kind: "keep_current" };
+export type RepositoryFileRestoreRequest = {
+  request_id: string;
+  checkpoint: string;
+  path: string;
+  expected: string;
+};
+export type RepositoryVaultRestoreRequest = {
+  request_id: string;
+  checkpoint: string;
+  expected: string;
+};
+export type RepositoryFileRestorePreview = {
+  checkpoint: string;
+  path: string;
+  expected: string;
+  bytes: number;
+  deleted: boolean;
+};
+export type RepositoryVaultRestorePreview = {
+  checkpoint: string;
+  expected: string;
+  added: number;
+  modified: number;
+  deleted: number;
+};
+export type RepositoryCheckpoint = {
+  operation: string;
+  commit: string;
+  change_id: string;
+  description: string;
+  timestamp_millis: number;
+};
+export type RepositoryCapture = {
+  changed: boolean;
+  checkpoint: RepositoryCheckpoint | null;
+  operation: string;
+  working_copy: string;
+};
+export type RepositoryRestoreValue =
+  | RepositoryFileRestorePreview
+  | RepositoryVaultRestorePreview
+  | RepositoryCapture;
 export type ProjectionContribution = {
   projection_id: string;
   owner_plugin_id: string;
