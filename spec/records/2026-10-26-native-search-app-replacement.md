@@ -204,9 +204,24 @@ acceptance or repair, not waived by consumer success. The owner record is
 `lapis-plugins/spec/records/2026-10-26-search-settings-recovery.md` in its isolated
 source workspace. No source/adoption commit is claimed here.
 
-The API startup repair and its mapped evidence can close independently against
-the earlier qualified source cohort. Its product bytes still match `eea52e15`,
+The API startup repair and its mapped evidence are committed independently at
+`a1b0dfde5941e0f0dfd73b7b3735bdab990cb7e3` against the earlier qualified source
+cohort. Its product bytes still match `eea52e15`,
 which passed the owner gate before the newer Search recovery change existed.
 The hosted regression and its canonical admission chapters remain uncommitted
 until the latest Search source-input gate closes. Preserve every assertion and
 the distinction between functional consumer receipts and admitted dependencies.
+
+Final-document worker `41317367` at `08b30ea6` passes the formatter, generated
+82-task grouped/sorted/spec-linked ledger and complete specification/78 governance
+cases before that eleven-path API-only commit. The four hosted adoption files
+stay uncommitted; neither the default Notes nor isolated History workspace is
+changed by this source closure.
+
+Tracker-follow-up worker `536e5bbe` at `e4bed798` passes formatting and progress,
+then reports three spec-first mapping diagnostics for the now-separate hosted
+test draft. Its architecture, package-service and plugin-lifecycle overview notes
+had been included with the API commit. Add hosted-specific context to those
+three chapters so the staged hosted adoption has complete mappings of its own.
+No product, test, assertion or validator changes are needed; its full stack is
+rechecked before the documentary tracker closure.
