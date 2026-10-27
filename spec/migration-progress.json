@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 01:07:18 UTC",
+  "updated": "2026-10-27 01:35:07 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "All identified implementation is written. Earlier combined source passes 263 cold catalog and 41 browser journeys. New Core e699e6c9 passes all five actual-model, 587 Rust and 2,414 package cases; its later tooling guard exposes eleven unbounded entries. Routing and two stale cache fixtures are repaired; final-main run 07abdc27 checks them before the complete source/catalog/browser gate. Main file icons are preserved with no product conflicts. Actual Desktop Reader/Tasks, both main adoptions and combined provider/timezone/unattended acceptance remain open."
+      "detail": "Combined current-main/file-icon/R3 source 9c9705f0 passes 587 Rust, 2,427 package, 264 cold catalog/static and all runner/controller checks. All five actual-model cases are retained by exact native/runtime/model identity. Run 9c9731fd is completing 41 browser journeys and final specification closure; source and both main adoptions remain pending. Desktop passes fresh 535 Node/744 AI, 260 Mac services and both strict configurations; the built app is qualifying a readonly-invoke acceptance-probe repair before actual Reader/Tasks acceptance. Combined provider/timezone/unattended acceptance still gates R3."
     },
     {
       "id": "R4",

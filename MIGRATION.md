@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-27 01:07:18 UTC**.
+Last updated **2026-10-27 01:35:07 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -52,16 +52,19 @@ feature rewrites. Optional legacy database History capture remains Deferred.
 
 ## Current work and next handoff
 
-**Active checkpoint — 2026-10-27 01:07:18 UTC.** All five actual Search-model
-cases, database authority cases, 587 ordinary Rust cases and 2,414 package cases
-pass on `e699e6c9`. Its later tooling guard fails one case; eleven new test
-entry points now use the required Turbo route. The first final-main attempt
-then exposes two stale cache-test fixtures, which are repaired without changing
-product code or their cache assertions. Run `07abdc27` checks the exact repairs
-before the longer gates. The final Notes combination preserves main's file icons
-and all R3 source without product merge conflicts. Desktop's matching macOS Rust/service check passes 260 cases; its latest-main
-composition and actual app acceptance remain active.
-Both main adoptions and combined unattended acceptance remain open.
+**Active checkpoint — 2026-10-27 01:35:07 UTC.** The current main/file-icon/R3
+combination `9c9705f0`, run `9c9731fd`, passes 587 Rust, 2,427 package and all
+264 cold catalog cases, plus static build. All runner/controller repairs pass,
+including 13 cache/runner cases, 69 controller cases and the real bounded Tasks
+wrapper. The 41 browser journeys and final canonical closure are still running.
+API `09939582`, Explorer `84063b67` and Workspace `b33e8605` are verified prepared
+consumer inputs; full source qualification remains pending. Desktop passes
+535 Node/744 AI, types, renderer/static builds, 260 macOS Rust/service cases and
+both strict native configurations. Its app bundle passes helper verification;
+a readonly-Tauri-invoke failure is isolated to the new acceptance probe and its
+forwarding-call repair is under qualification before actual app assertions.
+The parallel R4 source codec matches 145 retained outcomes in three exact tests;
+its full source gate and live queue implementation remain separate.
 
 | Lane              | Completed and verified                                                                                                                            | Concrete work still required                                                                                  |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
@@ -286,7 +289,7 @@ not host adoption or native/hosted application acceptance.
 
 | Task ID                                                                         | Area                           | Work                                                                      | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | ------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)            | Roadmap                        | Indexed vault                                                             | All identified implementation is written. Earlier combined source passes 263 cold catalog and 41 browser journeys. New Core e699e6c9 passes all five actual-model, 587 Rust and 2,414 package cases; its later tooling guard exposes eleven unbounded entries. Routing and two stale cache fixtures are repaired; final-main run 07abdc27 checks them before the complete source/catalog/browser gate. Main file icons are preserved with no product conflicts. Actual Desktop Reader/Tasks, both main adoptions and combined provider/timezone/unattended acceptance remain open.                                                            |
+| [R3](spec/src/architecture/rust-application-services.md#ln-core-003)            | Roadmap                        | Indexed vault                                                             | Combined current-main/file-icon/R3 source 9c9705f0 passes 587 Rust, 2,427 package, 264 cold catalog/static and all runner/controller checks. All five actual-model cases are retained by exact native/runtime/model identity. Run 9c9731fd is completing 41 browser journeys and final specification closure; source and both main adoptions remain pending. Desktop passes fresh 535 Node/744 AI, 260 Mac services and both strict configurations; the built app is qualifying a readonly-invoke acceptance-probe repair before actual Reader/Tasks acceptance. Combined provider/timezone/unattended acceptance still gates R3.             |
 | [R3.2.1](spec/src/architecture/rust-application-services.md#ln-core-003)        | Service ownership              | Unattended metadata and projection reconciliation                         | Native metadata/projection ownership and shared App observer are integrated at 0bb90ba1 (461 Rust, 2,277 package, 261 cold catalog). Desktop metadata-only service adoption is committed at 4bcb7e09 with complete catalogue/native gates. The corrected API event-order candidate passes owner and both application journeys; hosted combined source/host closure is active. Complete processor/Tasks and Search selections, plus default cutover, remain separate.                                                                                                                                                                          |
 | [R3.2.1.2](spec/src/architecture/rust-application-services.md#ln-core-005)      | Unattended metadata            | Remaining native plugin projection processors                             | Native Markdown, complete Tasks projections and opt-in Docs publication are source-qualified in Notes. Markdown parser/cache intake passes all 392 Rust cases and 54 retained API references. Guarded Tasks writes/cache intake and explicit one-writer ownership are active in separate workspaces. Daily/two-file coordination, custom-processor parity and both host selections remain; source qualification does not select a writer.                                                                                                                                                                                                     |
 | [R3.2.1.2.10.3](spec/src/architecture/rust-application-services.md#ln-core-006) | Tasks application coordination | Native daily provider creation and daily-before-rolling Task coordination | Native daily provider, ordered writes, recovery and tracked-today source is qualified. The current hosted Tasks/editor/leave cohort passes all 15 actual browser journeys at f532e00e. Desktop native Tasks selection and installed-plugin fixtures are implemented; actual provider/locale/recovery/cold UI, final native/build closure and main adoption remain. Final both-host unattended/day parity remains separate. No lapis-ai changes.                                                                                                                                                                                               |
