@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 18:40:00 UTC",
+  "updated": "2026-10-27 20:45:00 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -1016,12 +1016,20 @@
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
       "detail": "Tracker13/full80 repair is committed14172. Plugins private test repair407ada2e closes two stale count and two inherited-JJ-base failures: exact2+13affected+2snapshots, fullvalidation51 pass; release140/6\u2192147/2. Two valid portable-lock/BitsUI guards remain failed and are being fixed upstream; audit advisories remain distinct. Optional asset/provider opt-ins are not counted as acceptance."
+    },
+    {
+      "id": "R7.8",
+      "area": "Hosted parity",
+      "work": "Shared retained text-conflict presentation",
+      "status": "Working",
+      "spec": "spec/src/workspace-shell/panels/problems/core-contract.md#ln-ws-102",
+      "detail": "[Focused shared review](spec/records/2026-10-26-shared-file-conflict-review.md) landed on integrated main (preserved ea7a2d28+974328f6 duplicated onto 44f3b41f): focused binding6/6, Workspace38/38, cold Storybook267/267 including the two new File Conflicts cases, spec:check80 and combined-range spec-first pass; Desktop conflict-review adoption stays separate. The final hosted Properties recovery journey remains unclaimed: the preserved never-executed Rust-hosted e2e (kpymntwz 845842b8) reproduces a pre-existing clean native-shutdown refusal after an ordinary Properties save and logout on the bare main baseline (retained tasks-leave passes5/5 on the same stack); repairing the native metadata/frontmatter leave-drain path is a user-decided rework."
     }
   ],
   "activity": {
     "state": "Active",
-    "updated": "2026-10-27 18:40:00 UTC",
-    "reason": "Phase 2 Notes gates 1-4 are complete (CI repair, model-tester qualification, Mac provider gate, full lane set); the two pinned unlanded lineages await the user's merge decision.",
+    "updated": "2026-10-27 20:45:00 UTC",
+    "reason": "Phase 2 gate 5 decided: the shared file-conflict review lineage is landed and lane-qualified; the hosted-Properties e2e stays bookmark-preserved against a pre-existing native-shutdown defect. The publication-readiness record maps every registry blocker to its checksummed local archive and proposes the release order for user approval.",
     "handoff": "MIGRATION_HANDOFF.md",
     "workspaceRegister": "MIGRATION_WORKSPACES.md"
   }

@@ -6,9 +6,16 @@ migration-owned temporary workspaces were audited, preserved, forgotten and
 deleted. Phase 2 (full verification and test repair on the integrated mains)
 started 2026-10-27 16:45:00 UTC; the Notes gates 1-4 completed by 18:40 UTC
 (CI repair, model-tester qualification, Mac provider gate 3/3 in one run, and
-the full lane set on the restored qualified archive cohort); gate 5 (the two
-pinned Notes lineages) awaits the user's decision. Do not restart the app or
-Storybook except through a Phase 2 lane that requires it.
+the full lane set on the restored qualified archive cohort). Gate 5 was
+decided 2026-10-27 20:45:00 UTC: the shared-conflict-review lineage is landed
+and lane-qualified; the hosted-properties e2e stays bookmark-preserved against
+a pre-existing native-shutdown defect (see gate 5 below). Publication is the
+declared next step; the
+[publication-readiness record](spec/records/2026-10-27-publication-readiness.md)
+maps every registry blocker to its checksummed local archive and proposes the
+release order for user approval (nothing published; no lockfile regenerated).
+Do not restart the app or Storybook except through a Phase 2 lane that
+requires it.
 
 This handoff, [MIGRATION.md](MIGRATION.md), the saved
 [Rust core plan](RUST_CORE_MIGRATION_PLAN.md), the
@@ -20,12 +27,12 @@ manifests live in each main's ignored `.local/workspace-retirement/`.
 
 ## Current merge state
 
-| Repository / main checkout                    | Committed baseline                                                                                                                                                    | Working copy |
-| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| `/Users/stevejuma/code/lapismd/lapis-notes`   | `2c59351352c3`: Phase 2 gate-completion record on top of model-tester qualification `c6f7290e6081` and CI repair `7163519aaafe`, over the Phase 1 tracker `2b3975c3`. | Clean        |
-| `/Users/stevejuma/code/lapismd/lapis-desktop` | `b009d1441727`: R7 intake (Notes native pin `cd997c2c`, 31-archive/117-route cohort, E-CORE-046 DRAFT) above spec-first repair `70730562`.                            | Clean        |
-| `/Users/stevejuma/code/lapismd/lapis-plugins` | `a68b8880e67c`: merged native-search stack above portable-lock draft `467f2231` and test repair `338282bf`, on `773bed9e`.                                            | Clean        |
-| `/Users/stevejuma/code/lapismd/jj-store`      | `52b061c52111`: integrated history-read-admission slice above pending-docs commit `26a72176`, on `4e74e423`.                                                          | Clean        |
+| Repository / main checkout                    | Committed baseline                                                                                                                                                                                  | Working copy |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| `/Users/stevejuma/code/lapismd/lapis-notes`   | Phase 2 gate-5 slice on top of `44f3b41f`: landed shared-conflict-review lineage (candidate `zymuvnlk fc3ecdf3` + record `qtpwpkxx 26464e53`) and the tracker/publication-readiness slice above it. | Clean        |
+| `/Users/stevejuma/code/lapismd/lapis-desktop` | `b009d1441727`: R7 intake (Notes native pin `cd997c2c`, 31-archive/117-route cohort, E-CORE-046 DRAFT) above spec-first repair `70730562`.                                                          | Clean        |
+| `/Users/stevejuma/code/lapismd/lapis-plugins` | `a68b8880e67c`: merged native-search stack above portable-lock draft `467f2231` and test repair `338282bf`, on `773bed9e`.                                                                          | Clean        |
+| `/Users/stevejuma/code/lapismd/jj-store`      | `52b061c52111`: integrated history-read-admission slice above pending-docs commit `26a72176`, on `4e74e423`.                                                                                        | Clean        |
 
 All commits are unsigned (`jj --config signing.behavior=drop`). Nothing was
 abandoned anywhere; every retired revision remains in its jj store.
@@ -35,11 +42,23 @@ abandoned anywhere; every retired revision remains in its jj store.
 Unlanded unique work is bookmarked (GC-protected) and awaits Phase 2 decisions:
 
 - **Notes** `preserved-hosted-properties-20261027` (`kpymntwz 845842b8`):
-  never-executed hosted Properties e2e + LN-WEB-074 spec text; the hosted
-  Properties recovery journey is still unclaimed in `MIGRATION.md`.
+  never-executed hosted Properties e2e + LN-WEB-074 spec text. Gate 5 verdict
+  2026-10-27: NOT integrated — both actual Rust-hosted cases pass their bodies
+  but fail clean native shutdown ("resolve retained editor state" after an
+  ordinary Properties save + logout), and the simpler case reproduces
+  identically on the bare main baseline without the integration stack
+  (workspace/renderer rebuilt from main sources), while the retained
+  tasks-leave journeys pass 5/5 on the same stack. Pre-existing main defect in
+  the native metadata/frontmatter leave-drain path (server
+  `editors_blocked`/`runtime.shutdown` busy loop); repairing it is a
+  user-decided rework. Bookmark stays pinned.
 - **Notes** `preserved-shared-conflict-review-20261026` (`pslnvswp 36cc3c4e`
-  chain): frozen Workspace 0.2.1 file-conflicts candidate `ea7a2d28` +
-  qualification record `974328f6`; integration needs full Storybook/spec lanes.
+  chain): LANDED at gate 5 — candidate `ea7a2d28` + record `974328f6`
+  duplicated onto `44f3b41f` as `zymuvnlk fc3ecdf3` + `qtpwpkxx 26464e53`
+  (catalog.mjs additive conflict resolved; current LN-GOV-003 chapter mappings
+  added; frozen tracker rows dropped in favor of the new R7.8 task). Lanes:
+  binding 6/6, Workspace 38/38, cold Storybook 267/267, spec:check 80/80,
+  combined-range spec-first clean, Web check pass. Bookmark stays pinned.
 - **Desktop** `preserved-e-qualification-003` (`3628db65`): E-QUALIFICATION-003
   (the approved immutable E-AI-109 formatting-exception record referenced by
   current evidence) is not in main; decide landing with the evidence lanes.
@@ -158,8 +177,20 @@ directory while sibling agents run; preservation precedes every deletion.
    static specification 192 chapters + Docs 6/6 — all with desktop-deno
    excluded-deprecated per the standing decision below. No worker reported
    source mutations; no deno.lock normalization was applied to main.
-5. Decide the two pinned Notes lineages (hosted-properties e2e,
-   shared-conflict-review chain) with their required lanes.
+5. DECIDED (2026-10-27 20:45 UTC): shared-conflict-review lineage integrated
+   (`zymuvnlk fc3ecdf3` candidate + `qtpwpkxx 26464e53` record over
+   `44f3b41f`; binding 6/6, Workspace 38/38 + check/build/publint, targeted
+   FileConflicts 2/2 + EditingRecovery 3/3, complete cold Storybook
+   interaction/a11y 267/267 in four cold shards, spec:check 80/80 +
+   combined-range spec-first, Web check; stories keep `visual-pending`).
+   Hosted-properties e2e NOT integrated: pre-existing clean native-shutdown
+   refusal reproduced on the bare main baseline (details in the Phase 1
+   dispositions bullet and MIGRATION.md R7.8); `kpymntwz 845842b8` stays
+   bookmark-preserved for the user's rework decision. Follow-ups: the
+   [publication-readiness record](spec/records/2026-10-27-publication-readiness.md)
+   (blocker→archive map + proposed release order) and the Notes-side cohort
+   refresh + web-check rerun AFTER the plugins agent lands `92b4dea6`
+   (History `BackupService.setEnabled` owner).
 
 **Desktop**
 
