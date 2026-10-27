@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 08:04:05 UTC",
+  "updated": "2026-10-27 09:23:23 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -864,6 +864,14 @@
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-049",
       "detail": "[Native bootstrap](spec/records/2026-10-27-native-bootstrap.md): original0/3 becomes3/3 with41 complete source outcomes/read traces;9 native boundaries,14 oldcontext/29 lifetime,623Rust/2438package,strict/check20/test20/build11 and canonical78 pass at53cf4bd9/6cacbda2. Two Unicode refusals retain complete source wire results. Source-only; discovery/versioned bindings, rich dispatch and both-host/provider/default gates remain separate."
+    },
+    {
+      "id": "R4.3.4",
+      "area": "Native context",
+      "work": "Retained skill discovery and versioned native bindings",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-051",
+      "detail": "[Native skills](spec/records/2026-10-27-native-skills.md): exact0/3→3/3 across33parser/25discovery/four registry traces (23steps),8native binding boundaries,26oldcontext/29lifetime,634Rust/2438package/check20/test20/build11/strict/canonical78 pass at308823ed/e9ecd545. Admitted vault bindings retain exact bytes across detach, current changes and reused version labels. Source-only; commands/handoff, rich dispatch and actual-host/provider gates remain."
     }
   ]
 }

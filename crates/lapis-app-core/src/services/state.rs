@@ -9,6 +9,7 @@ use std::{
 use uuid::Uuid;
 
 pub struct VaultService {
+    pub(super) skills: Mutex<super::agent_skills::State>,
     pub(super) id: Uuid,
     pub(super) generation: Uuid,
     pub(super) state: Mutex<State>,
@@ -100,6 +101,7 @@ impl State {
 impl VaultService {
     pub(super) fn new(id: Uuid, root: VaultRoot, storage: Option<Arc<DatabaseStorage>>) -> Self {
         Self {
+            skills: Mutex::new(super::agent_skills::State::default()),
             id,
             generation: Uuid::new_v4(),
             state: Mutex::new(State {

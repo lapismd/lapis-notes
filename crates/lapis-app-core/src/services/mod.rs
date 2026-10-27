@@ -1,6 +1,7 @@
 //! One vault owns IO and admitted work; clients only hold scoped attachments.
 mod agent_bootstrap;
 mod agent_context;
+mod agent_skills;
 mod backup;
 mod byte_writes;
 mod client;
