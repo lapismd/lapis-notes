@@ -1,5 +1,10 @@
 # Node Server Host / Integration contracts
 
+The staged Rust HTTP profile has separate actual-model Search acceptance for
+retained vectors/rankings, admitted detach/reopen and cold offline cache reuse.
+The [provider record](../../records/2026-10-27-hosted-semantic-acceptance.md)
+retains its source identity; Node serving and the R7 cutover keep their gates.
+
 Managed editor recovery uses the existing admitted Rust client command route.
 Captured generation/revision checks follow LN-CORE-025; legacy ID-only commands
 cannot recover or discard managed intents. Origin, client/vault admission and

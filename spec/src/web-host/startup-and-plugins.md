@@ -1,5 +1,10 @@
 # Web Host / Startup and plugins
 
+The Rust metadata browser family includes an explicit actual-model opt-in
+(`LAPIS_TEST_HOSTED_ONNX=1`) for the qualified Linux CPU/runtime context. It
+keeps the retained login and production HTTP database provider; the ordinary
+Search selection journey runs alongside it. [Evidence](../../records/2026-10-27-hosted-semantic-acceptance.md).
+
 While a hosted attachment opens, its retained workspace startup/recovery surface
 stays visible. The chooser can hide a retained ready session; it cannot hide a
 prepared session's progress or failure while waiting for that session's readiness.

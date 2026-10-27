@@ -1,5 +1,9 @@
 # Packages / Editor APIs
 
+Hosted model acceptance consumes the existing public AppDatabase embedding
+methods through the production Rust HTTP provider. Optional vector diagnostics
+are checked for a numeric score before the retained tolerance comparison.
+
 `Editor.updateExtensions` preserves the current document's state under
 [LN-ED-063](../editor-demo/core-contract-01.md#ln-ed-063). Embedded surfaces
 resolve declared reactive inputs before applying extensions under

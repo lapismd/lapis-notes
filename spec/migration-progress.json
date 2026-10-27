@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 02:53:45 UTC",
+  "updated": "2026-10-27 03:04:23 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Most feature implementation is finished. Core History c1c6570f passes both original concurrency regressions, all 589 Rust/five actual-model cases and hosted History; Desktop passes all four former History failures, 19 original native API cases, four installed Tasks journeys and current M14 Backup/Original navigation. Two product defects remain: Undo history reset on native protection/extension reconfiguration (3/3 exact after, full source running) and masked safe stale-restore diagnostics (source repair active). Final combined both-host/provider/unattended acceptance, fresh Desktop catalog/native/build gates, commits and main adoption remain. R3 stays Working."
+      "detail": "Shared feature source is qualified. Undo is committed at1c89dfb1 with exact3/affected118/API1708/cold264/all41browser/nativeUndo1 and fullspec78. Safe restore diagnostics are committed atb8466672 with596Rust/4hostedHistory/12nativeRepository; explicit Refresh snapshot repair is committed atcf7bf949 with591Rust/fullspec. Final kernel composition combines only the required R3 patches. Desktop actualONNX20API/2clock/4installedTasks and catalog1/3(636) pass. Hosted actualmodel focused1/fullfamily2 pass; a new test-only optional-score type guard is in retry. Remaining: final coherent source/host closure, current Desktop catalog/native/build and both main adoptions. R3 stays Working."
     },
     {
       "id": "R4",
@@ -383,7 +383,7 @@
       "work": "Search index reconciliation and scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native Search source, shared replacement-App lifecycle, hosted 2a6f938a and Desktop a052be6b integrations are committed. Hosted passes 73 Web, 261 cold catalog and 22 browser cases; Desktop full native/catalog/portable/type/build/spec gates pass. Coherent main source intake and complete combined R3 provider/application qualification remain; ordinary defaults are unchanged."
+      "detail": "Both Search host selections and native actual-model5 are source-qualified. [Actual hosted HTTP-model acceptance](spec/records/2026-10-27-hosted-semantic-acceptance.md) now passes exacte2etype repair, model1/fullmetadata-model2, allWebcheck/123unit, coldRusthostbuild and finalspec-first/specification78 at8f3e83a8. It retains exact qualified LinuxCPU/runtime/model vectors/ranks, real productionHTTPprovider, detach/reopen and coldofflinecache. Desktop current9ac+d178 passes actualONNX/Macclock and application selection separately. Final R3kernel/coherenthost closure and mainadoption remain."
     },
     {
       "id": "R3.2.3",
@@ -727,7 +727,7 @@
       "work": "Guarded file/vault restore and retained review",
       "status": "Complete",
       "spec": "spec/src/architecture/rust-history-parity.md#ln-core-023",
-      "detail": "[Qualified guarded Repository restore](spec/records/2026-10-26-hosted-repository-restore.md): all6 exact native/13 adapter, full543Rust/2332package/261coldcatalog/24browser pass, including actual lost acknowledgement/cold recovery/exact receipt retry without overwriting newer saved files. Complete root/strict/build and canonical78governance pass; final two mapped-chapter findings are repaired without product changes. Both-host combined R3 remains separate. Current Desktop acceptance separately exposed masked contracted stale-preview diagnostics at Core translation boundaries; the source repair and unchanged native assertion remain open in the combined R3 gate."
+      "detail": "Guarded restore/source was previously qualified. Safe stale-preview diagnostics are now separately committed atb8466672: exact7after2pass/5failbefore,20Corebackup/restore,4HTTP,596Rust,strict/build/spec78,4hostedHistory and12actualDesktopRepository cases pass. Saved-byte fences and unknown-error redaction remain intact. Final coherentCore/currenthost/adoptionR3 gates remain separate."
     },
     {
       "id": "R3.2.3.6.2",
@@ -791,7 +791,7 @@
       "work": "Actual hosted and Desktop editor/Tasks acceptance",
       "status": "Working",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-020",
-      "detail": "[Qualified Undo source/native closure](spec/records/2026-10-27-editor-extension-history.md): exact3/3 after1/3 before, affected118/118, fullAPI1708/1708, check20/test20/build11, cold264catalog/static and all41browser journeys pass. Final mapped package/architecture documentation passes exact spec:first and complete specification/78governance at a7d72002. API d178b9d4 passes the unchanged original native Metadata Undo1/1. Final composed Core, full current Desktop gates, hosted actual-model closure and main adoption remain separate; R3 stays Working."
+      "detail": "[Committed Undo closure](spec/records/2026-10-27-editor-extension-history.md) at1c89dfb1 passes exact3/3 after1/3 before, affected118, API1708, check20/test20/build11, cold264catalog/static, all41browser and unchanged nativeMetadataUndo1; final mapped first/fullspec78 passes. Desktop current9ac+d178 also passes20API/realONNX,12Repository,4installedTasks and2macOSclock cases. Final composedCore/remainingcatalog/native/build acceptance and mainadoption remain separate."
     },
     {
       "id": "R3.2.4.2.1",

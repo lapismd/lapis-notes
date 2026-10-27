@@ -1,5 +1,10 @@
 # Plugin Model / Application services
 
+Semantic-model transport acceptance uses an admitted host client and the
+existing database provider. The retained Search plugin journey separately owns
+provider declarations, renderer-writer fencing and native selection lifetime;
+model qualification introduces no plugin callback or ambient App authority.
+
 The App-owned `fileEditingSessions` registry may bind an admitted native
 editing-intent port under [LN-CORE-019–021](../architecture/native-editor-intents.md).
 Plugins register their real writer and saved text through that registry; native

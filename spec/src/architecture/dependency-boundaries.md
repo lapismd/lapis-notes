@@ -1,5 +1,10 @@
 # Architecture / Dependency boundaries
 
+Actual hosted semantic Search acceptance uses the production HTTP database
+provider and the source-qualified CPU/model reference. Vector/ranking, admitted
+client lifetime and offline-cache evidence stay separate from engine source
+qualification and the retained Search selection journey.
+
 Framework packages and application hosts require published Design Core
 `^0.5.0`, including its prepared browser CSS and bundled font assets. The
 registry dependency refresh retains public export resolution and existing
