@@ -1,5 +1,8 @@
 # Storybook Catalog / Documentation and navigation
 
+The specification catalog mirrors the hosted CORE verification page independently
+from the core service table; generated navigation follows SUMMARY order.
+
 The [Rust hosted delivery](../architecture/rust-hosted-delivery.md) chapter uses
 the generated metadata-only Specification mirror and SUMMARY/sidebar order.
 Its static-Web/health and explicit build/start contracts retain separate

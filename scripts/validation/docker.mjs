@@ -11,7 +11,7 @@ export function contextArguments(config, args) {
 export function sshDockerCommand(
   endpoint,
   args,
-  { multiplexing = true, controlPath } = {},
+  { multiplexing = true, controlPath, identityFile } = {},
 ) {
   const url = new URL(endpoint);
   if (
@@ -32,6 +32,16 @@ export function sshDockerCommand(
       "ConnectTimeout=10",
       "-o",
       "ConnectionAttempts=5",
+      ...(identityFile
+        ? [
+            "-o",
+            "IdentityAgent=none",
+            "-o",
+            "IdentitiesOnly=yes",
+            "-i",
+            identityFile,
+          ]
+        : []),
       ...(multiplexing
         ? [
             "-o",
@@ -71,6 +81,7 @@ export function dockerCommand(config, args) {
   return sshDockerCommand(endpoint, args, {
     multiplexing: config.sshMultiplexing !== false,
     controlPath: config.sshControlPath,
+    identityFile: config.sshIdentityFile,
   });
 }
 export function dockerOutput(config, args) {
@@ -87,10 +98,12 @@ export function docker(config, args) {
 }
 export async function sendDirectory(config, args, directory) {
   const [cmd, argv] = dockerCommand(config, args);
+  const tarVersion = execFileSync("tar", ["--version"], { encoding: "utf8" });
+  const format = tarVersion.includes("bsdtar") ? "gnutar" : "gnu";
   const tar = spawn(
     "tar",
     [
-      "--format=ustar",
+      `--format=${format}`,
       "--no-xattrs",
       "--no-acls",
       "-C",

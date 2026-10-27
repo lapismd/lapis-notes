@@ -130,7 +130,8 @@ export default defineConfig(headingRequirements(), {
           ],
         },
         {
-          pattern: "^scripts/server-runtime(?:\\.test)?\\.mjs$",
+          pattern:
+            "^scripts/(?:server-runtime(?:\\.test)?\\.mjs$|server-container(?:/|(?:-ci)?\\.test\\.mjs$|\\.mjs$))",
           chapterPatterns: [
             "^spec/src/architecture/rust-hosted-delivery\\.md$",
           ],

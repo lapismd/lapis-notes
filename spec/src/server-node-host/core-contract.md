@@ -1,88 +1,23 @@
-# Node Server Host / Integration contracts
+# Hosted Server / Integration contracts
 
-[R7 static delivery](../architecture/rust-hosted-delivery.md) preserves the existing
-Node health/readiness shapes and static Web response behavior in the selected
-Rust process. Node/default scripts and container retirement remain separate;
-actual authentication and resource authority stay with their current routes.
+The ordinary hosted application now selects the Rust executable and existing
+Web UI under [native delivery](../architecture/rust-hosted-delivery.md).
+The historical `server-node-host` chapter path and LN-SRV IDs remain stable for
+links and evidence. The Node application package and its private Unix companion
+are retired; Node/pnpm remain build tooling only. Publication and deployment keep
+separate gates from this runtime cutover.
 
-The staged Rust HTTP profile has separate actual-model Search acceptance for
-retained vectors/rankings, admitted detach/reopen and cold offline cache reuse.
-The [provider record](../../records/2026-10-27-hosted-semantic-acceptance.md)
-retains its source identity; Node serving and the R7 cutover keep their gates.
+The initial operator profile is single-user with multiple managed vaults. Native
+metadata, History and Tasks are selected together. AI reuses native target modes,
+participants and queue admission; original source/provider qualifications remain
+separate from final coherent host acceptance. The standalone local/offline Web
+and frozen Deno profiles retain their own contracts.
 
-Managed editor recovery uses the existing admitted Rust client command route.
-Captured generation/revision checks follow LN-CORE-025; legacy ID-only commands
-cannot recover or discard managed intents. Origin, client/vault admission and
-physical-root checks remain unchanged, and recovery never writes file content.
-
-The staged Rust chat retains History in its workspace sidebar and reopens exact
-scope/conversation pairs through the shared App-owned navigator. Cold hosted
-acceptance reopens the managed vault through the existing chooser and verifies
-that restarting the Rust service does not replay the accepted prompt. This
-continues the [native turn gate](../architecture/rust-turn-admission.md); Node
-remains the serving baseline.
-
-Staged Rust targets declare the trusted operator's bounded `default_mode` under
-[LN-CORE-009/010](../architecture/rust-turn-admission.md#ln-core-009). The retained
-native observer refreshes that exact target's metadata before submission and
-refuses unavailable modes before writing. Node's existing AI restriction and
-serving default remain unchanged.
-
-The opt-in Rust-hosted provider-screen gate uses the existing composer and
-History, observes explicit client release during Sign out, then verifies native
-completion without a browser and exact recovery after a cold service restart.
-Its native-only credentials and isolated profile never enter portable snapshots.
-This qualifies conversation recovery separately from R7 server delivery.
-
-The staged Rust renderer may inject the private native-chat observer into the
-retained workspace. The Node serving baseline keeps its AI restriction and
-existing profile; it neither registers the native observer nor selects a second
-writer. The standalone browser and frozen Deno paths retain their own contracts.
-
-The staged Rust service exposes native turn commands under its admitted client
-route. Operator configuration selects native helpers; authenticated clients use
-opaque targets and generated portable DTOs. The existing Node serving baseline
-retains its current behavior while R2 host/chat adoption and R7 cutover continue.
-
-The retained Node browser adapter now supplies a private hosted connection to
-the same production login/chooser/workspace. Its explicit profile keeps the
-existing RPC, cookie, vault-management and plugin-asset behavior. The separately
-selected Rust profile never falls back to this implementation after a failure.
-Its [managed-vault intake](../architecture/rust-managed-vaults.md) keeps control
-metadata and mutation authority in Rust while reusing the current hosted chooser.
-The same intake retains folder/ZIP import and export with bounded native
-streaming. Node transfer behavior remains the baseline until Rust cutover. Installed asset
-delivery follows the extracted native verifier and authenticated Rust adapters;
-R6 retains native installation transaction/recovery.
-
-R1.3.11 starts/drains the shared Web vault-change lifecycle in Node and Rust
-profiles. Internal file-view projection reuses the existing App service; the
-Node RPC, watcher transport and source engines remain unchanged.
-
-The Node integration retains the current shared `.lapis` state directory under
-LN-ARCH-140 and LN-PKG-165, including browser and authenticated plugin-asset
-lookups. It preserves newer API workspace, conditional-write and owned-lifecycle
-behavior when reconciling the previously qualified server workspace. The
-[hosted parity plan](../../../AI_HISTORY_PARITY_PLAN.md) is sequenced separately;
-this runtime reconciliation does not enable AI or repository-history services.
-
-Hosted browser acceptance uses the Web package's declared, pinned Playwright
-SDK CLI. Host-mode acceptance remains separate from Linux container qualification;
-the shared Rust plan retains the final server replacement gate.
-
-Portable paths, native database-worker dispatch and Markdown operations are
-owned by `@lapis-notes/host-services`. Existing Deno host-service subpaths
-forward those same implementations while the Node migration is qualified.
-
-The Design Core dependency refresh consumes released `0.6.0` CSS, fonts and
-components through public exports. Existing application ownership, host
-behavior and plugin activation remain unchanged.
-
-The served Web client interprets `plugins` App URLs through its owning application
-profile ([LN-PLUG-106](../plugin-model/app-ownership.md#ln-plug-106)). Selected
-release coordinates enter the verified Plugins browser; the URL does not grant
-server access or supply an outbound archive source. Hosted installation continues
-through the authenticated artifact route under LN-SRV-017.
+Authentication, protocol/Origin admission, physical roots, conditional writes,
+interactive editor claims and uncertain-effect recovery remain fail-closed.
+Streamed database observation follows LN-CORE-066–068. Browser acceptance must
+leave clean editing sessions through the guarded UI before an ordinary restart;
+lost-client recovery journeys retain their explicit claim recovery.
 
 LN-ARCH-114 through LN-ARCH-116 define dedicated security persistence and its
 headless metadata contract. Server integration must keep wrapped keys outside
@@ -112,11 +47,11 @@ future participant to its managed directory. LN-ARCH-124 preserves expected
 authority outside encrypted protocol objects; server admission/serialization
 must enforce it when the participant is integrated.
 
-## LN-SRV-001 — Private @lapis-notes/server-node: run on Node 24 LTS, serve the dedicated static
+## LN-SRV-001 — Native hosted application
 
 <a id="ln-srv-001"></a>
 
-**Requirement.** Private `@lapis-notes/server-node` MUST run on Node 24 LTS, serve the dedicated static Web build and mount tRPC through the Fetch adapter. A Node HTTP adapter MUST preserve streaming and cancellation. It MUST NOT require SvelteKit, SSR or another application routing framework.
+**Requirement.** The hosted application MUST run as the compiled Rust executable, serve the dedicated static Web build and mount admitted native HTTP routes. It MUST preserve streaming and cancellation without a Node or Deno application runtime, SvelteKit or SSR.
 
 ## LN-SRV-002 — Server: keep Markdown files authoritative under managed vaults/&lt;id&gt;/content
 
@@ -124,11 +59,11 @@ must enforce it when the participant is integrated.
 
 **Requirement.** The server MUST keep Markdown files authoritative under managed `vaults/<id>/content` directories. Per-vault Turso files under `vaults/<id>/state` MUST remain disposable generated state.
 
-## LN-SRV-003 — Control Turso database: own users, credentials, sessions, vault identities, archive
+## LN-SRV-003 — Single-owner managed control state
 
 <a id="ln-srv-003"></a>
 
-**Requirement.** A control Turso database MUST own users, credentials, sessions, vault identities, archive state, and owner, editor, or viewer memberships. Every vault operation MUST resolve the authenticated membership.
+**Requirement.** The native control store MUST own initial owner credentials, sessions, managed vault identities and archive state. Every vault operation MUST resolve the authenticated owner and admitted vault. Initial operation MUST remain single-user with multiple vaults.
 
 ## LN-SRV-004 — First user: bootstrapped only when no user exists, using
 
@@ -146,11 +81,11 @@ mounted read-only, avoiding a dependency on the host runner's UID.
 
 **Requirement.** Passwords MUST use bounded scrypt parameters and random salts. Sessions MUST use hashed opaque tokens, secure same-site HTTP-only cookies, idle and absolute expiry, strict configured-Origin checks, mutation CSRF validation, throttled login, and revocable subscriptions.
 
-## LN-SRV-006 — TRPC: own the typed JSON control plane
+## LN-SRV-006 — Native typed JSON control plane
 
 <a id="ln-srv-006"></a>
 
-**Requirement.** tRPC MUST own the typed JSON control plane for system, authentication, vault, filesystem metadata, AppDatabase, language-service, and event operations. The browser bundle MUST import only protocol types and the client factory.
+**Requirement.** Native HTTP routes MUST own the typed JSON control plane for system, authentication, vault, filesystem metadata, AppDatabase and service commands. Browser clients MUST use generated portable contracts and MUST NOT import native server implementation or obtain SQL/native paths.
 
 ## LN-SRV-007 — Protocol: expose a stable integer major, build id
 
@@ -162,7 +97,7 @@ mounted read-only, avoiding a dependency on the host runner's UID.
 
 <a id="ln-srv-008"></a>
 
-**Requirement.** Streamed file bodies, append, import, export, resources, plugin assets, health, readiness, and static files MUST use direct Fetch routes. tRPC MUST NOT wrap those byte streams.
+**Requirement.** Streamed file bodies, append, import, export, resources, plugin assets, health, readiness, and static files MUST use direct HTTP routes. A JSON command envelope MUST NOT wrap those byte streams.
 
 ## LN-SRV-009 — Normalized relative vault paths
 
@@ -176,11 +111,16 @@ mounted read-only, avoiding a dependency on the host runner's UID.
 
 **Requirement.** Remote `DataAdapter.process()` MUST transform one fetched text snapshot and commit it with the matching ETag. A conflict MUST throw a typed error and MUST NOT rerun the caller callback automatically.
 
-## LN-SRV-011 — Vault events: use one authenticated tracked subscription with {epoch}:{sequence}
+## LN-SRV-011 — Hosted change observation
 
 <a id="ln-srv-011"></a>
 
-**Requirement.** Vault events MUST use one authenticated tracked subscription with `{epoch}:{sequence}` ids and bounded replay. An old or unavailable cursor MUST emit `resync-required`, close, and require a full vault and database-revision refresh.
+**Requirement.** Hosted vault changes MUST remain observable to admitted sessions while native services retain sole write authority. Lost observation MUST reconcile current state without replaying mutations. Closing or revoking a session MUST retire its observers.
+
+Native database streams use the admitted revision/reset protocol in
+LN-CORE-066–068. The existing App-owned DirectoryWatcher retains scoped file
+polling when a host has no native watch adapter. The retired Node epoch/sequence
+wire is not a second compatibility transport in the new protocol-major3 host.
 
 ## LN-SRV-012 — AppDatabase access: use the shared remote method contract
 
@@ -192,25 +132,13 @@ mounted read-only, avoiding a dependency on the host runner's UID.
 
 <a id="ln-srv-013"></a>
 
-**Requirement.** The server MUST open vault runtimes lazily, serialize mutations per vault, close idle runtimes, and close databases, watches, subscriptions, and imports during ordered shutdown. Initial operation is one Node process.
+**Requirement.** The server MUST open vault runtimes lazily, serialize mutations per vault, close idle runtimes, and close databases, watches, subscriptions, and imports during ordered shutdown. Initial operation is one native server process.
 
-Browser acceptance stops and recreates the serving container against its
-retained data volumes and requires clean shutdown. A separate test-owned
-container retains the loopback-published network namespace across recreation,
-so server recreation does not replace the network used by the browser's startup
-module graph. Both containers are removed during test teardown.
-The case owns a dedicated browser worker launched after network preparation;
-initial navigation and server recreation retain the same startup assertions.
-An explicit host acceptance profile runs this same browser flow against the
-built Node 24 executable with private temporary storage and password file. It
-supervises process shutdown and restart while retaining vault data. It requires
-no Docker daemon and does not qualify Linux container identity or packaging;
-the existing container profile retains those independent checks.
-The bootstrap secret-file container has no network. Initial navigation retries
-once only after an observed Chromium `ERR_NETWORK_CHANGED` abort of a same-origin
-document or script. The retry writes JSON into the test output directory and
-attaches that file; output remains available after successful recovery. A second failure,
-other network errors and application readiness failures still fail acceptance.
+Acceptance stops and recreates the Rust runtime against its retained data and
+requires clean shutdown. The compiled host profile and actual Linux image have
+separate receipts; a host-mode pass cannot qualify container identity or runtime
+packaging. Browser fixtures use disposable secrets and test-owned data. Native
+shutdown guards remain production authority rather than test-specific behavior.
 
 ## LN-SRV-014 — Health: report process liveness without authentication or secrets
 
@@ -222,13 +150,13 @@ other network errors and application readiness failures still fail acceptance.
 
 <a id="ln-srv-015"></a>
 
-**Requirement.** The first server slice MUST NOT host AI, terminals, collaborative editing, arbitrary filesystem roots, invitations, public registration, or multi-instance coordination. Missing capabilities MUST be reported explicitly.
+**Requirement.** The hosted server MUST admit AI only through trusted operator-declared native targets and existing turn/participant/queue authorities. Initial operation MUST NOT offer terminals, collaborative editing, arbitrary filesystem roots, invitations, public registration or multi-instance coordination. Missing capabilities MUST be reported explicitly.
 
 ## LN-SRV-016 — Browser vault adapter: translate Lapis virtual-root paths such as /.lapis/plugins
 
 <a id="ln-srv-016"></a>
 
-**Requirement.** The browser vault adapter MUST translate Lapis virtual-root paths such as `/.lapis/plugins` to managed relative paths before tRPC requests. Direct server routes MUST continue to reject absolute paths, traversal, and host filesystem access.
+**Requirement.** The browser vault adapter MUST translate Lapis virtual-root paths such as `/.lapis/plugins` to managed relative paths before native HTTP requests. Direct server routes MUST continue to reject absolute paths, traversal, and host filesystem access.
 
 ## LN-SRV-017 — Hosted plugin installs: download signed first-party release bundles
 
@@ -246,7 +174,7 @@ other network errors and application readiness failures still fail acceptance.
 
 <a id="ln-srv-019"></a>
 
-**Requirement.** A server-mode Web client MAY use the public build-configured Nostr plugin source directly. The Node server MUST NOT become a registry database, relay trust root, curator, or proxy for the signed release evidence.
+**Requirement.** A server-mode Web client MAY use the public build-configured Nostr plugin source directly. The hosted server MUST NOT become a registry database, relay trust root, curator, or proxy for the signed release evidence.
 
 ## LN-SRV-020 — Server delivery without Deno
 
@@ -254,24 +182,17 @@ other network errors and application readiness failures still fail acceptance.
 
 **Requirement.** Server builds, tests, executable output and production containers MUST run without Deno. The server MUST consume portable host-service kernels and retain compatible HTTP, authentication and data contracts. Runtime containers MUST use a non-root user, read-only application files, explicit writable storage and mounted bootstrap secrets.
 
-The image builds with Node 24.15.0 and runs portable/server tests plus the native
-worker smoke before packaging. The runtime keeps UID/GID 1993 for existing data,
-read-only application files, writable `/data`, temporary `/tmp` and a mounted
-bootstrap secret. Compose grants twenty seconds for shutdown and retains prior
-volume identity when operators supply their existing project name.
+The image builds the Rust executable and existing Web renderer from exact
+tracked source and pinned siblings. Node24/pnpm are build-only tools. Runtime
+keeps UID/GID1993, read-only application files, persistent `/data`, temporary
+`/tmp` and mounted bootstrap credentials. Image/browser acceptance verifies
+actual identity, absent Node/Deno, clean stop and cold persisted content.
 
-Standalone runtime packaging takes the external dependency list from the same
-module as esbuild, retains the repository's frozen registry resolutions and
-rejects missing or workspace resolutions. Bundled workspace code requires no
-intermediate npm publication. Runtime staging also retains the root
-package-manager pin. Only compiled output and its external dependency
-graph enter the runtime image.
-
-## LN-SRV-021 — Private native companion
+## LN-SRV-021 — Integrated native service authority
 
 <a id="ln-srv-021"></a>
 
-**Requirement.** The Node host MUST supervise its native companion over a versioned, bounded Unix socket in a private directory. Companion exit or an uncertain response MUST reject pending work without automatic replay. Shutdown MUST drain native history workers before confirming success; forced termination MUST remain distinguishable from graceful completion.
+**Requirement.** The Rust host MUST invoke shared native services directly rather than supervise the retired Node companion. Uncertain work MUST remain explicit without automatic replay. Shutdown MUST drain service-owned work before confirming success, preserve unresolved editor recovery and distinguish forced termination from graceful completion.
 
 ## LN-SRV-022 — Hosted history admission
 
@@ -283,7 +204,7 @@ graph enter the runtime image.
 
 <a id="ln-srv-023"></a>
 
-**Requirement.** The hosted companion MUST reuse the transport-independent `jj-history-service` for operation-pinned reads. It MUST retain version-one inner frames as exact text through JavaScript, enforce request and response limits, and reject unknown methods and protocol versions. Reading history MUST NOT initialize or reconcile repository state.
+**Requirement.** The native host MUST reuse the transport-independent `jj-history-service` for operation-pinned reads. It MUST retain version-one inner frames as exact text through JavaScript, enforce request and response limits, and reject unknown methods and protocol versions. Reading history MUST NOT initialize or reconcile repository state.
 
 The first private bridge is not an HTTP feature. Authenticated browser routing,
 automatic backup, restore and shared UI integration are H03 acceptance gates.
@@ -294,11 +215,11 @@ explicit read sources; absence never creates a repository.
 The staged Rust HTTP host exposes admitted, generated background-indexing
 controls under LN-CORE-004. Authentication, protocol/origin admission and vault
 isolation apply equally to selection, progress and refresh. This source endpoint
-does not select hosted startup or the default backend.
+retains native admission independently of the selected hosted defaults.
 
 The explicit hosted native-metadata profile under
 [LN-WEB-066](../web-host/startup-and-plugins.md#ln-web-066) observes those controls
-through the existing client admission. Node remains the serving baseline;
+through the existing client admission. The retired Node profile is no longer selected;
 metadata staging does not switch final hosted or Search defaults.
 
 Selected hosted Search reuses the native metadata/indexing port and qualified

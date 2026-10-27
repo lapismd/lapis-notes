@@ -164,14 +164,19 @@ The `:run` scripts are internal raw runners; use the public commands above for
 local caching. Direct `pnpm exec vitest` or `pnpm --filter <package> test` invokes
 the underlying runner directly; use the root Turbo commands for cached runs.
 
-## Node server
+## Hosted server
 
-The private [server-node package](packages/server-node/README.md) serves the
-existing Lapis browser application and managed vaults on Node 24 LTS.
-`pnpm build:server` builds its dependencies, executable and static client;
-`pnpm test:server` runs focused checks plus the real native worker smoke.
-`pnpm build:server:container && pnpm test:server:e2e` runs the isolated,
-headless container/browser acceptance without a Deno installation.
+The [Rust server](crates/lapis-server/README.md) serves the existing Lapis Web
+application with native file, database, History, Search, Tasks and admitted AI
+services. `pnpm build:server` prepares the native release and renderer;
+`pnpm start:server` launches compiled output with explicit operator configuration.
+`pnpm test:server` runs focused native/tooling checks and `pnpm test:server:e2e`
+runs the retained headless hosted journeys.
+
+`pnpm build:server:container && pnpm test:server:container` qualifies the actual
+Linux runtime image and cold persisted content. The image runs without Node or
+Deno; Node/pnpm remain build tools. Unpublished source-package qualification
+requires its documented hash-verified archive manifest; publication is separate.
 
 ## Local checks
 

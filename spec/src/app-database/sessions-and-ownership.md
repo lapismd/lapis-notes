@@ -1,5 +1,9 @@
 # App Database / Sessions and ownership
 
+Hosted database sessions now invoke the shared Rust service directly. Retiring
+the Node supervisor/Unix companion does not change admitted session ownership,
+raw-SQL restrictions, committed revision delivery or explicit close/drain.
+
 A session may inject the already-admitted native editing-intent port under
 [LN-CORE-019–021](../architecture/native-editor-intents.md). The App retains
 that port and drains registered writer operations before database/session

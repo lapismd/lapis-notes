@@ -6,7 +6,6 @@ const base = {
   workspace: "workspace-a",
   pnpmLock: Buffer.from("javascript dependencies"),
   cargoLock: Buffer.from("core dependencies"),
-  companionLock: Buffer.from("companion dependencies"),
   archives: [{ name: "@lapismd/design-core", version: "0.6.0", sha256: "a" }],
   nativeSources: [{ name: "lapis-ai", revision: "one", sha256: "b" }],
 };
@@ -36,7 +35,7 @@ test("UI archives preserve native compiler caches while invalidating JavaScript 
   );
 });
 
-test("native pins and both Cargo locks preserve JavaScript caches", async () => {
+test("native pins and the application Cargo lock preserve JavaScript caches", async () => {
   const first = await plan();
   for (const change of [
     {
@@ -45,7 +44,6 @@ test("native pins and both Cargo locks preserve JavaScript caches", async () => 
       ],
     },
     { cargoLock: Buffer.from("new core graph") },
-    { companionLock: Buffer.from("new companion graph") },
   ]) {
     const changed = await plan(change);
     assert.equal(first.keys.javascript, changed.keys.javascript);
@@ -87,7 +85,6 @@ test("transfer paths and inventory ordering do not change dependency identities"
 test("UI-only workers never mount native caches and workspaces remain isolated", async () => {
   const ui = await plan({
     cargoLock: undefined,
-    companionLock: undefined,
     nativeSources: [],
   });
   assert.equal(ui.keys.native, undefined);

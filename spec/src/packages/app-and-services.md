@@ -1,5 +1,14 @@
 # Packages / App and services
 
+The hosted renderer now selects the Rust backend through its private host
+composition. Ordinary server build/start no longer requires the Node host
+package; retained API compatibility runtime labels are separate public contracts.
+
+The opt-in installed-provider queue journey consumes the existing App-owned native
+chat observation port. It keeps model/thinking unrequested, uses declared
+read-only mode, and qualifies passive detach plus exact-head cold resume without
+adding a renderer scheduler or a second portable conversation writer.
+
 The R7 built-Web acceptance uses the same public App/API/workspace packages
 behind the selected native HTTP origin. Static delivery changes no App ownership,
 conversation writer or renderer callback authority under
@@ -27,9 +36,9 @@ and the existing public App/Vault interfaces. Managed-vault mutation authority
 and catalogue persistence stay in the Rust host; no public npm export, browser
 path selector or alternate file writer is introduced.
 
-The private `lapis-notes-native` executable and Node supervisor implement
-LN-SRV-021–023 without adding public npm exports or an App singleton. The host
-supplies trusted caller scopes; history remains independent of AI and indexes.
+The Rust server implements LN-SRV-021–023 directly through shared application
+services, replacing the private Node supervisor and Unix companion. The host
+supplies admitted caller scopes; history remains independent of AI and indexes.
 Public package ranges and the existing vault/AppDatabase APIs are unchanged.
 
 The retained public SearchManager is the API envelope oracle for the staged

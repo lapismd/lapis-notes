@@ -135,7 +135,7 @@ const preview: Preview = {
               "Browser integration",
               "Context",
             ],
-            "Node Server Host",
+            "Hosted Server",
             ["Integration contracts", "Context"],
             "Workspace Shell",
             [
@@ -269,6 +269,7 @@ const preview: Preview = {
               "SRCH",
               "SRV",
               "CORE",
+              "CORE hosted",
               "UI",
               "WC",
               "WEB",

@@ -31,7 +31,6 @@ test("JavaScript manifest changes preserve the real tool-image and native cache 
         workspace: "same-workspace",
         pnpmLock: Buffer.from(pnpmLock),
         cargoLock: Buffer.from("same-core"),
-        companionLock: Buffer.from("same-companion"),
       });
     const before = plan(first, files["pnpm-lock.yaml"]);
     for (const path of [

@@ -1,6 +1,6 @@
-# Node Server Host
+# Hosted Server
 
-Requirements for Node server host. Choose the topic that owns the behavior, then follow its requirement IDs and verification evidence.
+Requirements for the Rust hosted server; historical paths and requirement IDs are retained. Choose the topic that owns the behavior, then follow its requirement IDs and verification evidence.
 
 ## Topics
 

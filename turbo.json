@@ -505,10 +505,10 @@
     "//#test:server:e2e:run": {
       "cache": false,
       "envMode": "loose",
-      "outputs": []
+      "outputs": [],
+      "dependsOn": ["@lapis-notes/app-profile#build"]
     },
     "//#test:server:run": {
-      "dependsOn": ["@lapis-notes/server-node#build"],
       "cache": false,
       "envMode": "loose",
       "outputs": []
@@ -531,7 +531,8 @@
     "//#test:server:e2e:host:run": {
       "cache": false,
       "envMode": "loose",
-      "outputs": []
+      "outputs": [],
+      "dependsOn": ["@lapis-notes/app-profile#build"]
     },
     "//#test:storybook-parity:run": {
       "cache": true,
@@ -621,6 +622,11 @@
       "outputs": []
     },
     "//#test:server:delivery:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
+    },
+    "//#test:server:container:run": {
       "cache": false,
       "envMode": "loose",
       "outputs": []

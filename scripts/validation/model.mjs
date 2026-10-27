@@ -12,6 +12,14 @@ export function validationConfig(local = {}, environment = process.env) {
   config.context = environment.LAPIS_NOTES_VALIDATION_CONTEXT ?? config.context;
   config.archives =
     environment.LAPIS_NOTES_VALIDATION_ARCHIVES ?? config.archives;
+  config.sshIdentityFile =
+    environment.LAPIS_NOTES_VALIDATION_SSH_IDENTITY ?? config.sshIdentityFile;
+  if (
+    config.sshIdentityFile !== undefined &&
+    (typeof config.sshIdentityFile !== "string" ||
+      !/^\/[^\r\n\0]+$/u.test(config.sshIdentityFile))
+  )
+    throw Error("SSH identity must be an explicit absolute file path");
   if (
     config.transport !== undefined &&
     !["docker", "ssh-cli"].includes(config.transport)
@@ -69,6 +77,11 @@ export function validateArchives(entries) {
 }
 const nativeLanes = new Set([
   "validation:rust",
+  "build:server",
+  "build:server:rust",
+  "test:server",
+  "test:server:e2e",
+  "test:server:e2e:host",
   "check",
   "check:all",
   "test",

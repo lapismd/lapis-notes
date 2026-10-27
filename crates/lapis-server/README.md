@@ -1,126 +1,65 @@
-# Rust hosted-service adapter
+# Lapis hosted server
 
-Private R1.3 staging for the shared application-service migration. This executable
-embeds `lapis-app-core`; it contains no JavaScript application runtime. It has
-one owner and up to twenty configured or created vaults. The current Node server
-continues to serve the browser until its replacement gates pass.
+The hosted application runs the shared Rust services and the existing Web UI in
+one process. Node and pnpm are build tools. The runtime image contains neither
+Node nor Deno. The initial operator profile is single-user with multiple vaults.
 
-Create an operator-owned configuration **outside every admitted vault**:
+## Local compiled startup
 
-```json
-{
-  "vaults": [
-    {
-      "id": "07715e7e-f969-4ade-9d48-c65b9f2d0ebf",
-      "name": "Notes",
-      "root": "/absolute/path/to/notes"
-    }
-  ]
-}
-```
+For a host-native executable, explicitly run
+`LAPIS_NOTES_VALIDATION_RUNTIME=native pnpm build:server` from Notes. It builds the native release binary
+and the Web application with native metadata, History and Tasks selected together.
+Ordinary builds and tests use the repository's Docker-first validation
+controller. Those isolated Linux outputs do not become a host-platform binary;
+use the explicit native build above for compiled local startup.
+`pnpm start:server` launches the compiled output directly; it does not build it.
 
-For operator-only access, set `LAPIS_SERVER_TOKEN` to a private random owner token
-of at least 32 printable ASCII characters. Keep that secret in the host
-environment. Start the service:
+Set these explicit operator inputs before starting:
 
-```sh
-pnpm rust:core -- run -p lapis-server -- /path/to/server.json
-```
+| Variable                               | Purpose                                                                               |
+| -------------------------------------- | ------------------------------------------------------------------------------------- |
+| `LAPIS_SERVER_CONFIG`                  | Absolute path to JSON such as `{"vaults":[]}`; the chooser can create managed vaults. |
+| `LAPIS_SERVER_DATA_ROOT`               | Absolute persistent private profile/data directory.                                   |
+| `LAPIS_SERVER_ORIGIN`                  | Exact browser origin, for example `http://localhost:8787`.                            |
+| `LAPIS_SERVER_BOOTSTRAP_USERNAME`      | Initial owner name.                                                                   |
+| `LAPIS_SERVER_BOOTSTRAP_PASSWORD_FILE` | Private readable file containing the initial password.                                |
+| `LAPIS_SERVER_INSECURE_COOKIE`         | `1` only for local HTTP; use secure cookies behind production HTTPS.                  |
 
-The default listen address is `127.0.0.1:8787`. A second positional argument may
-select a different socket address. `LAPIS_SERVER_ORIGIN` selects the exact public
-HTTP(S) origin when using a reverse proxy. Terminate TLS at that proxy before
-exposing a non-loopback listener. No CORS permission is granted. The native file
-engine currently targets the qualified Unix platform boundary.
+Bootstrap is idempotent: an existing owner/profile is retained. Configuration,
+credentials and writable data must remain outside the public Web build. Optional
+`LAPIS_SERVER_AGENTS_CONFIG` selects trusted native agent targets and their
+declared default modes. Provider executables/credentials are operator-owned;
+starting or restoring the server does not submit prompts or replay uncertain work.
 
-For browser sessions, configure these installation-owned environment variables:
+`LAPIS_SERVER_LISTEN` defaults to `127.0.0.1:8787`. Relocated compiled startup can
+supply `LAPIS_SERVER_BINARY` and `LAPIS_SERVER_STATIC_ROOT`; it still validates the
+renderer profile certificate. The executable itself accepts
+`lapis-server <config.json> [listen-address]`.
 
-- `LAPIS_SERVER_DATA_ROOT`: absolute private profile outside admitted vaults.
-- `LAPIS_SERVER_ORIGIN`: exact public HTTPS origin.
-- `LAPIS_SERVER_BOOTSTRAP_USERNAME` and
-  `LAPIS_SERVER_BOOTSTRAP_PASSWORD_FILE`: first owner credentials. The private
-  password file must be outside admitted vaults and contain 12–1024 characters.
+## Container startup
 
-Bootstrap creates the owner once. Later starts need no bootstrap credentials or
-password file. Native authentication data lives in `control/auth.turso` beneath
-the profile (directory mode 0700, database mode 0600 on Unix). This is separate
-from Node's control database; importing its owners or sessions is not claimed.
-The optional operator token can coexist with browser authentication. Explicit
-local development may set `LAPIS_SERVER_INSECURE_COOKIE=1` only with an
-`http://localhost` origin. Production cookies require HTTPS.
+`pnpm dev:server` builds and starts the example Compose profile with explicit
+operator config/password mounts. `pnpm build:server:container` exports the exact tracked Notes revision and six
+pinned sibling sources, then builds `lapis-server:rust-local`. The bounded Buildx
+builder uses the local validation resource settings and keeps reusable caches.
+An optional `LAPIS_SERVER_ARCHIVES` manifest qualifies unpublished package
+archives by identity and SHA-256 without changing the registry manifest/lock.
 
-Login uses bounded scrypt and username/peer throttling. Opaque session tokens are
-stored only as SHA-256 hashes. Cookies are HttpOnly, SameSite=Lax, Path=/ and
-Secure; production uses the `__Host-` prefix. Sessions expire after seven idle
-days or thirty absolute days. Login requires the exact Origin and protocol
-header. Cookie mutations additionally require the returned `x-lapis-csrf` token.
-Logout revokes the session and detaches only its clients, preserving dirty claims
-and accepted work. All configured vaults belong to the single installation owner.
+Set `LAPIS_SERVER_CONFIG_FILE` and `LAPIS_SERVER_PASSWORD_FILE` to absolute files,
+then run `docker compose -f crates/lapis-server/compose.example.yaml up -d`.
+The example uses local HTTP by default. Set its public Origin and cookie setting
+appropriately for an HTTPS reverse proxy. It mounts config/secrets read-only,
+retains `/data` in a named volume, and supplies temporary `/tmp`. The application
+runs as UID/GID1993 with read-only application files. Keep existing volume and
+Compose project identities when restarting an established instance.
 
-Profile-backed startup enables the retained chooser's Create, Rename, Archive
-and Restore controls. A fresh installation may configure `{"vaults": []}`.
-Created content lives under `vaults/<host-generated-id>/content` in the private
-profile; names never select directories. The control database persists names,
-archive state and physical identities. Restart retains renamed configured
-entries and rejects replaced storage. Archived content is preserved, while its
-shared file/database/backup owner is drained and old clients are revoked.
-Dirty-editor claims block archive. Restore retains the original vault and
-history identity. Catalogue mutations complete independently of HTTP response
-waiters and drain before shutdown. Operator-only staging without a profile
-continues to require at least one configured vault and cannot manage vaults.
+`pnpm test:server:container` exercises the built runtime image using disposable
+owned data and secret volumes: actual identity/runtime checks, authenticated
+browser editing and a cold restart with persisted content. It leaves a receipt
+under `.local/server-container`. Ordinary source/native/hosted browser validation
+remains available through `pnpm test:server` and `pnpm test:server:e2e`.
 
-API requests use `x-lapis-protocol: 3` and either the session cookie or
-`Authorization: Bearer <owner-token>`. Cookie file/resource GET/HEAD requests may
-omit that custom header for browser media loading; a supplied stale header is
-always rejected. Any browser `Origin` must match the configured public origin.
-Routes:
-
-| Method       | Route                                       | Result                                           |
-| ------------ | ------------------------------------------- | ------------------------------------------------ |
-| GET          | `/api/v3/system/info`                       | Public protocol/build/auth availability          |
-| POST         | `/api/v3/auth/login`                        | Public owner login; sets cookie and returns CSRF |
-| GET          | `/api/v3/auth/current`                      | Current browser session and CSRF token           |
-| POST         | `/api/v3/auth/logout`                       | Revoke browser session and clear its cookie      |
-| GET          | `/api/v3/vaults`                            | Opaque vault IDs and names                       |
-| POST         | `/api/v3/vaults`                            | Create with `{ "name": "Notes" }`                |
-| POST         | `/api/v3/vaults/{vault}/name`               | Rename with a bounded display name               |
-| POST         | `/api/v3/vaults/{vault}/archive`            | Drain and archive, preserving content            |
-| POST         | `/api/v3/vaults/{vault}/restore`            | Restore the original physical vault              |
-| POST         | `/api/v3/vaults/{vault}/clients`            | Attach with `{ "protocol_version": 3 }`          |
-| POST         | `/api/v3/clients/{client}/commands`         | Generated protocol `Request` and `Reply`         |
-| POST         | `/api/v3/clients/{client}/heartbeat`        | Renew the current client attachment              |
-| GET/HEAD/PUT | `/api/v3/clients/{client}/files/{path}`     | Streamed file bodies and conditional replacement |
-| GET/HEAD     | `/api/v3/clients/{client}/resources/{path}` | Scoped media/PDF with range and sandbox policy   |
-| DELETE       | `/api/v3/clients/{client}`                  | Detach, retaining accepted work/dirty state      |
-| DELETE       | `/api/v3/vaults/{vault}`                    | Explicitly close; unresolved edits block         |
-
-The operator configuration is never an HTTP input. Command bodies are limited
-to 2 MiB in this staging adapter. Non-success HTTP statuses carry `ServiceError`,
-or the command's correlated `Reply` when the core produced one. Error messages
-omit native roots. Every command uses the existing core owner and writer guard;
-there is no fallback writer. Attachments are bounded by the core's 128-client
-limit per vault. Commands and heartbeats renew a five-minute idle lease. A native
-maintenance task reaps expired clients every thirty seconds. Expiry detaches the
-client without closing the vault, cancelling jobs or clearing dirty claims.
-Browser clients should heartbeat every thirty seconds while attached and detach
-explicitly during normal teardown. An expired attachment requires a fresh attach. Explicit close keeps that vault
-closed until the host restarts.
-
-SIGINT/SIGTERM asks the core to fence admission and drain work. An unresolved
-dirty editor keeps the server available for explicit recovery; resolve it and
-send the signal again. File bytes survive a cold restart. Dirty editor claims
-and jobs do not yet have the durable restart journal required by later slices.
-
-File/resource bodies stream through native temporary snapshots; raw uploads are
-bounded to 64 MiB and cannot publish an incomplete body. PUT accepts a quoted
-SHA-256 `If-Match` or `If-None-Match: *`, and optional `x-lapis-mtime` milliseconds.
-GET/HEAD support strong ETags and single/suffix byte ranges. Resources permit
-images, audio/video and PDF with a sandbox CSP; ordinary file reads download as
-attachments. After native shutdown succeeds, network drain is limited to ten
-seconds.
-
-The retained browser login, configured-vault read/edit shell and native backup
-lifetime have separate qualified receipts. Managed chooser acceptance is tracked
-under R1.3.9. Transfers, installation delivery, durable AI, unattended indexing,
-native operations and final SSE/static delivery remain required. This private adapter is not a hosted cutover or distribution
-qualification. See [the migration plan](../../RUST_CORE_MIGRATION_PLAN.md).
+`/healthz` reports process liveness; `/readyz` reports availability for admission.
+A normal stop drains owned work. Unresolved native editing claims can refuse
+shutdown and require explicit recovery; do not replace that guard with forced
+termination when managing real data.

@@ -40,12 +40,14 @@ new feature lane before cutover.
 
 - Rust static-Web/health source is now integrated in main with native launcher
   tooling. Seven native regressions and one actual Rust-only cold browser case
-  pass. The combined native-profile hosted suite has five passes/six failures;
-  repair and qualify that final cohort before ordinary default replacement.
-- Native database observation still uses one-second polling. Add the planned
-  authenticated stream delivery and reconnect/cursor/cold-close acceptance.
-- Docker/Compose and server CI still select the Node application server. Build
-  and qualify a Linux native/helper/runtime image, then change the default paths.
+  pass. The original six failures now pass, then corrected precedingpair2/0
+  and fullhosted11/0 qualify native defaults on6c3b2680. Historical failed
+  aggregates remain preserved in the current cutover record.
+- Native database observation now uses authenticated bounded streams. Five
+  native and16Web focused cases pass; final coherent browser acceptance remains.
+- Ordinary hosted defaults select Rust and obsolete Node/Unix-companion code
+  is removed. Native image884c3028 passes16 actual identity/browser/cold-storage
+  checks; final current-cohort Desktop/provider/model/broad gates remain.
 - Native metadata, History, Tasks and AI profile flags remain explicit staging
   choices. Select one deliberate cutover cohort and prove retained behavior
   before removing the old Node/companion/browser transport imports.

@@ -1,10 +1,10 @@
 # Architecture / Rust hosted runtime delivery
 
 R7 replaces the Node application server while retaining the current built Web
-application and existing native authority. This slice stages operator-selected
-Rust asset delivery and existing health/readiness behavior. Default scripts,
-container packaging, SSE, Node/companion retirement and complete cutover retain
-separate evidence. It introduces no replacement screen or JavaScript runtime.
+application and existing native authority. Ordinary hosted entrypoints select
+Rust with native metadata, History and Tasks together. Container delivery,
+retired transport removal and complete cutover retain separate evidence.
+It introduces no replacement screen or JavaScript application runtime.
 
 ## LN-CORE-054 — Operator-owned application build
 
@@ -22,6 +22,8 @@ public build output; it is never an authenticated vault or another writable
 application-data root. Installation secrets and native paths are not Web assets.
 
 ### Acceptance details
+
+The selected host preserves these boundaries:
 
 - Validate a regular root index before publishing a listener, and reject invalid
   directories and unsafe root relationships without selecting another build.
@@ -42,6 +44,8 @@ paths, and requests MUST NOT modify build output.
 
 ### Acceptance details
 
+The selected host preserves these boundaries:
+
 - Reading a built HTML, CSS, JavaScript, font or WASM asset preserves its bytes;
   HEAD returns the same representation headers without a response body.
 - Ordinary assets and the application index revalidate. Content-addressed assets
@@ -60,6 +64,8 @@ resource, missing asset or non-read requests, generate directory listings, or
 bypass existing authentication, Origin, CSRF or resource policy.
 
 ### Acceptance details
+
+The selected host preserves these boundaries:
 
 - Existing admitted API commands retain their exact authorization and error
   behavior; unknown and retired API routes never return application HTML.
@@ -105,12 +111,14 @@ starting Node, selecting a fallback writer or modifying persisted application da
 
 ## Operator entrypoints
 
-`pnpm build:server:rust` prepares the explicit native cohort. The binary remains
+`pnpm build:server` prepares the native cohort (`build:server:rust` is an explicit
+alias). The binary remains
 under the checkout-owned release target; renderer output remains the existing
 `packages/web/dist-rust-server` build. Its public profile certificate contains
 only schema/runtime and selected service flags, never paths or credentials.
 
-`pnpm start:server:rust` uses `LAPIS_SERVER_CONFIG` and `LAPIS_SERVER_DATA_ROOT`.
+`pnpm start:server` uses `LAPIS_SERVER_CONFIG` and `LAPIS_SERVER_DATA_ROOT`;
+`start:server:rust` selects the same runtime.
 `LAPIS_SERVER_LISTEN` optionally changes the loopback listen address; trusted
 operators may supply `LAPIS_SERVER_BINARY` and `LAPIS_SERVER_STATIC_ROOT` for
 relocated delivery. Browser authentication, origin, private-root separation,
@@ -118,8 +126,33 @@ native service admission and graceful drain remain owned by the Rust host.
 
 These pnpm commands are development/build tooling. A deployed image launches
 the compiled executable directly; no Node application runtime is required.
-Container assembly, ordinary default selection, retired transport removal and
-cross-host qualification keep their separate R7 gates.
+Retired transport removal and cross-host qualification keep separate R7 gates.
+
+## LN-CORE-069 — Native hosted defaults
+
+<a id="ln-core-069"></a>
+
+**Requirement.** Hosted entrypoints MUST select the compiled Rust server and
+existing native-profile Web
+application. They MUST NOT start the Node application server or fall back to it.
+Standalone local/offline Web MUST retain its separate browser implementation.
+Missing native inputs MUST fail explicitly without silently changing ownership.
+
+## LN-CORE-070 — Reproducible native runtime image
+
+<a id="ln-core-070"></a>
+
+**Requirement.** Native container assembly MUST export exact tracked Notes and
+pinned sibling revisions, excluding mutable checkouts, local data and secrets.
+Qualified private package inputs MUST retain verified identity and digest.
+The runtime MUST launch the compiled executable without Node or Deno, as a
+non-root user with read-only application files and explicit persistent storage.
+
+Container builds use `pnpm build:server:container`. Node/pnpm are build tools
+only. The example Compose file retains UID/GID1993 and mounts operator config
+and bootstrap credentials read-only; `/data` is persistent and `/tmp` temporary.
+An explicitly supplied `LAPIS_SERVER_ARCHIVES` manifest qualifies unpublished
+source packages without changing portable manifests or registry lockfiles.
 
 ## LN-CORE-066 — Admitted database observation
 

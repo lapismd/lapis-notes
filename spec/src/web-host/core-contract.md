@@ -24,6 +24,9 @@ never reconstruct attribution or provider identity. Lost acceptance replies are
 observed by their exact identity without resubmission. Cold queues remain paused
 until an explicit action; passive client teardown cannot take their ownership.
 R4.1 host/provider acceptance remains separate from the completed R2 foundation.
+Its opt-in actual-provider queue target uses private copied operator configuration,
+read-only mode and unrequested model/thinking. It exercises real queued work,
+passive detach, Stop cleanup and exact-head cold resume through this same screen.
 
 The Rust browser journey exercises an operator-configured native worker through
 the production chat composer. History uses the right sidebar and keeps its view

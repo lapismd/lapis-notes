@@ -3,6 +3,10 @@ import { randomBytes } from "node:crypto";
 import { access, mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { RustServerRuntime, unusedLoopbackPort } from "./rust-server-runtime";
+import {
+  signInHostedOwner,
+  signOutHostedWorkspace,
+} from "./rust-hosted-session";
 
 let service: RustServerRuntime;
 let origin: string;
@@ -23,22 +27,24 @@ test.beforeEach(async ({ page }) => {
     "# Keep archive\n",
   );
   await page.goto(origin);
-  await page.getByLabel("Username").fill("owner");
-  await page.getByLabel("Password").fill(password);
-  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await signInHostedOwner(page, password);
   await page
     .getByRole("button", { name: "Open Rust vault", exact: true })
     .click();
   await expect(page.getByText("Server DB", { exact: true })).toBeVisible();
 });
 
-test.afterEach(async ({}, testInfo) => {
+test.afterEach(async ({ page }, testInfo) => {
   if (testInfo.status !== testInfo.expectedStatus)
     await testInfo.attach("Rust file-action host log", {
       body: service.logs,
       contentType: "text/plain",
     });
-  await service?.stop();
+  try {
+    await signOutHostedWorkspace(page);
+  } finally {
+    await service?.stop();
+  }
 });
 
 async function rename(page: Page, path: string, name: string): Promise<void> {
@@ -107,8 +113,10 @@ test("retained Explorer rename and move preserve collisions, editor identity and
   await expect
     .poll(async () => ((await exists(layout)) ? readFile(layout, "utf8") : ""))
     .toContain("Moved/Renamed.md");
+  await signOutHostedWorkspace(page);
   await service.restart();
   await page.reload();
+  await signInHostedOwner(page, service.password);
   await page
     .getByRole("button", { name: "Open Rust vault", exact: true })
     .click();

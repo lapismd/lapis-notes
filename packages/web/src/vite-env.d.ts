@@ -1,7 +1,6 @@
 /// <reference types="vite/client" />
 
 declare const __LAPIS_SERVER_MODE__: boolean;
-declare const __LAPIS_RUST_SERVER__: boolean;
 /// <reference types="vite-plugin-pwa/client" />
 
 interface ImportMetaEnv {

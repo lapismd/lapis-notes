@@ -79,6 +79,12 @@ unknown delivery and publication uncertainty MUST pause advancement. Cold
 restore MUST pause all queues and never replay started entries; explicit resume
 MUST acknowledge the exact current native head and admit only unstarted entries.
 
+Explicit Stop requests cancellation rather than asserting that dispatched effects
+were cancelled. The existing turn contract keeps an unconfirmed dispatched
+result Unknown. Queue acceptance must preserve that exact outcome and receipt,
+keep later captures paused, and require confirmed execution cleanup plus explicit
+exact-head resume before advancing unstarted work.
+
 One portable conversation writer preserves authored user objects, assistant
 parent identities and validated queue receipts. Receipts remain data rather
 than prompt instructions. Queue receipt publication never races an active turn's
@@ -139,6 +145,16 @@ or closed view owns neither advancement nor retained work. The hosted
 adapter uses its existing admitted client and protocol/Origin/CSRF path, fences
 stale leases and never retries an uncertain mutation. Operator metadata, both
 actual host integrations and complete provider acceptance remain separate gates.
+
+The opt-in installed-provider journey uses isolated operator configuration and the
+existing retained screen. It verifies actual-running capture/cancel, detached
+FIFO completion, explicit Stop cleanup, paused cold recovery and exact-head
+resume. Model and thinking remain unrequested; native null options retain the
+NotRequested boundary. Hosted and Tauri receipts qualify separately before the
+combined R4.1.6 gate closes. Stop uncertainty keeps its separate no-replay
+branch. Successful cold resume uses a confirmed completed head; its admitted idle Stop
+and explicitly offline retained-state fixture are declared separately from live
+admission and retained UI actions. Deterministic peers cannot replace installed-provider evidence.
 
 ## LN-CORE-037 — Trusted queue capture metadata
 

@@ -80,6 +80,7 @@ test("local test entry points use bounded Turbo tasks without raw-script recursi
     "test:server:e2e",
     "test:server:e2e:host",
     "test:server:native",
+    "test:server:container",
     "test:rust-core",
     "test:search:onnx",
     "test:native-daily-reference",

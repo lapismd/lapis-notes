@@ -10,7 +10,6 @@ export function cachePlan({
   workspace,
   pnpmLock,
   cargoLock,
-  companionLock,
   archives = [],
   nativeSources = [],
 }) {
@@ -26,11 +25,10 @@ export function cachePlan({
       ? {}
       : {
           native: imageKey({
-            schema: 2,
+            schema: 3,
             family: "native",
             image,
             core: hash(cargoLock),
-            companion: hash(companionLock),
             sources: identity(nativeSources, ["name", "revision", "sha256"]),
           }),
         }),

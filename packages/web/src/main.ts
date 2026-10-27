@@ -40,9 +40,7 @@ if (!__LAPIS_SERVER_MODE__) {
   disposePwa = pwa.registerWebPwa();
 } else {
   const serverDocument = await import("./server-host-document");
-  serverDocument.initializeServerHostDocument(
-    __LAPIS_RUST_SERVER__ ? "rust-server" : "node-server",
-  );
+  serverDocument.initializeServerHostDocument();
 }
 applyAppearance(await getBootstrapAppearanceMode());
 const disposeThemeColor = observeHostThemeColor();
@@ -50,16 +48,13 @@ const target = document.getElementById("app");
 if (!target) throw new Error("Web renderer root is missing");
 async function mountHosted(target: HTMLElement) {
   const Host = (await import("./ServerVaultHost.svelte")).default;
-  const backend = __LAPIS_RUST_SERVER__
-    ? (await import("./hosted/rust/backend")).createRustHostedBackend(
-        undefined,
-        {
-          nativeMetadata: import.meta.env.VITE_LAPIS_NATIVE_METADATA === "1",
-          nativeHistory: import.meta.env.VITE_LAPIS_NATIVE_HISTORY === "1",
-          nativeTasks: import.meta.env.VITE_LAPIS_NATIVE_TASKS === "1",
-        },
-      )
-    : (await import("./hosted/node-backend")).createNodeHostedBackend();
+  const backend = (
+    await import("./hosted/rust/backend")
+  ).createRustHostedBackend(undefined, {
+    nativeMetadata: true,
+    nativeHistory: true,
+    nativeTasks: true,
+  });
   return mount(Host, { target, props: { backend } });
 }
 const mounted = __LAPIS_SERVER_MODE__

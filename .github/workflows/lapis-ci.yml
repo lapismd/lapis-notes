@@ -230,26 +230,93 @@ jobs:
 
   server-acceptance:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: lapis-notes
     steps:
       - uses: actions/checkout@v7
+        with:
+          path: lapis-notes
+          persist-credentials: false
       - uses: pnpm/action-setup@v6
         with:
           version: 10.34.5
+          package_json_file: lapis-notes/package.json
       - uses: actions/setup-node@v7
         with:
           node-version: "24.15.0"
+      - name: Read immutable native source pins
+        id: native-pins
+        run: node scripts/server-container/ci-sources.mjs pins
+      # Private source repositories may require this optional read-only token.
+      # Exact checkout failures remain visible; there is no branch fallback.
+      - name: Checkout pinned AI service
+        uses: actions/checkout@v7
+        with:
+          repository: lapismd/lapis-ai
+          ref: ${{ steps.native-pins.outputs.lapis_ai }}
+          path: lapis-ai
+          persist-credentials: false
+          token: ${{ secrets.LAPIS_NATIVE_SOURCE_TOKEN || github.token }}
+      - name: Checkout pinned repository services
+        uses: actions/checkout@v7
+        with:
+          repository: lapismd/jj-store
+          ref: ${{ steps.native-pins.outputs.jj_store }}
+          path: jj-store
+          persist-credentials: false
+          token: ${{ secrets.LAPIS_NATIVE_SOURCE_TOKEN || github.token }}
+      - name: Checkout pinned agent redaction
+        uses: actions/checkout@v7
+        with:
+          repository: lapismd/agent-redaction
+          ref: ${{ steps.native-pins.outputs.agent_redaction }}
+          path: agent-redaction
+          persist-credentials: false
+          token: ${{ secrets.LAPIS_NATIVE_SOURCE_TOKEN || github.token }}
+      - name: Checkout pinned plugin services
+        uses: actions/checkout@v7
+        with:
+          repository: lapismd/lapis-plugins
+          ref: ${{ steps.native-pins.outputs.lapis_plugins }}
+          path: lapis-plugins
+          persist-credentials: false
+          token: ${{ secrets.LAPIS_NATIVE_SOURCE_TOKEN || github.token }}
+      - name: Checkout pinned Docs services
+        uses: actions/checkout@v7
+        with:
+          repository: lapismd/lapis-plugin-docs
+          ref: ${{ steps.native-pins.outputs.lapis_plugin_docs }}
+          path: lapis-plugin-docs
+          persist-credentials: false
+          token: ${{ secrets.LAPIS_NATIVE_SOURCE_TOKEN || github.token }}
+      - name: Checkout pinned Tasks services
+        uses: actions/checkout@v7
+        with:
+          repository: lapismd/lapis-plugin-tasks
+          ref: ${{ steps.native-pins.outputs.lapis_plugin_tasks }}
+          path: lapis-plugin-tasks
+          persist-credentials: false
+          token: ${{ secrets.LAPIS_NATIVE_SOURCE_TOKEN || github.token }}
+      - name: Install the digest-pinned source export tool
+        run: node scripts/validation/install-tools.mjs --ci
+      - name: Verify and initialize the exact source cohort
+        run: node scripts/server-container/ci-sources.mjs init
       - run: pnpm install --frozen-lockfile --ignore-pnpmfile --ignore-scripts
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:server
-      - name: Build the Node server acceptance image
-        run: docker build -f packages/server-node/Dockerfile -t lapis-server:node-e2e .
-      - run: pnpm test:server:e2e
+      - uses: docker/setup-buildx-action@v4
+      - name: Build the Rust server acceptance image
+        run: pnpm build:server:container
+      - run: pnpm test:server:container
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: server-acceptance-diagnostics
-          path: packages/web/test-results
+          path: |
+            lapis-notes/.local/server-container
+            lapis-notes/.local/rust-hosted-browser-results
           retention-days: 14
 
   desktop-packaged:

@@ -1,5 +1,9 @@
 # Web Host / Startup and plugins
 
+Ordinary hosted builds identify as `rust-server` and select the native
+metadata/History/Tasks backend together under LN-CORE-069. Both retained hosted
+Vite mode names produce that same application; standalone Web/PWA stays separate.
+
 The Rust metadata browser family includes an explicit actual-model opt-in
 (`LAPIS_TEST_HOSTED_ONNX=1`) for the qualified Linux CPU/runtime context. It
 keeps the retained login and production HTTP database provider; the ordinary

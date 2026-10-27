@@ -6,7 +6,7 @@ describe("initializeServerHostDocument", () => {
   it("publishes the explicit online runtime", () => {
     initializeServerHostDocument();
 
-    expect(document.documentElement.dataset.runtime).toBe("node-server");
+    expect(document.documentElement.dataset.runtime).toBe("rust-server");
     expect(document.documentElement.dataset.pwaHost).toBeUndefined();
   });
 });

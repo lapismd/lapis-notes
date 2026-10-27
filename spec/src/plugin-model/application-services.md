@@ -1,5 +1,9 @@
 # Plugin Model / Application services
 
+The ordinary hosted profile selects native metadata, History and Tasks together
+under LN-CORE-069. Plugin observers keep their existing owning App and native
+admission; standalone local Web keeps its separate browser implementations.
+
 R7 static asset delivery keeps plugin modules and authenticated installed resources
 on their existing admitted routes. Serving the built application from Rust grants
 no additional plugin file, credential, App or execution authority.
@@ -34,6 +38,9 @@ recipient/capture metadata separately from an opaque runtime target; missing
 discovery leaves UI queue capture unavailable while preserving idle R2 sends.
 Retained native state supplies queue controls and status receipts. View detach
 stops observation; explicit feature disable retains native pause/fence/drain.
+Installed-provider queue acceptance preserves that observer boundary through
+passive logout, native FIFO progress and explicit retained-screen Stop/resume;
+it introduces no plugin scheduler, provider credentials or extra writer.
 
 Hosted screen resources are prepared before the owning VaultSession and released
 after its App/database teardown. This host connection preserves existing plugin

@@ -1,6 +1,6 @@
 # Architecture / Rust application services
 
-The [shared Rust plan](../../../RUST_CORE_MIGRATION_PLAN.md) and [hosted delivery](rust-hosted-delivery.md) supersede future
+The [shared Rust plan](../../../RUST_CORE_MIGRATION_PLAN.md) and [hosted delivery and native defaults](rust-hosted-delivery.md) supersede future
 Node-specific hosted parity implementation. Existing hosts stay supported until
 their replacement gates pass. See [current status](../../../MIGRATION.md) and
 [hosted provider-screen evidence](../../records/2026-10-25-hosted-provider-screen.md).

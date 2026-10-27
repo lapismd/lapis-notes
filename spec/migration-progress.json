@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 12:44:10 UTC",
+  "updated": "2026-10-27 13:35:06 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -989,17 +989,17 @@
       "id": "R7.4",
       "area": "Hosted cutover",
       "work": "Linux runtime and container delivery",
-      "status": "Waiting",
+      "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
-      "detail": "Package the native binary, existing Web UI, required repository helpers and qualified runtime/model assets; run the real read-only/non-root image with persistent data and cold restart. No embedded Node application server."
+      "detail": "GNU-tar exact887c3b92 context builds native image884c3028 with sixpinned/16public inputs. Actual image controller4f874027 passes16 checks: UID/GID1993, noNode/Deno/read-only, login/create/edit, exactvolume bytes, clean stop/restart/reopen. Native model/finalcohort gates remain R7.6."
     },
     {
       "id": "R7.5",
       "area": "Hosted cutover",
       "work": "Default switch and transitional runtime retirement",
-      "status": "Waiting",
+      "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
-      "detail": "Switch the ordinary server scripts, container/CI and hosted renderer to the qualified Rust cohort; remove obsolete Node application/companion transports and runtime imports. Preserve build tools, external agent prerequisites and unrelated Rust companion features."
+      "detail": "Main hosted defaults selectRust and Node/Unix-companion packages/adapter/oldfixtures are removed. Exactsixoriginalbrowser6/0; corrected precedingpair2/0 and full11/0 on6c3b2680. Tooling source/regression checks pass; CI config selects pinned native image. Actual CI publication/registry availability remains a separate release-input gate. Final combined focused tooling61/0 after newcontainer routing60/1 is repaired through the existing bounded Turbo contract."
     },
     {
       "id": "R7.6",
@@ -1007,7 +1007,7 @@
       "work": "Coherent host and restart qualification",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
-      "detail": "[Compatibility audit](spec/records/2026-10-27-hosted-cutover-audit.md) records exact current selection/cohort/skip boundaries and20 source hashes. Desktop has no bundled Node application runtime. Main14172 changes42 API/AppProfile/native paths from qualifiedb203; refresh together before current-cohort native/provider/catalog and standalone local/offline acceptance."
+      "detail": "Hosted normalprofile passes cold13Webchecks+pair2/full11 on6c3b2680; actual native image passes16 runtime/browser/restart checks. Final same-cohort Desktop/provider, local/offline browser, actual model and broad main validation remain pending; Desktop source intake is active."
     },
     {
       "id": "R7.7",

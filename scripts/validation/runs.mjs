@@ -60,11 +60,6 @@ async function performRun(config, lane, args, selected, workspace) {
     ...(selected.target === "full"
       ? {
           cargoLock: snapshotFile(root, source.revision, "Cargo.lock"),
-          companionLock: snapshotFile(
-            root,
-            source.revision,
-            "packages/server-native/Cargo.lock",
-          ),
           nativeSources: source.nativeSources,
         }
       : {}),

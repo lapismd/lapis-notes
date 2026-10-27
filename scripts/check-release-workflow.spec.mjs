@@ -252,14 +252,37 @@ test("native acceptance provisions the released standalone controller CLI", () =
   assert.match(install.run, /GITHUB_ENV/);
 });
 
-test("Node server acceptance builds and tests without Deno before aggregation", () => {
+test("Rust server acceptance acquires pinned native sources and tests the final image without Deno", () => {
   const server = workflow.jobs["server-acceptance"];
   assert.ok(server, "dedicated server acceptance job");
   assert.equal(server.container, undefined);
   assert.equal(
     server.needs,
     undefined,
-    "Node gate must not depend on Deno builds",
+    "Rust gate must not depend on Deno builds",
+  );
+  assert.equal(server.defaults.run["working-directory"], "lapis-notes");
+  const pins = JSON.parse(
+    readFileSync("scripts/validation/native-sources.json", "utf8"),
+  );
+  assert.equal(pins.length, 6);
+  assert.equal(new Set(pins.map((pin) => pin.name)).size, pins.length);
+  for (const pin of pins) {
+    assert.match(pin.revision, /^[a-f0-9]{40}$/u);
+    const checkout = server.steps.find(
+      (step) => step.with?.repository === `lapismd/${pin.name}`,
+    );
+    assert.ok(checkout, `immutable checkout for ${pin.name}`);
+    assert.equal(checkout.with.path, pin.name);
+    assert.equal(
+      checkout.with.ref,
+      "${{ steps.native-pins.outputs." + pin.name.replaceAll("-", "_") + " }}",
+    );
+    assert.equal(checkout.with["persist-credentials"], false);
+  }
+  assert.equal(
+    server.steps.find((step) => step.id === "native-pins")?.run,
+    "node scripts/server-container/ci-sources.mjs pins",
   );
   assert.equal(
     server.steps.some((step) => step.uses?.includes("setup-deno")),
@@ -280,15 +303,29 @@ test("Node server acceptance builds and tests without Deno before aggregation", 
   const smoke = server.steps.findIndex(
     (step) => step.run === "pnpm test:server",
   );
-  const image = server.steps.findIndex((step) =>
-    step.run?.includes(
-      "docker build -f packages/server-node/Dockerfile -t lapis-server:node-e2e",
-    ),
+  const sourceInit = server.steps.findIndex((step) =>
+    step.run?.includes("node scripts/server-container/ci-sources.mjs init"),
+  );
+  const jjInstall = server.steps.findIndex(
+    (step) => step.run === "node scripts/validation/install-tools.mjs --ci",
+  );
+  const image = server.steps.findIndex(
+    (step) => step.run === "pnpm build:server:container",
   );
   const browser = server.steps.findIndex(
-    (step) => step.run === "pnpm test:server:e2e",
+    (step) => step.run === "pnpm test:server:container",
   );
-  assert.ok(smoke >= 0 && image > smoke && browser > image);
+  assert.ok(
+    jjInstall >= 0 &&
+      sourceInit > jjInstall &&
+      smoke > sourceInit &&
+      image > smoke &&
+      browser > image,
+  );
+  assert.equal(
+    server.steps.some((step) => /server-node|node-e2e/u.test(step.run ?? "")),
+    false,
+  );
   assert.ok(
     server.steps.some((step) =>
       step.run?.includes("playwright install --with-deps chromium"),
@@ -303,13 +340,12 @@ test("Node server acceptance builds and tests without Deno before aggregation", 
   const webConfig = readFileSync("packages/web/playwright.config.ts", "utf8");
   const exclusions = /testIgnore:\s*\[([^\]]+)\]/u.exec(webConfig)?.[1];
   assert.ok(exclusions, "standalone Web declares its hosted-suite exclusions");
-  assert.match(exclusions, /"server-host\.spec\.ts"/u);
   assert.match(exclusions, /"rust-server-\*\.spec\.ts"/u);
   const dedicatedConfig = readFileSync(
-    "packages/web/playwright.server.config.ts",
+    "packages/web/playwright.rust-server.config.ts",
     "utf8",
   );
-  assert.match(dedicatedConfig, /testMatch: "server-host\.spec\.ts"/);
+  assert.match(dedicatedConfig, /"rust-server-host\.spec\.ts"/);
 });
 
 test("fixture build uses the checked-out Plugins source instead of the host workflow SHA", () => {

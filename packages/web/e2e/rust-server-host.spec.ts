@@ -6,6 +6,10 @@ import { resolve, join } from "node:path";
 import { RustServerRuntime, unusedLoopbackPort } from "./rust-server-runtime";
 import { unzipSync } from "fflate";
 import { verifyInstalledPluginLifecycle } from "./rust-plugin-lifecycle";
+import {
+  signInHostedOwner,
+  signOutHostedWorkspace,
+} from "./rust-hosted-session";
 
 let runtime: RustServerRuntime;
 let origin: string;
@@ -20,6 +24,9 @@ test.beforeAll(async () => {
 });
 test.afterAll(async () => {
   await runtime?.stop();
+});
+test.afterEach(async ({ page }) => {
+  await signOutHostedWorkspace(page);
 });
 
 test("retained hosted login and Notes workspace read and persist through Rust", async ({
@@ -56,7 +63,11 @@ test("retained hosted login and Notes workspace read and persist through Rust", 
     await expect
       .poll(() => readFile(join(runtime.vault, "Note.md"), "utf8"))
       .toBe(text);
+    // Native interactive intents survive a lost browser, even after a save.
+    // This persistence journey leaves cleanly; lost-client recovery is separate.
+    await signOutHostedWorkspace(page);
     await page.reload();
+    await signInHostedOwner(page, password);
     await expect(
       page.getByRole("heading", { name: "Your vaults", exact: true }),
     ).toBeVisible();
@@ -150,8 +161,10 @@ test("retained chooser creates, renames, archives and restores a vault across a 
       "Untitled.md",
     );
     expect(await readFile(file, "utf8")).toBe(text);
+    await signOutHostedWorkspace(page);
     await runtime.restart();
     await page.reload();
+    await signInHostedOwner(page, password);
     await expect(
       page.getByRole("button", {
         name: "Renamed through Rust is archived",
@@ -267,8 +280,10 @@ test("retained folder and ZIP controls import and export native content across r
     await expect(
       page.getByRole("button", { name: "Open Browser folder", exact: true }),
     ).toBeVisible();
+    await signOutHostedWorkspace(page);
     await runtime.restart();
     await page.reload();
+    await signInHostedOwner(page, password);
     await page
       .getByRole("button", { name: "Open Browser folder", exact: true })
       .click();
@@ -426,9 +441,10 @@ test("retained Plugins UI installs and restores an official signed plugin on Rus
     await page
       .getByRole("button", { name: "Close settings", exact: true })
       .click();
-    await page.goto(hostOrigin);
+    await signOutHostedWorkspace(page);
     await service.restart();
     await page.reload();
+    await signInHostedOwner(page, password);
     const restoredModule = page.waitForResponse(
       (response) =>
         response.url().includes("/__lapis/plugins/") &&
@@ -459,6 +475,10 @@ test("retained Plugins UI installs and restores an official signed plugin on Rus
     });
     throw error;
   } finally {
-    await service.stop();
+    try {
+      await signOutHostedWorkspace(page);
+    } finally {
+      await service.stop();
+    }
   }
 });

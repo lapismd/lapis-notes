@@ -1,5 +1,13 @@
 # Architecture / Build and validation
 
+Hosted default build/test lanes select the full native image and export pinned
+sibling Rust inputs. The server container uses an exact tracked context and
+private archive projection, with no local vault/profile material in its build.
+GNU tar context transfer preserves long pinned-sibling paths. An explicit local
+`LAPIS_NOTES_VALIDATION_SSH_IDENTITY` may select a file identity for remote Docker
+without an ambient interactive agent; the default SSH configuration is retained
+when that option is absent.
+
 ## LN-ARCH-146 — Docker-first local validation
 
 <a id="ln-arch-146"></a>

@@ -205,7 +205,6 @@ export default defineConfig(({ mode }) => ({
     __LAPIS_SERVER_MODE__: JSON.stringify(
       mode === "server" || mode === "server-rust",
     ),
-    __LAPIS_RUST_SERVER__: JSON.stringify(mode === "server-rust"),
     "import.meta.env.VITE_APP_COMMIT_HASH": JSON.stringify(
       process.env.LAPIS_BUILD_COMMIT ?? "local",
     ),
@@ -222,7 +221,7 @@ export default defineConfig(({ mode }) => ({
     port: 4174,
     strictPort: true,
     proxy:
-      mode === "server-rust"
+      mode === "server" || mode === "server-rust"
         ? {
             "/api/v3": {
               target:
@@ -245,7 +244,7 @@ export default defineConfig(({ mode }) => ({
     port: 4174,
     strictPort: true,
     proxy:
-      mode === "server-rust"
+      mode === "server" || mode === "server-rust"
         ? {
             "/api/v3": {
               target:
@@ -274,11 +273,7 @@ export default defineConfig(({ mode }) => ({
     minify: false,
     reportCompressedSize: false,
     outDir:
-      mode === "server-rust"
-        ? "dist-rust-server"
-        : mode === "server"
-          ? "dist-server"
-          : "dist",
+      mode === "server" || mode === "server-rust" ? "dist-rust-server" : "dist",
     rollupOptions: {
       preserveEntrySignatures: "strict",
       input: {
