@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 04:22:59 UTC",
+  "updated": "2026-10-27 04:32:22 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Final integration: committed kernel99d45ef2/code03b8257d passes597Rust, strict/build,5hosted and canonical gates. Undo1c89dfb1/model560435e7 are qualified. Scoped handoff0e42a318/API89e81 passes13exact/158affected/1716API; actual Desktop recovery/Properties5, unchanged GuardedReplacement4 and LocalStorage12 pass. Running: coherent42hosted/fullfrontend/canonical, finalDesktop99native/catalog/portable/build, and third minimal-shell recovery story/full265. Remaining: qualify this union, commit repair/story/host intake and adopt both main workspaces. Superseded broad-dedup candidate is excluded; independent writer multiplicity and original conflict assertions are retained. R4 remains source-only."
+      "detail": "Final integration: committed kernel99d45ef2/code03b8257d passes597Rust, strict/build,5hosted and canonical gates. Undo1c89dfb1/model560435e7 are qualified. Scoped handoff0e42a318/API89e81 passes13exact/158affected/1716API; actual Desktop99/99native (API20/Repository12/Navigation12/writers51/installedTasks4), ordinarybundle,537Node/744AI/types/renderer/static/audits pass. Recovery5 and unchanged GuardedReplacement4/LocalStorage12 pass. Running: coherent42hosted/fullfrontend/canonical, finalDesktopcatalog, and third minimal-shell recovery story/full265. Remaining: qualify this union, commit repair/story/host intake and adopt both main workspaces. Superseded broad-dedup candidate is excluded; independent writer multiplicity and original conflict assertions are retained. R4 remains source-only."
     },
     {
       "id": "R4",
