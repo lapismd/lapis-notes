@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 03:37:02 UTC",
+  "updated": "2026-10-27 04:22:59 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Final native kernel is committed99d45ef2 (code03b8257d):597Rust, strict/build,5hosted journeys and fullspec pass. Undo1c89dfb1 and hostedmodel560435e7 remain qualified. Desktop all2088catalog,536Node,744AI,final20API/model,12Repository and12Navigation pass. Final writer family has49pass/1staleProperties recovery failure; externalbytes are preserved, owning guard-vs-fixture diagnosis active. Final coherent42hosted run is prepared but held for that diagnosis. Remaining: close Properties, finish final native/UI/build acceptance, qualify coherent Notes union and adopt both main workspaces. R4 queues fef5886f are source-only; noactivation. Source review confirms a required API repair: failed native handoff is currently cleared by no-op rearm cleanup; isolated source regression/repair is active. Stale-frontmatter fixture readiness is separately retained."
+      "detail": "Final integration: committed kernel99d45ef2/code03b8257d passes597Rust, strict/build,5hosted and canonical gates. Undo1c89dfb1/model560435e7 are qualified. Scoped handoff0e42a318/API89e81 passes13exact/158affected/1716API; actual Desktop recovery/Properties5, unchanged GuardedReplacement4 and LocalStorage12 pass. Running: coherent42hosted/fullfrontend/canonical, finalDesktop99native/catalog/portable/build, and third minimal-shell recovery story/full265. Remaining: qualify this union, commit repair/story/host intake and adopt both main workspaces. Superseded broad-dedup candidate is excluded; independent writer multiplicity and original conflict assertions are retained. R4 remains source-only."
     },
     {
       "id": "R4",
@@ -79,7 +79,7 @@
       "work": "AI/tools/Changes",
       "status": "Waiting",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "After R3: follow [R4 delivery checkpoints](RUST_CORE_MIGRATION_PLAN.md#r4-delivery-checkpoints). Current source audit confirms the first slice is lossless retained queue captures plus a service-owned bounded FIFO reusing RecordStore/TurnJournal/portable files. Participant aggregate publication, context/skills/handoff, native approvals/tools and Changes/undo remain separate checkpoints within the original scope. R2 minimal chat is not full workflow parity; defaults and deferred features stay unchanged."
+      "detail": "Waiting on final R3 adoption; existing [R4 checkpoints](RUST_CORE_MIGRATION_PLAN.md#r4-delivery-checkpoints) unchanged. Codec a3cbf03, bounded native FIFO fef5886f and DTO/HTTP/client port079065a6 are separately source-qualified. Port: originalHTTP0/1→1/1, HTTP6, queue10/parity3/native615, strict/root/package/canonical pass. No host/UI/default activation. Participants, context/skills/handoff, native approvals/tools and Changes/undo still require implementation and both-host acceptance. Preserve newer R3 API when composing older source preparation."
     },
     {
       "id": "R5",
