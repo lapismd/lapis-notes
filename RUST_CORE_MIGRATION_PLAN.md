@@ -130,8 +130,8 @@ checkpoints. A configured-binary protocol fixture is source evidence only.
 ### R4 delivery checkpoints
 
 The [current source review](spec/records/2026-10-26-r4-service-ownership-review.md)
-confirms R4's existing scope. R4 remains Waiting on R3; these checkpoints divide
-that scope and do not change defaults or grant feature completion.
+confirms R4's existing scope. Current-profile R3 is complete; R4 is Working. These
+checkpoints divide that scope and do not change defaults or grant feature completion.
 
 | Task | Deliverable                                                                                    | Acceptance boundary                                                                                                                                                                                                                                                  |
 | ---- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

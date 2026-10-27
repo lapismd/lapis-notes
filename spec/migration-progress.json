@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 05:19:51 UTC",
+  "updated": "2026-10-27 06:11:53 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -832,6 +832,22 @@
       "status": "Complete",
       "spec": "spec/src/web-host/startup-and-plugins.md#ln-web-070",
       "detail": "[Qualified staged hosted Tasks/editor/leave](spec/records/2026-10-26-hosted-editing-leave.md): all 39 current browser journeys pass (15 actual installed Tasks/editor/leave at 8ae78527 and 24 ordinary Rust/metadata/History, Node/local Web at 562111c3). Seven exact leave cases pass df482368 after reproducing one failure/six passes. Full check/test/build 79cae593 passes 563 Rust, 2,394 package, twenty check and eleven build tasks; cold full catalog 05ee0b4b passes 263 interaction/accessibility cases. Final canonical/documentary closure accompanies this isolated host commit. API fe1d2dcd, Markdown ea9ea3bd/f1a6666d and Tasks 52270c2a/ff64c349 remain fixed. Main/combined intake, Desktop native-preview repair and complete R3 are separate; no defaults or publication change."
+    },
+    {
+      "id": "R4.3",
+      "area": "Native AI preparation",
+      "work": "Native context, skills, commands and handoff",
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
+      "detail": "Existing R4 scope. Independent source preparation begins with retained reference projection and bounded attachment reads; skills/bootstrap/commands/handoff, rich admission and both-host/provider acceptance remain pending. No default activation or new conversation persistence."
+    },
+    {
+      "id": "R4.3.1",
+      "area": "Native context source",
+      "work": "Retained context projection and admitted attachment foundation",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-038",
+      "detail": "[Source qualification](spec/records/2026-10-27-native-context-preparation.md): exact4 pass after0/4, full12 projection/24 attachment outcomes, seven native boundaries/29affected/all608Rust/2438package/check20/test20/build11 and canonical78 pass. Final35c3/d2aac verifies parsed-identical fixture formatting, exact/native/canonical/format gates. No transport, host or provider/default selection; remaining R4.3 skills/commands/handoff are separate."
     }
   ]
 }
