@@ -27,7 +27,7 @@ pub(in crate::services) struct Owner {
     docs: Arc<Mutex<Option<String>>>,
     requested: Arc<AtomicU64>,
     rebuild: Arc<AtomicBool>,
-    completed: tokio::sync::watch::Receiver<u64>,
+    completed: tokio::sync::watch::Receiver<Completed>,
     tracked: Arc<Mutex<Option<TrackedTaskProvider>>>,
 }
 pub(super) struct Clock {
@@ -103,7 +103,7 @@ impl Owner {
         let revision = requested.clone();
         let rebuild = Arc::new(AtomicBool::new(false));
         let force = rebuild.clone();
-        let (completion, completed) = tokio::sync::watch::channel(0);
+        let (completion, completed) = tokio::sync::watch::channel(Completed::default());
         let tracked = Arc::new(Mutex::new(None));
         let selected_tracking = tracked.clone();
         let worker = thread::Builder::new()
@@ -152,8 +152,12 @@ impl Owner {
                     current.active = false;
                     current.phase = IndexingPhase::Idle;
                     current.tracked = result.tracked;
+                    let settled = Completed {
+                        target,
+                        status: current.clone(),
+                    };
                     drop(current);
-                    completion.send_replace(target);
+                    completion.send_replace(settled);
                     if pending > 0 {
                         let _ = retry.try_send(());
                     }
@@ -236,15 +240,21 @@ impl Drop for Owner {
     }
 }
 
+#[derive(Clone, Default)]
+struct Completed {
+    target: u64,
+    status: IndexingStatus,
+}
 pub(super) struct Refresh {
     target: u64,
-    completed: tokio::sync::watch::Receiver<u64>,
+    completed: tokio::sync::watch::Receiver<Completed>,
 }
 impl Refresh {
-    pub(super) async fn wait(mut self) -> Result<()> {
+    pub(super) async fn wait(mut self) -> Result<IndexingStatus> {
         loop {
-            if *self.completed.borrow_and_update() >= self.target {
-                return Ok(());
+            let completed = self.completed.borrow_and_update().clone();
+            if completed.target >= self.target {
+                return Ok(completed.status);
             }
             self.completed
                 .changed()

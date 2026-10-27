@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 02:47:53 UTC",
+  "updated": "2026-10-27 03:03:29 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Shared source, both Search hosts, Desktop History, hosted Repository reads and guarded hosted restore are qualified. [Restore source qualification](spec/records/2026-10-26-hosted-repository-restore.md) passes 543 Rust, 2,332 package, 261 cold catalog, 24 browser and complete canonical/78 governance cases; main intake preserves identical product/test/config bytes. Actual Tasks hosts, native editor intents/recovery, backup controls/status, original-source selection and final provider/timezone/unattended acceptance remain active. Mira input lease c5d1e4b6 is source-qualified; Markdown binding and host adoption remain separate. R4-R7 retain their original dependencies. Current private History contention repair is source-qualified, including original4Desktop failures; a separate native editor Undo loss is owned by the API lane and blocks final R3 composition. Latest master adoption remains separate."
+      "detail": "Shared feature source is qualified. Undo is committed at1c89dfb1 with exact3/affected118/API1708/cold264/all41browser/nativeUndo1 and fullspec78. Safe restore diagnostics are committed atb8466672 with596Rust/4hostedHistory/12nativeRepository; explicit Refresh snapshot repair is committed atcf7bf949 with591Rust/fullspec. Final kernel composition combines only the required R3 patches. Desktop actualONNX20API/2clock/4installedTasks and catalog1/3(636) pass. Hosted actualmodel focused1/fullfamily2 pass; a new test-only optional-score type guard is in retry. Remaining: final coherent source/host closure, current Desktop catalog/native/build and both main adoptions. R3 stays Working."
     },
     {
       "id": "R4",
@@ -383,7 +383,7 @@
       "work": "Search index reconciliation and scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Both committed Search hosts remain qualified; current586Rust/2414package/263catalog/41browser source cohort passes. Separate real-model qualification exposed Linux reference-context drift (unchanged Node reproduces native output) and an accepted generated-facade/close race. The source-backed Linux reference passes3/3 with originalfixture/tolerances preserved; deterministic admission repair passes0/1before to1/1after. Combined five-model/full-native closure and final both-host provider/unattended R3 remain active."
+      "detail": "Both Search host integrations remain qualified. Source actual-model5 and retained Linux CPU/runtime/model reference pass. Desktop realONNX native bridge now passes retained384vectors/ranks,detach and coldofflinecache at current9ac+d178. Hosted HTTP actualmodel focused1/fullmetadata-model2 pass; one new test fixture optional-score type guard needs its exact rerun and Web/spec closure. Final nativeRefresh snapshot composition, both-host provider/unattended closure and mainadoption remain. [Kernel composition](spec/records/2026-10-27-r3-kernel-composition.md) duplicates only the qualified cf7bf949 index snapshot diff onto b8466672, with no R4 codec ancestry; exact/strict/full597 and actual-host gates on this combined source remain pending."
     },
     {
       "id": "R3.2.3",
@@ -391,7 +391,7 @@
       "work": "History-index scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Indexed History, public App ports, admitted retained Repository reads and guarded hosted restore are committed and qualified. Desktop M16.6 is adopted at fa13c1ce. [Restore evidence](spec/records/2026-10-26-hosted-repository-restore.md) includes both real restore/cold-acknowledgement journeys, saved-byte preservation and complete source/browser/specification closure. Remaining current-profile parity is backup controls/status/passive observation and original-source selection. Optional legacy AppDatabase capture is explicitly Deferred outside the current profile. Complete R3/provider and default cutover remain open. [Qualified private access repair](spec/records/2026-10-27-r3-main-composition.md) on c1c6570f passes2exact/21backup/589Rust/all5actualmodels/4hostedHistory, strict/native build/canonical78; original4actualDesktop failures also pass. Broader native family and the separate API Undo repair/composition remain required; overallR3 staysWorking."
+      "detail": "Indexed History, public App ports, admitted retained Repository reads and guarded hosted restore are committed and qualified. Desktop M16.6 is adopted at fa13c1ce. [Restore evidence](spec/records/2026-10-26-hosted-repository-restore.md) includes both real restore/cold-acknowledgement journeys, saved-byte preservation and complete source/browser/specification closure. Remaining current-profile parity is backup controls/status/passive observation and original-source selection. Optional legacy AppDatabase capture is explicitly Deferred outside the current profile. Complete R3/provider and default cutover remain open."
     },
     {
       "id": "R1.3.9.1",
@@ -631,7 +631,7 @@
       "work": "Native daily provider creation and daily-before-rolling Task coordination",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "Ordered writes 2296023f, shared journal IO 86f360f8, typed recovery 8e09a5de and tracked-today scheduling ad968536 are committed in the isolated source lane. Recovery passes 459 Rust cases and tracked-today 467, with all 78 governance/full source gates. The owning Tasks plugin adapter 7ae46a74 is committed with 2,859 unit, 14 native and 62 cold catalog cases plus complete source gates. Notes generated port is completing final startup reconciliation after plugin load. Remaining: combined main intake, both host selections and daily-provider/locale parity. No lapis-ai changes."
+      "detail": "Native daily provider/ordered writes/recovery source and all 15 hosted installed Tasks/editor/leave journeys are qualified. The real Desktop default provider lifecycle repair now passes all four installed Tasks native journeys, including locale/provider refusal, stale admission and cold lost-reply recovery. Final combined provider/timezone/unattended parity, composed host gates and main adoption remain separate. No lapis-ai changes."
     },
     {
       "id": "R3.2.2.3",
@@ -727,7 +727,7 @@
       "work": "Guarded file/vault restore and retained review",
       "status": "Complete",
       "spec": "spec/src/architecture/rust-history-parity.md#ln-core-023",
-      "detail": "[Qualified guarded Repository restore](spec/records/2026-10-26-hosted-repository-restore.md): all6 exact native/13 adapter, full543Rust/2332package/261coldcatalog/24browser pass, including actual lost acknowledgement/cold recovery/exact receipt retry without overwriting newer saved files. Complete root/strict/build and canonical78governance pass; final two mapped-chapter findings are repaired without product changes. Both-host combined R3 remains separate. [Qualified diagnostic repair](spec/records/2026-10-27-r3-main-composition.md) at9acb4e5c passes7exact(2pass/5failbefore),20Core/4HTTP/596Rust,strict/nativebuild/canonical78,4hostedHistory and12actualDesktopRepository cases(including2originalrestore) with exact stale diagnostics and saved-byte/receipt guards. Unknown native details remain redacted. Final combined R3 adoption stays separate."
+      "detail": "Guarded restore/source was previously qualified. Safe stale-preview diagnostics are now separately committed atb8466672: exact7after2pass/5failbefore,20Corebackup/restore,4HTTP,596Rust,strict/build/spec78,4hostedHistory and12actualDesktopRepository cases pass. Saved-byte fences and unknown-error redaction remain intact. Final coherentCore/currenthost/adoptionR3 gates remain separate."
     },
     {
       "id": "R3.2.3.6.2",
@@ -735,15 +735,15 @@
       "work": "Backup capture controls and passive status",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Backup sourceedf1d76f and current Original/editor/hosted composition0ff929b1 are qualified. [Current cohort](spec/records/2026-10-26-backup-problems-cohort.md) passes586Rust/2414package/263coldcatalog/static/26ordinarybrowser and fullcanonical78governance; retained backup selection/status/lost acknowledgement/cold restart passes. History92b4dea6/e714 remains fixed. Main/current Desktop intake and complete R3 retain separate gates."
+      "detail": "Backup source edf1d76f is combined with Original/editor/hosted source 0ff929b1. Receipt 823317ad passes 586 Rust, 2,414 package, 263 cold catalog/static, 26 ordinary browser journeys and full specification/78 governance. Persisted selection, passive status, lost acknowledgement and cold restart pass. Final admission-repair native closure and current Desktop/main adoption remain separate."
     },
     {
       "id": "R3.2.3.6.3",
       "area": "Remaining History parity",
       "work": "Original repository source selection",
-      "status": "Source complete",
-      "spec": "spec/src/architecture/rust-history-parity.md#ln-core-024",
-      "detail": "[Qualified composed Original source](spec/records/2026-10-26-backup-problems-cohort.md), frozen0ff929b1/receipt823317ad:8exact nativeHTTP,8newWeb,full586Rust/2414package/263coldcatalog/static and26browser plus allcanonical78governance pass. Existing retained picker, independent tabs, exact pins, source Op Log, preserved bytes/metadata, external advance and cold restart pass. Desktop shared-reader adoption is active atM16.8; no new engine, source fallback or mutation authority."
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-history-reader.md#ln-core-016",
+      "detail": "Combined Original-source source/catalog/specification and hosted acceptance pass. Actual Desktop current-M14 Backup/Original navigation and cold settings pass with source/.jj/.git hashes unchanged. The original native API cohort passes 19/19 and all four History contention regressions pass on c1c6570f. Final composed native/catalog/build gates and both main adoptions remain. No new repository engine or source fallback."
     },
     {
       "id": "R3.2.3.6.4",
@@ -791,7 +791,7 @@
       "work": "Actual hosted and Desktop editor/Tasks acceptance",
       "status": "Working",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-020",
-      "detail": "All41 current hosted/Node/local journeys pass:26ordinary at823317ad plus15Tasks/editor/leave atf532e00e; sources are tree-identical with all16archives/6nativepins equal. Complete586Rust/2414package/263coldcatalog/static/canonical78governance pass. Desktop M16.7 editor/recovery0dbf2307 passes58native/2068catalog, while native Tasks selectionM16.9 and shared-readerM16.8 remain active. Main adoption and final both-host/unattended R3 remain open."
+      "detail": "[Committed Undo closure](spec/records/2026-10-27-editor-extension-history.md) at1c89dfb1 passes exact3/3 after1/3 before, affected118, API1708, check20/test20/build11, cold264catalog/static, all41browser and unchanged nativeMetadataUndo1; final mapped first/fullspec78 passes. Desktop current9ac+d178 also passes20API/realONNX,12Repository,4installedTasks and2macOSclock cases. Final composedCore/remainingcatalog/native/build acceptance and mainadoption remain separate."
     },
     {
       "id": "R3.2.4.2.1",
@@ -822,8 +822,8 @@
       "area": "Native writer reconciliation",
       "work": "Protected clean producer refresh after guarded native mutation",
       "status": "Source complete",
-      "spec": "spec/src/architecture/native-editor-intents.md#ln-core-028",
-      "detail": "Protected refresh/clean retirement6e76be48 is qualified together with backup/Original/hosted source0ff929b1:586Rust/2414package/263coldcatalog/static/26ordinarybrowser and finalcanonical78governance pass; exact current15Tasks/editor/leave also passes atf532e00e on a tree-identical duplicate. API archive419b47c5; Markdown814f6d2d/4cc5 and Mira cb8f2b2b/03e1 remain fixed. Source/main intake and actual Desktop Tasks/native reader gates remain separate."
+      "spec": "spec/src/architecture/native-editor-intents.md#ln-core-020",
+      "detail": "[Qualified clean-retirement source](../.workspaces/lapis-notes-native-editor-retirement-20261026/spec/records/2026-10-26-native-editor-retirement.md) is committed at6e76be48: exact3/native31/API1689; full564Rust/2397package/263coldcatalog/static/strict/publicbuild and final78governance pass. All39hosted/Node/local journeys and seven leave cases pass. Markdown814f6d2d and Mira cb8f2b2b complete their owning source gates. DesktopM16.7 is committed0dbf2307 with58native/2068catalog; current combined source/main and final provider/Tasks gates remain separate."
     },
     {
       "id": "R3.2.1.2.10.6",
