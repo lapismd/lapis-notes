@@ -12,6 +12,8 @@ import {
   type Request,
   type VaultCommand,
   type VaultValue,
+  type QueueCommand,
+  type QueueValue,
   type TurnCommand,
   type TurnValue,
   type HistoryIndexCommand,
@@ -125,6 +127,17 @@ export class RustVaultClient {
   async turns(command: TurnCommand): Promise<TurnValue> {
     this.requireOpen();
     return this.host.json(`${this.path}/turns`, "POST", command);
+  }
+
+  async queues(command: QueueCommand): Promise<QueueValue> {
+    this.requireOpen();
+    const value = await this.host.json<QueueValue>(
+      `${this.path}/queues`,
+      "POST",
+      command,
+    );
+    this.requireOpen();
+    return value;
   }
 
   async indexing(command: IndexingCommand): Promise<IndexingValue> {

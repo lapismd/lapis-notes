@@ -80,6 +80,11 @@ pub(super) fn read(work: &Work, input: &TurnInput) -> Result<Option<History>> {
                     .ok_or_else(invalid)?;
                 (role, record["text"].as_str().ok_or_else(invalid)?)
             }
+            Some("queue.outcome") => {
+                crate::turns::queue_capture::validate_receipt(record.clone())
+                    .map_err(|_| invalid())?;
+                continue;
+            }
             Some("error") => ("error", record["message"].as_str().ok_or_else(invalid)?),
             Some("cancelled") => ("cancelled", record["text"].as_str().ok_or_else(invalid)?),
             _ => return Err(invalid()),

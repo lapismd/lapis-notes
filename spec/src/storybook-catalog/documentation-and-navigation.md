@@ -353,3 +353,7 @@ screens, approve visual baselines or close the separate host-adoption gates.
 ## Admitted Tasks specification navigation
 
 The [native Task port chapter](../architecture/rust-task-host-port.md) is indexed inside Architecture. Its metadata-only mirror and specification-first sidebar order are generated from SUMMARY alongside the existing service-lifetime chapters. Source service, API and owning-plugin evidence remain distinct from actual host catalog acceptance.
+
+## Native queue specification navigation
+
+The [native queue chapter](../architecture/rust-queue-admission.md) separates retained capture, FIFO, admitted transport and host metadata from ordinary turn admission. Its metadata-only mirror and navigation are generated from SUMMARY under LN-CAT-021/080/115. Requirement IDs and immutable evidence stay unchanged; cold catalog and static Docs acceptance remain explicit source gates.

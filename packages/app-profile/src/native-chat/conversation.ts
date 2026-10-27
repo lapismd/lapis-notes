@@ -1,6 +1,7 @@
 import type { TranscriptItem } from "@lapismd/design-core/chat";
 import type { TurnRecord, TurnSummary } from "@lapis-notes/api/native-turns";
 import type { NativeChatSession } from "./session";
+import { queueReceiptItem } from "./queue-receipt";
 
 export const active = (phase: TurnSummary["phase"]) =>
   phase === "accepted" || phase === "running";
@@ -27,6 +28,8 @@ function blockRevision(text: string): string {
 function item(value: Record<string, unknown>): TranscriptItem | undefined {
   if (value.schemaVersion !== 3)
     throw new Error("This saved conversation format is unavailable");
+  if (value.type === "queue.outcome")
+    return queueReceiptItem(value, blockRevision);
   if (value.type !== "message") return;
   if (
     typeof value.id !== "string" ||

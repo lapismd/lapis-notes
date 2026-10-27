@@ -11,6 +11,7 @@ mod errors;
 mod files;
 mod management;
 mod plugins;
+mod queues;
 mod repository_backup;
 mod repository_restore;
 mod repository_sources;
@@ -118,6 +119,12 @@ pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::R
         .route(
             "/api/v3/clients/{client}/repository-sources",
             post(repository_sources::call).layer(DefaultBodyLimit::max(16 * 1024)),
+        )
+        .route(
+            "/api/v3/clients/{client}/queues",
+            post(queues::call).layer(DefaultBodyLimit::max(
+                lapis_app_protocol::queues::QUEUE_REQUEST_LIMIT,
+            )),
         )
         .route(
             "/api/v3/clients/{client}/turns",

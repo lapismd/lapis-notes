@@ -128,6 +128,9 @@ pub enum TurnValue {
 #[derive(Clone, Debug, Deserialize, Serialize, JsonSchema, TS)]
 #[serde(deny_unknown_fields)]
 pub struct TurnTarget {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub queue_selection: Option<crate::queues::QueueSelection>,
     pub id: String,
     pub label: String,
     pub default_mode: String,

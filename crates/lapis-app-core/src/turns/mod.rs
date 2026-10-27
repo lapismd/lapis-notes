@@ -1,5 +1,6 @@
 //! Private durable dispatch authority. Live vault and execution admission remain required.
 mod continuation;
+pub mod queue_capture;
 mod types;
 use crate::record_store::RecordStore;
 use crate::vault::VaultRoot;

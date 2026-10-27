@@ -148,6 +148,12 @@ other controls are enabled. Application request UUIDs and authored message IDs
 remain distinct. Provider-default effort must retain its existing omission
 semantics. A source-codec pass alone does not complete the service/host gate.
 
+The source/host checkpoints are mirrored individually in the master ledger:
+R4.1.1 frozen codec, R4.1.2 native FIFO owner, R4.1.3 admitted generated port,
+R4.1.4 shared chat and trusted operator selection, R4.1.5 Tauri bridge, and
+R4.1.6 combined actual-host/provider acceptance. These split the existing R4.1
+scope; source completion never substitutes for a host acceptance gate.
+
 Reuse Notes `RecordStore`, `TurnJournal`, portable conversation files and the
 existing `lapis-ai-service` execution port. Keep the current single execution
 lane until participant publication is explicitly coordinated. A passive client

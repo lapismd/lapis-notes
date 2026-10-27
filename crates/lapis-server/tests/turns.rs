@@ -84,6 +84,7 @@ impl Native {
                 profile,
                 if selected {
                     vec![AgentConfig {
+                        queue_selection: None,
                         id: "fixture".into(),
                         label: "Fixture agent".into(),
                         default_mode: "plan".into(),

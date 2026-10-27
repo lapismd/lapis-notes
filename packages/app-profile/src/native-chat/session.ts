@@ -1,11 +1,21 @@
 import type {
   NativeTurnService,
+  NativeQueueService,
+  QueueCommand,
+  QueueValue,
   TurnCommand,
   TurnValue,
 } from "@lapis-notes/api/native-turns";
 
+import type { NativeQueueSelection } from "./queue-capture";
+
+export interface NativeChatQueue extends NativeQueueService {
+  selection(targetId: string): Promise<NativeQueueSelection | undefined>;
+}
+
 export type NativeChatLeave = "detach" | "close" | "disable";
 export interface NativeChatHost extends NativeTurnService {
+  queue?: NativeChatQueue;
   allowed(): boolean;
   activate(): Promise<void>;
   leave(reason: NativeChatLeave): Promise<void>;
@@ -45,6 +55,24 @@ export class NativeChatSession {
     await this.open();
     this.live();
     return this.host.call(command);
+  }
+  get hasQueue(): boolean {
+    return !!this.host.queue;
+  }
+  async queue(command: QueueCommand): Promise<QueueValue> {
+    await this.open();
+    this.live();
+    if (!this.host.queue) throw new Error("Native queue is unavailable");
+    return this.host.queue.call(command);
+  }
+  async queueSelection(
+    targetId: string,
+  ): Promise<NativeQueueSelection | undefined> {
+    await this.open();
+    this.live();
+    const selection = await this.host.queue?.selection(targetId);
+    this.live();
+    return selection;
   }
   async readText(path: string): Promise<string> {
     this.live();

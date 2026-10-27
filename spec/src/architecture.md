@@ -10,6 +10,7 @@ Defines runtime ownership, dependency boundaries, host integration, and build an
 - [Rust application services](architecture/rust-application-services.md)
 - [Rust managed vaults](architecture/rust-managed-vaults.md)
 - [Durable native turn admission](architecture/rust-turn-admission.md)
+- [Native conversation queues](architecture/rust-queue-admission.md)
 - [Native indexing lifetime](architecture/rust-indexing-lifetime.md)
 - [Native daily Task lifecycle](architecture/rust-task-lifecycle.md)
 - [Admitted native Tasks port](architecture/rust-task-host-port.md)

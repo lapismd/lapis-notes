@@ -43,7 +43,7 @@ impl Client {
             TurnCommand::Cancel { request_id } => {
                 id(request_id)?;
                 let (owner, _work) = self.turn_owner()?;
-                let data = owner.data()?;
+                let mut data = owner.data()?;
                 let Some(record) = data.journal.read(request_id)? else {
                     return Err(Error::new(
                         ErrorCode::NotFound,
@@ -53,6 +53,7 @@ impl Client {
                 if !matches!(record.phase, TurnPhase::Accepted | TurnPhase::Running) {
                     return Ok(TurnValue::CancelRequested { accepted: false });
                 }
+                data.queues.pause("native_turn_cancelled")?;
                 let accepted = data.jobs.get(&request_id).is_some_and(|job| {
                     if job.done.load(Ordering::Acquire) {
                         return false;

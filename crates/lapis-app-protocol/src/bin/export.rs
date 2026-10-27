@@ -5,6 +5,7 @@ mod editing_intents;
 mod history_index;
 mod indexing;
 mod native_tasks;
+mod queues;
 mod repository_backup;
 mod repository_restore;
 mod repository_sources;
@@ -216,6 +217,7 @@ fn main() {
             .chain(indexing::declarations(&config).iter())
             .chain(native_tasks::declarations(&config).iter())
             .chain(turns::declarations(&config).iter())
+            .chain(queues::declarations(&config).iter())
             .chain(declarations.iter())
             .map(|item| format!("export {item}"))
             .collect::<Vec<_>>()
@@ -226,6 +228,6 @@ fn main() {
     let database_typescript = database::typescript(&config);
     println!(
         "{}",
-        json!({"schema": schema, "typescript": typescript, "databaseTypescript": database_typescript, "turnTypescript": turns::typescript(&config), "indexingTypescript": indexing::typescript(&config), "historyIndexTypescript": history_index::typescript(&config), "tasksTypescript": native_tasks::typescript(&config), "editingIntentTypescript": editing_intents::typescript(&config)})
+        json!({"schema": schema, "typescript": typescript, "databaseTypescript": database_typescript, "turnTypescript": turns::typescript(&config), "queueTypescript": queues::typescript(&config), "indexingTypescript": indexing::typescript(&config), "historyIndexTypescript": history_index::typescript(&config), "tasksTypescript": native_tasks::typescript(&config), "editingIntentTypescript": editing_intents::typescript(&config)})
     );
 }

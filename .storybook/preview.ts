@@ -65,6 +65,7 @@ const preview: Preview = {
               "Rust application services",
               "Rust managed vaults",
               "Durable native turn admission",
+              "Native conversation queues",
               "Native indexing lifetime",
               "Native daily Task lifecycle",
               "Admitted native Tasks port",

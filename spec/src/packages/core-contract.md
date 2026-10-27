@@ -170,3 +170,5 @@ wins over its session; absence retains the existing host profile. Construction
 performs no selection or network operation. The Repository plugin observes this
 port only after the host separately binds its admitted repository services;
 transport availability alone cannot create a replacement Repository view.
+
+Optional trusted `queue_selection` metadata follows [LN-CORE-037](../architecture/rust-queue-admission.md#ln-core-037). Hosts keep the exact saved recipient and ACP choices separate from opaque execution-target authority; absent metadata leaves shared UI capture unavailable while preserving R2 operation.

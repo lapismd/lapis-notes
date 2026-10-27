@@ -10,6 +10,16 @@ Feature disable drains the native owner, while hosted session detach/logout
 only releases the client. Standalone browser and Node profiles retain their
 existing restrictions. Application/provider qualification remains R2.2/R2.3.
 
+The Rust-hosted queue adapter uses that same admitted HTTP client for accept,
+read, Stop, cancel and explicit resume under [LN-CORE-036/037](../architecture/rust-queue-admission.md#ln-core-036).
+Operator-declared `queue_selection` metadata travels through trusted target
+discovery, retaining its saved recipient/token and ACP choices. The shared
+constructor freezes the current declared mode; opaque runtime IDs and labels
+never reconstruct attribution or provider identity. Lost acceptance replies are
+observed by their exact identity without resubmission. Cold queues remain paused
+until an explicit action; passive client teardown cannot take their ownership.
+R4.1 host/provider acceptance remains separate from the completed R2 foundation.
+
 The Rust browser journey exercises an operator-configured native worker through
 the production chat composer. History uses the right sidebar and keeps its view
 when opening an exact existing main conversation. Draft creation and restored

@@ -4,14 +4,12 @@ import type {
   AgentPort,
   AgentSnapshot,
 } from "@lapismd/agent-ui/core";
-import type {
-  TurnInput,
-  TurnRecord,
-  TurnSummary,
-} from "@lapis-notes/api/native-turns";
+import type { TurnInput, TurnSummary } from "@lapis-notes/api/native-turns";
 import { active, conversation, directory } from "./conversation";
 import type { NativeChatSession } from "./session";
 import { NativeChatMetadata } from "./metadata";
+import { NativeChatQueueObserver } from "./queue-observer";
+import { nativeSendTarget, refused } from "./send";
 
 /** One view's read-only projection. Native commands retain all durable authority. */
 export class NativeChatObserver implements AgentPort {
@@ -20,6 +18,7 @@ export class NativeChatObserver implements AgentPort {
   #heads = new Map<string, TurnSummary>();
   #firsts = new Map<string, TurnSummary>();
   #metadata: NativeChatMetadata;
+  #queue: NativeChatQueueObserver;
   #scope: string;
   #closed = false;
   #tail = Promise.resolve();
@@ -36,6 +35,7 @@ export class NativeChatObserver implements AgentPort {
     this.selected = options.initialSession ?? this.#draft;
     this.#scope = options.initialScope ?? "";
     this.#metadata = new NativeChatMetadata(session);
+    this.#queue = new NativeChatQueueObserver(session);
   }
   resolveRecipients(input: { selected: readonly string[] }): readonly string[] {
     return input.selected.length ? input.selected : [this.options.target()];
@@ -114,6 +114,18 @@ export class NativeChatObserver implements AgentPort {
       });
     const running = !!head && active(head.phase),
       busy = heads.some((row) => active(row.phase));
+    const queue = await this.#queue.read(head);
+    const selectedBusy = running || !!queue.queueState?.running;
+    const vaultBusy = busy || !!queue.queueState?.running;
+    const canSend =
+      !!targets.targets.length &&
+      !this.#queue.paused(head) &&
+      (!vaultBusy ||
+        (!!head &&
+          this.session.hasQueue &&
+          !!(await this.session.queueSelection(
+            this.options.target() || head.target_id,
+          ))));
     const snapshot: AgentSnapshot = {
       sessions,
       agents: targets.targets.map((target) => ({
@@ -127,12 +139,15 @@ export class NativeChatObserver implements AgentPort {
       catalog: [],
       imports: [],
       requests: [],
-      queued: [],
-      busy: running,
+      ...queue,
+      busy: selectedBusy,
       capabilities: [
         "new_session",
-        ...(!busy && targets.targets.length ? ["send"] : []),
-        ...(running ? ["stop"] : []),
+        ...(canSend ? ["send"] : []),
+        ...(queue.queueState
+          ? ["cancel_queued", "pause_queue", "resume_queue"]
+          : []),
+        ...(selectedBusy ? ["stop"] : []),
       ],
       chat: {
         scope: head?.scope_dir ?? this.#scope,
@@ -160,14 +175,33 @@ export class NativeChatObserver implements AgentPort {
       this.selected = this.#draft;
       return { status: "acknowledged", snapshot: await this.#snapshot() };
     }
-    if (action.kind === "stop") {
+    if (
+      ["stop", "pause_queue", "resume_queue", "cancel_queued"].includes(
+        action.kind,
+      )
+    ) {
       const head = this.#heads.get(action.session ?? this.selected);
-      if (!head || !active(head.phase))
+      if (!head)
         return {
           status: "refused",
-          reason: "No turn is running in this conversation",
+          reason: "No native conversation is selected",
         };
-      await this.session.call({ kind: "cancel", request_id: head.request_id });
+      try {
+        if (this.session.hasQueue && this.#queue.has(head))
+          await this.#queue.control(action, head);
+        else if (action.kind === "stop" && active(head.phase))
+          await this.session.call({
+            kind: "cancel",
+            request_id: head.request_id,
+          });
+        else
+          return {
+            status: "refused",
+            reason: "No native queue or running turn is available",
+          };
+      } catch (error) {
+        return refused(error);
+      }
       return { status: "acknowledged", snapshot: await this.#snapshot() };
     }
     if (action.kind !== "send")
@@ -175,54 +209,37 @@ export class NativeChatObserver implements AgentPort {
         status: "refused",
         reason: "This action is not available in native chat yet",
       };
-    const submission = action.submission,
-      recipients = action.recipients ?? [this.options.target()];
-    if (
-      !submission?.text.trim() ||
-      submission.id !== action.id ||
-      submission.comments.length ||
-      action.attachments?.length ||
-      recipients.length !== 1 ||
-      !recipients[0]
-    )
-      return {
-        status: "refused",
-        reason:
-          "Native chat currently accepts one authored text prompt for one agent",
-      };
     const head = this.#heads.get(action.session ?? this.selected);
+    let target;
+    try {
+      target = await nativeSendTarget(
+        this.session,
+        action,
+        this.options.target(),
+      );
+      if (
+        head &&
+        this.session.hasQueue &&
+        (await this.#queue.accept(action, head, target))
+      ) {
+        return { status: "acknowledged", snapshot: await this.#snapshot() };
+      }
+    } catch (error) {
+      return refused(error);
+    }
     if ([...this.#heads.values()].some((row) => active(row.phase)))
       return {
         status: "refused",
         reason: "Wait for the current native turn to finish",
       };
-    const targets = await this.session
-      .call({ kind: "targets" })
-      .catch(() => null);
-    const target =
-      targets?.kind === "targets"
-        ? targets.targets.find((row) => row.id === recipients[0])
-        : undefined;
-    const mode = target?.default_mode;
-    if (
-      typeof mode !== "string" ||
-      !mode.length ||
-      mode.trim() !== mode ||
-      new TextEncoder().encode(mode).length > 256 ||
-      /[\u0000-\u001f\u007f-\u009f]/u.test(mode)
-    )
-      return {
-        status: "refused",
-        reason: "The native agent's declared mode is unavailable",
-      };
     const input: TurnInput = {
       request_id: action.id,
-      target_id: recipients[0],
+      target_id: target.id,
       scope_dir: head?.scope_dir ?? this.#scope,
-      prompt: submission.text,
+      prompt: action.submission!.text,
       context: null,
       options: {
-        mode,
+        mode: target.default_mode,
         model: null,
         effort: null,
         max_duration_ms: 60_000,
@@ -242,32 +259,18 @@ export class NativeChatObserver implements AgentPort {
         return { status: "unknown" };
       this.selected = accepted.record.conversation_id;
     } catch (error) {
-      const code = (error as { code?: string }).code;
-      if (
-        [
-          "INVALID_REQUEST",
-          "UNSUPPORTED",
-          "BUSY",
-          "PERMISSION_DENIED",
-          "EINVAL",
-          "ENOTSUP",
-          "EBUSY",
-          "EACCES",
-        ].includes(code ?? "")
-      )
-        return {
-          status: "refused",
-          reason:
-            error instanceof Error
-              ? error.message
-              : "The native request was refused",
-        };
-      return { status: "unknown" };
+      return refused(error);
     }
     return { status: "acknowledged", snapshot: await this.#snapshot() };
   }
   status(id: string): Promise<AgentOutcome> {
     return this.#run(async () => {
+      if (this.#queue.pending(id)) {
+        const conversation = await this.#queue.status(id);
+        if (!conversation) return { status: "unknown" };
+        this.selected = conversation;
+        return { status: "acknowledged", snapshot: await this.#snapshot() };
+      }
       const value = await this.session.call({ kind: "read", request_id: id });
       if (value.kind !== "record" || !value.record)
         return { status: "unknown" };

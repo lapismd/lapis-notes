@@ -280,3 +280,6 @@ It MUST preserve explicit limit errors without truncation or partial delivery.
 Rust string/model types exclude malformed JavaScript property shapes. A later
 wire adapter must reject those shapes before invoking preparation; the helper
 cannot reinterpret missing snapshot selection as an empty selected snapshot.
+
+Retained queue capture, FIFO ownership, admitted controls and shared host
+metadata follow the [native queue contract](rust-queue-admission.md).

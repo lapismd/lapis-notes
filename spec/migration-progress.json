@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 07:01:20 UTC",
+  "updated": "2026-10-27 08:07:18 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -79,7 +79,7 @@
       "work": "AI/tools/Changes",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "R3 is complete. Context/attachment5cfb7ca0 and initial skill-context b7c2659d are source-qualified and adopted here (latest611Rust/2438package/canonical78); native discovery/bootstrap construction, commands/handoff, rich admission and actual-host/provider integration remain pending. Participant publication/typed transport516d11dc is source-qualified with shared retained-host integration active. Queue null-thinking/shared Send/independent Stop repairs retain final qualification gates; Root owns the Waiting combined installed-provider gate. Approvals/tools/Changes/undo remain in original scope; defaults unchanged."
+      "detail": "R3 is complete. Qualified queue source0eec0811 is composed into main with unchanged shared/hosted/native product inputs and existing context/initial-skill foundations39a68412. Shared/source/hosted gates are closed; Tauri main intake and Root-owned installed-provider R4.1.6 remain separate. Participant host integration and native bootstrap/folder instructions are active in isolated lanes; approvals/tools/Changes/undo and later R5-R7 retain the original scope."
     },
     {
       "id": "R5",
@@ -856,6 +856,62 @@
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-044",
       "detail": "[Source qualification](spec/records/2026-10-27-native-initial-context.md): exact3 pass after0/3,9manifest/28initial complete source outcomes,11oldcontext/29affected/all611Rust/2438package/check20/test20/build11 and canonical78 pass at f37fb179. Only final status/evidence checks follow; no host/provider/default activation. Discovery/bootstrap construction, binding ownership, commands/handoff and rich admission remain in R4.3. [Main intake](spec/records/2026-10-27-native-initial-context-main-adoption.md) preserves all qualified production/generator/fixture inputs and106 prior task IDs; no host/default activation."
+    },
+    {
+      "id": "R4.1",
+      "status": "Working",
+      "area": "Native conversation queue",
+      "work": "Deliver the retained plaintext queue through both existing hosts",
+      "spec": "spec/src/architecture/rust-queue-admission.md#ln-core-036",
+      "detail": "Queue source capture/FIFO/transport checkpoints are qualified separately. Shared host/operator qualification is active; Tauri bridge and combined provider acceptance remain separate."
+    },
+    {
+      "id": "R4.1.1",
+      "status": "Source complete",
+      "area": "Retained queue codec",
+      "work": "Lossless frozen Desktop captures and receipts",
+      "spec": "spec/src/architecture/rust-queue-admission.md#ln-core-029",
+      "detail": "[Qualified frozen codec source](spec/records/2026-10-27-native-queue-capture.md), a3cbf03, is composed into079065a6. Complete capture/receipt parity does not enable host controls."
+    },
+    {
+      "id": "R4.1.2",
+      "status": "Source complete",
+      "area": "Native FIFO owner",
+      "work": "Durable bounded admission, dispatch, pause and recovery barriers",
+      "spec": "spec/src/architecture/rust-queue-admission.md#ln-core-030",
+      "detail": "[Qualified native queue source](spec/records/2026-10-27-native-bounded-queue.md), fef5886f, is composed into079065a6. Core owns dispatch; both actual hosts/provider journeys remain separate."
+    },
+    {
+      "id": "R4.1.3",
+      "status": "Source complete",
+      "area": "Admitted queue transport",
+      "work": "Generated DTOs and admitted HTTP/shared API queue port",
+      "spec": "spec/src/architecture/rust-queue-admission.md#ln-core-032",
+      "detail": "[Qualified admitted port](spec/records/2026-10-27-native-queue-port.md),079065a6, retains615 native cases and source protocol/API proof. Shared observer/operator and Tauri adoption follow separately."
+    },
+    {
+      "id": "R4.1.4",
+      "status": "Source complete",
+      "area": "Shared queue hosts",
+      "work": "Existing chat projection, retained controls and trusted operator capture metadata",
+      "spec": "spec/src/architecture/rust-queue-admission.md#ln-core-036",
+      "detail": "[Qualified shared source and hosted acceptance](spec/records/2026-10-27-native-queue-hosts.md): native622/0fail/7retained ignores; exact hosted1/full9, shared32/Web9, full check20/test20/build11,2451package/API1716,canonical78/progress/format,all265cold catalog/static and Docs6 pass. AgentUI58bd composite producer closure proves all333public members exact to qualified output; final dependency provenance is closed. APIef8170a6/AppProfilefe45dedb retain public-input receipts and old0e792 runtime equivalence. Coherent both-main/Tauri adoption and Root-owned installed-provider R4.1.6 remain separate. [Main intake](spec/records/2026-10-27-native-queue-main-adoption.md) composes this immutable source with current main39a68412 while preserving all107 prior task IDs and context/initial-skill product bytes; fresh documentary canonical/progress/format gate is the adoption boundary."
+    },
+    {
+      "id": "R4.1.5",
+      "status": "Working",
+      "area": "Tauri queue adapter",
+      "work": "Admitted native bridge and trusted recipient-catalog selection",
+      "spec": "spec/src/architecture/rust-queue-admission.md#ln-core-036",
+      "detail": "Desktop final intake is active against immutable Core0eec0811 and qualified AgentUI58bd (producer2bee4ed6). Existing public APIef8170a6/AppProfile0e792 runtime/declaration bytes retain exact equality to the final shared packs. Complete native/catalog/source intake and Desktop main adoption remain its separate owned gate."
+    },
+    {
+      "id": "R4.1.6",
+      "status": "Waiting",
+      "area": "Queue host/provider acceptance",
+      "work": "Combined real-host queue workflows and retained provider gates",
+      "spec": "spec/src/architecture/rust-queue-admission.md#ln-core-036",
+      "detail": "Root owns final combined actual-installed-provider acceptance after coherent shared/operator and Tauri intake. Prove queue acceptance, live detach, retained outcomes, controls, explicit cold resume/no-replay and provider-default omission through both hosts using the R2 read-only isolated-vault path. Deterministic ACP/screen fixtures do not close this Waiting gate."
     }
   ]
 }

@@ -19,6 +19,8 @@ pub struct Contracts {
     pub history_index_value: lapis_app_protocol::history_index::HistoryIndexValue,
     pub indexing_command: lapis_app_protocol::indexing::IndexingCommand,
     pub indexing_value: lapis_app_protocol::indexing::IndexingValue,
+    pub queue_command: lapis_app_protocol::queues::QueueCommand,
+    pub queue_value: lapis_app_protocol::queues::QueueValue,
     pub turn_command: TurnCommand,
     pub turn_value: TurnValue,
     pub database_call: DatabaseCall,

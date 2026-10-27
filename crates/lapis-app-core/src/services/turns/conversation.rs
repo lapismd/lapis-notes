@@ -14,6 +14,7 @@ pub(super) struct Conversation {
     assistant: Value,
     transcript_version: String,
     prior: String,
+    receipt: Option<Value>,
 }
 fn timestamp(ms: u64) -> String {
     chrono::DateTime::from_timestamp_millis(ms as i64)
@@ -29,7 +30,12 @@ fn expected(version: Option<String>) -> ExpectedVersion {
     })
 }
 impl Conversation {
-    pub fn create(work: &Work, record: &TurnRecord, history: Option<History>) -> Result<Self> {
+    pub fn create(
+        work: &Work,
+        record: &TurnRecord,
+        history: Option<History>,
+        authored: Option<Value>,
+    ) -> Result<Self> {
         let parent = [record.input.scope_dir.as_str(), ".lapis/agents/sessions"]
             .into_iter()
             .filter(|s| !s.is_empty())
@@ -100,11 +106,13 @@ impl Conversation {
             };
         metadata["updatedAt"] = json!(created);
         metadata["activeAgentBindingId"] = json!(binding);
-        let user = json!({"schemaVersion":3, "id":record.input.request_id, "type":"message",
+        let user = authored.unwrap_or_else(|| {
+            json!({"schemaVersion":3, "id":record.input.request_id, "type":"message",
             "createdAt":created, "role":"user", "text":record.input.prompt,
-            "provenance":{"originClass":"owner","sourceKind":"user-message"}});
+            "provenance":{"originClass":"owner","sourceKind":"user-message"}})
+        });
         let assistant = json!({"schemaVersion":3, "id":Uuid::new_v4(), "type":"message",
-            "createdAt":created, "parentId":record.input.request_id, "agentBindingId":binding,
+            "createdAt":created, "parentId":user["id"], "agentBindingId":binding,
             "role":"assistant", "text":"", "provenance":{"originClass":"agent","sourceKind":"assistant-message"}});
         let metadata_version = work.write_text(
             &format!("{directory}/metadata.yaml"),
@@ -131,6 +139,7 @@ impl Conversation {
             assistant,
             transcript_version,
             prior,
+            receipt: None,
         })
     }
     pub fn progress(&mut self, work: &Work, output: &str) -> Result<()> {
@@ -148,6 +157,9 @@ impl Conversation {
         if let Some(terminal) = terminal {
             text.push_str(&line(&terminal));
         }
+        if let Some(receipt) = &self.receipt {
+            text.push_str(&line(receipt));
+        }
         self.transcript_version = work.write_text(
             &format!("{}/transcript.jsonl", self.directory),
             &text,
@@ -157,7 +169,12 @@ impl Conversation {
         )?;
         Ok(())
     }
-    pub fn finish(&mut self, work: &Work, outcome: &TurnOutcome) -> Result<()> {
+    pub fn finish(
+        &mut self,
+        work: &Work,
+        outcome: &TurnOutcome,
+        receipt: Option<Value>,
+    ) -> Result<()> {
         let time = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
         let terminal = match outcome {
             TurnOutcome::Completed(_) => None,
@@ -168,6 +185,8 @@ impl Conversation {
                 "id":Uuid::new_v4(), "type":"error", "createdAt":time, "message":code, "retryable":false}))
             }
         };
+        // This writer owns the complete prior transcript until cleanup/finish.
+        self.receipt = receipt;
         self.write_transcript(work, terminal)?;
         self.metadata["updatedAt"] = json!(time);
         self.metadata_version = work.write_text(
