@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 03:04:23 UTC",
+  "updated": "2026-10-27 03:11:04 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Shared feature source is qualified. Undo is committed at1c89dfb1 with exact3/affected118/API1708/cold264/all41browser/nativeUndo1 and fullspec78. Safe restore diagnostics are committed atb8466672 with596Rust/4hostedHistory/12nativeRepository; explicit Refresh snapshot repair is committed atcf7bf949 with591Rust/fullspec. Final kernel composition combines only the required R3 patches. Desktop actualONNX20API/2clock/4installedTasks and catalog1/3(636) pass. Hosted actualmodel focused1/fullfamily2 pass; a new test-only optional-score type guard is in retry. Remaining: final coherent source/host closure, current Desktop catalog/native/build and both main adoptions. R3 stays Working."
+      "detail": "Shared feature source is qualified. Undo is committed at1c89dfb1 with exact3/affected118/API1708/cold264/all41browser/nativeUndo1 and fullspec78. Safe restore diagnostics are committed atb8466672 with596Rust/4hostedHistory/12nativeRepository; explicit Refresh snapshot repair is committed atcf7bf949 with591Rust/fullspec. Final kernel composition combines only the required R3 patches. Desktop actualONNX20API/2clock/4installedTasks and catalog1/3(636) pass. Hosted actual-model acceptance is committed at560435e7: exact type/model1/fullfamily2, Web123, cold host build and final specification78 pass. Final native kernel03b8257d passes exact/affected/strict; full597 is running. Remaining: final coherent source/host closure, current Desktop catalog/native/build and both main adoptions. R3 stays Working. Final isolated acceptance combines native03b8257d, Undo1c89dfb1, hostedmodel560435e7 and currentmain1dc93de9; exact product inputs are compared before complete coherent hosted acceptance. No R4 codec/queue product is imported."
     },
     {
       "id": "R4",
@@ -383,7 +383,7 @@
       "work": "Search index reconciliation and scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Both Search host selections and native actual-model5 are source-qualified. [Actual hosted HTTP-model acceptance](spec/records/2026-10-27-hosted-semantic-acceptance.md) now passes exacte2etype repair, model1/fullmetadata-model2, allWebcheck/123unit, coldRusthostbuild and finalspec-first/specification78 at8f3e83a8. It retains exact qualified LinuxCPU/runtime/model vectors/ranks, real productionHTTPprovider, detach/reopen and coldofflinecache. Desktop current9ac+d178 passes actualONNX/Macclock and application selection separately. Final R3kernel/coherenthost closure and mainadoption remain."
+      "detail": "Both Search host selections and five actual-model source cases are qualified. [Hosted actual-model acceptance](spec/records/2026-10-27-hosted-semantic-acceptance.md) is committed at560435e7: exact model1, full metadata/model2, all Web checks/123 units, cold build and final spec-first/specification78 pass. The real production HTTP provider preserves the qualified Linux vectors/ranks and detach/cold offline cache. Desktop actual ONNX and date/clock checks pass separately. Final kernel03b8257d, coherent host closure and main adoption remain."
     },
     {
       "id": "R3.2.3",

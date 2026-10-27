@@ -1,4 +1,4 @@
-use super::dto::capture;
+use super::{diagnostics, dto::capture};
 use crate::services::{Client, Error, Result};
 use lapis_app_protocol::{ErrorCode, repository_restore::*};
 
@@ -14,45 +14,53 @@ impl Client {
             Box::pin(async move {
                 use RepositoryRestoreCommand::*;
                 Ok(match command {
-                    Preview { checkpoint, path } => backup
-                        .preview_restore(checkpoint, path)
+                    Preview { checkpoint, path } => {
+                        backup.preview_restore(checkpoint, path).await.map(|value| {
+                            RepositoryRestoreValue::File(RepositoryFileRestorePreview {
+                                checkpoint: value.checkpoint,
+                                path: value.path,
+                                expected: value.expected,
+                                bytes: value.bytes,
+                                deleted: value.deleted,
+                            })
+                        })
+                    }
+                    PreviewVault { checkpoint } => {
+                        backup.preview_vault_restore(checkpoint).await.map(|value| {
+                            RepositoryRestoreValue::Vault(RepositoryVaultRestorePreview {
+                                checkpoint: value.checkpoint,
+                                expected: value.expected,
+                                added: value.added,
+                                modified: value.modified,
+                                deleted: value.deleted,
+                            })
+                        })
+                    }
+                    Apply { request } => backup
+                        .restore(jj_vault::RestoreRequest {
+                            request_id: request.request_id,
+                            checkpoint: request.checkpoint,
+                            path: request.path,
+                            expected: request.expected,
+                        })
                         .await
-                        .map(|value| RepositoryRestoreValue::File(RepositoryFileRestorePreview {
-                            checkpoint: value.checkpoint,
-                            path: value.path,
-                            expected: value.expected,
-                            bytes: value.bytes,
-                            deleted: value.deleted,
-                        })),
-                    PreviewVault { checkpoint } => backup
-                        .preview_vault_restore(checkpoint)
+                        .map(capture),
+                    ApplyVault { request } => backup
+                        .restore_vault(jj_vault::VaultRestoreRequest {
+                            request_id: request.request_id,
+                            checkpoint: request.checkpoint,
+                            expected: request.expected,
+                        })
                         .await
-                        .map(|value| RepositoryRestoreValue::Vault(RepositoryVaultRestorePreview {
-                            checkpoint: value.checkpoint,
-                            expected: value.expected,
-                            added: value.added,
-                            modified: value.modified,
-                            deleted: value.deleted,
-                        })),
-                    Apply { request } => backup.restore(jj_vault::RestoreRequest {
-                        request_id: request.request_id,
-                        checkpoint: request.checkpoint,
-                        path: request.path,
-                        expected: request.expected,
-                    }).await.map(capture),
-                    ApplyVault { request } => backup.restore_vault(jj_vault::VaultRestoreRequest {
-                        request_id: request.request_id,
-                        checkpoint: request.checkpoint,
-                        expected: request.expected,
-                    }).await.map(capture),
+                        .map(capture),
                     KeepCurrent {} => backup.capture().await.map(capture),
                 })
             })
-        }).await?
+        })
+        .await?
         // The engine still owns uncertain outcomes and exact-retry receipts.
         // Do not parse its human error strings to infer whether a write ran.
-        .map_err(|_| Error::new(ErrorCode::Conflict,
-            "Repository action did not complete; review current files or retry the same pending restore"))
+        .map_err(diagnostics::restore)
     }
 
     fn validate_restore(&self, command: &RepositoryRestoreCommand) -> Result<()> {

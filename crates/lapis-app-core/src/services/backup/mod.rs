@@ -3,6 +3,7 @@ mod close;
 mod commands;
 mod configuration;
 mod control;
+mod diagnostics;
 mod dto;
 pub(super) mod history;
 #[cfg(test)]

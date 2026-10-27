@@ -191,7 +191,10 @@ remain unchanged. Empty selection MUST preserve metadata indexing while pruning
 the compiled providers' rows. Ordinary Rust Markdown-only start/stop retains its
 existing pause behavior; neither application default changes in this source gate.
 The existing native refresh/status port MUST expose the accepted selection's
-outcome without relying on a renderer scheduler.
+outcome without relying on a renderer scheduler. An explicit refresh MUST return
+the completed pass snapshot that satisfies its request; a subsequent watcher
+pass MUST NOT replace that response with live activity. Status observations
+MUST continue to expose current live progress.
 
 Native Search MUST report its selected source count and processed progress,
 including Canvas, independently of preceding metadata counters. Cached status

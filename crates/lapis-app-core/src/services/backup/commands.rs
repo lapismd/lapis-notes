@@ -1,4 +1,4 @@
-use super::{Owner, failure};
+use super::{Owner, diagnostics, failure};
 use crate::services::{Client, Error, Result, VaultService};
 use jj_vault::Backup;
 use std::{future::Future, pin::Pin, sync::Arc};
@@ -46,7 +46,7 @@ impl Client {
                     .await
                     .map_err(|_| failure())??;
                 let engine = owner.engine.lock().await;
-                action(&engine).await.map_err(|_| failure())
+                action(&engine).await.map_err(diagnostics::command)
             }
             .await;
             drop(work);

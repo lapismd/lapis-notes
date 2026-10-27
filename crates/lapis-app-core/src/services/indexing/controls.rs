@@ -1,4 +1,4 @@
-use super::{VaultService, unavailable};
+use super::{IndexingStatus, VaultService, unavailable};
 use crate::services::{Client, Error, Result};
 use lapis_app_protocol::{
     ErrorCode,
@@ -33,6 +33,7 @@ impl VaultService {
         }
         let _control = self.indexing_control.lock().await;
         let mut contribution = None;
+        let mut settled = None;
         match command {
             IndexingCommand::SelectMetadata {} => self.start_markdown_indexing().await?,
             IndexingCommand::SelectSearch { selection } => {
@@ -102,10 +103,15 @@ impl VaultService {
                     .await?;
                 database.release_native_projection(&projection_id).await;
             }
-            IndexingCommand::Refresh { rebuild } => self.refresh_indexing(rebuild).await?,
+            IndexingCommand::Refresh { rebuild } => {
+                settled = Some(self.refresh_indexing_snapshot(rebuild).await?.progress);
+            }
             IndexingCommand::Status {} => {}
         }
-        let status = self.observed_indexing_status()?;
+        let status = match settled {
+            Some(status) => Some(status),
+            None => self.observed_indexing_status()?,
+        };
         Ok(IndexingValue {
             status,
             contribution,
@@ -121,6 +127,9 @@ impl VaultService {
         }
     }
     pub(super) async fn refresh_indexing(&self, rebuild: bool) -> Result<()> {
+        self.refresh_indexing_snapshot(rebuild).await.map(|_| ())
+    }
+    async fn refresh_indexing_snapshot(&self, rebuild: bool) -> Result<IndexingStatus> {
         let refresh = self
             .indexing
             .lock()
@@ -200,3 +209,6 @@ impl VaultService {
         })
     }
 }
+
+#[cfg(test)]
+mod tests;

@@ -1,6 +1,6 @@
 use super::support::{Fixture, TOKEN};
 use jj_store_jj::vault_workspace::{Binding, HistoryReader};
-use lapis_app_protocol::{Outcome, VaultCommand, VaultValue};
+use lapis_app_protocol::{ErrorCode, Outcome, ServiceError, VaultCommand, VaultValue};
 use serde_json::{Value, json};
 use std::fs;
 use uuid::Uuid;
@@ -74,7 +74,14 @@ async fn file_restore_uses_expected_saved_bytes_and_retains_exact_retry_receipts
     let apply =
         json!({"kind":"apply","request":request(&first, preview["expected"].as_str().unwrap())});
     fs::write(&path, "external change after preview\n").unwrap();
-    assert!(!invoke(&f, c.client_id, apply).await.status().is_success());
+    let rejected = invoke(&f, c.client_id, apply).await;
+    assert_eq!(rejected.status(), 409);
+    let error = rejected.json::<ServiceError>().await.unwrap();
+    assert_eq!(error.code, ErrorCode::Conflict);
+    assert_eq!(
+        error.message,
+        "The file changed since the restore preview; review it again"
+    );
     assert_eq!(
         fs::read_to_string(&path).unwrap(),
         "external change after preview\n"
@@ -167,16 +174,16 @@ async fn restore_refuses_detached_unresolved_editor_claims_without_changing_save
     )
     .await;
     f.detach(&c).await;
-    assert!(
-        !invoke(
-            &f,
-            owner.client_id,
-            json!({"kind":"apply","request":request(&first,preview["expected"].as_str().unwrap())})
-        )
-        .await
-        .status()
-        .is_success()
-    );
+    let rejected = invoke(
+        &f,
+        owner.client_id,
+        json!({"kind":"apply","request":request(&first,preview["expected"].as_str().unwrap())}),
+    )
+    .await;
+    assert_eq!(rejected.status(), 409);
+    let error = rejected.json::<ServiceError>().await.unwrap();
+    assert_eq!(error.code, ErrorCode::Busy);
+    assert_eq!(error.message, "Vault has unresolved editor state");
     assert_eq!(
         fs::read_to_string(&path).unwrap(),
         "current saved version\n"
