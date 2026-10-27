@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 03:08:03 UTC",
+  "updated": "2026-10-27 03:37:02 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Shared feature source is qualified. Undo is committed at1c89dfb1 with exact3/affected118/API1708/cold264/all41browser/nativeUndo1 and fullspec78. Safe restore diagnostics are committed atb8466672 with596Rust/4hostedHistory/12nativeRepository; explicit Refresh snapshot repair is committed atcf7bf949 with591Rust/fullspec. Final kernel composition combines only the required R3 patches. Desktop actualONNX20API/2clock/4installedTasks and catalog1/3(636) pass. Hosted actual-model acceptance is committed at560435e7: exact type/model1/fullfamily2, Web123, cold host build and final specification78 pass. Final native kernel03b8257d passes exact/affected/strict; full597 is running. Remaining: final coherent source/host closure, current Desktop catalog/native/build and both main adoptions. R3 stays Working."
+      "detail": "Final native kernel is committed99d45ef2 (code03b8257d):597Rust, strict/build,5hosted journeys and fullspec pass. Undo1c89dfb1 and hostedmodel560435e7 remain qualified. Desktop all2088catalog,536Node,744AI,final20API/model,12Repository and12Navigation pass. Final writer family has49pass/1staleProperties recovery failure; externalbytes are preserved, owning guard-vs-fixture diagnosis active. Final coherent42hosted run is prepared but held for that diagnosis. Remaining: close Properties, finish final native/UI/build acceptance, qualify coherent Notes union and adopt both main workspaces. R4 queues fef5886f are source-only; noactivation. Source review confirms a required API repair: failed native handoff is currently cleared by no-op rearm cleanup; isolated source regression/repair is active. Stale-frontmatter fixture readiness is separately retained."
     },
     {
       "id": "R4",
@@ -791,7 +791,7 @@
       "work": "Actual hosted and Desktop editor/Tasks acceptance",
       "status": "Working",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-020",
-      "detail": "[Committed Undo closure](spec/records/2026-10-27-editor-extension-history.md) at1c89dfb1 passes exact3/3 after1/3 before, affected118, API1708, check20/test20/build11, cold264catalog/static, all41browser and unchanged nativeMetadataUndo1; final mapped first/fullspec78 passes. Desktop current9ac+d178 also passes20API/realONNX,12Repository,4installedTasks and2macOSclock cases. Final composedCore/remainingcatalog/native/build acceptance and mainadoption remain separate."
+      "detail": "Undo source/native1c89dfb1 passes API1708/cold264/41browser and original nativeUndo1; finalspec78 passes. Current composed03b+d178 Desktop passes20API/model,12Repository,12Navigation and all2088catalog/536Node/744AI. Enabledwriter family has49pass/1fail: native saved-editor preflight rejects while Properties metadata is ahead of the clean source editor, before FileTextPersistence can publish the expected conflict review. Diskbytes stay external; exact source-vs-fixture boundary is under diagnosis. Original conflict and recovery assertions remain intact; final install/clock/Rust/bundle/adoption gates stay open. Correct native refusal must remain; actual source defect is no-op successful rearm clearing the failed-handoff Problems issue. Native editing-session repair and separate fixture readiness are active."
     },
     {
       "id": "R3.2.4.2.1",
