@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 06:13:46 UTC",
+  "updated": "2026-10-27 06:36:14 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -79,7 +79,7 @@
       "work": "AI/tools/Changes",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "R3 is complete. Context/attachment foundation5cfb7ca0 is source-qualified and adopted in main (608Rust/2438package/canonical78); host/provider/rich dispatch and remaining R4.3 are pending. Queue observer/metadata and Tauri acceptance remain active, including nullable-thinking parity and shared Send capability repair. Participant publication312f2372 is source-qualified; typed transport and both-host integration remain active. Approvals/tools and Changes/undo retain the original remaining scope. Ordinary defaults are unchanged."
+      "detail": "R3 is complete. Context/attachment foundation5cfb7ca0 is source-qualified and adopted in main. Initial skill-context preparation is active in isolation (exact3/37 complete outputs pass; broad source checks run). Participant publication/typed transport516d11dc is source-qualified (645Rust/119server); shared observer/retained hosted integration follows. Queue null-thinking parity and shared Send/independent Stop repairs retain active source and Tauri gates. Bootstrap/discovery/commands/handoff, approvals/tools and Changes/undo remain in the original scope; ordinary defaults are unchanged."
     },
     {
       "id": "R5",

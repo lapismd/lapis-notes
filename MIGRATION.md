@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-27 06:13:46 UTC**.
+Last updated **2026-10-27 06:36:14 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -32,6 +32,14 @@ optional Docs stays source-only and optional legacy database History capture
 stays Deferred. Neither is an unreported R3 host acceptance claim.
 
 ## Current work and next handoff
+
+**R4 source checkpoint — 2026-10-27 06:36:14 UTC.** Initial skill context is active in
+the isolated `r4-bootstrap-20261027` workspace: all37 retained output/error
+comparisons and three exact native cases pass after the0/3 missing-service
+baseline; broad source checks are running. Participant publication and typed
+transport `516d11dc` are source-qualified, with645 native cases and119 server
+cases. Its retained-host integration is next. Neither checkpoint is ordinary
+AI activation or complete R4 acceptance.
 
 **Native context source adopted — 2026-10-27 06:13:46 UTC.** Main now includes the
 qualified R4.3.1 source `5cfb7ca0`: retained projection, bounded admitted
@@ -65,17 +73,18 @@ pnpm installs restore tracked manifest/lock bytes exactly and leave local loader
 files untouched. No Storybook listener needed a restart; no installed app was
 replaced. Visual approval, signing, publication and distribution stay separate.
 
-**Active R4 lanes — 2026-10-27 05:56:18 UTC:**
+**Active R4 lanes — 2026-10-27 06:36:14 UTC:**
 
 | Checkpoint        | Current source work                                                                                                                                                             | What still blocks completion                                                                                                                                   |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | R4.1 Queues       | Capture `a3cbf03`, FIFO `fef5886f` and typed port `079065a6` are committed. Shared controls/trusted metadata pass620 native and current full package/build checks in isolation. | Finish hosted/catalog acceptance, nullable-thinking fallback and shared Send capability repair; then Tauri native/catalog qualification and coherent adoption. |
-| R4.2 Participants | Publication owner `312f2372` is committed:631 native cases pass, with independent delivery outcomes and retained identity/revision fences.                                      | Typed participant transport and retained host integration are active; this source commit alone does not complete participant parity.                           |
-| R4.3 Context      | Native projector/attachments `5cfb7ca0` are source-qualified here:4exact,7boundaries,29affected,608Rust and2438package cases pass;12/24 complete source outcomes match.         | Source foundation is qualified and adopted here; skills/bootstrap/commands/handoff and both-host integration follow.                                           |
+| R4.2 Participants | Publication and typed port `516d11dc` are source-qualified:645 native and119 server cases pass, with independent outcomes and lost-body identity recovery.                      | Shared observer/session and retained hosted profile integration are active; actual-host/profile/provider gates remain pending.                                 |
+| R4.3 Context      | Native projector/attachments `5cfb7ca0` are source-qualified here:4exact,7boundaries,29affected,608Rust and2438package cases pass;12/24 complete source outcomes match.         | Initial skill-context exact3/37 outcomes pass; broad checks are running. Discovery/bootstrap/commands/handoff and both-host integration remain pending.        |
 | R4.4–R4.5         | Waiting in the original order.                                                                                                                                                  | Approvals, first-party tools, Changes and guarded undo, then complete both-host workflow acceptance.                                                           |
 
-These are isolated source/consumer checkpoints, not main adoption or changed
-ordinary defaults. The final R3 implementation remains the integration base.
+These checkpoints distinguish source qualification from host adoption. Only the
+context foundation is adopted here; ordinary defaults remain unchanged. The
+final R3 implementation remains the integration base.
 The original R4 scope is unchanged; Node remains the hosted default until R7.
 
 <details>
@@ -294,10 +303,10 @@ not host adoption or native/hosted application acceptance.
 
 ### Gate status: Working
 
-| Task ID                                                                | Area                  | Work                                         | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| ---------------------------------------------------------------------- | --------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [R4](spec/src/architecture/rust-application-services.md#ln-core-005)   | Roadmap               | AI/tools/Changes                             | R3 is complete. Context/attachment foundation5cfb7ca0 is source-qualified and adopted in main (608Rust/2438package/canonical78); host/provider/rich dispatch and remaining R4.3 are pending. Queue observer/metadata and Tauri acceptance remain active, including nullable-thinking parity and shared Send capability repair. Participant publication312f2372 is source-qualified; typed transport and both-host integration remain active. Approvals/tools and Changes/undo retain the original remaining scope. Ordinary defaults are unchanged. |
-| [R4.3](spec/src/architecture/rust-application-services.md#ln-core-005) | Native AI preparation | Native context, skills, commands and handoff | Existing R4 scope. Independent source preparation begins with retained reference projection and bounded attachment reads; skills/bootstrap/commands/handoff, rich admission and both-host/provider acceptance remain pending. No default activation or new conversation persistence.                                                                                                                                                                                                                                                                |
+| Task ID                                                                | Area                  | Work                                         | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ---------------------------------------------------------------------- | --------------------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [R4](spec/src/architecture/rust-application-services.md#ln-core-005)   | Roadmap               | AI/tools/Changes                             | R3 is complete. Context/attachment foundation5cfb7ca0 is source-qualified and adopted in main. Initial skill-context preparation is active in isolation (exact3/37 complete outputs pass; broad source checks run). Participant publication/typed transport516d11dc is source-qualified (645Rust/119server); shared observer/retained hosted integration follows. Queue null-thinking parity and shared Send/independent Stop repairs retain active source and Tauri gates. Bootstrap/discovery/commands/handoff, approvals/tools and Changes/undo remain in the original scope; ordinary defaults are unchanged. |
+| [R4.3](spec/src/architecture/rust-application-services.md#ln-core-005) | Native AI preparation | Native context, skills, commands and handoff | Existing R4 scope. Independent source preparation begins with retained reference projection and bounded attachment reads; skills/bootstrap/commands/handoff, rich admission and both-host/provider acceptance remain pending. No default activation or new conversation persistence.                                                                                                                                                                                                                                                                                                                              |
 
 ### Gate status: Waiting
 
