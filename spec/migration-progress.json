@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 04:51:06 UTC",
+  "updated": "2026-10-27 04:52:21 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Final source/story qualification complete: committed repair000aef52/product0e42/API89e passes13exact/158affected/1716API, full2438packages/check20/test20/build11/42hosted/canonical78. Story d7d3d4ae passes exact1/family3/workspace32/cold265/static; merged dc28/1decd30e passes full canonical with6nativepins and16archives. FinalCore99/03b native597 reused under611-byte equality. Desktop99native/ordinarybundle/537Node/744AI/types/build/audits pass; current catalog1332/2088 passes, final756partition running. Remaining: finish Desktopcatalog/doccommit and adopt qualified Notes/Desktop main workspaces. OptionalDocs remains source-only and customcallbacks client-dependent; no R4/default activation."
+      "detail": "Final source/story qualification complete: committed repair000aef52/product0e42/API89e passes13exact/158affected/1716API, full2438packages/check20/test20/build11/42hosted/canonical78. Story d7d3d4ae passes exact1/family3/workspace32/cold265/static; merged dc28/1decd30e passes full canonical with6nativepins and16archives. FinalCore99/03b native597 reused under611-byte equality. Desktop99native/ordinarybundle/537Node/744AI/types/build/audits pass; current catalog1332/2088 passes, final756partition running. Remaining: finish Desktopcatalog/doccommit and adopt qualified Notes/Desktop main workspaces. OptionalDocs remains source-only and customcallbacks client-dependent; no R4/default activation. Final Notes main intake composes6f819527 with main74a54e7d, preserving all104taskIDs and every runtime/story/dependency byte; its only differences are tracking/supporting evidence. Desktop finalcatalog/adoption still gates fullR3."
     },
     {
       "id": "R4",
