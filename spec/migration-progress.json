@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26 23:50:17 UTC",
+  "updated": "2026-10-27 00:46:02 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Shared source, both Search hosts, Desktop History, hosted Repository reads and guarded hosted restore are qualified. [Restore source qualification](spec/records/2026-10-26-hosted-repository-restore.md) passes 543 Rust, 2,332 package, 261 cold catalog, 24 browser and complete canonical/78 governance cases; main intake preserves identical product/test/config bytes. Actual Tasks hosts, native editor intents/recovery, backup controls/status, original-source selection and final provider/timezone/unattended acceptance remain active. Mira input lease c5d1e4b6 is source-qualified; Markdown binding and host adoption remain separate. R4-R7 retain their original dependencies."
+      "detail": "[Closing checkpoint](spec/records/2026-10-27-r3-closing-checkpoint.md): all identified implementation is written. Combined source 0ff929b1 passes 586 Rust, 2,414 package, 263 cold catalog and 41 browser journeys plus full specification gates. Remaining: close five actual-model/full-native checks with the accepted database-admission repair, finish actual Desktop Reader/installed-Tasks acceptance and both main adoptions, then combined provider/timezone/unattended acceptance. R3 stays Working; R4-R7 retain their dependencies."
     },
     {
       "id": "R4",
@@ -631,7 +631,7 @@
       "work": "Native daily provider creation and daily-before-rolling Task coordination",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "Ordered writes 2296023f, shared journal IO 86f360f8, typed recovery 8e09a5de and tracked-today scheduling ad968536 are committed in the isolated source lane. Recovery passes 459 Rust cases and tracked-today 467, with all 78 governance/full source gates. The owning Tasks plugin adapter 7ae46a74 is committed with 2,859 unit, 14 native and 62 cold catalog cases plus complete source gates. Notes generated port is completing final startup reconciliation after plugin load. Remaining: combined main intake, both host selections and daily-provider/locale parity. No lapis-ai changes."
+      "detail": "Native daily provider, ordered writes, recovery and tracked-today source is qualified. The current hosted Tasks/editor/leave cohort passes all 15 actual browser journeys at f532e00e. Desktop native Tasks selection and installed-plugin fixtures are implemented; actual provider/locale/recovery/cold UI, final native/build closure and main adoption remain. Final both-host unattended/day parity remains separate. No lapis-ai changes."
     },
     {
       "id": "R3.2.2.3",
@@ -735,7 +735,7 @@
       "work": "Backup capture controls and passive status",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Qualified backup controls](../.workspaces/lapis-notes-native-history-capture-20261026/spec/records/2026-10-26-hosted-backup-controls.md), sourceedf1d76f, passes575Rust/2358package/261coldcatalog/25browser plus strict/build/public/static/canonical78governance. Persisted selection honors saved false before capture; passive status is an ordered barrier and accepted work survives reply loss/cancellation. History92b4dea6/e714source is qualified. Combined current CORE026/main intake remains active; original-source selection is separate."
+      "detail": "Backup source edf1d76f is combined with Original/editor/hosted source 0ff929b1. Receipt 823317ad passes 586 Rust, 2,414 package, 263 cold catalog/static, 26 ordinary browser journeys and full specification/78 governance. Persisted selection, passive status, lost acknowledgement and cold restart pass. Final admission-repair native closure and current Desktop/main adoption remain separate."
     },
     {
       "id": "R3.2.3.6.3",
@@ -743,7 +743,7 @@
       "work": "Original repository source selection",
       "status": "Working",
       "spec": "spec/src/architecture/rust-history-reader.md#ln-core-016",
-      "detail": "Original-source candidatec6d8788e passes8nativeHTTP,8new/67affectedWeb and strict/protocol/Web gates. Fresh retained source picker, separate Backup/Original tabs, exact pins, source Op Log, metadata preservation, external advance and cold restart pass at75e6abb7 (ab2246a7). Root combined intake now merges backup/Original with committed hosted Tasks85fcb0ee and editor retirement6e76be48; broad source/catalog/browser/spec gate remains pending. Desktop shared Original-reader adoption is next; no new engine or source fallback."
+      "detail": "Combined Original-source cohort 0ff929b1 passes complete source/catalog/specification and current hosted journeys. Desktop shared managed/Original Core readers are implemented with focused checkpoint b4839394. Actual native source/lifetime/UI/restart acceptance, composed native build and both main adoptions remain. No new repository engine or source fallback."
     },
     {
       "id": "R3.2.3.6.4",
@@ -791,7 +791,7 @@
       "work": "Actual hosted and Desktop editor/Tasks acceptance",
       "status": "Working",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-020",
-      "detail": "Hosted85fcb0ee is committed and qualified:15actual Tasks/editor/leave plus24ordinary Rust/metadata/History/Node/local journeys, seven exact leave, full563Rust/2394package/263coldcatalog and final canonical78governance pass. Clean-retirement6e76be48 additionally passes all39journeys. Desktop editor/recoveryM16.7 is committed0dbf2307:58native/2068catalog and complete portable/native/build/spec gates. Desktop main adoption waits on overlapping independent tooling edits; native Tasks selection and final current-cohort acceptance remain separate."
+      "detail": "[Current checkpoint](spec/records/2026-10-27-r3-closing-checkpoint.md): combined source passes 41 hosted/Node/local browser journeys, 586 Rust, 2,414 package and 263 cold catalog cases. Desktop M16.7 passes 58 native/2,068 catalog; current Reader/Tasks composition passes 531 Node/744 AI and strict types. Remaining actual native Reader/installed-Tasks, catalog/build closure, final Core pin and main adoptions retain separate gates."
     },
     {
       "id": "R3.2.4.2.1",
