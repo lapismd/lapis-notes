@@ -1,5 +1,11 @@
 # Shared Rust application services for Lapis
 
+Current execution is **Paused** at the user's request. The original scope below
+is retained; current completion, pending gates and integration status live in
+[MIGRATION.md](MIGRATION.md), [MIGRATION_HANDOFF.md](MIGRATION_HANDOFF.md) and
+[MIGRATION_WORKSPACES.md](MIGRATION_WORKSPACES.md). R7 is primary; R5/R6 remain
+Deferred after cutover. Do not infer current completion from historical plan prose.
+
 Agreed plan, 2026-10-23. Desktop and the hosted server will use the same Rust
 application services. Existing production screens remain their presentation.
 The standalone local/offline web application retains its browser implementation.

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 13:51:31 UTC",
+  "updated": "2026-10-27 14:10:02 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -989,9 +989,9 @@
       "id": "R7.4",
       "area": "Hosted cutover",
       "work": "Linux runtime and container delivery",
-      "status": "Source complete",
+      "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
-      "detail": "GNU-tar exact887c3b92 context builds native image884c3028 with sixpinned/16public inputs. Actual image controller4f874027 passes16 checks: UID/GID1993, noNode/Deno/read-only, login/create/edit, exactvolume bytes, clean stop/restart/reopen. Native model/finalcohort gates remain R7.6."
+      "detail": "Actual native image884c3028 passes16 basicruntime/browser/cold-storage checks. Optional image-model tester is uncommitted/unexecuted; CI step mustoverride inheritednative environment toDocker. Paused; resume via MIGRATION_HANDOFF.md."
     },
     {
       "id": "R7.5",
@@ -1007,7 +1007,7 @@
       "work": "Coherent host and restart qualification",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
-      "detail": "Landed Notes cd997 is under finalmain8404 qualification. Five real-model cases pass offline with exact ORT1.30 and qualified CPU; current API/AppProfile pair is freshly built/packed and installed in Desktop31/117candidate. Native/package/catalog lanes active; actual Macprovider and Desktopnative acceptance remain pending."
+      "detail": "Notes8404 fullsource/native/package/build/spec/tooling/release/catalog passes; five actualmodel cases pass. Desktop31/117pair quiet16/0+types pass; native intake uncommitted with2spec-first omissions. FreshMacserver+renderer ready; allthreefinalprovider cases and Desktopnative/local-offline gates pending. Userpaused; see MIGRATION_HANDOFF.md."
     },
     {
       "id": "R7.7",
@@ -1017,5 +1017,12 @@
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
       "detail": "Tracker13/full80 repair is committed14172. Plugins private test repair407ada2e closes two stale count and two inherited-JJ-base failures: exact2+13affected+2snapshots, fullvalidation51 pass; release140/6\u2192147/2. Two valid portable-lock/BitsUI guards remain failed and are being fixed upstream; audit advisories remain distinct. Optional asset/provider opt-ins are not counted as acceptance."
     }
-  ]
+  ],
+  "activity": {
+    "state": "Paused",
+    "updated": "2026-10-27 14:10:02 UTC",
+    "reason": "User requested complete handoff and workspace status, then pause for another agent.",
+    "handoff": "MIGRATION_HANDOFF.md",
+    "workspaceRegister": "MIGRATION_WORKSPACES.md"
+  }
 }

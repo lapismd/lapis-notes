@@ -1,5 +1,12 @@
 # Rust hosted cutover priority
 
+**Paused after the user-requested handoff update.** Current results, workspace
+integration progress and all remaining gates are saved in
+[MIGRATION_HANDOFF.md](MIGRATION_HANDOFF.md), [MIGRATION.md](MIGRATION.md) and the
+[complete workspace register](MIGRATION_WORKSPACES.md). No temporary checkout has
+been deleted. Resume from those live records; older checkpoints below retain
+historical source qualification.
+
 User-directed priority revision, 2026-10-27. This narrows delivery order, not
 completion claims. The original scope remains in [RUST_CORE_MIGRATION_PLAN.md](RUST_CORE_MIGRATION_PLAN.md) and
 canonical [Rust services](spec/src/architecture/rust-application-services.md).
