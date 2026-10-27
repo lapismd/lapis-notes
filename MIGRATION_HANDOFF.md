@@ -124,11 +124,19 @@ directory while sibling agents run; preservation precedes every deletion.
    Docker-only guard is unchanged and has no host fallback. Mapped chapters:
    spec-governance/validation-and-ci, architecture/build-and-validation,
    packages/releases-and-exports.
-2. Qualify the committed model-tester draft (`c64391fd`): rerun basic16 and
-   the model phases against the actual image before treating the draft as
-   accepted. ONNX only via `LAPIS_SERVER_TEST_ONNX=1` + absolute
-   `LAPIS_SERVER_TEST_ONNX_RUNTIME`; existing model inputs are listed in
-   `.local/search-models/` and the oracle JSON fixtures — no downloads.
+2. DONE (2026-10-27 18:05 UTC): model-tester draft `c64391fd` qualified.
+   Fresh basic16 (16/16) and model (23/23) receipts against actual image
+   `sha256:884c3028…` with tool image `9fa6f3fb…`; ONNX ran only via
+   `LAPIS_SERVER_TEST_ONNX=1` + absolute runtime path (verified cached assets,
+   no downloads). One draft defect repaired in
+   `scripts/server-container/model-assets.mjs` (seed helper input transfer);
+   the failed first attempt is retained as evidence. Record:
+   `spec/records/2026-10-27-image-model-acceptance.md`; LN-CORE-070 is now
+   Implemented. The qualified 16-archive cohort was restored byte-exact from
+   the preserved final-main worker inputs to
+   `.local/validation/phase2-cohort.json` (the local validation config now
+   points at it; the stale main-icons cohort's history build lacked
+   `BackupService.setEnabled` and broke web typecheck).
 3. Mac provider gate from `.local/r7-provider-final/macos-20261027/` (read
    `pause-handoff.json` first): verify pinned Playwright 1.61.1 wiring, then
    run the three final-cohort cases (`rust-server-provider{,-queue,-resume}.spec.ts`)
@@ -183,6 +191,13 @@ directory while sibling agents run; preservation precedes every deletion.
 
 ## Standing decisions
 
+- Notes `packages/desktop-deno` is DEPRECATED and marked for deletion (user
+  decision 2026-10-27). It is excluded from Phase 2 verification lanes: do not
+  run, repair, or count its checks/tests/builds (turbo lanes pass
+  `--filter=!@lapis-notes/desktop-deno`); a root lane failing solely because of
+  it is recorded as excluded-deprecated. The exclusion does NOT extend to
+  `server-deno` or `deno-host-services`, which keep their documented retained
+  lanes and skips.
 - R7 cutover remains primary; R5 memory and R6 durable operations are Deferred
   after cutover. Remaining R4 participant/profile/group queues, rich
   context/commands/handoff, approvals/tools/Changes/undo are explicit backlog.

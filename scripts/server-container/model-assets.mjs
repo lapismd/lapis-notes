@@ -94,7 +94,6 @@ export async function seedImageModel(prepared, context) {
     "create",
     `--name=${container}`,
     "--user=1993:1993",
-    "--read-only",
     "--cap-drop=ALL",
     ...label,
     ...resources(1),

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 16:45:00 UTC",
+  "updated": "2026-10-27 18:05:00 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -991,7 +991,7 @@
       "work": "Linux runtime and container delivery",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
-      "detail": "Actual native image 884c3028 passes 16 basic runtime/browser/cold-storage checks. CI image-acceptance step now explicitly overrides the inherited native runtime to Docker with an exact workflow regression; the Docker-only guard and its no-host-fallback contract are unchanged. Optional image-model tester is committed as unverified draft c64391fd; basic16+model reruns against the actual image remain pending in Phase 2."
+      "detail": "Actual native image 884c3028 passes fresh Phase 2 receipts: 16/16 basic runtime/browser/cold-storage checks and 23/23 with the opt-in model phase (offline UID1993 seeding, qualified vectors/ranks/revision, cold retained-model reuse). The optional image-model tester draft c64391fd is qualified after one harness repair (seed helper input transfer). CI image-acceptance step explicitly overrides the inherited native runtime to Docker with an exact workflow regression; the Docker-only guard is unchanged. Evidence: [image-model acceptance](spec/records/2026-10-27-image-model-acceptance.md). Hosted GitHub CI execution of the lane remains a release-input gate."
     },
     {
       "id": "R7.5",
@@ -1020,8 +1020,8 @@
   ],
   "activity": {
     "state": "Active",
-    "updated": "2026-10-27 16:45:00 UTC",
-    "reason": "Phase 2 verification and repair is running on the integrated main per the handoff gate list; gate 1 (CI image-acceptance runtime override) is repaired, remaining gates are in progress.",
+    "updated": "2026-10-27 18:05:00 UTC",
+    "reason": "Phase 2 verification and repair on the integrated main: CI repair, archive-cohort restoration, check/test/build lanes and image-model acceptance are qualified; remaining lanes and the Mac provider gate are in progress.",
     "handoff": "MIGRATION_HANDOFF.md",
     "workspaceRegister": "MIGRATION_WORKSPACES.md"
   }
