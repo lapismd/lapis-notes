@@ -1,7 +1,16 @@
 import type { TranscriptItem } from "@lapismd/design-core/chat";
-import type { TurnRecord, TurnSummary } from "@lapis-notes/api/native-turns";
+import type {
+  ParticipantMessage,
+  TurnRecord,
+  TurnSummary,
+} from "@lapis-notes/api/native-turns";
 import type { NativeChatSession } from "./session";
 import { queueReceiptItem } from "./queue-receipt";
+import {
+  participantEntries,
+  participantLabels,
+  participantReceiptItem,
+} from "./participant-projection";
 
 export const active = (phase: TurnSummary["phase"]) =>
   phase === "accepted" || phase === "running";
@@ -25,11 +34,16 @@ function blockRevision(text: string): string {
     hash = Math.imul(hash ^ text.charCodeAt(i), 16777619);
   return (hash >>> 0).toString(16);
 }
-function item(value: Record<string, unknown>): TranscriptItem | undefined {
+function item(
+  value: Record<string, unknown>,
+  labels: Map<string, string>,
+): TranscriptItem | undefined {
   if (value.schemaVersion !== 3)
     throw new Error("This saved conversation format is unavailable");
   if (value.type === "queue.outcome")
     return queueReceiptItem(value, blockRevision);
+  if (value.type === "agent.delivery")
+    return participantReceiptItem(value, blockRevision);
   if (value.type !== "message") return;
   if (
     typeof value.id !== "string" ||
@@ -42,7 +56,10 @@ function item(value: Record<string, unknown>): TranscriptItem | undefined {
     id: value.id,
     kind: "message",
     role,
-    label: role === "user" ? "You" : "Agent",
+    label:
+      role === "user"
+        ? "You"
+        : (labels.get(String(value.agentBindingId)) ?? "Agent"),
     createdAt:
       typeof value.createdAt === "string" ? value.createdAt : undefined,
     blocks: [
@@ -61,6 +78,7 @@ export async function conversation(
   session: NativeChatSession,
   summary: TurnSummary,
   record: TurnRecord,
+  participants?: ParticipantMessage,
 ) {
   let metadata: Record<string, unknown>, values: Record<string, unknown>[];
   try {
@@ -86,32 +104,60 @@ export async function conversation(
       throw error;
     // A freshly accepted journal can precede its portable files; only observe it.
     metadata = {};
-    values = [
-      {
-        schemaVersion: 3,
-        type: "message",
-        id: record.input.request_id,
-        role: "user",
-        text: record.input.prompt,
-      },
-      ...(record.output
-        ? [
-            {
-              schemaVersion: 3,
-              type: "message",
-              id: `${record.input.request_id}:reply`,
-              role: "assistant",
-              text: record.output,
-            },
-          ]
-        : []),
-    ];
+    values = participants
+      ? []
+      : [
+          {
+            schemaVersion: 3,
+            type: "message",
+            id: record.input.request_id,
+            role: "user",
+            text: record.input.prompt,
+          },
+          ...(record.output
+            ? [
+                {
+                  schemaVersion: 3,
+                  type: "message",
+                  id: `${record.input.request_id}:reply`,
+                  role: "assistant",
+                  text: record.output,
+                },
+              ]
+            : []),
+        ];
   }
-  const items = values.flatMap((value) => {
-    const next = item(value);
+  let labels = participantLabels([], participants);
+  if (participants || values.some((value) => value.type === "agent.delivery")) {
+    try {
+      const bindings = await session.readText(
+        `${directory(summary)}/agents.jsonl`,
+      );
+      labels = participantLabels(
+        bindings
+          .split("\n")
+          .filter(Boolean)
+          .map((line) => JSON.parse(line)),
+        participants,
+      );
+    } catch (error) {
+      if (
+        !participants ||
+        record.input.continuation ||
+        !active(record.phase) ||
+        !["ENOENT", "NOT_FOUND"].includes(
+          (error as { code?: string }).code ?? "",
+        )
+      )
+        throw error;
+    }
+  }
+  const items = participantEntries(values, participants).flatMap((value) => {
+    const next = item(value, labels);
     return next ? [next] : [];
   });
   if (
+    !participants &&
     ["failed", "unknown", "interrupted", "cancelled"].includes(record.phase)
   ) {
     const text =

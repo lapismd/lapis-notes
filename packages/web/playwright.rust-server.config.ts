@@ -7,6 +7,7 @@ export default defineConfig({
     "rust-server-files.spec.ts",
     "rust-server-chat.spec.ts",
     "rust-server-queue.spec.ts",
+    "rust-server-participants.spec.ts",
   ],
   timeout: 120_000,
   expect: { timeout: 30_000 },

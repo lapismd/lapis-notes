@@ -9,6 +9,7 @@ pub(super) struct History {
     pub agents: TextSnapshot,
     pub transcript: TextSnapshot,
     pub context: String,
+    pub acknowledged: bool,
 }
 fn invalid() -> Error {
     Error::new(
@@ -80,6 +81,10 @@ pub(super) fn read(work: &Work, input: &TurnInput) -> Result<Option<History>> {
                     .ok_or_else(invalid)?;
                 (role, record["text"].as_str().ok_or_else(invalid)?)
             }
+            Some("agent.delivery") => {
+                super::participants::validate_history_delivery(&record)?;
+                continue;
+            }
             Some("queue.outcome") => {
                 crate::turns::queue_capture::validate_receipt(record.clone())
                     .map_err(|_| invalid())?;
@@ -131,5 +136,6 @@ pub(super) fn read(work: &Work, input: &TurnInput) -> Result<Option<History>> {
         agents,
         transcript,
         context,
+        acknowledged: false,
     }))
 }

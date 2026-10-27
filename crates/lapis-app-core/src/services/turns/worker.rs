@@ -50,7 +50,12 @@ pub(super) fn spawn(
             let failed_job = job.clone();
             if tokio::task::spawn_blocking(move || {
                 let persisted = failed_owner.data().is_ok_and(|mut data| {
-                    data.journal.interrupt(id, "native_owner_failed").is_ok()
+                    data.journal
+                        .interrupt(id, "native_owner_failed")
+                        .is_ok_and(|record| {
+                            super::participants::complete(&mut data, &failed_job, &record, false)
+                                .is_ok()
+                        })
                 });
                 retire(&failed_owner, &failed_job, id, clean && persisted);
             })
@@ -74,14 +79,36 @@ async fn run(
     let prepare_record = record.clone();
     let history = selected.history.take();
     let initialized = tokio::task::spawn_blocking(move || -> Result<bool> {
-        let running = prepare_owner.data()?.journal.claim(claim)?;
+        let running = {
+            let mut data = prepare_owner.data()?;
+            let running = data.journal.claim(claim)?;
+            if let Some(state) =
+                super::participants::started(&mut data, &prepare_job, &prepare_record)?
+            {
+                prepare_job
+                    .participant
+                    .as_ref()
+                    .expect("participant gate")
+                    .skip(state);
+                prepare_job.cancel.send_replace(true);
+            }
+            running
+        };
         let authored = prepare_job
             .queued
             .as_ref()
             .map(|q| q.capture["user"].clone());
-        let conversation =
-            Conversation::create(&prepare_job.work, &prepare_record, history, authored).ok();
-        let available = conversation.is_some();
+        let (conversation, available) = if let Some(delivery) = &prepare_job.participant {
+            let mut conversation = delivery.conversation.clone();
+            let available =
+                delivery.skipped().is_none() && conversation.started(&prepare_job.work).is_ok();
+            (Some(conversation), available)
+        } else {
+            let conversation =
+                Conversation::create(&prepare_job.work, &prepare_record, history, authored).ok();
+            let available = conversation.is_some();
+            (conversation, available)
+        };
         *prepare_job.capture.lock().map_err(|_| super::failure())? = Some(Capture {
             running,
             conversation,
@@ -168,19 +195,27 @@ fn finish(owner: &Arc<Owner>, job: &Job, id: Uuid, mut outcome: TurnOutcome, cle
         }
     };
     let mut published = capture.conversation.is_some();
-    if let Some(conversation) = &mut capture.conversation
-        && conversation
-            .finish(&job.work, &outcome, receipt.clone())
-            .is_err()
-    {
-        outcome = TurnOutcome::Unknown("portable_publication_failed".into());
-        published = false;
+    if let Some(conversation) = &mut capture.conversation {
+        let publication = match job.participant.as_ref().and_then(|p| p.skipped()) {
+            Some(state) => conversation.undispatched(
+                &job.work,
+                state == super::participants::ParticipantState::Cancelled,
+            ),
+            None => conversation.finish(&job.work, &outcome, receipt.clone()),
+        };
+        if publication.is_err() {
+            outcome = TurnOutcome::Unknown("portable_publication_failed".into());
+            published = false;
+        }
     }
     let confirmed = owner.data().is_ok_and(|mut data| {
         let Ok(record) = data.journal.finish(&mut capture.running, outcome) else {
             return false;
         };
-        if !clean || super::queue::complete(&mut data, job, &record, published, receipt).is_err() {
+        if super::participants::complete(&mut data, job, &record, published).is_err()
+            || !clean
+            || super::queue::complete(&mut data, job, &record, published, receipt).is_err()
+        {
             return false;
         }
         // A reader of the terminal record can immediately submit its follow-up.

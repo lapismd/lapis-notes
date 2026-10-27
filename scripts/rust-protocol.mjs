@@ -30,6 +30,13 @@ const generated = JSON.parse(
 const outputs = [
   [
     new URL(
+      "../packages/api/src/lib/native-participant-protocol.ts",
+      import.meta.url,
+    ),
+    await format(generated.participantTypescript, { parser: "typescript" }),
+  ],
+  [
+    new URL(
       "../packages/api/src/lib/native-queue-protocol.ts",
       import.meta.url,
     ),

@@ -1,5 +1,9 @@
 # Storybook Catalog / Documentation and navigation
 
+The [Native service exports](../packages/native-service-exports.md) topic is
+separate from release policy and uses a metadata-only mirror in SUMMARY order.
+Its source owns the port contracts; navigation adds no runtime or release gate.
+
 The canonical [Native editor intents](../architecture/native-editor-intents.md)
 chapter uses the metadata-only Specification mirror in SUMMARY order. Its
 source and host verification remain separate; adding its navigation entry does
@@ -357,3 +361,7 @@ The [native Task port chapter](../architecture/rust-task-host-port.md) is indexe
 ## Native queue specification navigation
 
 The [native queue chapter](../architecture/rust-queue-admission.md) separates retained capture, FIFO, admitted transport and host metadata from ordinary turn admission. Its metadata-only mirror and navigation are generated from SUMMARY under LN-CAT-021/080/115. Requirement IDs and immutable evidence stay unchanged; cold catalog and static Docs acceptance remain explicit source gates.
+
+The native logical-participant source contract has its own Architecture page and
+raw-Markdown mirror, adjacent to durable turn admission in specification order.
+This navigation entry does not activate a participant host or executable story.

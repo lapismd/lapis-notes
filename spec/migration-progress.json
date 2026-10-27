@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 09:13:27 UTC",
+  "updated": "2026-10-27 10:48:08 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -79,31 +79,31 @@
       "work": "AI/tools/Changes",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "R3 is complete. Main adopts queue source0eec0811 at50fb6319 and bootstrap source00b55c51 atb2034168, preserving retained context/initial-skill foundations and all115 task IDs. Combined native648/0fail/7retained ignores,75focused/strict/build/canonical78/progress115/format pass. Final Tauri queue intake and Root-coordinated installed-provider R4.1.6, participant host integration, native bindings/skills/commands/handoff, approvals/tools/Changes/undo and R5-R7 remain separate."
+      "detail": "Current skill/participant main intake is qualified: 693 Rust/2469 package/check20/test20/build11, all265 cold catalog/static/Docs6. Tracker repair exact13/0/full80/0; final f5f7344c/c27dee42 passes canonical/progress120/format with zero mutations. R7 is primary; R5/R6 Deferred. Remaining R4 features and actual provider closure remain explicit."
     },
     {
       "id": "R5",
       "area": "Roadmap",
       "work": "Memory",
-      "status": "Waiting",
+      "status": "Deferred",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-007",
-      "detail": "After R4: native capture/recall, Markdown authority, maintenance, relocation and cold recovery. Derived database storage alone does not complete this."
+      "detail": "Deferred by user on2026-10-27 until afterR7 cutover. Native storage exists; capture/recall, claims, maintenance, forget/relocation and unattended/cold-recovery ownership remain unimplemented. Retain existing features/data; not a cutover prerequisite."
     },
     {
       "id": "R6",
       "area": "Roadmap",
       "work": "Native jobs",
-      "status": "Waiting",
+      "status": "Deferred",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "After R5: imports/capture, existing Forge/transfer/Compute, installation transactions and terminal lifetime."
+      "detail": "Deferred by user on2026-10-27 until afterR7 cutover. Durable ownership/progress/cancel/recovery for imports/capture, Forge/transfer/Compute, installation and terminal remains. Existing engines/features are retained; not a cutover prerequisite."
     },
     {
       "id": "R7",
       "area": "Roadmap",
       "work": "Rust cutover",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
-      "detail": "After feature slices: full hosted/desktop journeys, HTTP/SSE, Linux packaging, standalone-browser regression and Node/companion retirement. Existing hosted text-conflict review parity is being prepared by extracting the current Desktop feature into Workspace; native recovery actions retain separate authority. This does not expand R3 or select defaults."
+      "detail": "Priority after the current intake slice: [saved cutover plan](RUST_HOSTED_CUTOVER_PLAN.md). Audit serving-profile gaps and deferred tests, select Rust by default, retire Node/companion application runtime, qualify Linux/container/Desktop/local-browser and cold/provider boundaries. R5 and R6 are Deferred; remaining R4 work is explicit and fixed before cutover only where required to preserve serving behavior or remove runtime dependencies."
     },
     {
       "id": "R1.3.1",
@@ -839,7 +839,7 @@
       "work": "Native context, skills, commands and handoff",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Context projection/attachments5cfb7ca0, initialb7c2659d and bootstrap00b55c51 are qualified/adopted; integrated queue/bootstrap main passes648Rust/75focused. Isolated native skill source308823ed is Working: source exact0/3→3/3 covers33parser/25discovery/four registry traces; eight native binding boundaries pass and full qualification is live. Skills are not yet adopted here. Commands/handoff, rich dispatch and both-host/provider gates remain."
+      "detail": "Context/bootstrap foundations are adopted. Native skillsa14ba184 are source-qualified (3exact/8boundaries/634Rust/2438package); main union product qualification passes693Rust/2469package/265catalog; final canonical/progress120/format passes atf5f7344c/c27dee42. Commands/handoff, rich dispatch and both-host/provider gates remain."
     },
     {
       "id": "R4.3.1",
@@ -899,19 +899,19 @@
     },
     {
       "id": "R4.1.5",
-      "status": "Working",
+      "status": "Complete",
       "area": "Tauri queue adapter",
       "work": "Admitted native bridge and trusted recipient-catalog selection",
       "spec": "spec/src/architecture/rust-queue-admission.md#ln-core-036",
-      "detail": "Desktop final intake is active against immutable Core0eec0811 and qualified AgentUI58bd (producer2bee4ed6). Existing public APIef8170a6/AppProfile0e792 runtime/declaration bytes retain exact equality to the final shared packs. Complete native/catalog/source intake and Desktop main adoption remain its separate owned gate."
+      "detail": "Desktop source151e4f12 and default adoption40b50d3e/E-CORE-044 qualify Tauri queue metadata/bridge and retained native screen:2124catalog/544Node/744AI/258LinuxRust/55MacHost/5actualNative, strict/both bundles/assets/audits pass;31public archives/117routes exact. Actual installed-provider combinedR4.1.6 remains active, not completed by fixture/native screen proof."
     },
     {
       "id": "R4.1.6",
-      "status": "Waiting",
+      "status": "Working",
       "area": "Queue host/provider acceptance",
       "work": "Combined real-host queue workflows and retained provider gates",
       "spec": "spec/src/architecture/rust-queue-admission.md#ln-core-036",
-      "detail": "Root owns final combined actual-installed-provider acceptance after coherent shared/operator and Tauri intake. Prove queue acceptance, live detach, retained outcomes, controls, explicit cold resume/no-replay and provider-default omission through both hosts using the R2 read-only isolated-vault path. Deterministic ACP/screen fixtures do not close this Waiting gate."
+      "detail": "Actual installed-provider queue acceptance is active in separate hosted/native lanes on qualified queue/Core/Desktop inputs. Preserve exact Stop-Unknown/no-replay and happy cold explicit-resume boundaries; deterministic source fixtures do not close this gate."
     },
     {
       "id": "R4.3.3",
@@ -920,6 +920,46 @@
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-049",
       "detail": "[Native bootstrap](spec/records/2026-10-27-native-bootstrap.md): original0/3 becomes3/3 with41 complete source outcomes/read traces;9 native boundaries,14 oldcontext/29 lifetime,623Rust/2438package,strict/check20/test20/build11 and canonical78 pass at53cf4bd9/6cacbda2. Two Unicode refusals retain complete source wire results. Source-only; discovery/versioned bindings, rich dispatch and both-host/provider/default gates remain separate. [Main intake](spec/records/2026-10-27-native-bootstrap-main-adoption.md) preserves the completed queue main50fb6319 and all114 prior task IDs; integrated native compile/regressions and canonical/progress/format are the current adoption boundary. Integrated main f35d9c42/3e8d passes648Rust/0fail/7retained ignores, exact3/boundary9/priorcontext14/Corequeue13/HTTPqueue8/lifetime28,strict/protocol/workspacebuild/canonical78/progress115/format with zero worker source mutations. Queue/host/browser/type/catalog inputs remain unchanged; Final documentary53360d15/b87af2ee passes complete canonical78/progress115/format with exact checked-tree equality; main adoption is committedb2034168."
+    },
+    {
+      "id": "R4.2",
+      "area": "AI workflow participants",
+      "work": "Logical participants and one conversation publication owner",
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-participants.md#ln-core-033",
+      "detail": "Native publication/typed port and declared-profile/shared/hosted observation are source-qualified atc75a4e32 (native654, mounted2/allhosted11,265catalog/full source gates). Main union product qualification passes693Rust/2469package/265catalog; final canonical/progress120/format passes atf5f7344c/c27dee42; Tauri profiles, actual providers, profile editing, rich workflows and busy group queue remain."
+    },
+    {
+      "id": "R4.2.1",
+      "area": "AI workflow participants",
+      "work": "Source-only native participant acceptance and coordinated publication",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-participants.md#ln-core-034",
+      "detail": "[Qualified native participants](spec/records/2026-10-27-native-participant-publication.md) at26dda092 on isolated079. Exact missing-service and unstarted-cancel regressions each0/1\u21921/1;12 participant cases,69 full validator results/seven entries, affected55 and full631 Rust tests (zero failures, seven existing ignores) pass. Strict boundary/protocol/fmt/Clippy, locked build,110-task progress, all ten spec lanes and78 governance cases pass. One owned publisher preserves independent output/revision fences and cold unknown/not-sent without replay. Source-only; preserve current R3 Complete/API0e42/native03b and R4.1 metadata on intake. No host/UI/protocol selection or default changes."
+    },
+    {
+      "id": "R4.2.2",
+      "area": "Admitted participant transport",
+      "work": "Generated participant DTOs, admitted HTTP and shared native client port",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-participants.md#ln-core-042",
+      "detail": "[Qualified source transport](spec/records/2026-10-27-native-participant-port.md): exact HTTP 404/0-of-1 to 1/1, DTO2/HTTP9, affected82/0/1 retained ignore, full Rust645/0/7 retained ignores and strengthened server119/0 pass. Full check20/test20/build11, API1716, public packed types, strict/locked native build, all specification/78 governance/114-task progress pass. Product6e952249 and reply-body test4435f15a remain distinct. Frozen Deno lock stays unchanged despite audited worker-only normalization. Actual host/logical-profile and complete R4.2 adoption remain separate."
+    },
+    {
+      "id": "R4.2.3",
+      "area": "Shared and hosted participants",
+      "work": "Declared-profile participant observation and hosted native integration",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-participants.md#ln-core-048",
+      "detail": "[Qualified source and hosted fixture](spec/records/2026-10-27-native-participant-host.md): native654/0/7 retained ignores, server122/0, strict/locked build,14 shared/four forwarding, exact mounted2 and complete hosted11 pass. Compact UI/native UUID mapping repairs0/1 to1/0. Product b39e432a passes check20/test20/build11. Cold51e2e38f/b3aa43aa passes265catalog/static/six Docs/canonical78/progress115; original History93/2 failure remains recorded and exact2/full6/full265 pass on unchanged product/test inputs. Root composition, Tauri/profile/provider, busy group queue and complete R4.2 remain separate. Main unionf5f7344c qualifies integrated693Rust/2469package/265catalog and complete canonical80/progress120/format; source inputs remain exact. Actual host/provider and remaining feature gates stay separate."
+    },
+    {
+      "id": "R4.3.4",
+      "area": "Native context",
+      "work": "Retained skill discovery and versioned native bindings",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-051",
+      "detail": "[Native skills](spec/records/2026-10-27-native-skills.md): exact0/3\u21923/3 across33parser/25discovery/four registry traces (23steps),8native binding boundaries,26oldcontext/29lifetime,634Rust/2438package/check20/test20/build11/strict/canonical78 pass at308823ed/e9ecd545. Admitted vault bindings retain exact bytes across detach, current changes and reused version labels. Source-only; commands/handoff, rich dispatch and actual-host/provider gates remain. Main unionf5f7344c qualifies integrated693Rust/2469package/265catalog and complete canonical80/progress120/format; source inputs remain exact. Actual host/provider and remaining feature gates stay separate."
     }
   ]
 }

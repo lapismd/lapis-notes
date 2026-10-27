@@ -96,3 +96,8 @@ shim from a different package version.
 
 Vault-local settings and installed-plugin assets use the shared `.lapis`
 default through the public API path contract under LN-ARCH-140 and LN-PKG-165.
+
+Hosted participant chat uses the existing admitted native client and typed
+profile/receipt projection under [LN-CORE-046](../architecture/rust-participants.md#ln-core-046)
+through [LN-CORE-048](../architecture/rust-participants.md#ln-core-048). Logical
+recipients never become executable targets; absent metadata retains R2 idle sends.

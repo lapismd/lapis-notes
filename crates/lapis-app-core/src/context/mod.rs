@@ -4,6 +4,7 @@ mod attachments;
 pub mod bootstrap;
 mod initial;
 mod projection;
+pub mod skill_catalog;
 mod skills;
 pub use attachments::prepare_attachments;
 pub use initial::prepare_initial_context;

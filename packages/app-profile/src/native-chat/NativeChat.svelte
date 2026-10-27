@@ -74,7 +74,9 @@
       controller.sessionId = port.selected;
       if (previous !== port.selected || !controller.selectedAgent) {
         controller.selectedAgent =
-          controller.session?.agent || snapshot.agents[0]?.id || "";
+          snapshot.agents.find(
+            (agent) => agent.id === controller.session?.agent,
+          )?.id || snapshot.agents[0]?.id || "";
         previous = port.selected;
         onSelection?.(
           port.selected,

@@ -27,6 +27,7 @@ async fn native_agent_installation_rejects_vault_helpers_links_and_duplicate_ids
         }],
     };
     let agent = |path: std::path::PathBuf| AgentConfig {
+        participant_selections: Vec::new(),
         queue_selection: None,
         id: "fixture".into(),
         label: "Fixture".into(),

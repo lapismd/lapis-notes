@@ -2,7 +2,7 @@ use super::{Result, fields::*};
 use serde_json::Value;
 use std::collections::HashSet;
 
-pub(super) fn recipients(value: Option<&Value>) -> Result<Vec<String>> {
+pub(crate) fn recipients(value: Option<&Value>) -> Result<Vec<String>> {
     let Some(value) = value else {
         return Ok(Vec::new());
     };

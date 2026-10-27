@@ -2535,6 +2535,196 @@
         }
       ]
     },
+    "ParticipantCommand": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "profiles", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "for_turn", "type": "string" },
+            "request_id": { "format": "uuid", "type": "string" }
+          },
+          "required": ["kind", "request_id"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "input": { "$ref": "#/$defs/ParticipantMessageInput" },
+            "kind": { "const": "accept", "type": "string" }
+          },
+          "required": ["kind", "input"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "acceptance_id": { "format": "uuid", "type": "string" },
+            "kind": { "const": "read", "type": "string" }
+          },
+          "required": ["kind", "acceptance_id"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "acceptance_id": { "format": "uuid", "type": "string" },
+            "kind": { "const": "stop", "type": "string" }
+          },
+          "required": ["kind", "acceptance_id"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "acceptance_id": { "format": "uuid", "type": "string" },
+            "kind": { "const": "cancel", "type": "string" },
+            "request_id": { "format": "uuid", "type": "string" }
+          },
+          "required": ["kind", "acceptance_id", "request_id"],
+          "type": "object"
+        }
+      ]
+    },
+    "ParticipantDelivery": {
+      "additionalProperties": false,
+      "properties": {
+        "agent_binding_id": { "format": "uuid", "type": "string" },
+        "delivery_id": { "type": "string" },
+        "outcome_published": { "type": "boolean" },
+        "request_id": { "format": "uuid", "type": "string" },
+        "session_id": { "format": "uuid", "type": "string" },
+        "state": { "$ref": "#/$defs/ParticipantState" }
+      },
+      "required": [
+        "delivery_id",
+        "request_id",
+        "agent_binding_id",
+        "session_id",
+        "state",
+        "outcome_published"
+      ],
+      "type": "object"
+    },
+    "ParticipantMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "acceptance_id": { "format": "uuid", "type": "string" },
+        "conversation_id": { "format": "uuid", "type": "string" },
+        "deliveries": {
+          "items": { "$ref": "#/$defs/ParticipantDelivery" },
+          "type": "array"
+        },
+        "input": { "$ref": "#/$defs/ParticipantMessageInput" },
+        "recovered": { "type": "boolean" },
+        "schema_version": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "vault_id": { "format": "uuid", "type": "string" }
+      },
+      "required": [
+        "schema_version",
+        "vault_id",
+        "acceptance_id",
+        "conversation_id",
+        "input",
+        "deliveries",
+        "recovered"
+      ],
+      "type": "object"
+    },
+    "ParticipantMessageInput": {
+      "additionalProperties": false,
+      "properties": {
+        "acceptance_id": { "format": "uuid", "type": "string" },
+        "dispatch": true,
+        "profiles": {
+          "items": { "$ref": "#/$defs/ParticipantProfile" },
+          "type": ["array", "null"]
+        },
+        "turns": { "items": { "$ref": "#/$defs/TurnInput" }, "type": "array" },
+        "user": true
+      },
+      "required": ["acceptance_id", "user", "dispatch", "turns"],
+      "type": "object"
+    },
+    "ParticipantProfile": {
+      "additionalProperties": false,
+      "properties": {
+        "options": { "$ref": "#/$defs/TurnOptions" },
+        "selection": { "$ref": "#/$defs/QueueSelection" },
+        "target_id": { "type": "string" }
+      },
+      "required": ["target_id", "selection", "options"],
+      "type": "object"
+    },
+    "ParticipantState": {
+      "enum": [
+        "pending",
+        "started",
+        "completed",
+        "rejected",
+        "unknown",
+        "not_sent",
+        "cancelled"
+      ],
+      "type": "string"
+    },
+    "ParticipantValue": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "profiles", "type": "string" },
+            "profiles": {
+              "items": { "$ref": "#/$defs/ParticipantProfile" },
+              "type": "array"
+            }
+          },
+          "required": ["kind", "profiles"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "message", "type": "string" },
+            "message": {
+              "anyOf": [
+                { "$ref": "#/$defs/ParticipantMessage" },
+                { "type": "null" }
+              ]
+            }
+          },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "accepted": { "type": "boolean" },
+            "kind": { "const": "stop_requested", "type": "string" }
+          },
+          "required": ["kind", "accepted"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "accepted": { "type": "boolean" },
+            "kind": { "const": "cancel_requested", "type": "string" }
+          },
+          "required": ["kind", "accepted"],
+          "type": "object"
+        }
+      ]
+    },
     "ProjectionCardinality": { "enum": ["one", "many"], "type": "string" },
     "ProjectionComparison": {
       "enum": ["eq", "ne", "lt", "lte", "gt", "gte"],
@@ -4805,6 +4995,8 @@
     "native_task_value": { "$ref": "#/$defs/NativeTaskValue" },
     "notebook": { "$ref": "#/$defs/NotebookState" },
     "notification": { "$ref": "#/$defs/NotificationRecord" },
+    "participant_command": { "$ref": "#/$defs/ParticipantCommand" },
+    "participant_value": { "$ref": "#/$defs/ParticipantValue" },
     "projection_definition": { "$ref": "#/$defs/ProjectionDefinition" },
     "projection_error": { "$ref": "#/$defs/ProjectionSourceError" },
     "projection_query": { "$ref": "#/$defs/ProjectionQuery" },
@@ -4855,6 +5047,8 @@
     "vault_name": { "$ref": "#/$defs/VaultName" }
   },
   "required": [
+    "participant_command",
+    "participant_value",
     "repository_sources_command",
     "repository_sources",
     "repository_backup_command",

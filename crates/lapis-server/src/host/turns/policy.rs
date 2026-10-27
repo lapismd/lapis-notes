@@ -19,6 +19,8 @@ use uuid::Uuid;
 pub struct AgentConfig {
     #[serde(default)]
     pub queue_selection: Option<lapis_app_protocol::queues::QueueSelection>,
+    #[serde(default)]
+    pub participant_selections: Vec<lapis_app_protocol::queues::QueueSelection>,
     pub id: String,
     pub label: String,
     pub default_mode: String,
@@ -53,6 +55,23 @@ impl Policy {
             })
         {
             return Err(io::Error::other("Invalid native agent installation"));
+        }
+        let mut participants = HashSet::new();
+        if agents
+            .iter()
+            .map(|a| a.participant_selections.len())
+            .sum::<usize>()
+            > lapis_app_protocol::participants::PARTICIPANT_PROFILE_LIMIT
+            || agents
+                .iter()
+                .flat_map(|a| &a.participant_selections)
+                .any(|p| {
+                    !participants.insert(p.recipient.id.clone()) || !queue_selection::valid(Some(p))
+                })
+        {
+            return Err(io::Error::other(
+                "Invalid declared native participant profiles",
+            ));
         }
         let policy = Self { agents, forbidden };
         for agent in &policy.agents {
@@ -94,6 +113,24 @@ impl AgentPolicy for Policy {
                 id: agent.id.clone(),
                 label: agent.label.clone(),
                 default_mode: agent.default_mode.clone(),
+            })
+            .collect())
+    }
+    fn participant_profiles(
+        &self,
+        _: Uuid,
+        scope: &VaultRoot,
+    ) -> lapis_ai_service::Result<Vec<(String, lapis_app_protocol::queues::QueueSelection)>> {
+        scope
+            .verify_physical_root()
+            .map_err(|_| lapis_ai_service::Error("scope_unavailable"))?;
+        Ok(self
+            .agents
+            .iter()
+            .flat_map(|a| {
+                a.participant_selections
+                    .iter()
+                    .map(|p| (a.id.clone(), p.clone()))
             })
             .collect())
     }

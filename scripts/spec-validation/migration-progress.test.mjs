@@ -99,23 +99,34 @@ function fixture(t) {
 
 test("master tracker groups gates and links naturally sorted task IDs", () => {
   const source = readFileSync(new URL("MIGRATION.md", root), "utf8");
-  const headings = [...source.matchAll(/^### Gate status: (.+)$/gmu)];
+  const declared = JSON.parse(
+    readFileSync(new URL("spec/migration-progress.json", root), "utf8"),
+  ).tasks;
+  const statuses = new Set(declared.map((item) => item.status));
+  const tracker = source.slice(
+    source.indexOf("<!-- migration-tasks:start -->"),
+    source.indexOf("<!-- migration-tasks:end -->"),
+  );
+  const headings = [...tracker.matchAll(/^### Gate status: (.+)$/gmu)];
   assert.deepEqual(
     headings.map((match) => match[1]),
-    ["Working", "Waiting", "Deferred", "Source complete", "Complete"],
+    ["Working", "Waiting", "Deferred", "Source complete", "Complete"].filter(
+      (status) => statuses.has(status),
+    ),
   );
   let total = 0;
   for (const [index, heading] of headings.entries()) {
-    const section = source.slice(
+    const section = tracker.slice(
       heading.index,
-      headings[index + 1]?.index ??
-        source.indexOf("### Consumer qualification"),
+      headings[index + 1]?.index ?? tracker.length,
     );
     const ids = [
       ...section.matchAll(/^\| \[(R[\d.]+)\]\((spec\/src\/[^)]+)\)/gmu),
     ];
     total += ids.length;
     const names = ids.map((match) => match[1]);
+    for (const id of names)
+      assert.equal(declared.find((item) => item.id === id)?.status, heading[1]);
     assert.deepEqual(
       names,
       [...names].sort((a, b) => a.localeCompare(b, "en", { numeric: true })),
@@ -126,17 +137,43 @@ test("master tracker groups gates and links naturally sorted task IDs", () => {
       assert.ok(contract.includes(`<a id="${anchor}"></a>`), target);
     }
   }
-  const declared = JSON.parse(
-    readFileSync(new URL("spec/migration-progress.json", root), "utf8"),
-  ).tasks;
   assert.equal(total, declared.length);
   const rendered = [
-    ...source.matchAll(/^\| \[(R[\d.]+)\]\(spec\/src\//gmu),
+    ...tracker.matchAll(/^\| \[(R[\d.]+)\]\(spec\/src\//gmu),
   ].map((match) => match[1]);
   assert.deepEqual(
     [...rendered].sort(),
     declared.map((item) => item.id).sort(),
   );
+});
+
+test("a started and deferred plan omits Waiting without losing other groups", async () => {
+  const output = await renderTasks([
+    task("R5", "Deferred"),
+    task("R7", "Working"),
+    task("R1", "Complete"),
+    task("R4", "Source complete"),
+  ]);
+  assert.deepEqual(
+    [...output.matchAll(/^### Gate status: (.+)$/gmu)].map((match) => match[1]),
+    ["Working", "Deferred", "Source complete", "Complete"],
+  );
+  assert.equal([...output.matchAll(/^\| \[R\d+\]/gmu)].length, 4);
+});
+
+test("all five populated statuses retain their canonical order", async () => {
+  const output = await renderTasks([
+    task("R1", "Complete"),
+    task("R2", "Source complete"),
+    task("R3", "Deferred"),
+    task("R4", "Waiting"),
+    task("R5", "Working"),
+  ]);
+  assert.deepEqual(
+    [...output.matchAll(/^### Gate status: (.+)$/gmu)].map((match) => match[1]),
+    ["Working", "Waiting", "Deferred", "Source complete", "Complete"],
+  );
+  assert.equal([...output.matchAll(/^\| \[R\d+\]/gmu)].length, 5);
 });
 
 test("generation orders gates, omits empty groups and leaves the ledger untouched", async () => {

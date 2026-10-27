@@ -84,6 +84,7 @@ impl Native {
                 profile,
                 if selected {
                     vec![AgentConfig {
+                        participant_selections: Vec::new(),
                         queue_selection: None,
                         id: "fixture".into(),
                         label: "Fixture agent".into(),
