@@ -97,3 +97,16 @@ and adjacent JSON preserve source hashes, the exact staged flags, original
 provider/ONNX/process-helper distinctions and the required acceptance commands.
 Plugins private test repair `407ada2e` is qualified separately from its pending
 portable-lock/BitsUI repair; no consumer artifact refresh follows test-only work.
+
+## Final integration and cleanup order
+
+The user directs focused regressions before landing, then final broad validation
+on the landed main workspaces. Avoid repeating full suites on intermediate
+metadata snapshots. Keep unrun gates pending and retain any observed failure;
+this changes execution order, not acceptance criteria. Disable commit signing.
+
+After the scoped cutover, merge this migration's source workspaces into their
+owning mains, preserve committed history and qualification reports, and validate
+the final coherent source/public/native cohort. Remove temporary migration
+workspaces only after verifying their changes are integrated and needed ignored
+evidence has been saved. Preserve unrelated workspaces, data, profiles and secrets.

@@ -63,6 +63,7 @@ const preview: Preview = {
               "Workspace integration",
               "Host boundaries",
               "Rust application services",
+              "Rust hosted runtime delivery",
               "Rust managed vaults",
               "Durable native turn admission",
               "Native conversation queues",

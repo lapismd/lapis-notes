@@ -92,6 +92,7 @@ async function performRun(config, lane, args, selected, workspace) {
     "model.mjs",
     "process.mjs",
     "native-sources.mjs",
+    "install-projection.mjs",
   ])
     await writeFile(
       join(input, file),

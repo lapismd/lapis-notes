@@ -171,7 +171,11 @@
     "test:server:tasks:references:run": "CARGO_BUILD_JOBS=2 pnpm rust:core -- build -p lapis-server --locked && VITE_LAPIS_NATIVE_TASKS=1 VITE_LAPIS_NATIVE_METADATA=1 pnpm --filter @lapis-notes/web build:rust-server && pnpm --filter @lapis-notes/web exec playwright test -c playwright.rust-tasks.config.ts --grep \"another App\"",
     "test:server:tasks:editors:run": "CARGO_BUILD_JOBS=2 pnpm rust:core -- build -p lapis-server --locked && VITE_LAPIS_NATIVE_TASKS=1 VITE_LAPIS_NATIVE_METADATA=1 pnpm --filter @lapis-notes/web build:rust-server && pnpm --filter @lapis-notes/web exec playwright test -c playwright.rust-tasks.config.ts --grep \"real dirty editor\"",
     "test:server:tasks:leave:run": "CARGO_BUILD_JOBS=2 pnpm rust:core -- build -p lapis-server --locked && VITE_LAPIS_NATIVE_TASKS=1 VITE_LAPIS_NATIVE_METADATA=1 pnpm --filter @lapis-notes/web build:rust-server && pnpm --filter @lapis-notes/web exec playwright test -c playwright.rust-tasks.config.ts --grep \"guarded hosted leave\"",
-    "test:web:workspace-leave:run": "pnpm --filter @lapis-notes/web exec vitest run src/workspace/leave.test.ts"
+    "test:web:workspace-leave:run": "pnpm --filter @lapis-notes/web exec vitest run src/workspace/leave.test.ts",
+    "build:server:rust": "node scripts/validation.mjs run build:server:rust",
+    "start:server:rust": "node scripts/server-runtime.mjs start",
+    "test:server:delivery": "node scripts/validation.mjs run test:server:delivery",
+    "test:server:delivery:run": "node --test scripts/server-runtime.test.mjs"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.7.0",

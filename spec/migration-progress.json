@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 11:02:17 UTC",
+  "updated": "2026-10-27 12:21:39 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -982,8 +982,8 @@
       "area": "Hosted cutover",
       "work": "Native build and start entrypoints",
       "status": "Working",
-      "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
-      "detail": "Isolated native launcher passes five private tests plus the bounded-routing regression. Full coherent native/Web build, actual startup and main adoption remain. Ordinary defaults stay unchanged until serving acceptance."
+      "spec": "spec/src/architecture/rust-hosted-delivery.md#ln-core-064",
+      "detail": "Focused sourcecd520b71 is landed in main: native delivery5/routing1/installprojection3 pass. Final real compiled launch/release/Web/native and corrected-dependency guards remain pending on the final main cohort. Ordinary defaults remain unchanged."
     },
     {
       "id": "R7.4",

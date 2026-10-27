@@ -10,6 +10,10 @@ Temporary source-archive qualification installs its declared, checksum-verified
 prerequisites before validation. It does not require unpublished identities to
 resolve from the registry first; tracked manifests and lockfiles remain portable.
 Registry-only release qualification stays a separate gate.
+An archive projection preserves pnpm's effective dependency override policy
+before adding selected archives. A package-level projection must not shadow
+workspace security overrides; invalid policy stops before installation. Tracked
+manifests and lockfiles are restored before checks, including failed installs.
 Workers drop Linux capabilities so permission regressions cannot pass through
 root's discretionary-access overrides. The actual Docker smoke verifies denied
 file reads, denied directory writes and zero effective capabilities before the

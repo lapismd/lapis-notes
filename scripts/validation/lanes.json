@@ -45,7 +45,7 @@
   "test:rust-core": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:rust-core:run --task-args",
   "build:rust-core": "pnpm rust:core -- build --workspace --locked",
   "check:protocol": "node scripts/rust-protocol.mjs --check && tsc -p crates/lapis-app-protocol/tsconfig.json",
-  "validation:check": "node --test scripts/validation.test.mjs scripts/validation-native.test.mjs scripts/validation-leases.test.mjs scripts/validation-cache.test.mjs scripts/validation-images.test.mjs scripts/spec-validation/storybook-parity.test.mjs",
+  "validation:check": "node --test scripts/validation.test.mjs scripts/validation-install.test.mjs scripts/validation-native.test.mjs scripts/validation-leases.test.mjs scripts/validation-cache.test.mjs scripts/validation-images.test.mjs scripts/spec-validation/storybook-parity.test.mjs",
   "validation:smoke": "node scripts/validation/smoke.mjs",
   "check:storybook-parity": "node scripts/spec-validation/check-storybook-parity.mjs",
   "test:storybook-parity": "node scripts/run-turbo.mjs test:storybook-parity:run --task-args",
@@ -63,5 +63,7 @@
   "test:server:tasks:references": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:server:tasks:references:run --task-args",
   "test:web:workspace-leave": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:web:workspace-leave:run --task-args",
   "test:server:tasks:editors": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:server:tasks:editors:run --task-args",
-  "test:server:tasks:leave": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:server:tasks:leave:run --task-args"
+  "test:server:tasks:leave": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:server:tasks:leave:run --task-args",
+  "build:server:rust": "node scripts/server-runtime.mjs build",
+  "test:server:delivery": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:server:delivery:run --task-args"
 }

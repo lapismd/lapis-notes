@@ -301,7 +301,10 @@ test("Node server acceptance builds and tests without Deno before aggregation", 
   );
   assert.match(workflow.jobs.validate.steps[0].run, /"\$SERVER_ACCEPTANCE"/);
   const webConfig = readFileSync("packages/web/playwright.config.ts", "utf8");
-  assert.match(webConfig, /testIgnore: "server-host\.spec\.ts"/);
+  const exclusions = /testIgnore:\s*\[([^\]]+)\]/u.exec(webConfig)?.[1];
+  assert.ok(exclusions, "standalone Web declares its hosted-suite exclusions");
+  assert.match(exclusions, /"server-host\.spec\.ts"/u);
+  assert.match(exclusions, /"rust-server-\*\.spec\.ts"/u);
   const dedicatedConfig = readFileSync(
     "packages/web/playwright.server.config.ts",
     "utf8",
