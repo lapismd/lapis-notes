@@ -1,0 +1,257 @@
+{
+  "created": "2026-10-27T10:52:43.003445+00:00",
+  "scope": "read-only R7 Desktop/standalone compatibility audit; no tests or protected implementation changed",
+  "desktopProductBuild": "b6a7d85991f7c3608e1220def7b86ddbab8a6e8c",
+  "desktopBase": "40b50d3e1e2ef375db62485b3dd594553aec902a",
+  "qualifiedNativeCore": "b2034168f524316062aaa1db596936a130a5eb74",
+  "newNotesMain": "14172a2107f13bcbe971219b47a1407bed2565d7",
+  "publicArchiveCount": 31,
+  "verifiedPublicImportRoutes": 117,
+  "bundleAudit": {
+    "result": "pass",
+    "architectures": "arm64",
+    "rendererJavaScriptFiles": 330,
+    "normalAutomationMarkers": 0,
+    "forbiddenRuntimeFileMatches": []
+  },
+  "sourceFiles": [
+    {
+      "path": "lapis-desktop/src-tauri/src/host/mod.rs",
+      "sha256": "74bdaa6bfc5bb148b90e386617a6907d31a70ec45a8caa9d52910fd0e0331173"
+    },
+    {
+      "path": "lapis-desktop/src-tauri/src/host/ai/turns/mod.rs",
+      "sha256": "c74bf821e171b88f4aa532114de912e929a4ddc2e62a2ebb2c45b643fb3f72d0"
+    },
+    {
+      "path": "lapis-desktop/src-tauri/src/database/indexing.rs",
+      "sha256": "f629df5cc0924db2b120bff90ffa44aed10eab7f15fa8edfd1250c8a4a6334f1"
+    },
+    {
+      "path": "lapis-desktop/src-tauri/src/vault/editing.rs",
+      "sha256": "9d3a247e8a324f2f07f474c016d4dfa443e1afd6cb91ef07864cc31e44a2bf5f"
+    },
+    {
+      "path": "lapis-desktop/src-tauri/src/vault/tasks.rs",
+      "sha256": "0b5c43c62d2c11df1b628fbdb966d14d9dcd7450a002951c8471eadffc829a43"
+    },
+    {
+      "path": "lapis-desktop/src/lib/notes/notes-session.ts",
+      "sha256": "7beab9f0ec7a56bf2f6e347a9db39758e17f92495d5bd08f4cd54fbcc8431ec8"
+    },
+    {
+      "path": "lapis-desktop/src/lib/native/database/native-database-provider.ts",
+      "sha256": "3de8ed7404b38a8b86a61df09cefdc4ceb445706fd303b4ae4343504d06d6b85"
+    },
+    {
+      "path": "lapis-desktop/src/lib/native/tasks/tasks.ts",
+      "sha256": "9aea2e698a0cee6c3e64cb250319792cdc4144d908473ff44b7f3b43c0d54d3c"
+    },
+    {
+      "path": "lapis-desktop/src-tauri/tauri.conf.json",
+      "sha256": "dd8007af485af4cf5a605c2cb2769868198434aa9f0c45965675475a20111f01"
+    },
+    {
+      "path": "lapis-desktop/src-tauri/Cargo.toml",
+      "sha256": "7569d4fe6b4c939f50503bee8034a81f9652e372d61cc9a36ed55a949c77cd7d"
+    },
+    {
+      "path": "lapis-desktop/scripts/check-bundle.mjs",
+      "sha256": "c4830c1520468ae1e90dace05222ae6f5567eb59da93c039586ed2be99e2c5d8"
+    },
+    {
+      "path": "lapis-desktop/scripts/desktop-tests.mjs",
+      "sha256": "a854c1ff598b96219a14ad1c41c6f62323d01117004ec8eb160d3f8647cc21d9"
+    },
+    {
+      "path": "lapis-desktop/scripts/desktop-api-tests.mjs",
+      "sha256": "a777aae08cac4e32f6459b13b553b834c7d8f607ceefd26d10a38e7802707ed1"
+    },
+    {
+      "path": "lapis-notes/RUST_HOSTED_CUTOVER_PLAN.md",
+      "sha256": "f46bf618b9609a6f91f36557593dd8cd273049121f49d18d588ef99a9b84eab8"
+    },
+    {
+      "path": "lapis-notes/packages/web/src/main.ts",
+      "sha256": "73e522fbf818d13711d208940a501b31f0bedb03c0d2290847332fcac45bd182"
+    },
+    {
+      "path": "lapis-notes/packages/web/src/hosted/rust/backend.ts",
+      "sha256": "4148bfd283c4f2f8c9405e45577fb7a597a7011ac974da3c0ff31287aa201327"
+    },
+    {
+      "path": "lapis-notes/packages/web/vite.config.ts",
+      "sha256": "cb76d390d5079a4367201cefecf30b99d46b555d9cac32f91943cef38faf11bb"
+    },
+    {
+      "path": "lapis-notes/packages/web/src/desktop-plugin-policy.test.ts",
+      "sha256": "ac4190977ab43c8a3e5da206591f8f68bd0d95085dc8733d004f85d6a44e1696"
+    },
+    {
+      "path": "lapis-notes/packages/web/e2e/desktop-features.spec.ts",
+      "sha256": "059799ce7bfd42835f731681881429f80efc7556223a4991c25a38dfde4b50d3"
+    },
+    {
+      "path": "lapis-notes/scripts/search-model-test.mjs",
+      "sha256": "b1628404f1be6b0143fe16ba01d418444f52b08bf196d8587d18ed61ef0e2206"
+    }
+  ],
+  "changedPublicAndTurnPathsSinceQualifiedCore": [
+    "crates/lapis-app-core/src/services/turns/conversation/create.rs",
+    "crates/lapis-app-core/src/services/turns/conversation/mod.rs",
+    "crates/lapis-app-core/src/services/turns/conversation/publication.rs",
+    "crates/lapis-app-core/src/services/turns/conversation.rs",
+    "crates/lapis-app-core/src/services/turns/history.rs",
+    "crates/lapis-app-core/src/services/turns/launch.rs",
+    "crates/lapis-app-core/src/services/turns/mod.rs",
+    "crates/lapis-app-core/src/services/turns/participants/acknowledge.rs",
+    "crates/lapis-app-core/src/services/turns/participants/admission.rs",
+    "crates/lapis-app-core/src/services/turns/participants/control.rs",
+    "crates/lapis-app-core/src/services/turns/participants/lookup.rs",
+    "crates/lapis-app-core/src/services/turns/participants/mod.rs",
+    "crates/lapis-app-core/src/services/turns/participants/profiles.rs",
+    "crates/lapis-app-core/src/services/turns/participants/store.rs",
+    "crates/lapis-app-core/src/services/turns/participants/types.rs",
+    "crates/lapis-app-core/src/services/turns/participants/validation.rs",
+    "crates/lapis-app-core/src/services/turns/participants/wire.rs",
+    "crates/lapis-app-core/src/services/turns/queue/dispatch.rs",
+    "crates/lapis-app-core/src/services/turns/storage.rs",
+    "crates/lapis-app-core/src/services/turns/worker.rs",
+    "crates/lapis-app-protocol/bindings/protocol.ts",
+    "crates/lapis-app-protocol/bindings/schema.json",
+    "crates/lapis-app-protocol/src/bin/contracts/mod.rs",
+    "crates/lapis-app-protocol/src/bin/export.rs",
+    "crates/lapis-app-protocol/src/bin/participants/mod.rs",
+    "crates/lapis-app-protocol/src/lib.rs",
+    "crates/lapis-app-protocol/src/participants.rs",
+    "crates/lapis-app-protocol/tests/participants.rs",
+    "packages/api/src/lib/native-participant-protocol.ts",
+    "packages/api/src/lib/native-turns.ts",
+    "packages/api/test/contracts/native-participants.ts",
+    "packages/app-profile/src/native-chat/NativeChat.svelte",
+    "packages/app-profile/src/native-chat/conversation.ts",
+    "packages/app-profile/src/native-chat/observer.ts",
+    "packages/app-profile/src/native-chat/participant-capture.ts",
+    "packages/app-profile/src/native-chat/participant-observer.test.fixture.ts",
+    "packages/app-profile/src/native-chat/participant-observer.test.ts",
+    "packages/app-profile/src/native-chat/participant-observer.ts",
+    "packages/app-profile/src/native-chat/participant-projection.test.ts",
+    "packages/app-profile/src/native-chat/participant-projection.ts",
+    "packages/app-profile/src/native-chat/participant-session.test.ts",
+    "packages/app-profile/src/native-chat/session.ts"
+  ],
+  "desktopOptIns": [
+    {
+      "path": "tests/desktop/ai-client-tooling.test.mjs",
+      "line": 11,
+      "condition": "{ timeout: 240000, skip: process.env.LAPIS_AI_CLIENT_INSTALL_TEST !== \"1\" },"
+    },
+    {
+      "path": "tests/desktop/ai-core-provider-screen.test.mjs",
+      "line": 19,
+      "condition": "skip: process.env.LAPIS_AI_TEST_CORE_SCREEN_PROVIDER !== \"1\","
+    },
+    {
+      "path": "tests/desktop/ai-core-provider.test.mjs",
+      "line": 12,
+      "condition": "{ skip: process.env.LAPIS_AI_TEST_CORE_PROVIDER !== \"1\", timeout: 240000 },"
+    },
+    {
+      "path": "tests/desktop/ai-local-comments.test.mjs",
+      "line": 62,
+      "condition": "{ skip: !configuration, timeout: 180_000 },"
+    },
+    {
+      "path": "tests/desktop/ai-local-compute-lifecycle.test.mjs",
+      "line": 11,
+      "condition": "skip: !configuration || !process.env.LAPIS_AI_TEST_GGUF,"
+    },
+    {
+      "path": "tests/desktop/ai-local-discussions.test.mjs",
+      "line": 58,
+      "condition": "{ skip: !configuration, timeout: 300_000 },"
+    },
+    {
+      "path": "tests/desktop/ai-local-multi.test.mjs",
+      "line": 140,
+      "condition": "{ skip: !configuration, timeout: 240_000 },"
+    },
+    {
+      "path": "tests/desktop/ai-local-queue.test.mjs",
+      "line": 127,
+      "condition": "{ skip: !configuration, timeout: 420000 },"
+    },
+    {
+      "path": "tests/desktop/ai-local-recovery.test.mjs",
+      "line": 68,
+      "condition": "{ skip: !configuration, timeout: 180_000 },"
+    },
+    {
+      "path": "tests/desktop/ai-local-streaming.test.mjs",
+      "line": 39,
+      "condition": "{ skip: !configuration, timeout: 180_000 },"
+    },
+    {
+      "path": "tests/desktop/ai-local-tools.test.mjs",
+      "line": 125,
+      "condition": "{ skip: !configuration, timeout: 240_000 },"
+    },
+    {
+      "path": "tests/desktop/ai-native-queue-provider.test.mjs",
+      "line": 11,
+      "condition": "skip: process.env.LAPIS_AI_TEST_CORE_QUEUE_PROVIDER !== \"1\","
+    },
+    {
+      "path": "tests/desktop/ai-provider-matrix.test.mjs",
+      "line": 31,
+      "condition": "{ skip: !configuration, timeout: 1_200_000 },"
+    }
+  ],
+  "rustIgnoreInventory": [
+    {
+      "path": "lapis-desktop/src-tauri/tests/database_restart.rs",
+      "line": 75,
+      "reason": "#[ignore = \"subprocess helper invoked by the real restart test\"]"
+    },
+    {
+      "path": "lapis-desktop/src-tauri/tests/vault_interruptions.rs",
+      "line": 49,
+      "reason": "#[ignore = \"subprocess helper invoked by the interruption test\"]"
+    },
+    {
+      "path": "lapis-notes/crates/lapis-app-core/src/services/tasks/lifecycle/recovery/process_tests.rs",
+      "line": 7,
+      "reason": "#[ignore = \"isolated Task crash-process helper\"]"
+    },
+    {
+      "path": "lapis-notes/crates/lapis-app-core/tests/database_search_provider_model.rs",
+      "line": 17,
+      "reason": "#[ignore = \"Requires qualified native assets; run pnpm test:search:onnx\"]"
+    },
+    {
+      "path": "lapis-notes/crates/lapis-app-core/tests/database_search_semantic_model.rs",
+      "line": 16,
+      "reason": "#[ignore = \"Requires qualified native assets; run pnpm test:search:onnx\"]"
+    },
+    {
+      "path": "lapis-notes/crates/lapis-app-core/tests/embedding_cache_model.rs",
+      "line": 49,
+      "reason": "#[ignore = \"Requires qualified ONNX files; run pnpm test:search:onnx (or --download)\"]"
+    },
+    {
+      "path": "lapis-notes/crates/lapis-app-core/tests/embedding_cache_model.rs",
+      "line": 157,
+      "reason": "#[ignore = \"Requires qualified ONNX files; run pnpm test:search:onnx\"]"
+    },
+    {
+      "path": "lapis-notes/crates/lapis-app-core/tests/embedding_model.rs",
+      "line": 9,
+      "reason": "#[ignore = \"Requires the qualified native runtime/model assets; run pnpm test:search:onnx\"]"
+    },
+    {
+      "path": "lapis-notes/crates/lapis-app-core/tests/turn_journal.rs",
+      "line": 348,
+      "reason": "#[ignore = \"isolated crash-process helper\"]"
+    }
+  ]
+}

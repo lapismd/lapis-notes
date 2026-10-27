@@ -91,3 +91,9 @@ acceptance; do not transfer actual-provider proof by assumed equality. Desktop's
 existing service-selection defaults require deliberate qualification separately
 from the hosted switch. Its Rust `jj-store-jj/companion` feature owns local
 collaboration metadata and is unrelated to the obsolete Node companion runtime.
+
+The [retained compatibility audit](spec/records/2026-10-27-hosted-cutover-audit.md)
+and adjacent JSON preserve source hashes, the exact staged flags, original
+provider/ONNX/process-helper distinctions and the required acceptance commands.
+Plugins private test repair `407ada2e` is qualified separately from its pending
+portable-lock/BitsUI repair; no consumer artifact refresh follows test-only work.

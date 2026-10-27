@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 10:53:10 UTC",
+  "updated": "2026-10-27 11:02:17 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -911,7 +911,7 @@
       "area": "Queue host/provider acceptance",
       "work": "Combined real-host queue workflows and retained provider gates",
       "spec": "spec/src/architecture/rust-queue-admission.md#ln-core-036",
-      "detail": "Actual installed-provider queue acceptance is active in separate hosted/native lanes on qualified queue/Core/Desktop inputs. Preserve exact Stop-Unknown/no-replay and happy cold explicit-resume boundaries; deterministic source fixtures do not close this gate."
+      "detail": "Both isolated installed-provider queue proofs are qualified: hosteddfdf57e6 and Desktop85d9b5e1/E-CORE-045. Native2provider/4related/55MacHost/258Rust and completeassets/bundle/documentary gates pass. These use the retainedb203/31archive cohort; main14172 changes public/participant/turn inputs, so coherent both-main adoption remains R7.6, not inferred by equality. Hosted happy cold recovery is explicitly offline-seeded, never claimed live-admitted; Stop-Unknown preserves no-replay."
     },
     {
       "id": "R4.3.3",
@@ -1007,7 +1007,7 @@
       "work": "Coherent host and restart qualification",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
-      "detail": "Inventory Desktop/local-browser compatibility, refresh changed native/public inputs together, then run affected native/provider/catalog and standalone local/offline acceptance. Earlier b203 Desktop provider evidence is separate from main14172."
+      "detail": "[Compatibility audit](spec/records/2026-10-27-hosted-cutover-audit.md) records exact current selection/cohort/skip boundaries and20 source hashes. Desktop has no bundled Node application runtime. Main14172 changes42 API/AppProfile/native paths from qualifiedb203; refresh together before current-cohort native/provider/catalog and standalone local/offline acceptance."
     },
     {
       "id": "R7.7",
@@ -1015,7 +1015,7 @@
       "work": "Deferred and failing source-test closure",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
-      "detail": "Tracker13/full80 repair is committed. Plugins count assertions and JJ fixture-base isolation are repaired in an isolated source lane; full qualification and portable-lock/BitsUI guard blockers remain. Keep optional asset/provider skips distinct from passing acceptance."
+      "detail": "Tracker13/full80 repair is committed14172. Plugins private test repair407ada2e closes two stale count and two inherited-JJ-base failures: exact2+13affected+2snapshots, fullvalidation51 pass; release140/6\u2192147/2. Two valid portable-lock/BitsUI guards remain failed and are being fixed upstream; audit advisories remain distinct. Optional asset/provider opt-ins are not counted as acceptance."
     }
   ]
 }
