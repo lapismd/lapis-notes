@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 13:35:06 UTC",
+  "updated": "2026-10-27 13:51:31 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -1007,7 +1007,7 @@
       "work": "Coherent host and restart qualification",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
-      "detail": "Hosted normalprofile passes cold13Webchecks+pair2/full11 on6c3b2680; actual native image passes16 runtime/browser/restart checks. Final same-cohort Desktop/provider, local/offline browser, actual model and broad main validation remain pending; Desktop source intake is active."
+      "detail": "Landed Notes cd997 is under finalmain8404 qualification. Five real-model cases pass offline with exact ORT1.30 and qualified CPU; current API/AppProfile pair is freshly built/packed and installed in Desktop31/117candidate. Native/package/catalog lanes active; actual Macprovider and Desktopnative acceptance remain pending."
     },
     {
       "id": "R7.7",

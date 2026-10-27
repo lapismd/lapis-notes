@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-27 13:35:06 UTC**.
+Last updated **2026-10-27 13:51:31 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -31,6 +31,15 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**Final landed-main qualification — 2026-10-27 13:51:31 UTC.** Hosted default/retirement is
+committed at `cd997c2c` in this main workspace. Frozen main `8404bdd2` passes
+allfive real-model cases offline and produces the fresh API/AppProfile pair.
+Desktop now verifies the candidate31archives/117routes and its exact quiet
+target passes16/0. Native/package and265-story catalog workers are running.
+Explicit Macprovider and Desktopnative gates remain; Macnative builds are
+serialized behind the30GiB guard. Final-image actual-model acceptance is being
+added as an optional gate. No temporary workspaces have been removed yet.
 
 **Hosted Rust default and retirement qualified — 2026-10-27 13:32:27 UTC.** The corrected
 original host pair passes2/0 and the full hosted lane passes11/0; focused Web
@@ -450,7 +459,7 @@ not host adoption or native/hosted application acceptance.
 | [R7.1](spec/src/architecture/rust-hosted-delivery.md#ln-core-054)      | Hosted cutover                 | Static Web and health delivery                                   | Static source9009bccf is integrated with native launcher in main. Focused native7 and directRust-only builtWeb1 pass. The prior combinedprofile hosted aggregate5pass/6fail is retained; final-main diagnosis and broad acceptance remain blockers. No Node/Vite server serves the directRust case; no ordinary defaultcompletion claimed.                                                                                                                                                             |
 | [R7.2](spec/src/architecture/rust-hosted-delivery.md#ln-core-066)      | Hosted cutover                 | Authenticated observation streams                                | Native scoped SSE and hosted reader are implemented on main; focused native5, Web16 and affected chat37 pass. Reconnect/reset, bounded64reader/256KiB frames, revocation/detach/drain and client abort are covered. Final coherent browser/native acceptance remains; no writer or replay added. [Evidence](spec/records/2026-10-27-native-observation-stream.md).                                                                                                                                     |
 | [R7.3](spec/src/architecture/rust-hosted-delivery.md#ln-core-064)      | Hosted cutover                 | Native build and start entrypoints                               | Native launchercd520b71 is landed and its delivery5/routing1/installpolicy3 checks pass. Landed33846705/3e2e5a85 now passes complete release101 and validationtooling72 with zero tracked mutations, repairing prior98/3. Compiled release/container and final default acceptance remain pending.                                                                                                                                                                                                      |
-| [R7.6](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover                 | Coherent host and restart qualification                          | Hosted normalprofile passes cold13Webchecks+pair2/full11 on6c3b2680; actual native image passes16 runtime/browser/restart checks. Final same-cohort Desktop/provider, local/offline browser, actual model and broad main validation remain pending; Desktop source intake is active.                                                                                                                                                                                                                   |
+| [R7.6](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover                 | Coherent host and restart qualification                          | Landed Notes cd997 is under finalmain8404 qualification. Five real-model cases pass offline with exact ORT1.30 and qualified CPU; current API/AppProfile pair is freshly built/packed and installed in Desktop31/117candidate. Native/package/catalog lanes active; actual Macprovider and Desktopnative acceptance remain pending.                                                                                                                                                                    |
 | [R7.7](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover                 | Deferred and failing source-test closure                         | Tracker13/full80 repair is committed14172. Plugins private test repair407ada2e closes two stale count and two inherited-JJ-base failures: exact2+13affected+2snapshots, fullvalidation51 pass; release140/6→147/2. Two valid portable-lock/BitsUI guards remain failed and are being fixed upstream; audit advisories remain distinct. Optional asset/provider opt-ins are not counted as acceptance.                                                                                                  |
 
 ### Gate status: Deferred
