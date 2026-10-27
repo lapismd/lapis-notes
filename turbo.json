@@ -619,6 +619,11 @@
       "cache": false,
       "envMode": "loose",
       "outputs": []
+    },
+    "//#test:server:delivery:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
     }
   },
   "globalEnv": [

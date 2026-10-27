@@ -172,3 +172,9 @@ port only after the host separately binds its admitted repository services;
 transport availability alone cannot create a replacement Repository view.
 
 Optional trusted `queue_selection` metadata follows [LN-CORE-037](../architecture/rust-queue-admission.md#ln-core-037). Hosts keep the exact saved recipient and ACP choices separate from opaque execution-target authority; absent metadata leaves shared UI capture unavailable while preserving R2 operation.
+
+The private native hosted build/start scripts follow
+[CORE-064/065](../architecture/rust-hosted-delivery.md). They compile the existing
+public renderer closure and native executable, add no npm runtime package and
+preserve registry manifests. Default replacement and container delivery remain
+separate from explicit development entrypoints.

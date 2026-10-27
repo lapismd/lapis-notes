@@ -6,6 +6,7 @@
   - [Architecture / Workspace integration](./architecture/workspace-integration.md)
   - [Architecture / Host boundaries](./architecture/host-boundaries.md)
   - [Architecture / Rust application services](./architecture/rust-application-services.md)
+  - [Architecture / Rust hosted runtime delivery](./architecture/rust-hosted-delivery.md)
   - [Architecture / Rust managed vaults](./architecture/rust-managed-vaults.md)
   - [Architecture / Durable native turn admission](./architecture/rust-turn-admission.md)
   - [Architecture / Native conversation queues](./architecture/rust-queue-admission.md)

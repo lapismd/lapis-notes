@@ -124,6 +124,18 @@ export default defineConfig(headingRequirements(), {
       ],
       rules: [
         {
+          pattern: "^scripts/(?:validation/|validation-install\\.test\\.mjs$)",
+          chapterPatterns: [
+            "^spec/src/architecture/build-and-validation\\.md$",
+          ],
+        },
+        {
+          pattern: "^scripts/server-runtime(?:\\.test)?\\.mjs$",
+          chapterPatterns: [
+            "^spec/src/architecture/rust-hosted-delivery\\.md$",
+          ],
+        },
+        {
           pattern: "^scripts/migration-progress\\.mjs$",
           chapterPatterns: [
             "^spec/src/spec-governance/requirement-authoring\\.md$",

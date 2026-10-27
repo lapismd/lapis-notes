@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { hash, validateArchives, laneInvocations } from "./model.mjs";
 import { execute } from "./process.mjs";
 import { restoreNativeSources } from "./native-sources.mjs";
+import { projectPackage } from "./install-projection.mjs";
 const root = "/work/lapis-notes",
   input = "/input",
   reports = "/results";
@@ -120,12 +121,7 @@ try {
       lockPath = join(root, "pnpm-lock.yaml");
     const original = await readFile(packagePath),
       lock = await readFile(lockPath);
-    const pkg = JSON.parse(original);
-    pkg.devDependencies = { ...pkg.devDependencies, ...overrides };
-    pkg.pnpm = {
-      ...pkg.pnpm,
-      overrides: { ...pkg.pnpm?.overrides, ...overrides },
-    };
+    const pkg = projectPackage(root, JSON.parse(original), overrides);
     try {
       await writeFile(packagePath, JSON.stringify(pkg));
       await execute(

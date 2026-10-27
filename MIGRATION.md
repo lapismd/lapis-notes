@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-27 10:53:10 UTC**.
+Last updated **2026-10-27 12:21:02 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -40,17 +40,14 @@ Final frozen canonical worker `f5f7344c` / `c27dee42` passes complete specificat
 120-row progress and formatting with zero tracked worker mutations.
 [Current evidence](spec/records/2026-10-27-participant-skills-main-adoption.md).
 
-**R7 is the implementation focus, split into seven visible gates.** Static
-Web/health delivery, native build/start, compatibility and test repair are active.
-Authenticated streams, Linux/container delivery and default/transport retirement
-remain waiting. Their exact completion conditions are the R7.1–R7.7 ledger rows.
-R5 memory and R6 durable jobs remain Deferred after cutover.
-
-The latest Desktop provider proof uses its qualified older cohort; changed
-API/AppProfile/native inputs must be refreshed together for R7 acceptance.
-Existing Rust collaboration features named `companion` are independent of the
-obsolete Node application companion and must be retained.
-[Cutover plan](RUST_HOSTED_CUTOVER_PLAN.md).
+**R7 native build/start source — 2026-10-27 10:55:18 UTC.** This isolated delivery lane adds
+explicit native entrypoints and a certified metadata/History/Tasks Web cohort.
+Five exact private delivery cases and the bounded routing regression pass.
+Focused delivery/routing/install-projection checks pass nine cases. Final broad
+validation is deferred to the landed main cohort by user instruction. Actual
+release/container and coherent host acceptance remain pending; ordinary hosted
+defaults remain on their qualified baseline.
+[Source checkpoint](spec/records/2026-10-27-native-runtime-delivery.md).
 
 <details>
 <summary>Earlier source and adoption checkpoints</summary>
@@ -394,7 +391,7 @@ not host adoption or native/hosted application acceptance.
 | [R4.3](spec/src/architecture/rust-application-services.md#ln-core-005) | Native AI preparation          | Native context, skills, commands and handoff                     | Context/bootstrap foundations are adopted. Native skillsa14ba184 are source-qualified (3exact/8boundaries/634Rust/2438package); main union product qualification passes693Rust/2469package/265catalog; final canonical/progress120/format passes atf5f7344c/c27dee42. Commands/handoff, rich dispatch and both-host/provider gates remain.                                                                                                                |
 | [R7](spec/src/architecture/rust-application-services.md#ln-core-008)   | Roadmap                        | Rust cutover                                                     | Priority after the current intake slice: [saved cutover plan](RUST_HOSTED_CUTOVER_PLAN.md). Audit serving-profile gaps and deferred tests, select Rust by default, retire Node/companion application runtime, qualify Linux/container/Desktop/local-browser and cold/provider boundaries. R5 and R6 are Deferred; remaining R4 work is explicit and fixed before cutover only where required to preserve serving behavior or remove runtime dependencies. |
 | [R7.1](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover                 | Static Web and health delivery                                   | Native static assets, safe SPA fallback and public health/readiness now pass seven exact real-binary cases (four static, one readiness and two security) on frozend84f4fa0/fe069e, zero failures/ignores. Complete Rust-served browser qualification and main adoption remain. Node/Vite must not serve the deployed acceptance UI.                                                                                                                       |
-| [R7.3](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover                 | Native build and start entrypoints                               | Isolated native launcher passes five private tests plus the bounded-routing regression. Full coherent native/Web build, actual startup and main adoption remain. Ordinary defaults stay unchanged until serving acceptance.                                                                                                                                                                                                                               |
+| [R7.3](spec/src/architecture/rust-hosted-delivery.md#ln-core-064)      | Hosted cutover                 | Native build and start entrypoints                               | Focused native delivery5/routing1/install-projection3 pass. User directs focused source landing first, final broad native/Web/container acceptance on the merged main cohort. Source includes effective-security-override preservation and stale workflow exclusion repair; final real Git guards/build remain pending.                                                                                                                                   |
 | [R7.6](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover                 | Coherent host and restart qualification                          | Inventory Desktop/local-browser compatibility, refresh changed native/public inputs together, then run affected native/provider/catalog and standalone local/offline acceptance. Earlier b203 Desktop provider evidence is separate from main14172.                                                                                                                                                                                                       |
 | [R7.7](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover                 | Deferred and failing source-test closure                         | Tracker13/full80 repair is committed. Plugins count assertions and JJ fixture-base isolation are repaired in an isolated source lane; full qualification and portable-lock/BitsUI guard blockers remain. Keep optional asset/provider skips distinct from passing acceptance.                                                                                                                                                                             |
 

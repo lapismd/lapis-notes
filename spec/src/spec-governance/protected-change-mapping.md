@@ -1,5 +1,11 @@
 # Specification Governance / Protected change mapping
 
+Validation install projections and their regressions map to the architecture
+build/validation chapter, retaining effective security overrides during private
+archive installs. Native build/start tooling and its private regressions map to
+[Rust hosted delivery](../architecture/rust-hosted-delivery.md). The explicit
+profile does not waive ordinary default-switch or deployment gates.
+
 The shared Rust migration adds a Notes-owned application-service family under
 `crates/`. Its canonical authority is
 [Rust application services](../architecture/rust-application-services.md).
