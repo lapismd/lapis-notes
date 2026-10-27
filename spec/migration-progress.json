@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 00:46:02 UTC",
+  "updated": "2026-10-27 01:07:18 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Closing checkpoint](spec/records/2026-10-27-r3-closing-checkpoint.md): all identified implementation is written. Combined source 0ff929b1 passes 586 Rust, 2,414 package, 263 cold catalog and 41 browser journeys plus full specification gates. Remaining: close five actual-model/full-native checks with the accepted database-admission repair, finish actual Desktop Reader/installed-Tasks acceptance and both main adoptions, then combined provider/timezone/unattended acceptance. R3 stays Working; R4-R7 retain their dependencies."
+      "detail": "All identified implementation is written. Earlier combined source passes 263 cold catalog and 41 browser journeys. New Core e699e6c9 passes all five actual-model, 587 Rust and 2,414 package cases; its later tooling guard exposes eleven unbounded entries. Routing and two stale cache fixtures are repaired; final-main run 07abdc27 checks them before the complete source/catalog/browser gate. Main file icons are preserved with no product conflicts. Actual Desktop Reader/Tasks, both main adoptions and combined provider/timezone/unattended acceptance remain open."
     },
     {
       "id": "R4",
