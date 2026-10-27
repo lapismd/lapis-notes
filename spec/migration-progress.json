@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 10:48:08 UTC",
+  "updated": "2026-10-27 10:53:10 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -960,6 +960,62 @@
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-051",
       "detail": "[Native skills](spec/records/2026-10-27-native-skills.md): exact0/3\u21923/3 across33parser/25discovery/four registry traces (23steps),8native binding boundaries,26oldcontext/29lifetime,634Rust/2438package/check20/test20/build11/strict/canonical78 pass at308823ed/e9ecd545. Admitted vault bindings retain exact bytes across detach, current changes and reused version labels. Source-only; commands/handoff, rich dispatch and actual-host/provider gates remain. Main unionf5f7344c qualifies integrated693Rust/2469package/265catalog and complete canonical80/progress120/format; source inputs remain exact. Actual host/provider and remaining feature gates stay separate."
+    },
+    {
+      "id": "R7.1",
+      "area": "Hosted cutover",
+      "work": "Static Web and health delivery",
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
+      "detail": "Native static assets, safe SPA fallback and public health/readiness now pass seven exact real-binary cases (four static, one readiness and two security) on frozend84f4fa0/fe069e, zero failures/ignores. Complete Rust-served browser qualification and main adoption remain. Node/Vite must not serve the deployed acceptance UI."
+    },
+    {
+      "id": "R7.2",
+      "area": "Hosted cutover",
+      "work": "Authenticated observation streams",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
+      "detail": "Replace remaining database one-second polling with admitted streams, bounded cursors/reconnect and close/revocation acceptance. Retain vault/client authority and cold no-replay behavior."
+    },
+    {
+      "id": "R7.3",
+      "area": "Hosted cutover",
+      "work": "Native build and start entrypoints",
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
+      "detail": "Isolated native launcher passes five private tests plus the bounded-routing regression. Full coherent native/Web build, actual startup and main adoption remain. Ordinary defaults stay unchanged until serving acceptance."
+    },
+    {
+      "id": "R7.4",
+      "area": "Hosted cutover",
+      "work": "Linux runtime and container delivery",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
+      "detail": "Package the native binary, existing Web UI, required repository helpers and qualified runtime/model assets; run the real read-only/non-root image with persistent data and cold restart. No embedded Node application server."
+    },
+    {
+      "id": "R7.5",
+      "area": "Hosted cutover",
+      "work": "Default switch and transitional runtime retirement",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
+      "detail": "Switch the ordinary server scripts, container/CI and hosted renderer to the qualified Rust cohort; remove obsolete Node application/companion transports and runtime imports. Preserve build tools, external agent prerequisites and unrelated Rust companion features."
+    },
+    {
+      "id": "R7.6",
+      "area": "Hosted cutover",
+      "work": "Coherent host and restart qualification",
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
+      "detail": "Inventory Desktop/local-browser compatibility, refresh changed native/public inputs together, then run affected native/provider/catalog and standalone local/offline acceptance. Earlier b203 Desktop provider evidence is separate from main14172."
+    },
+    {
+      "id": "R7.7",
+      "area": "Hosted cutover",
+      "work": "Deferred and failing source-test closure",
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
+      "detail": "Tracker13/full80 repair is committed. Plugins count assertions and JJ fixture-base isolation are repaired in an isolated source lane; full qualification and portable-lock/BitsUI guard blockers remain. Keep optional asset/provider skips distinct from passing acceptance."
     }
   ]
 }

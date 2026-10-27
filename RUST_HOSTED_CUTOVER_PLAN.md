@@ -16,6 +16,11 @@ acceptance remains separately tracked with confirmed/unknown and no-replay gates
 
 ## Cutover work, in order
 
+The generated master ledger exposes R7.1 static/health, R7.2 streams, R7.3 native
+build/start, R7.4 Linux/container, R7.5 defaults/retirement, R7.6 coherent host
+acceptance and R7.7 source-test closure as separate gates. Independent lanes may
+run together; default replacement waits for its serving prerequisites.
+
 | Work                               | Completion evidence                                                                                                                                                                                                                               |
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Audit actual serving-profile gaps  | Compare retained Node and Rust entrypoints, routes, configuration, assets, authentication, file/database/History/Search/Tasks and AI behavior. Record each limitation and its owner.                                                              |
@@ -76,3 +81,13 @@ The standalone local browser keeps its existing browser implementation.
 Record source qualification, main adoption, actual native/provider behavior and
 Linux/container delivery independently. Audit only repositories/input cohorts
 used by cutover or implicated by an exact failed gate; preserve dirty siblings.
+
+## Compatibility audit checkpoint
+
+Main `14172a21` changes API native-turn/participant exports, AppProfile chat and
+Core/protocol inputs relative to the qualified Desktop provider cohort `b2034168`.
+Refresh native pins and public API/AppProfile archives together before R7 Desktop
+acceptance; do not transfer actual-provider proof by assumed equality. Desktop's
+existing service-selection defaults require deliberate qualification separately
+from the hosted switch. Its Rust `jj-store-jj/companion` feature owns local
+collaboration metadata and is unrelated to the obsolete Node companion runtime.

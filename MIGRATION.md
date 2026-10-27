@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-27 10:48:08 UTC**.
+Last updated **2026-10-27 10:53:10 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -20,7 +20,6 @@ They are not complete and no longer block starting R7. The
 | Area                  | Current gate                      | What still needs doing                                                                                                                                                |
 | --------------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | R7 hosted cutover     | Working — primary focus           | Audit serving gaps/deferred tests, select Rust by default, retire Node/companion runtime and qualify hosted/Desktop/local-browser/Linux delivery.                     |
-| Current R4 intake     | Qualified for commit              | Skill/participant union and integrated checks are complete. Actual-provider queue closure remains separately tracked.                                                 |
 | Remaining R4          | Pending, assessed against cutover | Tauri participant/profile/group queue, rich context/commands/handoff, approvals/tools and Changes/undo. Fix cutover prerequisites first; do not claim these complete. |
 | R5 memory             | Deferred after cutover            | Native capture/recall, claims, schedules, forget/relocation and unattended/cold recovery. Storage/current data remain.                                                |
 | R6 durable operations | Deferred after cutover            | Imports/capture, Forge/transfer/Compute, installation transactions and terminal ownership/progress/cancel/recovery. Existing engines/features remain.                 |
@@ -33,7 +32,7 @@ deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
 
-**Current intake complete — 2026-10-27 10:48:08 UTC.** Integrated checks pass 693 Rust tests,
+**Current intake committed — 2026-10-27 10:53:10 UTC.** Main `14172a21` is complete. Integrated checks pass 693 Rust tests,
 2,469 package cases, check 20/test 20/build 11 and strict/protocol gates. The cold
 catalog passes all 265 interaction/accessibility cases, static 190 chapters and
 six Docs cases. The tracker repair passes exact 13/0 and full tooling 80/0.
@@ -41,11 +40,17 @@ Final frozen canonical worker `f5f7344c` / `c27dee42` passes complete specificat
 120-row progress and formatting with zero tracked worker mutations.
 [Current evidence](spec/records/2026-10-27-participant-skills-main-adoption.md).
 
-**R7 is the implementation focus.** R5 memory and R6 durable jobs are Deferred.
-The static-Web/readiness lane now passes its first four real-binary regressions;
-security/lifetime and Rust-only browser delivery checks follow. Desktop/provider
-closure and sibling deferred-test repair run independently. The
-[cutover plan](RUST_HOSTED_CUTOVER_PLAN.md) lists serving gaps and retained features.
+**R7 is the implementation focus, split into seven visible gates.** Static
+Web/health delivery, native build/start, compatibility and test repair are active.
+Authenticated streams, Linux/container delivery and default/transport retirement
+remain waiting. Their exact completion conditions are the R7.1–R7.7 ledger rows.
+R5 memory and R6 durable jobs remain Deferred after cutover.
+
+The latest Desktop provider proof uses its qualified older cohort; changed
+API/AppProfile/native inputs must be refreshed together for R7 acceptance.
+Existing Rust collaboration features named `companion` are independent of the
+obsolete Node application companion and must be retained.
+[Cutover plan](RUST_HOSTED_CUTOVER_PLAN.md).
 
 <details>
 <summary>Earlier source and adoption checkpoints</summary>
@@ -388,6 +393,18 @@ not host adoption or native/hosted application acceptance.
 | [R4.2](spec/src/architecture/rust-participants.md#ln-core-033)         | AI workflow participants       | Logical participants and one conversation publication owner      | Native publication/typed port and declared-profile/shared/hosted observation are source-qualified atc75a4e32 (native654, mounted2/allhosted11,265catalog/full source gates). Main union product qualification passes693Rust/2469package/265catalog; final canonical/progress120/format passes atf5f7344c/c27dee42; Tauri profiles, actual providers, profile editing, rich workflows and busy group queue remain.                                         |
 | [R4.3](spec/src/architecture/rust-application-services.md#ln-core-005) | Native AI preparation          | Native context, skills, commands and handoff                     | Context/bootstrap foundations are adopted. Native skillsa14ba184 are source-qualified (3exact/8boundaries/634Rust/2438package); main union product qualification passes693Rust/2469package/265catalog; final canonical/progress120/format passes atf5f7344c/c27dee42. Commands/handoff, rich dispatch and both-host/provider gates remain.                                                                                                                |
 | [R7](spec/src/architecture/rust-application-services.md#ln-core-008)   | Roadmap                        | Rust cutover                                                     | Priority after the current intake slice: [saved cutover plan](RUST_HOSTED_CUTOVER_PLAN.md). Audit serving-profile gaps and deferred tests, select Rust by default, retire Node/companion application runtime, qualify Linux/container/Desktop/local-browser and cold/provider boundaries. R5 and R6 are Deferred; remaining R4 work is explicit and fixed before cutover only where required to preserve serving behavior or remove runtime dependencies. |
+| [R7.1](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover                 | Static Web and health delivery                                   | Native static assets, safe SPA fallback and public health/readiness now pass seven exact real-binary cases (four static, one readiness and two security) on frozend84f4fa0/fe069e, zero failures/ignores. Complete Rust-served browser qualification and main adoption remain. Node/Vite must not serve the deployed acceptance UI.                                                                                                                       |
+| [R7.3](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover                 | Native build and start entrypoints                               | Isolated native launcher passes five private tests plus the bounded-routing regression. Full coherent native/Web build, actual startup and main adoption remain. Ordinary defaults stay unchanged until serving acceptance.                                                                                                                                                                                                                               |
+| [R7.6](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover                 | Coherent host and restart qualification                          | Inventory Desktop/local-browser compatibility, refresh changed native/public inputs together, then run affected native/provider/catalog and standalone local/offline acceptance. Earlier b203 Desktop provider evidence is separate from main14172.                                                                                                                                                                                                       |
+| [R7.7](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover                 | Deferred and failing source-test closure                         | Tracker13/full80 repair is committed. Plugins count assertions and JJ fixture-base isolation are repaired in an isolated source lane; full qualification and portable-lock/BitsUI guard blockers remain. Keep optional asset/provider skips distinct from passing acceptance.                                                                                                                                                                             |
+
+### Gate status: Waiting
+
+| Task ID                                                                | Area           | Work                                               | Evidence or next gate                                                                                                                                                                                                                                                   |
+| ---------------------------------------------------------------------- | -------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [R7.2](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover | Authenticated observation streams                  | Replace remaining database one-second polling with admitted streams, bounded cursors/reconnect and close/revocation acceptance. Retain vault/client authority and cold no-replay behavior.                                                                              |
+| [R7.4](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover | Linux runtime and container delivery               | Package the native binary, existing Web UI, required repository helpers and qualified runtime/model assets; run the real read-only/non-root image with persistent data and cold restart. No embedded Node application server.                                           |
+| [R7.5](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover | Default switch and transitional runtime retirement | Switch the ordinary server scripts, container/CI and hosted renderer to the qualified Rust cohort; remove obsolete Node application/companion transports and runtime imports. Preserve build tools, external agent prerequisites and unrelated Rust companion features. |
 
 ### Gate status: Deferred
 
