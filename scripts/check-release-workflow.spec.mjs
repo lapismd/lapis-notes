@@ -323,6 +323,16 @@ test("Rust server acceptance acquires pinned native sources and tests the final 
       browser > image,
   );
   assert.equal(
+    workflow.env.LAPIS_NOTES_VALIDATION_RUNTIME,
+    "native",
+    "hosted CI keeps its provisioned native runtime for every ordinary lane",
+  );
+  assert.deepEqual(
+    server.steps[browser].env,
+    { LAPIS_NOTES_VALIDATION_RUNTIME: "docker" },
+    "actual image acceptance explicitly re-selects the Docker runtime; the harness guard has no host fallback",
+  );
+  assert.equal(
     server.steps.some((step) => /server-node|node-e2e/u.test(step.run ?? "")),
     false,
   );

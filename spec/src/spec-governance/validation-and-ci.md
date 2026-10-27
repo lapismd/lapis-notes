@@ -59,7 +59,11 @@ and attachments remain visible in diagnostic artifacts after a successful
 recovery. Readiness, later application steps and a failed second attempt retain
 their original failure behavior.
 
-The Node server acceptance job is independent of Deno setup and desktop builds.
-Its native and container browser commands are uncached bounded root tasks.
-Workflow regressions verify job ordering and that removing either Web job's
-success still fails the aggregate; splitting execution cannot remove coverage.
+The Rust server acceptance job is independent of Deno setup and desktop builds.
+Its native and container browser commands are uncached bounded root tasks. The
+job keeps the workflow-wide provisioned native runtime except for actual image
+acceptance, which explicitly re-selects the Docker runtime because the image
+harness fails closed without Docker and has no host fallback.
+Workflow regressions verify job ordering, that exact Docker override and that
+removing either Web job's success still fails the aggregate; splitting
+execution cannot remove coverage.

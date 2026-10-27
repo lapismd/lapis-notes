@@ -309,7 +309,13 @@ jobs:
       - uses: docker/setup-buildx-action@v4
       - name: Build the Rust server acceptance image
         run: pnpm build:server:container
+      # Actual image acceptance runs against the job's Docker daemon; the
+      # harness guard fails closed on any other runtime and has no host
+      # fallback, so this step explicitly re-selects Docker while the rest of
+      # CI keeps the provisioned native runtime.
       - run: pnpm test:server:container
+        env:
+          LAPIS_NOTES_VALIDATION_RUNTIME: docker
       - uses: actions/upload-artifact@v7
         if: always()
         with:

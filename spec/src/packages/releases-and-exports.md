@@ -321,12 +321,12 @@ interactions and both native packaged lanes remain blocking independently.
 
 **Requirement.** Pull-request and reusable CI MUST run the complete Web end-to-end suite against freshly built output after a frozen registry install. Failures MUST retain browser diagnostics and block the aggregate. Before production V2 cutover, CI MUST use a retained fixture from an exact frozen Plugins source candidate with ephemeral signing keys; production builds MUST ignore fixture trust.
 
-Fixture builds verify their checkout and export source provenance in the executing
-shell so the host workflow SHA cannot label another repository's artifacts.
-The runner provisions Docker and builds the candidate server image with its
-checksum-matched public pnpm hook and frozen registry installation.
-Server acceptance seeds bootstrap credentials through stdin into a private
-service-user-owned Docker volume and mounts it read-only into the candidate.
+Fixture builds verify their checkout and export source provenance in the executing shell so the
+host workflow SHA cannot label another repository's artifacts. The runner provisions Docker and
+builds the candidate server image with its checksum-matched public pnpm hook and frozen registry
+installation. Server acceptance seeds bootstrap credentials through stdin into a private
+service-user-owned Docker volume mounted read-only into the candidate; its actual-image step
+explicitly re-selects Docker because the image harness fails closed without it.
 
 ## LN-PKG-162 — Native packaged acceptance in CI
 

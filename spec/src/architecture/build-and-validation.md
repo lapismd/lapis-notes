@@ -26,6 +26,9 @@ Workers drop Linux capabilities so permission regressions cannot pass through
 root's discretionary-access overrides. The actual Docker smoke verifies denied
 file reads, denied directory writes and zero effective capabilities before the
 browser checks. The existing init process reaps owned subprocesses.
+Runtime selection is per invocation: hosted CI keeps its provisioned native
+environment while the actual-image acceptance step explicitly re-selects the
+Docker runtime, because the image harness fails closed without Docker.
 Aggregate Storybook lanes enter the public dependency-aware build/test commands
 inside the worker. A clean snapshot cannot assume that API or profile `dist`
 already exists from an earlier host run.

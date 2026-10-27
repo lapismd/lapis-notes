@@ -4,8 +4,9 @@
 committed in the four migration repositories' main workspaces, and all 121
 migration-owned temporary workspaces were audited, preserved, forgotten and
 deleted. Phase 2 (full verification and test repair on the integrated mains)
-is the next lane and had not started at this stamp. Do not restart the app or
-Storybook except through a Phase 2 lane that requires it.
+started 2026-10-27 16:45:00 UTC; Notes gate 1 (CI image-acceptance runtime
+override) is repaired, and the remaining gates are in progress. Do not restart
+the app or Storybook except through a Phase 2 lane that requires it.
 
 This handoff, [MIGRATION.md](MIGRATION.md), the saved
 [Rust core plan](RUST_CORE_MIGRATION_PLAN.md), the
@@ -116,10 +117,13 @@ directory while sibling agents run; preservation precedes every deletion.
 
 **Notes**
 
-1. Repair `.github/workflows/lapis-ci.yml`: the global
-   `LAPIS_NOTES_VALIDATION_RUNTIME=native` must be overridden to `docker` for
-   `pnpm test:server:container`, with an exact workflow regression. Do not
-   weaken the Docker-only guard.
+1. DONE (2026-10-27 16:45 UTC): `.github/workflows/lapis-ci.yml` repaired — the
+   global `LAPIS_NOTES_VALIDATION_RUNTIME=native` is now overridden to `docker`
+   for the `pnpm test:server:container` step, with an exact workflow regression
+   in `scripts/check-release-workflow.spec.mjs` (22/22 after 21/1). The
+   Docker-only guard is unchanged and has no host fallback. Mapped chapters:
+   spec-governance/validation-and-ci, architecture/build-and-validation,
+   packages/releases-and-exports.
 2. Qualify the committed model-tester draft (`c64391fd`): rerun basic16 and
    the model phases against the actual image before treating the draft as
    accepted. ONNX only via `LAPIS_SERVER_TEST_ONNX=1` + absolute

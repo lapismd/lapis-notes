@@ -1,8 +1,8 @@
 # Migration Status
 
-Last updated **2026-10-27 15:46:14 UTC**.
+Last updated **2026-10-27 16:45:00 UTC**.
 
-**Phase 1 consolidation is complete; Phase 2 verification is next.** All four
+**Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
 with every pending change committed, and all121 migration-owned temporary
 workspaces were audited, preserved, forgotten and deleted; `vault-backup`
@@ -42,6 +42,19 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**Phase 2 opened: CI image-acceptance repair — 2026-10-27 16:45:00 UTC.** The
+integrated main is now under full-lane verification and repair. The
+`server-acceptance` image step explicitly overrides the inherited native
+validation runtime to Docker with an exact workflow regression in the existing
+Rust acceptance test (22/22 after 21/1); the Docker-only guard is unchanged and
+still has no host fallback. Tracker drift is repaired: the Phase 1 stamp ran
+ahead of the ledger sync, so `check:progress` failed on main. Two host-side
+release-tooling failures trace to a stale host `node_modules` wiring simple-git
+3.36.0 against the lockfile's 4.0.1 override; fresh canonical installs resolve
+4.0.1, which rejects the abbreviated unsafe push options. Registry-only frozen
+installs remain blocked by unpublished AgentUI, keeping publication a separate
+release-input gate.
 
 **Phase 1 consolidation complete — 2026-10-27 15:46:14 UTC.** Four parallel
 retirement agents integrated and retired every migration-owned temporary
@@ -504,7 +517,7 @@ not host adoption or native/hosted application acceptance.
 | [R7.1](spec/src/architecture/rust-hosted-delivery.md#ln-core-054)      | Hosted cutover                 | Static Web and health delivery                                   | Static source9009bccf is integrated with native launcher in main. Focused native7 and directRust-only builtWeb1 pass. The prior combinedprofile hosted aggregate5pass/6fail is retained; final-main diagnosis and broad acceptance remain blockers. No Node/Vite server serves the directRust case; no ordinary defaultcompletion claimed.                                                                                                                                                             |
 | [R7.2](spec/src/architecture/rust-hosted-delivery.md#ln-core-066)      | Hosted cutover                 | Authenticated observation streams                                | Native scoped SSE and hosted reader are implemented on main; focused native5, Web16 and affected chat37 pass. Reconnect/reset, bounded64reader/256KiB frames, revocation/detach/drain and client abort are covered. Final coherent browser/native acceptance remains; no writer or replay added. [Evidence](spec/records/2026-10-27-native-observation-stream.md).                                                                                                                                     |
 | [R7.3](spec/src/architecture/rust-hosted-delivery.md#ln-core-064)      | Hosted cutover                 | Native build and start entrypoints                               | Native launchercd520b71 is landed and its delivery5/routing1/installpolicy3 checks pass. Landed33846705/3e2e5a85 now passes complete release101 and validationtooling72 with zero tracked mutations, repairing prior98/3. Compiled release/container and final default acceptance remain pending.                                                                                                                                                                                                      |
-| [R7.4](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover                 | Linux runtime and container delivery                             | Actual native image884c3028 passes16 basicruntime/browser/cold-storage checks. Optional image-model tester is uncommitted/unexecuted; CI step mustoverride inheritednative environment toDocker. Paused; resume via MIGRATION_HANDOFF.md.                                                                                                                                                                                                                                                              |
+| [R7.4](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover                 | Linux runtime and container delivery                             | Actual native image 884c3028 passes 16 basic runtime/browser/cold-storage checks. CI image-acceptance step now explicitly overrides the inherited native runtime to Docker with an exact workflow regression; the Docker-only guard and its no-host-fallback contract are unchanged. Optional image-model tester is committed as unverified draft c64391fd; basic16+model reruns against the actual image remain pending in Phase 2.                                                                   |
 | [R7.6](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover                 | Coherent host and restart qualification                          | Notes8404 fullsource/native/package/build/spec/tooling/release/catalog passes; five actualmodel cases pass. Desktop31/117pair quiet16/0+types pass; native intake uncommitted with2spec-first omissions. FreshMacserver+renderer ready; allthreefinalprovider cases and Desktopnative/local-offline gates pending. Userpaused; see MIGRATION_HANDOFF.md.                                                                                                                                               |
 | [R7.7](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover                 | Deferred and failing source-test closure                         | Tracker13/full80 repair is committed14172. Plugins private test repair407ada2e closes two stale count and two inherited-JJ-base failures: exact2+13affected+2snapshots, fullvalidation51 pass; release140/6→147/2. Two valid portable-lock/BitsUI guards remain failed and are being fixed upstream; audit advisories remain distinct. Optional asset/provider opt-ins are not counted as acceptance.                                                                                                  |
 

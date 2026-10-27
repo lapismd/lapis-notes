@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 14:10:02 UTC",
+  "updated": "2026-10-27 16:45:00 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -991,7 +991,7 @@
       "work": "Linux runtime and container delivery",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
-      "detail": "Actual native image884c3028 passes16 basicruntime/browser/cold-storage checks. Optional image-model tester is uncommitted/unexecuted; CI step mustoverride inheritednative environment toDocker. Paused; resume via MIGRATION_HANDOFF.md."
+      "detail": "Actual native image 884c3028 passes 16 basic runtime/browser/cold-storage checks. CI image-acceptance step now explicitly overrides the inherited native runtime to Docker with an exact workflow regression; the Docker-only guard and its no-host-fallback contract are unchanged. Optional image-model tester is committed as unverified draft c64391fd; basic16+model reruns against the actual image remain pending in Phase 2."
     },
     {
       "id": "R7.5",
@@ -1019,9 +1019,9 @@
     }
   ],
   "activity": {
-    "state": "Paused",
-    "updated": "2026-10-27 14:10:02 UTC",
-    "reason": "User requested complete handoff and workspace status, then pause for another agent.",
+    "state": "Active",
+    "updated": "2026-10-27 16:45:00 UTC",
+    "reason": "Phase 2 verification and repair is running on the integrated main per the handoff gate list; gate 1 (CI image-acceptance runtime override) is repaired, remaining gates are in progress.",
     "handoff": "MIGRATION_HANDOFF.md",
     "workspaceRegister": "MIGRATION_WORKSPACES.md"
   }
