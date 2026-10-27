@@ -10,9 +10,11 @@
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
   import { editingRecoveryPort } from "./port";
+  import { prepareHandoff } from "./handoff";
 
-  let { scenario = "detached" }: { scenario?: "detached" | "admission" } =
-    $props();
+  let {
+    scenario = "detached",
+  }: { scenario?: "detached" | "admission" | "handoff" } = $props();
   const selected = untrack(() => scenario);
   const saved =
     "# Saved note\n\nThis is the saved file, not an unsaved draft.\n";
@@ -33,12 +35,18 @@
   ]);
   let ready = $state(false);
   let frame = $state<HTMLDivElement>();
+  const handoffFacts = { protected: 0, mutations: 0 };
   $effect(() => {
     if (!frame) return;
-    const element = frame as HTMLDivElement & { __lapisApp?: App };
+    const element = frame as HTMLDivElement & {
+      __lapisApp?: App;
+      __handoffFacts?: typeof handoffFacts;
+    };
     element.__lapisApp = app;
+    if (selected === "handoff") element.__handoffFacts = handoffFacts;
     return () => {
       delete element.__lapisApp;
+      delete element.__handoffFacts;
     };
   });
   onMount(() => {
@@ -62,6 +70,8 @@
         unregister = registration;
         await registration.ready().catch(() => {});
       }
+      if (selected === "handoff")
+        unregister = await prepareHandoff(app, adapter, saved, handoffFacts);
       const { controller } = getWorkspaceHostBinding(app.workspace);
       await controller.start();
       await controller.commands.execute("app-shell:show-problems");

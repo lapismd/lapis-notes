@@ -166,3 +166,57 @@ export const AdmissionFailure: Story = {
     expect(await app.vault.adapter.read("Note.md")).toContain("# Saved note");
   },
 };
+
+export const HandoffFailure: Story = {
+  render: () => ({
+    Component: EditingRecoveryDemo,
+    props: { scenario: "handoff" },
+  }),
+  parameters: {
+    ...workspaceCatalogParameters("workspace-editing-recovery-handoff"),
+    visualDelta: {
+      images: [
+        "stories/workspace/editing-recovery/handoff-failure-chromium.png",
+      ],
+    },
+    docs: {
+      description: {
+        story:
+          "A refused native handoff stays in Problems and keeps editable input protected. After the producer observes the external save, explicit retry releases protection without replaying the refused mutation. Visual review remains pending.",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const app = await ownedApp(canvasElement);
+    const canvas = within(canvasElement);
+    const frame = canvasElement.querySelector<HTMLElement>(
+      '[data-editing-recovery-ready="true"]',
+    ) as HTMLElement & {
+      __handoffFacts: { protected: number; mutations: number };
+    };
+    const issue = await canvas.findByText(/Editing handoff failed:/);
+    expect(app.fileEditingSessions.nativeIssues.entries[0]).toMatchObject({
+      phase: "handoff",
+      status: "failed",
+    });
+    expect(frame.__handoffFacts.protected).toBe(1);
+    expect(frame.__handoffFacts.mutations).toBe(0);
+    await fireEvent.contextMenu(issue);
+    await userEvent.click(
+      await within(document.body).findByRole("menuitem", {
+        name: "Retry editing admission",
+      }),
+    );
+    await waitFor(() => {
+      expect(
+        canvas.queryByText(/Editing handoff failed:/),
+      ).not.toBeInTheDocument();
+      expect(frame.__handoffFacts.protected).toBe(0);
+    });
+    expect(app.fileEditingSessions.nativeIssues.entries).toEqual([]);
+    expect(frame.__handoffFacts.mutations).toBe(0);
+    expect(await app.vault.adapter.read("Note.md")).toBe(
+      "# External saved note\n\nAn outside edit is preserved.\n",
+    );
+  },
+};

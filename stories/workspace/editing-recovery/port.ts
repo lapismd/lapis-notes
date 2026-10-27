@@ -7,7 +7,7 @@ import type {
 /** Disposable transport fixture; production authority remains the Rust service. */
 export function editingRecoveryPort(
   adapter: MemoryVaultAdapter,
-  scenario: "detached" | "admission",
+  scenario: "detached" | "admission" | "handoff",
 ) {
   const states = new Map<string, EditingIntentState>();
   const retired = new Set<string>();

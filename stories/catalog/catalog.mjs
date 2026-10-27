@@ -680,6 +680,13 @@ export const workspaceCatalog = [
     publicSurface: "@lapis-notes/workspace",
     storyId: "workspace-editing-recovery--admission-failure",
   },
+  {
+    id: "workspace-editing-recovery-handoff",
+    title: "Editing Recovery: Handoff Failure",
+    spec: "spec/src/architecture/native-editor-intents.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-editing-recovery--handoff-failure",
+  },
   ...pluginPanelCatalog,
   {
     id: "workspace-plugins-app-link-release-selection",
