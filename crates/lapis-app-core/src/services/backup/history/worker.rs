@@ -81,6 +81,10 @@ pub(super) fn run(
 fn step(vault: &Weak<VaultService>) -> Result<indexed::Status, String> {
     let vault = vault.upgrade().ok_or("Vault service is closed")?;
     let _work = vault.begin_work().map_err(|error| error.to_string())?;
+    let _access = vault
+        .history_index_access
+        .lock()
+        .map_err(|_| "History index access is unavailable")?;
     let source = vault
         .backup_storage
         .as_ref()
@@ -89,6 +93,10 @@ fn step(vault: &Weak<VaultService>) -> Result<indexed::Status, String> {
         .map_err(|error| error.to_string())?;
     // Resolve current installed layout for every immutable batch. Neither
     // admission nor cache repair acquires the capture/file-writer lease.
+    #[cfg(test)]
+    if let Some(pause) = vault.history_index_pause.lock().unwrap().take() {
+        pause();
+    }
     let status = source.index_step()?;
     let current = vault
         .backup_storage

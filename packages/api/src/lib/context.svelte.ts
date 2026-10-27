@@ -1,3 +1,4 @@
+import { IconRegistry } from "./icons/registry";
 import { FILES_CONFIGURATION_SCHEMA } from "./files-configuration";
 import { DEFAULT_VAULT_EXCLUDES } from "./storage/vault-listing";
 import { Workspace } from "./workspace.svelte";
@@ -296,6 +297,7 @@ export class SecretStorage {
 export class App {
   readonly props: AppPublicProperties;
   readonly i18n: LocalizationManager = localeManager;
+  readonly icons = new IconRegistry();
   readonly workspace: Workspace;
   readonly vault: Vault = $state()!;
   readonly appDatabase: AppDatabase;

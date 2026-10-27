@@ -812,3 +812,42 @@ describe("Plugin data persistence", () => {
     expect(app.contextKeys.get(handle.key)).toBeUndefined();
   });
 });
+
+it("owns plugin custom SVGs and icon packs until unload", async () => {
+  const { IconRegistry } = await import("../icons");
+  const { app } = createPluginApp();
+  const icons = new IconRegistry();
+  Object.assign(app, { icons });
+  let id = "",
+    prefix = "";
+  class IconPlugin extends Plugin {
+    onload() {
+      id = this.registerIcon(
+        "shape",
+        '<svg viewBox="0 0 24 24"><path d="M2 3h7v9H2z"/></svg>',
+      );
+      prefix = this.registerIconPack({
+        name: "extra",
+        icons: {
+          prefix: "extra",
+          icons: { dot: { body: '<circle cx="3" cy="3" r="2"/>' } },
+        },
+      });
+    }
+  }
+  const plugin = new IconPlugin(app, {
+    id: "example-icons",
+    name: "Example icons",
+    version: "1.0.0",
+    minAppVersion: "0.0.0",
+    author: "Test",
+    description: "",
+  });
+  await plugin.load();
+  expect(await icons.resolve(id)).toContain("M2 3");
+  expect(await icons.resolve(`${prefix}:dot`)).toContain("<circle");
+  await plugin.unload();
+  expect(await icons.resolve(id)).toBeNull();
+  expect(await icons.resolve(`${prefix}:dot`)).toBeNull();
+  icons.dispose();
+});

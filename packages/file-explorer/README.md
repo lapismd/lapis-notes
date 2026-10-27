@@ -30,3 +30,9 @@ pnpm --filter @lapis-notes/file-explorer build
 pnpm --filter @lapis-notes/file-explorer check
 pnpm --filter @lapis-notes/file-explorer test
 ```
+
+Plugin-contributed file icons resolve through the owning App's editor-view and
+icon registries. Contributions can reference built-in names, registered custom
+SVG IDs or icon-pack entries. Registration, plugin enablement, editor
+associations and rename refresh rows while Design Core retains filename
+fallback, row accessibility and rename presentation.

@@ -28,6 +28,18 @@ Workspace leases remain held for created, active, paused or unreachable workers.
 Cleanup collects only completed owned runs and removes their immutable container
 IDs; an SSH failure cannot authorize an overlapping run or cache cleanup.
 
+Native daily-reference, Task adapter/installed-host and editing/leave test
+entry points use the same bounded Turbo boundary as other public local tests.
+Their internal `:run` scripts preserve the original commands and arguments;
+registered uncached root tasks retain live native/browser execution and explicit
+runtime selection. Package-build preflights use declared root-task dependencies;
+raw scripts cannot invoke Turbo recursively or redispatch their public entry.
+Public-router cache fixtures copy the real controller and lanes into their
+temporary root, explicitly select native execution and retain production output
+ignores; cache-hit and invalidation assertions remain independent of Docker.
+Disposable snapshot fixtures explicitly select and verify their own real parent
+as the exported check base, then restore the outer qualification environment.
+
 The root migration tracker projects gate-status tables from its owned JSON
 ledger through `pnpm progress:generate`. `pnpm check:progress` runs in normal
 and specification validation to reject stale status groups and invalid task

@@ -1,3 +1,5 @@
+import type { IconLoader } from "./icons";
+import type { ExtensionRegistrationOptions } from "./editor-view-registry";
 import type {
   SearchResultProvider,
   SearchResultProviderRegistration,
@@ -848,6 +850,27 @@ export abstract class Plugin extends Component {
     });
   }
 
+  /** Register an App-owned SVG and dispose it automatically on plugin unload. */
+  registerIcon(localId: string, svg: string): string {
+    const registration = this.app.icons.registerIcon(
+      this.manifest.id,
+      localId,
+      svg,
+    );
+    this.register(registration.dispose);
+    return registration.id;
+  }
+
+  /** Register an owned icon pack; use the returned prefix in `prefix:icon` IDs. */
+  registerIconPack(input: IconLoader): string {
+    const registration = this.app.icons.registerIconPack(
+      this.manifest.id,
+      input,
+    );
+    this.register(registration.dispose);
+    return registration.prefix;
+  }
+
   registerEditorView(contribution: EditorViewContribution): void {
     const dispose = this.app.workspace.registerEditorView({
       ...contribution,
@@ -943,7 +966,14 @@ export abstract class Plugin extends Component {
   registerExtensions(
     extensions: string[],
     viewType: string = "markdown",
+    options?: ExtensionRegistrationOptions,
   ): void {
+    if (options) {
+      this.register(
+        this.app.workspace.registerExtensions(extensions, viewType, options),
+      );
+      return;
+    }
     this.app.workspace.registerExtensions(extensions, viewType);
     this.register(() => {
       this.app.workspace.unregisterExtensions(extensions, viewType);

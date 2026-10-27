@@ -36,7 +36,30 @@ test("local test entry points use bounded Turbo tasks without raw-script recursi
       !manifest.scripts[target].includes(`pnpm ${name}`),
       `${name} must not call itself`,
     );
+    assert.doesNotMatch(
+      manifest.scripts[target],
+      /\bturbo\s+(?:run\b|build\b|test\b|check\b)/,
+      `${name}: declare package build dependencies instead of invoking Turbo inside a raw task`,
+    );
   }
+  for (const name of [
+    "test:web:native-tasks",
+    "test:web:native-editing-intents",
+  ])
+    assert.deepEqual(config.tasks[`//#${name}:run`].dependsOn, [
+      "@lapis-notes/api#build",
+    ]);
+  for (const name of [
+    "test:server:tasks",
+    "test:server:tasks:recovery",
+    "test:server:tasks:references",
+    "test:server:tasks:editors",
+    "test:server:tasks:leave",
+  ])
+    assert.deepEqual(config.tasks[`//#${name}:run`].dependsOn, [
+      "@lapis-notes/app-profile#build",
+      "@lapis-notes/workspace#build",
+    ]);
   for (const name of [
     "test:storybook",
     "test:specification:dev",
@@ -59,6 +82,17 @@ test("local test entry points use bounded Turbo tasks without raw-script recursi
     "test:server:native",
     "test:rust-core",
     "test:search:onnx",
+    "test:native-daily-reference",
+    "test:api:native-tasks",
+    "test:native-daily-locales-reference",
+    "test:web:native-tasks",
+    "test:server:tasks",
+    "test:web:native-editing-intents",
+    "test:server:tasks:recovery",
+    "test:server:tasks:references",
+    "test:server:tasks:editors",
+    "test:server:tasks:leave",
+    "test:web:workspace-leave",
   ])
     assert.equal(config.tasks[`//#${name}:run`].cache, false, name);
 });

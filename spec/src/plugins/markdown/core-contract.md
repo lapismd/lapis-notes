@@ -1,5 +1,10 @@
 # Markdown Plugin / Integration contracts
 
+File-view artwork follows LN-PLUG-122 independently of an instantiated tab's
+icon. Markdown retains filename-based Explorer artwork unless its selected
+contribution supplies fileIcon metadata. Icon lookup does not load a document
+or change Markdown's editor, preview, association or persistence ownership.
+
 LN-SRCH-051 adds provider-owned search targets. Markdown document extraction, extension contributions and current-file opening keep their existing contracts; historical activation belongs to its contributing provider.
 
 LN-PLUG-121 adds optional native-service declarations to the shared Plugin

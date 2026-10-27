@@ -87,6 +87,7 @@ export interface LapisEditorViewContribution {
   viewType?: string;
   label: string;
   description?: string;
+  fileIcon?: string;
   filenamePatterns: string[];
   priority?: "default" | "option" | "exclusive";
   pluginId?: string;
@@ -1058,6 +1059,7 @@ function isEditorViewContribution(
     Array.isArray(value.filenamePatterns) &&
     value.filenamePatterns.length > 0 &&
     value.filenamePatterns.every((entry) => typeof entry === "string") &&
+    (value.fileIcon === undefined || typeof value.fileIcon === "string") &&
     (value.viewType === undefined || typeof value.viewType === "string") &&
     (value.description === undefined ||
       typeof value.description === "string") &&

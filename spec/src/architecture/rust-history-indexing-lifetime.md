@@ -25,6 +25,13 @@ It MUST NOT capture files, transfer Git state, publish repository history or
 take the backup command/writer lease. Queries remain immutable and preserve
 exact revision/path identities and the existing exclusion namespace.
 
+The vault service MUST serialize background batches, query and context engine
+access through one private History-index gate, including physical source
+resolution and its final fence. Contention with the service's own batch MUST
+wait without an unavailable response. Start and cached status MUST remain
+outside this gate; joining the worker MUST NOT require it. This gate is
+independent of backup capture and the file-writer lease.
+
 ## Failure and close
 
 Every batch MUST revalidate the admitted physical vault and installation-owned
@@ -52,6 +59,9 @@ without modifying saved files or checkpoint identities.
 The source gate uses real native backup checkpoints and the existing engine.
 It proves initial publication, external edits after client detach, cold reopen,
 cache loss/rebuild, unchanged default selection, paused/cold read-only rebuild and explicit close/disable.
+Deterministic contention coverage holds the actual index lock on an admitted
+worker batch. It proves waiting query/context access, non-blocking Start/Status,
+accepted reads after client detach, close/drain and physical-root revalidation.
 Failure/recovery and multiple-vault cases retain separate observations. Source
 qualification alone does not qualify Tauri/HTTP selection, presentation,
 renderer-scheduler removal, all historical filters or final R3 completion.

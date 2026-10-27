@@ -1,3 +1,4 @@
+import type { IconRegistry } from "./icons/registry";
 import type { NativeTasks, NativeTasksSession } from "./native-tasks";
 import { Workspace } from "./workspace.svelte";
 import { TFile, Vault, type AppDatabase, type DataAdapter, type VaultSession } from "./storage";
@@ -167,6 +168,7 @@ export declare class SecretStorage {
 export declare class App {
     readonly props: AppPublicProperties;
     readonly i18n: LocalizationManager;
+    readonly icons: IconRegistry;
     readonly workspace: Workspace;
     readonly vault: Vault;
     readonly appDatabase: AppDatabase;

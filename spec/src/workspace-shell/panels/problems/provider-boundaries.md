@@ -1,5 +1,10 @@
 # Search result and Problems provider boundaries
 
+Generic plugin SVG and pack registrations follow LN-PLUG-123 independently of
+diagnostic collections. File-view artwork is presentation metadata, never a
+Problems diagnostic payload, permission or recovery action. Existing diagnostic
+severity and label presentation remain Design Core-owned.
+
 The shared [native editing-intent foundation](../../../architecture/native-editor-intents.md)
 returns admission, dirty and uncertain-transition state to the owning App. This
 source port does not create a Problems collection or discard an abandoned

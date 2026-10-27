@@ -20,6 +20,9 @@ pub struct VaultService {
     pub(super) backup_storage: Option<Arc<super::BackupStorage>>,
     pub(super) backup: super::backup::Slot,
     pub(super) history_indexing: Mutex<Option<Arc<super::backup::history::Owner>>>,
+    pub(super) history_index_access: Mutex<()>,
+    #[cfg(test)]
+    pub(super) history_index_pause: Mutex<Option<Box<dyn FnOnce() + Send>>>,
     pub(super) history_reader: Mutex<Option<Arc<super::history::Owner>>>,
     pub(super) close_gate: Mutex<()>,
     pub(super) task_lifecycle: Mutex<()>,
@@ -119,6 +122,9 @@ impl VaultService {
             backup_storage: None,
             backup: super::backup::Slot::default(),
             history_indexing: Mutex::new(None),
+            history_index_access: Mutex::new(()),
+            #[cfg(test)]
+            history_index_pause: Mutex::new(None),
             history_reader: Mutex::new(None),
             close_gate: Mutex::new(()),
             task_lifecycle: Mutex::new(()),

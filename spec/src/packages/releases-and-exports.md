@@ -289,7 +289,7 @@ interactions and both native packaged lanes remain blocking independently.
 
 <a id="ln-pkg-150"></a>
 
-**Requirement.** `@lapis-notes/api/registry/schema` MUST expose transport-neutral V2 catalog schemas, types, verified-input V1 normalization, authored media fallback, and validated Changesets notes without importing Community, application boot, UI, or relay implementations.
+**Requirement.** `@lapis-notes/api/registry/schema` MUST expose transport-neutral V2 catalog schemas, types, verified-input V1 normalization, authored media fallback, and validated Changesets notes without importing Community, application boot, UI, or relay implementations. Its Zod dependency uses patched `^4.6.6` through `zod/v3` to retain schema compatibility.
 
 ## LN-PKG-079 — @lapis-notes/history: live in the sibling lapis-plugins monorepo, expose
 

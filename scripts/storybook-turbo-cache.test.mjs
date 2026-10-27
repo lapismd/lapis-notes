@@ -15,6 +15,7 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { parse } from "yaml";
 import { validateReleaseConfig } from "./check-release-config.mjs";
+import { installValidationCacheController } from "./lib/validation-cache-fixture.mjs";
 
 const config = JSON.parse(
   await readFile(new URL("../turbo.json", import.meta.url), "utf8"),
@@ -22,14 +23,21 @@ const config = JSON.parse(
 const manifest = JSON.parse(
   await readFile(new URL("../package.json", import.meta.url), "utf8"),
 );
+const lanes = JSON.parse(
+  await readFile(new URL("./validation/lanes.json", import.meta.url), "utf8"),
+);
 
 test("CI Storybook tasks cache their results after package builds", () => {
+  assert.equal(
+    manifest.scripts["ci:release"],
+    "node scripts/validation.mjs run ci:release",
+  );
   for (const name of ["ci:storybook-static", "ci:storybook-interaction"]) {
     const task = config.tasks[`//#${name}`];
     assert.ok(task, name);
     assert.notEqual(task.cache, false);
     assert.ok(
-      manifest.scripts["ci:release"].includes(
+      lanes["ci:release"].includes(
         `node scripts/run-turbo.mjs ${name} --summarize`,
       ),
     );
@@ -53,11 +61,19 @@ test("CI Storybook tasks cache their results after package builds", () => {
   assert.deepEqual(config.tasks["//#ci:storybook-interaction"].outputs, []);
   assert.equal(
     manifest.scripts["ci:storybook-static"],
-    "pnpm build-storybook:run && pnpm test:specification:static:run",
+    "node scripts/validation.mjs run ci:storybook-static",
   );
   assert.equal(
     manifest.scripts["ci:storybook-interaction"],
-    "pnpm test:storybook:run && pnpm test:specification:dev:run",
+    "node scripts/validation.mjs run ci:storybook-interaction",
+  );
+  assert.equal(
+    lanes["ci:storybook-static"],
+    "pnpm build-storybook && pnpm test:specification:static",
+  );
+  assert.equal(
+    lanes["ci:storybook-interaction"],
+    "pnpm test:storybook && pnpm test:specification:dev",
   );
 });
 
@@ -382,6 +398,7 @@ test("the bounded runner preserves test arguments and separates forced/live cach
 
 test("local public test routing hits cache, invalidates inputs, and reruns failures and forced/live acceptance", async (t) => {
   const root = await cacheFixture(t);
+  await installValidationCacheController(root);
   for (const file of [
     "run-turbo.mjs",
     "lib/concurrency.mjs",
@@ -403,7 +420,8 @@ test("local public test routing hits cache, invalidates inputs, and reruns failu
   );
   await writeFile(
     path.join(root, ".gitignore"),
-    (await readFile(path.join(root, ".gitignore"), "utf8")) + "node_modules\n",
+    (await readFile(path.join(root, ".gitignore"), "utf8")) +
+      "node_modules\n.local\n",
   );
   const fixtureManifestPath = path.join(root, "package.json");
   const fixtureManifest = JSON.parse(
@@ -430,6 +448,8 @@ test("local public test routing hits cache, invalidates inputs, and reruns failu
         TURBO_TEAM: "",
         TURBO_API: "",
         TURBO_TELEMETRY_DISABLED: "1",
+        LAPIS_NOTES_VALIDATION_RUNTIME: "native",
+        LAPIS_NOTES_VALIDATION_WORKER: "",
         FIXTURE_FAILURE: "",
         ...env,
       },

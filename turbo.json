@@ -542,6 +542,83 @@
         "pnpm-lock.yaml"
       ],
       "outputs": []
+    },
+    "//#test:native-daily-reference:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
+    },
+    "//#test:api:native-tasks:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
+    },
+    "//#test:native-daily-locales-reference:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
+    },
+    "//#test:web:native-tasks:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": [],
+      "dependsOn": ["@lapis-notes/api#build"]
+    },
+    "//#test:server:tasks:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": [],
+      "dependsOn": [
+        "@lapis-notes/app-profile#build",
+        "@lapis-notes/workspace#build"
+      ]
+    },
+    "//#test:web:native-editing-intents:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": [],
+      "dependsOn": ["@lapis-notes/api#build"]
+    },
+    "//#test:server:tasks:recovery:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": [],
+      "dependsOn": [
+        "@lapis-notes/app-profile#build",
+        "@lapis-notes/workspace#build"
+      ]
+    },
+    "//#test:server:tasks:references:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": [],
+      "dependsOn": [
+        "@lapis-notes/app-profile#build",
+        "@lapis-notes/workspace#build"
+      ]
+    },
+    "//#test:server:tasks:editors:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": [],
+      "dependsOn": [
+        "@lapis-notes/app-profile#build",
+        "@lapis-notes/workspace#build"
+      ]
+    },
+    "//#test:server:tasks:leave:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": [],
+      "dependsOn": [
+        "@lapis-notes/app-profile#build",
+        "@lapis-notes/workspace#build"
+      ]
+    },
+    "//#test:web:workspace-leave:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
     }
   },
   "globalEnv": [

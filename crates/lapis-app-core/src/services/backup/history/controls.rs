@@ -27,6 +27,20 @@ impl Client {
 
 impl VaultService {
     fn history_index(self: &Arc<Self>, command: HistoryIndexCommand) -> Result<HistoryIndexValue> {
+        // Serialize only engine access and its source fences. Start/status may
+        // visit the worker slot, whose retirement joins the active batch.
+        let _access = if matches!(
+            command,
+            HistoryIndexCommand::Query { .. } | HistoryIndexCommand::Context { .. }
+        ) {
+            Some(
+                self.history_index_access
+                    .lock()
+                    .map_err(|_| unavailable())?,
+            )
+        } else {
+            None
+        };
         let storage = self
             .backup_storage
             .as_ref()

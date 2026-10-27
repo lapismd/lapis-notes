@@ -1,3 +1,7 @@
+import { iconRevision, iconsChanged, onIconsChanged } from "./changes";
+import { assertSafeIconSvg } from "./safe-svg";
+export { IconRegistry, type IconResolution } from "./registry";
+export { onIconsChanged };
 import type {
   ExtendedIconifyIcon,
   IconifyAliases,
@@ -55,6 +59,7 @@ const qualifiedIconNamePattern = /^[a-z0-9-]+:[a-z0-9-]+(?:-[a-z0-9-]+)*$/u;
 const labelIconAvailabilityCache = new Map<string, Promise<boolean>>();
 
 const iconsStore = new Map<string, IconifyJSON>();
+const packLoads = new Map<string, Promise<IconifyJSON>>();
 const loaderStore = new Map<string, AsyncIconLoader["loader"]>();
 const codiconLabelPattern = /\$\(([^)]+)\)/g;
 const customIcons: IconifyJSON = {
@@ -82,6 +87,9 @@ export const registerIconPacks = (iconLoaders: IconLoader[]) => {
         'Invalid icon loader. Must have a "name" property with non-empty string value.',
       );
     }
+    packLoads.delete(iconLoader.name);
+    iconsStore.delete(iconLoader.name);
+    loaderStore.delete(iconLoader.name);
     console.debug("Registering icon pack:", iconLoader.name);
     if ("loader" in iconLoader) {
       loaderStore.set(iconLoader.name, iconLoader.loader);
@@ -94,6 +102,8 @@ export const registerIconPacks = (iconLoaders: IconLoader[]) => {
       );
     }
   }
+  labelIconAvailabilityCache.clear();
+  iconsChanged();
 };
 
 function getIconCandidates(iconName: string): IconifyIconName[] {
@@ -125,9 +135,18 @@ const getRegisteredIconData = async (
         continue;
       }
       try {
-        const loaded = await loader();
+        let pending = packLoads.get(prefix);
+        if (!pending) {
+          pending = Promise.resolve().then(loader);
+          packLoads.set(prefix, pending);
+        }
+        const loaded = await pending;
         icons = { ...loaded, prefix };
-        iconsStore.set(prefix, icons);
+        if (
+          loaderStore.get(prefix) === loader &&
+          packLoads.get(prefix) === pending
+        )
+          iconsStore.set(prefix, icons);
       } catch (e) {
         console.error(e);
         throw new Error(`Failed to load icon set: ${prefix}`);
@@ -200,8 +219,10 @@ export function isLabelIconAvailable(iconName: string): Promise<boolean> {
     return cached;
   }
 
+  const revision = iconRevision();
   const pending = isIconAvailable(iconName).then((available) => {
-    labelIconAvailabilityCache.set(iconName, Promise.resolve(available));
+    if (revision === iconRevision())
+      labelIconAvailabilityCache.set(iconName, Promise.resolve(available));
     return available;
   });
   labelIconAvailabilityCache.set(iconName, pending);
@@ -357,12 +378,16 @@ export function addIcon(iconId: string, svgContent: string) {
   const icon = parseSvgIcon(svgContent);
   if (icon) {
     customIcons.icons[iconId] = icon;
+    labelIconAvailabilityCache.clear();
+    iconsChanged();
   }
 }
 
 export function removeIcon(iconId: string): void {
   delete customIcons.icons[iconId];
   delete (customIcons.aliases as IconifyAliases)[iconId];
+  labelIconAvailabilityCache.clear();
+  iconsChanged();
 }
 
 export function getIcon(iconId: string): SVGSVGElement | null {
@@ -396,4 +421,25 @@ export function setIcon(parent: HTMLElement, iconId: string): void {
       parent.innerHTML = svg;
     }
   });
+}
+
+/** Resolve registered artwork without substituting the unknown-icon glyph. */
+export async function resolveRegisteredIcon(
+  name: string,
+): Promise<import("./registry").IconResolution> {
+  try {
+    const [data] = await getRegisteredIconData(name);
+    const result = iconToSVG(data);
+    const svg = iconToHTML(replaceIDs(result.body), result.attributes);
+    assertSafeIconSvg(svg);
+    return { status: "found", svg };
+  } catch (error) {
+    return {
+      status:
+        error instanceof Error &&
+        /^(Invalid icon name:|Icon not found:)/u.test(error.message)
+          ? "missing"
+          : "failed",
+    };
+  }
 }

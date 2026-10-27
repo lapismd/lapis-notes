@@ -46,3 +46,22 @@ pnpm --filter @lapis-notes/api test
 - [Package spec](spec.md)
 - [Canonical spec](../../spec/src/20-packages/api/index.md)
 - [App state model](../../spec/src/20-packages/api/app-state-and-workspace-model.md)
+
+### Plugin file icons
+
+File-view plugins may set `fileIcon` on `registerEditorView` contributions, or
+pass `{ fileIcon }` as the third `registerExtensions` argument. The value is an
+icon ID: built-in Lucide names, existing `addIcon` IDs, and registered icon-pack
+entries work through the same resolver.
+
+Use `const fileIcon = this.registerIcon("diagram", diagramSvg)` to register
+custom SVG artwork in the owning App. The returned ID is namespaced and the
+plugin automatically releases it on unload. `this.registerIconPack({ name,
+icons })` or an asynchronous `loader` returns the owned pack prefix; reference
+its entries as `prefix:icon`. Legacy global registrations retain their existing
+shared-name behavior and caller-owned cleanup.
+
+Explorer uses editor associations and pattern priority to choose the
+contribution, then resolves artwork through `app.icons`. Pending, missing or
+failed artwork retains the filename icon. Changes repaint existing rows;
+rendering an icon never activates a plugin or constructs its file view.

@@ -65,6 +65,7 @@ export interface PluginContributionSummary {
   commands?: Array<{ id: string; name: string }>;
   editorViews?: Array<{
     id: string;
+    fileIcon?: string;
     filenamePatterns?: string[];
     extensions?: string[];
     mimeTypes?: string[];

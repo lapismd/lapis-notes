@@ -1,7 +1,9 @@
+import { PluginFileIconsSource } from "./Explorer.example-sources";
+import { Plugin, FileView, type TFile, type App } from "@lapis-notes/api";
 import { ExplorerPanel } from "@lapis-notes/file-explorer";
 import type { ExplorerController } from "@lapismd/design-core/workspace/explorer";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
-import { expect, userEvent, within } from "storybook/test";
+import { expect, userEvent, within, waitFor } from "storybook/test";
 import PanelDemo from "../../_shared/panels/PanelDemo.svelte";
 import { panelExampleSources } from "../../_shared/panels/Panel.example-sources";
 import type { PanelDemoLayout } from "../../_shared/panels/create-panel-demo";
@@ -142,3 +144,122 @@ export const SidebarGroup = placementStory(
   sources.SidebarGroup,
   "Explorer as a grouped right-sidebar item.",
 );
+
+class DiagramFileView extends FileView {
+  getViewType() {
+    return "example-diagram";
+  }
+  getDisplayText() {
+    return this.file?.name ?? "Diagram";
+  }
+  async onLoadFile(file: TFile) {
+    this.contentEl.textContent = file.name;
+  }
+}
+class DiagramIconPlugin extends Plugin {
+  constructor(app: App) {
+    super(app, DiagramIconPlugin.manifest);
+  }
+  static manifest = {
+    id: "example-file-icons",
+    name: "Example file icons",
+    version: "1.0.0",
+    minAppVersion: "0.0.1",
+    author: "Lapis",
+    description: "File icon acceptance",
+  };
+  onload() {
+    const fileIcon = this.registerIcon(
+      "diagram",
+      '<svg viewBox="0 0 24 24"><path d="M2 3h7v9H2z"/></svg>',
+    );
+    this.registerView("example-diagram", (leaf) => new DiagramFileView(leaf), {
+      kind: "file",
+    });
+    this.registerEditorView({
+      id: "example.diagram",
+      viewType: "example-diagram",
+      label: "Diagram",
+      filenamePatterns: ["*.diagram"],
+      priority: "default",
+      fileIcon,
+    });
+  }
+}
+
+export const PluginFileIcons: Story = {
+  name: "Plugin custom file icons",
+  parameters: {
+    ...placementParameters(
+      kind,
+      "middle-top-tabs",
+      sources.MiddleTopTabs,
+      "A real plugin registers custom SVG artwork, updates Explorer without activation from paint, and disposes it on disable.",
+    ),
+    docs: {
+      ...PANEL_DOCS_PARAMETERS,
+      description: {
+        story:
+          "Plugin-registered SVGs follow enable/disable, file activation and rename through the real App and Explorer.",
+      },
+      source: {
+        code: PluginFileIconsSource,
+        language: "tsx",
+        type: "code",
+      },
+    },
+  },
+  render: renderPlacement("middle-top-tabs"),
+  play: async ({ args, canvasElement }) => {
+    await expectPanelPlacement(
+      canvasElement,
+      kind,
+      "middle-top-tabs",
+      "lapis-editor-explorer",
+      args,
+    );
+    const app = panelDemoApp(canvasElement);
+    const file = await app.vault.create("example.diagram", "{}");
+    const row = () =>
+      canvasElement.querySelector('[data-path="example.diagram"]')!;
+    await waitFor(() =>
+      expect(
+        row()?.querySelector('[data-ui-component="file-type-icon"]'),
+      ).not.toBeNull(),
+    );
+    app.plugins.registerCorePlugins([
+      { plugin: DiagramIconPlugin, required: false, enabledByDefault: false },
+    ]);
+    await app.plugins.enablePlugin("example-file-icons");
+    await waitFor(() =>
+      expect(row()?.querySelector('path[d="M2 3h7v9H2z"]')).not.toBeNull(),
+    );
+    await expect(row()).toHaveAccessibleName("example.diagram");
+    await userEvent.click(within(canvasElement).getByText("example.diagram"));
+    await waitFor(() =>
+      expect(app.workspace.getLeavesOfType("example-diagram")).toHaveLength(1),
+    );
+    await app.plugins.disablePlugin("example-file-icons");
+    await waitFor(() =>
+      expect(
+        row()?.querySelector('[data-ui-component="file-type-icon"]'),
+      ).not.toBeNull(),
+    );
+    await app.plugins.enablePlugin("example-file-icons");
+    await waitFor(() =>
+      expect(row()?.querySelector('path[d="M2 3h7v9H2z"]')).not.toBeNull(),
+    );
+    await app.fileManager.renameFile(file, "example.other");
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector(
+          '[data-path="example.other"] [data-ui-component="file-type-icon"]',
+        ),
+      ).not.toBeNull(),
+    );
+    await app.fileManager.renameFile(file, "example.diagram");
+    await waitFor(() =>
+      expect(row()?.querySelector('path[d="M2 3h7v9H2z"]')).not.toBeNull(),
+    );
+  },
+};

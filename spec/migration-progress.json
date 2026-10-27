@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 00:42:34 UTC",
+  "updated": "2026-10-27 01:52:00 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -391,7 +391,7 @@
       "work": "History-index scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Indexed History, public App ports, admitted retained Repository reads and guarded hosted restore are committed and qualified. Desktop M16.6 is adopted at fa13c1ce. [Restore evidence](spec/records/2026-10-26-hosted-repository-restore.md) includes both real restore/cold-acknowledgement journeys, saved-byte preservation and complete source/browser/specification closure. Remaining current-profile parity is backup controls/status/passive observation and original-source selection. Optional legacy AppDatabase capture is explicitly Deferred outside the current profile. Complete R3/provider and default cutover remain open."
+      "detail": "Indexed History, public App ports, admitted retained Repository reads and guarded hosted restore are committed and qualified. Desktop M16.6 is adopted at fa13c1ce. [Restore evidence](spec/records/2026-10-26-hosted-repository-restore.md) includes both real restore/cold-acknowledgement journeys, saved-byte preservation and complete source/browser/specification closure. Remaining current-profile parity is backup controls/status/passive observation and original-source selection. Optional legacy AppDatabase capture is explicitly Deferred outside the current profile. Complete R3/provider and default cutover remain open. Current actual Desktop acceptance exposes four repeatable worker/query index-lock failures. The private per-vault access/fencing repair and two deterministic Core regressions are in progress; full strict/native, all five actual models and both-host History refresh remain required before closure."
     },
     {
       "id": "R1.3.9.1",
