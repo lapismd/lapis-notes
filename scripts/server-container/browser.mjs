@@ -65,6 +65,7 @@ async function poll(body, expected) {
   assert.equal(await body(), expected);
 }
 let vaultId;
+let model;
 await mkdir("/results", { recursive: true });
 try {
   await check("native origin and isolation", async () => {
@@ -187,6 +188,17 @@ try {
       assert.deepEqual(failedAssets, []);
     },
   );
+  if (fixture.onnx) {
+    const { imageModelPhase } = await import("./model.mjs");
+    const result = await imageModelPhase({
+      request: page.request,
+      origin: fixture.origin,
+      phase: phase === "create" ? "seed" : "check",
+      state: fixture.model,
+    });
+    model = result.state;
+    checks.push(...result.checks);
+  }
   await check("guarded clean sign out", async () => {
     await page.getByRole("button", { name: /Current workspace:/ }).click();
     await page
@@ -211,6 +223,7 @@ try {
     vaultId,
     path: fixture.path,
     checks,
+    ...(fixture.onnx ? { model } : {}),
     sha256: createHash("sha256").update(fixture.text).digest("hex"),
   };
   await writeFile(

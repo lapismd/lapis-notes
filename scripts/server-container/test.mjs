@@ -12,6 +12,7 @@ import {
   receiveDirectory,
 } from "../validation/docker.mjs";
 import { json } from "../validation/paths.mjs";
+import { prepareImageModel, prepareImageStorage } from "./model-assets.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const config = validationConfig(
@@ -160,6 +161,7 @@ async function browserPhase(phase, fixture, tool) {
   }
 }
 try {
+  const model = await prepareImageModel(root, input);
   const target =
     process.env.LAPIS_SERVER_TEST_IMAGE ?? "lapis-server:rust-local";
   const imageId = await run(["image", "inspect", target, "--format={{.Id}}"]);
@@ -176,30 +178,21 @@ try {
     join(root, "scripts/server-container/browser.mjs"),
     join(input, "browser.mjs"),
   );
-  for (const volume of volumes)
-    await run(["volume", "create", ...label, volume]);
-  const prepare = `${name}-prepare`;
-  containers.push(prepare);
-  await run(
-    [
-      "run",
-      `--name=${prepare}`,
-      "--interactive",
-      "--user=0:0",
-      "--read-only",
-      "--cap-drop=ALL",
-      "--cap-add=CHOWN",
-      ...label,
-      ...resources(0.25),
-      ...mount(volumes[0], "/data"),
-      ...mount(volumes[1], "/run/lapis"),
-      "--entrypoint=/bin/sh",
-      imageId,
-      "-ceu",
-      "umask 077; cat > /run/lapis/bootstrap-password; printf '{\"vaults\":[]}\\n' > /run/lapis/config.json; chown 1993:1993 /data /run/lapis /run/lapis/config.json /run/lapis/bootstrap-password",
-    ],
-    password + "\n",
-  );
+  receipt.modelAssets = await prepareImageStorage(model, {
+    config,
+    run,
+    input,
+    volumes,
+    name,
+    tool,
+    imageId,
+    label,
+    resources,
+    containers,
+    password,
+  });
+  if (model)
+    checks.push("six qualified offline model/runtime assets seeded as UID1993");
   containers.push(app);
   await run([
     "create",
@@ -232,6 +225,7 @@ try {
   ]);
   checks.push("no Node/Deno runtime and read-only application");
   const fixture = {
+    onnx: Boolean(model),
     origin,
     name: `Image vault ${id}`,
     path: "Untitled.md",
@@ -240,6 +234,7 @@ try {
   const created = await browserPhase("create", fixture, tool);
   assert.match(created.vaultId, /^[0-9a-f-]{36}$/u);
   fixture.vaultId = created.vaultId;
+  if (model) fixture.model = created.model;
   const saved = `/data/vaults/${fixture.vaultId}/content/${fixture.path}`;
   const readSaved = () => run(["exec", app, "cat", saved], undefined, "raw");
   assert.equal(await readSaved(), fixture.text);

@@ -154,6 +154,15 @@ and bootstrap credentials read-only; `/data` is persistent and `/tmp` temporary.
 An explicitly supplied `LAPIS_SERVER_ARCHIVES` manifest qualifies unpublished
 source packages without changing portable manifests or registry lockfiles.
 
+Actual-image model acceptance is opt-in with `LAPIS_SERVER_TEST_ONNX=1` and an
+explicit absolute `LAPIS_SERVER_TEST_ONNX_RUNTIME` path. It verifies the two
+qualified Linux/legacy oracles, five cached model assets and exact Linux runtime
+before copying test inputs; it never downloads substitutes. A UID1993 helper
+seeds only the owned test volume. Separate admitted model-vault sessions verify
+full vectors, rankings, revisions, detach/reopen and cold offline recovery without
+opening another workspace or exposing credentials. Acceptance remains pending
+until that optional image lane is executed; the ordinary image lane stays separate.
+
 ## LN-CORE-066 — Admitted database observation
 
 <a id="ln-core-066"></a>
