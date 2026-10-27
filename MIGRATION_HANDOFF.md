@@ -4,9 +4,11 @@
 committed in the four migration repositories' main workspaces, and all 121
 migration-owned temporary workspaces were audited, preserved, forgotten and
 deleted. Phase 2 (full verification and test repair on the integrated mains)
-started 2026-10-27 16:45:00 UTC; Notes gate 1 (CI image-acceptance runtime
-override) is repaired, and the remaining gates are in progress. Do not restart
-the app or Storybook except through a Phase 2 lane that requires it.
+started 2026-10-27 16:45:00 UTC; the Notes gates 1-4 completed by 18:40 UTC
+(CI repair, model-tester qualification, Mac provider gate 3/3 in one run, and
+the full lane set on the restored qualified archive cohort); gate 5 (the two
+pinned Notes lineages) awaits the user's decision. Do not restart the app or
+Storybook except through a Phase 2 lane that requires it.
 
 This handoff, [MIGRATION.md](MIGRATION.md), the saved
 [Rust core plan](RUST_CORE_MIGRATION_PLAN.md), the
@@ -18,12 +20,12 @@ manifests live in each main's ignored `.local/workspace-retirement/`.
 
 ## Current merge state
 
-| Repository / main checkout                    | Committed baseline                                                                                                                         | Working copy |
-| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------ |
-| `/Users/stevejuma/code/lapismd/lapis-notes`   | `c64391fdd6d0`: unverified optional actual-image model-tester draft on top of landed cutover `cd997c2c` / activity record `68604b41`.      | Clean        |
-| `/Users/stevejuma/code/lapismd/lapis-desktop` | `b009d1441727`: R7 intake (Notes native pin `cd997c2c`, 31-archive/117-route cohort, E-CORE-046 DRAFT) above spec-first repair `70730562`. | Clean        |
-| `/Users/stevejuma/code/lapismd/lapis-plugins` | `a68b8880e67c`: merged native-search stack above portable-lock draft `467f2231` and test repair `338282bf`, on `773bed9e`.                 | Clean        |
-| `/Users/stevejuma/code/lapismd/jj-store`      | `52b061c52111`: integrated history-read-admission slice above pending-docs commit `26a72176`, on `4e74e423`.                               | Clean        |
+| Repository / main checkout                    | Committed baseline                                                                                                                                                    | Working copy |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| `/Users/stevejuma/code/lapismd/lapis-notes`   | `2c59351352c3`: Phase 2 gate-completion record on top of model-tester qualification `c6f7290e6081` and CI repair `7163519aaafe`, over the Phase 1 tracker `2b3975c3`. | Clean        |
+| `/Users/stevejuma/code/lapismd/lapis-desktop` | `b009d1441727`: R7 intake (Notes native pin `cd997c2c`, 31-archive/117-route cohort, E-CORE-046 DRAFT) above spec-first repair `70730562`.                            | Clean        |
+| `/Users/stevejuma/code/lapismd/lapis-plugins` | `a68b8880e67c`: merged native-search stack above portable-lock draft `467f2231` and test repair `338282bf`, on `773bed9e`.                                            | Clean        |
+| `/Users/stevejuma/code/lapismd/jj-store`      | `52b061c52111`: integrated history-read-admission slice above pending-docs commit `26a72176`, on `4e74e423`.                                                          | Clean        |
 
 All commits are unsigned (`jj --config signing.behavior=drop`). Nothing was
 abandoned anywhere; every retired revision remains in its jj store.
@@ -137,15 +139,25 @@ directory while sibling agents run; preservation precedes every deletion.
    `.local/validation/phase2-cohort.json` (the local validation config now
    points at it; the stale main-icons cohort's history build lacked
    `BackupService.setEnabled` and broke web typecheck).
-3. Mac provider gate from `.local/r7-provider-final/macos-20261027/` (read
-   `pause-handoff.json` first): verify pinned Playwright 1.61.1 wiring, then
-   run the three final-cohort cases (`rust-server-provider{,-queue,-resume}.spec.ts`)
-   once from the frozen source root with the documented env. Record failures;
-   never replay an uncertain accepted provider turn automatically. The private
-   mode-0600 `provider-agents.json` stays private; never print config or
-   credential contents.
-4. Full main lanes on the integrated baseline (which now includes the draft
-   commit): check / package tests / build / native / spec / tooling / catalog.
+3. DONE (2026-10-27 18:22 UTC): Mac provider gate passed 3/3 in ONE run from
+   the frozen source root (18:20:24→18:22:02 UTC, exit 0; queue/resume/
+   provider specs; actual provider turns; no retry, no replay). Frozen
+   identity: binary sha `b84097fd…`, renderer 456/456 verified against image
+   `884c3028`, specs byte-identical to `8404bdd2`, Playwright 1.61.1 pinned
+   wiring, qualified helper hash unchanged; the frozen project's dependencies
+   were installed with the restored phase2 cohort (identities equal to
+   `source.json`) and its tracked manifest/lock bytes were restored after
+   install. Receipts: `provider-gate-phase2.json` +
+   `phase2-provider-run-182024.log` + frozen-root `.local/rust-provider-*`;
+   `provider-agents.json` stayed mode-0600 and was never printed.
+4. DONE (2026-10-27 18:40 UTC): full main lanes on the integrated baseline
+   (draft commit included) passed via the documented Docker runner on the
+   restored qualified cohort: check 16/16, test 16/16 (Rust 705/0/7 retained
+   ignores + 2,130 package/0 fail), build 9/9, spec:check (80),
+   validation:check 96/96, release:test 101/101, cold catalog 265/265,
+   static specification 192 chapters + Docs 6/6 — all with desktop-deno
+   excluded-deprecated per the standing decision below. No worker reported
+   source mutations; no deno.lock normalization was applied to main.
 5. Decide the two pinned Notes lineages (hosted-properties e2e,
    shared-conflict-review chain) with their required lanes.
 

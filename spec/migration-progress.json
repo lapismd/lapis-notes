@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 18:05:00 UTC",
+  "updated": "2026-10-27 18:40:00 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -1007,7 +1007,7 @@
       "work": "Coherent host and restart qualification",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
-      "detail": "Notes8404 fullsource/native/package/build/spec/tooling/release/catalog passes; five actualmodel cases pass. Desktop31/117pair quiet16/0+types pass; native intake uncommitted with2spec-first omissions. FreshMacserver+renderer ready; allthreefinalprovider cases and Desktopnative/local-offline gates pending. Userpaused; see MIGRATION_HANDOFF.md."
+      "detail": "Integrated main requalifies the complete Phase 2 lane set on the restored qualified 16-archive cohort with desktop-deno excluded-deprecated: check16/16, test16/16 (705Rust/0fail/7retained ignores + 2,130package/0fail), build9/9, spec:check80, validation96, release101, cold catalog265 in4 cold shards, static192chapters/Docs6. All three final Mac provider cases pass in ONE frozen-source run (binary b84097fd, renderer456/456 vs image884c3028, Playwright1.61.1; receipt provider-gate-phase2.json). The two host-only dependency-security failures are stale host node_modules (locked simple-git4.0.1 passes in Docker). Desktop native/local-offline gates remain with the Desktop repository."
     },
     {
       "id": "R7.7",
@@ -1020,8 +1020,8 @@
   ],
   "activity": {
     "state": "Active",
-    "updated": "2026-10-27 18:05:00 UTC",
-    "reason": "Phase 2 verification and repair on the integrated main: CI repair, archive-cohort restoration, check/test/build lanes and image-model acceptance are qualified; remaining lanes and the Mac provider gate are in progress.",
+    "updated": "2026-10-27 18:40:00 UTC",
+    "reason": "Phase 2 Notes gates 1-4 are complete (CI repair, model-tester qualification, Mac provider gate, full lane set); the two pinned unlanded lineages await the user's merge decision.",
     "handoff": "MIGRATION_HANDOFF.md",
     "workspaceRegister": "MIGRATION_WORKSPACES.md"
   }
