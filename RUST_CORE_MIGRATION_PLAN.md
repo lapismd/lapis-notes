@@ -157,6 +157,15 @@ addresses one acceptance; per-delivery cancellation retains its exact native
 request association. Native logical-profile resolution, Tauri/shared host adoption
 and complete both-host/provider workflows remain separate R4.2 gates.
 
+R4.2.3 source qualification is retained in the
+[shared/hosted evidence](spec/records/2026-10-27-native-participant-host.md). It
+adapts declared logical profiles and participant receipts into the existing
+shared Agent screen and hosted native client. Read-only native-request discovery
+supports fresh observers; optional complete profile snapshots preserve choices.
+It introduces no catalog store or renderer writer. Busy multi-recipient queue
+interop, complete profile editing, Tauri/provider and whole-workflow acceptance
+retain their original gates.
+
 R4.1 starts with the currently declared single-recipient plain-text Core profile;
 unsupported rich payloads remain visibly unavailable rather than accepted and
 dropped. Its source codecs preserve the complete retained queue format before

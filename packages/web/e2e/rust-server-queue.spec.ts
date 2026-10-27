@@ -64,7 +64,12 @@ test("native queue controls preserve cancellation and require explicit cold resu
     JSON.stringify({ disabled: [], enabled: ["ai"] }),
   );
   const frames = async () =>
-    (await readFile(log, "utf8"))
+    (
+      await readFile(log, "utf8").catch((error: NodeJS.ErrnoException) => {
+        if (error.code === "ENOENT") return "";
+        throw error;
+      })
+    )
       .split("\n")
       .filter(Boolean)
       .map((line) => JSON.parse(line));
@@ -79,7 +84,9 @@ test("native queue controls preserve cancellation and require explicit cold resu
       .click();
     await page.getByRole("button", { name: "Open Chat", exact: true }).click();
     const chat = page.locator('[data-native-chat="true"]:visible');
-    const editor = chat.getByRole("textbox", { name: "Message", exact: true });
+    const editor = chat
+      .getByRole("group", { name: "Message composer", exact: true })
+      .getByRole("textbox", { name: "Message", exact: true });
     await editor.fill("held-first");
     await chat
       .getByRole("button", { name: "Send message", exact: true })
@@ -98,12 +105,59 @@ test("native queue controls preserve cancellation and require explicit cold resu
       exact: true,
     });
     await expect(queue).toContainText("Cancelled before dispatch");
+    const cancel = queue.getByRole("button", {
+      name: "Cancel queued message for Writer",
+      exact: true,
+    });
     await queue
-      .getByRole("button", {
-        name: "Cancel queued message for Writer",
-        exact: true,
-      })
-      .click();
+      .getByRole("article", { name: "Pending message from You", exact: true })
+      .hover();
+    const pointerGeometry = await cancel.evaluate((button) => {
+      const describe = (element: Element) => {
+        const box = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return {
+          tag: element.tagName,
+          class: element.getAttribute("class"),
+          label: element.getAttribute("aria-label"),
+          box: { x: box.x, y: box.y, width: box.width, height: box.height },
+          display: style.display,
+          position: style.position,
+          zIndex: style.zIndex,
+          pointerEvents: style.pointerEvents,
+          opacity: style.opacity,
+        };
+      };
+      const box = button.getBoundingClientRect();
+      const hit = document.elementFromPoint(
+        box.x + box.width / 2,
+        box.y + box.height / 2,
+      );
+      return {
+        button: describe(button),
+        buttonOwnsHit: !!hit && button.contains(hit),
+        ancestors: [button.parentElement, button.closest("article")]
+          .filter((element): element is HTMLElement => !!element)
+          .map(describe),
+        hit: document
+          .elementsFromPoint(box.x + box.width / 2, box.y + box.height / 2)
+          .slice(0, 8)
+          .map(describe),
+      };
+    });
+    console.info("QUEUE_CANCEL_GEOMETRY", JSON.stringify(pointerGeometry));
+    await testInfo.attach("Queue cancel pointer geometry", {
+      body: JSON.stringify(pointerGeometry, null, 2),
+      contentType: "application/json",
+    });
+    expect(pointerGeometry.button.pointerEvents).toBe("auto");
+    expect(pointerGeometry.ancestors[0].opacity).toBe("1");
+    expect(pointerGeometry.buttonOwnsHit).toBe(true);
+    await testInfo.attach("Queue cancel revealed by pointer hover", {
+      body: await page.screenshot(),
+      contentType: "image/png",
+    });
+    await cancel.click();
     await expect(queue).toHaveCount(0);
     await editor.fill("After explicit cold resume");
     await chat
@@ -178,6 +232,19 @@ test("native queue controls preserve cancellation and require explicit cold resu
       .filter(Boolean)
       .map((line) => JSON.parse(line));
     const capture = stored.entries[1].input.capture;
+    expect(capture.selection.targets[0].thinking).toBe("default");
+    const dispatched = JSON.parse(
+      await readFile(
+        join(
+          root,
+          "profile/turns",
+          service.vaultId,
+          `${stored.entries[1].request_id}.json`,
+        ),
+        "utf8",
+      ),
+    );
+    expect(dispatched.input.options.effort).toBeNull();
     expect(transcript.find((entry) => entry.id === capture.user.id)).toEqual(
       capture.user,
     );
@@ -205,7 +272,7 @@ test("native queue controls preserve cancellation and require explicit cold resu
     for (const configuration of (await frames()).filter(
       (f) => f.type === "configure",
     ))
-      expect(configuration).not.toHaveProperty("effort");
+      expect(configuration.effort).toBeNull();
   } catch (error) {
     await testInfo.attach("Rust queue host log", {
       body: service.logs,

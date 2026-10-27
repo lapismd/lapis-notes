@@ -2539,6 +2539,21 @@
       "oneOf": [
         {
           "additionalProperties": false,
+          "properties": { "kind": { "const": "profiles", "type": "string" } },
+          "required": ["kind"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "for_turn", "type": "string" },
+            "request_id": { "format": "uuid", "type": "string" }
+          },
+          "required": ["kind", "request_id"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
           "properties": {
             "input": { "$ref": "#/$defs/ParticipantMessageInput" },
             "kind": { "const": "accept", "type": "string" }
@@ -2630,10 +2645,24 @@
       "properties": {
         "acceptance_id": { "format": "uuid", "type": "string" },
         "dispatch": true,
+        "profiles": {
+          "items": { "$ref": "#/$defs/ParticipantProfile" },
+          "type": ["array", "null"]
+        },
         "turns": { "items": { "$ref": "#/$defs/TurnInput" }, "type": "array" },
         "user": true
       },
       "required": ["acceptance_id", "user", "dispatch", "turns"],
+      "type": "object"
+    },
+    "ParticipantProfile": {
+      "additionalProperties": false,
+      "properties": {
+        "options": { "$ref": "#/$defs/TurnOptions" },
+        "selection": { "$ref": "#/$defs/QueueSelection" },
+        "target_id": { "type": "string" }
+      },
+      "required": ["target_id", "selection", "options"],
       "type": "object"
     },
     "ParticipantState": {
@@ -2650,6 +2679,18 @@
     },
     "ParticipantValue": {
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "profiles", "type": "string" },
+            "profiles": {
+              "items": { "$ref": "#/$defs/ParticipantProfile" },
+              "type": "array"
+            }
+          },
+          "required": ["kind", "profiles"],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "properties": {

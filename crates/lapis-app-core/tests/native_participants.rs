@@ -14,6 +14,7 @@ fn input(f: &Fixture) -> ParticipantMessageInput {
     ]);
     let user = json!({"schemaVersion":3,"id":"user-authored-café","type":"message","role":"user","text":"Authored café 📝","createdAt":"2026-10-27T04:30:00.000Z","recipients":recipients});
     ParticipantMessageInput {
+        profiles: None,
         acceptance_id: Uuid::new_v4(),
         user,
         dispatch: json!({"version":1,"id":"dispatch-authored","userEntryId":"user-authored-café","startedAt":"2026-10-27T04:30:00.000Z","deliveries":[

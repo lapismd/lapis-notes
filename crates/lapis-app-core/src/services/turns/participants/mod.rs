@@ -1,6 +1,8 @@
 mod acknowledge;
 mod admission;
 mod control;
+mod lookup;
+mod profiles;
 mod store;
 mod types;
 mod validation;

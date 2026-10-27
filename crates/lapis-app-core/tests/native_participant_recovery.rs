@@ -137,10 +137,12 @@ async fn cold_participant_checkpoint_retains_confirmed_output_and_started_unknow
     restore(files);
     let runtime = f.runtime();
     let client = runtime.get(f.vault).unwrap().attach().unwrap();
+    let portable = snapshot(&f.root);
     let recovered = client
-        .participant_message(input.acceptance_id)
+        .participant_for_turn(input.turns[0].request_id)
         .unwrap()
         .unwrap();
+    assert_eq!(snapshot(&f.root), portable);
     assert_eq!(recovered.input, input);
     assert!(recovered.recovered);
     assert_eq!(
@@ -252,10 +254,12 @@ async fn cold_accepted_participants_become_not_sent_and_existing_receipts_never_
     restore(files);
     let runtime = f.runtime();
     let client = runtime.get(f.vault).unwrap().attach().unwrap();
+    let portable = snapshot(&f.root);
     let recovered = client
-        .participant_message(input.acceptance_id)
+        .participant_for_turn(input.turns[0].request_id)
         .unwrap()
         .unwrap();
+    assert_eq!(snapshot(&f.root), portable);
     assert!(
         recovered
             .deliveries

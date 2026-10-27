@@ -237,6 +237,11 @@ Validated comment captures preserve their complete existing fields. Model,
 thinking, mode and instructions are immutable capture data. Explicit `default`
 thinking remains saved while its runtime effort field stays omitted.
 
+The compatibility configuration object omits unset effort. The typed native
+bridge carries that absence as `TurnOptions.effort: None` (JSON `null`). The
+runtime reports `NotRequested` and applies no downstream effort or model setter.
+The literal `default` MUST NOT become a requested effort value.
+
 Source checks must compare complete retained results, not just counts or
 accepted flags. Later FIFO durability, Stop/cancel, cold explicit resume,
 competing clients, uncertain replies, actual providers and both retained hosts

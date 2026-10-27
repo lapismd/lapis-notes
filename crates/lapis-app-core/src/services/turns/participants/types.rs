@@ -11,6 +11,8 @@ pub struct ParticipantMessageInput {
     pub user: Value,
     pub dispatch: Value,
     pub turns: Vec<TurnInput>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub profiles: Option<Vec<lapis_app_protocol::participants::ParticipantProfile>>,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

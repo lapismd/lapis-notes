@@ -29,6 +29,7 @@
   - [Packages / Host and plugin integration](./packages/core-contract.md)
   - [Packages / Editor APIs](./packages/editor-apis.md)
   - [Packages / Releases and exports](./packages/releases-and-exports.md)
+  - [Packages / Native service exports](./packages/native-service-exports.md)
   - [Packages / Vault and storage](./packages/vault-and-storage.md)
   - [Packages / Workspace APIs](./packages/workspace-apis.md)
   - [Packages / Configuration and lifecycle](./packages/configuration-and-lifecycle.md)

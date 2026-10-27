@@ -59,6 +59,7 @@ impl Client {
                 ));
             }
         }
+        super::profiles::admit(&owner, &work, &input)?;
         let (conversation_id, time) = data
             .journal
             .plan_participants(&input.turns[0], input.turns.len())?;

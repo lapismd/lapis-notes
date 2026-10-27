@@ -18,6 +18,14 @@ pub trait AgentPolicy: Send + Sync + 'static {
     ) -> lapis_ai_service::Result<Vec<lapis_app_protocol::turns::TurnTarget>> {
         Ok(Vec::new())
     }
+    /// Trusted declared data only; default-empty keeps existing native hosts compatible.
+    fn participant_profiles(
+        &self,
+        _vault: Uuid,
+        _scope: &VaultRoot,
+    ) -> lapis_ai_service::Result<Vec<(String, lapis_app_protocol::queues::QueueSelection)>> {
+        Ok(Vec::new())
+    }
     fn resolve(
         &self,
         vault: Uuid,

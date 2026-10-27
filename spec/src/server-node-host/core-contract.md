@@ -362,3 +362,10 @@ admission and typed remote-database schemas retain their existing behavior;
 no host policy or default changes follow from this dependency alignment.
 
 Optional trusted `queue_selection` metadata follows [LN-CORE-037](../architecture/rust-turn-admission.md#ln-core-037). Hosts keep the exact saved recipient and ACP choices separate from opaque execution-target authority; absent metadata retains R2-only operation.
+
+Staged Rust chat observes optional declared logical profiles and exact native
+request receipts through its existing admitted participant route under
+[LN-CORE-046–048](../architecture/rust-participants.md#ln-core-046). The shared
+Agent screen retains native publication and independent outcomes; logical IDs
+never derive from runtime labels. Busy group queue interoperability and complete
+both-host/profile/provider acceptance retain their separate gates.

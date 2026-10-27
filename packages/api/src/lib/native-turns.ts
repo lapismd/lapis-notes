@@ -29,6 +29,7 @@ import type {
 } from "./native-participant-protocol";
 export type * from "./native-participant-protocol";
 export {
+  PARTICIPANT_PROFILE_LIMIT,
   PARTICIPANT_REQUEST_LIMIT,
   PARTICIPANT_RECORD_LIMIT,
 } from "./native-participant-protocol";

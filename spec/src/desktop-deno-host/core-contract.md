@@ -81,3 +81,8 @@ The macOS close transport verifies:
 <a id="ln-deno-065"></a>
 
 **Requirement.** The desktop development renderer MUST pre-bundle deep `@lapismd/mira` modules used by registry-installed Markdown. System WebView and CEF MUST receive interoperable exports for their transitive CommonJS dependencies instead of importing raw CommonJS through native ESM URLs.
+
+Frozen Deno retains its current host implementation. The shared optional native
+participant projection under [LN-CORE-048](../architecture/rust-participants.md#ln-core-048)
+is selected by admitted native hosts; its profile/read ports preserve existing
+metadata-absent single-target behavior and the current complete Agent screen.

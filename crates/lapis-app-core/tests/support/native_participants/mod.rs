@@ -35,6 +35,7 @@ pub fn input(f: &Fixture, count: usize) -> ParticipantMessageInput {
         .collect();
     ParticipantMessageInput {
         acceptance_id: Uuid::new_v4(),
+        profiles: None,
         user: json!({"schemaVersion":3,"id":dispatch["userEntryId"],"type":"message","role":"user","text":"Authored café 📝","createdAt":dispatch["startedAt"],"recipients":recipients}),
         dispatch,
         turns: (0..count)

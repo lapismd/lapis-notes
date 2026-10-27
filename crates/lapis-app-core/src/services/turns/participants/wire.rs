@@ -9,12 +9,19 @@ impl Client {
         command: wire::ParticipantCommand,
     ) -> Result<wire::ParticipantValue> {
         match command {
+            wire::ParticipantCommand::Profiles {} => Ok(wire::ParticipantValue::Profiles {
+                profiles: self.participant_profiles()?,
+            }),
+            wire::ParticipantCommand::ForTurn { request_id } => {
+                Ok(value(self.participant_for_turn(request_id)?))
+            }
             wire::ParticipantCommand::Accept { input } => Ok(value(Some(
                 self.submit_participant_message(ParticipantMessageInput {
                     acceptance_id: input.acceptance_id,
                     user: input.user,
                     dispatch: input.dispatch,
                     turns: input.turns,
+                    profiles: input.profiles,
                 })?,
             ))),
             wire::ParticipantCommand::Read { acceptance_id } => {
@@ -47,6 +54,7 @@ fn value(message: Option<ParticipantMessage>) -> wire::ParticipantValue {
                     user: message.input.user,
                     dispatch: message.input.dispatch,
                     turns: message.input.turns,
+                    profiles: message.input.profiles,
                 },
                 deliveries: message.deliveries.into_iter().map(delivery).collect(),
                 recovered: message.recovered,

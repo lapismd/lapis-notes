@@ -14,6 +14,8 @@ import {
   type VaultValue,
   type QueueCommand,
   type QueueValue,
+  type ParticipantCommand,
+  type ParticipantValue,
   type TurnCommand,
   type TurnValue,
   type HistoryIndexCommand,
@@ -133,6 +135,17 @@ export class RustVaultClient {
     this.requireOpen();
     const value = await this.host.json<QueueValue>(
       `${this.path}/queues`,
+      "POST",
+      command,
+    );
+    this.requireOpen();
+    return value;
+  }
+
+  async participants(command: ParticipantCommand): Promise<ParticipantValue> {
+    this.requireOpen();
+    const value = await this.host.json<ParticipantValue>(
+      `${this.path}/participants`,
       "POST",
       command,
     );

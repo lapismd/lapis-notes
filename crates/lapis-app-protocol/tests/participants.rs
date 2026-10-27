@@ -38,6 +38,7 @@ fn participant_commands_and_all_outcomes_round_trip_complete_capture_and_native_
         assert_eq!(serde_json::to_value(parsed).unwrap(), value);
     }
     for value in [
+        json!({"kind":"profiles","profiles":[]}),
         json!({"kind":"message","message":null}),
         json!({"kind":"stop_requested","accepted":false}),
         json!({"kind":"cancel_requested","accepted":true}),
@@ -56,6 +57,7 @@ fn participant_frames_reject_native_authority_and_declare_unknown_captures_witho
     assert!(ParticipantCommand::decl(&cfg).contains("request_id: string"));
     assert_eq!(PARTICIPANT_REQUEST_LIMIT, 2 * 1024 * 1024);
     assert_eq!(PARTICIPANT_RECORD_LIMIT, 8 * 1024 * 1024);
+    assert_eq!(PARTICIPANT_PROFILE_LIMIT, 16);
     for key in ["executable", "environment", "root", "resume", "arguments"] {
         let mut value = input();
         value[key] = json!("foreign");
@@ -70,7 +72,37 @@ fn participant_frames_reject_native_authority_and_declare_unknown_captures_witho
         json!({"kind":"cancel","acceptance_id":Uuid::new_v4()}),
         json!({"kind":"read","acceptance_id":"authored:parent"}),
         json!({"kind":"stop","acceptance_id":Uuid::new_v4(),"target_id":"foreign"}),
+        json!({"kind":"for_turn","acceptance_id":Uuid::new_v4()}),
+        json!({"kind":"for_turn","request_id":"authored-parent"}),
     ] {
         assert!(serde_json::from_value::<ParticipantCommand>(value).is_err());
+    }
+}
+
+#[test]
+fn complete_selected_profile_data_and_exact_lookup_round_trip_without_native_authority() {
+    let selection = json!({"recipient":{"id":"reviewer","label":"Equal label","token":"jj-store-agent:7265766965776572;"},"target":{"id":"reviewer","agent":"codex","model":{"provider":"codex","model":"model-reviewer"},"thinking":"default"},"thinking":"high"});
+    let profile = json!({"target_id":"installed-runtime","selection":selection,"options":{"mode":"plan","model":"model-reviewer","effort":null,"max_duration_ms":60000}});
+    let parsed: ParticipantProfile = serde_json::from_value(profile.clone()).unwrap();
+    assert_eq!(serde_json::to_value(parsed).unwrap(), profile);
+    let mut capture = input();
+    capture["profiles"] = json!([profile]);
+    let parsed: ParticipantCommand =
+        serde_json::from_value(json!({"kind":"accept","input":capture})).unwrap();
+    assert_eq!(
+        serde_json::to_value(parsed).unwrap()["input"]["profiles"],
+        capture["profiles"]
+    );
+    for value in [
+        json!({"kind":"profiles"}),
+        json!({"kind":"for_turn","request_id":Uuid::new_v4()}),
+    ] {
+        let parsed: ParticipantCommand = serde_json::from_value(value.clone()).unwrap();
+        assert_eq!(serde_json::to_value(parsed).unwrap(), value);
+    }
+    for key in ["executable", "environment", "provider_session"] {
+        let mut forged = profile.clone();
+        forged[key] = json!("forged");
+        assert!(serde_json::from_value::<ParticipantProfile>(forged).is_err());
     }
 }

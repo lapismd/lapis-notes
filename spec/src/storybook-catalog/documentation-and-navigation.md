@@ -1,5 +1,9 @@
 # Storybook Catalog / Documentation and navigation
 
+The [Native service exports](../packages/native-service-exports.md) topic is
+separate from release policy and uses a metadata-only mirror in SUMMARY order.
+Its source owns the port contracts; navigation adds no runtime or release gate.
+
 The canonical [Native editor intents](../architecture/native-editor-intents.md)
 chapter uses the metadata-only Specification mirror in SUMMARY order. Its
 source and host verification remain separate; adding its navigation entry does

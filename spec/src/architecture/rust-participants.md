@@ -98,3 +98,67 @@ message. Disabled services preserve observation of prior acceptance while refusi
 new work. Native logical-profile catalog resolution, actual host selection and
 complete both-host R4.2 adoption remain separate integration gates; a runtime
 catalog entry is not a logical profile and captured labels never supply routing.
+
+## LN-CORE-046 — Declared logical-profile captures
+
+<a id="ln-core-046"></a>
+
+**Requirement.** Core MUST project logical profiles from existing trusted
+installation policy, preserving identities independently of runtime targets.
+The catalog MUST contain at most sixteen distinct profiles; one runtime MAY
+serve several profiles. Present selected-profile snapshots MUST retain complete
+choices and native options, and match the current admitted declaration before
+fresh acceptance. Missing snapshots MUST preserve existing raw admission behavior.
+
+Sixteen is the retained configured-profile bound; thirty-two runtime targets and
+one to four recipients per message remain distinct limits. Explicit provider-default
+thinking remains captured without requesting native effort. The compatibility
+configuration object omits unset effort; typed native `Option::None` is JSON
+`null` and retains `NotRequested` with no downstream effort setter. Literal
+`default` is never a requested effort value. Optional metadata uses the existing operator configuration and typed selection contracts;
+there is no second catalog store. Metadata-absent R2 single-target idle behavior
+and existing queue metadata remain compatible. Unsupported rich profiles refuse
+rather than lose instructions, context or tools.
+
+## LN-CORE-047 — Exact native-request receipt discovery
+
+<a id="ln-core-047"></a>
+
+**Requirement.** An admitted native-request lookup MUST return at most one
+validated participant receipt for that exact request UUID in the current vault.
+Ambiguous or corrupt matches MUST refuse without repairing stored bytes.
+The lookup MUST NOT create acceptance or dispatch claims, write portable
+conversation files, or retry or resume a provider. Existing conservative cold
+outcome projection MUST remain independent of browser lifetime.
+
+The lookup scans the existing bounded private receipt store, preserves all
+acceptance/delivery/request associations and returns no installation snapshot.
+Authored or captured identifiers are never substituted for native request UUIDs.
+
+## LN-CORE-048 — Shared participant observation
+
+<a id="ln-core-048"></a>
+
+**Requirement.** Shared native chat hosts MUST project declared logical profiles
+and independent participant outcomes through the existing public Agent screen.
+They MUST capture each explicit message once, dispatch through the typed native
+participant port, and recover unknown replies by the original acceptance identity.
+Passive view detach MUST NOT stop accepted work. Failed or uncertain native
+submission MUST NOT fall back to another writer, scheduler or execution path.
+
+### Acceptance details
+
+Shared hosts retain these capture, observation and control boundaries:
+
+- Recipient IDs remain separate from runtime IDs and labels. UI action IDs stay
+  separate from native acceptance UUIDs. Unsupported rich captures refuse, and
+  missing metadata preserves ordinary single-target sends.
+- All sibling states contribute to busy observation; captured binding/delivery
+  attribution survives detach, cold recovery and later profile renames.
+- Explicit Stop and existing leave/trust fences retain native authority. Busy
+  multi-recipient queue/group interoperation remains unavailable until its group
+  dependency is implemented by the queue owner; no renderer queue is introduced.
+
+Shared-adapter and actual hosted-fixture evidence remain separate. Both retained
+hosts, complete saved-profile editing, external providers, richer workflow and
+complete R4.2 acceptance retain their existing gates.

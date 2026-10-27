@@ -109,3 +109,16 @@ pub use receipt::{QueueReceipt, create_receipt, validate_receipt};
 pub(crate) fn validate_user(user: &Value) -> Result<Vec<String>> {
     user::validate(user)
 }
+
+/// Validate installation-declared captured choices with the retained source codec.
+/// This projection grants no launch or provider authority.
+pub fn validate_declared_selection(
+    declared: &lapis_app_protocol::queues::QueueSelection,
+) -> Result<()> {
+    let ids = selection::recipients(Some(&json!([declared.recipient])))?;
+    let mut choices = json!({"targets":[declared.target],"runtime":"acp","attachments":[]});
+    if let Some(thinking) = &declared.thinking {
+        choices["thinking"] = json!(thinking);
+    }
+    selection::selection(&choices, &ids)
+}

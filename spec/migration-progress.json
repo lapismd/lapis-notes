@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 06:31:56 UTC",
+  "updated": "2026-10-27 09:21:26 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -895,7 +895,7 @@
       "work": "Logical participants and one conversation publication owner",
       "status": "Waiting",
       "spec": "spec/src/architecture/rust-participants.md#ln-core-033",
-      "detail": "R4.2.1 and R4.2.2 qualify native participant/publication source and generated admitted transport. Actual retained host selection, logical-profile catalog resolution, external providers and both-host end-to-end adoption remain Waiting. Source transport does not complete those gates; final R3/API, declared R4.1 queue metadata and Root context foundation remain separate intake inputs."
+      "detail": "R4.2.1/2.2 qualify native participant/publication and generated transport; R4.2.3 qualifies declared profiles, exact-request discovery, retained shared screen and actual hosted fixture. Native654 and complete hosted11/full265catalog pass in isolation. Root composition, Tauri selection, complete profile editing, richer workflows, external providers and complete both-host R4.2 adoption remain separate. Source records retain all fixture/setup failures; defaults stay unchanged."
     },
     {
       "id": "R4.2.1",
@@ -912,6 +912,14 @@
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-participants.md#ln-core-042",
       "detail": "[Qualified source transport](spec/records/2026-10-27-native-participant-port.md): exact HTTP 404/0-of-1 to 1/1, DTO2/HTTP9, affected82/0/1 retained ignore, full Rust645/0/7 retained ignores and strengthened server119/0 pass. Full check20/test20/build11, API1716, public packed types, strict/locked native build, all specification/78 governance/114-task progress pass. Product6e952249 and reply-body test4435f15a remain distinct. Frozen Deno lock stays unchanged despite audited worker-only normalization. Actual host/logical-profile and complete R4.2 adoption remain separate."
+    },
+    {
+      "id": "R4.2.3",
+      "area": "Shared and hosted participants",
+      "work": "Declared-profile participant observation and hosted native integration",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-participants.md#ln-core-048",
+      "detail": "[Qualified source and hosted fixture](spec/records/2026-10-27-native-participant-host.md): native654/0/7 retained ignores, server122/0, strict/locked build,14 shared/four forwarding, exact mounted2 and complete hosted11 pass. Compact UI/native UUID mapping repairs0/1 to1/0. Product b39e432a passes check20/test20/build11. Cold51e2e38f/b3aa43aa passes265catalog/static/six Docs/canonical78/progress115; original History93/2 failure remains recorded and exact2/full6/full265 pass on unchanged product/test inputs. Root composition, Tauri/profile/provider, busy group queue and complete R4.2 remain separate."
     }
   ]
 }

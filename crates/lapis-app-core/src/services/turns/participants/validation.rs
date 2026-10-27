@@ -38,6 +38,7 @@ pub(super) fn input(input: &ParticipantMessageInput) -> Result<()> {
             "Native participants support plain text without rich context",
         ));
     }
+    super::profiles::captured(input)?;
     let first = &input.turns[0];
     let mut native_ids = HashSet::from([input.acceptance_id]);
     for (index, turn) in input.turns.iter().enumerate() {
