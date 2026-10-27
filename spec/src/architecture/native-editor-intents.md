@@ -178,11 +178,13 @@ Recovery presentation retains these boundaries:
 
 <a id="ln-core-028"></a>
 
-**Requirement.** After confirmed yield, clean interactive producers MUST reconcile
-authoritative saved bytes after native rearm and before releasing local input
-protection. This observation MUST NOT write content, clear dirty drafts or accept
-an out-of-guard mismatch. Expected absence MUST remain distinct from empty text;
-failed refresh MUST retain protection and observable explicit retry.
+**Requirement.** Clean interactive producers MUST reconcile authoritative saved
+bytes through the protected in-guard observation after native rearm following
+confirmed yield and before releasing local input protection, and before the
+saved-baseline comparison in a live guarded yield. This observation MUST NOT
+write content, clear dirty drafts or accept an out-of-guard mismatch. Expected
+absence MUST remain distinct from empty text; failed refresh MUST retain
+protection and observable explicit retry.
 
 ### Acceptance details
 
@@ -195,12 +197,19 @@ Protected saved-text refresh retains these boundaries:
   editable Markdown uses Mira's public protected text-recovery lease. Neither
   path submits content writes or replays the native mutation.
 - Clean managed rename/delete retains expected absence and existing view
-  retirement; an unrelated changed file still fails the original yield check.
-  Dirty or failed persistence cannot be acknowledged by a saved-text refresh.
+  retirement. A drifted clean producer reconciles to the authoritative bytes;
+  dirty, failed or unacknowledgeable persistence still fails the original yield
+  check and cannot be acknowledged by a saved-text refresh.
+- A guarded pre-yield reconciliation reads only the guarded producer's own path
+  while its fence and input protection remain held. A producer that cannot
+  acknowledge authoritative bytes proceeds to the original yield comparison and
+  still fails closed with its observable handoff retry.
 
 Clean terminal retirement of a detached producer drains its existing save owner
 before observing the current destination version or expected absence. It releases
 only that clean intent and performs no content write or buffer acknowledgement.
-Live guards retain the original saved-baseline comparison; failed/dirty detached
-writers remain fenced. Host recovery preflight drains already admitted registry
-transitions before deciding whether a local issue remains unresolved.
+Live guards reconcile clean interactive saved authority in-guard and then retain
+the original saved-baseline comparison; unacknowledgeable producers and
+failed/dirty detached writers remain fenced. Host recovery preflight drains
+already admitted registry transitions before deciding whether a local issue
+remains unresolved.

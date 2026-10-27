@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-27 20:55:43 UTC**.
+Last updated **2026-10-28 00:32:10 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -42,6 +42,33 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**Hosted Properties native-shutdown defect repaired at the source —
+2026-10-28 00:32:10 UTC.** The gate-5 blocker ("Shutdown blocked: resolve
+retained editor state" after the hosted Properties journeys) was diagnosed at
+the narrowest boundary with instrumented Rust-hosted e2e runs: the journeys
+never completed a clean logout. The Properties panel refreshes through the
+fast native metadata stream while an open document's acknowledged saved
+baseline only refreshes on the 5s directory-watch poll, so a frontmatter
+commit inside that window aborted in the mutation guard
+(`Saved editor content changed`, LN-CORE-028 live-guard comparison) behind a
+transient Notice; Mira's controller still advanced its record, so the retried
+commit carried a mismatched `previousRecord`, published a spurious conflict
+and retained a dirty+active `TextMutation` intent lease. The e2e `finally`
+teardown error then masked the real body failures as a shutdown-deadline
+refusal — the server was correctly fencing a session that never left (the
+leave drain itself is healthy: reconciled runs drain to `states=[]` and stop
+cleanly). Fix (spec-first): LN-CORE-028 now reconciles a clean interactive
+producer's authoritative saved bytes through the existing protected
+`refreshSavedText` observation in-guard before the yield comparison;
+unacknowledgeable or dirty producers keep the fail-closed handoff fence and
+observable retry. Lanes: preserved hosted Properties e2e 0/2 → 2/2 on three
+consecutive cold runs; api 1,723/1,723 + check; focused native-editing/
+persistence 29/29 and 107/107; EditingRecovery stories 3/3; complete hosted
+family 11/11; web package 136/136. Tasks family ran 14/15: the single
+`rust-server-tasks-editors` failure reproduces identically without the fix
+and without both recent landings (pre-existing main defect, separately
+owned and reported; not blocking this slice pending user acceptance).
 
 **Inline-title editor chrome landed — 2026-10-27 20:55:43 UTC.** The
 `markdown-title-alignment` change is integrated into the default Notes

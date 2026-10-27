@@ -24,8 +24,9 @@ registrations add native input protection and saved-text authority when that
 port is selected; ordinary browser writers retain their existing behavior.
 Interactive producers may expose `native.refreshSavedText` to reconcile saved
 bytes while their existing local protection remains held. The registry invokes
-it only after confirmed handoff and native rearm, never as a content writer or
-an out-of-guard conflict fallback (LN-CORE-028). Clean terminal retirement drains
+it only under held protection — after confirmed handoff and native rearm, and
+before a clean producer's guarded yield — never as a content writer or an
+out-of-guard conflict fallback (LN-CORE-028). Clean terminal retirement drains
 its producer before observing the current version or expected absence and never
 writes content. Recovery preflight drains admitted registry transitions before
 reporting unresolved issues; failed persistence stays fenced. See the

@@ -245,11 +245,28 @@ export class NativeRegisteredEditingSession implements FileEditingSession {
 
   async #yieldProtected(): Promise<void> {
     try {
+      await this.#reconcileBeforeYield();
       await this.#transition("handoff", () => this.#lease!.yield());
       this.#handoffFailure = undefined;
     } catch (error) {
       this.#handoffFailure = { error };
       throw error;
+    }
+  }
+
+  /**
+   * A clean interactive producer acknowledges authoritative saved bytes under
+   * the guard's held protection (LN-CORE-028), so external drift reconciles
+   * exactly like the producer's own file-change projection before the yield
+   * comparison. A failed observation defers to the fenced yield check, which
+   * retains protection and the observable handoff retry.
+   */
+  async #reconcileBeforeYield(): Promise<void> {
+    if (this.session.dirty || !this.session.native?.refreshSavedText) return;
+    try {
+      await this.#refreshSaved();
+    } catch {
+      /* The yield comparison below remains the authoritative fenced failure. */
     }
   }
 

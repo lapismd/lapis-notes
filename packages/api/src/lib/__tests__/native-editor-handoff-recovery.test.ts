@@ -23,8 +23,13 @@ async function fixture() {
     writeTextIfUnchanged: write,
   });
   let state: EditingIntentState | undefined;
+  let failReads = 0;
   const port: NativeEditingIntents = {
     async read(path) {
+      if (failReads > 0) {
+        failReads--;
+        throw new Error("Observed saved-text read failed");
+      }
       const text = await adapter.read(path);
       return { path, text, version: `version:${text}` };
     },
@@ -86,16 +91,59 @@ async function fixture() {
     file,
     workspace,
     state: () => state,
+    failReadOnce: () => {
+      failReads = 1;
+    },
   };
 }
 
-it("keeps a real clean editor protected until file observation and explicit handoff retry", async () => {
+it("reconciles a clean real editor's authoritative saved bytes in-guard before yielding", async () => {
+  const f = await fixture();
+  const stop = f.editor.trackChanges();
+  const identity = f.state()!.editor_id;
+  const mutation = vi.fn(async () => {
+    // Protection is held across the in-guard saved-text observation.
+    expect(f.editor.editingProtected).toBe(true);
+    expect(f.editor.getValue()).toBe("external saved text");
+    f.editor.view.dispatch({ changes: { from: 0, insert: "blocked" } });
+    expect(f.editor.getValue()).toBe("external saved text");
+  });
+  try {
+    await f.adapter.write("note.md", "external saved text");
+    await f.registry.guard("note.md", mutation);
+    expect(mutation).toHaveBeenCalledOnce();
+    expect(f.editor.editingProtected).toBe(false);
+    expect(f.editor.hasUnsavedChanges).toBe(false);
+    expect(f.registry.nativeIssues.entries).toEqual([]);
+    expect(f.state()).toMatchObject({
+      editor_id: identity,
+      generation: 2,
+      active: true,
+      dirty: false,
+    });
+    // The reconciled producer stays an ordinary editable surface afterwards.
+    f.editor.view.dispatch({ changes: { from: 0, insert: "next " } });
+    expect(f.editor.getValue()).toBe("next external saved text");
+    expect(f.write).not.toHaveBeenCalled();
+    expect(await f.adapter.read("note.md")).toBe("external saved text");
+    await f.registry.preflightNativeRecovery();
+  } finally {
+    stop();
+    await f.editor.dispose();
+    await f.registry.dispose();
+  }
+});
+
+it("keeps an unacknowledgeable clean editor fenced until file observation and explicit handoff retry", async () => {
   const f = await fixture();
   const stop = f.editor.trackChanges();
   const mutation = vi.fn(async () => {});
   const identity = f.state()!.editor_id;
   try {
     await f.adapter.write("note.md", "external saved text");
+    // A failed protected observation cannot acknowledge the drift, so the
+    // original saved-baseline comparison keeps the handoff fenced.
+    f.failReadOnce();
     await expect(f.registry.guard("note.md", mutation)).rejects.toMatchObject({
       code: "ECONFLICT",
     });

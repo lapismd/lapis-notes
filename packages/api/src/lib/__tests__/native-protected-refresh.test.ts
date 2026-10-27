@@ -13,6 +13,7 @@ function fixture() {
   let locks = 0;
   let dirty = false;
   let failRefreshRead = false;
+  let failRefresh = false;
   let failSave = false;
   const commands: EditingIntentCommand[] = [];
   const port: NativeEditingIntents = {
@@ -71,6 +72,7 @@ function fixture() {
     };
   };
   const refresh = vi.fn((text: string | null) => {
+    if (failRefresh) throw new Error("Saved-text authority is unavailable");
     expect(locks).toBeGreaterThan(0);
     expect(state?.active).toBe(true);
     baseline = text;
@@ -105,6 +107,9 @@ function fixture() {
     },
     failRead: (value: boolean) => {
       failRefreshRead = value;
+    },
+    failRefresh: (value: boolean) => {
+      failRefresh = value;
     },
     dirty: (value: boolean) => {
       dirty = value;
@@ -154,24 +159,28 @@ it("retains failed refresh protection until explicit retry without replaying the
   expect(f.registry.nativeIssues.entries).toEqual([]);
 });
 
-it("does not accept an out-of-guard saved mismatch during failed admission cleanup", async () => {
+it("reconciles a clean producer's drifted saved bytes in-guard before yielding", async () => {
   const f = fixture();
   await f.registration.ready();
   f.current("foreign saved");
-  const mutation = vi.fn(async () => {});
-  await expect(f.registry.guard("note.md", mutation)).rejects.toMatchObject({
-    code: "ECONFLICT",
+  const mutation = vi.fn(async () => {
+    // Protection is held across the in-guard saved-text observation.
+    expect(f.locks()).toBe(1);
   });
-  expect(mutation).not.toHaveBeenCalled();
-  expect(f.refresh).not.toHaveBeenCalled();
-  expect(f.baseline()).toBe("saved");
-  expect(f.state()).toMatchObject({ generation: 1, active: true });
+  await f.registry.guard("note.md", mutation);
+  expect(mutation).toHaveBeenCalledOnce();
+  expect(f.refresh).toHaveBeenCalledExactlyOnceWith("foreign saved");
+  expect(f.baseline()).toBe("foreign saved");
+  expect(f.locks()).toBe(0);
+  expect(f.registry.nativeIssues.entries).toEqual([]);
+  expect(f.state()).toMatchObject({ generation: 2, active: true, dirty: false });
 });
 
 it("retains failed handoff protection and its Problems action until explicit retry", async () => {
   const f = fixture();
   await f.registration.ready();
   f.current("foreign saved");
+  f.failRefresh(true);
   const mutation = vi.fn(async () => {});
   await expect(f.registry.guard("note.md", mutation)).rejects.toMatchObject({
     code: "ECONFLICT",
@@ -188,18 +197,17 @@ it("retains failed handoff protection and its Problems action until explicit ret
     code: "ECONFLICT",
   });
   expect(f.locks()).toBe(1);
-  expect(f.refresh).not.toHaveBeenCalled();
   expect(f.baseline()).toBe("saved");
   expect(f.state()).toMatchObject({ generation: 1, active: true });
   await expect(f.registry.nativeIssues.retry(captured)).rejects.toThrow(
     "changed",
   );
   // Ordinary clean file-change projection belongs to the producer, not cleanup.
+  f.failRefresh(false);
   f.acknowledgeSaved("foreign saved");
   await f.registry.nativeIssues.retry(f.registry.nativeIssues.entries[0]!);
   expect(f.registry.nativeIssues.entries).toEqual([]);
   expect(f.locks()).toBe(0);
-  expect(f.refresh).not.toHaveBeenCalled();
   expect(f.state()).toMatchObject({ active: true, dirty: false });
   expect(mutation).not.toHaveBeenCalled();
   await f.registry.preflightNativeRecovery();

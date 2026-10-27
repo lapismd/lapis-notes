@@ -13,6 +13,10 @@ export async function prepareHandoff(
   facts: HandoffFacts,
 ): Promise<() => void> {
   let savedText = original;
+  // The demo producer cannot acknowledge authoritative bytes yet, so the
+  // in-guard saved-text reconciliation cannot repair the external drift and
+  // the original yield comparison refuses the handoff (LN-CORE-028).
+  let authorityUnavailable = true;
   const registration = app.fileEditingSessions.register("Note.md", {
     native: {
       hold: () => () => {},
@@ -20,6 +24,10 @@ export async function prepareHandoff(
       refreshSavedText: async (text) => {
         if (text === null)
           throw new Error("The catalog note must remain saved");
+        if (authorityUnavailable)
+          throw new Error(
+            "The catalog producer cannot acknowledge saved bytes yet",
+          );
         savedText = text;
       },
     },
@@ -43,8 +51,8 @@ export async function prepareHandoff(
   } catch (error) {
     if ((error as { code?: string })?.code !== "ECONFLICT") throw error;
   }
-  // The producer has observed the external save. Only explicit retry may
-  // release the failed guard; no mutation is replayed by this observation.
-  savedText = external;
+  // The producer regains its protected saved-text authority. Only explicit
+  // retry may release the failed guard; no mutation is replayed by it.
+  authorityUnavailable = false;
   return registration;
 }
