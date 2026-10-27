@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-27 08:30:55 UTC**.
+Last updated **2026-10-27 09:13:27 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -56,6 +56,14 @@ optional Docs stays source-only and optional legacy database History capture
 stays Deferred. Neither is an unreported R3 host acceptance claim.
 
 ## Current work and next handoff
+
+**Native skills working — 2026-10-27 09:13:27 UTC.** Isolated source308823ed passes the original
+exact3 after0/3, covering33parser/version results,25complete discovery catalogs
+and four registry traces. All eight native binding lifetime/physical guards pass.
+Its full source qualification is running; this source is not yet adopted here.
+Queue/bootstrap are already adopted and their integrated native648/75focused
+checks pass. Participant full qualification and actual-provider queue acceptance
+continue in parallel. No ordinary defaults change.
 
 **Initial skill context adopted — 2026-10-27 07:01:20 UTC.** Main now includes qualified
 R4.3.2 source `b7c2659d`: retained skill manifest and initial selected-instruction
@@ -339,7 +347,7 @@ not host adoption or native/hosted application acceptance.
 | [R4](spec/src/architecture/rust-application-services.md#ln-core-005)   | Roadmap                   | AI/tools/Changes                                                 | R3 is complete. Main adopts queue source0eec0811 at50fb6319 and bootstrap source00b55c51 atb2034168, preserving retained context/initial-skill foundations and all115 task IDs. Combined native648/0fail/7retained ignores,75focused/strict/build/canonical78/progress115/format pass. Final Tauri queue intake and Root-coordinated installed-provider R4.1.6, participant host integration, native bindings/skills/commands/handoff, approvals/tools/Changes/undo and R5-R7 remain separate. |
 | [R4.1](spec/src/architecture/rust-queue-admission.md#ln-core-036)      | Native conversation queue | Deliver the retained plaintext queue through both existing hosts | Queue source capture/FIFO/transport checkpoints are qualified separately. Shared host/operator qualification is active; Tauri bridge and combined provider acceptance remain separate.                                                                                                                                                                                                                                                                                                         |
 | [R4.1.5](spec/src/architecture/rust-queue-admission.md#ln-core-036)    | Tauri queue adapter       | Admitted native bridge and trusted recipient-catalog selection   | Desktop final intake is active against immutable Core0eec0811 and qualified AgentUI58bd (producer2bee4ed6). Existing public APIef8170a6/AppProfile0e792 runtime/declaration bytes retain exact equality to the final shared packs. Complete native/catalog/source intake and Desktop main adoption remain its separate owned gate.                                                                                                                                                             |
-| [R4.3](spec/src/architecture/rust-application-services.md#ln-core-005) | Native AI preparation     | Native context, skills, commands and handoff                     | Context/attachments5cfb7ca0, initial skillsb7c2659d and bootstrap/folder instructions00b55c51 are source-qualified and adopted in main, latestb2034168. Integrated648Rust/75focused/strict/build/canonical78 and final115-row/progress/format pass. Discovery/versioned native binding ownership, commands/handoff, rich admission and both retained-host/provider adoption remain the original separate R4.3 gates.                                                                           |
+| [R4.3](spec/src/architecture/rust-application-services.md#ln-core-005) | Native AI preparation     | Native context, skills, commands and handoff                     | Context projection/attachments5cfb7ca0, initialb7c2659d and bootstrap00b55c51 are qualified/adopted; integrated queue/bootstrap main passes648Rust/75focused. Isolated native skill source308823ed is Working: source exact0/3→3/3 covers33parser/25discovery/four registry traces; eight native binding boundaries pass and full qualification is live. Skills are not yet adopted here. Commands/handoff, rich dispatch and both-host/provider gates remain.                                 |
 
 ### Gate status: Waiting
 

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 08:30:55 UTC",
+  "updated": "2026-10-27 09:13:27 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -839,7 +839,7 @@
       "work": "Native context, skills, commands and handoff",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Context/attachments5cfb7ca0, initial skillsb7c2659d and bootstrap/folder instructions00b55c51 are source-qualified and adopted in main, latestb2034168. Integrated648Rust/75focused/strict/build/canonical78 and final115-row/progress/format pass. Discovery/versioned native binding ownership, commands/handoff, rich admission and both retained-host/provider adoption remain the original separate R4.3 gates."
+      "detail": "Context projection/attachments5cfb7ca0, initialb7c2659d and bootstrap00b55c51 are qualified/adopted; integrated queue/bootstrap main passes648Rust/75focused. Isolated native skill source308823ed is Working: source exact0/3→3/3 covers33parser/25discovery/four registry traces; eight native binding boundaries pass and full qualification is live. Skills are not yet adopted here. Commands/handoff, rich dispatch and both-host/provider gates remain."
     },
     {
       "id": "R4.3.1",
