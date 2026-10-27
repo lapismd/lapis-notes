@@ -202,3 +202,53 @@ both scope and saved conversation identity. A fresh History observer reads
 portable metadata titles/status without loading every transcript or adding a
 writer. Metadata publication may lag a newly accepted journal; that transient
 state is observed without fabricating a saved title or replaying work.
+
+## Retained native context preparation
+
+The R4.3.1 source foundation ports the existing Desktop projector and attachment
+reader without selecting a host, changing a turn wire contract or enabling rich
+queue dispatch. Native skills/commands/handoff assembly and both-host integration
+remain later R4.3 gates. Memory recall scheduling stays R5.
+
+## LN-CORE-038 — Separate native reference projection
+
+<a id="ln-core-038"></a>
+
+**Requirement.** Native context projection MUST preserve authored text exactly
+and produce a separate read-only reference field using the retained block order,
+memory-last order, attribute escaping and comment-feedback annotation. Empty
+context MUST remain absent. Context metadata MUST NOT create authored messages,
+execution authority or provider-resume grants.
+
+Full retained results use the unchanged source projector, including empty
+comment-only authored text, Unicode, repeated blocks and markup in IDs/content.
+This pure preparation result does not bypass native turn admission or itself
+enable comments-only submission.
+
+## LN-CORE-039 — Bounded attachment reference preparation
+
+<a id="ln-core-039"></a>
+
+**Requirement.** Native attachment preparation MUST preserve the retained ordered
+vault-relative references and errors, limit each message to eight files, each
+file to 65,536 UTF-8 bytes and aggregate contents to 131,072 bytes, and record
+SHA-256 witnesses of the exact returned bytes. It MUST refuse unavailable,
+escaping or excessive references without partial context or authored-text edits.
+
+Paths and raw contents MUST NOT enter durable queued captures through this
+helper. Hash witnesses are observations, never file or write authority. Native
+file reads retain the existing regular-file, UTF-8 and physical-root policy.
+
+## LN-CORE-040 — Context preparation cancellation and ownership
+
+<a id="ln-core-040"></a>
+
+**Requirement.** Native file-context preparation MUST borrow the accepted Work's
+existing vault authority, remain independent of client observation, and check
+cancellation before and after each read. Cancellation or invalidated physical
+admission MUST prevent late context delivery. Preparation MUST NOT dispatch a
+provider, write files, release another owner's lease or add a scheduler.
+
+The pure read port is Rust-only. No callback, root, native handle or executable
+is serialized. Source fixtures compare complete stable results and read order;
+native boundary tests separately retain service error codes and physical guards.
