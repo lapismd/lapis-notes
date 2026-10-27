@@ -12,9 +12,3 @@ Defines documentation navigation, App-owned fixtures, scenario coverage, accessi
 - [App-owned fixtures](storybook-catalog/app-owned-fixtures.md)
 - [Visual policy](storybook-catalog/visual-policy.md)
 - [Context](storybook-catalog/context.md)
-
-Shared file-conflict presentation imports its four retained action/setting icons
-through the public icon package. The existing eager dependency inventory includes
-those entries so the first cold review cannot trigger Vite re-optimization and
-invalidate unrelated in-flight Editing Recovery stories. No startup/reload guard
-is relaxed; new review stories retain `visual-pending` metadata.

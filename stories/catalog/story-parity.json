@@ -193,6 +193,9 @@
   "stories/workspace/EditingRecovery.stories.ts": {
     "kind": "application"
   },
+  "stories/workspace/FileConflicts.stories.ts": {
+    "kind": "application"
+  },
   "stories/workspace/PluginManagement.stories.ts": {
     "kind": "component",
     "subject": "@lapismd/design-core/workspace/settings#WorkspaceSettingsSurface",
