@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 01:52:35 UTC",
+  "updated": "2026-10-27 02:23:14 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Frozen 9c9705f0 passes full source: 587 Rust, 2,427 package, 264 cold catalog, 41 browser journeys and full specification/78 governance; five actual models retain exact qualified inputs. Actual Desktop acceptance exposed a related Core History query/background-index race and missing default daily-provider registration in the real App. Core serialization/regression is active; Desktop provider/lifecycle is repaired and final UI/catalog qualification is pending. The e2e readonly-invoke probe is fixed with both original startup cases passing. R3 remains Working until repair qualification, current both-host/native gates and main adoptions finish."
+      "detail": "Most feature implementation is finished. Core History c1c6570f passes both original concurrency regressions, all 589 Rust/five actual-model cases and hosted History; Desktop passes all four former History failures, 19 original native API cases, four installed Tasks journeys and current M14 Backup/Original navigation. Two product defects remain: Undo history reset on native protection/extension reconfiguration (3/3 exact after, full source running) and masked safe stale-restore diagnostics (source repair active). Final combined both-host/provider/unattended acceptance, fresh Desktop catalog/native/build gates, commits and main adoption remain. R3 stays Working."
     },
     {
       "id": "R4",
@@ -631,7 +631,7 @@
       "work": "Native daily provider creation and daily-before-rolling Task coordination",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "Native daily provider, ordered writes, recovery and tracked-today source is qualified. The current hosted Tasks/editor/leave cohort passes all 15 actual browser journeys at f532e00e. Desktop native Tasks selection and installed-plugin fixtures are implemented; actual provider/locale/recovery/cold UI, final native/build closure and main adoption remain. Final both-host unattended/day parity remains separate. No lapis-ai changes."
+      "detail": "Native daily provider/ordered writes/recovery source and all 15 hosted installed Tasks/editor/leave journeys are qualified. The real Desktop default provider lifecycle repair now passes all four installed Tasks native journeys, including locale/provider refusal, stale admission and cold lost-reply recovery. Final combined provider/timezone/unattended parity, composed host gates and main adoption remain separate. No lapis-ai changes."
     },
     {
       "id": "R3.2.2.3",
@@ -727,7 +727,7 @@
       "work": "Guarded file/vault restore and retained review",
       "status": "Complete",
       "spec": "spec/src/architecture/rust-history-parity.md#ln-core-023",
-      "detail": "[Qualified guarded Repository restore](spec/records/2026-10-26-hosted-repository-restore.md): all6 exact native/13 adapter, full543Rust/2332package/261coldcatalog/24browser pass, including actual lost acknowledgement/cold recovery/exact receipt retry without overwriting newer saved files. Complete root/strict/build and canonical78governance pass; final two mapped-chapter findings are repaired without product changes. Both-host combined R3 remains separate."
+      "detail": "[Qualified guarded Repository restore](spec/records/2026-10-26-hosted-repository-restore.md): all6 exact native/13 adapter, full543Rust/2332package/261coldcatalog/24browser pass, including actual lost acknowledgement/cold recovery/exact receipt retry without overwriting newer saved files. Complete root/strict/build and canonical78governance pass; final two mapped-chapter findings are repaired without product changes. Both-host combined R3 remains separate. Current Desktop acceptance separately exposed masked contracted stale-preview diagnostics at Core translation boundaries; the source repair and unchanged native assertion remain open in the combined R3 gate."
     },
     {
       "id": "R3.2.3.6.2",
@@ -743,7 +743,7 @@
       "work": "Original repository source selection",
       "status": "Working",
       "spec": "spec/src/architecture/rust-history-reader.md#ln-core-016",
-      "detail": "Combined Original-source cohort 0ff929b1 passes complete source/catalog/specification and current hosted journeys. Desktop shared managed/Original Core readers are implemented with focused checkpoint b4839394. Actual native source/lifetime/UI/restart acceptance, composed native build and both main adoptions remain. No new repository engine or source fallback."
+      "detail": "Combined Original-source source/catalog/specification and hosted acceptance pass. Actual Desktop current-M14 Backup/Original navigation and cold settings pass with source/.jj/.git hashes unchanged. The original native API cohort passes 19/19 and all four History contention regressions pass on c1c6570f. Final composed native/catalog/build gates and both main adoptions remain. No new repository engine or source fallback."
     },
     {
       "id": "R3.2.3.6.4",
@@ -791,7 +791,7 @@
       "work": "Actual hosted and Desktop editor/Tasks acceptance",
       "status": "Working",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-020",
-      "detail": "[Current checkpoint](spec/records/2026-10-27-r3-closing-checkpoint.md): combined source passes 41 hosted/Node/local browser journeys, 586 Rust, 2,414 package and 263 cold catalog cases. Desktop M16.7 passes 58 native/2,068 catalog; current Reader/Tasks composition passes 531 Node/744 AI and strict types. Remaining actual native Reader/installed-Tasks, catalog/build closure, final Core pin and main adoptions retain separate gates."
+      "detail": "Hosted combined source passes all 41 browser journeys. Desktop original native API cohort now passes 19/19, all four actual installed Tasks journeys pass and current M14/Original navigation passes. Native acceptance exposed shared API Undo history reset: 1/3 before to 3/3 exact after at 3a6b623d; full source qualification and original native Metadata Undo rerun remain. Safe restore-diagnostic repair, final fresh catalog/native/build and main adoption are separate open gates."
     },
     {
       "id": "R3.2.4.2.1",
