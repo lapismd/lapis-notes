@@ -350,3 +350,8 @@ MUST fail without fallback to the Node companion or browser-supplied authority.
 <a id="ln-srv-029"></a>
 
 **Requirement.** Hosted original-source commands MUST require bounded authenticated, same-origin, live-client admission. Opening a source MUST NOT accept caller paths, witnesses or replacement scope tokens. Reply delivery MUST recheck client retirement, and returned tokens MUST grant only that client's immutable reads. Optional managed-backup startup failure MUST NOT prevent admitted original-source access.
+
+The file-icon dependency intake keeps API and hosted validation on the same
+patched Zod package through its public v3 entry. Router inputs, vault-role
+admission and typed remote-database schemas retain their existing behavior;
+no host policy or default changes follow from this dependency alignment.

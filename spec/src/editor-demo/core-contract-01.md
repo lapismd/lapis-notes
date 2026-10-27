@@ -1,5 +1,10 @@
 # Lapis Editor Demo / Editor scenarios / Part 1
 
+LN-EXP-014 covers custom file artwork through the actual App and Explorer,
+including plugin enable/disable, opening and rename. Editor-demo cold acceptance
+retains its existing scenarios. The shared dependency optimizer includes API's
+actual `zod/v3` entry so schema loading cannot reload an active browser test.
+
 The desktop catalog's current dependency intake accepts Design Core 0.5.1
 alongside 0.4 through public prepared archives. Its manual presentation review
 does not qualify deferred source, interaction or native acceptance.

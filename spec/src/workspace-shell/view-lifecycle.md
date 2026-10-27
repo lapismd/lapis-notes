@@ -1,5 +1,10 @@
 # Workspace Shell / View lifecycle
 
+File artwork registration follows the owning Plugin and App under LN-PLUG-123.
+Plugin unload releases its SVG/pack entries, and complete workspace-host
+teardown disposes the App resolver. Explorer invalidation preserves live tree
+selection and rename state without constructing a file view for icon lookup.
+
 When an App selects [native editing intents](../architecture/native-editor-intents.md),
 its existing writer registry retains admission through document, view and App
 teardown. Failed retirement or rearm keeps local input protected and preserves

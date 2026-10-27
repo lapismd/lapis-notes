@@ -371,7 +371,7 @@ compatible. Client engines must supply their captured fences before activation.
 
 **Requirement.** Tests of live servers, installed native executables, external dependency staging, or baseline mutation MUST remain uncached while running through Turbo. Supplying live controller, terminal, or external Storybook configuration MUST disable result reuse and writes. Cold acceptance MUST use a forced run; cache-service credentials MUST NOT affect functional result identity.
 
-Native core, companion and host acceptance use uncached root tasks. The opt-in
+Native core, companion, daily reference, Tasks and host editing/leave acceptance use uncached root tasks. Their raw runners retain executable stages and forward explicit command arguments without recursive entry; package build preflights belong to declared task dependencies. The opt-in
 `test:search:onnx` lane also runs uncached: its default is offline, and only
 `--download` admits missing pinned model assets after digest verification.
 
@@ -389,7 +389,7 @@ The native Search encoder is an independent Notes-owned component under
 `lapis-app-core::embedding`; runtime/tokenizer files remain native host authority.
 `test:search:onnx` qualifies model math, publication and retrieval under LN-DB-007.
 
-AppDatabase owns portable Search configuration and invalidation. Memory and
+AppDatabase owns portable Search configuration and invalidation. Remote schemas use patched Zod `^4.6.6` through its compatible `zod/v3` entry. Memory and
 Turso reuse the API's pending-record policy; native publication uses its actor.
 Native model/cache file registration stays outside serialized configuration.
 

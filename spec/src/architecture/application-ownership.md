@@ -1,5 +1,10 @@
 # Architecture / Application ownership
 
+The App owns its file-artwork registry under LN-PLUG-123. Plugin-owned SVGs and
+packs use explicit App identity and unload cleanup; legacy global icons remain
+an explicit compatibility fallback. Explorer receives that App's resolver,
+without creating another global registry or activating views to paint rows.
+
 Core `files.exclude` under LN-PKG-185 is owned by the App configuration and
 Vault listing projection; no plugin is required. Explicit resource access and
 App ownership under LN-ARCH-054 remain unchanged when the Workspace settings

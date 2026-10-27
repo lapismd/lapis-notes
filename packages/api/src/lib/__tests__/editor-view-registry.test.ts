@@ -65,3 +65,35 @@ describe("EditorViewRegistry", () => {
     });
   });
 });
+
+it("restores only live manifest metadata after a runtime overlay disposes", () => {
+  const registry = new EditorViewRegistry();
+  const manifest = registry.register({
+    id: "diagram",
+    label: "Diagram",
+    source: "manifest",
+    fileIcon: "file",
+  });
+  const runtime = registry.overlay({
+    id: "diagram",
+    label: "Diagram",
+    source: "plugin",
+    fileIcon: "plugin:diagram",
+  });
+  expect(registry.get("diagram")?.fileIcon).toBe("plugin:diagram");
+  runtime();
+  expect(registry.get("diagram")?.fileIcon).toBe("file");
+  const next = registry.overlay({
+    id: "diagram",
+    label: "Diagram",
+    source: "plugin",
+    fileIcon: "star",
+  });
+  manifest();
+  expect(registry.get("diagram")?.fileIcon).toBe("star");
+  next();
+  expect(registry.get("diagram")).toBeUndefined();
+  runtime();
+  manifest();
+  expect(registry.get("diagram")).toBeUndefined();
+});

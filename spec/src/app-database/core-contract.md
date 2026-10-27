@@ -1,5 +1,10 @@
 # App Database / Database integration
 
+Remote AppDatabase schemas use the patched Zod package through its public
+`zod/v3` entry, retaining the existing method DTOs and validation semantics.
+Plugin icon artwork and resolver caches remain App presentation resources;
+LN-PLUG-123 introduces no database column, durable writer or schema migration.
+
 H02's private history companion implements LN-SRV-021–023 independently of
 AppDatabase. History source identity, operation pins and repository objects are
 not SQL projections. Existing database providers, remote method contracts,

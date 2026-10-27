@@ -47,6 +47,7 @@ export const storybookPackedDependencyIncludes = [
   "@lapis-notes/api > svelte-sonner",
   "@lapis-notes/api > tailwind-merge",
   "@lapis-notes/api > zod",
+  "@lapis-notes/api > zod/v3",
   "@lapis-notes/spellcheck > harper.js/binary",
   "@lapis-notes/ui > fuse.js",
   "@lezer/highlight",

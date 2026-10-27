@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 00:42:34 UTC",
+  "updated": "2026-10-27 02:03:21 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Shared source, both Search hosts, Desktop History, hosted Repository reads and guarded hosted restore are qualified. [Restore source qualification](spec/records/2026-10-26-hosted-repository-restore.md) passes 543 Rust, 2,332 package, 261 cold catalog, 24 browser and complete canonical/78 governance cases; main intake preserves identical product/test/config bytes. Actual Tasks hosts, native editor intents/recovery, backup controls/status, original-source selection and final provider/timezone/unattended acceptance remain active. Mira input lease c5d1e4b6 is source-qualified; Markdown binding and host adoption remain separate. R4-R7 retain their original dependencies."
+      "detail": "Shared source, both Search hosts, Desktop History, hosted Repository reads and guarded hosted restore are qualified. [Restore source qualification](spec/records/2026-10-26-hosted-repository-restore.md) passes 543 Rust, 2,332 package, 261 cold catalog, 24 browser and complete canonical/78 governance cases; main intake preserves identical product/test/config bytes. Actual Tasks hosts, native editor intents/recovery, backup controls/status, original-source selection and final provider/timezone/unattended acceptance remain active. Mira input lease c5d1e4b6 is source-qualified; Markdown binding and host adoption remain separate. R4-R7 retain their original dependencies. Current private History contention repair is source-qualified, including original4Desktop failures; a separate native editor Undo loss is owned by the API lane and blocks final R3 composition. Latest master adoption remains separate."
     },
     {
       "id": "R4",
@@ -391,7 +391,7 @@
       "work": "History-index scheduling",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Indexed History, public App ports, admitted retained Repository reads and guarded hosted restore are committed and qualified. Desktop M16.6 is adopted at fa13c1ce. [Restore evidence](spec/records/2026-10-26-hosted-repository-restore.md) includes both real restore/cold-acknowledgement journeys, saved-byte preservation and complete source/browser/specification closure. Remaining current-profile parity is backup controls/status/passive observation and original-source selection. Optional legacy AppDatabase capture is explicitly Deferred outside the current profile. Complete R3/provider and default cutover remain open."
+      "detail": "Indexed History, public App ports, admitted retained Repository reads and guarded hosted restore are committed and qualified. Desktop M16.6 is adopted at fa13c1ce. [Restore evidence](spec/records/2026-10-26-hosted-repository-restore.md) includes both real restore/cold-acknowledgement journeys, saved-byte preservation and complete source/browser/specification closure. Remaining current-profile parity is backup controls/status/passive observation and original-source selection. Optional legacy AppDatabase capture is explicitly Deferred outside the current profile. Complete R3/provider and default cutover remain open. [Qualified private access repair](spec/records/2026-10-27-r3-main-composition.md) on c1c6570f passes2exact/21backup/589Rust/all5actualmodels/4hostedHistory, strict/native build/canonical78; original4actualDesktop failures also pass. Broader native family and the separate API Undo repair/composition remain required; overallR3 staysWorking."
     },
     {
       "id": "R1.3.9.1",

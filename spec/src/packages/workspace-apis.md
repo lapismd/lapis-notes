@@ -133,3 +133,8 @@ LN-CORE-027 exposes the App-owned native editing recovery/issue facade and
 reference-counts that disposable collection binding per App; the source model
 is passive until mounted or explicitly refreshed. Hosts call the registry
 preflight before destructive teardown, preserving failed-leave recovery.
+
+LN-PLUG-122–124 expose optional editor-view `fileIcon`, extension-registration
+options, `Workspace.getFileIconForPath`/`onFileIconsChanged` and the App-owned
+icon registry. Plugin helpers register lifecycle-owned SVGs and icon packs;
+Explorer consumes the public Design Core resolver under LN-EXP-014.

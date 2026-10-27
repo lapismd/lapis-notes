@@ -17,6 +17,17 @@ export function validationConfig(local = {}, environment = process.env) {
     !["docker", "ssh-cli"].includes(config.transport)
   )
     throw Error("Invalid Docker transport");
+  if (
+    config.sshMultiplexing !== undefined &&
+    typeof config.sshMultiplexing !== "boolean"
+  )
+    throw Error("Invalid SSH multiplexing option");
+  if (
+    config.sshControlPath !== undefined &&
+    (typeof config.sshControlPath !== "string" ||
+      !/^\/[^\r\n\0]+$/.test(config.sshControlPath))
+  )
+    throw Error("Invalid SSH control path");
   if (!["docker", "native"].includes(config.runtime))
     throw Error("Invalid validation runtime");
   for (const key of ["cpus", "memoryGiB", "shmGiB"])

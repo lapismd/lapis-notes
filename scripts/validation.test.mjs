@@ -139,6 +139,7 @@ for (const workspace of [false, true])
         ],
         { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
       ).trim();
+    const outerBase = process.env.LAPIS_NOTES_CHECK_BASE;
     try {
       jj(["git", "init", primary], directory);
       await writeFile(join(primary, "kept.txt"), "parent");
@@ -152,7 +153,10 @@ for (const workspace of [false, true])
       await writeFile(join(repo, "kept.txt"), "dirty");
       await rm(join(repo, "removed.txt"));
       await writeFile(join(repo, "new.txt"), "new\n");
+      const base = jj(["log", "-r", "@-", "--no-graph", "-T", "commit_id"]);
+      process.env.LAPIS_NOTES_CHECK_BASE = base;
       const manifest = await snapshot(repo, destination);
+      assert.equal(manifest.base, base);
       assert.equal(manifest.parents.length, 1);
       assert.equal(
         snapshotFile(repo, manifest.revision, "new.txt").toString(),
@@ -183,6 +187,8 @@ for (const workspace of [false, true])
       assert.equal(await readFile(join(restored, "new.txt"), "utf8"), "new\n");
       await assert.rejects(readFile(join(restored, "removed.txt")), /ENOENT/);
     } finally {
+      if (outerBase === undefined) delete process.env.LAPIS_NOTES_CHECK_BASE;
+      else process.env.LAPIS_NOTES_CHECK_BASE = outerBase;
       await rm(directory, { recursive: true, force: true });
     }
   });
@@ -311,4 +317,66 @@ test("explicit archive configuration reaches the isolated install", () => {
     ).archives,
     "/tmp/packages.json",
   );
+});
+
+test("SSH direct mode preserves authentication, port and argument boundaries", async () => {
+  const { sshDockerCommand } = await import("./validation/docker.mjs");
+  const [, args] = sshDockerCommand(
+    "ssh://steve@example.test:2222",
+    ["logs", "a; echo unexpected"],
+    { multiplexing: false },
+  );
+  for (const option of [
+    "BatchMode=yes",
+    "ConnectTimeout=10",
+    "ConnectionAttempts=5",
+    "ControlMaster=no",
+    "ControlPath=none",
+  ])
+    assert.ok(args.includes(option), option);
+  assert.ok(args.includes("2222"));
+  assert.ok(!args.includes("ControlMaster=auto"));
+  assert.ok(!args.some((value) => value.startsWith("ControlPersist=")));
+  assert.equal(args.at(-1), "'docker' 'logs' 'a; echo unexpected'");
+});
+
+test("SSH direct mode configuration rejects non-boolean values", async () => {
+  const { validationConfig } = await import("./validation/model.mjs");
+  assert.equal(
+    validationConfig({ sshMultiplexing: false }, {}).sshMultiplexing,
+    false,
+  );
+  assert.equal(
+    validationConfig({ sshMultiplexing: true }, {}).sshMultiplexing,
+    true,
+  );
+  assert.throws(
+    () => validationConfig({ sshMultiplexing: "off" }, {}),
+    /SSH multiplexing/,
+  );
+});
+
+test("SSH direct mode reuses an explicitly owned control connection", async () => {
+  const { sshDockerCommand } = await import("./validation/docker.mjs");
+  const [, args] = sshDockerCommand("ssh://steve@example.test", ["info"], {
+    multiplexing: false,
+    controlPath: "/tmp/owned-ssh-%C",
+  });
+  assert.ok(args.includes("ControlMaster=no"));
+  assert.ok(args.includes("ControlPath=/tmp/owned-ssh-%C"));
+  assert.ok(!args.includes("ControlPath=none"));
+});
+
+test("SSH direct mode rejects invalid control connection paths", async () => {
+  const { validationConfig } = await import("./validation/model.mjs");
+  assert.equal(
+    validationConfig({ sshControlPath: "/tmp/owned-ssh-%C" }, {})
+      .sshControlPath,
+    "/tmp/owned-ssh-%C",
+  );
+  for (const value of ["relative", "", 42, "/tmp/path\ncommand"])
+    assert.throws(
+      () => validationConfig({ sshControlPath: value }, {}),
+      /SSH control path/,
+    );
 });
