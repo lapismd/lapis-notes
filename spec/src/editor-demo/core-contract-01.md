@@ -331,6 +331,18 @@ Focused Explorer acceptance verifies:
 
 **Requirement.** API `Editor` instances MUST support host-owned persistence, expose a flushable pending-change lifecycle, and keep file identity separate from whether the editor writes directly to the vault.
 
+## LN-ED-063 — Same-document extension refresh
+
+<a id="ln-ed-063"></a>
+
+**Requirement.** Updating an editor's extensions MUST preserve its current document, selection and Undo/Redo history. Refresh MUST retain active edit protection and pending persistence. Explicit document replacement retains its existing history-reset semantics.
+
+## LN-ED-064 — Embedded extension reaction ownership
+
+<a id="ln-ed-064"></a>
+
+**Requirement.** Embedded extension reactions MUST observe their declared surface inputs and registered configuration/plugin changes. Applying resolved extensions MUST NOT subscribe those reactions to incidental editor protection or persistence state.
+
 ## LN-ED-052 — Serialized Markdown return targets
 
 <a id="ln-ed-052"></a>

@@ -1,4 +1,5 @@
 import type { Extension } from "@codemirror/state";
+import { untrack } from "svelte";
 import type { App } from "$lib/context.svelte";
 import type { Editor } from "$lib/editor.svelte";
 import { markupEditor } from "./editor";
@@ -43,5 +44,6 @@ export function applyEmbeddedEditorExtensions(
   editor: Editor,
   options: EmbeddedEditorExtensionOptions,
 ): void {
-  editor.updateExtensions(resolveEmbeddedEditorExtensions(app, options));
+  const extensions = resolveEmbeddedEditorExtensions(app, options);
+  untrack(() => editor.updateExtensions(extensions));
 }

@@ -1,5 +1,11 @@
 # Packages / Editor APIs
 
+`Editor.updateExtensions` preserves the current document's state under
+[LN-ED-063](../editor-demo/core-contract-01.md#ln-ed-063). Embedded surfaces
+resolve declared reactive inputs before applying extensions under
+[LN-ED-064](../editor-demo/core-contract-01.md#ln-ed-064); native protection
+transitions do not become configuration dependencies.
+
 Noninteractive logical state uses operation-scoped native intent under
 [LN-CORE-026](../architecture/native-editor-intents.md#ln-core-026). The existing
 App queue captures changes after admission and yields only after acknowledged

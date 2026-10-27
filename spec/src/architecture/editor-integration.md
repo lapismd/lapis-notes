@@ -5,6 +5,12 @@ The App registry admits that fence before input, yields only under its existing
 writer guard and rearms before local protection releases. Existing persistence
 and standalone browser behavior remain owned by these editor contracts.
 
+Same-document extension refresh follows
+[LN-ED-063/064](../editor-demo/core-contract-01.md#ln-ed-063): it reconfigures
+the retained editor state without clearing history or subscribing surface
+effects to incidental protection state. Explicit document replacement retains
+its separate reset boundary.
+
 Popup attachment under LN-WS-064 retargets the retained CodeMirror view to its
 new owner document. State, drafts and undo history remain on that same editor;
 LN-WS-099 uses the existing App-owned registry for close admission.

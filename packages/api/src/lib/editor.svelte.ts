@@ -2,6 +2,7 @@ import {
   Annotation,
   Compartment,
   EditorState,
+  StateEffect,
   type Text,
   Transaction,
   type TransactionSpec,
@@ -164,35 +165,42 @@ export function createEditorState(
   return EditorState.create({
     doc,
     selection,
-    extensions: [
-      editorViewField.init(() => ({
-        get app() {
-          return editor.app;
-        },
-        editor,
-        get file() {
-          return editor.file;
-        },
-      })),
-      editor.protectionExtensions(),
-      EditorState.transactionFilter.of((transaction) =>
-        transaction.docChanged &&
-        editor.editingProtected &&
-        !transaction.annotation(syncAnnotation)
-          ? []
-          : transaction,
-      ),
-      EditorView.updateListener.of((v: ViewUpdate) => {
-        if (
-          v.docChanged &&
-          !v.transactions.some((it) => it.annotation(syncAnnotation))
-        ) {
-          editor.queueChange(v.state.doc.toString());
-        }
-      }),
-      ...extensions,
-    ],
+    extensions: editorStateExtensions(editor, extensions),
   });
+}
+
+function editorStateExtensions(
+  editor: Editor,
+  extensions: Extension[],
+): Extension[] {
+  return [
+    editorViewField.init(() => ({
+      get app() {
+        return editor.app;
+      },
+      editor,
+      get file() {
+        return editor.file;
+      },
+    })),
+    editor.protectionExtensions(),
+    EditorState.transactionFilter.of((transaction) =>
+      transaction.docChanged &&
+      editor.editingProtected &&
+      !transaction.annotation(syncAnnotation)
+        ? []
+        : transaction,
+    ),
+    EditorView.updateListener.of((v: ViewUpdate) => {
+      if (
+        v.docChanged &&
+        !v.transactions.some((it) => it.annotation(syncAnnotation))
+      ) {
+        editor.queueChange(v.state.doc.toString());
+      }
+    }),
+    ...extensions,
+  ];
 }
 
 export function createEditor(
@@ -881,12 +889,12 @@ export class Editor extends EventDispatcher<{
         }
         span.setAttribute("editor.extension_count", editorExtensions.length);
         span.setAttribute("file.extension", ext ?? "");
-        const content = this.getValue();
-        const selection = this.view.state.selection;
         this.extensions = editorExtensions;
-        this.view.setState(
-          createEditorState(this, content, this.extensions, selection),
-        );
+        this.view.dispatch({
+          effects: StateEffect.reconfigure.of(
+            editorStateExtensions(this, this.extensions),
+          ),
+        });
         return this;
       },
       {
