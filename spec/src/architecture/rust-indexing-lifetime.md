@@ -6,6 +6,8 @@ writers. Markdown parsing remains in private `lapis-plugin-services`, owned by
 the sibling first-party plugin repository. Occurrence parsing remains in
 `lapis-task-services`, owned by the sibling Tasks repository.
 
+[Current-profile R3 completion](../../records/2026-10-27-r3-completion.md) qualifies both retained hosts and installed Tasks. The sections below retain their bounded source-intake scope; optional Docs remains source-qualified only and arbitrary callbacks remain client-dependent/unavailable.
+
 ## Initial Markdown intake
 
 Native indexed-file facade intake composes the retained core/task stages and
@@ -43,8 +45,7 @@ Under LN-CORE-003/005/006, explicit host selection MAY enable Tasks occurrence
 publication on the existing Markdown owner. Markdown-only selection MUST remain
 unchanged. Enabling after startup MUST wake that owner; disabling MUST fence new
 Tasks source admissions without stopping Markdown. Already accepted source
-publication retains its database drain contract. Both host/plugin selections
-remain unqualified.
+publication retains its database drain contract. Both current-profile host/plugin selections are qualified in the final R3 audit.
 
 The source-owned Tasks parser MUST derive retained occurrence records from
 canonical daily notes. Notes MUST register the existing public
@@ -64,7 +65,7 @@ deduplication are forbidden.
 Under LN-CORE-003/005/006, a separate native-only selection MAY enable complete
 Task, List and navigation projection publication on the existing owner. Existing
 Markdown-only and occurrence selections MUST retain their behavior and defaults.
-No HTTP, Tauri or renderer configuration selects this source intake yet.
+This source intake added no HTTP/Tauri/renderer selection; later generated controls and both current-profile hosts are qualified in the R3 audit.
 
 Notes MUST reuse the qualified Tasks crate for parsing, recurrence, row and
 structure resolution, whole-vault graph validation and source envelopes. Target

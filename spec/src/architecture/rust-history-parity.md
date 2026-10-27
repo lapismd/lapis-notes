@@ -19,14 +19,14 @@ four-plugin profile.
 | ---------- | ---------------------------------------------------------------------------- | -------- |
 | R3.2.3.6.1 | Guarded file/vault restore through native backup and retained dialog         | Complete |
 | R3.2.3.6.2 | Backup capture selection, passive status and explicit pause/restart controls | Complete |
-| R3.2.3.6.3 | Original repository detection and immutable source selection                 | Working  |
+| R3.2.3.6.3 | Original repository detection and immutable source selection                 | Complete |
 | R3.2.3.6.4 | Native ownership of optional legacy AppDatabase History capture              | Deferred |
 
 The deferred legacy scheduler is additional functionality rather than a blocker
 for parity with current Desktop. It requires a separately governed capture and
 retention policy; this migration does not add a competing scheduler. Original
 repository reads remain mandatory parity work and cannot initialize or mutate
-that repository. Both-host combined R3 acceptance remains separate.
+that repository. Both-host combined current-profile R3 acceptance is qualified in the [completion audit](../../records/2026-10-27-r3-completion.md).
 
 ## LN-CORE-023 — Guarded native Repository restore
 

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 04:52:21 UTC",
+  "updated": "2026-10-27 05:19:51 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -69,17 +69,17 @@
       "id": "R3",
       "area": "Roadmap",
       "work": "Indexed vault",
-      "status": "Working",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Final source/story qualification complete: committed repair000aef52/product0e42/API89e passes13exact/158affected/1716API, full2438packages/check20/test20/build11/42hosted/canonical78. Story d7d3d4ae passes exact1/family3/workspace32/cold265/static; merged dc28/1decd30e passes full canonical with6nativepins and16archives. FinalCore99/03b native597 reused under611-byte equality. Desktop99native/ordinarybundle/537Node/744AI/types/build/audits pass; current catalog1332/2088 passes, final756partition running. Remaining: finish Desktopcatalog/doccommit and adopt qualified Notes/Desktop main workspaces. OptionalDocs remains source-only and customcallbacks client-dependent; no R4/default activation. Final Notes main intake composes6f819527 with main74a54e7d, preserving all104taskIDs and every runtime/story/dependency byte; its only differences are tracking/supporting evidence. Desktop finalcatalog/adoption still gates fullR3."
+      "detail": "[R3 completion](spec/records/2026-10-27-r3-completion.md). Current-profile R3 is complete. Notes main406aa3d1 and Desktop main6c624320 adopt the verified union. Final native597, package2438/API1716, hosted42, Notescatalog265/static, Desktopnative99/catalog2088/Node537/AI744/Rust260/clock2 and both bundles pass. Complete canonical78 and exact public-input equality retain separate receipts. Optional Docs stays source-only; optional legacy database History capture is Deferred. R4-R7, signing/publication/distribution/default cutover remain separate."
     },
     {
       "id": "R4",
       "area": "Roadmap",
       "work": "AI/tools/Changes",
-      "status": "Waiting",
+      "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Waiting on final R3 adoption; existing [R4 checkpoints](RUST_CORE_MIGRATION_PLAN.md#r4-delivery-checkpoints) unchanged. Codec a3cbf03, bounded native FIFO fef5886f and DTO/HTTP/client port079065a6 are separately source-qualified. Port: originalHTTP0/1→1/1, HTTP6, queue10/parity3/native615, strict/root/package/canonical pass. No host/UI/default activation. Participants, context/skills/handoff, native approvals/tools and Changes/undo still require implementation and both-host acceptance. Preserve newer R3 API when composing older source preparation."
+      "detail": "R3 current-profile gate is complete. Queue capture a3cbf03, FIFO fef5886f and DTO/HTTP/client port079065a6 are separately source-qualified. Active: shared queue observer/controls and trusted operator metadata (CORE036/037), Tauri admitted queue bridge and participant publication owner (CORE033-035), each isolated with failing-before evidence. Context/skills/handoff, approvals/tools and Changes/undo retain original remaining scope. No ordinary default activation; preserve final R3 API when composing source preparations."
     },
     {
       "id": "R5",
@@ -199,7 +199,7 @@
       "work": "Metadata get/set, scans, conditional transactions and revisions",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Native database foundation](spec/records/2026-10-24-rust-core-database.md)."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Native database foundation](spec/records/2026-10-24-rust-core-database.md)."
     },
     {
       "id": "R3.1.2",
@@ -207,7 +207,7 @@
       "work": "Notebook state, notifications and committed change events",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Saved state and events](spec/records/2026-10-24-rust-core-database-state.md)."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Saved state and events](spec/records/2026-10-24-rust-core-database-state.md)."
     },
     {
       "id": "R3.1.3",
@@ -215,7 +215,7 @@
       "work": "Database-only file history",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Revisions, lineage, retention and rollback](spec/records/2026-10-24-rust-core-database-history.md)."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Revisions, lineage, retention and rollback](spec/records/2026-10-24-rust-core-database-history.md)."
     },
     {
       "id": "R3.1.4",
@@ -223,7 +223,7 @@
       "work": "Core indexed metadata storage, reads, manifests, filters and facets",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Independent indexed publication and queries](spec/records/2026-10-24-rust-core-database-indexed.md)."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Independent indexed publication and queries](spec/records/2026-10-24-rust-core-database-indexed.md)."
     },
     {
       "id": "R3.1.5",
@@ -231,7 +231,7 @@
       "work": "Projection definitions and atomic source writes",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Projection storage](spec/records/2026-10-24-rust-core-projection-storage.md)."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Projection storage](spec/records/2026-10-24-rust-core-projection-storage.md)."
     },
     {
       "id": "R3.1.6",
@@ -239,7 +239,7 @@
       "work": "Projection single-row reads",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Aliases, privacy, freshness and cold reads](spec/records/2026-10-24-rust-core-projection-rows.md)."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Aliases, privacy, freshness and cold reads](spec/records/2026-10-24-rust-core-projection-rows.md)."
     },
     {
       "id": "R3.1.7",
@@ -247,7 +247,7 @@
       "work": "Projection AST and relationship queries",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Retained reference conformance](spec/records/2026-10-24-projection-query-reference.md); [native query intake](spec/records/2026-10-24-rust-core-projection-queries.md)."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Retained reference conformance](spec/records/2026-10-24-projection-query-reference.md); [native query intake](spec/records/2026-10-24-rust-core-projection-queries.md)."
     },
     {
       "id": "R3.1.8",
@@ -255,7 +255,7 @@
       "work": "Task facade",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Six task methods and ordered staged commits](spec/records/2026-10-24-rust-core-tasks.md)."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Six task methods and ordered staged commits](spec/records/2026-10-24-rust-core-tasks.md)."
     },
     {
       "id": "R3.1.9",
@@ -263,7 +263,7 @@
       "work": "Derived memory records and job leases",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Thirteen storage/lease methods](spec/records/2026-10-24-rust-core-memory-storage.md). Capture and maintenance remain R5."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Thirteen storage/lease methods](spec/records/2026-10-24-rust-core-memory-storage.md). Capture and maintenance remain R5."
     },
     {
       "id": "R3.1.10",
@@ -287,7 +287,7 @@
       "work": "Native prepared Search storage",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Native Search storage](spec/records/2026-10-24-rust-core-search-storage.md): prepared rows, vectors, manifests and statistics. [Desktop dependency compatibility](spec/records/2026-10-24-rust-core-search-desktop.md) passes; host adoption remains waiting."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Native Search storage](spec/records/2026-10-24-rust-core-search-storage.md): prepared rows, vectors, manifests and statistics. [Desktop dependency compatibility](spec/records/2026-10-24-rust-core-search-desktop.md) passes; host adoption remains waiting."
     },
     {
       "id": "R3.1.13",
@@ -295,7 +295,7 @@
       "work": "Native Search document preparation and chunking",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Native preparation](spec/records/2026-10-24-rust-core-search-preparation.md): shared 17-record reference, scored chunks, tags/frontmatter and UTF-16-safe cutoffs. Semantic inference and host intake remain separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Native preparation](spec/records/2026-10-24-rust-core-search-preparation.md): shared 17-record reference, scored chunks, tags/frontmatter and UTF-16-safe cutoffs. Semantic inference and host intake remain separate."
     },
     {
       "id": "R3.1.14",
@@ -303,7 +303,7 @@
       "work": "Native lexical/structured Search retrieval",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Native retrieval intake](spec/records/2026-10-24-rust-core-search-retrieval.md): 76 full-result/path queries, retained FTS weights, complete table ranking, UTF-16 snippets, bounded selection and cold reopen. Full source check/test/build/spec and 261 catalog cases pass; semantic inference and host adoption remain separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Native retrieval intake](spec/records/2026-10-24-rust-core-search-retrieval.md): 76 full-result/path queries, retained FTS weights, complete table ranking, UTF-16 snippets, bounded selection and cold reopen. Full source check/test/build/spec and 261 catalog cases pass; semantic inference and host adoption remain separate."
     },
     {
       "id": "R3.1.15",
@@ -311,7 +311,7 @@
       "work": "Native ONNX encoder",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Real MiniLM inference](spec/records/2026-10-24-rust-core-onnx.md) at 6e56d581 and [Desktop compatibility](spec/records/2026-10-24-rust-core-onnx-desktop.md) at a9ce8d9a are qualified. Runtime/model-cache source is now R3.1.18; HTTP intake is R1.3.8, with retained application acceptance separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Real MiniLM inference](spec/records/2026-10-24-rust-core-onnx.md) at 6e56d581 and [Desktop compatibility](spec/records/2026-10-24-rust-core-onnx-desktop.md) at a9ce8d9a are qualified. Runtime/model-cache source is now R3.1.18; HTTP intake is R1.3.8, with retained application acceptance separate."
     },
     {
       "id": "R3.1.16",
@@ -319,7 +319,7 @@
       "work": "Native Search provider control and embedding publication",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Native provider intake](spec/records/2026-10-24-rust-core-search-provider.md): lazy configuration/status, atomic invalidation, actual model inference after detach and cold reopen. Full source and serving-baseline acceptance passes; Desktop intake remains separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Native provider intake](spec/records/2026-10-24-rust-core-search-provider.md): lazy configuration/status, atomic invalidation, actual model inference after detach and cold reopen. Full source and serving-baseline acceptance passes; Desktop intake remains separate."
     },
     {
       "id": "R3.1.17",
@@ -335,7 +335,7 @@
       "work": "Native model/cache installation and runtime admission",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Native model/cache source](spec/records/2026-10-24-rust-core-model-cache.md) plus [installer lease repair and HTTP factory selection](spec/records/2026-10-24-rust-http-database.md): eight fresh contention rounds, all five real-model cases and full source/consumer qualification pass. Tauri and retained Web intake remain."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Native model/cache source](spec/records/2026-10-24-rust-core-model-cache.md) plus [installer lease repair and HTTP factory selection](spec/records/2026-10-24-rust-http-database.md): eight fresh contention rounds, all five real-model cases and full source/consumer qualification pass. Tauri and retained Web intake remain."
     },
     {
       "id": "R3.1.19",
@@ -343,7 +343,7 @@
       "work": "Native vector/hybrid Search retrieval",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Native semantic intake](spec/records/2026-10-24-rust-core-search-semantic.md): all 16 retained query envelopes/path results, five edge cases (111/300 records), bounded candidate buffers and three real-model cases pass. Full source check/test/build/spec pass. [Retained reference](spec/records/2026-10-24-search-semantic-reference.md) stays separate; HTTP facade intake is R1.3.8; Tauri and retained Web acceptance remain separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Native semantic intake](spec/records/2026-10-24-rust-core-search-semantic.md): all 16 retained query envelopes/path results, five edge cases (111/300 records), bounded candidate buffers and three real-model cases pass. Full source check/test/build/spec pass. [Retained reference](spec/records/2026-10-24-search-semantic-reference.md) stays separate; HTTP facade intake is R1.3.8; Tauri and retained Web acceptance remain separate."
     },
     {
       "id": "R3.1.20",
@@ -351,7 +351,7 @@
       "work": "Native Search batch and rebuild controls",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Batch/rebuild controls](spec/records/2026-10-24-rust-core-search-rebuild.md): admitted barriers, bounded 100-record pages, selected inference, detach/drain, ordered committed changes and rollback. Five exact / 185 full Rust cases pass; source check/test/build pass. Host adoption remains waiting."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Batch/rebuild controls](spec/records/2026-10-24-rust-core-search-rebuild.md): admitted barriers, bounded 100-record pages, selected inference, detach/drain, ordered committed changes and rollback. Five exact / 185 full Rust cases pass; source check/test/build pass. Host adoption remains waiting."
     },
     {
       "id": "R3.1.21",
@@ -359,7 +359,7 @@
       "work": "Complete indexed-file upsert, rename and delete",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Native indexed-file intake](spec/records/2026-10-24-rust-core-indexed-mutations.md): ten-case retained reference, staged task commits, atomic rename/delete and persisted rename notifications; seven exact native cases, 169 full Rust cases, 1,489 API cases and all source check/test/build/spec lanes pass."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Native indexed-file intake](spec/records/2026-10-24-rust-core-indexed-mutations.md): ten-case retained reference, staged task commits, atomic rename/delete and persisted rename notifications; seven exact native cases, 169 full Rust cases, 1,489 API cases and all source check/test/build/spec lanes pass."
     },
     {
       "id": "R3.1.22",
@@ -367,31 +367,31 @@
       "work": "Complete native AppDatabase facade",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Native call conformance](spec/records/2026-10-24-rust-core-database-calls.md): all 68 methods / 85 retained calls, explicit undefined/null/void, optional defaults, conditional transaction results and query-enhancement diagnostics pass. Eight exact native / 39 retained API cases and complete source check/test/build/model/spec lanes pass. Host adoption is separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Native call conformance](spec/records/2026-10-24-rust-core-database-calls.md): all 68 methods / 85 retained calls, explicit undefined/null/void, optional defaults, conditional transaction results and query-enhancement diagnostics pass. Eight exact native / 39 retained API cases and complete source check/test/build/model/spec lanes pass. Host adoption is separate."
     },
     {
       "id": "R3.2.1",
       "area": "Service ownership",
       "work": "Unattended metadata and projection reconciliation",
-      "status": "Working",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Native metadata/projection ownership and shared App observer are integrated at 0bb90ba1 (461 Rust, 2,277 package, 261 cold catalog). Desktop metadata-only service adoption is committed at 4bcb7e09 with complete catalogue/native gates. The corrected API event-order candidate passes owner and both application journeys; hosted combined source/host closure is active. Complete processor/Tasks and Search selections, plus default cutover, remain separate."
+      "detail": "[R3 completion](spec/records/2026-10-27-r3-completion.md). Both selected hosts use the admitted vault-owned metadata/projection owner; detach does not stop reconciliation, derived writes have one owner, and disable/close drain accepted work. Final source2438/native597/hosted42/Desktop99/2088 and main adoptions close the current profile. Optional Docs host UI and unknown client-dependent processors are not claimed."
     },
     {
       "id": "R3.2.2",
       "area": "Service ownership",
       "work": "Search index reconciliation and scheduling",
-      "status": "Working",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Both Search host selections and five actual-model source cases are qualified. [Hosted actual-model acceptance](spec/records/2026-10-27-hosted-semantic-acceptance.md) is committed at560435e7: exact model1, full metadata/model2, all Web checks/123 units, cold build and final spec-first/specification78 pass. The real production HTTP provider preserves the qualified Linux vectors/ranks and detach/cold offline cache. Desktop actual ONNX and date/clock checks pass separately. Final kernel03b8257d, coherent host closure and main adoption remain."
+      "detail": "[R3 completion](spec/records/2026-10-27-r3-completion.md). Native Markdown/Canvas Search selection, refresh/rebuild/progress, writer authority, actual ONNX vectors/ranks and offline cold cache are qualified through both retained hosts. Final native597, hosted42 and Desktop API/model20 plus99/2088 close adoption. Unsupported custom callbacks stay explicitly client-dependent/unavailable."
     },
     {
       "id": "R3.2.3",
       "area": "Service ownership",
       "work": "History-index scheduling",
-      "status": "Working",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Indexed History, public App ports, admitted retained Repository reads and guarded hosted restore are committed and qualified. Desktop M16.6 is adopted at fa13c1ce. [Restore evidence](spec/records/2026-10-26-hosted-repository-restore.md) includes both real restore/cold-acknowledgement journeys, saved-byte preservation and complete source/browser/specification closure. Remaining current-profile parity is backup controls/status/passive observation and original-source selection. Optional legacy AppDatabase capture is explicitly Deferred outside the current profile. Complete R3/provider and default cutover remain open."
+      "detail": "[R3 completion](spec/records/2026-10-27-r3-completion.md). Current-profile native History scheduling, capture-independent reads, backup controls, guarded restore and immutable Original selection are qualified and adopted in both hosts. Final hosted History/backup/Original journeys and Desktop Repository12/Navigation12 pass. Optional legacy database History capture remains Deferred."
     },
     {
       "id": "R1.3.9.1",
@@ -447,15 +447,15 @@
       "work": "Native Markdown parsing and reconciliation lifetime",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Native Markdown source](spec/records/2026-10-25-native-markdown-indexing.md): parser 6af2420f and Notes selected-source intake pass ten lifetime/two normalization/21 retained reference cases, 338 complete ordinary Rust cases, five unique real-model cases, all 2209 package cases/33 forced tasks, 261 cold catalog and spec lanes. Npm exception is limited to the plugin parser slice. Both host selections and other processors remain pending; Notes source intake is committed at 7161a447ef365df498371d7bad491df5f5da431c."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Native Markdown source](spec/records/2026-10-25-native-markdown-indexing.md): parser 6af2420f and Notes selected-source intake pass ten lifetime/two normalization/21 retained reference cases, 338 complete ordinary Rust cases, five unique real-model cases, all 2209 package cases/33 forced tasks, 261 cold catalog and spec lanes. Npm exception is limited to the plugin parser slice. Both host selections and other processors remain pending; Notes source intake is committed at 7161a447ef365df498371d7bad491df5f5da431c."
     },
     {
       "id": "R3.2.1.2",
       "area": "Unattended metadata",
       "work": "Remaining native plugin projection processors",
-      "status": "Working",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Native Markdown, complete Tasks projections and opt-in Docs publication are source-qualified in Notes. Markdown parser/cache intake passes all 392 Rust cases and 54 retained API references. Guarded Tasks writes/cache intake and explicit one-writer ownership are active in separate workspaces. Daily/two-file coordination, custom-processor parity and both host selections remain; source qualification does not select a writer."
+      "detail": "[R3 completion](spec/records/2026-10-27-r3-completion.md). Compiled Markdown and installed Tasks parsing/projections/native writes/daily coordination are qualified through both selected hosts. Final source and actual installed Tasks acceptance close current-profile intake. Optional Docs projection remains source-qualified only; arbitrary JavaScript callbacks remain client-dependent/unavailable."
     },
     {
       "id": "R3.2.1.3",
@@ -471,7 +471,7 @@
       "work": "Source-owned Tasks occurrence parser",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Source receipt](../lapis-plugin-tasks/spec/records/2026-10-25-native-task-occurrences.md), Tasks commit 569d7e30ed86bd4514365e50befb908b2a8400e2. Private parser retains version-1 rows, tracking values, URI/path handling, duplicates and UTF-16 source ranges. All 229 unit cases, 27 shared fixtures and native/check/build/spec lanes pass. Notes publication is integrated at 16977050; both host selections remain pending."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Source receipt](../lapis-plugin-tasks/spec/records/2026-10-25-native-task-occurrences.md), Tasks commit 569d7e30ed86bd4514365e50befb908b2a8400e2. Private parser retains version-1 rows, tracking values, URI/path handling, duplicates and UTF-16 source ranges. All 229 unit cases, 27 shared fixtures and native/check/build/spec lanes pass. Notes publication is integrated at 16977050; both host selections remain pending."
     },
     {
       "id": "R3.2.1.2.2",
@@ -479,7 +479,7 @@
       "work": "Native Tasks occurrence publication",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Opt-in occurrence publication source](spec/records/2026-10-25-native-task-occurrences.md), isolated commit 23f0e8c6, is integrated into main at 16977050. [Main intake](spec/records/2026-10-25-native-task-occurrences-intake.md) requalifies five exact/all 344 native cases, strict checks/build/spec on 04ce1f88 with unchanged production bytes and exact parser pins. Both host/plugin selections remain waiting."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Opt-in occurrence publication source](spec/records/2026-10-25-native-task-occurrences.md), isolated commit 23f0e8c6, is integrated into main at 16977050. [Main intake](spec/records/2026-10-25-native-task-occurrences-intake.md) requalifies five exact/all 344 native cases, strict checks/build/spec on 04ce1f88 with unchanged production bytes and exact parser pins. Both host/plugin selections remain waiting."
     },
     {
       "id": "R3.2.1.2.3",
@@ -487,7 +487,7 @@
       "work": "Source-owned Tasks document parser",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Source receipt](../lapis-task-documents/spec/records/2026-10-25-native-task-documents.md), isolated Tasks commit f06b79b4. All 75 complete shared JSON document fixtures match the unchanged TypeScript oracle; 89 exact TypeScript, 304 full unit and three native cases pass with strict check/build/package/spec lanes. Recurrence/effective resolution and Task row normalization are separately qualified at c725d58b/030cb061. Notes adoption, full structure/envelope projection, mutations and both host selections remain pending. Isolated Docker-tooling intake 5695cc11 preserves f06 and 3b6cada3 as parents, verifies all 22 native/parser inputs unchanged, and passes fresh canonical Docker specification gates. Recurrence implementation is separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Source receipt](../lapis-task-documents/spec/records/2026-10-25-native-task-documents.md), isolated Tasks commit f06b79b4. All 75 complete shared JSON document fixtures match the unchanged TypeScript oracle; 89 exact TypeScript, 304 full unit and three native cases pass with strict check/build/package/spec lanes. Recurrence/effective resolution and Task row normalization are separately qualified at c725d58b/030cb061. Notes adoption, full structure/envelope projection, mutations and both host selections remain pending. Isolated Docker-tooling intake 5695cc11 preserves f06 and 3b6cada3 as parents, verifies all 22 native/parser inputs unchanged, and passes fresh canonical Docker specification gates. Recurrence implementation is separate."
     },
     {
       "id": "R3.2.1.2.4",
@@ -495,7 +495,7 @@
       "work": "Source-owned Tasks recurrence and effective resolution",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Source receipt](../.workspaces/lapis-task-recurrence-intake-20261025/spec/records/2026-10-25-native-task-recurrence.md), isolated Tasks commit c725d58b04b8c0a370ad020c38357462ac98650a. Original unchanged-TypeScript oracle retains 32 date sets/166 queries and 18 effective cases; two separate ordinal scenarios add 16 query envelopes. All 63 focused/402 full TypeScript cases, six native tests and strict check/build/publint/spec pass. Version-4 normalization is separately qualified at 030cb061; structure/envelope projection, Notes adoption and both host selections remain pending."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Source receipt](../.workspaces/lapis-task-recurrence-intake-20261025/spec/records/2026-10-25-native-task-recurrence.md), isolated Tasks commit c725d58b04b8c0a370ad020c38357462ac98650a. Original unchanged-TypeScript oracle retains 32 date sets/166 queries and 18 effective cases; two separate ordinal scenarios add 16 query envelopes. All 63 focused/402 full TypeScript cases, six native tests and strict check/build/publint/spec pass. Version-4 normalization is separately qualified at 030cb061; structure/envelope projection, Notes adoption and both host selections remain pending."
     },
     {
       "id": "R3.2.1.2.5",
@@ -503,7 +503,7 @@
       "work": "Source-owned version-4 Task row normalization",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Source receipt](../.workspaces/lapis-task-recurrence-intake-20261025/spec/records/2026-10-25-native-task-projection.md), isolated Tasks commit 030cb061bd7f945c4aaa5cb2dc274b9c4afe719b. All 106 complete unchanged-TypeScript oracle outcomes match: 92 Tasks, five Lists, one navigation, seven absent documents and one retained invalid-date error. All 108 focused/508 full TypeScript cases, seven native tests and strict check/build/publint/spec pass. Per-document structure is separately qualified at 34ef8bf8. Whole-vault graph resolution, projection envelopes and both host selections remain."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Source receipt](../.workspaces/lapis-task-recurrence-intake-20261025/spec/records/2026-10-25-native-task-projection.md), isolated Tasks commit 030cb061bd7f945c4aaa5cb2dc274b9c4afe719b. All 106 complete unchanged-TypeScript oracle outcomes match: 92 Tasks, five Lists, one navigation, seven absent documents and one retained invalid-date error. All 108 focused/508 full TypeScript cases, seven native tests and strict check/build/publint/spec pass. Per-document structure is separately qualified at 34ef8bf8. Whole-vault graph resolution, projection envelopes and both host selections remain."
     },
     {
       "id": "R3.2.1.2.6",
@@ -511,7 +511,7 @@
       "work": "Source-owned Tasks per-document structure and run resolution",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Source receipt](../.workspaces/lapis-task-recurrence-intake-20261025/spec/records/2026-10-25-native-task-structure.md), isolated Tasks commit 34ef8bf8af0415531083f3cdd2884c45ddda6b36. All 96 unchanged-TypeScript structure outcomes match (93 resolved/projection pairs, two scan-only navigation cases and one callback error), plus three separately captured complete CRLF/tab/empty-heading parser outcomes. All 110 focused TypeScript, nine native, 607 full unit and 62 fresh catalog cases plus full check/build/publint/specification pass. All six prior corpora, Cargo graph and runtime models are unchanged. Whole-vault parent/cycle validation, target policy/href and edge/indexed-file envelopes, Notes processor intake and both host selections remain."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Source receipt](../.workspaces/lapis-task-recurrence-intake-20261025/spec/records/2026-10-25-native-task-structure.md), isolated Tasks commit 34ef8bf8af0415531083f3cdd2884c45ddda6b36. All 96 unchanged-TypeScript structure outcomes match (93 resolved/projection pairs, two scan-only navigation cases and one callback error), plus three separately captured complete CRLF/tab/empty-heading parser outcomes. All 110 focused TypeScript, nine native, 607 full unit and 62 fresh catalog cases plus full check/build/publint/specification pass. All six prior corpora, Cargo graph and runtime models are unchanged. Whole-vault parent/cycle validation, target policy/href and edge/indexed-file envelopes, Notes processor intake and both host selections remain."
     },
     {
       "id": "R3.2.1.2.7",
@@ -519,7 +519,7 @@
       "work": "Source-owned Tasks whole-vault parent and cycle validation",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Source receipt](../.workspaces/lapis-task-recurrence-intake-20261025/spec/records/2026-10-25-native-task-graph.md), isolated Tasks commit ad0fd2b8520330c6fd244e5bdc30a7396cd72fe5. All 38 unchanged-TypeScript snapshots match across 199 documents and 217 structural occurrences, retaining multiple-parent exclusion before cycles, duplicates, runs, diagnostics and ordered path replacement. Exact native two tests, 49 focused TypeScript, 645 full unit, 11 native and 62 cold catalog cases plus full check/build/publint/static/specification pass. The 52 protected prior source/corpus/evidence files remain unchanged. Later href/target/index source is qualified at fcb2a8b5 under R3.2.1.2.8. Notes publication, host selection, mutation and materialization remain separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Source receipt](../.workspaces/lapis-task-recurrence-intake-20261025/spec/records/2026-10-25-native-task-graph.md), isolated Tasks commit ad0fd2b8520330c6fd244e5bdc30a7396cd72fe5. All 38 unchanged-TypeScript snapshots match across 199 documents and 217 structural occurrences, retaining multiple-parent exclusion before cycles, duplicates, runs, diagnostics and ordered path replacement. Exact native two tests, 49 focused TypeScript, 645 full unit, 11 native and 62 cold catalog cases plus full check/build/publint/static/specification pass. The 52 protected prior source/corpus/evidence files remain unchanged. Later href/target/index source is qualified at fcb2a8b5 under R3.2.1.2.8. Notes publication, host selection, mutation and materialization remain separate."
     },
     {
       "id": "R3.2.1.2.8",
@@ -527,7 +527,7 @@
       "work": "Source-owned Tasks hrefs, targets and index publication envelopes",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Qualified Tasks source](../lapis-plugin-tasks/spec/records/2026-10-25-native-task-index.md), integrated in clean Tasks default fcb2a8b5: 210 hrefs, 30 target lookups and 174 complete index outcomes. All 1,035 TypeScript, 14 native and 62 cold catalog cases plus check/build/publint/static/specification gates pass. Notes service intake, application host selection and Tasks mutation/materialization remain separate gates."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Qualified Tasks source](../lapis-plugin-tasks/spec/records/2026-10-25-native-task-index.md), integrated in clean Tasks default fcb2a8b5: 210 hrefs, 30 target lookups and 174 complete index outcomes. All 1,035 TypeScript, 14 native and 62 cold catalog cases plus check/build/publint/static/specification gates pass. Notes service intake, application host selection and Tasks mutation/materialization remain separate gates."
     },
     {
       "id": "R3.2.1.2.9",
@@ -535,7 +535,7 @@
       "work": "Native complete Tasks document projection intake",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Qualified native Notes intake](spec/records/2026-10-25-native-task-documents-intake.md) consumes Tasks fcb2a8b5 directly. All 10 exact Tasks cases pass; full repository check/test/build passes 356 ordinary Rust and 2,220 package tests with zero failures. Admitted snapshots retain exact bytes, physical hashes/core metadata and existing schema/rows/edges; one owner handles watcher/dependency/local-date refresh, pruning, revision-idempotent repair and close/drain. Existing six Rust ignores and one frozen Deno integration skip are retained. Both host/plugin selections, mutations/materialization and installed delivery remain separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Qualified native Notes intake](spec/records/2026-10-25-native-task-documents-intake.md) consumes Tasks fcb2a8b5 directly. All 10 exact Tasks cases pass; full repository check/test/build passes 356 ordinary Rust and 2,220 package tests with zero failures. Admitted snapshots retain exact bytes, physical hashes/core metadata and existing schema/rows/edges; one owner handles watcher/dependency/local-date refresh, pruning, revision-idempotent repair and close/drain. Existing six Rust ignores and one frozen Deno integration skip are retained. Both host/plugin selections, mutations/materialization and installed delivery remain separate."
     },
     {
       "id": "R3.2.3.1",
@@ -543,7 +543,7 @@
       "work": "Native backup-owned index source lifetime",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Qualified source](spec/records/2026-10-25-native-history-index-owner.md): nine backup cases, complete source check (364 Rust), 261 cold catalog cases, 78 specification regressions, eight development and six static navigation cases pass. Native-only selection/status remains off by default; both host adoptions are separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Qualified source](spec/records/2026-10-25-native-history-index-owner.md): nine backup cases, complete source check (364 Rust), 261 cold catalog cases, 78 specification regressions, eight development and six static navigation cases pass. Native-only selection/status remains off by default; both host adoptions are separate."
     },
     {
       "id": "R3.2.1.2.10",
@@ -551,7 +551,7 @@
       "work": "Native mutation and occurrence transformations",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Qualified owning Tasks source fde58de0 on 2cfcdc59/9131b27d passes all 1,766 native transformation cases, 1,768 unchanged TypeScript/reference-adapter cases, 25 native tests, 2,847 unit cases, 62 cold catalog cases and full strict/check/build/publint/static/spec gates. All original differences and frozen complete outputs are retained. Notes materialization/private cache-signature intake and both host selections remain separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: Qualified owning Tasks source fde58de0 on 2cfcdc59/9131b27d passes all 1,766 native transformation cases, 1,768 unchanged TypeScript/reference-adapter cases, 25 native tests, 2,847 unit cases, 62 cold catalog cases and full strict/check/build/publint/static/spec gates. All original differences and frozen complete outputs are retained. Notes materialization/private cache-signature intake and both host selections remain separate."
     },
     {
       "id": "R3.2.1.2.11",
@@ -559,7 +559,7 @@
       "work": "Native Docs note projection parity",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Owning Docs source 781b2847 is integrated in default at f772f2ba. All 155 native projection cases and unchanged 167-case TypeScript oracle pass, with locked strict Rust/specification gates and unchanged dirty npm manifests. Notes publication and both host selections remain separate."
+      "detail": "Optional source gate only; installed Docs UI/editing/FSRS and host selection are not claimed by current-profile R3. Earlier source checkpoint: Owning Docs source 781b2847 is integrated in default at f772f2ba. All 155 native projection cases and unchanged 167-case TypeScript oracle pass, with locked strict Rust/specification gates and unchanged dirty npm manifests. Notes publication and both host selections remain separate."
     },
     {
       "id": "R3.2.1.2.11.1",
@@ -567,7 +567,7 @@
       "work": "Native Docs source-to-projection service intake",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Integrated Docs/History source](spec/records/2026-10-25-docs-history-source-integration.md) consumes qualified Notes fedf7b16 and Docs f772f2ba. All 36 affected indexing and 391 combined Rust cases, strict native and complete specification gates pass; 18 Docs product/input paths match the qualified source exactly. Parent source passes 2,253 package cases and full check/test/build. Both host selections and single-writer activation remain separate."
+      "detail": "Optional source gate only; installed Docs UI/editing/FSRS and host selection are not claimed by current-profile R3. Earlier source checkpoint: [Integrated Docs/History source](spec/records/2026-10-25-docs-history-source-integration.md) consumes qualified Notes fedf7b16 and Docs f772f2ba. All 36 affected indexing and 391 combined Rust cases, strict native and complete specification gates pass; 18 Docs product/input paths match the qualified source exactly. Parent source passes 2,253 package cases and full check/test/build. Both host selections and single-writer activation remain separate."
     },
     {
       "id": "R3.2.1.2.12",
@@ -575,7 +575,7 @@
       "work": "Verify and repair native YAML 1.2 behavior",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Qualified owning Plugins source 797c14ef fixes 17/55 complete YAML metadata differences with typed YAML 1.2 and parser identity markdown-native-v2. All 55 frozen outcomes, four native tests, 63 exact/126 full Markdown, 1,027 owner package cases, 16 checks/15 builds, 54 cold Markdown/CSV catalog cases and strict/spec gates pass. Unchanged parent audit/CSV metadata/style failures remain recorded, with no npm publication or consumer workaround. Notes pin/cache-identity intake and both hosts remain separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: Qualified owning Plugins source 797c14ef fixes 17/55 complete YAML metadata differences with typed YAML 1.2 and parser identity markdown-native-v2. All 55 frozen outcomes, four native tests, 63 exact/126 full Markdown, 1,027 owner package cases, 16 checks/15 builds, 54 cold Markdown/CSV catalog cases and strict/spec gates pass. Unchanged parent audit/CSV metadata/style failures remain recorded, with no npm publication or consumer workaround. Notes pin/cache-identity intake and both hosts remain separate."
     },
     {
       "id": "R3.2.2.1",
@@ -583,7 +583,7 @@
       "work": "Native Markdown source reconciliation and SearchManager envelope parity",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Native source qualification](spec/records/2026-10-25-native-search-owner.md): admitted Rust-only start/stop, bounded manifests, cache repair, foreign-row preservation, detach and close/drain pass 13 native cases. All 33 public SearchManager oracle envelopes match with two documented native cache-identity differences. Full source check/test/build and final ten-archive API/native gates pass; canonical specification/progress qualification passes all 78 regression cases. Provider/configuration/checkpoint parity, both hosts and actual semantic-provider journeys remain separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Native source qualification](spec/records/2026-10-25-native-search-owner.md): admitted Rust-only start/stop, bounded manifests, cache repair, foreign-row preservation, detach and close/drain pass 13 native cases. All 33 public SearchManager oracle envelopes match with two documented native cache-identity differences. Full source check/test/build and final ten-archive API/native gates pass; canonical specification/progress qualification passes all 78 regression cases. Provider/configuration/checkpoint parity, both hosts and actual semantic-provider journeys remain separate."
     },
     {
       "id": "R3.2.1.2.10.1",
@@ -591,7 +591,7 @@
       "work": "Source YAML 1.2 reader prerequisite",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Committed Tasks 9131b27d and 2cfcdc59 preserve all 75 original snapshots plus 44 Unicode/scalar/priority cases (119 total). Strict source/check/build/publint/static/spec, 1,079 units, 17 native and 62 cold catalog cases pass. The separate nonfinite-priority prerequisite repairs three of three exact differences without changing the public projection schema. Transformation and Notes adoption stay separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: Committed Tasks 9131b27d and 2cfcdc59 preserve all 75 original snapshots plus 44 Unicode/scalar/priority cases (119 total). Strict source/check/build/publint/static/spec, 1,079 units, 17 native and 62 cold catalog cases pass. The separate nonfinite-priority prerequisite repairs three of three exact differences without changing the public projection schema. Transformation and Notes adoption stay separate."
     },
     {
       "id": "R3.2.3.2",
@@ -599,7 +599,7 @@
       "work": "Paused and cold read-only index owner",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "[Qualified paused/cold History owner](spec/records/2026-10-25-native-history-read-lifetime.md): ten checkpoint cases, all 380 Rust cases, 2,253 package cases, strict/full check/test/build and complete specification gates pass. Cold cache repair retains checkpoint identity and unsnapshotted edits with no client; a new-vault read creates no repository. Backup pause retains the owner; explicit native disable and vault close drain it. Desktop passive observation/relocation intake is committed at 05d0e8ab and integrated in its clean default workspace; both complete R3 host gates remain separate. [Final backup notification repair](spec/records/2026-10-26-history-final-notification.md) is committed at 211bff3c on bounded Desktop cohort 0b05c990: both closure failures are repaired, all three exact/14 backup/382 Rust cases and strict/build/specification pass. Newer-main and actual Desktop intake remain separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Qualified paused/cold History owner](spec/records/2026-10-25-native-history-read-lifetime.md): ten checkpoint cases, all 380 Rust cases, 2,253 package cases, strict/full check/test/build and complete specification gates pass. Cold cache repair retains checkpoint identity and unsnapshotted edits with no client; a new-vault read creates no repository. Backup pause retains the owner; explicit native disable and vault close drain it. Desktop passive observation/relocation intake is committed at 05d0e8ab and integrated in its clean default workspace; both complete R3 host gates remain separate. [Final backup notification repair](spec/records/2026-10-26-history-final-notification.md) is committed at 211bff3c on bounded Desktop cohort 0b05c990: both closure failures are repaired, all three exact/14 backup/382 Rust cases and strict/build/specification pass. Newer-main and actual Desktop intake remain separate."
     },
     {
       "id": "R3.2.1.2.10.2",
@@ -607,7 +607,7 @@
       "work": "Guarded native Task writes and occurrence materialization",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "[Qualified guarded Task writes](spec/records/2026-10-25-native-task-writes.md), Notes 9f99eee8, consumes Tasks fde58de0 through admitted Work and the existing guarded writer. Parent source passes 404 Rust/2,253 package cases and full check/test/build/specification. [Combined current-parser intake](spec/records/2026-10-26-tasks-parser-source-integration.md) passes all 405 Rust/54 API reference cases, native strict/build/specification; 14 product/test paths match qualified parents. Daily creation/two-file coordination and both hosts remain separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Qualified guarded Task writes](spec/records/2026-10-25-native-task-writes.md), Notes 9f99eee8, consumes Tasks fde58de0 through admitted Work and the existing guarded writer. Parent source passes 404 Rust/2,253 package cases and full check/test/build/specification. [Combined current-parser intake](spec/records/2026-10-26-tasks-parser-source-integration.md) passes all 405 Rust/54 API reference cases, native strict/build/specification; 14 product/test paths match qualified parents. Daily creation/two-file coordination and both hosts remain separate."
     },
     {
       "id": "R3.2.1.2.12.1",
@@ -615,7 +615,7 @@
       "work": "Qualified native parser pin and cold cache-identity intake",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
-      "detail": "[Qualified native parser/cache intake](spec/records/2026-10-25-markdown-parser-cache-intake.md) consumes Plugins 797c14ef with only necessary locked dependency edges. Exact cold regression improves from zero passes/one failure to one pass/zero failures. All 36 affected indexing, 392 complete Rust and 54 retained API reference cases, native build/strict checks and full specification/78 governance regressions pass. Prior metadata is reparsed without file writes; both host selections remain separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Qualified native parser/cache intake](spec/records/2026-10-25-markdown-parser-cache-intake.md) consumes Plugins 797c14ef with only necessary locked dependency edges. Exact cold regression improves from zero passes/one failure to one pass/zero failures. All 36 affected indexing, 392 complete Rust and 54 retained API reference cases, native build/strict checks and full specification/78 governance regressions pass. Prior metadata is reparsed without file writes; both host selections remain separate."
     },
     {
       "id": "R3.2.2.2",
@@ -623,15 +623,15 @@
       "work": "Retained Canvas document source extraction",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Qualified native Canvas extractor](../.workspaces/lapis-plugins-native-search-20261026/spec/records/2026-10-26-native-canvas-search-source.md), owning Plugins 5e0dffc3, preserves all 37 complete unchanged-TypeScript outcomes. All five native, 37 focused and 87 complete Search package cases, strict checks/build/publint/pack/ownership/specification pass. No production TypeScript or npm input changes. Notes publication, configuration/custom-provider parity and both hosts remain separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Qualified native Canvas extractor](../.workspaces/lapis-plugins-native-search-20261026/spec/records/2026-10-26-native-canvas-search-source.md), owning Plugins 5e0dffc3, preserves all 37 complete unchanged-TypeScript outcomes. All five native, 37 focused and 87 complete Search package cases, strict checks/build/publint/pack/ownership/specification pass. No production TypeScript or npm input changes. Notes publication, configuration/custom-provider parity and both hosts remain separate."
     },
     {
       "id": "R3.2.1.2.10.3",
       "area": "Tasks application coordination",
       "work": "Native daily provider creation and daily-before-rolling Task coordination",
-      "status": "Working",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-006",
-      "detail": "Native daily provider/ordered writes/recovery source and all 15 hosted installed Tasks/editor/leave journeys are qualified. The real Desktop default provider lifecycle repair now passes all four installed Tasks native journeys, including locale/provider refusal, stale admission and cold lost-reply recovery. Final combined provider/timezone/unattended parity, composed host gates and main adoption remain separate. No lapis-ai changes."
+      "detail": "[R3 completion](spec/records/2026-10-27-r3-completion.md). Qualified native default daily provider, ordered daily/rolling writes, explicit interrupted recovery and retained English locale/week policy are adopted in both hosts. Hosted installed Tasks/editor/leave15, Desktop installedTasks4 and native clock2 pass on final source; no renderer scheduler or automatic mutation replay is selected."
     },
     {
       "id": "R3.2.2.3",
@@ -639,7 +639,7 @@
       "work": "Canvas publication and explicit chunking selection on the existing owner",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Qualified configured native Search intake](spec/records/2026-10-26-native-search-provider-intake.md) passes six exact, 37 affected indexing, 411 complete Rust and 54 retained API cases plus locked native build/strict checks. Final ten-lane specification closure and all 78 governance regressions pass after tracker and mapped-overview repairs; product/input bytes match the full functional snapshot. Full provider/status parity and both hosts remain separate; Markdown-only defaults stay unchanged."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Qualified configured native Search intake](spec/records/2026-10-26-native-search-provider-intake.md) passes six exact, 37 affected indexing, 411 complete Rust and 54 retained API cases plus locked native build/strict checks. Final ten-lane specification closure and all 78 governance regressions pass after tracker and mapped-overview repairs; product/input bytes match the full functional snapshot. Full provider/status parity and both hosts remain separate; Markdown-only defaults stay unchanged."
     },
     {
       "id": "R3.2.2.4",
@@ -647,7 +647,7 @@
       "work": "Bounded provider selection, writer authority and explicit unavailable callbacks",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Qualified native Search controls and combined intake](spec/records/2026-10-26-native-search-controls.md): six controls, authenticated HTTP selection/rebuild/disable, exact rebuild, 38 indexing, 13 daily IO/race and 54 API reference cases pass. Full 452 Rust/2,267 package cases, strict native/protocol, all 11 builds, 261 cold catalog cases, static Storybook and complete specification/78 governance pass. Original selection/progress/rebuild, generator-export and Clippy failures remain recorded separately. Both host adoptions stay separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Qualified native Search controls and combined intake](spec/records/2026-10-26-native-search-controls.md): six controls, authenticated HTTP selection/rebuild/disable, exact rebuild, 38 indexing, 13 daily IO/race and 54 API reference cases pass. Full 452 Rust/2,267 package cases, strict native/protocol, all 11 builds, 261 cold catalog cases, static Storybook and complete specification/78 governance pass. Original selection/progress/rebuild, generator-export and Clippy failures remain recorded separately. Both host adoptions stay separate."
     },
     {
       "id": "R3.2.2.5",
@@ -655,7 +655,7 @@
       "work": "Shared App observer and native Search plugin lifecycle",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "[Coherent shared observer](spec/records/2026-10-26-native-search-observer.md) is integrated at 0bb90ba1. [Plugins Search/Bases/CSV source](spec/records/2026-10-26-search-bases-intake.md) is committed at bd305e58: 22 exact native Search, 16 cold Search, seven exact Bases and all 284 cold catalogue cases pass, plus package checks/tests/builds, static Storybook, specification, 47 runner/composition cases and public Search artifacts. Current-headless Chromium fixes the exact final-shard disconnect without changing assertions or coverage. Existing audit/CSV-style/lock findings remain recorded. Final Plugins replacement-App source e0144c6a, hosted 2a6f938a and Desktop a052be6b are now committed and qualified. Coherent main source intake remains active."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Coherent shared observer](spec/records/2026-10-26-native-search-observer.md) is integrated at 0bb90ba1. [Plugins Search/Bases/CSV source](spec/records/2026-10-26-search-bases-intake.md) is committed at bd305e58: 22 exact native Search, 16 cold Search, seven exact Bases and all 284 cold catalogue cases pass, plus package checks/tests/builds, static Storybook, specification, 47 runner/composition cases and public Search artifacts. Current-headless Chromium fixes the exact final-shard disconnect without changing assertions or coverage. Existing audit/CSV-style/lock findings remain recorded. Final Plugins replacement-App source e0144c6a, hosted 2a6f938a and Desktop a052be6b are now committed and qualified. Coherent main source intake remains active."
     },
     {
       "id": "R3.2.2.6",
@@ -671,7 +671,7 @@
       "work": "Shared indexed History controls and admitted HTTP bridge",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-history-indexing-lifetime.md#ln-core-011",
-      "detail": "[Qualified shared History controls](spec/records/2026-10-26-hosted-history-service.md): five exactHTTP, two wire and two admitted-core cases; all76server/16backup; full470Rust/2289package/261coldcatalog/static and22actualbrowser cases pass, including strict/publictypes/build/canonical78governance. Source is qualified at frozenec988ab. Explicit installation selection stays off; retained hosted-screen/controller and Desktop shared-adapter intake remain separate R3.2.3 gates."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Qualified shared History controls](spec/records/2026-10-26-hosted-history-service.md): five exactHTTP, two wire and two admitted-core cases; all76server/16backup; full470Rust/2289package/261coldcatalog/static and22actualbrowser cases pass, including strict/publictypes/build/canonical78governance. Source is qualified at frozenec988ab. Explicit installation selection stays off; retained hosted-screen/controller and Desktop shared-adapter intake remain separate R3.2.3 gates."
     },
     {
       "id": "R3.2.3.4",
@@ -679,7 +679,7 @@
       "work": "Public History observer and admitted hosted port",
       "status": "Source complete",
       "spec": "spec/src/web-host/startup-and-plugins.md#ln-web-067",
-      "detail": "[Qualified port/source intake](spec/records/2026-10-26-hosted-history-adapter.md): 3App/6hosted exact, full507Rust/2304package/261coldcatalog/static and22browser cases plus strict/build/publicdeclarations pass. Shared History producer214917c8 passes1101package/285catalog and artifact gates with unchanged accepted baselines. Final ten-lane canonical closure and all78governance regressions pass after six mapped-chapter confirmations. This source gate does not supply the admitted reader/screen or complete R3."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Qualified port/source intake](spec/records/2026-10-26-hosted-history-adapter.md): 3App/6hosted exact, full507Rust/2304package/261coldcatalog/static and22browser cases plus strict/build/publicdeclarations pass. Shared History producer214917c8 passes1101package/285catalog and artifact gates with unchanged accepted baselines. Final ten-lane canonical closure and all78governance regressions pass after six mapped-chapter confirmations. This source gate does not supply the admitted reader/screen or complete R3."
     },
     {
       "id": "R3.2.3.5",
@@ -693,9 +693,9 @@
       "id": "R3.2.3.6",
       "area": "Remaining History parity",
       "work": "Guarded restore, backup controls and original repository source",
-      "status": "Working",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-history-parity.md#ln-core-023",
-      "detail": "Guarded restore is Complete. Backup controls/passive status are source-qualified atedf1d76f and completing current CORE026/main composition. Original-source selection is Working; optional legacy AppDatabase capture remains Deferred. Combined both-host R3 is separate."
+      "detail": "[R3 completion](spec/records/2026-10-27-r3-completion.md). Guarded restore, backup capture selection/passive status/pause/restart and immutable Original repository selection are complete in both retained applications. Saved bytes, source/.jj/.git witnesses and pinned operations are preserved. Optional legacy AppDatabase History capture remains Deferred outside the declared profile."
     },
     {
       "id": "R3.2.3.7",
@@ -711,7 +711,7 @@
       "work": "Admitted native Task protocol and source-owned plugin adapter",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-task-host-port.md#ln-core-013",
-      "detail": "[Shared port source](spec/records/2026-10-26-native-task-host-port.md) is qualified: 13 exact native/HTTP cases, all 10 App observer/startup cases, 480 complete Rust, 2,264 package and 261 cold catalog/a11y cases; strict/protocol/check/build, public type pack, static Storybook and specification/78-governance gates pass. Startup reconciliation waits for settled plugin declarations; passive metadata reads never select Task policy. Owning Tasks adapter 7ae46a74 passes 2,859 units, 14 native and 62 cold catalog/a11y cases plus all source gates. Both host selections, verified installed-plugin native acceptance and common-locale/provider parity remain separate waiting work; no defaults change. Latest owning Tasks recovery/guard source is committed at 703a88e0: 2,875 units, 27 native and 63 cold catalog cases plus strict/build/public/static/spec gates pass; public archive SHA9522bdb7 is retained. Native mutations reread within the existing editing guard; bounded lost-response references and explicit inspection survive reload without replay. Both actual host integrations remain separately gated. Latest Tasks reference storage is source-qualified at 9551ce2a, with consumer-evidence follow-up 52270c2a: 2,882 units, 27 Rust and 63 cold catalog cases plus all source gates pass. Reference-only metadata CAS replaces whole-settings reference writes; actual two-App hosted receipt 564d0a35 passes one cold lost-response/settings-save/reload journey without duplicate submission. [Source and consumer record](../lapis-plugin-tasks/spec/records/2026-10-26-native-task-reference-hosted-acceptance.md). Current editor-cohort host acceptance remains separate; its foreign clean configuration claim is being repaired at the state-writer source boundary."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Shared port source](spec/records/2026-10-26-native-task-host-port.md) is qualified: 13 exact native/HTTP cases, all 10 App observer/startup cases, 480 complete Rust, 2,264 package and 261 cold catalog/a11y cases; strict/protocol/check/build, public type pack, static Storybook and specification/78-governance gates pass. Startup reconciliation waits for settled plugin declarations; passive metadata reads never select Task policy. Owning Tasks adapter 7ae46a74 passes 2,859 units, 14 native and 62 cold catalog/a11y cases plus all source gates. Both host selections, verified installed-plugin native acceptance and common-locale/provider parity remain separate waiting work; no defaults change. Latest owning Tasks recovery/guard source is committed at 703a88e0: 2,875 units, 27 native and 63 cold catalog cases plus strict/build/public/static/spec gates pass; public archive SHA9522bdb7 is retained. Native mutations reread within the existing editing guard; bounded lost-response references and explicit inspection survive reload without replay. Both actual host integrations remain separately gated. Latest Tasks reference storage is source-qualified at 9551ce2a, with consumer-evidence follow-up 52270c2a: 2,882 units, 27 Rust and 63 cold catalog cases plus all source gates pass. Reference-only metadata CAS replaces whole-settings reference writes; actual two-App hosted receipt 564d0a35 passes one cold lost-response/settings-save/reload journey without duplicate submission. [Source and consumer record](../lapis-plugin-tasks/spec/records/2026-10-26-native-task-reference-hosted-acceptance.md). Current editor-cohort host acceptance remains separate; its foreign clean configuration claim is being repaired at the state-writer source boundary."
     },
     {
       "id": "R3.2.1.2.10.5",
@@ -719,7 +719,7 @@
       "work": "Retained English daily locale/week settings and native provider parity",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-task-host-port.md#ln-core-015",
-      "detail": "[English default daily source](spec/records/2026-10-26-native-daily-locale-parity.md) preserves current en-US 7/4 and qualifies en-GB 1/4 plus declared legacy-Intl en-US 7/1 with 200 filenames, 45 provider flows and 19 registry traces per context, plus 16 focused physical IO cases. All 12 exact native cases, five adapter context cases, three TypeScript replay cases and all-context HTTP journal/IO pass. Complete source gates pass 489 Rust, 2,266 package, 261 cold Notes catalog and 2,864 Tasks units/27 Rust/62 cold catalog cases. No transport, arbitrary-provider or default change. Coherent API/host adoption, actual WebView, timezone/day-boundary and installed-plugin integrity and native host acceptance remain open. Final source document/static receipts accompany the qualified commit."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [English default daily source](spec/records/2026-10-26-native-daily-locale-parity.md) preserves current en-US 7/4 and qualifies en-GB 1/4 plus declared legacy-Intl en-US 7/1 with 200 filenames, 45 provider flows and 19 registry traces per context, plus 16 focused physical IO cases. All 12 exact native cases, five adapter context cases, three TypeScript replay cases and all-context HTTP journal/IO pass. Complete source gates pass 489 Rust, 2,266 package, 261 cold Notes catalog and 2,864 Tasks units/27 Rust/62 cold catalog cases. No transport, arbitrary-provider or default change. Coherent API/host adoption, actual WebView, timezone/day-boundary and installed-plugin integrity and native host acceptance remain open. Final source document/static receipts accompany the qualified commit."
     },
     {
       "id": "R3.2.3.6.1",
@@ -735,15 +735,15 @@
       "work": "Backup capture controls and passive status",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Backup source edf1d76f is combined with Original/editor/hosted source 0ff929b1. Receipt 823317ad passes 586 Rust, 2,414 package, 263 cold catalog/static, 26 ordinary browser journeys and full specification/78 governance. Persisted selection, passive status, lost acknowledgement and cold restart pass. Final admission-repair native closure and current Desktop/main adoption remain separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: Backup source edf1d76f is combined with Original/editor/hosted source 0ff929b1. Receipt 823317ad passes 586 Rust, 2,414 package, 263 cold catalog/static, 26 ordinary browser journeys and full specification/78 governance. Persisted selection, passive status, lost acknowledgement and cold restart pass. Final admission-repair native closure and current Desktop/main adoption remain separate."
     },
     {
       "id": "R3.2.3.6.3",
       "area": "Remaining History parity",
       "work": "Original repository source selection",
-      "status": "Working",
+      "status": "Complete",
       "spec": "spec/src/architecture/rust-history-reader.md#ln-core-016",
-      "detail": "Combined Original-source source/catalog/specification and hosted acceptance pass. Actual Desktop current-M14 Backup/Original navigation and cold settings pass with source/.jj/.git hashes unchanged. The original native API cohort passes 19/19 and all four History contention regressions pass on c1c6570f. Final composed native/catalog/build gates and both main adoptions remain. No new repository engine or source fallback."
+      "detail": "[R3 completion](spec/records/2026-10-27-r3-completion.md). Immutable Original detection/selection, source tabs/pins, Op Log, refresh and cold settings are qualified through both applications. Hosted Original journeys and Desktop API/model20/Repository12/Navigation12 pass with repository witnesses unchanged; no initialization, capture or fallback is added."
     },
     {
       "id": "R3.2.3.6.4",
@@ -757,9 +757,9 @@
       "id": "R3.2.4",
       "area": "Native writer admission",
       "work": "Shared editing intent integration",
-      "status": "Working",
+      "status": "Complete",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-019",
-      "detail": "Core/API source foundation is qualified separately from explicit stale-safe recovery, source Markdown/Mira bridge and both actual host adoptions. Native intent is distinct from dirty state; no second save engine or automatic discard is introduced."
+      "detail": "[R3 completion](spec/records/2026-10-27-r3-completion.md). Shared native editing intents, protected handoff, source Mira/Markdown binding, clean producer refresh/retirement and captured-state Problems recovery are qualified and adopted in both hosts. Scoped failure cleanup preserves independent writers and retained protection; no second save engine or replay is added."
     },
     {
       "id": "R3.2.4.1",
@@ -767,7 +767,7 @@
       "work": "Core protocol and App registry foundation",
       "status": "Source complete",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-019",
-      "detail": "[Qualified Core/App foundation](spec/records/2026-10-26-native-editor-intent-foundation.md): ten exact Core and seventeen exact App registry/real-writer cases pass, including initial-admission and one-shot retry regressions. All 118 affected, 1,658 API, 2,343 package and 547 native cases pass with seven explicit asset/provider ignores. Root check20/test20/build11, public build/publint/packed types, 261 cold catalogue/static and specification gates pass. Captured-state recovery, source Markdown binding and actual host adoption remain separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Qualified Core/App foundation](spec/records/2026-10-26-native-editor-intent-foundation.md): ten exact Core and seventeen exact App registry/real-writer cases pass, including initial-admission and one-shot retry regressions. All 118 affected, 1,658 API, 2,343 package and 547 native cases pass with seven explicit asset/provider ignores. Root check20/test20/build11, public build/publint/packed types, 261 cold catalogue/static and specification gates pass. Captured-state recovery, source Markdown binding and actual host adoption remain separate."
     },
     {
       "id": "R3.2.4.2",
@@ -775,7 +775,7 @@
       "work": "Captured-generation explicit recovery through existing Problems",
       "status": "Source complete",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-025",
-      "detail": "Captured-generation/revision native recovery/discard and the existing Problems/local admission presentation are source-qualified. Actual hosted/Desktop editor acceptance remains in R3.2.4.4; no native draft storage, automatic discard or replay."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: Captured-generation/revision native recovery/discard and the existing Problems/local admission presentation are source-qualified. Actual hosted/Desktop editor acceptance remains in R3.2.4.4; no native draft storage, automatic discard or replay."
     },
     {
       "id": "R3.2.4.3",
@@ -783,15 +783,15 @@
       "work": "Source-owned Mira raw input lease and Markdown binding",
       "status": "Source complete",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-020",
-      "detail": "Owning Markdown source40f8febb is qualified in an isolated Plugins workspace:3exact/20binding/139Markdown/1114package/286coldcatalog pass, with strict/build/publicpack/static/specification. Public Markdown archive SHAd8e7bb59 uses the qualified API inputlease. Existing accepted highZod and fourCSV source baselines stay explicit. Plugins main has unrelated uncommitted work; both actual hosts remain separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: Owning Markdown source40f8febb is qualified in an isolated Plugins workspace:3exact/20binding/139Markdown/1114package/286coldcatalog pass, with strict/build/publicpack/static/specification. Public Markdown archive SHAd8e7bb59 uses the qualified API inputlease. Existing accepted highZod and fourCSV source baselines stay explicit. Plugins main has unrelated uncommitted work; both actual hosts remain separate."
     },
     {
       "id": "R3.2.4.4",
       "area": "Native writer hosts",
       "work": "Actual hosted and Desktop editor/Tasks acceptance",
-      "status": "Working",
+      "status": "Complete",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-020",
-      "detail": "[Committed Undo closure](spec/records/2026-10-27-editor-extension-history.md) at1c89dfb1 passes exact3/3 after1/3 before, affected118, API1708, check20/test20/build11, cold264catalog/static, all41browser and unchanged nativeMetadataUndo1; final mapped first/fullspec78 passes. Desktop current9ac+d178 also passes20API/realONNX,12Repository,4installedTasks and2macOSclock cases. Final composedCore/remainingcatalog/native/build acceptance and mainadoption remain separate."
+      "detail": "[R3 completion](spec/records/2026-10-27-r3-completion.md). Both actual hosts close native editor/Tasks acceptance on committed source000aef52/API89e/Core03b. Hosted42, Desktop99 (including writers51/installedTasks4), all2088 Desktop catalog and265 Notes catalog/static pass. Both main adoptions preserve qualified runtime/dependency bytes and source evidence."
     },
     {
       "id": "R3.2.4.2.1",
@@ -799,7 +799,7 @@
       "work": "Captured-state recovery and discard contract",
       "status": "Source complete",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-025",
-      "detail": "[Qualified captured-state recovery](spec/records/2026-10-26-native-intent-recovery.md): seven exact recovery, ten original intents and all51HTTP cases pass. Full combined cohort passes561Rust/2349package/261coldcatalog/24browser, strict/build/publicpack/static and canonical78governance gates. Legacy ID-only managed bypasses are refused. Existing Problems and both actual host adoptions remain separate. Adopted in Notes main atb55e03c5; [main intake](spec/records/2026-10-26-editor-recovery-main-intake.md) preserves all qualified runtime/protocol/test/configuration bytes."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Qualified captured-state recovery](spec/records/2026-10-26-native-intent-recovery.md): seven exact recovery, ten original intents and all51HTTP cases pass. Full combined cohort passes561Rust/2349package/261coldcatalog/24browser, strict/build/publicpack/static and canonical78governance gates. Legacy ID-only managed bypasses are refused. Existing Problems and both actual host adoptions remain separate. Adopted in Notes main atb55e03c5; [main intake](spec/records/2026-10-26-editor-recovery-main-intake.md) preserves all qualified runtime/protocol/test/configuration bytes."
     },
     {
       "id": "R3.2.4.2.2",
@@ -807,7 +807,7 @@
       "work": "Existing Problems discovery and explicit recovery actions",
       "status": "Source complete",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-027",
-      "detail": "[Qualified existing Problems bridge](spec/records/2026-10-26-editing-problems.md):39exact combined model/local/registry/state and two real saved-file/Problems/axe stories pass. Full562Rust/2371package/263coldcatalog/24browser, strict/build/publicAPI+Workspacepacks/static/canonical78governance pass. Native/local captured actions, passive shared binding and saved-file Reading review use existing presentation. Both actual host editor/preflight acceptance remain separate. Adopted in clean Notes main fromfa77eb1a; [intake equality](spec/records/2026-10-26-editing-problems-main-intake.md) preserves all qualified runtime/test/protocol/configuration bytes. [Native handoff minimal-shell story](spec/records/2026-10-27-native-handoff-story.md) adds the missing retained-failure/explicit-retry state. Original API exact0/1 reproduces; scoped repair exact1/family3/full265/static/API+Workspace strict/ownership/parity/progress pass at3dff2675, receiptd7d3d4ae. Final canonical story closure passes atdc28/1decd30e with6nativepins/16archives and78governance; source and actual host receipts stay separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Qualified existing Problems bridge](spec/records/2026-10-26-editing-problems.md):39exact combined model/local/registry/state and two real saved-file/Problems/axe stories pass. Full562Rust/2371package/263coldcatalog/24browser, strict/build/publicAPI+Workspacepacks/static/canonical78governance pass. Native/local captured actions, passive shared binding and saved-file Reading review use existing presentation. Both actual host editor/preflight acceptance remain separate. Adopted in clean Notes main fromfa77eb1a; [intake equality](spec/records/2026-10-26-editing-problems-main-intake.md) preserves all qualified runtime/test/protocol/configuration bytes. [Native handoff minimal-shell story](spec/records/2026-10-27-native-handoff-story.md) adds the missing retained-failure/explicit-retry state. Original API exact0/1 reproduces; scoped repair exact1/family3/full265/static/API+Workspace strict/ownership/parity/progress pass at3dff2675, receiptd7d3d4ae. Final canonical story closure passes atdc28/1decd30e with6nativepins/16archives and78governance; source and actual host receipts stay separate."
     },
     {
       "id": "R3.2.4.1.1",
@@ -823,7 +823,7 @@
       "work": "Protected clean producer refresh after guarded native mutation",
       "status": "Source complete",
       "spec": "spec/src/architecture/native-editor-intents.md#ln-core-028",
-      "detail": "[Qualified clean-retirement source](../.workspaces/lapis-notes-native-editor-retirement-20261026/spec/records/2026-10-26-native-editor-retirement.md) is committed at6e76be48: exact3/native31/API1689; full564Rust/2397package/263coldcatalog/static/strict/publicbuild and final78governance pass. All39hosted/Node/local journeys and seven leave cases pass. Markdown814f6d2d and Mira cb8f2b2b complete their owning source gates. DesktopM16.7 is committed0dbf2307 with58native/2068catalog; current combined source/main and final provider/Tasks gates remain separate."
+      "detail": "Qualified source; current-profile integration is closed under R3. Earlier source checkpoint: [Qualified clean-retirement source](../.workspaces/lapis-notes-native-editor-retirement-20261026/spec/records/2026-10-26-native-editor-retirement.md) is committed at6e76be48: exact3/native31/API1689; full564Rust/2397package/263coldcatalog/static/strict/publicbuild and final78governance pass. All39hosted/Node/local journeys and seven leave cases pass. Markdown814f6d2d and Mira cb8f2b2b complete their owning source gates. DesktopM16.7 is committed0dbf2307 with58native/2068catalog; current combined source/main and final provider/Tasks gates remain separate."
     },
     {
       "id": "R3.2.1.2.10.6",
