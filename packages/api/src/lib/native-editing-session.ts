@@ -50,6 +50,7 @@ export class NativeRegisteredEditingSession implements FileEditingSession {
   #admitted = false;
   #idle = false;
   #refreshPending = false;
+  #handoffFailure: { error: unknown } | undefined;
   #issue: NativeEditingIssue | undefined;
   #epoch = 0;
   readonly #pending = new Set<Promise<void>>();
@@ -239,7 +240,17 @@ export class NativeRegisteredEditingSession implements FileEditingSession {
       await this.#transition("retirement", () => this.#lease!.retire());
     else if (this.#scoped) await this.idle();
     else if (this.#protected && !this.session.dirty)
+      await this.#yieldProtected();
+  }
+
+  async #yieldProtected(): Promise<void> {
+    try {
       await this.#transition("handoff", () => this.#lease!.yield());
+      this.#handoffFailure = undefined;
+    } catch (error) {
+      this.#handoffFailure = { error };
+      throw error;
+    }
   }
 
   async protect(): Promise<() => Promise<void>> {
@@ -247,21 +258,32 @@ export class NativeRegisteredEditingSession implements FileEditingSession {
     const protection = this.session.protect();
     const release = await protection;
     this.#protected++;
-    let held = true;
+    let held = true,
+      cleanupStarted = false;
     return async () => {
       if (!held) return;
-      if (this.retiring() && !this.session.dirty && this.#lease)
+      const retry = cleanupStarted;
+      cleanupStarted = true;
+      if (this.retiring() && !this.session.dirty && this.#lease) {
         await this.#transition("retirement", () => this.#lease!.retire());
-      else if (!this.#scoped || this.session.dirty)
-        await this.#transition("rearm", async () => {
-          if (this.#lease?.yielded && !this.session.dirty)
-            this.#refreshPending = true;
-          await this.#intent().resume();
-          if (this.#refreshPending) {
-            await this.#refreshSaved();
-            this.#refreshPending = false;
-          }
-        });
+        this.#handoffFailure = undefined;
+      } else {
+        if (this.#handoffFailure) {
+          // Initial cleanup cannot turn the failed Yield into a no-op Resume.
+          if (!retry) throw this.#handoffFailure.error;
+          await this.#yieldProtected();
+        }
+        if (!this.#scoped || this.session.dirty)
+          await this.#transition("rearm", async () => {
+            if (this.#lease?.yielded && !this.session.dirty)
+              this.#refreshPending = true;
+            await this.#intent().resume();
+            if (this.#refreshPending) {
+              await this.#refreshSaved();
+              this.#refreshPending = false;
+            }
+          });
+      }
       await release();
       held = false;
       this.#protected--;

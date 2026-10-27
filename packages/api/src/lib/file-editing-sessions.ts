@@ -1,6 +1,7 @@
 import { FileTextConflictRegistry } from "./file-text-conflicts";
 import { FileEditingNativeIssues } from "./file-editing-native-issues";
 import { NativeEditingRecovery } from "./native-editing-recovery";
+import { unreportedCleanup } from "./file-editing-failures";
 import type { NativeEditingIntents } from "./native-editing-intents";
 import {
   NativeRegisteredEditingSession,
@@ -465,9 +466,12 @@ export class FileEditingSessionRegistry {
       errors.push(error);
     }
     errors.push(
-      ...(await this.#release(
-        [...this.#releases].filter((lease) => lease.barrier === barrier),
-      )),
+      ...unreportedCleanup(
+        await this.#release(
+          [...this.#releases].filter((lease) => lease.barrier === barrier),
+        ),
+        errors,
+      ),
     );
     for (const entry of entries) {
       if (![...this.#releases].some((lease) => lease.entry === entry)) {

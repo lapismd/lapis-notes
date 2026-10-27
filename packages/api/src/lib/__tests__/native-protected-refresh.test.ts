@@ -25,6 +25,8 @@ function fixture() {
     },
     async call(command) {
       commands.push(command);
+      if (command.kind === "list")
+        return { kind: "states", states: state ? [{ ...state }] : [] };
       if (command.kind === "acquire")
         state ??= {
           editor_id: command.editor_id,
@@ -95,6 +97,9 @@ function fixture() {
     state: () => state,
     locks: () => locks,
     baseline: () => baseline,
+    acknowledgeSaved: (text: string | null) => {
+      baseline = text;
+    },
     current: (text: string | null) => {
       current = text;
     },
@@ -161,6 +166,43 @@ it("does not accept an out-of-guard saved mismatch during failed admission clean
   expect(f.refresh).not.toHaveBeenCalled();
   expect(f.baseline()).toBe("saved");
   expect(f.state()).toMatchObject({ generation: 1, active: true });
+});
+
+it("retains failed handoff protection and its Problems action until explicit retry", async () => {
+  const f = fixture();
+  await f.registration.ready();
+  f.current("foreign saved");
+  const mutation = vi.fn(async () => {});
+  await expect(f.registry.guard("note.md", mutation)).rejects.toMatchObject({
+    code: "ECONFLICT",
+  });
+  expect(f.locks()).toBe(1);
+  expect(f.registry.nativeIssues.entries).toEqual([
+    expect.objectContaining({ phase: "handoff", status: "failed" }),
+  ]);
+  const captured = f.registry.nativeIssues.entries[0]!;
+  await expect(f.registry.preflightNativeRecovery()).rejects.toThrow(
+    "Unresolved editing admission",
+  );
+  await expect(f.registry.nativeIssues.retry(captured)).rejects.toMatchObject({
+    code: "ECONFLICT",
+  });
+  expect(f.locks()).toBe(1);
+  expect(f.refresh).not.toHaveBeenCalled();
+  expect(f.baseline()).toBe("saved");
+  expect(f.state()).toMatchObject({ generation: 1, active: true });
+  await expect(f.registry.nativeIssues.retry(captured)).rejects.toThrow(
+    "changed",
+  );
+  // Ordinary clean file-change projection belongs to the producer, not cleanup.
+  f.acknowledgeSaved("foreign saved");
+  await f.registry.nativeIssues.retry(f.registry.nativeIssues.entries[0]!);
+  expect(f.registry.nativeIssues.entries).toEqual([]);
+  expect(f.locks()).toBe(0);
+  expect(f.refresh).not.toHaveBeenCalled();
+  expect(f.state()).toMatchObject({ active: true, dirty: false });
+  expect(mutation).not.toHaveBeenCalled();
+  await f.registry.preflightNativeRecovery();
 });
 
 it("preserves dirty failed persistence without invoking saved-text refresh", async () => {

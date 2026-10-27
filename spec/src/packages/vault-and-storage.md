@@ -124,6 +124,7 @@ Discovery follows these rules:
 
 An admitted transform survives initial read failures; invalid transforms remain
 rejected actions. A rejected recovery projection retains the writer barrier.
+Pre-admission native failure retains Problems protection without a computed draft.
 
 ## LN-PKG-170 — Source-owned text conflict recovery
 

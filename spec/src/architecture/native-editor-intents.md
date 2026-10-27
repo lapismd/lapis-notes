@@ -58,6 +58,9 @@ Protected handoff retains these boundaries:
   file or an unconditional-write fallback.
 - Rearming precedes every local protection release, including exceptional
   operation completion. A failed rearm blocks the next guarded admission.
+- A failed protected Yield retains its local input lease and Problems issue.
+  A still-active Resume is not proof of handoff. Explicit retry revalidates the
+  original lease before rearming; clean terminal retirement remains separate.
 
 ## LN-CORE-021 — Bounded intent reconciliation
 
@@ -166,6 +169,8 @@ Recovery presentation retains these boundaries:
   performs no native calls; final unmount fences pending publication.
 - Lost acknowledgements reconcile by read-only inspection. Failures remain
   visible and stale actions cannot release newer protection.
+- A failed handoff cannot disappear through successful no-op cleanup. Retrying
+  its captured issue never invokes the rejected mutation callback.
 - Minimal real WorkspaceShell stories show recovery and failed admission without
   debug JSON, replacement screens or visual-baseline changes.
 

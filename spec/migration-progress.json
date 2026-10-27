@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 03:11:04 UTC",
+  "updated": "2026-10-27 04:41:28 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Shared feature source is qualified. Undo is committed at1c89dfb1 with exact3/affected118/API1708/cold264/all41browser/nativeUndo1 and fullspec78. Safe restore diagnostics are committed atb8466672 with596Rust/4hostedHistory/12nativeRepository; explicit Refresh snapshot repair is committed atcf7bf949 with591Rust/fullspec. Final kernel composition combines only the required R3 patches. Desktop actualONNX20API/2clock/4installedTasks and catalog1/3(636) pass. Hosted actual-model acceptance is committed at560435e7: exact type/model1/fullfamily2, Web123, cold host build and final specification78 pass. Final native kernel03b8257d passes exact/affected/strict; full597 is running. Remaining: final coherent source/host closure, current Desktop catalog/native/build and both main adoptions. R3 stays Working. Final isolated acceptance combines native03b8257d, Undo1c89dfb1, hostedmodel560435e7 and currentmain1dc93de9; exact product inputs are compared before complete coherent hosted acceptance. No R4 codec/queue product is imported."
+      "detail": "[Qualified source and current hosts](spec/records/2026-10-27-native-handoff-recovery.md): API89e81/source0e42 passes 13 focused, 158 related and all 1,716 API cases. Full source passes 20 check tasks, 20 test tasks, 11 builds, 2,438 package cases, 42 hosted journeys and canonical/78 governance checks. The current 265-case catalog/static build and Desktop 99 native cases/ordinary bundle use the same API. Native597 qualification is reused under 611 unchanged inputs, with fresh protocol/boundary checks. Waiting: complete Desktop catalog, final merged documentation and both main adoptions. Optional Docs host/UI acceptance remains separate; unknown custom callbacks remain client-dependent. R3 stays Working; R4-R7 and default cutover are unchanged."
     },
     {
       "id": "R4",

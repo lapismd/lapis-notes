@@ -145,6 +145,13 @@ IO directly without reentering the queued guard, preventing shutdown deadlock.
 
 **Requirement.** Registry guards MUST serialize callbacks, protect every matching session before flushing and admit mutation only after all protections and saves settle successfully; pathless guards MUST cover every file. Matching registration during admission or mutation MUST reject synchronously so writers can disable editing. Failed admission MUST drain all acquired releases. Callback failure MUST still release every acquired protection; failed release MUST withhold subsequent admission until cleanup succeeds.
 
+A failed native handoff retains its original release and observable issue.
+Cleanup cannot treat a still-active lease as a successful rearm. Reporting the
+same reference error from admission and cleanup preserves that error's identity;
+independent failures remain aggregated even when their messages or primitive
+values match. Explicit retry never replays the rejected callback.
+Independent writer admissions retain multiplicity even when they share an Error.
+
 ## LN-ARCH-131 — Editing-session registry shutdown
 
 <a id="ln-arch-131"></a>
