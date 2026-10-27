@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 08:07:18 UTC",
+  "updated": "2026-10-27 08:23:01 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -79,7 +79,7 @@
       "work": "AI/tools/Changes",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "R3 is complete. Qualified queue source0eec0811 is composed into main with unchanged shared/hosted/native product inputs and existing context/initial-skill foundations39a68412. Shared/source/hosted gates are closed; Tauri main intake and Root-owned installed-provider R4.1.6 remain separate. Participant host integration and native bootstrap/folder instructions are active in isolated lanes; approvals/tools/Changes/undo and later R5-R7 retain the original scope."
+      "detail": "R3 is complete. Main contains qualified queue source0eec0811 via50fb6319, plus the retained context and initial-skill foundations. Native bootstrap/folder-instruction helper00b55c51 is now composed separately with exact source/fixture equality; integrated native648/0fail/7retained ignores,75focused/strict/build/canonical78/progress115/format qualify its intake; final documentary evidence closure remains before commit. Final Tauri queue intake, Root-owned installed-provider R4.1.6, participant host integration, native bindings/skills/commands/handoff, approvals/tools/Changes/undo and laterR5-R7 retain their separate scope."
     },
     {
       "id": "R5",
@@ -839,7 +839,7 @@
       "work": "Native context, skills, commands and handoff",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Existing R4 scope. Independent source preparation begins with retained reference projection and bounded attachment reads; skills/bootstrap/commands/handoff, rich admission and both-host/provider acceptance remain pending. No default activation or new conversation persistence."
+      "detail": "Native context/attachments5cfb7ca0, initial skillsb7c2659d and bootstrap/folder instructions00b55c51 are source-qualified. All three compose in main: bootstrap intake proves exact source/fixtures/public inputs and integrated648Rust/75focused/strict/build/canonical78, with final documentary closure before commit. Discovery/versioned native binding ownership, commands/handoff, rich admission and both retained-host/provider adoption remain the original separate R4.3 gates."
     },
     {
       "id": "R4.3.1",
@@ -912,6 +912,14 @@
       "work": "Combined real-host queue workflows and retained provider gates",
       "spec": "spec/src/architecture/rust-queue-admission.md#ln-core-036",
       "detail": "Root owns final combined actual-installed-provider acceptance after coherent shared/operator and Tauri intake. Prove queue acceptance, live detach, retained outcomes, controls, explicit cold resume/no-replay and provider-default omission through both hosts using the R2 read-only isolated-vault path. Deterministic ACP/screen fixtures do not close this Waiting gate."
+    },
+    {
+      "id": "R4.3.3",
+      "area": "Native bootstrap construction",
+      "work": "Retained ancestor instructions and admitted Work bootstrap preparation",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-049",
+      "detail": "[Native bootstrap](spec/records/2026-10-27-native-bootstrap.md): original0/3 becomes3/3 with41 complete source outcomes/read traces;9 native boundaries,14 oldcontext/29 lifetime,623Rust/2438package,strict/check20/test20/build11 and canonical78 pass at53cf4bd9/6cacbda2. Two Unicode refusals retain complete source wire results. Source-only; discovery/versioned bindings, rich dispatch and both-host/provider/default gates remain separate. [Main intake](spec/records/2026-10-27-native-bootstrap-main-adoption.md) preserves the completed queue main50fb6319 and all114 prior task IDs; integrated native compile/regressions and canonical/progress/format are the current adoption boundary. Integrated main f35d9c42/3e8d passes648Rust/0fail/7retained ignores, exact3/boundary9/priorcontext14/Corequeue13/HTTPqueue8/lifetime28,strict/protocol/workspacebuild/canonical78/progress115/format with zero worker source mutations. Queue/host/browser/type/catalog inputs remain unchanged; final documentary closure follows."
     }
   ]
 }

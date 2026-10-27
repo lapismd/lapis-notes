@@ -283,3 +283,32 @@ cannot reinterpret missing snapshot selection as an empty selected snapshot.
 
 Retained queue capture, FIFO ownership, admitted controls and shared host
 metadata follow the [native queue contract](rust-queue-admission.md).
+
+## LN-CORE-049 — Retained native bootstrap construction
+
+<a id="ln-core-049"></a>
+
+**Requirement.** Native bootstrap construction MUST preserve retained static
+instructions, ancestor order, CRLF/whitespace handling, path-bearing omissions,
+portable labels, tool/skill formatting and10,000/25,000 UTF-16-unit folder
+budgets. It MUST preserve explicit formatting errors and refuse ill-formed
+Unicode before native delivery, without replacing captured instruction text.
+
+Complete source results and read traces govern representable output. If retained
+truncation splits a surrogate pair, fixtures retain its complete serialized
+source result and prove the existing native JSON String boundary rejects it.
+Native preparation refuses the same delivery rather than normalizing its text.
+
+## LN-CORE-050 — Admitted bootstrap reading lifetime
+
+<a id="ln-core-050"></a>
+
+**Requirement.** Bootstrap file reads MUST borrow the accepted Work's existing
+vault authority, preserve regular-file/UTF-8/physical-root guards and check
+cancellation before and after reads. Detach MUST NOT revoke accepted work;
+explicit close MUST fence late bootstrap delivery and drain its existing lease.
+Preparation MUST NOT write files, start a provider or add a scheduler.
+
+The reader remains Rust-only. Host paths, directory handles and callbacks never
+become renderer authority. Native scope validation precedes file access, and
+missing AGENTS.md remains distinct from invalid or denied native input.
