@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 01:35:07 UTC",
+  "updated": "2026-10-27 01:46:34 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -71,7 +71,7 @@
       "work": "Indexed vault",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-003",
-      "detail": "Combined current-main/file-icon/R3 source 9c9705f0 passes 587 Rust, 2,427 package, 264 cold catalog/static and all runner/controller checks. All five actual-model cases are retained by exact native/runtime/model identity. Run 9c9731fd is completing 41 browser journeys and final specification closure; source and both main adoptions remain pending. Desktop passes fresh 535 Node/744 AI, 260 Mac services and both strict configurations; the built app is qualifying a readonly-invoke acceptance-probe repair before actual Reader/Tasks acceptance. Combined provider/timezone/unattended acceptance still gates R3."
+      "detail": "Frozen 9c9705f0 passes full source: 587 Rust, 2,427 package, 264 cold catalog, 41 browser journeys and full specification/78 governance; five actual models retain exact qualified inputs. Actual Desktop acceptance exposed a related Core History query/background-index race and missing default daily-provider registration in the real App. Core serialization/regression is active; Desktop provider/lifecycle is repaired and final UI/catalog qualification is pending. The e2e readonly-invoke probe is fixed with both original startup cases passing. R3 remains Working until repair qualification, current both-host/native gates and main adoptions finish."
     },
     {
       "id": "R4",
