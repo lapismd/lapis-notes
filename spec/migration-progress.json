@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 08:23:01 UTC",
+  "updated": "2026-10-27 08:30:55 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -79,7 +79,7 @@
       "work": "AI/tools/Changes",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "R3 is complete. Main contains qualified queue source0eec0811 via50fb6319, plus the retained context and initial-skill foundations. Native bootstrap/folder-instruction helper00b55c51 is now composed separately with exact source/fixture equality; integrated native648/0fail/7retained ignores,75focused/strict/build/canonical78/progress115/format qualify its intake; final documentary evidence closure remains before commit. Final Tauri queue intake, Root-owned installed-provider R4.1.6, participant host integration, native bindings/skills/commands/handoff, approvals/tools/Changes/undo and laterR5-R7 retain their separate scope."
+      "detail": "R3 is complete. Main adopts queue source0eec0811 at50fb6319 and bootstrap source00b55c51 atb2034168, preserving retained context/initial-skill foundations and all115 task IDs. Combined native648/0fail/7retained ignores,75focused/strict/build/canonical78/progress115/format pass. Final Tauri queue intake and Root-coordinated installed-provider R4.1.6, participant host integration, native bindings/skills/commands/handoff, approvals/tools/Changes/undo and R5-R7 remain separate."
     },
     {
       "id": "R5",
@@ -839,7 +839,7 @@
       "work": "Native context, skills, commands and handoff",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "Native context/attachments5cfb7ca0, initial skillsb7c2659d and bootstrap/folder instructions00b55c51 are source-qualified. All three compose in main: bootstrap intake proves exact source/fixtures/public inputs and integrated648Rust/75focused/strict/build/canonical78, with final documentary closure before commit. Discovery/versioned native binding ownership, commands/handoff, rich admission and both retained-host/provider adoption remain the original separate R4.3 gates."
+      "detail": "Context/attachments5cfb7ca0, initial skillsb7c2659d and bootstrap/folder instructions00b55c51 are source-qualified and adopted in main, latestb2034168. Integrated648Rust/75focused/strict/build/canonical78 and final115-row/progress/format pass. Discovery/versioned native binding ownership, commands/handoff, rich admission and both retained-host/provider adoption remain the original separate R4.3 gates."
     },
     {
       "id": "R4.3.1",
@@ -895,7 +895,7 @@
       "area": "Shared queue hosts",
       "work": "Existing chat projection, retained controls and trusted operator capture metadata",
       "spec": "spec/src/architecture/rust-queue-admission.md#ln-core-036",
-      "detail": "[Qualified shared source and hosted acceptance](spec/records/2026-10-27-native-queue-hosts.md): native622/0fail/7retained ignores; exact hosted1/full9, shared32/Web9, full check20/test20/build11,2451package/API1716,canonical78/progress/format,all265cold catalog/static and Docs6 pass. AgentUI58bd composite producer closure proves all333public members exact to qualified output; final dependency provenance is closed. APIef8170a6/AppProfilefe45dedb retain public-input receipts and old0e792 runtime equivalence. Coherent both-main/Tauri adoption and Root-owned installed-provider R4.1.6 remain separate. [Main intake](spec/records/2026-10-27-native-queue-main-adoption.md) composes this immutable source with current main39a68412 while preserving all107 prior task IDs and context/initial-skill product bytes; fresh documentary canonical/progress/format gate is the adoption boundary."
+      "detail": "[Qualified shared source and hosted acceptance](spec/records/2026-10-27-native-queue-hosts.md): native622/0fail/7retained ignores; exact hosted1/full9, shared32/Web9, full check20/test20/build11,2451package/API1716,canonical78/progress/format,all265cold catalog/static and Docs6 pass. AgentUI58bd composite producer closure proves all333public members exact to qualified output; final dependency provenance is closed. APIef8170a6/AppProfilefe45dedb retain public-input receipts and old0e792 runtime equivalence. Coherent both-main/Tauri adoption and Root-owned installed-provider R4.1.6 remain separate. [Main intake](spec/records/2026-10-27-native-queue-main-adoption.md) composes this immutable source with current main39a68412 while preserving all107 prior task IDs and context/initial-skill product bytes; fresh documentary canonical/progress/format gate is the adoption boundary. Main adoption is committed50fb6319; complete canonical78/progress114/format gate passes at56414221/a15ebc66 with exact product/fixture/public-input transfer."
     },
     {
       "id": "R4.1.5",
@@ -919,7 +919,7 @@
       "work": "Retained ancestor instructions and admitted Work bootstrap preparation",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-049",
-      "detail": "[Native bootstrap](spec/records/2026-10-27-native-bootstrap.md): original0/3 becomes3/3 with41 complete source outcomes/read traces;9 native boundaries,14 oldcontext/29 lifetime,623Rust/2438package,strict/check20/test20/build11 and canonical78 pass at53cf4bd9/6cacbda2. Two Unicode refusals retain complete source wire results. Source-only; discovery/versioned bindings, rich dispatch and both-host/provider/default gates remain separate. [Main intake](spec/records/2026-10-27-native-bootstrap-main-adoption.md) preserves the completed queue main50fb6319 and all114 prior task IDs; integrated native compile/regressions and canonical/progress/format are the current adoption boundary. Integrated main f35d9c42/3e8d passes648Rust/0fail/7retained ignores, exact3/boundary9/priorcontext14/Corequeue13/HTTPqueue8/lifetime28,strict/protocol/workspacebuild/canonical78/progress115/format with zero worker source mutations. Queue/host/browser/type/catalog inputs remain unchanged; final documentary closure follows."
+      "detail": "[Native bootstrap](spec/records/2026-10-27-native-bootstrap.md): original0/3 becomes3/3 with41 complete source outcomes/read traces;9 native boundaries,14 oldcontext/29 lifetime,623Rust/2438package,strict/check20/test20/build11 and canonical78 pass at53cf4bd9/6cacbda2. Two Unicode refusals retain complete source wire results. Source-only; discovery/versioned bindings, rich dispatch and both-host/provider/default gates remain separate. [Main intake](spec/records/2026-10-27-native-bootstrap-main-adoption.md) preserves the completed queue main50fb6319 and all114 prior task IDs; integrated native compile/regressions and canonical/progress/format are the current adoption boundary. Integrated main f35d9c42/3e8d passes648Rust/0fail/7retained ignores, exact3/boundary9/priorcontext14/Corequeue13/HTTPqueue8/lifetime28,strict/protocol/workspacebuild/canonical78/progress115/format with zero worker source mutations. Queue/host/browser/type/catalog inputs remain unchanged; Final documentary53360d15/b87af2ee passes complete canonical78/progress115/format with exact checked-tree equality; main adoption is committedb2034168."
     }
   ]
 }
