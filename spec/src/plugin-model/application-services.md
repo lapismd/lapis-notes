@@ -118,3 +118,5 @@ delivery, rather than gaining a second metadata writer to repair ordering.
 Native editing Problems under LN-CORE-027 are App-owned service diagnostics.
 They do not give a plugin claim ownership or a second persistence path; local
 retry and native captured-state actions remain within App operation admission.
+
+Native participant hosts follow [LN-CORE-048](../architecture/rust-participants.md#ln-core-048): adapt declared logical profiles and retained receipts into the existing complete Agent screen. Native publication remains the only writer; passive view lifetime never owns accepted work.

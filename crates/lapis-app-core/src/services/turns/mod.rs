@@ -4,6 +4,7 @@ mod conversation;
 mod execution;
 mod history;
 mod launch;
+mod participants;
 mod queue;
 mod storage;
 mod worker;
@@ -13,6 +14,9 @@ use lapis_ai_service::{ExecutionSession, runtime::SessionRequest};
 use lapis_app_protocol::{
     ErrorCode,
     turns::{TurnInput, TurnRecord, TurnSummary},
+};
+pub use participants::{
+    ParticipantDelivery, ParticipantMessage, ParticipantMessageInput, ParticipantState,
 };
 pub use queue::{QueueEntry, QueueInput, QueuePhase, TurnQueue};
 use std::{
@@ -38,9 +42,11 @@ struct Data {
     jobs: HashMap<Uuid, Arc<Job>>,
     enabled: bool,
     queues: queue::Queues,
+    participants: Option<participants::Messages>,
 }
 struct Job {
     queued: Option<queue::Delivery>,
+    participant: Option<participants::Delivery>,
     work: Arc<Work>,
     cancel: watch::Sender<bool>,
     done: AtomicBool,
@@ -94,6 +100,7 @@ impl Client {
                     data: Mutex::new(Data {
                         journal,
                         queues,
+                        participants: None,
                         jobs: HashMap::new(),
                         enabled: true,
                     }),
@@ -144,7 +151,8 @@ impl Client {
                     "Native prompt exceeds runtime limits",
                 )
             })?;
-        let selected = launch::select(&owner, &work, &input)?;
+        let mut selected = launch::select(&owner, &work, &input)?;
+        participants::acknowledge_history(&mut data, &owner.storage, &work, &mut selected.history)?;
         let admitted = data.journal.accept(input).map_err(|error| {
             if error.kind() == std::io::ErrorKind::WouldBlock {
                 Error::busy()
@@ -157,6 +165,7 @@ impl Client {
         };
         let job = Arc::new(Job {
             queued: None,
+            participant: None,
             work: Arc::new(work),
             cancel: watch::channel(false).0,
             done: AtomicBool::new(false),
@@ -178,6 +187,9 @@ impl VaultService {
             data.queues.pause("vault_retired")?;
             data.queues.store.retire()?;
             data.journal.retire()?;
+            if let Some(participants) = &mut data.participants {
+                participants.store.retire()?;
+            }
         }
         slot.take();
         Ok(())

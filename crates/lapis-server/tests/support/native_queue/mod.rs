@@ -91,6 +91,7 @@ impl Fixture {
                 profile,
                 if selected {
                     vec![AgentConfig {
+                        participant_selections: Vec::new(),
                         queue_selection: Some(serde_json::from_value(json!({
                             "recipient":{"id":"writer","label":"Writer","token":"jj-store-agent:777269746572;"},
                             "target":{"id":"writer","agent":"local","thinking":"default"}

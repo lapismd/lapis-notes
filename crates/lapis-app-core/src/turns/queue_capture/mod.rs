@@ -1,8 +1,9 @@
 //! Retained data compatibility only. This module creates no dispatch authority.
 mod comments;
-mod fields;
+pub(crate) mod fields;
 mod receipt;
-mod selection;
+pub(crate) mod selection;
+mod user;
 use fields::*;
 use serde::Serialize;
 use serde_json::{Value, json};
@@ -54,46 +55,7 @@ pub fn validate_message(value: Value) -> Result<QueueCapture> {
     } else if value.get("dispatchId").is_some() {
         return fail("Unstarted queue item cannot retain a dispatch");
     }
-    let user = &value["user"];
-    record(user, "Queued authored message")?;
-    fields(
-        user,
-        &[
-            "schemaVersion",
-            "id",
-            "type",
-            "role",
-            "text",
-            "recipients",
-            "createdAt",
-            "contextBlocks",
-            "provenance",
-        ],
-    )?;
-    if user["schemaVersion"] != 3
-        || user["type"] != "message"
-        || user["role"] != "user"
-        || user["text"].as_str().is_none_or(|s| s.len() > 32768)
-    {
-        return fail("Invalid queued authored message");
-    }
-    string(user, "id", "Queued authored message")?;
-    timestamp(user, "createdAt", "Queued authored message")?;
-    if let Some(provenance) = user.get("provenance") {
-        record(provenance, "Queued provenance")?;
-        fields(provenance, &["originClass", "sourceKind"])?;
-        if provenance["originClass"] != "owner" || provenance["sourceKind"] != "user-message" {
-            return fail("Invalid queued message provenance");
-        }
-    }
-    let ids = selection::recipients(user.get("recipients"))?;
-    let comments = comments::comments(user.get("contextBlocks"))?;
-    if ids.is_empty()
-        || (crate::text::trim(user["text"].as_str().expect("validated text")).is_empty()
-            && comments == 0)
-    {
-        return fail("Queued message requires recipients and authored content");
-    }
+    let ids = user::validate(&value["user"])?;
     selection::selection(&value["selection"], &ids)?;
     Ok(QueueCapture(value))
 }
@@ -143,3 +105,20 @@ pub fn configuration_frame(input: &Value, provider: &str) -> Result<Value> {
     Ok(result)
 }
 pub use receipt::{QueueReceipt, create_receipt, validate_receipt};
+
+pub(crate) fn validate_user(user: &Value) -> Result<Vec<String>> {
+    user::validate(user)
+}
+
+/// Validate installation-declared captured choices with the retained source codec.
+/// This projection grants no launch or provider authority.
+pub fn validate_declared_selection(
+    declared: &lapis_app_protocol::queues::QueueSelection,
+) -> Result<()> {
+    let ids = selection::recipients(Some(&json!([declared.recipient])))?;
+    let mut choices = json!({"targets":[declared.target],"runtime":"acp","attachments":[]});
+    if let Some(thinking) = &declared.thinking {
+        choices["thinking"] = json!(thinking);
+    }
+    selection::selection(&choices, &ids)
+}

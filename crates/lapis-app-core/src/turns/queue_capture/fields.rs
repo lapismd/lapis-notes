@@ -1,19 +1,19 @@
 use super::{CaptureError, Result};
 use serde_json::{Map, Value};
 
-pub(super) fn fail<T>(message: impl Into<String>) -> Result<T> {
+pub(crate) fn fail<T>(message: impl Into<String>) -> Result<T> {
     Err(CaptureError {
         name: "Error".into(),
         message: message.into(),
     })
 }
-pub(super) fn record<'a>(value: &'a Value, label: &str) -> Result<&'a Map<String, Value>> {
+pub(crate) fn record<'a>(value: &'a Value, label: &str) -> Result<&'a Map<String, Value>> {
     value.as_object().ok_or_else(|| CaptureError {
         name: "Error".into(),
         message: format!("{label} must be an object"),
     })
 }
-pub(super) fn string<'a>(value: &'a Value, key: &str, label: &str) -> Result<&'a str> {
+pub(crate) fn string<'a>(value: &'a Value, key: &str, label: &str) -> Result<&'a str> {
     value
         .get(key)
         .and_then(Value::as_str)
@@ -23,7 +23,7 @@ pub(super) fn string<'a>(value: &'a Value, key: &str, label: &str) -> Result<&'a
             message: format!("{label}.{key} must be a non-empty string"),
         })
 }
-pub(super) fn fields(value: &Value, keys: &[&str]) -> Result<()> {
+pub(crate) fn fields(value: &Value, keys: &[&str]) -> Result<()> {
     if value
         .as_object()
         .is_some_and(|o| o.keys().any(|k| !keys.contains(&k.as_str())))
@@ -32,19 +32,19 @@ pub(super) fn fields(value: &Value, keys: &[&str]) -> Result<()> {
     }
     Ok(())
 }
-pub(super) fn utf16(value: &str) -> usize {
+pub(crate) fn utf16(value: &str) -> usize {
     value.encode_utf16().count()
 }
-pub(super) fn bytes(value: &Value) -> usize {
+pub(crate) fn bytes(value: &Value) -> usize {
     serde_json::to_vec(value).expect("JSON value").len()
 }
-pub(super) fn safe_integer(value: &Value) -> Option<u64> {
+pub(crate) fn safe_integer(value: &Value) -> Option<u64> {
     value
         .as_f64()
         .filter(|n| *n >= 0.0 && *n <= 9_007_199_254_740_991.0 && n.fract() == 0.0)
         .map(|n| n as u64)
 }
-pub(super) fn thinking(value: Option<&Value>, label: &str) -> Result<()> {
+pub(crate) fn thinking(value: Option<&Value>, label: &str) -> Result<()> {
     if value.is_some_and(|v| {
         !v.is_null()
             && !["default", "off", "low", "medium", "high"]
@@ -55,7 +55,7 @@ pub(super) fn thinking(value: Option<&Value>, label: &str) -> Result<()> {
     }
     Ok(())
 }
-pub(super) fn timestamp(value: &Value, key: &str, label: &str) -> Result<()> {
+pub(crate) fn timestamp(value: &Value, key: &str, label: &str) -> Result<()> {
     use chrono::{DateTime, Days, NaiveDate};
     let raw = string(value, key, label)?;
     let normalized = raw
@@ -83,7 +83,7 @@ pub(super) fn timestamp(value: &Value, key: &str, label: &str) -> Result<()> {
     }
     Ok(())
 }
-pub(super) fn one_of(value: &Value, values: &[&str]) -> bool {
+pub(crate) fn one_of(value: &Value, values: &[&str]) -> bool {
     // Retained validators explicitly use String(...) for these enum checks.
     fn text(value: &Value) -> String {
         match value {

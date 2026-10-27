@@ -120,6 +120,7 @@ export function createRustHostedBackend(
             !app.safeMode.disableOptionalCorePlugins,
           activate: async () => {},
           call: (command) => client.turns(command),
+          participants: { call: (command) => client.participants(command) },
           queue: {
             call: (command) => client.queues(command),
             selection: async (targetId) => {

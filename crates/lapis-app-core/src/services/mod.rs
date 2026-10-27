@@ -1,6 +1,7 @@
 //! One vault owns IO and admitted work; clients only hold scoped attachments.
 mod agent_bootstrap;
 mod agent_context;
+mod agent_skills;
 mod backup;
 mod byte_writes;
 mod client;
@@ -41,5 +42,8 @@ pub use tasks::{
     TaskLifecycleStatus, TaskLifecycleWrite, TaskObservationWrite, TaskRecoveryError, TaskStorage,
     TaskWriteError, TaskWriteResult,
 };
-pub use turns::{AgentPolicy, QueueEntry, QueueInput, QueuePhase, TurnQueue, TurnStorage};
+pub use turns::{
+    AgentPolicy, ParticipantDelivery, ParticipantMessage, ParticipantMessageInput,
+    ParticipantState, QueueEntry, QueueInput, QueuePhase, TurnQueue, TurnStorage,
+};
 pub use work::Work;

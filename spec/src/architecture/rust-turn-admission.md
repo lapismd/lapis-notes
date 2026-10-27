@@ -312,3 +312,43 @@ Preparation MUST NOT write files, start a provider or add a scheduler.
 The reader remains Rust-only. Host paths, directory handles and callbacks never
 become renderer authority. Native scope validation precedes file access, and
 missing AGENTS.md remains distinct from invalid or denied native input.
+
+## LN-CORE-051 — Retained native skill parsing
+
+<a id="ln-core-051"></a>
+
+**Requirement.** Native skill parsing MUST preserve retained frontmatter validation,
+name grammar, invocation flags, tool dispatch, namespaced requirements, trimmed
+instructions and UTF-16 FNV-1a content versions. Invalid files MUST retain their
+explicit source parse errors. Parsing MUST NOT execute skill text or callbacks.
+
+The existing YAML dependency is reused. Complete source results, including
+Unicode, YAML shape/errors and optional fields, govern the native contract.
+
+## LN-CORE-052 — Native discovery precedence and diagnostics
+
+<a id="ln-core-052"></a>
+
+**Requirement.** Native discovery MUST retain folder/vault/user/registered/bundled
+precedence, same-level duplicate handling, registration order, eligibility and
+complete diagnostics. File discovery MUST exclude script/reference subtrees and
+escaping source roots. Registered declarative values MUST NOT grant executable
+callback or filesystem authority.
+
+Native readers borrow accepted Work authority and retain cancellation, physical
+root and regular-file/UTF-8 guards. Missing optional roots remain absent; denied
+or invalid IO does not become an empty successful catalog.
+
+## LN-CORE-053 — Versioned native skill snapshots
+
+<a id="ln-core-053"></a>
+
+**Requirement.** Native skill registries MUST retain immutable snapshots, exact
+version lookup, activation arguments and historical instructions after current
+skills change or invalidate. Binding snapshots MUST remain vault-owned across
+client detach. Close MUST fence late preparation and drain accepted work; restore
+MUST NOT execute skills or replay a prompt.
+
+Pure registry/source qualification and actual rich-dispatch/host/provider gates
+remain separate. Snapshot labels, versions and instructions are context values,
+never a replacement for native admission or application-tool authorization.

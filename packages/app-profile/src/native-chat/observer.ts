@@ -9,6 +9,7 @@ import { active, conversation, directory } from "./conversation";
 import type { NativeChatSession } from "./session";
 import { NativeChatMetadata } from "./metadata";
 import { NativeChatQueueObserver } from "./queue-observer";
+import { NativeChatParticipantObserver } from "./participant-observer";
 import { nativeSendTarget, refused } from "./send";
 
 /** One view's read-only projection. Native commands retain all durable authority. */
@@ -19,6 +20,8 @@ export class NativeChatObserver implements AgentPort {
   #firsts = new Map<string, TurnSummary>();
   #metadata: NativeChatMetadata;
   #queue: NativeChatQueueObserver;
+  #participants: NativeChatParticipantObserver;
+  #records: TurnSummary[] = [];
   #scope: string;
   #closed = false;
   #tail = Promise.resolve();
@@ -36,6 +39,7 @@ export class NativeChatObserver implements AgentPort {
     this.#scope = options.initialScope ?? "";
     this.#metadata = new NativeChatMetadata(session);
     this.#queue = new NativeChatQueueObserver(session);
+    this.#participants = new NativeChatParticipantObserver(session);
   }
   resolveRecipients(input: { selected: readonly string[] }): readonly string[] {
     return input.selected.length ? input.selected : [this.options.target()];
@@ -58,12 +62,14 @@ export class NativeChatObserver implements AgentPort {
     });
   }
   async #snapshot(): Promise<AgentSnapshot> {
-    const [list, targets] = await Promise.all([
+    const [list, targets, participants] = await Promise.all([
       this.session.call({ kind: "list" }),
       this.session.call({ kind: "targets" }),
+      this.#participants.catalog(),
     ]);
     if (list.kind !== "records" || targets.kind !== "targets")
       throw new Error("Native chat state is unavailable");
+    this.#records = list.records;
     this.#heads.clear();
     this.#firsts.clear();
     for (const record of list.records) {
@@ -90,6 +96,7 @@ export class NativeChatObserver implements AgentPort {
       items: [],
     }));
     const head = this.#heads.get(this.selected);
+    const receipt = await this.#participants.read(head);
     if (head) {
       const value = await this.session.call({
         kind: "read",
@@ -97,7 +104,15 @@ export class NativeChatObserver implements AgentPort {
       });
       if (value.kind !== "record" || !value.record)
         throw new Error("Native conversation is unavailable");
-      const saved = await conversation(this.session, head, value.record);
+      const saved = await conversation(
+        this.session,
+        head,
+        value.record,
+        receipt,
+      );
+      if (receipt?.input.profiles?.[0])
+        sessions.find((row) => row.id === this.selected)!.agent =
+          receipt.input.profiles[0].selection.recipient.id;
       Object.assign(sessions.find((row) => row.id === this.selected)!, saved);
     } else if (this.selected !== this.#draft) {
       throw new Error("The selected native conversation is unavailable");
@@ -106,36 +121,51 @@ export class NativeChatObserver implements AgentPort {
       sessions.unshift({
         id: this.#draft,
         title: "New conversation",
-        agent: this.options.target() || targets.targets[0]?.id || "",
+        agent:
+          this.options.target() ||
+          participants[0]?.id ||
+          targets.targets[0]?.id ||
+          "",
         updatedAt: "",
         status: "active",
         scope: this.#scope,
         items: [],
       });
-    const running = !!head && active(head.phase),
-      busy = heads.some((row) => active(row.phase));
+    const running =
+        !!head &&
+        (this.#records.some(
+          (row) =>
+            row.conversation_id === head.conversation_id && active(row.phase),
+        ) ||
+          this.#participants.busy(head)),
+      busy = this.#records.some((row) => active(row.phase));
     const queue = await this.#queue.read(head);
     const selectedBusy = running || !!queue.queueState?.running;
     const vaultBusy = busy || !!queue.queueState?.running;
     const canSend =
       !!targets.targets.length &&
+      !this.#participants.uncertain &&
       !this.#queue.paused(head) &&
       (!vaultBusy ||
         (!!head &&
+          !this.#participants.declared &&
+          !this.#participants.has(head) &&
           this.session.hasQueue &&
           !!(await this.session.queueSelection(
             this.options.target() || head.target_id,
           ))));
     const snapshot: AgentSnapshot = {
       sessions,
-      agents: targets.targets.map((target) => ({
-        id: target.id,
-        name: target.label,
-        enabled: true,
-        description: "",
-        provider: "Native ACP",
-        model: "",
-      })),
+      agents: participants.length
+        ? participants
+        : targets.targets.map((target) => ({
+            id: target.id,
+            name: target.label,
+            enabled: true,
+            description: "",
+            provider: "Native ACP",
+            model: "",
+          })),
       catalog: [],
       imports: [],
       requests: [],
@@ -187,7 +217,9 @@ export class NativeChatObserver implements AgentPort {
           reason: "No native conversation is selected",
         };
       try {
-        if (this.session.hasQueue && this.#queue.has(head))
+        if (action.kind === "stop" && (await this.#participants.stop(head))) {
+          // Native participant Stop addresses the acceptance and all its siblings.
+        } else if (this.session.hasQueue && this.#queue.has(head))
           await this.#queue.control(action, head);
         else if (action.kind === "stop" && active(head.phase))
           await this.session.call({
@@ -210,6 +242,41 @@ export class NativeChatObserver implements AgentPort {
         reason: "This action is not available in native chat yet",
       };
     const head = this.#heads.get(action.session ?? this.selected);
+    try {
+      await this.#participants.catalog();
+      if (
+        this.#participants.uncertain &&
+        !this.#participants.pending(action.id)
+      )
+        return {
+          status: "refused",
+          reason:
+            "Inspect the original participant acceptance before sending another message",
+        };
+      if (
+        this.#participants.declared ||
+        this.#participants.pending(action.id)
+      ) {
+        if (
+          !this.#participants.pending(action.id) &&
+          (this.#records.some((row) => active(row.phase)) ||
+            this.#participants.busy(head))
+        )
+          return {
+            status: "refused",
+            reason: "Wait for the current native participants to finish",
+          };
+        this.selected = await this.#participants.accept(
+          action,
+          head?.scope_dir ?? this.#scope,
+          this.options.target(),
+          head,
+        );
+        return { status: "acknowledged", snapshot: await this.#snapshot() };
+      }
+    } catch (error) {
+      return refused(error);
+    }
     let target;
     try {
       target = await nativeSendTarget(
@@ -219,6 +286,7 @@ export class NativeChatObserver implements AgentPort {
       );
       if (
         head &&
+        !this.#participants.has(head) &&
         this.session.hasQueue &&
         (await this.#queue.accept(action, head, target))
       ) {
@@ -227,7 +295,7 @@ export class NativeChatObserver implements AgentPort {
     } catch (error) {
       return refused(error);
     }
-    if ([...this.#heads.values()].some((row) => active(row.phase)))
+    if (this.#records.some((row) => active(row.phase)))
       return {
         status: "refused",
         reason: "Wait for the current native turn to finish",
@@ -265,6 +333,12 @@ export class NativeChatObserver implements AgentPort {
   }
   status(id: string): Promise<AgentOutcome> {
     return this.#run(async () => {
+      if (this.#participants.pending(id)) {
+        const conversation = await this.#participants.status(id);
+        if (!conversation) return { status: "unknown" };
+        this.selected = conversation;
+        return { status: "acknowledged", snapshot: await this.#snapshot() };
+      }
       if (this.#queue.pending(id)) {
         const conversation = await this.#queue.status(id);
         if (!conversation) return { status: "unknown" };

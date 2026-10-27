@@ -5,6 +5,9 @@ import type {
   QueueValue,
   TurnCommand,
   TurnValue,
+  NativeParticipantService,
+  ParticipantCommand,
+  ParticipantValue,
 } from "@lapis-notes/api/native-turns";
 
 import type { NativeQueueSelection } from "./queue-capture";
@@ -16,6 +19,7 @@ export interface NativeChatQueue extends NativeQueueService {
 export type NativeChatLeave = "detach" | "close" | "disable";
 export interface NativeChatHost extends NativeTurnService {
   queue?: NativeChatQueue;
+  participants?: NativeParticipantService;
   allowed(): boolean;
   activate(): Promise<void>;
   leave(reason: NativeChatLeave): Promise<void>;
@@ -58,6 +62,18 @@ export class NativeChatSession {
   }
   get hasQueue(): boolean {
     return !!this.host.queue;
+  }
+  get hasParticipants(): boolean {
+    return !!this.host.participants;
+  }
+  async participant(command: ParticipantCommand): Promise<ParticipantValue> {
+    await this.open();
+    this.live();
+    if (!this.host.participants)
+      throw new Error("Native participants are unavailable");
+    const value = await this.host.participants.call(command);
+    this.live();
+    return value;
   }
   async queue(command: QueueCommand): Promise<QueueValue> {
     await this.open();

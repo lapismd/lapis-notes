@@ -7,6 +7,22 @@ Canonical requirements live in
 [Rust application services](spec/src/architecture/rust-application-services.md).
 [MIGRATION.md](MIGRATION.md) links completion status and owning evidence.
 
+## Current delivery priority — 2026-10-27
+
+Finish the in-flight participant/native-skill integration and its acceptance.
+Then prioritize [R7 hosted cutover](RUST_HOSTED_CUTOVER_PLAN.md) and repair the
+remaining deferred test failures in their owning packages. R5 native memory jobs
+and R6 durable-operation ownership are **Deferred until after cutover**. Their
+existing storage/features remain; neither stage is marked complete or a cutover
+prerequisite.
+
+Remaining R4 behavior is recorded explicitly. Work on it before cutover only
+when needed to preserve the qualified serving profile, repair an acceptance
+failure or remove a Node/companion dependency. The cutover must not silently
+accept/drop unsupported payloads, replace public screens or waive writer,
+authority, no-replay, browser or platform checks. Deferred native ownership and
+unfinished feature parity remain visible after the runtime switch.
+
 ## Goal and audited boundaries
 
 Move durable application behaviour out of window-owned controllers. Tauri embeds
@@ -85,18 +101,18 @@ Each complete part has an acceptance gate, owning evidence and a Jujutsu commit.
 The numbered parts below make the first extraction independently reviewable
 without claiming the whole vault or server slice has shipped.
 
-| Slice | Deliverable                                                                                             | Acceptance gate                                                                                                         |
-| ----- | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| R0    | Save plan, source review, retained-work mapping and ownership guidance                                  | Formatting, specification checks and truthful ledger                                                                    |
-| R1.1  | Extract existing native vault file engine into Notes-owned core; desktop consumes it directly           | Real-file conformance, conditional/crash/escape tests and desktop native regression checks; no duplicate implementation |
-| R1.2  | Shared protocol, admitted vault/writer owner and service lifetime                                       | Competing clients, revoke/drain, detach/reconnect and conditional publication                                           |
-| R1.3  | Tauri and authenticated Rust HTTP adapters, existing shell read/edit and native backup ownership        | Same file actions through both hosts; backup after client detach and controlled Quit                                    |
-| R2    | One durable ACP conversation through existing chat                                                      | Real accepted turn completes with no client; reconnect/cold restart without replay                                      |
-| R3    | Native AppDatabase, metadata/projection/Search reconciliation and history-index scheduling              | Index external changes with no client; equivalent query results and cache rebuilds                                      |
-| R4    | Queues, participants, skills/context/handoff, approvals, native tools and Changes/undo                  | Existing desktop scenarios through both transports, including conflict and uncertain outcomes                           |
-| R5    | Native memory capture/recall, claims, schedules, forget and relocation                                  | Unattended maintenance, no duplicate job, handwritten edits and cold recovery                                           |
-| R6    | Imports/capture, existing Forge/transfer and Compute jobs, installation transactions, terminal lifetime | Qualify each operation's detach/progress/cancel/interrupted-publication behaviour                                       |
-| R7    | Complete Rust hosted access and retire Node/companion/obsolete desktop orchestration                    | Complete hosted/desktop journeys, Linux packaging and standalone-browser regression checks                              |
+| Slice | Deliverable                                                                                                  | Acceptance gate                                                                                                                                   |
+| ----- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R0    | Save plan, source review, retained-work mapping and ownership guidance                                       | Formatting, specification checks and truthful ledger                                                                                              |
+| R1.1  | Extract existing native vault file engine into Notes-owned core; desktop consumes it directly                | Real-file conformance, conditional/crash/escape tests and desktop native regression checks; no duplicate implementation                           |
+| R1.2  | Shared protocol, admitted vault/writer owner and service lifetime                                            | Competing clients, revoke/drain, detach/reconnect and conditional publication                                                                     |
+| R1.3  | Tauri and authenticated Rust HTTP adapters, existing shell read/edit and native backup ownership             | Same file actions through both hosts; backup after client detach and controlled Quit                                                              |
+| R2    | One durable ACP conversation through existing chat                                                           | Real accepted turn completes with no client; reconnect/cold restart without replay                                                                |
+| R3    | Native AppDatabase, metadata/projection/Search reconciliation and history-index scheduling                   | Index external changes with no client; equivalent query results and cache rebuilds                                                                |
+| R4    | Queues, participants, skills/context/handoff, approvals, native tools and Changes/undo                       | Existing desktop scenarios through both transports, including conflict and uncertain outcomes                                                     |
+| R5    | Deferred after cutover: native memory capture/recall, claims, schedules, forget and relocation               | Keep storage/current behavior; later qualify unattended maintenance, handwritten edits and cold recovery                                          |
+| R6    | Deferred after cutover: durable imports/capture, Forge/transfer/Compute, installation and terminal ownership | Retain current functionality; later qualify service-owned detach/progress/cancel/recovery                                                         |
+| R7    | Priority: make Rust the hosted default and retire Node/companion application runtime                         | Qualified serving-profile journeys, Linux delivery, Desktop/local-browser checks and repaired deferred test gates; explicit retained feature gaps |
 
 R1.3 shell acceptance depends on the existing high-level AppDatabase method
 catalogue. Bring that native database facade portion of R3 forward to connect
@@ -141,6 +157,31 @@ checkpoints divide that scope and do not change defaults or grant feature comple
 | R4.4 | Native approvals and first-party application tools                                             | Preserve exact offered option IDs, current approval policy, cancellation/unknown effects and source authorization; execute supported first-party tools without JavaScript clients.                                                                                   |
 | R4.5 | Changes/guarded undo and complete both-host workflow acceptance                                | Reuse exact operation/revision pins and the R3 writer/intent guard; qualify retained public screens, rich workflow payloads, detach and cold recovery through both transports.                                                                                       |
 
+R4.2.1 is a source-only participant/publication checkpoint: retain one authored
+message and its dispatch/delivery captures, native request/binding association,
+independent terminal outcomes and exact shared conversation revisions. Existing
+ordinary turns and FIFO selection retain their single-lane behavior. Only a
+fresh explicit native participant acceptance can coordinate several workers;
+cold restore projects unknown/not-sent without dispatch. This introduces no
+host/UI selection, provider resume, second queue or execution engine. R4/R4.1
+and actual both-host participant adoption retain their original gates.
+
+R4.2.2 is the generated participant accept/read/Stop/cancel source transport.
+It preserves complete captures and native identity associations under the existing
+admitted HTTP/client boundary, with no automatic retry after a lost reply. Stop
+addresses one acceptance; per-delivery cancellation retains its exact native
+request association. Native logical-profile resolution, Tauri/shared host adoption
+and complete both-host/provider workflows remain separate R4.2 gates.
+
+R4.2.3 source qualification is retained in the
+[shared/hosted evidence](spec/records/2026-10-27-native-participant-host.md). It
+adapts declared logical profiles and participant receipts into the existing
+shared Agent screen and hosted native client. Read-only native-request discovery
+supports fresh observers; optional complete profile snapshots preserve choices.
+It introduces no catalog store or renderer writer. Busy multi-recipient queue
+interop, complete profile editing, Tauri/provider and whole-workflow acceptance
+retain their original gates.
+
 R4.1 starts with the currently declared single-recipient plain-text Core profile;
 unsupported rich payloads remain visibly unavailable rather than accepted and
 dropped. Its source codecs preserve the complete retained queue format before
@@ -177,7 +218,7 @@ carried forward rather than restarted or marked complete.
 | H04 native ACP/host backend                             | Reuse `lapis-ai-service` and execution abstraction                                                  |
 | Committed H05 engine, retention and request correlation | Retain behavioural fixtures and contracts; replace Node-specific ownership with Rust                |
 | Uncommitted H05 accepted-work experiment                | Leave intact in `hosted-services`; do not finish or import it as a production prerequisite          |
-| H06/H07/H08/H09                                         | Carry existing scope into R4/R5/R6; do not expand deferred functionality                            |
+| H06/H07/H08/H09                                         | Carry existing scope into R4/R5 and R6; do not expand deferred functionality                        |
 | H10 qualification                                       | Carry into R7, retaining source/native/provider/platform distinctions                               |
 | H11 Docker backend                                      | Deferred                                                                                            |
 

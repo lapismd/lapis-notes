@@ -10,6 +10,7 @@ pub use identity::Authentication;
 mod errors;
 mod files;
 mod management;
+mod participants;
 mod plugins;
 mod queues;
 mod repository_backup;
@@ -119,6 +120,12 @@ pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::R
         .route(
             "/api/v3/clients/{client}/repository-sources",
             post(repository_sources::call).layer(DefaultBodyLimit::max(16 * 1024)),
+        )
+        .route(
+            "/api/v3/clients/{client}/participants",
+            post(participants::call).layer(DefaultBodyLimit::max(
+                lapis_app_protocol::participants::PARTICIPANT_REQUEST_LIMIT,
+            )),
         )
         .route(
             "/api/v3/clients/{client}/queues",
