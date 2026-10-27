@@ -1,6 +1,6 @@
 # Migration workspace register
 
-Last updated **2026-10-27 14:08:02 UTC**.
+Last updated **2026-10-27 15:46:14 UTC**.
 
 This is the complete discovered Jujutsu workspace inventory for the local LapisMD
 folder, including repositories outside this cutover. It is a handoff snapshot,
@@ -17,23 +17,39 @@ not permission to merge unrelated work or delete a checkout. The
 - **Main workspace:** inspect its handoff before changing it. Other chats may own its changes.
 - **Conflicted / checkout missing:** recover or resolve deliberately; do not blanket-remove.
 
-**No temporary workspaces have been deleted as part of this handoff.** Snapshot
-status uses read-only JJ metadata; another chat may have newer filesystem edits.
-Secrets, vaults, profiles and ignored reports were not scanned. Design Core's
-primary path was inferred from its store because JJ omits that root; verify its
-workspace metadata before making changes. The Git worktree cross-check found
-no additional independent checkout after that primary path was accounted for.
+**Phase 1 consolidation ran on 2026-10-27:** every temporary workspace of the
+four migration repositories (lapis-notes 64, lapis-desktop 28, lapis-plugins 26,
+jj-store 3 — 121 total) was content-audited, integrated where unique, preserved
+to its owning main's `.local/workspace-retirement/` manifest, then forgotten and
+deleted. `vault-backup` (lapis-desktop) is intentionally retained. Workspaces of
+the other 34 repositories remain untouched owner-review scope.
+
+**Incident (recorded, unrecoverable):** during that pass a sibling retirement
+agent ran a bare `rm -rf .workspaces` that destroyed the shared directory while
+it still held other repositories' workspace checkouts. All tracked content was
+already snapshotted in the jj stores and nothing was abandoned, but ignored
+`.local` evidence was lost before preservation: ~70GB of Notes receipt bulk
+(sizes itemized in its manifest), the Desktop E-CORE-045 native receipt payloads
+and private native-build helpers (~70GB across 25 dirs), and ~906MB of Plugins
+native-search-adapter run receipts. Committed evidence, the Desktop
+`.local/qualification/r7-cohort/` retention set and the Notes Phase-2 input
+directories are verified intact. Retirement sweeps must never delete a shared
+parent directory while sibling agents are running.
 
 ## Totals
 
-38 owning repositories; 204 registered workspaces.
+38 owning repositories; 83 registered workspaces after the 2026-10-27 Phase 1
+retirement of all 121 migration-repository temporary workspaces.
 
 | Integration state           | Workspaces |
 | --------------------------- | ---------: |
-| Fork awaiting content audit |         50 |
-| History integrated          |         92 |
+| Fork awaiting content audit |         13 |
+| History integrated          |         26 |
 | Main workspace              |         38 |
-| Non-empty working copy      |         24 |
+| Non-empty working copy      |          6 |
+
+The remaining non-main entries all belong to repositories outside the migration
+scope (owner review), plus the intentionally retained `vault-backup`.
 
 ## Repository index
 
@@ -52,13 +68,13 @@ no additional independent checkout after that primary path was accounted for.
 | [jj-desktop](#jj-desktop)                                         |          1 | `37e8487a67e0`          | Owner review; preserve unrelated scope |
 | [jj-nostr](#jj-nostr)                                             |          1 | `ab864f64dddc`          | Owner review; preserve unrelated scope |
 | [jj-sample-repo](#jj-sample-repo)                                 |          1 | `1b5f0cb83a81`          | Owner review; preserve unrelated scope |
-| [jj-store](#jj-store)                                             |          4 | `4e74e4239661`          | Owner review; preserve unrelated scope |
+| [jj-store](#jj-store)                                             |          1 | `52b061c52111`          | Retired 2026-10-27; see section        |
 | [jujutsu-skills](#jujutsu-skills)                                 |          1 | `4089fe8edca1`          | Owner review; preserve unrelated scope |
 | [lapis-ai](#lapis-ai)                                             |          1 | `b4a5f747c0dd`          | Owner review; preserve unrelated scope |
 | [lapis-ci](#lapis-ci)                                             |          1 | `d0eea80ba0c7`          | Owner review; preserve unrelated scope |
 | [lapis-community](#lapis-community)                               |          5 | `a5f64a4c7dea`          | Owner review; preserve unrelated scope |
-| [lapis-desktop](#lapis-desktop)                                   |         30 | `85d9b5e10fcb`          | Paused migration intake; see handoff   |
-| [lapis-notes](#lapis-notes)                                       |         65 | `68604b41f9ea`          | Paused migration intake; see handoff   |
+| [lapis-desktop](#lapis-desktop)                                   |          2 | `b009d1441727`          | Retired 2026-10-27; vault-backup kept  |
+| [lapis-notes](#lapis-notes)                                       |          1 | `c64391fdd6d0`          | Retired 2026-10-27; see section        |
 | [lapis-notes-registry-final-ci](#lapis-notes-registry-final-ci)   |          1 | `3580e280a75e`          | Owner review; preserve unrelated scope |
 | [lapis-plugin-cv-roles](#lapis-plugin-cv-roles)                   |          1 | `3e9a683fadbc`          | Owner review; preserve unrelated scope |
 | [lapis-plugin-docs](#lapis-plugin-docs)                           |          2 | `f772f2bacc20`          | Owner review; preserve unrelated scope |
@@ -66,7 +82,7 @@ no additional independent checkout after that primary path was accounted for.
 | [lapis-plugin-notebook](#lapis-plugin-notebook)                   |          1 | `d307db8832e7`          | Owner review; preserve unrelated scope |
 | [lapis-plugin-tasks](#lapis-plugin-tasks)                         |          9 | `52270c2aa783`          | Owner review; preserve unrelated scope |
 | [lapis-plugin-terminal](#lapis-plugin-terminal)                   |          1 | `61f4ef24a6f2`          | Owner review; preserve unrelated scope |
-| [lapis-plugins](#lapis-plugins)                                   |         27 | `773bed9e9945`          | Paused migration intake; see handoff   |
+| [lapis-plugins](#lapis-plugins)                                   |          1 | `a68b8880e67c`          | Retired 2026-10-27; see section        |
 | [lapis-plugins-registry-version](#lapis-plugins-registry-version) |          1 | `defa3d061ae7`          | Owner review; preserve unrelated scope |
 | [lapis-terminal](#lapis-terminal)                                 |          1 | `aa8fc3a866b0`          | Owner review; preserve unrelated scope |
 | [mira-mde](#mira-mde)                                             |         11 | `c5d1e4b68ed6`          | Owner review; preserve unrelated scope |
@@ -205,12 +221,27 @@ Main checkout: /Users/stevejuma/code/lapismd/jj-sample-repo
 
 Main checkout: /Users/stevejuma/code/lapismd/jj-store
 
-| Workspace / checkout                                                                                                  | Recorded revision | Integration                 | Progress / still pending                                                                                                                                                                         |
-| --------------------------------------------------------------------------------------------------------------------- | ----------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [default](/Users/stevejuma/code/lapismd/jj-store)                                                                     | `185acaf6e07c`    | Main workspace              | Repository-owner scope not audited by this cutover; integration classification is history only. See repository handoff; preserve current changes.                                                |
-| [history-read-admission-20261026](/Users/stevejuma/code/lapismd/.workspaces/jj-store-history-read-admission-20261026) | `51b3e9ef8d37`    | Fork awaiting content audit | Repository-owner scope not audited by this cutover; integration classification is history only. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.           |
-| [linux-vault-sync](/Users/stevejuma/code/lapismd/.workspaces/jj-store-linux-vault-sync)                               | `34a966df92f9`    | History integrated          | Repository-owner scope not audited by this cutover; integration classification is history only. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [thread-files-plan](/Users/stevejuma/code/lapismd/jj-store-thread-files-plan)                                         | `0701b0e941b9`    | Fork awaiting content audit | Repository-owner scope not audited by this cutover; integration classification is history only. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.           |
+**Phase 1 consolidation complete 2026-10-27.** All 3 temporary workspaces were
+audited and retired; only `default` remains. Dispositions, fork-audit findings
+and preserved artifacts: `.local/workspace-retirement/manifest-jj-store.json`.
+
+| Workspace / checkout                              | Recorded revision                          | Integration    | Progress / still pending                                                                                                                                                                                                                  |
+| ------------------------------------------------- | ------------------------------------------ | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [default](/Users/stevejuma/code/lapismd/jj-store) | `afa38bc217aa` wc, baseline `52b061c52111` | Main workspace | Clean. Commit `26a72176` records the pending default-workspace docs (E-REUSABLE-PROGRESS-050, M33 rows, contract confirmations; docs lanes pass). Commit `52b061c5` integrates the history-read-admission fork, which was NOT superseded. |
+
+Retirement record:
+
+- `linux-vault-sync`: integrated; 51 receipt files preserved.
+- `history-read-admission-20261026`: unique verified slice (bounded indexed read
+  admission, 4 tests, E-VAULT-BACKUP-022 pass record) duplicated cleanly onto
+  trunk as `52b061c5`; original `qtsxlskq 5f4bf729` remains in the store.
+- `thread-files-plan`: **not merged** — saved-for-later M35 plan, implementation
+  never started; pinned by bookmark `preserved-thread-files-plan` (`b43d5b89`);
+  full 32-file plan + patch preserved under
+  `.local/workspace-retirement/thread-files-plan/`; landing decision deferred.
+- The `main` bookmark (`07229718`, 2026-10-16) is stale behind the active trunk;
+  re-pointing is deferred. `powynzov c976850d` is a pre-existing sibling fork,
+  untouched.
 
 ## jujutsu-skills
 
@@ -252,110 +283,73 @@ Main checkout: /Users/stevejuma/code/lapismd/lapis-community
 
 Main checkout: /Users/stevejuma/code/lapismd/lapis-desktop
 
-| Workspace / checkout                                                                                                               | Recorded revision | Integration                 | Progress / still pending                                                                                                                                                            |
-| ---------------------------------------------------------------------------------------------------------------------------------- | ----------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [default](/Users/stevejuma/code/lapismd/lapis-desktop)                                                                             | `6cf6ec5f86e2`    | Main workspace              | Provider85d9 ancestry integrated; refreshed31/117 cohort is uncommitted. Native qualification and two spec-first mappings remain. See repository handoff; preserve current changes. |
-| [agent-catalog-20261025](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-agent-catalog-20261025)                           | `f6f1b0c604eb`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.            |
-| [bases-intake-20261025](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-bases-intake-20261025)                             | `ba4f089c21ae`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.            |
-| [catalog-validation-1](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-catalog-validation-1)                               | `feb1e8c3bfe4`    | Non-empty working copy      | See integration state; a history result does not establish functional completion. Review unpublished changes and owner scope; qualify and integrate, or explicitly preserve.        |
-| [catalog-validation-2](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-catalog-validation-2)                               | `1b002dbf3c63`    | Non-empty working copy      | See integration state; a history result does not establish functional completion. Review unpublished changes and owner scope; qualify and integrate, or explicitly preserve.        |
-| [catalog-validation-3](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-catalog-validation-3)                               | `b8610fd6533a`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.            |
-| [catalog-validation-4](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-catalog-validation-4)                               | `f05c16850778`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.            |
-| [desktop-native-queue-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-native-queue-20261027)                     | `c1948197587b`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.  |
-| [desktop-native-queue-provider-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-native-queue-provider-20261027)   | `61d7c18e4184`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.  |
-| [desktop-search-catalog-b-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-search-catalog-b-20261026)             | `3b6aafd6d220`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.  |
-| [e20-parent](/Users/stevejuma/code/lapismd/lapis-desktop-e20-parent)                                                               | `5da2db31e1f5`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.  |
-| [file-icons-main-shard-1-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-file-icons-main-shard-1)                | `061ddfef601a`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.  |
-| [file-icons-shard-2](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-file-icons-shard-2)                                   | `cee70bb9a9b6`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.  |
-| [file-icons-shard-3](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-file-icons-shard-3)                                   | `d14062f6fb0c`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.  |
-| [file-icons-shard-4](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-file-icons-shard-4)                                   | `823017285d8e`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.  |
-| [history-owner-20261025](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-history-owner-20261025)                           | `473dc068e3f3`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.  |
-| [hosted-history](/Users/stevejuma/code/lapismd/lapis-desktop-hosted-history)                                                       | `c2e211050435`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.            |
-| [metadata-catalog4-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-metadata-catalog4-20261026)                   | `9c6616ceb7fc`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.            |
-| [metadata-native-validation-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-metadata-native-validation-20261026) | `e44dc5b3f0f8`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.  |
-| [metadata-owner-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-metadata-owner-20261026)                         | `3dca580d7ceb`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.  |
-| [native-editor-claims-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-native-editor-claims-20261026)             | `798e6933e916`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.  |
-| [native-tasks-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-native-tasks-20261026)                             | `df9b9c3f0794`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.            |
-| [plugin-file-icons](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-file-icons)                                            | `c94b8c6d3275`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.  |
-| [provider-screen-20261025](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-provider-screen-20261025)                       | `60afe286d576`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.            |
-| [release-coordination](/Users/stevejuma/code/lapismd/lapis-desktop-release)                                                        | `14cb2b126169`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.            |
-| [search-owner-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-search-owner-20261026)                             | `95898140ffd3`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.  |
-| [shared-history-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-shared-history-20261026)                         | `ca91a0e88fb6`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.  |
-| [shared-original-reader-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-original-reader-20261026)                | `4b0c823d708a`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.  |
-| [target-modes-20261025](/Users/stevejuma/code/lapismd/.workspaces/lapis-desktop-target-modes-20261025)                             | `6e68aaefab34`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.            |
-| [vault-backup](/Users/stevejuma/code/lapismd/vault-backup/lapis-desktop)                                                           | `a7bea279b82a`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.  |
+**Phase 1 consolidation complete 2026-10-27.** 28 of 29 temporary workspaces
+were retired; `vault-backup` is intentionally retained. Manifest:
+`.local/workspace-retirement/manifest-lapis-desktop.json` (includes `hiddenChainRecoveryIds`).
+
+| Workspace / checkout                                                     | Recorded revision                          | Integration        | Progress / still pending                                                                                                                                                                                                                                     |
+| ------------------------------------------------------------------------ | ------------------------------------------ | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [default](/Users/stevejuma/code/lapismd/lapis-desktop)                   | `2f97b7fc5e8a` wc, baseline `b009d1441727` | Main workspace     | Clean. `70730562` repairs the two spec-first mappings (desktop.md/governance.md; gate passes). `b009d144` records the R7 intake: Notes native pin cd997c2c, 31-archive/117-route cohort, E-CORE-046 DRAFT; native/provider/bundle gates deferred to Phase 2. |
+| [vault-backup](/Users/stevejuma/code/lapismd/vault-backup/lapis-desktop) | `a7bea279b82a`                             | History integrated | Intentionally retained backup workspace; not part of the retirement sweep.                                                                                                                                                                                   |
+
+Retirement record:
+
+- `catalog-validation-1/2` (non-empty): content already in main; patch exports
+  preserved; pinned `preserved-catalog-validation-1` (`feb1e8c3`),
+  `preserved-catalog-validation-2` (`1b002dbf`).
+- Unlanded recoverable chains are bookmarked: `preserved-e-qualification-003`
+  (`3628db65`, E-QUALIFICATION-003 not in main — landing decision deferred to
+  Phase 2), `preserved-docker-catalog-candidate` (`2e810560`),
+  `preserved-provider-chat-qualification` (`11e22c7f`, divergent),
+  `preserved-bases-native-adoption` (`34909cff`); `codex/release-coordination`
+  (`a8572603`) holds unlanded E-RELEASE-017 + RELEASE.md.
+- Incident loss: the external `.workspaces` deletion destroyed 25 workspace
+  dirs (~70GB) before preservation, including the E-CORE-045 native receipt
+  payloads and the private native-build/mac-rust/bootstrap helpers —
+  permanently lost; E-CORE-045.md committed evidence and main
+  `.local/qualification/r7-cohort/` (4 receipts + 33 archives covering all
+  E-CORE-046 identities) are verified intact.
+- Surviving siblings preserved then retired: `e20-parent` (36 files incl.
+  headless probe receipts), `hosted-history` (E-QUALIFICATION-003 doc+patch),
+  `release-coordination` (E-RELEASE-017 + RELEASE.md exports).
 
 ## lapis-notes
 
 Main checkout: /Users/stevejuma/code/lapismd/lapis-notes
 
-| Workspace / checkout                                                                                                              | Recorded revision | Integration                 | Progress / still pending                                                                                                                                                           |
-| --------------------------------------------------------------------------------------------------------------------------------- | ----------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [default](/Users/stevejuma/code/lapismd/lapis-notes)                                                                              | `83dc5b6a6eaf`    | Main workspace              | Rust cutover cd997 committed; full 8404 qualification passed. Optional image-model tester draft is unverified; paused. See repository handoff; preserve current changes.           |
-| [backup-problems-cohort-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-backup-problems-cohort-20261026)          | `e699e6c9ae45`    | Non-empty working copy      | See integration state; a history result does not establish functional completion. Review unpublished changes and owner scope; qualify and integrate, or explicitly preserve.       |
-| [consumer-pack-bits-20261025](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-consumer-pack-bits-20261025)                  | `395f53596b4a`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [desktop-migration](/Users/stevejuma/code/lapismd/lapis-notes-desktop-migration)                                                  | `9ee0fa3404ac`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [editor-problems-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-editor-problems-20261026)                        | `0cd9b61a2906`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [file-icons-main-intake-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-file-icons-main-intake)                   | `b12a0305f2d9`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [homebrew-distribution](/Users/stevejuma/code/lapismd/lapis-notes-homebrew)                                                       | `6094b172b448`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [hosted-final-cohort-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-hosted-final-cohort-20261026)                | `b03756f4ffb1`    | Non-empty working copy      | See integration state; a history result does not establish functional completion. Review unpublished changes and owner scope; qualify and integrate, or explicitly preserve.       |
-| [hosted-history-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-hosted-history-20261026)                          | `a32dab49ea15`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [hosted-history-adapter-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-hosted-history-adapter-20261026)          | `7dc750d49db0`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [hosted-native-metadata-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-hosted-native-metadata-20261026)          | `bf8e2ac67748`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [hosted-native-search-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-hosted-native-search-20261026)              | `34fc6b6e8906`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [hosted-properties-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-hosted-properties-20261027)                    | `82781d5204b1`    | Non-empty working copy      | See integration state; a history result does not establish functional completion. Review unpublished changes and owner scope; qualify and integrate, or explicitly preserve.       |
-| [hosted-services](/Users/stevejuma/code/lapismd/lapis-notes-hosted-services)                                                      | `f051481facab`    | Non-empty working copy      | See integration state; a history result does not establish functional completion. Review unpublished changes and owner scope; qualify and integrate, or explicitly preserve.       |
-| [hosted-task-reference-baseline-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-task-reference-baseline-20261026) | `d05686e7d060`    | Non-empty working copy      | See integration state; a history result does not establish functional completion. Review unpublished changes and owner scope; qualify and integrate, or explicitly preserve.       |
-| [hosted-tasks-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-hosted-tasks-20261026)                              | `e5a34c86860e`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [lapis-notes-daily-locale-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-daily-locale-20261026)                  | `7a599c8ac0d4`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [lapis-notes-r7-runtime-delivery-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r7-runtime-delivery-20261027)    | `e10dfe9acba2`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [linux-model-reference-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-linux-model-reference-20261027)            | `8c81f6b58217`    | Non-empty working copy      | See integration state; a history result does not establish functional completion. Review unpublished changes and owner scope; qualify and integrate, or explicitly preserve.       |
-| [native-background-port-20261025](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-native-background-port-20261025)          | `c96ffb33cad1`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [native-docs-index-20261025](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-native-docs-index-20261025)                    | `db861ad05c38`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [native-editor-claims-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-native-editor-claims-20261026)              | `10051ac051d4`    | Non-empty working copy      | See integration state; a history result does not establish functional completion. Review unpublished changes and owner scope; qualify and integrate, or explicitly preserve.       |
-| [native-editor-retirement-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-native-editor-retirement-20261026)      | `327241897ed1`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.           |
-| [native-handoff-recovery-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-native-handoff-recovery-20261027)        | `97840f0f3675`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.           |
-| [native-handoff-story-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-native-handoff-story-20261027)              | `009dff39c906`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [native-history-capture-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-native-history-capture-20261026)          | `c6d8788efce5`    | Non-empty working copy      | See integration state; a history result does not establish functional completion. Review unpublished changes and owner scope; qualify and integrate, or explicitly preserve.       |
-| [native-history-owner-20261025](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-native-history-owner-20261025)              | `a3276f39772d`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [native-intent-recovery-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-native-intent-recovery-20261026)          | `8d425bb17934`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [native-occurrences](/Users/stevejuma/code/lapismd/lapis-notes-native-occurrences)                                                | `17f97e62dbe8`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.           |
-| [native-search-observer-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-native-search-observer-20261026)          | `8195faa4467d`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [native-search-owner-20261025](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-native-search-owner-20261025)                | `b7ffc1e1d342`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [native-search-providers-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-native-search-providers-20261026)        | `cb79d009cae4`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [native-task-coordination-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-native-task-coordination-20261026)            | `9a5953e69ce2`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [native-task-port-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-native-task-port-20261026)                      | `234888316970`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [native-task-writes-20261025](/Users/stevejuma/code/lapismd/.workspaces/lapis-native-task-writes-20261025)                        | `47828d893657`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [native-tasks-index-20261025](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-native-tasks-index-20261025)                  | `407410e4402c`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [plugin-file-icons](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-plugin-file-icons)                                      | `43b7ad937428`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [provider-modes-20261025](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-provider-modes-20261025)                          | `28067e5f37ae`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [r3-acceptance-final-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r3-acceptance-final-20261027)                | `f8201e88c833`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [r3-adapters-intake-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r3-adapters-intake-20261026)                  | `e082182b0427`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [r3-editor-undo-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r3-editor-undo-20261027)                          | `9685d887bc55`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [r3-final-main-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r3-final-main-20261027)                            | `acad9fc80224`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [r3-hosted-semantic-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r3-hosted-semantic-20261027)                  | `44554fb7c161`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [r3-kernel-final-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r3-kernel-final-20261027)                        | `70746789b40d`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.           |
-| [r3-shared-intake-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r3-shared-intake-20261026)                      | `5fbd3e0029f2`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [r4-bootstrap-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r4-bootstrap-20261027)                              | `1eb6650f7f11`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [r4-bootstrap-reader-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r4-bootstrap-reader-20261027)                | `81e88ef557b7`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [r4-chat-queue-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r4-chat-queue-20261027)                            | `1426e3d6732c`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.           |
-| [r4-context-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r4-context-20261027)                                  | `625bffe301fa`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [r4-indexing-race-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r4-indexing-race-20261027)                      | `89becfc77c9d`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.           |
-| [r4-native-skills-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r4-native-skills-20261027)                      | `f9541ec14eee`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [r4-participant-host-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r4-participant-host-20261027)                | `a7d87ec6f740`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [r4-participant-port-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r4-participant-port-20261027)                | `fbf18281639c`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [r4-participants-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r4-participants-20261027)                        | `5cc7a76640c1`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.           |
-| [r4-plan-review-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r4-plan-review-20261026)                          | `c52172083f88`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.           |
-| [r4-queue-port-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r4-queue-port-20261027)                            | `1030321fbbc0`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.           |
-| [r4-queue-provider-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r4-queue-provider-20261027)                    | `f4ae6c23cb5f`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.           |
-| [r7-observation-streams-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r7-observation-streams-20261027)          | `c71f24e9d9ca`    | Non-empty working copy      | See integration state; a history result does not establish functional completion. Review unpublished changes and owner scope; qualify and integrate, or explicitly preserve.       |
-| [r7-static-delivery-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-r7-static-delivery-20261027)                  | `ab64796420df`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [reader-intake-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-reader-intake-20261026)                            | `bdffe84c0f0f`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [release-verification](/Users/stevejuma/code/lapismd/lapis-notes-release-verification)                                            | `40b6f26767bd`    | Non-empty working copy      | See integration state; a history result does not establish functional completion. Review unpublished changes and owner scope; qualify and integrate, or explicitly preserve.       |
-| [restore-intake-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-restore-intake-20261026)                          | `82dc5e415554`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [reusable-history](/Users/stevejuma/code/lapismd/lapis-notes-history)                                                             | `8651daa2e670`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [server-node](/Users/stevejuma/code/lapismd/lapis-notes-server-node)                                                              | `613e6444ff0f`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope. |
-| [shared-conflict-review-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-notes-shared-conflict-review-20261026)          | `23e0d2d6eb51`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.           |
+**Phase 1 consolidation complete 2026-10-27.** All 64 temporary workspaces were
+retired; only `default` remains. Manifest:
+`.local/workspace-retirement/manifest-lapis-notes.json`.
+
+| Workspace / checkout                                 | Recorded revision                          | Integration    | Progress / still pending                                                                                                                                                                                  |
+| ---------------------------------------------------- | ------------------------------------------ | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [default](/Users/stevejuma/code/lapismd/lapis-notes) | `66cb6e4c41e7` wc, baseline `c64391fdd6d0` | Main workspace | Clean. `c64391fd` commits the unverified optional actual-image model-tester draft; basic16 + model phases must rerun in Phase 2 before qualification. Phase-2 input dirs under `.local/` verified intact. |
+
+Retirement record:
+
+- All 10 non-empty and 11 fork revisions were individually content-audited:
+  superseded (byte-identical to landed commits such as `865f0988`, `fe1d2dcd`,
+  `c4bbc6cc`, `d2346704`), reproduction-only (task-reference baseline), or
+  snapshot-committed (hosted-services `f91a7e8b`, release-verification
+  `4de6c136`). Zero `jj abandon` operations.
+- Two unique unlanded lineages were **not merged** (they require validation
+  lanes forbidden in Phase 1) and are pinned: bookmark
+  `preserved-hosted-properties-20261027` (`kpymntwz 845842b8`: never-executed
+  hosted Properties e2e + LN-WEB-074 spec text) and bookmark
+  `preserved-shared-conflict-review-20261026` (`pslnvswp 36cc3c4e` chain:
+  frozen Workspace 0.2.1 file-conflicts candidate `ea7a2d28` + record
+  `974328f6`). Phase 2 decides their integration.
+- Sibling `../lapis-notes-*` artifacts (3,250 files / ~472MB, incl.
+  native-occurrences' 469 files) were preserved before retirement.
+  `lapis-notes-registry-final-ci` is an independent repository and was left in
+  place.
+- Incident loss: the external `.workspaces` deletion destroyed the ignored
+  `.local` evidence (~70GB bulk; per-workspace sizes recorded in the manifest)
+  of the 57 `.workspaces`-hosted workspaces before preservation; all tracked
+  content was safe in the jj store.
+- Phase-2 inputs verified intact: `.local/validation/runs/lapis-r7-runtime-final-*`,
+  `.local/server-container/*`, `.local/r7-provider-final/macos-20261027/`,
+  `.local/r7-cutover/`, `.local/search-models/`.
 
 ## lapis-notes-registry-final-ci
 
@@ -426,35 +420,28 @@ Main checkout: /Users/stevejuma/code/lapismd/lapis-plugin-terminal
 
 Main checkout: /Users/stevejuma/code/lapismd/lapis-plugins
 
-| Workspace / checkout                                                                                                                 | Recorded revision | Integration                 | Progress / still pending                                                                                                                                                                                          |
-| ------------------------------------------------------------------------------------------------------------------------------------ | ----------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [default](/Users/stevejuma/code/lapismd/lapis-plugins)                                                                               | `05d58fc615f3`    | Main workspace              | See integration state; a history result does not establish functional completion. See repository handoff; preserve current changes.                                                                               |
-| [bases-parent-check-20261025](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-bases-parent-check-20261025)                   | `374a89adbb8e`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.                                |
-| [bases-select-before-20261025](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-bases-select-before-20261025)                 | `5aed9d0208ef`    | Non-empty working copy      | See integration state; a history result does not establish functional completion. Review unpublished changes and owner scope; qualify and integrate, or explicitly preserve.                                      |
-| [bases-select-names-20261025](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-bases-select-names-20261025)                   | `76f539167785`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.                                          |
-| [csv-metadata-order-20261025](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-csv-metadata-order-20261025)                   | `4f837e250cd4`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.                                          |
-| [desktop-migration](/Users/stevejuma/code/lapismd/lapis-plugins-desktop-migration)                                                   | `aced6eee2fc1`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.                                          |
-| [desktop-reading-fill](/Users/stevejuma/code/lapismd/lapis-plugins/.local/desktop-reading-fill)                                      | `8f2bd552c93b`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.                                          |
-| [file-icons-baseline](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-file-icons-baseline)                                   | `8b9ad8eb24c2`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.                                |
-| [file-icons-main-intake-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-file-icons-main-intake)                    | `8a7265d82bda`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.                                |
-| [lapis-plugins-cold-catalog-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-cold-catalog-20261026)                 | `bf0e659f3206`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.                                          |
-| [main-icons-regression-parent-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-main-icons-regression-parent)        | `101353f9615c`    | Non-empty working copy      | See integration state; a history result does not establish functional completion. Review unpublished changes and owner scope; qualify and integrate, or explicitly preserve.                                      |
-| [markdown-yaml-20261025](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-markdown-yaml-20261025)                             | `27d46a1f62a1`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.                                          |
-| [native-backup-observer-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-native-backup-observer-20261026)           | `95e97a2ab053`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.                                          |
-| [native-editor-claims-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-native-editor-claims-20261026)               | `06091942679e`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.                                          |
-| [native-editor-claims-before-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-native-editor-claims-before-20261026) | `6432dc9a0fe3`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.                                          |
-| [native-history-observer-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-native-history-observer-20261026)         | `c19d8dee9fa2`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.                                          |
-| [native-search-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-native-search-20261026)                             | `572805cd35a3`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.                                          |
-| [native-search-adapter-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-native-search-adapter-20261026)             | `5d0397f4fc5a`    | Non-empty working copy      | See integration state; a history result does not establish functional completion. Review unpublished changes and owner scope; qualify and integrate, or explicitly preserve.                                      |
-| [npm-release](/Users/stevejuma/code/lapismd/lapis-plugins-npm-release)                                                               | `67ce4ae55dec`    | Non-empty working copy      | See integration state; a history result does not establish functional completion. Review unpublished changes and owner scope; qualify and integrate, or explicitly preserve.                                      |
-| [plugin-file-icons](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-file-icons)                                              | `92afc8743b4e`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.                                |
-| [properties-before-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-properties-before-20261026)                     | `152e9f785a42`    | Non-empty working copy      | See integration state; a history result does not establish functional completion. Review unpublished changes and owner scope; qualify and integrate, or explicitly preserve.                                      |
-| [properties-persistence-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-properties-persistence-20261026)           | `1246cc959b64`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.                                          |
-| [r7-release-tests-20261027](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-r7-release-tests-20261027)                       | `16409f80cff9`    | Non-empty working copy      | Qualified407ada test repair is not integrated. Portable-lock16409 draft and registry/API release-input blocker remain. Review unpublished changes and owner scope; qualify and integrate, or explicitly preserve. |
-| [release-deferral](/Users/stevejuma/code/lapismd/lapis-plugins-release-deferral)                                                     | `9991bb8c50ae`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.                                |
-| [search-recovery-20261026](/Users/stevejuma/code/lapismd/.workspaces/lapis-plugins-search-recovery-20261026)                         | `343f43f57a8f`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.                                          |
-| [static-ci](/Users/stevejuma/code/lapismd/lapis-plugins-static-ci)                                                                   | `1d5ac7639338`    | History integrated          | See integration state; a history result does not establish functional completion. Preserve ignored artifacts/receipts, verify ownership, then forget/remove if in migration scope.                                |
-| [sync-plan](/Users/stevejuma/code/lapismd/lapis-plugins-sync-plan)                                                                   | `f66991c145f8`    | Fork awaiting content audit | See integration state; a history result does not establish functional completion. Compare with main for moved/superseded/cherry-picked work; qualify any missing change.                                          |
+**Phase 1 consolidation complete 2026-10-27.** All 26 temporary workspaces were
+retired; only `default` remains. Manifest:
+`.local/workspace-retirement/manifest-lapis-plugins.json` (incl. `storeOnlyHistoryWarning`).
+
+| Workspace / checkout                                   | Recorded revision                          | Integration    | Progress / still pending                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------------------------------------------------------ | ------------------------------------------ | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [default](/Users/stevejuma/code/lapismd/lapis-plugins) | `f7fd92ed969c` wc, baseline `a68b8880e67c` | Main workspace | Clean. Lineage above `773bed9e`: `338282bf` qualified test repair (exact targeted 2/2+2/2 pass after 0/2+0/2 before) → `467f2231` portable-lock draft (UNVERIFIED, blocked on released API EmbedRegistry.renderMarkdownEmbed; do not publish) → `0de75f96`/`d38a1cdf`/`a68b8880` unique native-search stack (cargo +1.99 check, markdown_yaml 2/2, search_canvas 1/1 pass; TS/spec/full lanes are Phase 2). |
+
+Retirement record:
+
+- The unauthorized thirteen-plugin release-batch preparation was **not merged
+  and not published**; it exists only as store commit `67ce4ae5`, bookmark
+  `preserved-npm-release-batch`. Release authorization remains a separate gate.
+- The unmerged R7 native-services lane (~22 substantive commits, e.g.
+  `bd305e58`, `40f8febb`, `814f6d2d`, `ee3580d3`+`857444bc` frozen Deno sync
+  plan) remains store-only; IDs are recorded in the manifest. Do not assume it
+  landed; Phase 2 decides integration or explicit supersession.
+- 6,808 evidence files (~1.0GB) preserved, incl. the desktop-migration
+  `.release` payload tree and the static-ci registry-acceptance fixture with
+  all 13 `.lapis-plugin` bundles; 9 oversized files sha256-recorded.
+- Incident loss: native-search-adapter `.local` run receipts (~906MB) were
+  destroyed by the external `.workspaces` deletion.
 
 ## lapis-plugins-registry-version
 

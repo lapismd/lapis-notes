@@ -1,13 +1,17 @@
 # Migration Status
 
-Last updated **2026-10-27 14:10:02 UTC**.
+Last updated **2026-10-27 15:46:14 UTC**.
 
-**Paused at the user's request.** No new builds, provider turns or app starts.
-The [complete resume handoff](MIGRATION_HANDOFF.md) names exact inputs, results,
-drafts, known failures and next gates. The [workspace register](MIGRATION_WORKSPACES.md)
-lists all204 registered JJ workspaces across38 repositories and their integration
-progress; it distinguishes92 integrated-history checkouts,24 nonempty copies,
-50 forks needing audit and38 mains. No temporary workspace has been deleted.
+**Phase 1 consolidation is complete; Phase 2 verification is next.** All four
+migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
+with every pending change committed, and all121 migration-owned temporary
+workspaces were audited, preserved, forgotten and deleted; `vault-backup`
+(Desktop) is intentionally retained. The
+[complete resume handoff](MIGRATION_HANDOFF.md) names the exact committed
+baselines, pinned unlanded lineages, the `.workspaces` incident losses and the
+Phase 2 gates. The [workspace register](MIGRATION_WORKSPACES.md) now lists83
+registered JJ workspaces across38 repositories; the remaining non-main entries
+are owner-review scope outside this migration.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -38,6 +42,30 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**Phase 1 consolidation complete — 2026-10-27 15:46:14 UTC.** Four parallel
+retirement agents integrated and retired every migration-owned temporary
+workspace with minimal checks. Notes main `c64391fd` commits the unverified
+optional image-model tester draft (basic16+model reruns are Phase 2). Desktop
+main `70730562`+`b009d144` repairs the two spec-first mappings and commits the
+31/117 intake with E-CORE-046 as a DRAFT; native/provider/bundle gates are
+deferred. Plugins main merges the qualified test repair `338282bf` (exact
+targeted 2/2+2/2 after 0/2+0/2), the blocked portable-lock draft `467f2231`
+and the unique native-search stack `0de75f96`/`d38a1cdf`/`a68b8880` (cargo+1.99
+check, markdown_yaml2/2, search_canvas1/1; TS/spec lanes deferred). jj-store
+main `26a72176`+`52b061c5` commits the pending docs and integrates the
+non-superseded history-read-admission slice. Unique unlanded lineages are
+bookmark-pinned per repository (hosted-properties e2e, shared-conflict-review
+chain, E-QUALIFICATION-003, E-RELEASE-017, npm-release batch, thread-files
+plan); nothing was abandoned. **Incident:** a bare `rm -rf .workspaces` by one
+agent destroyed the shared directory mid-sweep; tracked content was safe, but
+ignored evidence was lost, including the Desktop E-CORE-045 native receipt
+payloads and private native helpers (~70GB) and ~70GB of Notes receipt bulk —
+details and intact-retention verification are in the
+[handoff incident record](MIGRATION_HANDOFF.md) and the per-repo
+`.local/workspace-retirement/` manifests. Phase 2 runs the full verification
+lanes and test repair (including previously accepted failures) on the
+integrated mains; see the handoff gate list.
 
 **Paused handoff complete — 2026-10-27 14:10:02 UTC.** Notes cutover is committed; both final
 main workers passed, including2426package cases,265catalog, five actual-model
