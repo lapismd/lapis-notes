@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 02:03:21 UTC",
+  "updated": "2026-10-27 02:47:53 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -727,7 +727,7 @@
       "work": "Guarded file/vault restore and retained review",
       "status": "Complete",
       "spec": "spec/src/architecture/rust-history-parity.md#ln-core-023",
-      "detail": "[Qualified guarded Repository restore](spec/records/2026-10-26-hosted-repository-restore.md): all6 exact native/13 adapter, full543Rust/2332package/261coldcatalog/24browser pass, including actual lost acknowledgement/cold recovery/exact receipt retry without overwriting newer saved files. Complete root/strict/build and canonical78governance pass; final two mapped-chapter findings are repaired without product changes. Both-host combined R3 remains separate."
+      "detail": "[Qualified guarded Repository restore](spec/records/2026-10-26-hosted-repository-restore.md): all6 exact native/13 adapter, full543Rust/2332package/261coldcatalog/24browser pass, including actual lost acknowledgement/cold recovery/exact receipt retry without overwriting newer saved files. Complete root/strict/build and canonical78governance pass; final two mapped-chapter findings are repaired without product changes. Both-host combined R3 remains separate. [Qualified diagnostic repair](spec/records/2026-10-27-r3-main-composition.md) at9acb4e5c passes7exact(2pass/5failbefore),20Core/4HTTP/596Rust,strict/nativebuild/canonical78,4hostedHistory and12actualDesktopRepository cases(including2originalrestore) with exact stale diagnostics and saved-byte/receipt guards. Unknown native details remain redacted. Final combined R3 adoption stays separate."
     },
     {
       "id": "R3.2.3.6.2",

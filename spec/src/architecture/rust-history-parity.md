@@ -40,6 +40,14 @@ engine, generation or caller scope. Explicit keep-current captures behind older
 accepted operations before clearing uncertain recovery. Vault drain retains
 accepted work; passive reader/client disposal cannot close the backup owner.
 
+Borrowed native commands and typed restore controls MUST preserve the fixed,
+path-free stale-preview and unresolved-editor diagnostics with their existing
+conflict or busy meaning. Only exact recognized restore guard messages MAY
+cross the string boundary; native diagnostic prefixes are presentation only.
+Unknown IO, ownership, credential and filesystem details MUST remain redacted.
+Error presentation MUST NOT infer whether a write ran, discard a pending receipt
+or authorize automatic replay.
+
 Qualification covers exact retry after uncertain acknowledgement, stale saved
 bytes, unresolved detached editor claims, different vaults, malformed authority,
 file/vault preview and apply, and cancellation of an accepted reply. Shared

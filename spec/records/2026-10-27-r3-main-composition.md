@@ -258,3 +258,94 @@ The current source workspace differs from its qualified frozen candidate only
 by documentary receipt/progress updates. Latest default-workspace authored
 activity and task statuses must survive final adoption; preserve all 104 rows,
 including the source-only staged Tasks task `R3.2.1.2.10.6`.
+
+## Restore guard diagnostic boundary
+
+Actual Desktop `repository-restore` acceptance on qualified `c1c6570f` exposes
+another concrete Core adapter defect: `Client::with_backup` replaces every
+engine action error with `Automatic vault backup is unavailable`. The native
+engine correctly refuses stale saved bytes, but its actionable file-preview
+guard is lost. Typed restore separately nests the engine result and masks it
+with a generic pending-receipt conflict. Neither failure authorizes changing
+the native test's guard assertion, retries, timing or saved-byte check.
+
+The exact source command is:
+
+```sh
+pnpm rust:core -- test -p lapis-app-core --test backup_diagnostics --locked -- --nocapture
+```
+
+Before run `bbafb7c3-5eb8-4fb3-8738-c89dda2ac86a`, frozen at
+`3e298cc0425dbfed8ed0d41ee59b736018154872`, reports two passes/five failures,
+exit one/no OOM. Real-engine direct/typed stale-file, stale-vault and dirty
+editor cases preserve disk bytes while exposing the lost diagnostic. The
+existing generic-redaction and typed unknown-native-failure cases pass.
+
+The repair adds one private allowlist shared by both boundaries. It recognizes
+eight complete fixed path-free restore/editor messages, preserving conflict,
+busy, exclusion and unsupported meanings. The native `Vault backup JJ: ` prefix
+is removed only before an exact full-message match. Unknown IO/ownership or
+credential details, added suffixes and nested/foreign prefixes stay generic;
+the typed unknown-outcome pending-receipt message is retained. This presentation
+classification never infers whether a write ran or permits replay. No engine,
+JS, public API or wire change is introduced; the qualified History mutex stays
+byte-identical.
+
+The after matrix strengthens both native-prefix and adversarial-redaction
+coverage without weakening its existing assertions. Exact source, affected
+backup/restore, complete native/strict/build, actual hosted restore and original
+actual Desktop regression gates remain pending on a new pin. The prior
+`c1c6570f`/589-Rust/five-model/private-History receipt remains separate;
+Root's API Undo repair and overall R3 remain open.
+
+## Qualified restore diagnostic repair
+
+After run `4a019c0a-f492-4b85-a916-cea457e57e93` passes frozen source
+`9acb4e5cf70f831e0981a61c315ae0845d2096fd`, finishing
+2026-10-27 02:33:59 UTC with exit zero/no OOM. The seven exact cases move from
+two passes/five failures to seven passes/zero failures. All twenty affected Core
+backup/selection/restore/lifetime cases and all four HTTP restore cases pass;
+the HTTP cases now assert exact stale/conflict and unresolved-editor/busy
+diagnostics alongside their retained saved-byte and receipt checks.
+
+Strict boundaries, protocol/types, aggregate formatting and all-target Clippy
+pass. The complete workspace passes 596 ordinary Rust cases with seven
+intentional ignores. Native build, eight Web dependency builds, fresh staged
+renderer, all four actual hosted History/backup/Original journeys, 104-row
+progress and canonical/spec-first/78-governance checks pass. The five actual
+model cases are not rerun for this fixed-message leaf; their separate qualified
+`c1c6570f` receipt above remains explicit. No model or History-mutex code changed.
+
+Target coordination found another worker had restored its frozen `c1` server
+while this lane used the warm Cargo volume. Root paused before further native
+work. After the diagnostic rebuild, both integration binaries that use
+`CARGO_BIN_EXE_lapis-server` (`process` and `browser_process`) rerun successfully:
+all four cases pass before hosted acceptance begins. The server changes from
+the retained Root `cede9c1b` bytes to diagnostic SHA256
+`b44bb161a5f778ee8e2a8d2411a19cfd4615ea993e703a732541c31aed231550`
+(202,953,456 bytes). A final read-only symbol/hash check confirms the new
+`diagnostics::guard`, both translators and both typed error-mapping call sites
+are linked. Root's target is released only after every server/spec consumer
+finishes; Root restores its own verified bytes before resuming its frozen job.
+
+Desktop independently passes both original native Repository restore cases on
+exact `9acb4e5c` / native archive `c5df3474`, with API `d178b9d4`. Its unchanged
+stale-preview assertion, intervening saved bytes, file/vault safety history and
+cold lost-reply exact-receipt reconciliation all pass. No assertion, retry or
+timing is relaxed. This closes the private diagnostic repair, not Root's final
+API/source composition or overall R3. Latest master statuses, publication,
+signing and default cutover remain separately owned/gated.
+
+Final documentary preparation reruns Prettier/progress and mapped spec-first.
+A local attempt without installed archives fails its tooling load, then reports
+fourteen unavailable plugin command sources; this is not a passing receipt or
+a source baseline waiver. Final validation uses a frozen doc-only worker with
+the same sixteen declared public archives. It mounts only pnpm cache and runs
+validate/first/progress/format checks, with no Cargo target or server consumer.
+
+Expanded actual Desktop acceptance subsequently passes all twelve cases across
+ten Repository files on `9acb4e5c` / complete asset `ff9d6774` and API
+`d178b9d4`. Receipt `final-repository-diagnostic-family` includes the original
+restore pair, adoption/identity, backup failed-close/retry, live/saved Search,
+cold recovery, storage and Original pins/restart/current-profile visibility.
+Root retains the separate final API Refresh/composition gate.
