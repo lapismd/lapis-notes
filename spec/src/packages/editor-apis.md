@@ -71,7 +71,7 @@ on unload.
 
 <a id="ln-pkg-013"></a>
 
-**Requirement.** `@lapis-notes/api` MUST paint the source-editor inline filename title with public `--ui-editor-inline-title-*` tokens and MUST contribute file-view breadcrumbs, leaf history, and header title rename (`titleEditable` / `onTitleCommit`) through the workspace-host `getChrome` projection. Non-file views MAY contribute prefix crumbs and a breadcrumb file path through View hooks.
+**Requirement.** `@lapis-notes/api` MUST paint the source-editor inline filename title with public `--ui-editor-inline-title-*` tokens and MUST contribute file-view breadcrumbs, leaf history, and header title rename (`titleEditable` / `onTitleCommit`) through the workspace-host `getChrome` projection. Non-file views MAY contribute prefix crumbs and a breadcrumb file path through View hooks. Inline renaming MUST commit once and display the authoritative filename.
 
 ## LN-PKG-014 — Editor language metadata
 
@@ -84,6 +84,12 @@ on unload.
 <a id="ln-pkg-048"></a>
 
 **Requirement.** `@lapis-notes/api` `markupEditor` MUST retain a 700px readable content column when its workspace pane is wide enough. Narrow panes MAY use the configured file margins, but closing either sidebar MUST NOT shrink the editor body.
+
+## LN-PKG-187 — Inline title text-column alignment
+
+<a id="ln-pkg-187"></a>
+
+**Requirement.** The desktop inline filename title MUST align with its owning CodeMirror text column, including the measured gutter spacing. Alignment MUST follow gutter configuration, line-number width, fonts, pane geometry and remounting without changing the readable column width. Each editor MUST own and dispose its measurement lifecycle. Mobile titles MUST retain their centered presentation.
 
 ## LN-PKG-059 — Public embedded editor and extension resolution
 

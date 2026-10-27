@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-27 20:45:00 UTC**.
+Last updated **2026-10-27 20:55:43 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -42,6 +42,21 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**Inline-title editor chrome landed — 2026-10-27 20:55:43 UTC.** The
+`markdown-title-alignment` change is integrated into the default Notes
+workspace, preserving the gate-5 tracker and R7.8 lineage. API filename titles
+align with the measured CodeMirror text column; Enter uses one blur rename,
+and committed filename text survives native contenteditable replacement.
+Focused source checks passed 12/12, with internal rename projection 3/3;
+Plugins passed all five selected interaction/axe scenarios, including
+title/breadcrumb/save-target updates, narrow independent editors, Source and
+dark variants, and Settings above Find/Replace. Mira's stacking change and
+Plugins' vault-change lifecycle fix are already in their default workspaces.
+Full suites and wider consumer qualification remain deferred by the user's
+explicit test-scope instruction. The separate dark YAML palette finding is
+also deferred by the user's choice. This does not advance Rust task statuses.
+[Source record](spec/records/2026-10-27-inline-title-alignment.md).
 
 **Phase 2 gate 5 decided: shared-conflict-review landed, hosted-properties
 retained — 2026-10-27 20:45:00 UTC.** The frozen Workspace 0.2.1

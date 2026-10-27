@@ -1,5 +1,11 @@
 # Architecture / Editor integration
 
+Inline title alignment under [LN-PKG-187](../packages/editor-apis.md#ln-pkg-187)
+is derived by the mounted API editor from its own CodeMirror geometry. The
+component owns observers and measurement cleanup; gutters, filenames and pane
+widths do not create another application state or persistence path. Enter
+commits a title rename through the same focus-out boundary as pointer blur.
+
 Selected native hosts additionally use the [native editor-intent contract](native-editor-intents.md).
 The App registry admits that fence before input, yields only under its existing
 writer guard and rearms before local protection releases. Existing persistence

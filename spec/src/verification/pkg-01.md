@@ -53,6 +53,7 @@
 | LN-PKG-046 | [packages](../packages/core-contract.md#ln-pkg-046) | Implemented | private web package `2026.6.3` exposes standard root development, build, preview, and E2E scripts |
 | LN-PKG-047 | [packages](../packages/app-and-services.md#ln-pkg-047) | Implemented | pinned Turso native/WASM production dependencies; desktop build proves the Vite-aware WASM entry; source and package audits contain no SQLite app-database fallback |
 | LN-PKG-048 | [packages](../packages/editor-apis.md#ln-pkg-048) | Implemented | API markup editor retains a 700px readable body when workspace sidebars close |
+| LN-PKG-187 | [packages](../packages/editor-apis.md#ln-pkg-187) | Implemented | `inline-title-alignment.test.ts`; Plugins Reading surface editing/source alignment stories exercise real gutter changes and title rename/protection. Full suites deferred by request. |
 | LN-PKG-049 | [packages](../packages/workspace-apis.md#ln-pkg-049) | Implemented | Roles package check, 33 unit tests, build, and publint pass with Design Core limited to public controls |
 | LN-PKG-050 | [packages](../packages/configuration-and-lifecycle.md#ln-pkg-050) | Implemented | package interaction tests and static Storybook build pass; generated declarations pass publint |
 | LN-PKG-051 | [packages](../packages/releases-and-exports.md#ln-pkg-051) | Implemented | source audit and package build consume Mira only through public package exports |
