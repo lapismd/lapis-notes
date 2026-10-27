@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 09:43:30 UTC",
+  "updated": "2026-10-27 12:22:17 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -935,7 +935,7 @@
       "work": "Source-only native participant acceptance and coordinated publication",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-participants.md#ln-core-034",
-      "detail": "[Qualified native participants](spec/records/2026-10-27-native-participant-publication.md) at26dda092 on isolated079. Exact missing-service and unstarted-cancel regressions each0/1→1/1;12 participant cases,69 full validator results/seven entries, affected55 and full631 Rust tests (zero failures, seven existing ignores) pass. Strict boundary/protocol/fmt/Clippy, locked build,110-task progress, all ten spec lanes and78 governance cases pass. One owned publisher preserves independent output/revision fences and cold unknown/not-sent without replay. Source-only; preserve current R3 Complete/API0e42/native03b and R4.1 metadata on intake. No host/UI/protocol selection or default changes."
+      "detail": "[Qualified native participants](spec/records/2026-10-27-native-participant-publication.md) at26dda092 on isolated079. Exact missing-service and unstarted-cancel regressions each0/1\u21921/1;12 participant cases,69 full validator results/seven entries, affected55 and full631 Rust tests (zero failures, seven existing ignores) pass. Strict boundary/protocol/fmt/Clippy, locked build,110-task progress, all ten spec lanes and78 governance cases pass. One owned publisher preserves independent output/revision fences and cold unknown/not-sent without replay. Source-only; preserve current R3 Complete/API0e42/native03b and R4.1 metadata on intake. No host/UI/protocol selection or default changes."
     },
     {
       "id": "R4.2.2",
@@ -959,7 +959,15 @@
       "work": "Retained skill discovery and versioned native bindings",
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-051",
-      "detail": "[Native skills](spec/records/2026-10-27-native-skills.md): exact0/3→3/3 across33parser/25discovery/four registry traces (23steps),8native binding boundaries,26oldcontext/29lifetime,634Rust/2438package/check20/test20/build11/strict/canonical78 pass at308823ed/e9ecd545. Admitted vault bindings retain exact bytes across detach, current changes and reused version labels. Source-only; commands/handoff, rich dispatch and actual-host/provider gates remain."
+      "detail": "[Native skills](spec/records/2026-10-27-native-skills.md): exact0/3\u21923/3 across33parser/25discovery/four registry traces (23steps),8native binding boundaries,26oldcontext/29lifetime,634Rust/2438package/check20/test20/build11/strict/canonical78 pass at308823ed/e9ecd545. Admitted vault bindings retain exact bytes across detach, current changes and reused version labels. Source-only; commands/handoff, rich dispatch and actual-host/provider gates remain."
+    },
+    {
+      "id": "R7.1",
+      "area": "Rust hosted Web delivery",
+      "work": "Operator static build, safe assets/fallback and health/readiness",
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-hosted-delivery.md#ln-core-054",
+      "detail": "Focused native7 and actual Rust-only builtWeb1 pass atc7faed1a/fddcadab after original0/4native and0/1browser regressions. Already-running widened server suite5pass/6fail remains recorded. User directs focused landing then final coherent-main broad checks; no cutover/defaultcompletion claimed."
     }
   ]
 }

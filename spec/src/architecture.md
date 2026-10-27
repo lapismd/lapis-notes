@@ -8,6 +8,7 @@ Defines runtime ownership, dependency boundaries, host integration, and build an
 - [Workspace integration](architecture/workspace-integration.md)
 - [Host boundaries](architecture/host-boundaries.md)
 - [Rust application services](architecture/rust-application-services.md)
+- [Rust hosted Web delivery](architecture/rust-hosted-delivery.md)
 - [Rust managed vaults](architecture/rust-managed-vaults.md)
 - [Durable native turn admission](architecture/rust-turn-admission.md)
 - [Native conversation queues](architecture/rust-queue-admission.md)

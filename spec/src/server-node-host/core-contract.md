@@ -1,5 +1,10 @@
 # Node Server Host / Integration contracts
 
+[R7 static delivery](../architecture/rust-hosted-delivery.md) preserves the existing
+Node health/readiness shapes and static Web response behavior in the selected
+Rust process. Node/default scripts and container retirement remain separate;
+actual authentication and resource authority stay with their current routes.
+
 The staged Rust HTTP profile has separate actual-model Search acceptance for
 retained vectors/rankings, admitted detach/reopen and cold offline cache reuse.
 The [provider record](../../records/2026-10-27-hosted-semantic-acceptance.md)

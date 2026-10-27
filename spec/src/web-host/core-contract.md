@@ -1,5 +1,10 @@
 # Web Host / Browser integration
 
+The staged Rust-only delivery journey serves the unchanged built Web application
+through [CORE054–057](../architecture/rust-hosted-delivery.md), with the native
+process owning the public origin and no Vite preview process. Existing login,
+chooser, editor persistence and cold restart remain the actual consumer gate.
+
 The Rust admitted client exposes generated native turn calls over the existing
 versioned, authenticated transport. Closing that client detaches observations;
 accepted native work continues. Submission errors retain their uncertainty

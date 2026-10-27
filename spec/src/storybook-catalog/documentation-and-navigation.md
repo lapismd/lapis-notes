@@ -1,5 +1,9 @@
 # Storybook Catalog / Documentation and navigation
 
+The [Rust hosted Web delivery](../architecture/rust-hosted-delivery.md) chapter
+uses one generated metadata-only mirror and SUMMARY-derived sidebar entry.
+This documents the retained Web host; it adds no product story or screen.
+
 The [Native service exports](../packages/native-service-exports.md) topic is
 separate from release policy and uses a metadata-only mirror in SUMMARY order.
 Its source owns the port contracts; navigation adds no runtime or release gate.

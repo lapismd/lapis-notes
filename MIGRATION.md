@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-27 09:43:30 UTC**.
+Last updated **2026-10-27 12:22:17 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -34,6 +34,23 @@ product/fixture/public-input equality and a fresh documentary gate; it does not
 claim a newly combined native or installed-provider run.
 [Main intake evidence](spec/records/2026-10-27-native-queue-main-adoption.md).
 
+## R7 static Web delivery active
+
+The isolated `r7-static-delivery-20261027` lane starts from frozen main02a0ae50.
+Canonical CORE054–057 define operator-selected static build authority, safe
+streamed assets and navigation fallback, plus existing health/readiness parity.
+The exact unchanged real-binary target records0pass/4fail, repaired to4pass.
+Added security/lifetime cases reproduce6pass/1fail for raw repeated slash;
+frozen d84f4fa0/fe069e repairs this to all7pass/0fail/0ignore. The first direct-Rust browser case is 0 pass / 1 fail at a retained-editor
+shutdown assumption; it now uses the existing Sign out leave before restart.
+Web strict and the coherent three-flag build pass; exact rerun and full source/
+hosted browser qualification are active. Default scripts,
+container/Node-companion retirement, publication and deployment remain separate.
+All120 prior task IDs and R5/R6 tracking are preserved; R7.1 records this existing
+cutover scope. The qualified three-path GOV051 tooling repair is selectively
+adopted from14172a21 without rebasing the frozen parent.
+[Delivery intake](spec/records/2026-10-27-r7-rust-static-delivery.md).
+
 ## What is still left
 
 **R3 is complete. Finish the current intake, then prioritize R7 cutover.**
@@ -56,6 +73,12 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+Focused R7.1 native seven and direct-Rust built-Web one pass. Widened hosted
+acceptance has five passes/six failures, retained as final cutover blockers.
+Per user direction, land focused sources and run final broad validation on the
+coherent main workspaces. No runtime/default cutover is claimed.
+[Source evidence](spec/records/2026-10-27-r7-rust-static-delivery.md).
 
 **Cutover priority — 2026-10-27 09:43:30 UTC.** R5 and R6 are Deferred by user request. Finish this
 participant/skill intake and existing actual-provider acceptance, then focus on
@@ -364,6 +387,7 @@ not host adoption or native/hosted application acceptance.
 | [R4.2](spec/src/architecture/rust-participants.md#ln-core-033)         | AI workflow participants       | Logical participants and one conversation publication owner      | Native publication/typed port and declared-profile/shared/hosted observation are source-qualified atc75a4e32 (native654, mounted2/allhosted11,265catalog/full source gates). Main union qualification is active; Tauri profiles, actual providers, profile editing, rich workflows and busy group queue remain.                                                                                                                                           |
 | [R4.3](spec/src/architecture/rust-application-services.md#ln-core-005) | Native AI preparation          | Native context, skills, commands and handoff                     | Context/bootstrap foundations are adopted. Native skillsa14ba184 are source-qualified (3exact/8boundaries/634Rust/2438package); main union qualification is active. Commands/handoff, rich dispatch and both-host/provider gates remain.                                                                                                                                                                                                                  |
 | [R7](spec/src/architecture/rust-application-services.md#ln-core-008)   | Roadmap                        | Rust cutover                                                     | Priority after the current intake slice: [saved cutover plan](RUST_HOSTED_CUTOVER_PLAN.md). Audit serving-profile gaps and deferred tests, select Rust by default, retire Node/companion application runtime, qualify Linux/container/Desktop/local-browser and cold/provider boundaries. R5 and R6 are Deferred; remaining R4 work is explicit and fixed before cutover only where required to preserve serving behavior or remove runtime dependencies. |
+| [R7.1](spec/src/architecture/rust-hosted-delivery.md#ln-core-054)      | Rust hosted Web delivery       | Operator static build, safe assets/fallback and health/readiness | Focused native7 and actual Rust-only builtWeb1 pass atc7faed1a/fddcadab after original0/4native and0/1browser regressions. Already-running widened server suite5pass/6fail remains recorded. User directs focused landing then final coherent-main broad checks; no cutover/defaultcompletion claimed.                                                                                                                                                    |
 
 ### Gate status: Deferred
 

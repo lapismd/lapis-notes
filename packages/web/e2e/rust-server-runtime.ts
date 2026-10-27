@@ -30,9 +30,14 @@ export class RustServerRuntime {
     readonly password: string,
     readonly agentsConfig?: string,
     readonly operatorTimezone?: string,
+    readonly staticRoot: string | undefined = process.env
+      .LAPIS_TEST_RUST_STATIC_ROOT,
   ) {}
   get logs(): string {
     return this.#logs;
+  }
+  get processCommands(): readonly string[] {
+    return this.#children.map(({ child }) => child.spawnfile);
   }
   get vault(): string {
     return join(this.root, "vault");
@@ -87,9 +92,16 @@ export class RustServerRuntime {
     if (this.agentsConfig)
       environment.LAPIS_SERVER_AGENTS_CONFIG = this.agentsConfig;
     else delete environment.LAPIS_SERVER_AGENTS_CONFIG;
+    if (this.staticRoot) environment.LAPIS_SERVER_STATIC_ROOT = this.staticRoot;
+    else delete environment.LAPIS_SERVER_STATIC_ROOT;
     const service = this.#spawn(
       join(this.repository, ".local/rust-core-target/debug/lapis-server"),
-      [config, "127.0.0.1:0"],
+      [
+        config,
+        this.staticRoot
+          ? `127.0.0.1:${new URL(this.origin).port}`
+          : "127.0.0.1:0",
+      ],
       this.repository,
       environment,
     );
@@ -114,21 +126,23 @@ export class RustServerRuntime {
         reject(new Error(`Rust service exited during startup\n${this.logs}`));
       });
     });
-    this.#spawn(
-      process.execPath,
-      [
-        join(this.repository, "packages/web/node_modules/vite/bin/vite.js"),
-        "preview",
-        "--mode",
-        "server-rust",
-        "--host",
-        "127.0.0.1",
-        "--port",
-        new URL(this.origin).port,
-      ],
-      join(this.repository, "packages/web"),
-      { ...process.env, LAPIS_RUST_SERVER_URL: address },
-    );
+    if (!this.staticRoot) {
+      this.#spawn(
+        process.execPath,
+        [
+          join(this.repository, "packages/web/node_modules/vite/bin/vite.js"),
+          "preview",
+          "--mode",
+          "server-rust",
+          "--host",
+          "127.0.0.1",
+          "--port",
+          new URL(this.origin).port,
+        ],
+        join(this.repository, "packages/web"),
+        { ...process.env, LAPIS_RUST_SERVER_URL: address },
+      );
+    }
     const until = Date.now() + 15_000;
     while (Date.now() < until) {
       try {

@@ -1,4 +1,4 @@
-mod conditions;
+pub(super) mod conditions;
 pub(super) mod ranges;
 mod reads;
 mod writes;
