@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 06:36:14 UTC",
+  "updated": "2026-10-27 07:01:20 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -79,7 +79,7 @@
       "work": "AI/tools/Changes",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "R3 is complete. Context/attachment foundation5cfb7ca0 is source-qualified and adopted in main. Initial skill-context preparation is active in isolation (exact3/37 complete outputs pass; broad source checks run). Participant publication/typed transport516d11dc is source-qualified (645Rust/119server); shared observer/retained hosted integration follows. Queue null-thinking parity and shared Send/independent Stop repairs retain active source and Tauri gates. Bootstrap/discovery/commands/handoff, approvals/tools and Changes/undo remain in the original scope; ordinary defaults are unchanged."
+      "detail": "R3 is complete. Context/attachment5cfb7ca0 and initial skill-context b7c2659d are source-qualified and adopted here (latest611Rust/2438package/canonical78); native discovery/bootstrap construction, commands/handoff, rich admission and actual-host/provider integration remain pending. Participant publication/typed transport516d11dc is source-qualified with shared retained-host integration active. Queue null-thinking/shared Send/independent Stop repairs retain final qualification gates; Root owns the Waiting combined installed-provider gate. Approvals/tools/Changes/undo remain in original scope; defaults unchanged."
     },
     {
       "id": "R5",
@@ -848,6 +848,14 @@
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-038",
       "detail": "[Source qualification](spec/records/2026-10-27-native-context-preparation.md): exact4 pass after0/4, full12 projection/24 attachment outcomes, seven native boundaries/29affected/all608Rust/2438package/check20/test20/build11 and canonical78 pass. Final35c3/d2aac verifies parsed-identical fixture formatting, exact/native/canonical/format gates. No transport, host or provider/default selection; remaining R4.3 skills/commands/handoff are separate. [Main intake](spec/records/2026-10-27-native-context-main-adoption.md) preserves all qualified production and fixture inputs; no transport or default activation."
+    },
+    {
+      "id": "R4.3.2",
+      "area": "Native initial skill context",
+      "work": "Retained selected-skill manifest and initial instruction preparation",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-044",
+      "detail": "[Source qualification](spec/records/2026-10-27-native-initial-context.md): exact3 pass after0/3,9manifest/28initial complete source outcomes,11oldcontext/29affected/all611Rust/2438package/check20/test20/build11 and canonical78 pass at f37fb179. Only final status/evidence checks follow; no host/provider/default activation. Discovery/bootstrap construction, binding ownership, commands/handoff and rich admission remain in R4.3. [Main intake](spec/records/2026-10-27-native-initial-context-main-adoption.md) preserves all qualified production/generator/fixture inputs and106 prior task IDs; no host/default activation."
     }
   ]
 }

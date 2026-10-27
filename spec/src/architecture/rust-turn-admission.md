@@ -252,3 +252,31 @@ provider, write files, release another owner's lease or add a scheduler.
 The pure read port is Rust-only. No callback, root, native handle or executable
 is serialized. Source fixtures compare complete stable results and read order;
 native boundary tests separately retain service error codes and physical guards.
+
+## LN-CORE-044 — Initial selected-skill context projection
+
+<a id="ln-core-044"></a>
+
+**Requirement.** Native initial-context preparation MUST preserve the retained
+bootstrap text, visible skill order, escaped manifest and selected-activation
+serialization. Empty initial context MUST remain absent. Preparation MUST NOT
+mutate captured inputs, authored messages or grant application execution
+permissions from skill text.
+
+This Rust-only typed preparation consumes captured bootstrap/skill values. It
+neither discovers skill files, resolves extensions, executes commands nor
+selects a provider. Future native binding ownership and host adoption retain
+the separate R4.3 gate; no renderer scheduler is introduced.
+
+## LN-CORE-045 — Independent initial-context bounds
+
+<a id="ln-core-045"></a>
+
+**Requirement.** Native initial-context preparation MUST retain the source's
+65,536 UTF-16-unit bootstrap and activation limits, 128 snapshot entries,
+16 activations, 8,000 UTF-16-unit manifest and 131,072-byte final UTF-8 bound.
+It MUST preserve explicit limit errors without truncation or partial delivery.
+
+Rust string/model types exclude malformed JavaScript property shapes. A later
+wire adapter must reject those shapes before invoking preparation; the helper
+cannot reinterpret missing snapshot selection as an empty selected snapshot.
