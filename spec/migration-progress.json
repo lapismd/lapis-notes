@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 05:19:51 UTC",
+  "updated": "2026-10-27 05:34:27 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -832,6 +832,62 @@
       "status": "Complete",
       "spec": "spec/src/web-host/startup-and-plugins.md#ln-web-070",
       "detail": "[Qualified staged hosted Tasks/editor/leave](spec/records/2026-10-26-hosted-editing-leave.md): all 39 current browser journeys pass (15 actual installed Tasks/editor/leave at 8ae78527 and 24 ordinary Rust/metadata/History, Node/local Web at 562111c3). Seven exact leave cases pass df482368 after reproducing one failure/six passes. Full check/test/build 79cae593 passes 563 Rust, 2,394 package, twenty check and eleven build tasks; cold full catalog 05ee0b4b passes 263 interaction/accessibility cases. Final canonical/documentary closure accompanies this isolated host commit. API fe1d2dcd, Markdown ea9ea3bd/f1a6666d and Tasks 52270c2a/ff64c349 remain fixed. Main/combined intake, Desktop native-preview repair and complete R3 are separate; no defaults or publication change."
+    },
+    {
+      "id": "R4.1",
+      "status": "Working",
+      "area": "Native conversation queue",
+      "work": "Deliver the retained plaintext queue through both existing hosts",
+      "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-036",
+      "detail": "Queue source capture/FIFO/transport checkpoints are qualified separately. Shared host/operator qualification is active; Tauri bridge and combined provider acceptance remain separate."
+    },
+    {
+      "id": "R4.1.1",
+      "status": "Source complete",
+      "area": "Retained queue codec",
+      "work": "Lossless frozen Desktop captures and receipts",
+      "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-029",
+      "detail": "[Qualified frozen codec source](spec/records/2026-10-27-native-queue-capture.md), a3cbf03, is composed into079065a6. Complete capture/receipt parity does not enable host controls."
+    },
+    {
+      "id": "R4.1.2",
+      "status": "Source complete",
+      "area": "Native FIFO owner",
+      "work": "Durable bounded admission, dispatch, pause and recovery barriers",
+      "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-030",
+      "detail": "[Qualified native queue source](spec/records/2026-10-27-native-bounded-queue.md), fef5886f, is composed into079065a6. Core owns dispatch; both actual hosts/provider journeys remain separate."
+    },
+    {
+      "id": "R4.1.3",
+      "status": "Source complete",
+      "area": "Admitted queue transport",
+      "work": "Generated DTOs and admitted HTTP/shared API queue port",
+      "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-032",
+      "detail": "[Qualified admitted port](spec/records/2026-10-27-native-queue-port.md),079065a6, retains615 native cases and source protocol/API proof. Shared observer/operator and Tauri adoption follow separately."
+    },
+    {
+      "id": "R4.1.4",
+      "status": "Working",
+      "area": "Shared queue hosts",
+      "work": "Existing chat projection, retained controls and trusted operator capture metadata",
+      "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-036",
+      "detail": "[Active source proof](spec/records/2026-10-27-native-queue-hosts.md): native620/0fail with seven retained asset/provider ignores,43 exact and AppProfile/Web strict checks pass. UI capability regression moves0/1 to1/1; current shared32/Web9 and public API/AppProfile packs are qualified for isolated consumer intake atcdbffced. Full source/canonical/catalog and actual hosted controls remain under qualification. R3 completiondc03d375 is preserved."
+    },
+    {
+      "id": "R4.1.5",
+      "status": "Working",
+      "area": "Tauri queue adapter",
+      "work": "Admitted native bridge and trusted recipient-catalog selection",
+      "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-036",
+      "detail": "Desktop owner is implementing in lapis-desktop-native-queue-20261027 on main6c624320. Reuse complete shared Agent screen and declared capture metadata; native/consumer acceptance is not yet claimed."
+    },
+    {
+      "id": "R4.1.6",
+      "status": "Waiting",
+      "area": "Queue host/provider acceptance",
+      "work": "Combined real-host queue workflows and retained provider gates",
+      "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-036",
+      "detail": "Wait for shared/operator and Tauri source qualification, then prove live detach, explicit cold resume, controls, unknown reply observation and provider-default omission through both retained hosts. Existing source fixtures do not close this gate."
     }
   ]
 }

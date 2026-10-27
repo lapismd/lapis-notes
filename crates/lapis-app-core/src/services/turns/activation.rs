@@ -36,6 +36,7 @@ impl Client {
             data.enabled = true;
             return Ok(true);
         }
+        data.queues.pause("native_turns_disabled")?;
         data.enabled = false;
         for job in data.jobs.values() {
             job.cancel.send_replace(true);

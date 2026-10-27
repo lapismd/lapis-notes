@@ -4,6 +4,7 @@ mod conversation;
 mod execution;
 mod history;
 mod launch;
+mod queue;
 mod storage;
 mod worker;
 use super::{Client, Error, Result, VaultService, Work};
@@ -13,6 +14,7 @@ use lapis_app_protocol::{
     ErrorCode,
     turns::{TurnInput, TurnRecord, TurnSummary},
 };
+pub use queue::{QueueEntry, QueueInput, QueuePhase, TurnQueue};
 use std::{
     collections::HashMap,
     sync::{
@@ -35,8 +37,10 @@ struct Data {
     journal: TurnJournal,
     jobs: HashMap<Uuid, Arc<Job>>,
     enabled: bool,
+    queues: queue::Queues,
 }
 struct Job {
+    queued: Option<queue::Delivery>,
     work: Arc<Work>,
     cancel: watch::Sender<bool>,
     done: AtomicBool,
@@ -85,9 +89,11 @@ impl Client {
             Some(owner) => owner.clone(),
             None => {
                 let journal = TurnJournal::open(storage.root.path(), self.vault.id, &root)?;
+                let queues = queue::Queues::open(&storage, self.vault.id, &root, &journal)?;
                 let owner = Arc::new(Owner {
                     data: Mutex::new(Data {
                         journal,
+                        queues,
                         jobs: HashMap::new(),
                         enabled: true,
                     }),
@@ -122,7 +128,7 @@ impl Client {
             };
         }
         owner.require_enabled(&data)?;
-        if !data.jobs.is_empty() {
+        if !data.jobs.is_empty() || data.queues.blocks(&input)? {
             return Err(Error::busy());
         }
         let prompt = SessionRequest::Prompt {
@@ -150,6 +156,7 @@ impl Client {
             return Err(failure());
         };
         let job = Arc::new(Job {
+            queued: None,
             work: Arc::new(work),
             cancel: watch::channel(false).0,
             done: AtomicBool::new(false),
@@ -167,7 +174,10 @@ impl VaultService {
     pub(in crate::services) fn retire_turns(&self) -> Result<()> {
         let mut slot = self.turns.lock().map_err(|_| failure())?;
         if let Some(owner) = slot.as_ref() {
-            owner.data()?.journal.retire()?;
+            let mut data = owner.data()?;
+            data.queues.pause("vault_retired")?;
+            data.queues.store.retire()?;
+            data.journal.retire()?;
         }
         slot.take();
         Ok(())

@@ -1,3 +1,4 @@
+mod queue_selection;
 use lapis_ai_service::{
     Launch,
     runtime::{Environment, PreparedLaunch},
@@ -16,6 +17,8 @@ use uuid::Uuid;
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AgentConfig {
+    #[serde(default)]
+    pub queue_selection: Option<lapis_app_protocol::queues::QueueSelection>,
     pub id: String,
     pub label: String,
     pub default_mode: String,
@@ -32,7 +35,8 @@ impl Policy {
         let mut ids = HashSet::new();
         if agents.len() > 32
             || agents.iter().any(|agent| {
-                !label(&agent.id)
+                !queue_selection::valid(agent.queue_selection.as_ref())
+                    || !label(&agent.id)
                     || !label(&agent.label)
                     || !label(&agent.default_mode)
                     || agent.default_mode.trim() != agent.default_mode
@@ -86,6 +90,7 @@ impl AgentPolicy for Policy {
             .agents
             .iter()
             .map(|agent| TurnTarget {
+                queue_selection: agent.queue_selection.clone(),
                 id: agent.id.clone(),
                 label: agent.label.clone(),
                 default_mode: agent.default_mode.clone(),

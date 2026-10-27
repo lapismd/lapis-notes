@@ -360,3 +360,5 @@ The file-icon dependency intake keeps API and hosted validation on the same
 patched Zod package through its public v3 entry. Router inputs, vault-role
 admission and typed remote-database schemas retain their existing behavior;
 no host policy or default changes follow from this dependency alignment.
+
+Optional trusted `queue_selection` metadata follows [LN-CORE-037](../architecture/rust-turn-admission.md#ln-core-037). Hosts keep the exact saved recipient and ACP choices separate from opaque execution-target authority; absent metadata retains R2-only operation.

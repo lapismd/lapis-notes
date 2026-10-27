@@ -13,6 +13,12 @@ The declared target-mode contract under LN-CORE-009/010 applies only to that
 native entry. Its metadata refresh cannot reactivate or change the frozen Deno
 chat path.
 
+The optional queue observer and target-discovery metadata under
+[LN-CORE-036/037](../architecture/rust-turn-admission.md#ln-core-036) apply only
+to that native entry. They add no command, capture constructor, timer or
+activation to Deno. This shared-profile intake preserves the frozen host;
+implementation and acceptance target Tauri and Rust-hosted Web.
+
 The Design Core dependency refresh consumes released `0.5.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.

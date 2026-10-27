@@ -75,7 +75,12 @@ async fn run(
     let history = selected.history.take();
     let initialized = tokio::task::spawn_blocking(move || -> Result<bool> {
         let running = prepare_owner.data()?.journal.claim(claim)?;
-        let conversation = Conversation::create(&prepare_job.work, &prepare_record, history).ok();
+        let authored = prepare_job
+            .queued
+            .as_ref()
+            .map(|q| q.capture["user"].clone());
+        let conversation =
+            Conversation::create(&prepare_job.work, &prepare_record, history, authored).ok();
         let available = conversation.is_some();
         *prepare_job.capture.lock().map_err(|_| super::failure())? = Some(Capture {
             running,
@@ -135,7 +140,7 @@ async fn run(
         owner.fault(&job);
     }
 }
-fn finish(owner: &Owner, job: &Job, id: Uuid, mut outcome: TurnOutcome, clean: bool) {
+fn finish(owner: &Arc<Owner>, job: &Job, id: Uuid, mut outcome: TurnOutcome, clean: bool) {
     let Ok(mut capture) = job.capture.lock() else {
         owner.fault(job);
         return;
@@ -144,13 +149,38 @@ fn finish(owner: &Owner, job: &Job, id: Uuid, mut outcome: TurnOutcome, clean: b
         owner.fault(job);
         return;
     };
+    let phase = match &outcome {
+        TurnOutcome::Completed(_) => lapis_app_protocol::turns::TurnPhase::Completed,
+        TurnOutcome::Cancelled => lapis_app_protocol::turns::TurnPhase::Cancelled,
+        TurnOutcome::Failed(_) => lapis_app_protocol::turns::TurnPhase::Failed,
+        TurnOutcome::Unknown(_) => lapis_app_protocol::turns::TurnPhase::Unknown,
+    };
+    let receipt = match job
+        .queued
+        .as_ref()
+        .map(|delivery| super::queue::terminal_receipt(delivery, &phase))
+        .transpose()
+    {
+        Ok(receipt) => receipt,
+        Err(_) => {
+            owner.fault(job);
+            return;
+        }
+    };
+    let mut published = capture.conversation.is_some();
     if let Some(conversation) = &mut capture.conversation
-        && conversation.finish(&job.work, &outcome).is_err()
+        && conversation
+            .finish(&job.work, &outcome, receipt.clone())
+            .is_err()
     {
         outcome = TurnOutcome::Unknown("portable_publication_failed".into());
+        published = false;
     }
     let confirmed = owner.data().is_ok_and(|mut data| {
-        if data.journal.finish(&mut capture.running, outcome).is_err() || !clean {
+        let Ok(record) = data.journal.finish(&mut capture.running, outcome) else {
+            return false;
+        };
+        if !clean || super::queue::complete(&mut data, job, &record, published, receipt).is_err() {
             return false;
         }
         // A reader of the terminal record can immediately submit its follow-up.
@@ -161,10 +191,16 @@ fn finish(owner: &Owner, job: &Job, id: Uuid, mut outcome: TurnOutcome, clean: b
     });
     if !confirmed {
         owner.fault(job);
+    } else {
+        super::queue::drive(owner);
     }
 }
 fn retire(owner: &Owner, job: &Job, id: Uuid, confirmed: bool) {
     if confirmed && let Ok(mut data) = owner.data() {
+        if data.queues.pause("native_owner_failed").is_err() {
+            owner.fault(job);
+            return;
+        }
         data.jobs.remove(&id);
         job.done.store(true, Ordering::Release);
         owner.changed.notify_all();

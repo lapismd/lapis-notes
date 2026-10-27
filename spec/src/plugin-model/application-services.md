@@ -23,6 +23,14 @@ that App teardown releases its admitted client while accepted work continues;
 cold History reads preserve the exact result without another Submit. Desktop's
 separate screen acceptance remains R2.3.
 
+The optional admitted `NativeQueueService` and shared chat queue observer follow
+[LN-CORE-036/037](../architecture/rust-turn-admission.md#ln-core-036). Plugins and
+views supply no queue scheduler or transcript writer. A host declares complete
+recipient/capture metadata separately from an opaque runtime target; missing
+discovery leaves UI queue capture unavailable while preserving idle R2 sends.
+Retained native state supplies queue controls and status receipts. View detach
+stops observation; explicit feature disable retains native pause/fence/drain.
+
 Hosted screen resources are prepared before the owning VaultSession and released
 after its App/database teardown. This host connection preserves existing plugin
 registration and explicit App ownership. Rust installed content uses the shared native verifier behind authenticated

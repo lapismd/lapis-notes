@@ -120,6 +120,16 @@ export function createRustHostedBackend(
             !app.safeMode.disableOptionalCorePlugins,
           activate: async () => {},
           call: (command) => client.turns(command),
+          queue: {
+            call: (command) => client.queues(command),
+            selection: async (targetId) => {
+              const value = await client.turns({ kind: "targets" });
+              return value.kind === "targets"
+                ? value.targets.find((target) => target.id === targetId)
+                    ?.queue_selection
+                : undefined;
+            },
+          },
           readText: (path) => adapter.read(path),
           leave: async (reason) => {
             if (reason === "detach") return;

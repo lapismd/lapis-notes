@@ -2869,6 +2869,200 @@
       "required": ["path", "name", "inferredType", "value"],
       "type": "object"
     },
+    "QueueAccept": {
+      "additionalProperties": false,
+      "properties": {
+        "acceptance_id": { "format": "uuid", "type": "string" },
+        "after_request_id": { "format": "uuid", "type": "string" },
+        "capture": true,
+        "conversation_id": { "format": "uuid", "type": "string" },
+        "scope_dir": { "type": "string" },
+        "target_id": { "type": "string" }
+      },
+      "required": [
+        "acceptance_id",
+        "conversation_id",
+        "after_request_id",
+        "scope_dir",
+        "target_id",
+        "capture"
+      ],
+      "type": "object"
+    },
+    "QueueAgent": {
+      "enum": ["codex", "cursor", "opencode", "local"],
+      "type": "string"
+    },
+    "QueueCaptureTarget": {
+      "additionalProperties": false,
+      "properties": {
+        "agent": { "$ref": "#/$defs/QueueAgent" },
+        "executionMode": { "type": ["string", "null"] },
+        "id": { "type": "string" },
+        "model": {
+          "anyOf": [{ "$ref": "#/$defs/QueueModel" }, { "type": "null" }]
+        },
+        "thinking": {
+          "anyOf": [{ "$ref": "#/$defs/QueueThinking" }, { "type": "null" }]
+        }
+      },
+      "required": ["id", "agent"],
+      "type": "object"
+    },
+    "QueueCommand": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "input": { "$ref": "#/$defs/QueueAccept" },
+            "kind": { "const": "accept", "type": "string" }
+          },
+          "required": ["kind", "input"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "conversation_id": { "format": "uuid", "type": "string" },
+            "kind": { "const": "read", "type": "string" }
+          },
+          "required": ["kind", "conversation_id"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "conversation_id": { "format": "uuid", "type": "string" },
+            "kind": { "const": "stop", "type": "string" }
+          },
+          "required": ["kind", "conversation_id"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "acceptance_id": { "format": "uuid", "type": "string" },
+            "conversation_id": { "format": "uuid", "type": "string" },
+            "kind": { "const": "cancel", "type": "string" }
+          },
+          "required": ["kind", "conversation_id", "acceptance_id"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "after_request_id": { "format": "uuid", "type": "string" },
+            "conversation_id": { "format": "uuid", "type": "string" },
+            "kind": { "const": "resume", "type": "string" }
+          },
+          "required": ["kind", "conversation_id", "after_request_id"],
+          "type": "object"
+        }
+      ]
+    },
+    "QueueEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "input": { "$ref": "#/$defs/QueueAccept" },
+        "phase": { "$ref": "#/$defs/QueuePhase" },
+        "receipt": true,
+        "receipt_published": { "type": "boolean" },
+        "request_id": { "format": "uuid", "type": "string" }
+      },
+      "required": ["input", "request_id", "phase", "receipt_published"],
+      "type": "object"
+    },
+    "QueueModel": {
+      "additionalProperties": false,
+      "properties": {
+        "model": { "type": "string" },
+        "provider": { "type": "string" }
+      },
+      "required": ["provider", "model"],
+      "type": "object"
+    },
+    "QueuePhase": {
+      "enum": [
+        "pending",
+        "started",
+        "completed",
+        "cancelled",
+        "rejected",
+        "unknown"
+      ],
+      "type": "string"
+    },
+    "QueueRecipient": {
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "label": { "type": "string" },
+        "token": { "type": "string" }
+      },
+      "required": ["id", "label", "token"],
+      "type": "object"
+    },
+    "QueueRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "barrier": { "type": ["string", "null"] },
+        "conversation_id": { "format": "uuid", "type": "string" },
+        "entries": {
+          "items": { "$ref": "#/$defs/QueueEntry" },
+          "type": "array"
+        },
+        "head_request_id": { "format": "uuid", "type": "string" },
+        "paused": { "type": "boolean" },
+        "schema_version": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "scope_dir": { "type": "string" },
+        "vault_id": { "format": "uuid", "type": "string" }
+      },
+      "required": [
+        "schema_version",
+        "vault_id",
+        "conversation_id",
+        "scope_dir",
+        "head_request_id",
+        "paused",
+        "entries"
+      ],
+      "type": "object"
+    },
+    "QueueSelection": {
+      "additionalProperties": false,
+      "properties": {
+        "recipient": { "$ref": "#/$defs/QueueRecipient" },
+        "target": { "$ref": "#/$defs/QueueCaptureTarget" },
+        "thinking": {
+          "anyOf": [{ "$ref": "#/$defs/QueueThinking" }, { "type": "null" }]
+        }
+      },
+      "required": ["recipient", "target"],
+      "type": "object"
+    },
+    "QueueThinking": {
+      "enum": ["default", "off", "low", "medium", "high"],
+      "type": "string"
+    },
+    "QueueValue": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "queue", "type": "string" },
+            "queue": {
+              "anyOf": [{ "$ref": "#/$defs/QueueRecord" }, { "type": "null" }]
+            }
+          },
+          "required": ["kind"],
+          "type": "object"
+        }
+      ]
+    },
     "Reply": {
       "additionalProperties": false,
       "properties": {
@@ -4277,7 +4471,10 @@
       "properties": {
         "default_mode": { "type": "string" },
         "id": { "type": "string" },
-        "label": { "type": "string" }
+        "label": { "type": "string" },
+        "queue_selection": {
+          "anyOf": [{ "$ref": "#/$defs/QueueSelection" }, { "type": "null" }]
+        }
       },
       "required": ["id", "label", "default_mode"],
       "type": "object"
@@ -4614,6 +4811,8 @@
     "projection_related": { "$ref": "#/$defs/ProjectionRelatedQuery" },
     "projection_result": { "$ref": "#/$defs/ProjectionQueryResult" },
     "projection_source": { "$ref": "#/$defs/ProjectionSource" },
+    "queue_command": { "$ref": "#/$defs/QueueCommand" },
+    "queue_value": { "$ref": "#/$defs/QueueValue" },
     "reply": { "$ref": "#/$defs/Reply" },
     "repository_backup_command": { "$ref": "#/$defs/RepositoryBackupCommand" },
     "repository_backup_snapshot": {
@@ -4670,6 +4869,8 @@
     "history_index_value",
     "indexing_command",
     "indexing_value",
+    "queue_command",
+    "queue_value",
     "turn_command",
     "turn_value",
     "database_call",
