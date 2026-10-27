@@ -276,6 +276,13 @@ services; the hosted binding adds no second journal, save path or scheduler.
 
 **Requirement.** Hosted vault switch, archive and logout MUST preflight native recovery and flush registered writers under their guard before disposing views, plugins, registry or clients. Refusal MUST retain the same App, draft and Problems, report through existing notifications and permit explicit retry. Concurrent callers MUST join complete disposal. Later cleanup failure MUST remain distinct from refusal and failed on subsequent leave requests without replay or admission release.
 
+R7's retained Properties acceptance uses the shared text-conflict presentation
+under LN-WS-102 through LN-WS-104, separately from native claim recovery. The
+actual hosted cases exercise the existing FileManager guard, filesystem watch,
+Problems navigation and reviewed disk-side resolution without browser App
+instrumentation. [Current qualification](../../records/2026-10-27-hosted-properties-review.md)
+keeps that final-cohort proof separate from the original 15 Tasks journeys.
+
 ## LN-WEB-075 — Retained independent repository sources
 
 <a id="ln-web-075"></a>

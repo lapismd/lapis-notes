@@ -75,6 +75,11 @@ reuses its live App controller/cache observers and re-enables declarations; it
 does not call terminal App disposal during partial cleanup. Existing installed
 plugin integrity remains independent of app signing.
 
+The retained hosted Properties cases end in an ordinary guarded logout:
+registered writers flush under the leave guard before plugin unload and
+disposal, and installed-plugin integrity remains independent of the shared
+conflict presentation.
+
 ## Admitted native History observation
 
 An optional host-authored `nativeHistoryIndex` App property takes precedence

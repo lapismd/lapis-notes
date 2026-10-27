@@ -17,6 +17,11 @@ history capture and the original App, leaf, view and writer owners are unchanged
 Diagnostic navigation may register disposable App-owned resource openers before
 the existing vault-file fallback. The desktop routes conflict resources while
 retaining writer-owned persistence; the shared API grants no file authority.
+The actual hosted Properties cases navigate from the shared Problems diagnostic
+to the retained review leaf through that registered opener, without browser App
+instrumentation or a test-only recovery path;
+[their acceptance](../../records/2026-10-27-hosted-properties-review.md) stays
+separate from the original hosted Tasks journeys.
 
 Deferred imperative attachment follows LN-WS-006/064: the API waits for its
 queued compatibility projection and retains the same view/container owner.

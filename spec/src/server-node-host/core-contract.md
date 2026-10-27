@@ -253,6 +253,10 @@ client-supplied filesystem authority or renderer writer. The initial single-user
 operator date policy is an explicit process `TZ` with a matching browser zone;
 [hosted Tasks acceptance](../../records/2026-10-26-hosted-native-tasks.md) tracks
 actual default-date/day-boundary and unsupported zone mismatch separately.
+The retained hosted Properties acceptance reuses this staged Rust backend and
+the same installed-plugin fixture; its focused configuration adds no Node
+server route, task retry or renderer writer, and leaves the original hosted
+Tasks journeys unchanged.
 
 ## LN-SRV-026 — Admitted Rust Repository transport
 

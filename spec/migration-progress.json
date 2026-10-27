@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 20:55:43 UTC",
+  "updated": "2026-10-28 00:55:00 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -1021,15 +1021,15 @@
       "id": "R7.8",
       "area": "Hosted parity",
       "work": "Shared retained text-conflict presentation",
-      "status": "Working",
+      "status": "Complete",
       "spec": "spec/src/workspace-shell/panels/problems/core-contract.md#ln-ws-102",
-      "detail": "[Focused shared review](spec/records/2026-10-26-shared-file-conflict-review.md) landed on integrated main (preserved ea7a2d28+974328f6 duplicated onto 44f3b41f): focused binding6/6, Workspace38/38, cold Storybook267/267 including the two new File Conflicts cases, spec:check80 and combined-range spec-first pass; Desktop conflict-review adoption stays separate. The final hosted Properties recovery journey remains unclaimed: the preserved never-executed Rust-hosted e2e (kpymntwz 845842b8) reproduces a pre-existing clean native-shutdown refusal after an ordinary Properties save and logout on the bare main baseline (retained tasks-leave passes5/5 on the same stack); repairing the native metadata/frontmatter leave-drain path is a user-decided rework."
+      "detail": "[Focused shared review](spec/records/2026-10-26-shared-file-conflict-review.md) landed on integrated main (preserved ea7a2d28+974328f6 duplicated onto 44f3b41f): focused binding6/6, Workspace38/38, cold Storybook267/267 including the two new File Conflicts cases, spec:check80 and combined-range spec-first pass; Desktop conflict-review adoption stays separate. The final hosted Properties recovery journey is claimed: the preserved never-executed Rust-hosted e2e (kpymntwz 845842b8) landed above repair b3be91da (LN-CORE-028 guarded pre-yield saved-text reconciliation of clean interactive producers); the gate-5 shutdown refusal was diagnosed as a masked frontmatter-commit race against the 5s watch projection, not a leave-drain defect. Both actual cases pass 2/2 on three consecutive cold runs with clean native shutdown; hosted family 11/11, api1723/1723, web136/136 ([qualification](spec/records/2026-10-27-hosted-properties-review.md)). The rust-server-tasks-editors failure (tasks family 14/15) reproduces identically without this stack, is pre-existing, and stays separately owned."
     }
   ],
   "activity": {
     "state": "Active",
-    "updated": "2026-10-27 20:45:00 UTC",
-    "reason": "Phase 2 gate 5 decided: the shared file-conflict review lineage is landed and lane-qualified; the hosted-Properties e2e stays bookmark-preserved against a pre-existing native-shutdown defect. The publication-readiness record maps every registry blocker to its checksummed local archive and proposes the release order for user approval.",
+    "updated": "2026-10-28 00:55:00 UTC",
+    "reason": "The hosted-Properties lineage is landed above its native-shutdown repair (LN-CORE-028 guarded pre-yield reconciliation) and lane-qualified 2/2 with clean native shutdown; R7.8 is complete. Active steps: the Notes-side plugin-cohort refresh (History 0.1.4 candidate) with the web check/test rerun, the final full lanes on the landed main, and publication preparation per the readiness record. The pre-existing rust-server-tasks-editors failure is separately owned pending user decision.",
     "handoff": "MIGRATION_HANDOFF.md",
     "workspaceRegister": "MIGRATION_WORKSPACES.md"
   }

@@ -225,3 +225,9 @@ before constructing its App. Passive host teardown drains the App observer
 before unloading configured plugins or releasing the attachment. The host never
 registers a replacement Tasks view or a static Tasks plugin; [hosted intake](../../records/2026-10-26-hosted-native-tasks.md)
 retains separate actual UI, timezone and installed-integrity gates.
+
+The retained hosted Properties journey drives the public File Properties
+surface over the admitted native metadata owner. Stale-draft capture and
+explicit recovery stay in the App-owned `fileEditingSessions` registry;
+[hosted Properties acceptance](../../records/2026-10-27-hosted-properties-review.md)
+keeps that final-cohort proof separate from the original Tasks journeys.
