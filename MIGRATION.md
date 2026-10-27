@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-27 05:19:51 UTC**.
+Last updated **2026-10-27 05:56:18 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -56,13 +56,18 @@ pnpm installs restore tracked manifest/lock bytes exactly and leave local loader
 files untouched. No Storybook listener needed a restart; no installed app was
 replaced. Visual approval, signing, publication and distribution stay separate.
 
-**Active R4 lanes:** shared observer/session/HTTP queue controls with trusted
-operator metadata, the Tauri admitted queue bridge, and Core participant
-publication with independent outcomes. Queue capture `a3cbf03`, native FIFO
-`fef5886f` and source port `079065a6` are already committed separately. New
-source slices preserve the final R3 implementation and keep ordinary defaults
-unchanged. Native context/skills/handoff, approvals/tools and Changes/undo follow
-in their saved order; no new scope is added.
+**Active R4 lanes — 2026-10-27 05:56:18 UTC:**
+
+| Checkpoint        | Current source work                                                                                                                                                             | What still blocks completion                                                                                                                                        |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R4.1 Queues       | Capture `a3cbf03`, FIFO `fef5886f` and typed port `079065a6` are committed. Shared controls/trusted metadata pass620 native and current full package/build checks in isolation. | Finish hosted/catalog acceptance and commit; Tauri bridge/native/catalog qualification then coherent both-main adoption.                                            |
+| R4.2 Participants | Publication owner `312f2372` is committed:631 native cases pass, with independent delivery outcomes and retained identity/revision fences.                                      | Typed participant transport and retained host integration are active; this source commit alone does not complete participant parity.                                |
+| R4.3 Context      | Native retained projector/attachment preparation passes4 exact cases at `8611ca92`, comparing12 projection results and24 attachment outcomes/read traces.                       | Seven native authority/limit/cancellation/drain boundaries and broad source checks are running; skills/bootstrap/commands/handoff and both-host integration follow. |
+| R4.4–R4.5         | Waiting in the original order.                                                                                                                                                  | Approvals, first-party tools, Changes and guarded undo, then complete both-host workflow acceptance.                                                                |
+
+These are isolated source/consumer checkpoints, not main adoption or changed
+ordinary defaults. The final R3 implementation remains the integration base.
+The original R4 scope is unchanged; Node remains the hosted default until R7.
 
 <details>
 <summary>Earlier R3 checkpoints and source receipts (historical)</summary>
@@ -280,9 +285,9 @@ not host adoption or native/hosted application acceptance.
 
 ### Gate status: Working
 
-| Task ID                                                              | Area    | Work             | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| -------------------------------------------------------------------- | ------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [R4](spec/src/architecture/rust-application-services.md#ln-core-005) | Roadmap | AI/tools/Changes | R3 current-profile gate is complete. Queue capture a3cbf03, FIFO fef5886f and DTO/HTTP/client port079065a6 are separately source-qualified. Active: shared queue observer/controls and trusted operator metadata (CORE036/037), Tauri admitted queue bridge and participant publication owner (CORE033-035), each isolated with failing-before evidence. Context/skills/handoff, approvals/tools and Changes/undo retain original remaining scope. No ordinary default activation; preserve final R3 API when composing source preparations. |
+| Task ID                                                              | Area    | Work             | Evidence or next gate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| -------------------------------------------------------------------- | ------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [R4](spec/src/architecture/rust-application-services.md#ln-core-005) | Roadmap | AI/tools/Changes | R3 is complete. Queue capture a3cbf03/FIFO fef5886f/typed port079065a6 and participant publication312f2372 are committed source checkpoints. Active isolated lanes: shared queue controls/trusted metadata plus hosted/catalog closure, Tauri queue native/catalog acceptance, participant transport and native context/attachment preparation (exact4/4after0/4). Skills/bootstrap/commands/handoff, approvals/tools and Changes/undo retain the original remaining scope. Coherent both-main adoption and ordinary defaults remain separate. |
 
 ### Gate status: Waiting
 

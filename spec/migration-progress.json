@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 05:19:51 UTC",
+  "updated": "2026-10-27 05:56:18 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -79,7 +79,7 @@
       "work": "AI/tools/Changes",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "R3 current-profile gate is complete. Queue capture a3cbf03, FIFO fef5886f and DTO/HTTP/client port079065a6 are separately source-qualified. Active: shared queue observer/controls and trusted operator metadata (CORE036/037), Tauri admitted queue bridge and participant publication owner (CORE033-035), each isolated with failing-before evidence. Context/skills/handoff, approvals/tools and Changes/undo retain original remaining scope. No ordinary default activation; preserve final R3 API when composing source preparations."
+      "detail": "R3 is complete. Queue capture a3cbf03/FIFO fef5886f/typed port079065a6 and participant publication312f2372 are committed source checkpoints. Active isolated lanes: shared queue controls/trusted metadata plus hosted/catalog closure, Tauri queue native/catalog acceptance, participant transport and native context/attachment preparation (exact4/4after0/4). Skills/bootstrap/commands/handoff, approvals/tools and Changes/undo retain the original remaining scope. Coherent both-main adoption and ordinary defaults remain separate."
     },
     {
       "id": "R5",
