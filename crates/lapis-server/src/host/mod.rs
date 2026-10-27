@@ -17,7 +17,10 @@ use lapis_app_core::services::{Client, Runtime};
 use lapis_app_protocol::{ClientDescriptor, ErrorCode, ManagedVault, Reply, Request, ServiceError};
 use std::{
     collections::HashMap,
-    sync::{Arc, OnceLock},
+    sync::{
+        Arc, OnceLock,
+        atomic::{AtomicBool, Ordering},
+    },
     time::{Duration, Instant},
 };
 use uuid::Uuid;
@@ -32,6 +35,7 @@ pub enum Principal {
 }
 
 pub struct Host {
+    ready: AtomicBool,
     runtime: Runtime,
     vaults: Vec<ManagedVault>,
     clients: attachments::Attachments,
@@ -71,6 +75,7 @@ impl Host {
             });
         }
         Ok(Self {
+            ready: AtomicBool::new(true),
             runtime,
             vaults,
             clients: attachments::Attachments::default(),
@@ -138,7 +143,20 @@ impl Host {
         Ok(())
     }
 
+    pub(crate) fn ready(&self) -> bool {
+        self.ready.load(Ordering::Acquire)
+    }
+
     pub fn shutdown(&self) -> Result<()> {
+        self.ready.store(false, Ordering::Release);
+        let result = self.shutdown_owned();
+        if result.is_err() {
+            self.ready.store(true, Ordering::Release);
+        }
+        result
+    }
+
+    fn shutdown_owned(&self) -> Result<()> {
         if let Some(manager) = self.management.get() {
             manager.pause_and_drain()?;
         }

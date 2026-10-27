@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 12:21:39 UTC",
+  "updated": "2026-10-27 12:23:40 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -966,8 +966,8 @@
       "area": "Hosted cutover",
       "work": "Static Web and health delivery",
       "status": "Working",
-      "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
-      "detail": "Native static assets, safe SPA fallback and public health/readiness now pass seven exact real-binary cases (four static, one readiness and two security) on frozend84f4fa0/fe069e, zero failures/ignores. Complete Rust-served browser qualification and main adoption remain. Node/Vite must not serve the deployed acceptance UI."
+      "spec": "spec/src/architecture/rust-hosted-delivery.md#ln-core-054",
+      "detail": "Static source9009bccf is integrated with native launcher in main. Focused native7 and directRust-only builtWeb1 pass. The prior combinedprofile hosted aggregate5pass/6fail is retained; final-main diagnosis and broad acceptance remain blockers. No Node/Vite server serves the directRust case; no ordinary defaultcompletion claimed."
     },
     {
       "id": "R7.2",

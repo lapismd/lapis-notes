@@ -1,5 +1,9 @@
 # Architecture / Rust application services
 
+[R7 static Web delivery](rust-hosted-delivery.md) preserves operator-owned build
+authority and the existing health/readiness contract; source and actual deployed
+browser acceptance qualify separately from script/default/container retirement.
+
 The [shared Rust plan](../../../RUST_CORE_MIGRATION_PLAN.md) supersedes future
 Node-specific hosted parity implementation. Existing hosts stay supported until
 their replacement gates pass. See [current status](../../../MIGRATION.md) and

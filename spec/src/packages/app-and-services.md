@@ -1,5 +1,10 @@
 # Packages / App and services
 
+The R7 built-Web acceptance uses the same public App/API/workspace packages
+behind the selected native HTTP origin. Static delivery changes no App ownership,
+conversation writer or renderer callback authority under
+[CORE054–057](../architecture/rust-hosted-delivery.md).
+
 The private application profile owns the native-turn observer and optional AI
 plugin under LN-CORE-004/006/007/008. It uses the existing public Agent screens
 and built public exports. Temporary verified local archives admit unpublished

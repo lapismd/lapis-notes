@@ -22,7 +22,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if args.next().is_some() {
         return Err("Unexpected server argument".into());
     }
-    let config: Config = serde_json::from_slice(&std::fs::read(config_path)?)?;
+    let config: Config = serde_json::from_slice(&std::fs::read(&config_path)?)?;
     let token = std::env::var("LAPIS_SERVER_TOKEN").ok();
     let roots = config
         .vaults
@@ -71,13 +71,36 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         host.enable_management(control.clone(), std::path::Path::new(&profile))
             .await?;
     }
+    let web = match std::env::var_os("LAPIS_SERVER_STATIC_ROOT") {
+        Some(root) => {
+            let mut private = roots;
+            private.push(std::path::PathBuf::from(config_path));
+            for key in [
+                "LAPIS_SERVER_DATA_ROOT",
+                "LAPIS_SERVER_BOOTSTRAP_PASSWORD_FILE",
+                "LAPIS_SERVER_AGENTS_CONFIG",
+            ] {
+                if let Some(path) = std::env::var_os(key) {
+                    private.push(path.into());
+                }
+            }
+            Some(http::StaticWeb::open(
+                std::path::Path::new(&root),
+                &private,
+            )?)
+        }
+        None => None,
+    };
     let listener = tokio::net::TcpListener::bind(address).await?;
     let origin = if address.port() == 0 && std::env::var_os("LAPIS_SERVER_ORIGIN").is_none() {
         format!("http://{}", listener.local_addr()?)
     } else {
         origin
     };
-    let router = http::router(host.clone(), authentication, &origin)?;
+    let router = match web {
+        Some(web) => http::router_with_web(host.clone(), authentication, &origin, web)?,
+        None => http::router(host.clone(), authentication, &origin)?,
+    };
     let shutdown = Shutdown::new()?;
     println!("Lapis file service listening on {}", listener.local_addr()?);
     let result = serve(listener, router, host, shutdown).await;

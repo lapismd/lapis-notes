@@ -54,7 +54,7 @@ pub(super) fn options(headers: &HeaderMap) -> Result<WriteOptions, Failure> {
     }
     Ok(WriteOptions { mtime })
 }
-pub(super) fn unmodified(headers: &HeaderMap, etag: &str) -> bool {
+pub(in crate::http) fn unmodified(headers: &HeaderMap, etag: &str) -> bool {
     headers
         .get("if-none-match")
         .and_then(|value| value.to_str().ok())

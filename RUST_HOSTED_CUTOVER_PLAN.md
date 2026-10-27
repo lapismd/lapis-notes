@@ -38,9 +38,10 @@ new feature lane before cutover.
 
 ## Concrete delivery gaps found so far
 
-- Rust currently serves the typed API and admitted plugin assets. It still needs
-  the built Web entrypoint/static assets and the existing health/readiness routes;
-  hosted acceptance currently uses Node/Vite preview for renderer delivery.
+- Rust static-Web/health source is now integrated in main with native launcher
+  tooling. Seven native regressions and one actual Rust-only cold browser case
+  pass. The combined native-profile hosted suite has five passes/six failures;
+  repair and qualify that final cohort before ordinary default replacement.
 - Native database observation still uses one-second polling. Add the planned
   authenticated stream delivery and reconnect/cursor/cold-close acceptance.
 - Docker/Compose and server CI still select the Node application server. Build

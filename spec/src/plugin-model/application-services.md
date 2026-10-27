@@ -1,5 +1,9 @@
 # Plugin Model / Application services
 
+R7 static asset delivery keeps plugin modules and authenticated installed resources
+on their existing admitted routes. Serving the built application from Rust grants
+no additional plugin file, credential, App or execution authority.
+
 Semantic-model transport acceptance uses an admitted host client and the
 existing database provider. The retained Search plugin journey separately owns
 provider declarations, renderer-writer fencing and native selection lifetime;

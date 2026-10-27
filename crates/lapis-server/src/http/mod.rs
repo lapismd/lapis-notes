@@ -1,4 +1,6 @@
 mod auth;
+mod static_web;
+pub use static_web::StaticWeb;
 mod browser;
 mod cookies;
 mod database;
@@ -40,9 +42,28 @@ struct State {
     build_id: String,
     origin: String,
     downloads: reqwest::Client,
+    web: Option<Arc<StaticWeb>>,
 }
 
 pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::Result<Router> {
+    configured_router(host, auth, origin, None)
+}
+
+pub fn router_with_web(
+    host: Arc<Host>,
+    auth: Authentication,
+    origin: &str,
+    web: StaticWeb,
+) -> std::io::Result<Router> {
+    configured_router(host, auth, origin, Some(web))
+}
+
+fn configured_router(
+    host: Arc<Host>,
+    auth: Authentication,
+    origin: &str,
+    web: Option<StaticWeb>,
+) -> std::io::Result<Router> {
     let uri: axum::http::Uri = origin
         .parse()
         .map_err(|_| std::io::Error::other("Invalid public origin"))?;
@@ -59,7 +80,9 @@ pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::R
         ));
     }
     auth.validate(&uri)?;
+    let selected_web = web.is_some();
     let state = State {
+        web: web.map(Arc::new),
         downloads: plugins::client()?,
         host,
         auth,
@@ -70,7 +93,7 @@ pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::R
             .collect(),
         origin: origin.into(),
     };
-    Ok(Router::new()
+    let mut router = Router::new()
         .route(
             "/__lapis/plugins/{client}/{plugin}/{version}/{fingerprint}/{*path}",
             get(plugins::serve),
@@ -160,7 +183,18 @@ pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::R
             auth::authorize,
         ))
         .route("/api/v3/system/info", get(browser::info))
-        .route("/api/v3/auth/login", post(browser::login))
+        .route("/api/v3/auth/login", post(browser::login));
+    if selected_web {
+        router = router
+            .route("/healthz", axum::routing::any(static_web::health))
+            .route("/readyz", axum::routing::any(static_web::ready))
+            .fallback(static_web::serve)
+            .layer(middleware::from_fn_with_state(
+                state.clone(),
+                static_web::available,
+            ));
+    }
+    Ok(router
         .layer(middleware::from_fn(auth::response_headers))
         .with_state(state))
 }

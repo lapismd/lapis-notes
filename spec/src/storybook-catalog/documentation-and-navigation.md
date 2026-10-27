@@ -2,7 +2,8 @@
 
 The [Rust hosted delivery](../architecture/rust-hosted-delivery.md) chapter uses
 the generated metadata-only Specification mirror and SUMMARY/sidebar order.
-Its explicit build/start contract retains separate native/container/default
+Its static-Web/health and explicit build/start contracts retain separate
+native/container/default
 acceptance; the documentation entry adds no application screen or runtime owner.
 
 The [Native service exports](../packages/native-service-exports.md) topic is
