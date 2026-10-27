@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 06:13:46 UTC",
+  "updated": "2026-10-27 06:59:05 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -848,6 +848,14 @@
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-038",
       "detail": "[Source qualification](spec/records/2026-10-27-native-context-preparation.md): exact4 pass after0/4, full12 projection/24 attachment outcomes, seven native boundaries/29affected/all608Rust/2438package/check20/test20/build11 and canonical78 pass. Final35c3/d2aac verifies parsed-identical fixture formatting, exact/native/canonical/format gates. No transport, host or provider/default selection; remaining R4.3 skills/commands/handoff are separate. [Main intake](spec/records/2026-10-27-native-context-main-adoption.md) preserves all qualified production and fixture inputs; no transport or default activation."
+    },
+    {
+      "id": "R4.3.2",
+      "area": "Native initial skill context",
+      "work": "Retained selected-skill manifest and initial instruction preparation",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-044",
+      "detail": "[Source qualification](spec/records/2026-10-27-native-initial-context.md): exact3 pass after0/3,9manifest/28initial complete source outcomes,11oldcontext/29affected/all611Rust/2438package/check20/test20/build11 and canonical78 pass at f37fb179. Only final status/evidence checks follow; no host/provider/default activation. Discovery/bootstrap construction, binding ownership, commands/handoff and rich admission remain in R4.3."
     }
   ]
 }

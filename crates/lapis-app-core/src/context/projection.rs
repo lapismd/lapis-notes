@@ -45,7 +45,7 @@ pub fn project_agent_turn(text: &str, blocks: &[ContextBlock]) -> Result<Prepare
     })
 }
 
-fn attribute(value: &str) -> String {
+pub(super) fn attribute(value: &str) -> String {
     value
         .replace('&', "&amp;")
         .replace('"', "&quot;")

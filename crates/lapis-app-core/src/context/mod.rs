@@ -1,11 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 //! Retained application context values; never executable or filesystem authority.
 mod attachments;
+mod initial;
 mod projection;
+mod skills;
 pub use attachments::prepare_attachments;
+pub use initial::prepare_initial_context;
 pub use projection::project_agent_turn;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+pub use skills::{SelectedSkillActivation, SkillManifestEntry, available_skills_manifest};
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
