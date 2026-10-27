@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-27 01:46:34 UTC**.
+Last updated **2026-10-27 01:52:35 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -65,6 +65,18 @@ and daily-file creation now work; the four complete UI journeys and fresh whole
 catalog remain pending. The readonly-Tauri acceptance probe is repaired and its
 two original cold startup cases pass. R3 stays Working until these repairs,
 current native/host requalification and both main adoptions are complete.
+
+**Parallel source checkpoint — 2026-10-27 01:52:35 UTC.** Queue-format
+compatibility is committed at `a3cbf03` in the
+[isolated R4 source record](../.workspaces/lapis-notes-r4-plan-review-20261026/spec/records/2026-10-27-native-queue-capture.md).
+Its three exact tests compare 145 retained outcomes, seven configuration frames
+and five constructed receipts; all 590 Rust cases, strict/protocol/build and
+specification/78 governance checks pass. Source adoption and the native FIFO,
+transport/UI and complete R4.1 feature gates remain separate. Desktop's default
+provider repair now passes all four actual installed Tasks journeys and fresh
+536 Node/744 AI checks; its complete catalog is running on the repaired App.
+The History concurrency regression reproduces two failures before the private
+per-vault serialization repair; its after/final-host checks are active.
 
 | Lane              | Completed and verified                                                                                                                            | Concrete work still required                                                                                  |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
