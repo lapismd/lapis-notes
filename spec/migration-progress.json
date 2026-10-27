@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 07:01:20 UTC",
+  "updated": "2026-10-27 08:04:05 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -856,6 +856,14 @@
       "status": "Source complete",
       "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-044",
       "detail": "[Source qualification](spec/records/2026-10-27-native-initial-context.md): exact3 pass after0/3,9manifest/28initial complete source outcomes,11oldcontext/29affected/all611Rust/2438package/check20/test20/build11 and canonical78 pass at f37fb179. Only final status/evidence checks follow; no host/provider/default activation. Discovery/bootstrap construction, binding ownership, commands/handoff and rich admission remain in R4.3. [Main intake](spec/records/2026-10-27-native-initial-context-main-adoption.md) preserves all qualified production/generator/fixture inputs and106 prior task IDs; no host/default activation."
+    },
+    {
+      "id": "R4.3.3",
+      "area": "Native bootstrap construction",
+      "work": "Retained ancestor instructions and admitted Work bootstrap preparation",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-049",
+      "detail": "[Native bootstrap](spec/records/2026-10-27-native-bootstrap.md): original0/3 becomes3/3 with41 complete source outcomes/read traces;9 native boundaries,14 oldcontext/29 lifetime,623Rust/2438package,strict/check20/test20/build11 and canonical78 pass at53cf4bd9/6cacbda2. Two Unicode refusals retain complete source wire results. Source-only; discovery/versioned bindings, rich dispatch and both-host/provider/default gates remain separate."
     }
   ]
 }

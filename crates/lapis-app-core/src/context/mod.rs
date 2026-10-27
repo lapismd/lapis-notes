@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //! Retained application context values; never executable or filesystem authority.
 mod attachments;
+pub mod bootstrap;
 mod initial;
 mod projection;
 mod skills;
