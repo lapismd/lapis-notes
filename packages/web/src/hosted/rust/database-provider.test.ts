@@ -107,40 +107,70 @@ describe("Rust hosted database views", () => {
     }
   });
 
-  it("observes external revisions as view resets and disposes polling", async () => {
-    vi.useFakeTimers();
-    let revision = 0;
+  it("observes native commit frames and aborts its reader without revision polling", async () => {
+    let events!: ReadableStreamDefaultController<Uint8Array>;
+    let signal: AbortSignal | undefined;
+    const cancelled = vi.fn();
     const fetch = vi.fn<typeof globalThis.fetch>(async (url, init) => {
       if (init?.method === "DELETE") return empty();
-      return Response.json(
-        String(url).endsWith("/database")
-          ? { kind: "value", value: revision }
-          : admission,
-      );
+      if (String(url).includes("/database/events?")) {
+        signal = init?.signal ?? undefined;
+        return new Response(
+          new ReadableStream({
+            start(controller) {
+              events = controller;
+            },
+            cancel: cancelled,
+          }),
+          { headers: { "content-type": "text/event-stream" } },
+        );
+      }
+      return Response.json(admission);
     });
     const client = await new RustHttpClient("", fetch).attach("vault");
     const database = await new RustDatabaseProvider(client).open(context);
     try {
       const listener = vi.fn();
       const dispose = database.subscribeToChanges(listener);
-      await vi.advanceTimersByTimeAsync(0);
-      expect(listener).toHaveBeenLastCalledWith(
-        expect.objectContaining({ revision: 0, reset: true }),
+      await vi.waitFor(() => expect(events).toBeDefined());
+      const publish = (value: Record<string, unknown>) =>
+        events.enqueue(
+          new TextEncoder().encode(
+            `event: change\nid: ${value.revision}\ndata: ${JSON.stringify(value)}\n\n`,
+          ),
+        );
+      publish({
+        revision: 0,
+        domains: [],
+        paths: [],
+        reset: true,
+        committedAt: 1,
+      });
+      await vi.waitFor(() =>
+        expect(listener).toHaveBeenLastCalledWith(
+          expect.objectContaining({ revision: 0, reset: true }),
+        ),
       );
-      revision = 7;
-      await vi.advanceTimersByTimeAsync(1000);
-      expect(listener).toHaveBeenLastCalledWith(
-        expect.objectContaining({ revision: 7, reset: true }),
+      publish({
+        revision: 7,
+        domains: ["metadata"],
+        paths: ["Changed.md"],
+        committedAt: 2,
+      });
+      await vi.waitFor(() =>
+        expect(listener).toHaveBeenLastCalledWith(
+          expect.objectContaining({ revision: 7, paths: ["Changed.md"] }),
+        ),
       );
       dispose();
-      const count = fetch.mock.calls.length;
-      revision = 8;
-      await vi.advanceTimersByTimeAsync(2000);
-      expect(fetch).toHaveBeenCalledTimes(count);
+      expect(signal?.aborted).toBe(true);
+      await vi.waitFor(() => expect(cancelled).toHaveBeenCalledOnce());
+      expect(
+        fetch.mock.calls.filter(([url]) => String(url).endsWith("/database")),
+      ).toHaveLength(0);
     } finally {
       await database.close();
       await client.close();
-      vi.useRealTimers();
     }
   });
 });

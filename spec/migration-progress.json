@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 12:23:40 UTC",
+  "updated": "2026-10-27 12:44:10 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -973,9 +973,9 @@
       "id": "R7.2",
       "area": "Hosted cutover",
       "work": "Authenticated observation streams",
-      "status": "Waiting",
-      "spec": "spec/src/architecture/rust-application-services.md#ln-core-008",
-      "detail": "Replace remaining database one-second polling with admitted streams, bounded cursors/reconnect and close/revocation acceptance. Retain vault/client authority and cold no-replay behavior."
+      "status": "Working",
+      "spec": "spec/src/architecture/rust-hosted-delivery.md#ln-core-066",
+      "detail": "Native scoped SSE and hosted reader are implemented on main; focused native5, Web16 and affected chat37 pass. Reconnect/reset, bounded64reader/256KiB frames, revocation/detach/drain and client abort are covered. Final coherent browser/native acceptance remains; no writer or replay added. [Evidence](spec/records/2026-10-27-native-observation-stream.md)."
     },
     {
       "id": "R7.3",
@@ -983,7 +983,7 @@
       "work": "Native build and start entrypoints",
       "status": "Working",
       "spec": "spec/src/architecture/rust-hosted-delivery.md#ln-core-064",
-      "detail": "Focused sourcecd520b71 is landed in main: native delivery5/routing1/installprojection3 pass. Final real compiled launch/release/Web/native and corrected-dependency guards remain pending on the final main cohort. Ordinary defaults remain unchanged."
+      "detail": "Native launchercd520b71 is landed and its delivery5/routing1/installpolicy3 checks pass. Landed33846705/3e2e5a85 now passes complete release101 and validationtooling72 with zero tracked mutations, repairing prior98/3. Compiled release/container and final default acceptance remain pending."
     },
     {
       "id": "R7.4",

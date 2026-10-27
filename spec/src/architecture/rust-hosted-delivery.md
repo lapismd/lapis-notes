@@ -120,3 +120,33 @@ These pnpm commands are development/build tooling. A deployed image launches
 the compiled executable directly; no Node application runtime is required.
 Container assembly, ordinary default selection, retired transport removal and
 cross-host qualification keep their separate R7 gates.
+
+## LN-CORE-066 — Admitted database observation
+
+<a id="ln-core-066"></a>
+
+**Requirement.** Hosted database observation MUST use the native bounded commit
+channel through an authenticated, versioned stream scoped to one admitted client,
+vault and generation. It MUST preserve committed change domains, paths and
+revisions without creating another writer or requiring a renderer scheduler.
+Foreign or stale scope and future cursors MUST be rejected before streaming.
+
+## LN-CORE-067 — Bounded stream recovery
+
+<a id="ln-core-067"></a>
+
+**Requirement.** Observation streams MUST bound concurrent readers and frame
+bytes. Initial connection, reconnection and lag MUST provide an explicit current
+reset rather than replaying writes or claiming missing history. Hosted readers
+MUST validate bounded frames, reconnect with their last admitted revision, and
+stop on permanent authentication, protocol or scope failures.
+
+## LN-CORE-068 — Passive observation lifetime
+
+<a id="ln-core-068"></a>
+
+**Requirement.** Observation MUST revalidate principal and native admission before
+frames and while idle. Revocation, detach, vault close and shutdown MUST retire
+the stream; removing the last listener or closing its view MUST abort the browser
+reader. Observers MUST hold no work lease that prevents native drain, and must
+never resume prompts or uncertain effects.

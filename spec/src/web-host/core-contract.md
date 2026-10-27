@@ -106,3 +106,9 @@ Hosted participant chat uses the existing admitted native client and typed
 profile/receipt projection under [LN-CORE-046](../architecture/rust-participants.md#ln-core-046)
 through [LN-CORE-048](../architecture/rust-participants.md#ln-core-048). Logical
 recipients never become executable targets; absent metadata retains R2 idle sends.
+
+Native chat layout capture preserves saved conversation/scope before mount;
+only an observed new draft clears the saved conversation. This retains existing
+view state through native metadata/History/Tasks boot without creating a writer
+or resubmitting accepted work. The pre-mount regression reproduces0/1 and passes
+after the view-owned repair; final combined hosted acceptance remains R7.

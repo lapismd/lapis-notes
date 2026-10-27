@@ -36,6 +36,7 @@ export class RustVaultClient {
   #leaseError?: unknown;
   #heartbeat: ReturnType<typeof setInterval>;
   #closePromise?: Promise<void>;
+  #lifetime = new AbortController();
 
   private constructor(
     readonly host: RustHttpClient,
@@ -44,6 +45,7 @@ export class RustVaultClient {
     this.#heartbeat = setInterval(() => {
       void this.host.json(`${this.path}/heartbeat`, "POST").catch((error) => {
         this.#leaseError = error;
+        this.#lifetime.abort();
       });
     }, 30_000);
   }
@@ -65,6 +67,9 @@ export class RustVaultClient {
 
   get path(): string {
     return `/clients/${encodeURIComponent(this.descriptor.client_id)}`;
+  }
+  get signal(): AbortSignal {
+    return this.#lifetime.signal;
   }
 
   requireOpen(): void {
@@ -242,6 +247,7 @@ export class RustVaultClient {
   close(): Promise<void> {
     if (!this.#closePromise) {
       this.#closed = true;
+      this.#lifetime.abort();
       clearInterval(this.#heartbeat);
       this.#closePromise = this.host.json(`${this.path}`, "DELETE");
     }

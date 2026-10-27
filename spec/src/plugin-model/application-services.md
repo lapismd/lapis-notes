@@ -124,3 +124,9 @@ They do not give a plugin claim ownership or a second persistence path; local
 retry and native captured-state actions remain within App operation admission.
 
 Native participant hosts follow [LN-CORE-048](../architecture/rust-participants.md#ln-core-048): adapt declared logical profiles and retained receipts into the existing complete Agent screen. Native publication remains the only writer; passive view lifetime never owns accepted work.
+
+Native chat layout capture preserves saved conversation/scope before mount;
+only an observed new draft clears the saved conversation. This retains existing
+view state through native metadata/History/Tasks boot without creating a writer
+or resubmitting accepted work. The pre-mount regression reproduces0/1 and passes
+after the view-owned repair; final combined hosted acceptance remains R7.

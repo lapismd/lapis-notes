@@ -86,3 +86,9 @@ Frozen Deno retains its current host implementation. The shared optional native
 participant projection under [LN-CORE-048](../architecture/rust-participants.md#ln-core-048)
 is selected by admitted native hosts; its profile/read ports preserve existing
 metadata-absent single-target behavior and the current complete Agent screen.
+
+Native chat layout capture preserves saved conversation/scope before mount;
+only an observed new draft clears the saved conversation. This retains existing
+view state through native metadata/History/Tasks boot without creating a writer
+or resubmitting accepted work. The pre-mount regression reproduces0/1 and passes
+after the view-owned repair; final combined hosted acceptance remains R7.

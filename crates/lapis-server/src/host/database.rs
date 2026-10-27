@@ -10,6 +10,23 @@ use std::{io, path::Path};
 use uuid::Uuid;
 
 impl Host {
+    pub(crate) fn observation_client(
+        &self,
+        id: Uuid,
+        principal: Principal,
+        vault: Uuid,
+        generation: Uuid,
+    ) -> Result<std::sync::Arc<lapis_app_core::services::Client>> {
+        let client = self.client(id, principal)?;
+        let descriptor = client.descriptor();
+        if descriptor.vault_id != vault || descriptor.generation != generation {
+            return Err(super::error(
+                lapis_app_protocol::ErrorCode::PermissionDenied,
+                "Database observation scope is not admitted",
+            ));
+        }
+        Ok(client)
+    }
     /// Installation-only selection; HTTP callers never supply this profile.
     pub fn with_profile(config: Config, profile: &Path) -> io::Result<Self> {
         Self::with_profile_and_agents(config, profile, Vec::new())

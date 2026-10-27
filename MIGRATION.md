@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-27 12:23:40 UTC**.
+Last updated **2026-10-27 12:44:10 UTC**.
 
 This is the **master tracker for the shared Rust migration**, in the main
 `lapis-notes` Jujutsu `default` workspace. The
@@ -32,14 +32,14 @@ deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
 
-**Rust static + launcher main intake — 2026-10-27 12:23:40 UTC.** Static source `9009bccf`
-and launcher `cd520b71` are integrated in the main Notes workspace. Seven native
-static regressions, one actual direct-Rust cold browser journey and nine focused
-launcher/install-policy/routing cases pass. Final broad checks are deferred to
-the coherent landed cohort as requested. The previous combined hosted aggregate
-has five passes/six failures; those remain cutover blockers, with logs retained.
-[Static evidence](spec/records/2026-10-27-r7-rust-static-delivery.md) and
-[launcher evidence](spec/records/2026-10-27-native-runtime-delivery.md).
+**Native observations and chat restoration — 2026-10-27 12:44:10 UTC.** Scoped native stream
+checks pass 5/0; hosted stream/client/database checks pass 16/0; affected chat
+checks pass 37/0, including the reproduced pre-mount layout defect. Web strict
+checks and five fresh public internal builds pass. The landed tooling now passes
+101 release cases and 72 validation cases with zero tracked worker mutations.
+[Observation evidence](spec/records/2026-10-27-native-observation-stream.md).
+Final default/container/coherent browser acceptance remains pending. The earlier
+combined hosted 5/6 result is retained until the six original targets pass.
 
 **Cutover-first landing — 2026-10-27 12:21:39 UTC.** Explicit native build/start source
 `cd520b71` is integrated in main. Focused delivery 5/routing 1/install-projection 3
@@ -422,7 +422,8 @@ not host adoption or native/hosted application acceptance.
 | [R4.3](spec/src/architecture/rust-application-services.md#ln-core-005) | Native AI preparation          | Native context, skills, commands and handoff                     | Context/bootstrap foundations are adopted. Native skillsa14ba184 are source-qualified (3exact/8boundaries/634Rust/2438package); main union product qualification passes693Rust/2469package/265catalog; final canonical/progress120/format passes atf5f7344c/c27dee42. Commands/handoff, rich dispatch and both-host/provider gates remain.                                                                                                                                                             |
 | [R7](spec/src/architecture/rust-application-services.md#ln-core-008)   | Roadmap                        | Rust cutover                                                     | Priority after the current intake slice: [saved cutover plan](RUST_HOSTED_CUTOVER_PLAN.md). Audit serving-profile gaps and deferred tests, select Rust by default, retire Node/companion application runtime, qualify Linux/container/Desktop/local-browser and cold/provider boundaries. R5 and R6 are Deferred; remaining R4 work is explicit and fixed before cutover only where required to preserve serving behavior or remove runtime dependencies.                                              |
 | [R7.1](spec/src/architecture/rust-hosted-delivery.md#ln-core-054)      | Hosted cutover                 | Static Web and health delivery                                   | Static source9009bccf is integrated with native launcher in main. Focused native7 and directRust-only builtWeb1 pass. The prior combinedprofile hosted aggregate5pass/6fail is retained; final-main diagnosis and broad acceptance remain blockers. No Node/Vite server serves the directRust case; no ordinary defaultcompletion claimed.                                                                                                                                                             |
-| [R7.3](spec/src/architecture/rust-hosted-delivery.md#ln-core-064)      | Hosted cutover                 | Native build and start entrypoints                               | Focused sourcecd520b71 is landed in main: native delivery5/routing1/installprojection3 pass. Final real compiled launch/release/Web/native and corrected-dependency guards remain pending on the final main cohort. Ordinary defaults remain unchanged.                                                                                                                                                                                                                                                |
+| [R7.2](spec/src/architecture/rust-hosted-delivery.md#ln-core-066)      | Hosted cutover                 | Authenticated observation streams                                | Native scoped SSE and hosted reader are implemented on main; focused native5, Web16 and affected chat37 pass. Reconnect/reset, bounded64reader/256KiB frames, revocation/detach/drain and client abort are covered. Final coherent browser/native acceptance remains; no writer or replay added. [Evidence](spec/records/2026-10-27-native-observation-stream.md).                                                                                                                                     |
+| [R7.3](spec/src/architecture/rust-hosted-delivery.md#ln-core-064)      | Hosted cutover                 | Native build and start entrypoints                               | Native launchercd520b71 is landed and its delivery5/routing1/installpolicy3 checks pass. Landed33846705/3e2e5a85 now passes complete release101 and validationtooling72 with zero tracked mutations, repairing prior98/3. Compiled release/container and final default acceptance remain pending.                                                                                                                                                                                                      |
 | [R7.6](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover                 | Coherent host and restart qualification                          | [Compatibility audit](spec/records/2026-10-27-hosted-cutover-audit.md) records exact current selection/cohort/skip boundaries and20 source hashes. Desktop has no bundled Node application runtime. Main14172 changes42 API/AppProfile/native paths from qualifiedb203; refresh together before current-cohort native/provider/catalog and standalone local/offline acceptance.                                                                                                                        |
 | [R7.7](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover                 | Deferred and failing source-test closure                         | Tracker13/full80 repair is committed14172. Plugins private test repair407ada2e closes two stale count and two inherited-JJ-base failures: exact2+13affected+2snapshots, fullvalidation51 pass; release140/6→147/2. Two valid portable-lock/BitsUI guards remain failed and are being fixed upstream; audit advisories remain distinct. Optional asset/provider opt-ins are not counted as acceptance.                                                                                                  |
 
@@ -430,7 +431,6 @@ not host adoption or native/hosted application acceptance.
 
 | Task ID                                                                | Area           | Work                                               | Evidence or next gate                                                                                                                                                                                                                                                   |
 | ---------------------------------------------------------------------- | -------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [R7.2](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover | Authenticated observation streams                  | Replace remaining database one-second polling with admitted streams, bounded cursors/reconnect and close/revocation acceptance. Retain vault/client authority and cold no-replay behavior.                                                                              |
 | [R7.4](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover | Linux runtime and container delivery               | Package the native binary, existing Web UI, required repository helpers and qualified runtime/model assets; run the real read-only/non-root image with persistent data and cold restart. No embedded Node application server.                                           |
 | [R7.5](spec/src/architecture/rust-application-services.md#ln-core-008) | Hosted cutover | Default switch and transitional runtime retirement | Switch the ordinary server scripts, container/CI and hosted renderer to the qualified Rust cohort; remove obsolete Node application/companion transports and runtime imports. Preserve build tools, external agent prerequisites and unrelated Rust companion features. |
 

@@ -374,3 +374,9 @@ request receipts through its existing admitted participant route under
 Agent screen retains native publication and independent outcomes; logical IDs
 never derive from runtime labels. Busy group queue interoperability and complete
 both-host/profile/provider acceptance retain their separate gates.
+
+R7's [native database stream](../architecture/rust-hosted-delivery.md#ln-core-066)
+reuses current caller/vault/generation authority, bounded native commit receivers
+and per-frame/idle authentication. The retained hosted provider observes that
+stream instead of revision polling; reset/cursor and close/revocation remain
+explicit. This adds no renderer writer or automatic effect replay.

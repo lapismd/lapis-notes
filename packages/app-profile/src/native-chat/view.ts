@@ -7,7 +7,7 @@ import type { NativeChatNavigation } from "./navigation";
 export class NativeChatView extends View {
   #component?: ReturnType<typeof mount>;
   #selection?: string;
-  #scope = "";
+  #scope?: string;
   #disposed = new Set<Promise<void>>();
   constructor(
     leaf: WorkspaceLeaf,
@@ -32,12 +32,18 @@ export class NativeChatView extends View {
     await this.close();
   }
   getState(): Record<string, unknown> {
+    const state = super.getState();
+    const selection =
+      this.#selection ??
+      (typeof state.conversationId === "string"
+        ? state.conversationId
+        : undefined);
     return {
-      ...super.getState(),
-      scopeDir: this.#scope,
-      conversationId: this.#selection?.startsWith("draft:")
-        ? undefined
-        : this.#selection,
+      ...state,
+      scopeDir:
+        this.#scope ??
+        (typeof state.scopeDir === "string" ? state.scopeDir : ""),
+      conversationId: selection?.startsWith("draft:") ? undefined : selection,
     };
   }
   onload(): void {

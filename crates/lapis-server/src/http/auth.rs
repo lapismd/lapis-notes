@@ -92,6 +92,19 @@ async fn authenticate(state: &State, request: &mut Request) -> Result<(), Failur
     }
     Ok(())
 }
+pub(super) async fn validate_stream(
+    state: &State,
+    principal: Principal,
+    headers: &HeaderMap,
+) -> Result<(), Failure> {
+    let mut request = Request::new(axum::body::Body::empty());
+    *request.headers_mut() = headers.clone();
+    authenticate(state, &mut request).await?;
+    if request.extensions().get::<Principal>() != Some(&principal) {
+        return Err(Failure::unauthorized());
+    }
+    Ok(())
+}
 pub(super) fn origin(headers: &HeaderMap, allowed: &str, required: bool) -> Result<(), Failure> {
     if headers
         .get("origin")

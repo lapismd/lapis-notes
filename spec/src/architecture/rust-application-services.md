@@ -1,10 +1,6 @@
 # Architecture / Rust application services
 
-[R7 static Web delivery](rust-hosted-delivery.md) preserves operator-owned build
-authority and the existing health/readiness contract; source and actual deployed
-browser acceptance qualify separately from script/default/container retirement.
-
-The [shared Rust plan](../../../RUST_CORE_MIGRATION_PLAN.md) supersedes future
+The [shared Rust plan](../../../RUST_CORE_MIGRATION_PLAN.md) and [hosted delivery](rust-hosted-delivery.md) supersede future
 Node-specific hosted parity implementation. Existing hosts stay supported until
 their replacement gates pass. See [current status](../../../MIGRATION.md) and
 [hosted provider-screen evidence](../../records/2026-10-25-hosted-provider-screen.md).
@@ -70,7 +66,7 @@ Client attachments span requests; detach retains dirty claims and accepted work.
 Typed errors omit native paths and distinguish file permissions from client denial.
 Blocking file operations run outside the async executor. Bounded JSON commands
 qualify the initial adapter only; later R1.3 receipts qualify streamed bodies,
-browser login/shell and native backup. SSE and final delivery remain R7.
+browser login/shell and native backup. [Scoped observation streams](rust-hosted-delivery.md#ln-core-066) and final delivery retain R7 acceptance.
 
 Hosted attachment leases expire after five minutes without an admitted command,
 byte transfer or explicit heartbeat. Expiry detaches only the client; the vault,

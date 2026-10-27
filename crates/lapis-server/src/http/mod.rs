@@ -4,6 +4,7 @@ pub use static_web::StaticWeb;
 mod browser;
 mod cookies;
 mod database;
+mod database_events;
 mod history_index;
 mod history_reader;
 mod identity;
@@ -43,6 +44,7 @@ struct State {
     origin: String,
     downloads: reqwest::Client,
     web: Option<Arc<StaticWeb>>,
+    observations: Arc<tokio::sync::Semaphore>,
 }
 
 pub fn router(host: Arc<Host>, auth: Authentication, origin: &str) -> std::io::Result<Router> {
@@ -82,6 +84,7 @@ fn configured_router(
     auth.validate(&uri)?;
     let selected_web = web.is_some();
     let state = State {
+        observations: Arc::new(tokio::sync::Semaphore::new(64)),
         web: web.map(Arc::new),
         downloads: plugins::client()?,
         host,
@@ -115,6 +118,10 @@ fn configured_router(
         .route(
             "/api/v3/clients/{client}/database",
             post(database::call).layer(DefaultBodyLimit::max(database::JSON_LIMIT)),
+        )
+        .route(
+            "/api/v3/clients/{client}/database/events",
+            get(database_events::observe),
         )
         .route(
             "/api/v3/clients/{client}/indexing",

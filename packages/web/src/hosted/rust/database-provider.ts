@@ -13,6 +13,7 @@ import type {
   DatabaseValue,
 } from "../../../../../crates/lapis-app-protocol/bindings/protocol";
 import type { RustVaultClient } from "./vault-client";
+import { observeDatabaseChanges } from "./database-stream";
 
 export class RustDatabaseProvider implements AppDatabaseProvider {
   readonly id = "lapis-rust-http";
@@ -37,9 +38,7 @@ export class RustDatabaseProvider implements AppDatabaseProvider {
     let closed = false;
     let queue = Promise.resolve();
     const listeners = new Set<AppDatabaseChangeListener>();
-    let observer: ReturnType<typeof setTimeout> | undefined;
-    let revision: number | undefined;
-    let observation = 0;
+    let observer: ReturnType<typeof observeDatabaseChanges> | undefined;
     const invoke = (method: RemoteAppDatabaseMethod, args: unknown[]) => {
       if (closed)
         return Promise.reject(new Error("The hosted database is closed"));
@@ -86,37 +85,21 @@ export class RustDatabaseProvider implements AppDatabaseProvider {
       );
       return result;
     };
-    // View-only observation during staged HTTP adoption. Native services own
-    // work and writers; R7 replaces this revision polling with its SSE stream.
-    const observe = async (generation: number) => {
-      try {
-        const current = await invoke("getChangeRevision", []);
-        if (typeof current !== "number")
-          throw new Error("Invalid database revision");
-        if (!closed && generation === observation && current !== revision) {
-          revision = current;
+    const observe = () =>
+      observeDatabaseChanges(
+        this.client,
+        (change) => {
+          if (closed) return;
           for (const listener of [...listeners]) {
             try {
-              listener({
-                revision: current,
-                domains: [],
-                paths: [],
-                reset: true,
-                committedAt: Date.now(),
-              });
+              listener(change);
             } catch (error) {
               console.error("Hosted database listener failed", error);
             }
           }
-        }
-      } catch (error) {
-        if (!closed && generation === observation)
-          console.error("Hosted database observation failed", error);
-      } finally {
-        if (!closed && generation === observation && listeners.size)
-          observer = setTimeout(() => void observe(generation), 1000);
-      }
-    };
+        },
+        (error) => console.error("Hosted database observation failed", error),
+      );
     const database: Record<string, unknown> = {
       kind: "turso-native",
       vaultId: context.vaultId,
@@ -140,20 +123,19 @@ export class RustDatabaseProvider implements AppDatabaseProvider {
       },
       async close() {
         closed = true;
-        observation++;
-        clearTimeout(observer);
+        observer?.stop();
         listeners.clear();
-        await queue;
+        await Promise.all([queue, observer?.done]);
       },
       subscribeToChanges(listener: AppDatabaseChangeListener) {
         if (closed) throw new Error("The hosted database is closed");
         listeners.add(listener);
-        if (listeners.size === 1) void observe(++observation);
+        if (listeners.size === 1) observer = observe();
         return () => {
           listeners.delete(listener);
           if (!listeners.size) {
-            observation++;
-            clearTimeout(observer);
+            observer?.stop();
+            observer = undefined;
           }
         };
       },
