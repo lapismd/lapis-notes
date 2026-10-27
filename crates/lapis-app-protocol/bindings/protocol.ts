@@ -534,6 +534,46 @@ export type QueueCommand =
   | { kind: "cancel"; conversation_id: string; acceptance_id: string }
   | { kind: "resume"; conversation_id: string; after_request_id: string };
 export type QueueValue = { kind: "queue"; queue: QueueRecord | null };
+export type ParticipantMessageInput = {
+  acceptance_id: string;
+  user: unknown;
+  dispatch: unknown;
+  turns: Array<TurnInput>;
+};
+export type ParticipantState =
+  | "pending"
+  | "started"
+  | "completed"
+  | "rejected"
+  | "unknown"
+  | "not_sent"
+  | "cancelled";
+export type ParticipantDelivery = {
+  delivery_id: string;
+  request_id: string;
+  agent_binding_id: string;
+  session_id: string;
+  state: ParticipantState;
+  outcome_published: boolean;
+};
+export type ParticipantMessage = {
+  schema_version: number;
+  vault_id: string;
+  acceptance_id: string;
+  conversation_id: string;
+  input: ParticipantMessageInput;
+  deliveries: Array<ParticipantDelivery>;
+  recovered: boolean;
+};
+export type ParticipantCommand =
+  | { kind: "accept"; input: ParticipantMessageInput }
+  | { kind: "read"; acceptance_id: string }
+  | { kind: "stop"; acceptance_id: string }
+  | { kind: "cancel"; acceptance_id: string; request_id: string };
+export type ParticipantValue =
+  | { kind: "message"; message: ParticipantMessage | null }
+  | { kind: "stop_requested"; accepted: boolean }
+  | { kind: "cancel_requested"; accepted: boolean };
 export type DatabaseMethod =
   | "migrate"
   | "beginSearchIndexingBatch"

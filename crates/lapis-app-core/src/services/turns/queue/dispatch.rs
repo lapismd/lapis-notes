@@ -76,7 +76,13 @@ fn start(owner: &Arc<Owner>) -> Result<Option<Next>> {
         return Err(invalid("Native queue target metadata changed"));
     }
     let native = admission::input(&input, entry.request_id, &target.default_mode)?;
-    let selected = super::super::launch::select(owner, &work, &native)?;
+    let mut selected = super::super::launch::select(owner, &work, &native)?;
+    super::super::participants::acknowledge_history(
+        &mut data,
+        &owner.storage,
+        &work,
+        &mut selected.history,
+    )?;
     admission::authored(&input, &selected)?;
     let delivery = Delivery {
         conversation_id: id,
@@ -115,6 +121,7 @@ fn start(owner: &Arc<Owner>) -> Result<Option<Next>> {
         session: Mutex::new(None),
         capture: Mutex::new(None),
         queued: Some(delivery),
+        participant: None,
     });
     data.jobs.insert(record.input.request_id, job.clone());
     Ok(Some((job, record, claim, selected)))

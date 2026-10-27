@@ -353,3 +353,7 @@ screens, approve visual baselines or close the separate host-adoption gates.
 ## Admitted Tasks specification navigation
 
 The [native Task port chapter](../architecture/rust-task-host-port.md) is indexed inside Architecture. Its metadata-only mirror and specification-first sidebar order are generated from SUMMARY alongside the existing service-lifetime chapters. Source service, API and owning-plugin evidence remain distinct from actual host catalog acceptance.
+
+The native logical-participant source contract has its own Architecture page and
+raw-Markdown mirror, adjacent to durable turn admission in specification order.
+This navigation entry does not activate a participant host or executable story.

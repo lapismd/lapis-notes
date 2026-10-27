@@ -22,3 +22,22 @@ export {
 export interface NativeQueueService {
   call(command: QueueCommand): Promise<QueueValue>;
 }
+
+import type {
+  ParticipantCommand,
+  ParticipantValue,
+} from "./native-participant-protocol";
+export type * from "./native-participant-protocol";
+export {
+  PARTICIPANT_REQUEST_LIMIT,
+  PARTICIPANT_RECORD_LIMIT,
+} from "./native-participant-protocol";
+
+/**
+ * An admitted participant port. Captured logical attribution never selects an
+ * installed runtime. A lost reply is observed by acceptance ID without replay;
+ * Stop/cancel request native cancellation without inventing terminal outcomes.
+ */
+export interface NativeParticipantService {
+  call(command: ParticipantCommand): Promise<ParticipantValue>;
+}

@@ -1,3 +1,4 @@
+mod participants;
 mod policy;
 mod queues;
 pub(super) mod storage;

@@ -39,5 +39,8 @@ pub use tasks::{
     TaskLifecycleStatus, TaskLifecycleWrite, TaskObservationWrite, TaskRecoveryError, TaskStorage,
     TaskWriteError, TaskWriteResult,
 };
-pub use turns::{AgentPolicy, QueueEntry, QueueInput, QueuePhase, TurnQueue, TurnStorage};
+pub use turns::{
+    AgentPolicy, ParticipantDelivery, ParticipantMessage, ParticipantMessageInput,
+    ParticipantState, QueueEntry, QueueInput, QueuePhase, TurnQueue, TurnStorage,
+};
 pub use work::Work;

@@ -1,5 +1,6 @@
 //! Private durable dispatch authority. Live vault and execution admission remain required.
 mod continuation;
+pub mod participant_capture;
 pub mod queue_capture;
 mod types;
 use crate::record_store::RecordStore;
@@ -83,6 +84,44 @@ impl TurnJournal {
             ));
         }
         let (conversation_id, timestamp) = continuation::select(self, &input)?;
+        self.accept_selected(input, conversation_id, timestamp)
+    }
+    pub(crate) fn plan_participants(
+        &self,
+        input: &TurnInput,
+        count: usize,
+    ) -> io::Result<(Uuid, u64)> {
+        if !(1..=4).contains(&count)
+            || self.storage.ids()?.len().saturating_add(count) > MAX_RECORDS
+        {
+            return Err(io::Error::new(
+                io::ErrorKind::WouldBlock,
+                "Native turn journal is full",
+            ));
+        }
+        continuation::select(self, input)
+    }
+    /// Only the fresh parent acceptance owner supplies this already-validated plan.
+    pub(crate) fn accept_participant(
+        &mut self,
+        input: TurnInput,
+        conversation_id: Uuid,
+        timestamp: u64,
+    ) -> io::Result<Admission> {
+        let input = normalize(input)?;
+        if self.storage.read(input.request_id)?.is_some() {
+            return Err(invalid(
+                "Participant native request identity already exists",
+            ));
+        }
+        self.accept_selected(input, conversation_id, timestamp)
+    }
+    fn accept_selected(
+        &mut self,
+        input: TurnInput,
+        conversation_id: Uuid,
+        timestamp: u64,
+    ) -> io::Result<Admission> {
         let record = TurnRecord {
             schema_version: 1,
             vault_id: self.storage.vault,

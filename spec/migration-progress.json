@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27 05:34:27 UTC",
+  "updated": "2026-10-27 06:31:56 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -79,7 +79,7 @@
       "work": "AI/tools/Changes",
       "status": "Working",
       "spec": "spec/src/architecture/rust-application-services.md#ln-core-005",
-      "detail": "R3 current-profile gate is complete. Queue capture a3cbf03, FIFO fef5886f and DTO/HTTP/client port079065a6 are separately source-qualified. Active: shared queue observer/controls and trusted operator metadata (CORE036/037), Tauri admitted queue bridge and participant publication owner (CORE033-035), each isolated with failing-before evidence. Context/skills/handoff, approvals/tools and Changes/undo retain original remaining scope. No ordinary default activation; preserve final R3 API when composing source preparations."
+      "detail": "R3 current-profile gate is complete. Queue codec/FIFO/transport source is qualified; shared/operator and Tauri queue host adoption remain separate. R4.2.1/2.2 qualify logical participants, one publication owner and admitted DTO/HTTP/shared client transport without completing real-host logical-profile/provider workflows. Context/skills/handoff, approvals/tools and Changes/undo retain original remaining scope. Ordinary defaults remain unchanged; Root owns current source composition."
     },
     {
       "id": "R5",
@@ -888,6 +888,30 @@
       "work": "Combined real-host queue workflows and retained provider gates",
       "spec": "spec/src/architecture/rust-turn-admission.md#ln-core-036",
       "detail": "Wait for shared/operator and Tauri source qualification, then prove live detach, explicit cold resume, controls, unknown reply observation and provider-default omission through both retained hosts. Existing source fixtures do not close this gate."
+    },
+    {
+      "id": "R4.2",
+      "area": "AI workflow participants",
+      "work": "Logical participants and one conversation publication owner",
+      "status": "Waiting",
+      "spec": "spec/src/architecture/rust-participants.md#ln-core-033",
+      "detail": "R4.2.1 and R4.2.2 qualify native participant/publication source and generated admitted transport. Actual retained host selection, logical-profile catalog resolution, external providers and both-host end-to-end adoption remain Waiting. Source transport does not complete those gates; final R3/API, declared R4.1 queue metadata and Root context foundation remain separate intake inputs."
+    },
+    {
+      "id": "R4.2.1",
+      "area": "AI workflow participants",
+      "work": "Source-only native participant acceptance and coordinated publication",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-participants.md#ln-core-034",
+      "detail": "[Qualified native participants](spec/records/2026-10-27-native-participant-publication.md) at26dda092 on isolated079. Exact missing-service and unstarted-cancel regressions each0/1\u21921/1;12 participant cases,69 full validator results/seven entries, affected55 and full631 Rust tests (zero failures, seven existing ignores) pass. Strict boundary/protocol/fmt/Clippy, locked build,110-task progress, all ten spec lanes and78 governance cases pass. One owned publisher preserves independent output/revision fences and cold unknown/not-sent without replay. Source-only; preserve current R3 Complete/API0e42/native03b and R4.1 metadata on intake. No host/UI/protocol selection or default changes."
+    },
+    {
+      "id": "R4.2.2",
+      "area": "Admitted participant transport",
+      "work": "Generated participant DTOs, admitted HTTP and shared native client port",
+      "status": "Source complete",
+      "spec": "spec/src/architecture/rust-participants.md#ln-core-042",
+      "detail": "[Qualified source transport](spec/records/2026-10-27-native-participant-port.md): exact HTTP 404/0-of-1 to 1/1, DTO2/HTTP9, affected82/0/1 retained ignore, full Rust645/0/7 retained ignores and strengthened server119/0 pass. Full check20/test20/build11, API1716, public packed types, strict/locked native build, all specification/78 governance/114-task progress pass. Product6e952249 and reply-body test4435f15a remain distinct. Frozen Deno lock stays unchanged despite audited worker-only normalization. Actual host/logical-profile and complete R4.2 adoption remain separate."
     }
   ]
 }

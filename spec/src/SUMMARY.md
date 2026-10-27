@@ -8,6 +8,7 @@
   - [Architecture / Rust application services](./architecture/rust-application-services.md)
   - [Architecture / Rust managed vaults](./architecture/rust-managed-vaults.md)
   - [Architecture / Durable native turn admission](./architecture/rust-turn-admission.md)
+  - [Architecture / Native logical participants](./architecture/rust-participants.md)
   - [Architecture / Native indexing lifetime](./architecture/rust-indexing-lifetime.md)
   - [Architecture / Native daily Task lifecycle](./architecture/rust-task-lifecycle.md)
   - [Architecture / Admitted native Tasks port](./architecture/rust-task-host-port.md)

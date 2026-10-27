@@ -141,6 +141,22 @@ that scope and do not change defaults or grant feature completion.
 | R4.4 | Native approvals and first-party application tools                                             | Preserve exact offered option IDs, current approval policy, cancellation/unknown effects and source authorization; execute supported first-party tools without JavaScript clients.                                                                                   |
 | R4.5 | Changes/guarded undo and complete both-host workflow acceptance                                | Reuse exact operation/revision pins and the R3 writer/intent guard; qualify retained public screens, rich workflow payloads, detach and cold recovery through both transports.                                                                                       |
 
+R4.2.1 is a source-only participant/publication checkpoint: retain one authored
+message and its dispatch/delivery captures, native request/binding association,
+independent terminal outcomes and exact shared conversation revisions. Existing
+ordinary turns and FIFO selection retain their single-lane behavior. Only a
+fresh explicit native participant acceptance can coordinate several workers;
+cold restore projects unknown/not-sent without dispatch. This introduces no
+host/UI selection, provider resume, second queue or execution engine. R4/R4.1
+and actual both-host participant adoption retain their original gates.
+
+R4.2.2 is the generated participant accept/read/Stop/cancel source transport.
+It preserves complete captures and native identity associations under the existing
+admitted HTTP/client boundary, with no automatic retry after a lost reply. Stop
+addresses one acceptance; per-delivery cancellation retains its exact native
+request association. Native logical-profile resolution, Tauri/shared host adoption
+and complete both-host/provider workflows remain separate R4.2 gates.
+
 R4.1 starts with the currently declared single-recipient plain-text Core profile;
 unsupported rich payloads remain visibly unavailable rather than accepted and
 dropped. Its source codecs preserve the complete retained queue format before
