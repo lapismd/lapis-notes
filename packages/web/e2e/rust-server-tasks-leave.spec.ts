@@ -6,6 +6,7 @@ import { buildTasksArtifact } from "./tasks-installed-plugin";
 import { createHostedTasksFixture, hostedTask } from "./rust-tasks-fixture";
 import {
   manageVaults,
+  moveCaretToEndOfDocument,
   openTaskSource,
   showEditingProblems,
 } from "./tasks-editor-controls";
@@ -94,7 +95,7 @@ for (const action of ["switch", "archive", "logout"] as const) {
         },
       );
       await editor.click();
-      await other.keyboard.press("Control+End");
+      await moveCaretToEndOfDocument(other);
       await other.keyboard.type("\nUnsaved lost browser draft.\n");
       await expect
         .poll(async () => (await states()).some((state) => state.dirty))

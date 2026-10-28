@@ -4,7 +4,10 @@ import { join, resolve } from "node:path";
 import type { EditingIntentState } from "@lapis-notes/api/native-editing-intents";
 import { buildTasksArtifact } from "./tasks-installed-plugin";
 import { createHostedTasksFixture, hostedTask } from "./rust-tasks-fixture";
-import { openTaskSource } from "./tasks-editor-controls";
+import {
+  moveCaretToEndOfDocument,
+  openTaskSource,
+} from "./tasks-editor-controls";
 
 test.use({ locale: "en-GB", timezoneId: "Europe/London" });
 let artifact: string;
@@ -62,7 +65,7 @@ test("another browser's real dirty editor fences Tasks and its owner flushes, yi
       await route.continue();
     });
     await editor.click();
-    await other.keyboard.press("Control+End");
+    await moveCaretToEndOfDocument(other);
     await other.keyboard.type("\nRetained real second-browser draft.\n");
     await expect(editor).toContainText("Retained real second-browser draft.");
     await expect
@@ -93,9 +96,14 @@ test("another browser's real dirty editor fences Tasks and its owner flushes, yi
       hostedTask,
     );
     releaseSave();
+    // The retained draft belongs at the document end; pin the flushed bytes
+    // exactly so a caret that drifts into the raw frontmatter fails here
+    // instead of silently invalidating the task document and emptying the
+    // indexed task projection.
+    const flushed = `${hostedTask}\nRetained real second-browser draft.\n`;
     await expect
       .poll(() => readFile(join(f.service.vault, "Hosted.md"), "utf8"))
-      .toContain("Retained real second-browser draft.");
+      .toBe(flushed);
     await other
       .getByRole("button", { name: "Open Tasks", exact: true })
       .click();

@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-28 01:30:14 UTC**.
+Last updated **2026-10-28 03:02:00 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -42,6 +42,38 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**Hosted tasks-editors platform caret defect repaired; tasks family 15/15 —
+2026-10-28 03:02:00 UTC.** The last open hosted-family item — the
+pre-existing `rust-server-tasks-editors` failure (tasks family 14/15 on every
+native build back to before 2026-10-26) — was diagnosed at the narrowest
+boundary from the preserved failure trace and its captured HTTP bodies. The
+e2e moves the second browser's caret with a hard-coded `Control+End` before
+typing the retained draft. Blink implements document-end caret movement as a
+platform-native editing binding (`Meta+ArrowDown` on macOS), and neither
+CodeMirror nor the app binds `Control+End`, so on the documented native
+runtime lane the press is a silent no-op: the draft typed into the
+mid-document click position inside the raw YAML frontmatter of the
+Source-mode task document (with CodeMirror auto-indent tabs), the held save
+flushed the corrupted bytes verbatim, and the native reindex correctly
+parsed the now-invalid frontmatter as `properties: []`. The `tasks/task`
+projection dropped the Hosted.md row, both browsers rendered Inbox with 0
+tasks behind the retained BUSY alert, and the target checkbox never
+reattached (120s timeout). The product lifecycle was healthy throughout —
+BUSY fencing, held flush, guarded submit/yield/rearm all per
+LN-CORE-019/LN-CORE-020 — proven by the same target passing 1/1 through the
+documented Docker runner (Linux), where `Control+End` is native. Test-only
+repair in the owning package: shared `tasks-editor-controls.ts` gained a
+platform-correct `moveCaretToEndOfDocument` helper used by both consumers
+(editors and leave specs), and the editors spec now pins the exact flushed
+vault bytes (intact frontmatter + draft at the document end) so any caret
+drift fails immediately instead of silently emptying the task projection. No
+assertion or timeout was weakened; no product code or spec contract changed.
+Lanes: exact target native 0/1 → 1/1 (27.2s cold); complete tasks family
+native 14/15 → 15/15 (3.6m) and Docker runner 15/15 (3.2m); complete hosted
+family native 11/11 (1.6m); retained hosted Properties cohort native 2/2
+(56s); web check (svelte-check 0/0, types, e2e tsc) and web tests 136/136.
+Remaining: publication per the readiness record.
 
 **Landed-main final lanes and cohort refresh complete — 2026-10-28 01:30:14
 UTC.** On the fully landed stack (yield-reconciliation repair `b3be91da`,

@@ -19,6 +19,20 @@ export async function openTaskSource(page: Page) {
   return editor;
 }
 
+/**
+ * Blink implements document-end caret movement as a native editing binding,
+ * not a cross-platform accelerator: macOS maps Meta+ArrowDown while other
+ * platforms map Control+End. Neither CodeMirror nor the app binds either
+ * key, so a hard-coded Control+End is a silent no-op on macOS and the next
+ * keystrokes land at the previous click position — inside the raw
+ * frontmatter of a Source-mode task document.
+ */
+export async function moveCaretToEndOfDocument(page: Page): Promise<void> {
+  await page.keyboard.press(
+    process.platform === "darwin" ? "Meta+ArrowDown" : "Control+End",
+  );
+}
+
 export async function manageVaults(page: Page) {
   await page.getByRole("button", { name: /Current workspace:/ }).click();
   await page

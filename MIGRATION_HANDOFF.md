@@ -37,12 +37,16 @@ archives rebuilt with sha256s). jj-store landed its full-lane qualification,
 the saved thread-files plan as Planned M35 (`641b5fc0`) and aggregate-lane
 repairs (`39d6a47f`). spec-validator became a pure-Node library using the
 system qmd (Deno retired; graceful rg-fallback search exits 0; v0.2.0
-committed, unpublished). Open repair items still in flight or queued: the
-pre-existing `rust-server-tasks-editors` hosted failure (reproduced on every
-build back to 2026-10-26; explicit user acceptance required before treating as
-non-blocking), the three plugins FileProperties stories broken by the external
-`60471ee4` vaultChanges edit, and the desktop `withWorkspaceLease`
-acquire-path leak (E-VALIDATION-004 gap). E-CORE-048 keeps one on-demand item:
+committed, unpublished). Open repair items still in flight or queued: the three plugins FileProperties
+stories broken by the external `60471ee4` vaultChanges edit, and the desktop
+`withWorkspaceLease` acquire-path leak (E-VALIDATION-004 gap). The
+pre-existing `rust-server-tasks-editors` hosted failure was repaired
+2026-10-28 as a platform caret defect in the e2e harness (hard-coded
+`Control+End` is a silent macOS no-op, so the retained draft typed into the
+task document's raw frontmatter and the corrupted flush emptied the indexed
+task projection; the shared helper now sends the platform-native
+document-end accelerator and the spec pins the exact flushed bytes — tasks
+family native 15/15 and Docker runner 15/15, hosted family 11/11). E-CORE-048 keeps one on-demand item:
 the macOS headed suite in a quiet window (`LAPIS_DESKTOP_NATIVE_LANE=1 pnpm
 test:native:macos -- headed`).
 
@@ -56,13 +60,13 @@ manifests live in each main's ignored `.local/workspace-retirement/`.
 
 ## Current merge state
 
-| Repository / main checkout                     | Committed baseline                                                                                                                                                                                                                                                                                 | Working copy |
-| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| `/Users/stevejuma/code/lapismd/lapis-notes`    | Gate-6 stack on top of `pvkyoqpw`: yield-reconciliation repair `qypzvnsq b3be91da`, landed hosted-Properties lineage `stuzqoqk 29c258b1`, cohort-refresh record `wukolurp 4640db25`, docs case-exclusion fixture repair `wluptzqw 14a79dd7`, above the gate-5 slice on `44f3b41f`.                 | Clean        |
-| `/Users/stevejuma/code/lapismd/lapis-desktop`  | `b9d7b1d9` (tree `41e04f0d`): six-slice Phase 2 stack on `b009d144` — cohort qualification E-CORE-047 `3dfe624d`, E-QUALIFICATION-003 `09fedef9`, E-RELEASE-017/018 `06b4e096`, lineage audit + E-CORE-048 `afee6da3`, live-provider opt-in `c5d55eaa`, Docker-default/macOS-on-demand `b9d7b1d9`. | Clean        |
-| `/Users/stevejuma/code/lapismd/lapis-plugins`  | `d97cd85c` (tree `3a1247af`): 12-commit R7 native-lane integration stack + NativeEditing/csv-metadata repairs + external LN-MD-127 seating, on `4808e315`.                                                                                                                                         | Clean        |
-| `/Users/stevejuma/code/lapismd/jj-store`       | `39d6a47f` (tree `392c472e`): full-lane History-read-admission qualification `43f843bd`, thread-files plan landed as Planned M35 `641b5fc0`, aggregate-lane repairs, on `52b061c5`.                                                                                                                | Clean        |
-| `/Users/stevejuma/code/lapismd/spec-validator` | `4bad9070`: pure-Node migration `e0121fce` + system-qmd search with graceful rg fallback `99dcd5c8` + v0.2.0 release metadata, on `ab8cd63d`. Unpublished; consumers on registry 0.1.4 until release.                                                                                              | Clean        |
+| Repository / main checkout                     | Committed baseline                                                                                                                                                                                                                                                                                                                                                                                 | Working copy |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| `/Users/stevejuma/code/lapismd/lapis-notes`    | Gate-6 stack on top of `pvkyoqpw`: yield-reconciliation repair `qypzvnsq b3be91da`, landed hosted-Properties lineage `stuzqoqk 29c258b1`, cohort-refresh record `wukolurp 4640db25`, docs case-exclusion fixture repair `wluptzqw 14a79dd7`, above the gate-5 slice on `44f3b41f`; plus the cross-repo Phase 2 record `a728ae7d` and the tasks-editors platform-caret e2e harness repair above it. | Clean        |
+| `/Users/stevejuma/code/lapismd/lapis-desktop`  | `b9d7b1d9` (tree `41e04f0d`): six-slice Phase 2 stack on `b009d144` — cohort qualification E-CORE-047 `3dfe624d`, E-QUALIFICATION-003 `09fedef9`, E-RELEASE-017/018 `06b4e096`, lineage audit + E-CORE-048 `afee6da3`, live-provider opt-in `c5d55eaa`, Docker-default/macOS-on-demand `b9d7b1d9`.                                                                                                 | Clean        |
+| `/Users/stevejuma/code/lapismd/lapis-plugins`  | `d97cd85c` (tree `3a1247af`): 12-commit R7 native-lane integration stack + NativeEditing/csv-metadata repairs + external LN-MD-127 seating, on `4808e315`.                                                                                                                                                                                                                                         | Clean        |
+| `/Users/stevejuma/code/lapismd/jj-store`       | `39d6a47f` (tree `392c472e`): full-lane History-read-admission qualification `43f843bd`, thread-files plan landed as Planned M35 `641b5fc0`, aggregate-lane repairs, on `52b061c5`.                                                                                                                                                                                                                | Clean        |
+| `/Users/stevejuma/code/lapismd/spec-validator` | `4bad9070`: pure-Node migration `e0121fce` + system-qmd search with graceful rg fallback `99dcd5c8` + v0.2.0 release metadata, on `ab8cd63d`. Unpublished; consumers on registry 0.1.4 until release.                                                                                                                                                                                              | Clean        |
 
 All commits are unsigned (`jj --config signing.behavior=drop`). Nothing was
 abandoned anywhere; every retired revision remains in its jj store.
