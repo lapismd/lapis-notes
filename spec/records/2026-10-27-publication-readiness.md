@@ -163,10 +163,62 @@ not yet an ancestor of the plugins active working line; its changeset
 `native-backup-observation.md`, history patch, is already present). The Notes
 phase2 cohort already consumes a history `0.1.4` archive built from
 `92b4dea6` (cohort sha256 `e714935f9f0a…`), and `pnpm --filter @lapis-notes/web
-check` passes on the host cohort (verified 2026-10-27). Follow-up AFTER the
-plugins integration completes (not done in this slice): refresh the Notes-side
-cohort — repack the History archive from the integrated plugins main, update
-`phase2-cohort.json` identities — and rerun the affected Notes web checks.
+check` passes on the host cohort (verified 2026-10-27).
+
+### Refresh executed (2026-10-28 00:57 UTC)
+
+The plugins sibling rebuilt its candidate tarballs from the integrated plugins
+main at `lapis-plugins/.release/npm/`. The Notes-side temporary validation
+channel now consumes the refreshed History candidate (ignored local
+hook/archives pointers only; committed manifests and the lockfile stay
+registry-portable and were restored byte-exact with SHA-256 proof):
+
+- Refreshed archives verified against their sidecars: history `0.1.4` sha256
+  `0f88f189916c3eefcdb60744c7f9fcb1612db03c86f042d5b8f11b1bbff683f6`, search
+  `0.1.3` `a4683163…`, markdown `0.1.6` `49539b9f…`, graph `0.1.3`
+  `ba3bb713…`, csv `0.1.0` `b73490f1…`. Only History was swapped into the
+  channel; the other identities stay available for a later cohort decision so
+  the frozen r3/phase2 qualification surface remains otherwise unchanged.
+- Install channel: `.local/history-refresh-20261028/` (candidate copy,
+  `refresh.mjs`, `receipt.json`) reruns the documented
+  `refresh-r3-public-inputs.mjs` mechanism — temporary root
+  devDependencies + `pnpm.overrides` for all sixteen archives (fifteen frozen
+  r3 identities + the refreshed History), official
+  `pnpm install --no-frozen-lockfile --ignore-pnpmfile`, tracked
+  `package.json`/`pnpm-lock.yaml` bytes restored and verified, consumer vite/
+  Storybook caches invalidated. `node_modules/@lapis-notes/history` now
+  resolves to the `0f88f189` build and exposes `BackupService.setEnabled`.
+- Validation cohort: `.local/validation/phase2-cohort/lapis-notes+history-0.1.4.tgz`
+  was replaced by the refreshed candidate and `phase2-cohort.json` identity
+  updated to `0f88f189…`; the prior `e714935f…` archive is preserved beside it
+  as `…tgz.bak-e714935f-20261028` (gate-2/3/4 evidence identity unchanged).
+- Rerun of the previously failing surface: `pnpm --filter @lapis-notes/web
+  check` passes with zero `BackupService.setEnabled` type errors;
+  `pnpm --filter @lapis-notes/web test` passes 136/136.
+- Channel repair note: the ignored `.pnpmfile.cjs` had drifted to point at
+  `lapis-plugins/.release/npm/manifest.json`, which the plugins rebuild
+  consumed; every pnpm invocation failed in the hook. The file was restored to
+  the canonical `ensureLocalPnpmfile` content (the drifted variant is kept at
+  `.local/pnpmfile.cjs.drifted-bak-20261027`). The canonical hook is a no-op
+  unless `LAPIS_PLUGIN_TARBALL_MANIFEST` is set; the cohort channel installs
+  with `--ignore-pnpmfile` regardless.
+
+### mira-mde publication dependency (found by the plugins agent)
+
+Released mira `0.1.1` lacks `MiraMarkdownEditingSession.hold` and
+`FrontmatterControllerCommit.previousRecord`; the unreleased upstream sources
+exist at mira-mde `c5d1e4b6`/`cb8f2b2b` (the latter on
+`properties-edit-boundary-20261026`, not on the mira-mde active main line).
+The plugins-side ignored hook redirects `@lapismd/mira` to its local candidate
+`lapis-plugins/.local/mira-candidate/lapismd-mira-0.1.1.tgz`; that candidate
+has since been repacked and now checksums to sha256 `5df6b906…`, while the
+earlier `03e15e02…` build quoted at briefing time remains the archive the
+frozen Notes cohort carries as `package-7.tgz` (both build from the same
+unreleased mira-mde contract sources; the repack identity drift is recorded,
+not resolved here). Publishing plugins (or Notes CI frozen installs) therefore
+requires a mira-mde release carrying those contracts first — add it ahead of
+row 9 in the publication order; registry row 8 ("only if required") is now
+definitively required.
 
 ## Anomalies noted during this record
 
