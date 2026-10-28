@@ -8,14 +8,21 @@ started 2026-10-27 16:45:00 UTC; the Notes gates 1-4 completed by 18:40 UTC
 (CI repair, model-tester qualification, Mac provider gate 3/3 in one run, and
 the full lane set on the restored qualified archive cohort). Gate 5 was
 decided 2026-10-27 20:45:00 UTC: the shared-conflict-review lineage is landed
-and lane-qualified; the hosted-properties e2e stays bookmark-preserved against
-a pre-existing native-shutdown defect (see gate 5 below). Publication is the
-declared next step; the
+and lane-qualified. Gate 6 completed 2026-10-28 01:30:14 UTC: the
+hosted-properties blocker was diagnosed as a masked frontmatter-commit race
+(not a leave-drain defect), repaired at the source (LN-CORE-028 guarded
+pre-yield saved-text reconciliation, `b3be91da`), and the preserved
+hosted-Properties lineage landed qualified 2/2 (`29c258b1`, R7.8 Complete);
+the Notes-side History cohort was refreshed to the integrated plugins
+candidate `0f88f189…` and the full native lane set passed on the landed main
+(check 16/16, package 2,143/0, Rust 705/0/7, build 9/9, spec:check 10 lanes).
+Publication is the declared next step; the
 [publication-readiness record](spec/records/2026-10-27-publication-readiness.md)
-maps every registry blocker to its checksummed local archive and proposes the
-release order for user approval (nothing published; no lockfile regenerated).
-Do not restart the app or Storybook except through a Phase 2 lane that
-requires it.
+maps every registry blocker to its checksummed local archive, proposes the
+release order for user approval, and now records the executed cohort refresh
+plus the mira-mde publication dependency (nothing published; no lockfile
+regenerated). Do not restart the app or Storybook except through a Phase 2
+lane that requires it.
 
 This handoff, [MIGRATION.md](MIGRATION.md), the saved
 [Rust core plan](RUST_CORE_MIGRATION_PLAN.md), the
@@ -29,7 +36,7 @@ manifests live in each main's ignored `.local/workspace-retirement/`.
 
 | Repository / main checkout                    | Committed baseline                                                                                                                                                                                  | Working copy |
 | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| `/Users/stevejuma/code/lapismd/lapis-notes`   | Phase 2 gate-5 slice on top of `44f3b41f`: landed shared-conflict-review lineage (candidate `zymuvnlk fc3ecdf3` + record `qtpwpkxx 26464e53`) and the tracker/publication-readiness slice above it. | Clean        |
+| `/Users/stevejuma/code/lapismd/lapis-notes`   | Gate-6 stack on top of `pvkyoqpw`: yield-reconciliation repair `qypzvnsq b3be91da`, landed hosted-Properties lineage `stuzqoqk 29c258b1`, cohort-refresh record `wukolurp 4640db25`, docs case-exclusion fixture repair `wluptzqw 14a79dd7`, above the gate-5 slice on `44f3b41f`. | Clean        |
 | `/Users/stevejuma/code/lapismd/lapis-desktop` | `b009d1441727`: R7 intake (Notes native pin `cd997c2c`, 31-archive/117-route cohort, E-CORE-046 DRAFT) above spec-first repair `70730562`.                                                          | Clean        |
 | `/Users/stevejuma/code/lapismd/lapis-plugins` | `a68b8880e67c`: merged native-search stack above portable-lock draft `467f2231` and test repair `338282bf`, on `773bed9e`.                                                                          | Clean        |
 | `/Users/stevejuma/code/lapismd/jj-store`      | `52b061c52111`: integrated history-read-admission slice above pending-docs commit `26a72176`, on `4e74e423`.                                                                                        | Clean        |
@@ -42,16 +49,20 @@ abandoned anywhere; every retired revision remains in its jj store.
 Unlanded unique work is bookmarked (GC-protected) and awaits Phase 2 decisions:
 
 - **Notes** `preserved-hosted-properties-20261027` (`kpymntwz 845842b8`):
-  never-executed hosted Properties e2e + LN-WEB-074 spec text. Gate 5 verdict
-  2026-10-27: NOT integrated — both actual Rust-hosted cases pass their bodies
-  but fail clean native shutdown ("resolve retained editor state" after an
-  ordinary Properties save + logout), and the simpler case reproduces
-  identically on the bare main baseline without the integration stack
-  (workspace/renderer rebuilt from main sources), while the retained
-  tasks-leave journeys pass 5/5 on the same stack. Pre-existing main defect in
-  the native metadata/frontmatter leave-drain path (server
-  `editors_blocked`/`runtime.shutdown` busy loop); repairing it is a
-  user-decided rework. Bookmark stays pinned.
+  never-executed hosted Properties e2e + LN-WEB-074 spec text. Gate 6 verdict
+  2026-10-28: LANDED — the gate-5 "clean native-shutdown refusal" was
+  diagnosed with instrumented runs as masked journey-body failures (the e2e
+  `finally` teardown error hid them): a frontmatter commit racing an external
+  file change aborted in the mutation guard because the open document's
+  acknowledged saved baseline lags the fast panel refresh by up to the 5s
+  watch poll, and the retried commit retained a dirty+active intent lease;
+  the shutdown refusal was the fence correctly protecting a session that
+  never left. Repaired at the source (`b3be91da`, LN-CORE-028 guarded
+  pre-yield saved-text reconciliation of clean interactive producers); the
+  recovered lineage landed as `29c258b1` with both actual cases 2/2 on three
+  consecutive cold runs and clean native shutdown
+  ([qualification](spec/records/2026-10-27-hosted-properties-review.md)).
+  Bookmark stays pinned.
 - **Notes** `preserved-shared-conflict-review-20261026` (`pslnvswp 36cc3c4e`
   chain): LANDED at gate 5 — candidate `ea7a2d28` + record `974328f6`
   duplicated onto `44f3b41f` as `zymuvnlk fc3ecdf3` + `qtpwpkxx 26464e53`
@@ -186,11 +197,45 @@ directory while sibling agents run; preservation precedes every deletion.
    Hosted-properties e2e NOT integrated: pre-existing clean native-shutdown
    refusal reproduced on the bare main baseline (details in the Phase 1
    dispositions bullet and MIGRATION.md R7.8); `kpymntwz 845842b8` stays
-   bookmark-preserved for the user's rework decision. Follow-ups: the
+   bookmark-preserved for the user's rework decision (superseded by gate 6).
+   Follow-ups: the
    [publication-readiness record](spec/records/2026-10-27-publication-readiness.md)
    (blocker→archive map + proposed release order) and the Notes-side cohort
    refresh + web-check rerun AFTER the plugins agent lands `92b4dea6`
    (History `BackupService.setEnabled` owner).
+6. DONE (2026-10-28 01:30 UTC): hosted-properties rework, landing, cohort
+   refresh and final landed-main lanes. The gate-5 shutdown refusal was
+   re-diagnosed with instrumented Rust-hosted runs: the e2e `finally`
+   teardown error masked journey-body failures — a frontmatter commit racing
+   an external file change aborted in the mutation guard ("Saved editor
+   content changed": the panel refreshes on the fast native metadata stream
+   while the document baseline waits for the 5s watch poll), and the retried
+   commit retained a dirty+active `TextMutation` intent lease; the server was
+   correctly fencing a session that never left (reconciled runs drain to
+   `states=[]` and stop cleanly). Repair `qypzvnsq b3be91da` (spec-first
+   LN-CORE-028 guarded pre-yield saved-text reconciliation of clean
+   interactive producers; fail-closed fence retained for unacknowledgeable/
+   dirty producers; protected-refresh + handoff-recovery suites and the
+   EditingRecovery handoff demo reworked with it). The recovered lineage
+   landed as `stuzqoqk 29c258b1`: Properties e2e 0/2 → 2/2 on three
+   consecutive cold runs, cold catalog 267/267 in four shards, spec:check +
+   per-commit/combined-range spec-first, web check + 136/136, api
+   1,723/1,723 + check, hosted family 11/11, EditingRecovery 3/3; R7.8
+   Complete and the journey claimed. Cohort refresh `wukolurp 4640db25`:
+   channel consumes the refreshed plugins History candidate `0f88f189…`
+   (verified; tracked bytes preserved; phase2 cohort identity updated with
+   the prior `e714935f…` archive preserved), web check zero setEnabled
+   errors + 136/136 rerun. Docs case-exclusion fixture repair `wluptzqw
+   14a79dd7` keeps the native Rust lane at 705/0/7 on case-insensitive hosts
+   (pre-existing platform-dependent fixture, surfaced by the native runtime
+   override). Final landed-main lanes (native runtime override while the
+   omarchy Docker remote refuses SSH; `deno.lock` touched by native lanes was
+   restored each time, never committed): check 16/16, package tests 2,143/0,
+   Rust 705/0/7, build 9/9, spec:check 10 lanes. Known pre-existing failure,
+   separately owned pending user decision: `rust-server-tasks-editors`
+   (tasks family 14/15) reproduces identically without this stack and
+   without both 2026-10-27 landings. Live-provider lanes were not run per
+   the standing decision below.
 
 **Desktop**
 
@@ -234,6 +279,13 @@ directory while sibling agents run; preservation precedes every deletion.
 
 ## Standing decisions
 
+- Live-agent/provider tests are optional and run only on explicit user
+  request, never as part of standard suites (user decision 2026-10-27); when
+  run, their evidence rules (fresh receipts, recorded failures before
+  deliberate retry, no auto-replay) still apply. The Notes provider specs
+  (`rust-server-provider*.spec.ts`) already sit behind their explicit
+  `LAPIS_SERVER_PROVIDER_SCREEN_TEST=1` gate; keep it unset in standard
+  lanes.
 - Notes `packages/desktop-deno` is DEPRECATED and marked for deletion (user
   decision 2026-10-27). It is excluded from Phase 2 verification lanes: do not
   run, repair, or count its checks/tests/builds (turbo lanes pass

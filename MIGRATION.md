@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-28 00:55:00 UTC**.
+Last updated **2026-10-28 01:30:14 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -42,6 +42,33 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**Landed-main final lanes and cohort refresh complete — 2026-10-28 01:30:14
+UTC.** On the fully landed stack (yield-reconciliation repair `b3be91da`,
+hosted-Properties lineage `29c258b1`, cohort-refresh record `4640db25`, docs
+case-exclusion fixture repair `14a79dd7`) the complete native lane set passed
+once with `desktop-deno` excluded-deprecated: check 16/16, package tests
+2,143/0 (ui 15, language-service 18, file-explorer 39, host-services 9,
+app-profile 75, web 136, deno-host-services 90, api 1,723, workspace 38),
+Rust 705/0/7 retained ignores, build 9/9, and spec:check with 10 lanes
+(validate 11 validators/192 chapters/1,599 requirements, migration-progress
+128 tasks, protocol bindings, boundary regressions 6/6, docs mirrors 192,
+view-command/storybook-structure audits, mdBook, spec-first, app-ownership,
+metadata queries, spec-validation suite 110 checks). The Notes-side
+temporary validation channel now consumes the refreshed plugins History
+candidate `0.1.4` sha256 `0f88f189…` (tracked manifest/lock bytes preserved
+with SHA-256 proof; the prior `e714935f…` archive is preserved beside the
+updated phase2 cohort identity); web check carries zero
+`BackupService.setEnabled` type errors and web tests pass 136/136 on the
+refreshed channel. The omarchy Docker remote still refuses SSH, so all
+validation lanes ran through the documented native runtime override
+(`LAPIS_NOTES_VALIDATION_RUNTIME=native`); native check/test runs rewrite
+`deno.lock` in place and the tracked bytes were restored after each lane, so
+no lock normalization was applied to main. The docs case-exclusion fixture
+repair keeps the native Rust lane at the Docker-qualified 705/0/7 baseline on
+case-insensitive hosts. Remaining: publication per the readiness record, and
+the separately owned pre-existing `rust-server-tasks-editors` failure
+(reproduced identically without this stack; tasks family 14/15).
 
 **Hosted Properties native-shutdown defect repaired at the source; preserved
 Properties lineage landed — 2026-10-28 00:55:00 UTC.** The gate-5 blocker
