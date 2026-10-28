@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-28 10:38:38 UTC**.
+Last updated **2026-10-28 11:24:29 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -42,6 +42,15 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**`@lapismd/jj-history@0.1.0` published (manual first) + trusted publisher —
+2026-10-28 11:24:29 UTC.** First registry publish from the Phase 2 tip
+(shasum `857c33d5…`); `npm trust github` wires future `jj-history-v*` tags
+through `npm-publish-jj-history.yml` / `npm-production`. Tip-landing PR
+[#20](https://github.com/stevejuma/jj-store/pull/20) is open but CI cannot
+materialize sibling pins (`lapis-ai` / `agent-redaction` SHAs are not on
+GitHub yet). Next: push or re-pin those siblings, get required checks green,
+merge, then repack cohort archives. agent-ui is next after tip lands.
 
 **`@lapismd/spec-validator@0.2.0` published; PR CI required on that repo —
 2026-10-28 10:38:38 UTC.** Release PR
