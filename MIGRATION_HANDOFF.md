@@ -37,18 +37,39 @@ archives rebuilt with sha256s). jj-store landed its full-lane qualification,
 the saved thread-files plan as Planned M35 (`641b5fc0`) and aggregate-lane
 repairs (`39d6a47f`). spec-validator became a pure-Node library using the
 system qmd (Deno retired; graceful rg-fallback search exits 0; v0.2.0
-committed, unpublished). Open repair items still in flight or queued: the three plugins FileProperties
-stories broken by the external `60471ee4` vaultChanges edit, and the desktop
-`withWorkspaceLease` acquire-path leak (E-VALIDATION-004 gap). The
-pre-existing `rust-server-tasks-editors` hosted failure was repaired
-2026-10-28 as a platform caret defect in the e2e harness (hard-coded
-`Control+End` is a silent macOS no-op, so the retained draft typed into the
-task document's raw frontmatter and the corrupted flush emptied the indexed
-task projection; the shared helper now sends the platform-native
-document-end accelerator and the spec pins the exact flushed bytes — tasks
-family native 15/15 and Docker runner 15/15, hosted family 11/11). E-CORE-048 keeps one on-demand item:
-the macOS headed suite in a quiet window (`LAPIS_DESKTOP_NATIVE_LANE=1 pnpm
+committed, unpublished). All formerly-open repair items are now resolved:
+the three plugins FileProperties stories were fixed by restoring the
+documented Mira candidate and adding a fail-closed frontmatter contract test
+(3/3); the desktop `withWorkspaceLease` acquire-path leak was fixed by a
+dead-owner adopt-on-acquire rule (E-VALIDATION-005); the pre-existing
+`rust-server-tasks-editors` hosted failure was repaired as a platform caret
+defect in the e2e harness (hard-coded `Control+End` is a silent macOS no-op,
+so the retained draft typed into the task document's raw frontmatter and the
+corrupted flush emptied the indexed task projection; the shared helper now
+sends the platform-native document-end accelerator and the spec pins the
+exact flushed bytes — tasks family native 15/15 and Docker runner 15/15,
+hosted family 11/11). The Mira cross-contract conflict (Reading Surface
+required `isolation`, FileProperties required `previousRecord`) was closed by
+merging `properties-edit-boundary` into mira main (`88ac686c`), packing the
+unified candidate (`13a93535`) and re-pinning plugins (`d7851bd9`); the
+focused FileProperties + Reading Surface story proof is 17/17 green, and the
+Docker worker's stale `@lapis-notes/api` seed was repointed to the
+`registerIcon`-bearing candidate. E-CORE-048 keeps one on-demand item: the
+macOS headed suite in a quiet window (`LAPIS_DESKTOP_NATIVE_LANE=1 pnpm
 test:native:macos -- headed`).
+
+One item is documented-and-deferred rather than fixed: the plugins full
+cold-catalog gate (interaction/a11y, 4-shard) could not complete locally or
+remotely. The omarchy Docker daemon failed with `RWLayer of container …
+unexpectedly nil` (corrupted host storage) and `ssh exited 137`, and the local
+single-process run hit the known Chromium page-close flake. This is a host /
+harness issue, not a product failure: every affected story family passed
+individually (FileProperties 6/6, Bases lifecycle 2/2 after the registerIcon
+seed fix, markdown/sync/history registry screenshots all green). Resolution is
+deferred to the CI/PR push, which runs the same lane on GitHub runners without
+the omarchy host. Local harness tweaks applied for the next attempt: worker
+shm 2 → 8 GiB and the corrected api seed (both in ignored `.local` config; a
+tracked `model.mjs` shm default bump is a suggested small follow-up).
 
 This handoff, [MIGRATION.md](MIGRATION.md), the saved
 [Rust core plan](RUST_CORE_MIGRATION_PLAN.md), the
@@ -64,9 +85,9 @@ manifests live in each main's ignored `.local/workspace-retirement/`.
 | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
 | `/Users/stevejuma/code/lapismd/lapis-notes`    | Gate-6 stack on top of `pvkyoqpw`: yield-reconciliation repair `qypzvnsq b3be91da`, landed hosted-Properties lineage `stuzqoqk 29c258b1`, cohort-refresh record `wukolurp 4640db25`, docs case-exclusion fixture repair `wluptzqw 14a79dd7`, above the gate-5 slice on `44f3b41f`; plus the cross-repo Phase 2 record `a728ae7d` and the tasks-editors platform-caret e2e harness repair above it. | Clean        |
 | `/Users/stevejuma/code/lapismd/lapis-desktop`  | `b9d7b1d9` (tree `41e04f0d`): six-slice Phase 2 stack on `b009d144` — cohort qualification E-CORE-047 `3dfe624d`, E-QUALIFICATION-003 `09fedef9`, E-RELEASE-017/018 `06b4e096`, lineage audit + E-CORE-048 `afee6da3`, live-provider opt-in `c5d55eaa`, Docker-default/macOS-on-demand `b9d7b1d9`.                                                                                                 | Clean        |
-| `/Users/stevejuma/code/lapismd/lapis-plugins`  | `d97cd85c` (tree `3a1247af`): 12-commit R7 native-lane integration stack + NativeEditing/csv-metadata repairs + external LN-MD-127 seating, on `4808e315`.                                                                                                                                                                                                                                         | Clean        |
-| `/Users/stevejuma/code/lapismd/jj-store`       | Local tip `39d6a47f` + trusted-publish commit on PR [#20](https://github.com/stevejuma/jj-store/pull/20); `@lapismd/jj-history@0.1.0` on npm; GitHub `main` still `07229718` until sibling pin SHAs exist remotely and required checks pass.                                                                                                                                                      | Clean        |
-| `/Users/stevejuma/code/lapismd/spec-validator` | GitHub `main` `2d44aad6` (merge of PR #3) over release merge `5d6702ea` / tag `v0.2.0`: pure-Node + PATH qmd search published as registry **`@lapismd/spec-validator@0.2.0`** (`latest`); PR CI `check` required on `main`.                                                                                                                                                                           | Clean        |
+| `/Users/stevejuma/code/lapismd/lapis-plugins`  | `d7851bd9` (tree clean): unified Mira candidate pin + cross-contract closure, over `3c661e64` FileProperties persistence fix and `e08c2fc1` native-admission boot budget, on the 12-commit R7 native-lane integration stack + external LN-MD-127 seating (`d97cd85c`) above `4808e315`.                                                                                                            | Clean        |
+| `/Users/stevejuma/code/lapismd/jj-store`       | Local tip `39d6a47f` + trusted-publish commit on PR [#20](https://github.com/stevejuma/jj-store/pull/20); `@lapismd/jj-history@0.1.0` on npm; GitHub `main` still `07229718` until sibling pin SHAs exist remotely and required checks pass.                                                                                                                                                       | Clean        |
+| `/Users/stevejuma/code/lapismd/spec-validator` | GitHub `main` `2d44aad6` (merge of PR #3) over release merge `5d6702ea` / tag `v0.2.0`: pure-Node + PATH qmd search published as registry **`@lapismd/spec-validator@0.2.0`** (`latest`); PR CI `check` required on `main`.                                                                                                                                                                        | Clean        |
 
 All commits are unsigned (`jj --config signing.behavior=drop`). Nothing was
 abandoned anywhere; every retired revision remains in its jj store.
