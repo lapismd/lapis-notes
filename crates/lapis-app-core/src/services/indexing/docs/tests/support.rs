@@ -19,6 +19,16 @@ pub(super) fn write(root: &tempfile::TempDir, path: &str, text: &str) {
     std::fs::create_dir_all(path.parent().unwrap()).unwrap();
     std::fs::write(path, text).unwrap();
 }
+/// Case-exclusion fixtures require a filesystem that distinguishes name case;
+/// case-insensitive hosts (default macOS APFS) cannot represent them.
+pub(super) fn fs_distinguishes_case(root: &tempfile::TempDir) -> bool {
+    let lower = root.path().join("case-probe.tmp");
+    let upper = root.path().join("CASE-PROBE.tmp");
+    std::fs::write(&lower, "probe").unwrap();
+    let collided = upper.exists();
+    std::fs::remove_file(&lower).unwrap();
+    !collided
+}
 pub(super) fn note(id: &str, title: &str) -> String {
     format!("---\nid: {id}\ntitle: {title}\n---\n# Body\n")
 }

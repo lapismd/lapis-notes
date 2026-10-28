@@ -220,6 +220,10 @@ through bounded reads, and preserve other namespaces. Unchanged ready/error
 sources and definitions MUST remain revision-idempotent. Changed snapshots stay
 pending; hidden, symlinked and replaced-root resources remain unavailable.
 Disable and close fence new work while accepted database effects drain.
+Configured-root matching acceptance retains sibling-directory case exclusion
+only on filesystems that distinguish name case; a case-insensitive native host
+(default macOS APFS) omits that single colliding fixture seed without weakening
+root/suffix admission.
 
 The [bounded Docs intake](../../records/2026-10-25-native-docs-projection-intake.md)
 records the confirmed native-only selection and qualified plugin revision.

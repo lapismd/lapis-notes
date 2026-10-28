@@ -10,7 +10,11 @@ async fn selection_reuses_owner_and_publishes_registered_note_with_core_metadata
     write(&root, "docs/Alpha.doc.md", raw);
     write(&root, "docs/Nested/Beta.DOC.MD", &note("beta", "Beta"));
     write(&root, "docs-other/Other.doc.md", &note("other", "Other"));
-    write(&root, "Docs/Case.doc.md", &note("case", "Case"));
+    if fs_distinguishes_case(&root) {
+        // Sibling-case directory exclusion is unrepresentable on
+        // case-insensitive filesystems; those hosts skip only this seed.
+        write(&root, "Docs/Case.doc.md", &note("case", "Case"));
+    }
     write(&root, "docs/Plain.md", &note("plain", "Plain"));
     let runtime = runtime(&profile);
     let vault = runtime.admit(Uuid::new_v4(), root.path()).unwrap();
