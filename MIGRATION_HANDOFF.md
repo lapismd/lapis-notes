@@ -24,6 +24,28 @@ plus the mira-mde publication dependency (nothing published; no lockfile
 regenerated). Do not restart the app or Storybook except through a Phase 2
 lane that requires it.
 
+**Cross-repo Phase 2 completion — 2026-10-28 01:40:17 UTC.** Desktop finished
+its integration pass and policy slices (E-QUALIFICATION-003 and
+E-RELEASE-017/018 landed; items 3–6 superseded with byte-level proof;
+live-provider opt-in `c5d55eaa`/E-TEST-002; Docker/Linux default + macOS
+on-demand `b9d7b1d9`/E-VALIDATION-004 pass with the full standard lane set
+green in Linux containers: node 555/555, AI 744/744, cargo 258/0/2, catalog
+2,124/0). Plugins landed the complete store-only R7 native-services audit
+(12-commit integrated stack + 3 repairs on `d97cd85c`; `a356c9c7`, Chain C and
+the stale `67ce4ae5` release batch proven superseded/store-only; 16 candidate
+archives rebuilt with sha256s). jj-store landed its full-lane qualification,
+the saved thread-files plan as Planned M35 (`641b5fc0`) and aggregate-lane
+repairs (`39d6a47f`). spec-validator became a pure-Node library using the
+system qmd (Deno retired; graceful rg-fallback search exits 0; v0.2.0
+committed, unpublished). Open repair items still in flight or queued: the
+pre-existing `rust-server-tasks-editors` hosted failure (reproduced on every
+build back to 2026-10-26; explicit user acceptance required before treating as
+non-blocking), the three plugins FileProperties stories broken by the external
+`60471ee4` vaultChanges edit, and the desktop `withWorkspaceLease`
+acquire-path leak (E-VALIDATION-004 gap). E-CORE-048 keeps one on-demand item:
+the macOS headed suite in a quiet window (`LAPIS_DESKTOP_NATIVE_LANE=1 pnpm
+test:native:macos -- headed`).
+
 This handoff, [MIGRATION.md](MIGRATION.md), the saved
 [Rust core plan](RUST_CORE_MIGRATION_PLAN.md), the
 [cutover priority plan](RUST_HOSTED_CUTOVER_PLAN.md) and the
@@ -34,12 +56,13 @@ manifests live in each main's ignored `.local/workspace-retirement/`.
 
 ## Current merge state
 
-| Repository / main checkout                    | Committed baseline                                                                                                                                                                                  | Working copy |
-| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| `/Users/stevejuma/code/lapismd/lapis-notes`   | Gate-6 stack on top of `pvkyoqpw`: yield-reconciliation repair `qypzvnsq b3be91da`, landed hosted-Properties lineage `stuzqoqk 29c258b1`, cohort-refresh record `wukolurp 4640db25`, docs case-exclusion fixture repair `wluptzqw 14a79dd7`, above the gate-5 slice on `44f3b41f`. | Clean        |
-| `/Users/stevejuma/code/lapismd/lapis-desktop` | `b009d1441727`: R7 intake (Notes native pin `cd997c2c`, 31-archive/117-route cohort, E-CORE-046 DRAFT) above spec-first repair `70730562`.                                                          | Clean        |
-| `/Users/stevejuma/code/lapismd/lapis-plugins` | `a68b8880e67c`: merged native-search stack above portable-lock draft `467f2231` and test repair `338282bf`, on `773bed9e`.                                                                          | Clean        |
-| `/Users/stevejuma/code/lapismd/jj-store`      | `52b061c52111`: integrated history-read-admission slice above pending-docs commit `26a72176`, on `4e74e423`.                                                                                        | Clean        |
+| Repository / main checkout                     | Committed baseline                                                                                                                                                                                                                                                                                 | Working copy |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| `/Users/stevejuma/code/lapismd/lapis-notes`    | Gate-6 stack on top of `pvkyoqpw`: yield-reconciliation repair `qypzvnsq b3be91da`, landed hosted-Properties lineage `stuzqoqk 29c258b1`, cohort-refresh record `wukolurp 4640db25`, docs case-exclusion fixture repair `wluptzqw 14a79dd7`, above the gate-5 slice on `44f3b41f`.                 | Clean        |
+| `/Users/stevejuma/code/lapismd/lapis-desktop`  | `b9d7b1d9` (tree `41e04f0d`): six-slice Phase 2 stack on `b009d144` — cohort qualification E-CORE-047 `3dfe624d`, E-QUALIFICATION-003 `09fedef9`, E-RELEASE-017/018 `06b4e096`, lineage audit + E-CORE-048 `afee6da3`, live-provider opt-in `c5d55eaa`, Docker-default/macOS-on-demand `b9d7b1d9`. | Clean        |
+| `/Users/stevejuma/code/lapismd/lapis-plugins`  | `d97cd85c` (tree `3a1247af`): 12-commit R7 native-lane integration stack + NativeEditing/csv-metadata repairs + external LN-MD-127 seating, on `4808e315`.                                                                                                                                         | Clean        |
+| `/Users/stevejuma/code/lapismd/jj-store`       | `39d6a47f` (tree `392c472e`): full-lane History-read-admission qualification `43f843bd`, thread-files plan landed as Planned M35 `641b5fc0`, aggregate-lane repairs, on `52b061c5`.                                                                                                                | Clean        |
+| `/Users/stevejuma/code/lapismd/spec-validator` | `4bad9070`: pure-Node migration `e0121fce` + system-qmd search with graceful rg fallback `99dcd5c8` + v0.2.0 release metadata, on `ab8cd63d`. Unpublished; consumers on registry 0.1.4 until release.                                                                                              | Clean        |
 
 All commits are unsigned (`jj --config signing.behavior=drop`). Nothing was
 abandoned anywhere; every retired revision remains in its jj store.
@@ -226,7 +249,7 @@ directory while sibling agents run; preservation precedes every deletion.
    (verified; tracked bytes preserved; phase2 cohort identity updated with
    the prior `e714935f…` archive preserved), web check zero setEnabled
    errors + 136/136 rerun. Docs case-exclusion fixture repair `wluptzqw
-   14a79dd7` keeps the native Rust lane at 705/0/7 on case-insensitive hosts
+14a79dd7` keeps the native Rust lane at 705/0/7 on case-insensitive hosts
    (pre-existing platform-dependent fixture, surfaced by the native runtime
    override). Final landed-main lanes (native runtime override while the
    omarchy Docker remote refuses SSH; `deno.lock` touched by native lanes was
@@ -293,6 +316,24 @@ directory while sibling agents run; preservation precedes every deletion.
   it is recorded as excluded-deprecated. The exclusion does NOT extend to
   `server-deno` or `deno-host-services`, which keep their documented retained
   lanes and skips.
+- Standard test lanes run against **Linux containers on Docker by default**
+  (CI parity); macOS native/headed runs are **on-demand only** behind explicit
+  opt-in (user decision 2026-10-27, implemented structurally in lapis-desktop:
+  `scripts/macos-native-lanes.mjs` + `native-lane-defaults` governance test;
+  apply the same pattern elsewhere when repo tooling allows). Native fallback
+  runs must be labeled `native-fallback` and never presented as Docker parity.
+  Note: desktop `ci.yml` is still `macos-15` native — making Docker the actual
+  CI runtime requires a Linux+macOS job split (recorded gap, user decision).
+- **Never move a `main` bookmark manually.** Main updates only through
+  push → upstream landing → `jj git pull` (user rule 2026-10-27). This applies
+  to the anomalous plugins `main` (points at store-only `bd305e58`) and the
+  stale jj-store `main` (`07229718`) alike: fix by pushing and pulling, not by
+  re-pointing.
+- Other chats and users may edit these directories at any time. Agents must
+  tolerate and **preserve external changes**: `jj st` before every commit,
+  path-scoped commits of only their own files, never revert/overwrite/delete
+  files they did not create, merge same-file external edits deliberately, and
+  record (not "fix") lane failures caused by external edits.
 - R7 cutover remains primary; R5 memory and R6 durable operations are Deferred
   after cutover. Remaining R4 participant/profile/group queues, rich
   context/commands/handoff, approvals/tools/Changes/undo are explicit backlog.
