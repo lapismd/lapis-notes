@@ -16,12 +16,12 @@ hosted-Properties lineage landed qualified 2/2 (`29c258b1`, R7.8 Complete);
 the Notes-side History cohort was refreshed to the integrated plugins
 candidate `0f88f189…` and the full native lane set passed on the landed main
 (check 16/16, package 2,143/0, Rust 705/0/7, build 9/9, spec:check 10 lanes).
-Publication is the declared next step; the
+Publication is underway; the
 [publication-readiness record](spec/records/2026-10-27-publication-readiness.md)
-maps every registry blocker to its checksummed local archive, proposes the
-release order for user approval, and now records the executed cohort refresh
-plus the mira-mde publication dependency (nothing published; no lockfile
-regenerated). Do not restart the app or Storybook except through a Phase 2
+maps every registry blocker to its checksummed local archive and release
+order. `@lapismd/spec-validator@0.2.0` is on the registry (2026-10-28); mira
+republish remains required before the plugins batch; Notes lockfile is not
+regenerated yet. Do not restart the app or Storybook except through a Phase 2
 lane that requires it.
 
 **Cross-repo Phase 2 completion — 2026-10-28 01:40:17 UTC.** Desktop finished
@@ -66,7 +66,7 @@ manifests live in each main's ignored `.local/workspace-retirement/`.
 | `/Users/stevejuma/code/lapismd/lapis-desktop`  | `b9d7b1d9` (tree `41e04f0d`): six-slice Phase 2 stack on `b009d144` — cohort qualification E-CORE-047 `3dfe624d`, E-QUALIFICATION-003 `09fedef9`, E-RELEASE-017/018 `06b4e096`, lineage audit + E-CORE-048 `afee6da3`, live-provider opt-in `c5d55eaa`, Docker-default/macOS-on-demand `b9d7b1d9`.                                                                                                 | Clean        |
 | `/Users/stevejuma/code/lapismd/lapis-plugins`  | `d97cd85c` (tree `3a1247af`): 12-commit R7 native-lane integration stack + NativeEditing/csv-metadata repairs + external LN-MD-127 seating, on `4808e315`.                                                                                                                                                                                                                                         | Clean        |
 | `/Users/stevejuma/code/lapismd/jj-store`       | `39d6a47f` (tree `392c472e`): full-lane History-read-admission qualification `43f843bd`, thread-files plan landed as Planned M35 `641b5fc0`, aggregate-lane repairs, on `52b061c5`.                                                                                                                                                                                                                | Clean        |
-| `/Users/stevejuma/code/lapismd/spec-validator` | `4bad9070`: pure-Node migration `e0121fce` + system-qmd search with graceful rg fallback `99dcd5c8` + v0.2.0 release metadata, on `ab8cd63d`. Unpublished; consumers on registry 0.1.4 until release.                                                                                                                                                                                              | Clean        |
+| `/Users/stevejuma/code/lapismd/spec-validator` | GitHub `main` `2d44aad6` (merge of PR #3) over release merge `5d6702ea` / tag `v0.2.0`: pure-Node + PATH qmd search published as registry **`@lapismd/spec-validator@0.2.0`** (`latest`); PR CI `check` required on `main`.                                                                                                                                                                           | Clean        |
 
 All commits are unsigned (`jj --config signing.behavior=drop`). Nothing was
 abandoned anywhere; every retired revision remains in its jj store.

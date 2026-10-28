@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-28 03:02:00 UTC**.
+Last updated **2026-10-28 10:38:38 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -42,6 +42,22 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**`@lapismd/spec-validator@0.2.0` published; PR CI required on that repo —
+2026-10-28 10:38:38 UTC.** Release PR
+[#2](https://github.com/lapismd/spec-validator/pull/2) merged to
+`5d6702ea`, tag `v0.2.0` triggered trusted publish
+([run 40672482528](https://github.com/lapismd/spec-validator/actions/runs/40672482528));
+registry `latest` is `0.2.0` (integrity
+`sha512-fUMh7fpoZXuMRAc5Jdo+Y2sUhAPeO5o5R5AIdwKEs/xNLS2W3mSSHimscxI58JuUEFPPk/SI+jE0Vcvv7gXdlw==`).
+Provenance verify timed out waiting for npm visibility at 120s; the package
+is present and the wait was lengthened to 360s in follow-up PR
+[#3](https://github.com/lapismd/spec-validator/pull/3), which also added the
+`check` workflow and required status checks on `main` (enforce_admins).
+Publication order next: jj-history → agent-ui → Notes cohort; mira remains
+**required** and blocked on in-flight verification. No Notes lockfile regen
+yet. See
+[publication-readiness](spec/records/2026-10-27-publication-readiness.md).
 
 **Hosted tasks-editors platform caret defect repaired; tasks family 15/15 —
 2026-10-28 03:02:00 UTC.** The last open hosted-family item — the
