@@ -198,6 +198,8 @@ the production apply guard.
 
 **Requirement.** The runnable editor demo MUST keep demo bootstrap and source-editor policy in Storybook fixtures while reusable runtime contracts remain in API, reusable File Explorer remains in `@lapis-notes/file-explorer`, Markdown owns Tags, and generic startup presentation remains in Design Core. Design Core MUST own current, reveal-or-create, and forced-new-tab Explorer intents while Lapis maps them to workspace leaves.
 
+Unchanged contract: File Explorer passes the selected file-view icon through published Design Core `getIcon`. `ExplorerControllerOptions` does not declare `iconResolver`.
+
 ## LN-ARCH-020 — Api source-editor shell: expose the configured CodeMirror fold gutter
 
 <a id="ln-arch-020"></a>

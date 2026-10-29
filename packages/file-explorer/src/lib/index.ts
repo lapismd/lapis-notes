@@ -128,7 +128,6 @@ function createExplorerController(app: App, loading: boolean) {
       node.kind === "file"
         ? app.workspace.getFileIconForPath(node.path)
         : undefined,
-    iconResolver: app.icons,
     tree: {
       listEntries: () =>
         listExplorerVaultEntries(app.vault.getAllLoadedFiles()),

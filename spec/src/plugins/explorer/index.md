@@ -148,3 +148,5 @@ explicit; Deno host source remains frozen. Admission spans creation projection.
 <a id="ln-exp-014"></a>
 
 **Requirement.** Explorer MUST render the owning App's selected file-view icon through Design Core's public scoped resolver, with filename fallback while artwork is missing, loading or failed. Registration, removal, plugin lifecycle and editor-association changes MUST refresh icons without resetting selection, focus, expansion or rename state. Teardown MUST remove subscriptions and fence pending resolution.
+
+Unchanged contract: published `ExplorerControllerOptions` does not declare `iconResolver`. Explorer passes the selected file-view icon through `getIcon`. `pnpm --filter @lapis-notes/file-explorer check:svelte` is the milestone check for this correction. A local type check is not native qualification.
