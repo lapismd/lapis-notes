@@ -7,7 +7,6 @@
   "scripts": {
     "dev": "vite",
     "build": "pnpm generate-icons && NODE_OPTIONS=--max-old-space-size=8192 vite build",
-    "build:server": "NODE_OPTIONS=--max-old-space-size=8192 vite build --mode server",
     "preview": "vite preview",
     "check": "pnpm check:svelte && pnpm check:types && pnpm check:e2e",
     "check:svelte": "svelte-check --tsconfig ./tsconfig.app.json --fail-on-warnings --output human",
@@ -15,19 +14,14 @@
     "check:e2e": "tsc -p e2e/tsconfig.json --noEmit",
     "test": "vitest run",
     "test:e2e": "pnpm --dir ../.. build:web && node node_modules/@playwright/test/cli.js test -c ./playwright.config.ts",
-    "test:e2e:server": "pnpm --dir ../.. test:server:e2e:host",
-    "generate-icons": "node ./scripts/generate-pwa-icons.mjs",
-    "dev:rust-server": "vite --mode server-rust",
-    "build:rust-server": "NODE_OPTIONS=--max-old-space-size=8192 vite build --mode server-rust",
-    "test:e2e:rust-server": "pnpm build:rust-server && CARGO_BUILD_JOBS=2 pnpm --dir ../.. rust:core -- build -p lapis-server --locked && node node_modules/@playwright/test/cli.js test -c ./playwright.rust-server.config.ts",
-    "dev:server": "vite --mode server"
+    "generate-icons": "node ./scripts/generate-pwa-icons.mjs"
   },
   "dependencies": {
     "@lapis-notes/api": "workspace:*",
     "@lapis-notes/app-profile": "workspace:*",
     "@lapis-notes/ui": "workspace:*",
     "@lapis-notes/workspace": "workspace:*",
-    "@lapismd/design-core": "^0.6.0",
+    "@lapismd/design-core": "^0.7.0",
     "@lucide/svelte": "^0.523.0",
     "fflate": "^0.8.3",
     "workbox-window": "^7.4.1",

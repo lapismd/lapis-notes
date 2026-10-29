@@ -336,7 +336,7 @@ explicitly re-selects Docker because the image harness fails closed without it.
 
 <a id="ln-pkg-162"></a>
 
-**Requirement.** This Notes repository's pull-request and reusable CI MUST NOT build, package, or publish the desktop application. Desktop packaging and cold packaged acceptance belong to the lapis-desktop repository. The public server acceptance job stays.
+**Requirement.** This Notes repository's pull-request and reusable CI MUST NOT build, package, or publish the desktop application. Desktop packaging and cold packaged acceptance belong to the lapis-desktop repository. Server acceptance belongs to the lapis-server repository.
 
 Historical macOS and Linux packaged evidence remains recorded. It is not a current Notes CI lane.
 

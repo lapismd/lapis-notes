@@ -78,7 +78,7 @@ Domain plugins consume only the API contract.
 
 - `NativeDesktopRuntime` names only `deno-desktop`; the production hosts are Deno desktop and web.
 
-- Root `dev:desktop`, `dev:desktop:cef`, `build:desktop`, `package:desktop`, and `test:desktop:packaged` scripts select and exercise the Deno package.
+- Notes CI does not select `@lapis-notes/desktop-deno` or `@lapis-notes/server-deno`. Desktop packaging stays in lapis-desktop, and server-deno stays retired.
 
 - The Web and Deno packages share the same renderer dependency-optimization boundary for registry-installed plugins.
 

@@ -33,7 +33,7 @@ the production chat composer. History uses the right sidebar and keeps its view
 when opening an exact existing main conversation. Draft creation and restored
 selection never dispatch prompts; portable metadata supplies saved titles.
 
-The public web production build and typecheck do not compile the hosted Rust client.
+The public web package does not contain the hosted Rust client or server screen.
 lapis-server owns that client and its generated protocol binding
 ([LN-CORE-070](../architecture/rust-hosted-delivery.md#ln-core-070)).
 The explicit `server-rust` profile is not part of this package's production

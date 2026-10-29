@@ -184,7 +184,7 @@ shutdown guards remain production authority rather than test-specific behavior.
 
 **Requirement.** Server builds, tests, executable output and production containers MUST run without Deno. The server MUST consume portable host-service kernels and retain compatible HTTP, authentication and data contracts. Runtime containers MUST use a non-root user, read-only application files, explicit writable storage and mounted bootstrap secrets.
 
-The image builds the Rust executable and existing Web renderer from exact
+lapis-server builds the Rust executable and hosted screen from exact
 tracked source and pinned siblings. Node24/pnpm are build-only tools. Runtime
 keeps UID/GID1993, read-only application files, persistent `/data`, temporary
 `/tmp` and mounted bootstrap credentials. Image/browser acceptance verifies

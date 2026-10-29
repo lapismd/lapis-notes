@@ -284,26 +284,6 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
-    "//#test:desktop:packaged:run": {
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "packages/*/src/**",
-        "packages/*/scripts/**",
-        "packages/*/package.json",
-        "packages/*/tsconfig*.json",
-        "packages/*/svelte.config.*",
-        "packages/*/vite.config.*",
-        ".github/actions/ci-setup/action.yml",
-        ".ci/images.json",
-        ".ci/dependency-image.Dockerfile",
-        "!**/.DS_Store",
-        ".pnpmfile.cjs",
-        ".local-plugin-install.json"
-      ],
-      "outputs": [],
-      "cache": false,
-      "envMode": "loose"
-    },
     "//#test:local-plugin-consumer:run": {
       "inputs": [
         "$TURBO_DEFAULT$",

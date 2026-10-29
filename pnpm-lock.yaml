@@ -32,6 +32,8 @@ overrides:
   undici@>=7.0.0 <7.29.1: '>=7.29.1 <8'
   vitest@>=4.0.0 <4.1.11: 4.1.11
 
+pnpmfileChecksum: sha256-FyEq4wnWyct3/xbxSgNp/cTpWLG71ed3ZRKZzfHRLHM=
+
 importers:
 
   .:
@@ -136,8 +138,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0(node-llama-cpp@3.18.1(typescript@5.9.3))(zod@4.6.6)
       '@lapismd/design-core':
-        specifier: ^0.6.0
-        version: 0.6.0(svelte@5.56.10)(tailwindcss@4.3.3)
+        specifier: ^0.7.0
+        version: 0.7.0(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapismd/mira':
         specifier: ~0.1.2
         version: 0.1.2(@codemirror/autocomplete@6.20.3)(@codemirror/commands@6.10.4)(@codemirror/lang-markdown@6.5.2)(@codemirror/lang-yaml@6.1.3)(@codemirror/language-data@6.5.2)(@codemirror/language@6.12.4)(@codemirror/legacy-modes@6.5.3)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/state@6.7.1)(@codemirror/view@6.43.8)(@internationalized/date@3.12.3)(@lezer/common@1.5.2)(@lezer/highlight@1.2.3)(@lezer/markdown@1.7.2)(svelte@5.56.10)(tailwindcss@4.3.3)
@@ -313,8 +315,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0(zod@4.6.6)
       '@lapismd/design-core':
-        specifier: ^0.6.0
-        version: 0.6.0(svelte@5.56.10)(tailwindcss@4.3.3)
+        specifier: ^0.7.0
+        version: 0.7.0(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapismd/mira':
         specifier: ~0.1.2
         version: 0.1.2(@codemirror/autocomplete@6.20.3)(@codemirror/commands@6.10.4)(@codemirror/lang-markdown@6.5.2)(@codemirror/lang-yaml@6.1.3)(@codemirror/language-data@6.5.2)(@codemirror/language@6.12.4)(@codemirror/legacy-modes@6.5.3)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/state@6.7.1)(@codemirror/view@6.43.8)(@internationalized/date@3.12.3)(@lezer/common@1.5.2)(@lezer/highlight@1.2.3)(@lezer/markdown@1.7.2)(svelte@5.56.10)(tailwindcss@4.3.3)
@@ -515,8 +517,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapismd/design-core':
-        specifier: ^0.6.0
-        version: 0.6.0(svelte@5.56.10)(tailwindcss@4.3.3)
+        specifier: ^0.7.0
+        version: 0.7.0(svelte@5.56.10)(tailwindcss@4.3.3)
     devDependencies:
       '@sveltejs/package':
         specifier: ^2.5.8
@@ -662,8 +664,8 @@ importers:
         specifier: ^0.2.0
         version: link:../api
       '@lapismd/design-core':
-        specifier: ^0.6.0
-        version: 0.6.0(svelte@5.56.10)(tailwindcss@4.3.3)
+        specifier: ^0.7.0
+        version: 0.7.0(svelte@5.56.10)(tailwindcss@4.3.3)
     devDependencies:
       '@sveltejs/package':
         specifier: ^2.5.0
@@ -758,8 +760,8 @@ importers:
         specifier: ^0.4.0
         version: 0.4.0(svelte@5.56.10)
       '@lapismd/design-core':
-        specifier: ^0.6.0
-        version: 0.6.0(svelte@5.56.10)(tailwindcss@4.3.3)
+        specifier: ^0.7.0
+        version: 0.7.0(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lucide/svelte':
         specifier: ^0.515.0
         version: 0.515.0(svelte@5.56.10)
@@ -849,8 +851,8 @@ importers:
         specifier: workspace:*
         version: link:../workspace
       '@lapismd/design-core':
-        specifier: ^0.6.0
-        version: 0.6.0(svelte@5.56.10)(tailwindcss@4.3.3)
+        specifier: ^0.7.0
+        version: 0.7.0(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapismd/jj-history':
         specifier: ~0.1.0
         version: 0.1.0
@@ -910,8 +912,8 @@ importers:
         specifier: ^0.1.4
         version: link:../ui
       '@lapismd/design-core':
-        specifier: ^0.6.0
-        version: 0.6.0(svelte@5.56.10)(tailwindcss@4.3.3)
+        specifier: ^0.7.0
+        version: 0.7.0(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lucide/svelte':
         specifier: ^0.523.0
         version: 0.523.0(svelte@5.56.10)
@@ -2555,12 +2557,6 @@ packages:
     peerDependencies:
       svelte: ^5.0.0
 
-  '@lapismd/design-core@0.6.0':
-    resolution: {integrity: sha512-xLZssOtMmjptLwIX+DondoV6SDR4bKxSumLBxCseq0WimssAB4/Y+SfcppI2TAcc8wUCVHplgTEAU5yK9c2PbA==}
-    engines: {node: ^22.11 || ^24 || >=26}
-    peerDependencies:
-      svelte: ^5.0.0
-
   '@lapismd/design-core@0.7.0':
     resolution: {integrity: sha512-6glOtkDA1bKuZMDcv9R9Wk0SUl/nBnVzQ9VurM0FbGGF1CvjE9Mog7b0N41rjc4n+v8PSNHH0kTgMFn2E4RRdA==}
     engines: {node: ^22.11 || ^24 || >=26}
@@ -2744,11 +2740,6 @@ packages:
 
   '@lucide/svelte@0.525.0':
     resolution: {integrity: sha512-dyUxkXzepagLUzL8jHQNdeH286nC66ClLACsg+Neu/bjkRJWPWMzkT+H0DKlE70QdkicGCfs1ZGmXCc351hmZA==}
-    peerDependencies:
-      svelte: ^5
-
-  '@lucide/svelte@1.34.0':
-    resolution: {integrity: sha512-sHFL8KVSaPXv0dsmdUTq4q/tj8clT2XYejnoSg0mHObpXWn/9SfET4f14v/7VOba1IsbPIW9+sWaq+Qq1wTdNA==}
     peerDependencies:
       svelte: ^5
 
@@ -3049,12 +3040,14 @@ packages:
   '@opentelemetry/sdk-trace-base@2.10.0':
     resolution: {integrity: sha512-GuYQQT7QD2EeO8lcZLRQzcbOyhqAzL+6WWTKTU9mSUBYBazkEDl+VrQcXQhbB08OWM9anD1aHleVadzulpOaUQ==}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': '>=1.3.0 <1.10.0'
 
   '@opentelemetry/sdk-trace-web@2.10.0':
     resolution: {integrity: sha512-6WqXdWSlBH0GNjDhv1gg6SLVtMtIBVhLaWqd1hiKSXS8meXXP13sVPQoYFHz1uVo0feUTUCdP9vMS54KflisAw==}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': '>=1.0.0 <1.10.0'
 
@@ -3064,8 +3057,8 @@ packages:
     peerDependencies:
       '@opentelemetry/api': '>=1.3.0 <1.10.0'
 
-  '@opentelemetry/semantic-conventions@1.43.0':
-    resolution: {integrity: sha512-eSYWTm620tTk45EKSedaUL8MFYI8hW164hIXsgIHyxu3VobUB3fFCu5t0hQby6OoWRPsG1KkKUG2M5UadiLiVg==}
+  '@opentelemetry/semantic-conventions@1.44.0':
+    resolution: {integrity: sha512-E3JkOlMBi3N8OGGkbl7tFyqk2MAS6/lySRZBK3Mu7AzjF1fT8oIChH9ChE48SUWzDn9Kdwta+G/p5LJ4xW4CLQ==}
     engines: {node: '>=14'}
 
   '@oxc-parser/binding-android-arm-eabi@0.127.0':
@@ -10347,7 +10340,7 @@ snapshots:
       '@lezer/highlight': 1.2.3
       '@lezer/lr': 1.4.10
       '@lezer/markdown': 1.7.2
-      '@lucide/svelte': 1.34.0(svelte@5.56.10)
+      '@lucide/svelte': 1.64.0(svelte@5.56.10)
       '@tanstack/svelte-virtual': 3.13.41(svelte@5.56.10)
       '@types/luxon': 3.7.3
       bits-ui: 2.19.5(@internationalized/date@3.12.3)(svelte@5.56.10)
@@ -10397,59 +10390,10 @@ snapshots:
       '@lezer/highlight': 1.2.3
       '@lezer/lr': 1.4.10
       '@lezer/markdown': 1.7.2
-      '@lucide/svelte': 1.34.0(svelte@5.56.10)
+      '@lucide/svelte': 1.64.0(svelte@5.56.10)
       '@tanstack/svelte-virtual': 3.13.41(svelte@5.56.10)
       '@types/luxon': 3.7.3
-      bits-ui: 2.19.5(@internationalized/date@3.12.3)(svelte@5.56.10)
-      chrono-node: 2.10.1
-      clsx: 2.1.1
-      codemirror-lang-mermaid: 0.5.0
-      emoji-mart: 5.6.0
-      luxon: 3.7.2
-      minimatch: 10.2.6
-      paneforge: 1.0.2(svelte@5.56.10)
-      svelte: 5.56.10
-      tailwind-merge: 3.6.0
-      vaul-svelte: 1.0.0-next.7(svelte@5.56.10)
-      yaml: 2.9.0
-    transitivePeerDependencies:
-      - '@sveltejs/kit'
-      - supports-color
-      - tailwindcss
-
-  '@lapismd/design-core@0.6.0(svelte@5.56.10)(tailwindcss@4.3.3)':
-    dependencies:
-      '@codemirror/autocomplete': 6.20.3
-      '@codemirror/commands': 6.10.4
-      '@codemirror/lang-java': 6.0.2
-      '@codemirror/lang-javascript': 6.2.5
-      '@codemirror/lang-json': 6.0.2
-      '@codemirror/lang-markdown': 6.5.2
-      '@codemirror/lang-python': 6.2.1
-      '@codemirror/lang-xml': 6.1.0
-      '@codemirror/lang-yaml': 6.1.3
-      '@codemirror/language': 6.12.4
-      '@codemirror/language-data': 6.5.2
-      '@codemirror/legacy-modes': 6.5.3
-      '@codemirror/lint': 6.9.7
-      '@codemirror/search': 6.7.1
-      '@codemirror/state': 6.7.6
-      '@codemirror/view': 6.43.14
-      '@emoji-mart/data': 1.2.1
-      '@fontsource-variable/dm-sans': 5.3.0
-      '@fontsource-variable/source-code-pro': 5.3.0
-      '@iconify-json/lucide': 1.2.121
-      '@iconify/utils': 2.3.0
-      '@internationalized/date': 3.12.3
-      '@lapismd/mira': 0.1.2(@codemirror/autocomplete@6.20.3)(@codemirror/commands@6.10.4)(@codemirror/lang-markdown@6.5.2)(@codemirror/lang-yaml@6.1.3)(@codemirror/language-data@6.5.2)(@codemirror/language@6.12.4)(@codemirror/legacy-modes@6.5.3)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/state@6.7.6)(@codemirror/view@6.43.14)(@internationalized/date@3.12.3)(@lezer/common@1.5.2)(@lezer/highlight@1.2.3)(@lezer/markdown@1.7.2)(svelte@5.56.10)(tailwindcss@4.3.3)
-      '@lezer/common': 1.5.2
-      '@lezer/highlight': 1.2.3
-      '@lezer/lr': 1.4.10
-      '@lezer/markdown': 1.7.2
-      '@lucide/svelte': 1.34.0(svelte@5.56.10)
-      '@tanstack/svelte-virtual': 3.13.41(svelte@5.56.10)
-      '@types/luxon': 3.7.3
-      bits-ui: 2.19.5(@internationalized/date@3.12.3)(svelte@5.56.10)
+      bits-ui: 2.20.2(@internationalized/date@3.12.3)(svelte@5.56.10)
       chrono-node: 2.10.1
       clsx: 2.1.1
       codemirror-lang-mermaid: 0.5.0
@@ -11188,10 +11132,6 @@ snapshots:
     dependencies:
       svelte: 5.56.10
 
-  '@lucide/svelte@1.34.0(svelte@5.56.10)':
-    dependencies:
-      svelte: 5.56.10
-
   '@lucide/svelte@1.64.0(svelte@5.56.10)':
     dependencies:
       svelte: 5.56.10
@@ -11414,7 +11354,7 @@ snapshots:
   '@opentelemetry/core@2.10.0(@opentelemetry/api@1.9.1)':
     dependencies:
       '@opentelemetry/api': 1.9.1
-      '@opentelemetry/semantic-conventions': 1.43.0
+      '@opentelemetry/semantic-conventions': 1.44.0
 
   '@opentelemetry/exporter-trace-otlp-http@0.221.0(@opentelemetry/api@1.9.1)':
     dependencies:
@@ -11443,7 +11383,7 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/core': 2.10.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/semantic-conventions': 1.43.0
+      '@opentelemetry/semantic-conventions': 1.44.0
 
   '@opentelemetry/sdk-logs@0.221.0(@opentelemetry/api@1.9.1)':
     dependencies:
@@ -11451,7 +11391,7 @@ snapshots:
       '@opentelemetry/api-logs': 0.221.0
       '@opentelemetry/core': 2.10.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/resources': 2.10.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/semantic-conventions': 1.43.0
+      '@opentelemetry/semantic-conventions': 1.44.0
 
   '@opentelemetry/sdk-metrics@2.10.0(@opentelemetry/api@1.9.1)':
     dependencies:
@@ -11465,7 +11405,7 @@ snapshots:
       '@opentelemetry/core': 2.10.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/resources': 2.10.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/sdk-trace': 2.10.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/semantic-conventions': 1.43.0
+      '@opentelemetry/semantic-conventions': 1.44.0
 
   '@opentelemetry/sdk-trace-web@2.10.0(@opentelemetry/api@1.9.1)':
     dependencies:
@@ -11478,9 +11418,9 @@ snapshots:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/core': 2.10.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/resources': 2.10.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/semantic-conventions': 1.43.0
+      '@opentelemetry/semantic-conventions': 1.44.0
 
-  '@opentelemetry/semantic-conventions@1.43.0': {}
+  '@opentelemetry/semantic-conventions@1.44.0': {}
 
   '@oxc-parser/binding-android-arm-eabi@0.127.0':
     optional: true
@@ -12167,9 +12107,9 @@ snapshots:
       ts-dedent: 2.3.0
       type-fest: 5.8.0
 
-  '@sveltejs/acorn-typescript@1.0.12(acorn@8.18.0)':
+  '@sveltejs/acorn-typescript@1.0.12(acorn@8.19.0)':
     dependencies:
-      acorn: 8.18.0
+      acorn: 8.19.0
 
   '@sveltejs/load-config@0.2.1': {}
 
@@ -16850,10 +16790,10 @@ snapshots:
     dependencies:
       '@jridgewell/remapping': 2.3.5
       '@jridgewell/sourcemap-codec': 1.5.5
-      '@sveltejs/acorn-typescript': 1.0.12(acorn@8.18.0)
+      '@sveltejs/acorn-typescript': 1.0.12(acorn@8.19.0)
       '@types/estree': 1.0.9
       '@types/trusted-types': 2.0.7
-      acorn: 8.18.0
+      acorn: 8.19.0
       aria-query: 5.3.2
       axobject-query: 4.1.0
       clsx: 2.1.1

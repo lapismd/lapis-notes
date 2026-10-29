@@ -166,24 +166,11 @@ the underlying runner directly; use the root Turbo commands for cached runs.
 
 ## Hosted server
 
-The public image is [`ghcr.io/lapismd/lapis-server`](docs/hosted-server.md).
-`docker compose up` publishes port `8787`, stores data in `/data`, and serves
-readiness at `http://127.0.0.1:8787/readyz`. The retired
-`@lapis-notes/server-deno` package is deprecated: it has no manifest, and
-check, test, build, and CI do not select it. The `deno-server` session value
-remains a compatibility alias for `node-server`.
-
-The [Rust server](crates/lapis-server/README.md) serves the existing Lapis Web
-application with native file, database, History, Search, Tasks and admitted AI
-services. `pnpm build:server` prepares the native release and renderer;
-`pnpm start:server` launches compiled output with explicit operator configuration.
-`pnpm test:server` runs focused native/tooling checks and `pnpm test:server:e2e`
-runs the retained headless hosted journeys.
-
-`pnpm build:server:container && pnpm test:server:container` qualifies the actual
-Linux runtime image and cold persisted content. The image runs without Node or
-Deno; Node/pnpm remain build tools. Unpublished source-package qualification
-requires its documented hash-verified archive manifest; publication is separate.
+The hosted server, its image, and its browser client live in the lapis-server
+repository. This repository does not build that image or run server acceptance.
+The retired `@lapis-notes/server-deno` package is deprecated: it has no
+manifest, and check, test, build, and CI do not select it. The `deno-server`
+session value remains a compatibility alias for `node-server`.
 
 ## Local checks
 

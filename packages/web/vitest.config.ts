@@ -6,12 +6,6 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     include: ["src/**/*.test.ts"],
-    exclude: [
-      "**/node_modules/**",
-      "**/dist/**",
-      "src/hosted/rust/**",
-      "src/history/backup.test.ts",
-      "src/history/restore.test.ts",
-    ],
+    exclude: ["**/node_modules/**", "**/dist/**"],
   },
 });
