@@ -331,6 +331,8 @@ jobs:
         run: node scripts/report-turbo-cache.mjs --github-summary
       - run: pnpm packages:pack -- --already-built
       - run: pnpm release:plan -- --registry https://registry.npmjs.org --json > .release/release-plan.json
+        env:
+          GH_TOKEN: ${{ github.token }}
       - id: plan
         run: |
           node -e 'const fs=require("node:fs");const m=JSON.parse(fs.readFileSync(".release/release-manifest.json","utf8"));const hasWork=m.packages.length>0;const bootstrap=Boolean(m.bootstrapRequired);fs.appendFileSync(process.env.GITHUB_OUTPUT,"has_work="+hasWork+"\nbootstrap_required="+bootstrap+"\n");if(bootstrap){console.log("::notice ::Initial packages require manual npm publication from the verified release artifact.");}'

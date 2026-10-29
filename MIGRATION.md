@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-29 18:15:32 UTC**.
+Last updated **2026-10-29 20:18:49 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -42,6 +42,16 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**Release verification retries and publication stays idempotent — 2026-10-29 20:18:49 UTC.**
+The 2026-10-29 publish run uploaded the npm tarballs, then verification failed
+before the registry exposed `@lapis-notes/workspace@0.3.0` and the GitHub
+release step was skipped. Verification now retries a pending install for under
+two minutes. A repeated publish dispatch skips versions already on npm and keeps
+a published version selected until its package-scoped GitHub release exists.
+Provenance and the `next` dist-tag stay in place, and `latest` is not moved.
+Release script regressions passed 47/47, the release workflow checker passed,
+and spec:first passed. This does not republish `@lapis-notes/markdown@0.1.7`.
 
 **Storybook interaction matches published search, bases, and Bits UI — 2026-10-29 18:15:32 UTC.**
 Published `@lapis-notes/search@0.1.3` names a file hit `Open auth.md`. The search
