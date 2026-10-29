@@ -54,6 +54,7 @@ export function validateReleaseWorkflows({ ci, release, pages } = {}) {
 
   for (const fragment of [
     "changesets/action@v1.8.0",
+    "actions: write",
     "commitMode: github-api",
     "pnpm release:version",
     "uses: ./.github/workflows/lapis-ci.yml",
