@@ -13,6 +13,7 @@ on:
         value: ${{ jobs.release-artifacts.outputs.has_work }}
 
 permissions:
+  actions: write
   contents: read
   packages: read
 
@@ -27,7 +28,6 @@ defaults:
 env:
   LAPIS_NOTES_VALIDATION_RUNTIME: native
   LAPIS_PLUGIN_CANDIDATE_COMMIT: "da7d8bb73541eb3421ca8fdfaf1eaaf2baecc850"
-  LAPIS_CONTROLLER_CANDIDATE_COMMIT: "11c70f4390190b8f9e1bc0d06ed349df5c142754"
   TURBO_API: ${{ vars.TURBO_API }}
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -49,6 +49,16 @@ jobs:
         run: node scripts/run-turbo.mjs build --summarize
       - name: Report build-cache result
         run: node scripts/report-turbo-cache.mjs --github-summary
+      - name: Cancel this run after a required failure
+        if: "${{ failure() && !cancelled() }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          curl --fail-with-body --silent --show-error --request POST
+          --header "Authorization: Bearer $GH_TOKEN"
+          --header "Accept: application/vnd.github+json"
+          --header "X-GitHub-Api-Version: 2022-11-28"
+          "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
 
   governance:
     needs: build-cache
@@ -77,6 +87,16 @@ jobs:
           github.event_name == 'pull_request' &&
           github.head_ref != 'changeset-release/main'
         run: pnpm release:intent --base "origin/${{ github.base_ref }}" --head "${{ github.sha }}"
+      - name: Cancel this run after a required failure
+        if: "${{ failure() && !cancelled() }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          curl --fail-with-body --silent --show-error --request POST
+          --header "Authorization: Bearer $GH_TOKEN"
+          --header "Accept: application/vnd.github+json"
+          --header "X-GitHub-Api-Version: 2022-11-28"
+          "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
 
   quality:
     needs: build-cache
@@ -99,6 +119,16 @@ jobs:
         run: node scripts/run-turbo.mjs build check --summarize
       - name: Report cache restoration
         run: node scripts/report-turbo-cache.mjs --github-summary
+      - name: Cancel this run after a required failure
+        if: "${{ failure() && !cancelled() }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          curl --fail-with-body --silent --show-error --request POST
+          --header "Authorization: Bearer $GH_TOKEN"
+          --header "Accept: application/vnd.github+json"
+          --header "X-GitHub-Api-Version: 2022-11-28"
+          "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
 
   unit:
     needs: build-cache
@@ -120,6 +150,16 @@ jobs:
       - run: pnpm release:test
       - run: pnpm test:spec-validation
       - run: pnpm test:ai:smoke-harness
+      - name: Cancel this run after a required failure
+        if: "${{ failure() && !cancelled() }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          curl --fail-with-body --silent --show-error --request POST
+          --header "Authorization: Bearer $GH_TOKEN"
+          --header "Accept: application/vnd.github+json"
+          --header "X-GitHub-Api-Version: 2022-11-28"
+          "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
 
   storybook-static:
     needs: build-cache
@@ -140,6 +180,16 @@ jobs:
       - run: node scripts/run-turbo.mjs ci:storybook-static --summarize
       - name: Report Storybook cache result
         run: node scripts/report-turbo-cache.mjs --github-summary
+      - name: Cancel this run after a required failure
+        if: "${{ failure() && !cancelled() }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          curl --fail-with-body --silent --show-error --request POST
+          --header "Authorization: Bearer $GH_TOKEN"
+          --header "Accept: application/vnd.github+json"
+          --header "X-GitHub-Api-Version: 2022-11-28"
+          "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
 
   storybook-interaction:
     needs: build-cache
@@ -160,6 +210,16 @@ jobs:
       - run: node scripts/run-turbo.mjs ci:storybook-interaction --summarize
       - name: Report Storybook cache result
         run: node scripts/report-turbo-cache.mjs --github-summary
+      - name: Cancel this run after a required failure
+        if: "${{ failure() && !cancelled() }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          curl --fail-with-body --silent --show-error --request POST
+          --header "Authorization: Bearer $GH_TOKEN"
+          --header "Accept: application/vnd.github+json"
+          --header "X-GitHub-Api-Version: 2022-11-28"
+          "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
 
   registry-fixture:
     runs-on: ubuntu-latest
@@ -194,6 +254,16 @@ jobs:
           path: .ci-candidates/plugins/.release/registry-acceptance
           if-no-files-found: error
           retention-days: 14
+      - name: Cancel this run after a required failure
+        if: "${{ failure() && !cancelled() }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          curl --fail-with-body --silent --show-error --request POST
+          --header "Authorization: Bearer $GH_TOKEN"
+          --header "Accept: application/vnd.github+json"
+          --header "X-GitHub-Api-Version: 2022-11-28"
+          "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
 
   web-acceptance:
     needs: [build-cache, registry-fixture]
@@ -227,163 +297,16 @@ jobs:
           name: web-acceptance-diagnostics
           path: packages/web/test-results
           retention-days: 14
-
-  server-acceptance:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 90
-    defaults:
-      run:
-        working-directory: lapis-notes
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          path: lapis-notes
-          persist-credentials: false
-      - uses: pnpm/action-setup@v6
-        with:
-          version: 10.34.5
-          package_json_file: lapis-notes/package.json
-      - uses: actions/setup-node@v7
-        with:
-          node-version: "24.15.0"
-      - name: Read immutable native source pins
-        id: native-pins
-        run: node scripts/server-container/ci-sources.mjs pins
-      # Private source repositories may require this optional read-only token.
-      # Exact checkout failures remain visible; there is no branch fallback.
-      - name: Checkout pinned AI service
-        uses: actions/checkout@v7
-        with:
-          repository: lapismd/lapis-ai
-          ref: ${{ steps.native-pins.outputs.lapis_ai }}
-          path: lapis-ai
-          persist-credentials: false
-          token: ${{ secrets.LAPIS_NATIVE_SOURCE_TOKEN || github.token }}
-      - name: Checkout pinned repository services
-        uses: actions/checkout@v7
-        with:
-          repository: lapismd/jj-store
-          ref: ${{ steps.native-pins.outputs.jj_store }}
-          path: jj-store
-          persist-credentials: false
-          token: ${{ secrets.LAPIS_NATIVE_SOURCE_TOKEN || github.token }}
-      - name: Checkout pinned agent redaction
-        uses: actions/checkout@v7
-        with:
-          repository: lapismd/agent-redaction
-          ref: ${{ steps.native-pins.outputs.agent_redaction }}
-          path: agent-redaction
-          persist-credentials: false
-          token: ${{ secrets.LAPIS_NATIVE_SOURCE_TOKEN || github.token }}
-      - name: Checkout pinned plugin services
-        uses: actions/checkout@v7
-        with:
-          repository: lapismd/lapis-plugins
-          ref: ${{ steps.native-pins.outputs.lapis_plugins }}
-          path: lapis-plugins
-          persist-credentials: false
-          token: ${{ secrets.LAPIS_NATIVE_SOURCE_TOKEN || github.token }}
-      - name: Checkout pinned Docs services
-        uses: actions/checkout@v7
-        with:
-          repository: lapismd/lapis-plugin-docs
-          ref: ${{ steps.native-pins.outputs.lapis_plugin_docs }}
-          path: lapis-plugin-docs
-          persist-credentials: false
-          token: ${{ secrets.LAPIS_NATIVE_SOURCE_TOKEN || github.token }}
-      - name: Checkout pinned Tasks services
-        uses: actions/checkout@v7
-        with:
-          repository: lapismd/lapis-plugin-tasks
-          ref: ${{ steps.native-pins.outputs.lapis_plugin_tasks }}
-          path: lapis-plugin-tasks
-          persist-credentials: false
-          token: ${{ secrets.LAPIS_NATIVE_SOURCE_TOKEN || github.token }}
-      - name: Install the digest-pinned source export tool
-        run: node scripts/validation/install-tools.mjs --ci
-      - name: Verify and initialize the exact source cohort
-        run: node scripts/server-container/ci-sources.mjs init
-      - run: pnpm install --frozen-lockfile --ignore-pnpmfile --ignore-scripts
-      - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm test:server
-      - uses: docker/setup-buildx-action@v4
-      - name: Build the Rust server acceptance image
-        run: pnpm build:server:container
-      # Actual image acceptance runs against the job's Docker daemon; the
-      # harness guard fails closed on any other runtime and has no host
-      # fallback, so this step explicitly re-selects Docker while the rest of
-      # CI keeps the provisioned native runtime.
-      - run: pnpm test:server:container
+      - name: Cancel this run after a required failure
+        if: "${{ failure() && !cancelled() }}"
         env:
-          LAPIS_NOTES_VALIDATION_RUNTIME: docker
-      - uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: server-acceptance-diagnostics
-          path: |
-            lapis-notes/.local/server-container
-            lapis-notes/.local/rust-hosted-browser-results
-          retention-days: 14
-
-  desktop-packaged:
-    needs: build-cache
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-15, ubuntu-24.04]
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v7
-      - name: Checkout the exact controller validation source
-        uses: actions/checkout@v7
-        with:
-          repository: lapismd/ai-controller
-          ref: ${{ env.LAPIS_CONTROLLER_CANDIDATE_COMMIT }}
-          path: .ci-candidates/controller
-      - uses: pnpm/action-setup@v6
-        with:
-          version: 10.34.5
-      - uses: actions/setup-node@v7
-        with:
-          node-version: "24.15.0"
-      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2
-        with:
-          deno-version: v2.9.7
-      - name: Install Linux native acceptance dependencies
-        if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-0 libgtk-3-0t64 libayatana-appindicator3-1 libfuse2t64 xvfb dbus-x11
-      - run: pnpm install --frozen-lockfile
-      - name: Provision the controller CLI candidate
-        working-directory: .ci-candidates/controller
-        run: |
-          test "$(git rev-parse HEAD)" = "$LAPIS_CONTROLLER_CANDIDATE_COMMIT"
-          pnpm install --frozen-lockfile
-          pnpm build:cli
-          node scripts/install-cli.mjs --home "$GITHUB_WORKSPACE/.ci-candidates/controller-home" --install-path "$GITHUB_WORKSPACE/.ci-candidates/bin/lapis-ai-controller"
-          printf 'LAPIS_AI_CONTROLLER_BIN=%s\n' "$GITHUB_WORKSPACE/.ci-candidates/bin/lapis-ai-controller" >> "$GITHUB_ENV"
-      - name: Build validation-only native package
-        run: pnpm package:desktop
-      - name: Cold packaged acceptance on macOS
-        if: runner.os == 'macOS'
-        run: pnpm test:desktop:packaged
-      - name: Cold packaged acceptance on Linux
-        if: runner.os == 'Linux'
-        run: xvfb-run -a dbus-run-session -- pnpm test:desktop:packaged
-        env:
-          APPIMAGE_EXTRACT_AND_RUN: "1"
-      - uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: desktop-validation-${{ matrix.os }}
-          include-hidden-files: true
-          path: |
-            packages/desktop-deno/release/*.zip
-            packages/desktop-deno/release/*.AppImage
-            packages/desktop-deno/release/*.tar.gz
-            .ci-candidates/controller/artifacts/runtime/runtime-manifest.json
-          if-no-files-found: error
-          retention-days: 14
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          curl --fail-with-body --silent --show-error --request POST
+          --header "Authorization: Bearer $GH_TOKEN"
+          --header "Accept: application/vnd.github+json"
+          --header "X-GitHub-Api-Version: 2022-11-28"
+          "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
 
   release-artifacts:
     needs: build-cache
@@ -418,6 +341,16 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
+      - name: Cancel this run after a required failure
+        if: "${{ failure() && !cancelled() }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          curl --fail-with-body --silent --show-error --request POST
+          --header "Authorization: Bearer $GH_TOKEN"
+          --header "Accept: application/vnd.github+json"
+          --header "X-GitHub-Api-Version: 2022-11-28"
+          "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
 
   validate:
     if: always()
@@ -429,9 +362,7 @@ jobs:
       - storybook-static
       - storybook-interaction
       - web-acceptance
-      - server-acceptance
       - registry-fixture
-      - desktop-packaged
       - release-artifacts
     runs-on: ubuntu-latest
     steps:
@@ -444,9 +375,7 @@ jobs:
           STORYBOOK_STATIC: ${{ needs.storybook-static.result }}
           STORYBOOK_INTERACTION: ${{ needs.storybook-interaction.result }}
           WEB_ACCEPTANCE: ${{ needs.web-acceptance.result }}
-          SERVER_ACCEPTANCE: ${{ needs.server-acceptance.result }}
           REGISTRY_FIXTURE: ${{ needs.registry-fixture.result }}
-          DESKTOP_PACKAGED: ${{ needs.desktop-packaged.result }}
           RELEASE_ARTIFACTS: ${{ needs.release-artifacts.result }}
         run: |
           set -euo pipefail
@@ -458,9 +387,7 @@ jobs:
             "$STORYBOOK_STATIC"
             "$STORYBOOK_INTERACTION"
             "$WEB_ACCEPTANCE"
-            "$SERVER_ACCEPTANCE"
             "$REGISTRY_FIXTURE"
-            "$DESKTOP_PACKAGED"
             "$RELEASE_ARTIFACTS"
           )
           for result in "${results[@]}"; do

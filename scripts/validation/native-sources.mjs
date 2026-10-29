@@ -4,12 +4,19 @@ import { dirname, join, resolve } from "node:path";
 import { hash } from "./model.mjs";
 
 export async function exportNativeSources(root, directory, roots = {}, pins) {
-  pins ??= JSON.parse(
-    await readFile(
-      join(root, "scripts/validation/native-sources.json"),
-      "utf8",
-    ),
-  );
+  if (pins === undefined) {
+    try {
+      pins = JSON.parse(
+        await readFile(
+          join(root, "scripts/validation/native-sources.json"),
+          "utf8",
+        ),
+      );
+    } catch (error) {
+      if (error?.code !== "ENOENT") throw error;
+      pins = [];
+    }
+  }
   const git = execFileSync("jj", ["git", "root"], {
     cwd: root,
     encoding: "utf8",

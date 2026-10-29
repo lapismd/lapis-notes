@@ -6,8 +6,8 @@ archive installs. Native build/start tooling and its private regressions map to
 [Rust hosted delivery](../architecture/rust-hosted-delivery.md). The explicit
 profile does not waive ordinary default-switch or deployment gates.
 
-The shared Rust migration adds a Notes-owned application-service family under
-`crates/`. Its canonical authority is
+The hosted server workspace moved to the lapis-server repository. Notes no
+longer owns that Cargo workspace. Its historical canonical authority remains
 [Rust application services](../architecture/rust-application-services.md).
 Existing source-ownership and protected-change rules remain enforced; the
 native source, manifests, toolchain and boundary/build scripts map explicitly to

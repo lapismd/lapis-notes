@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-29 13:12:00 UTC**.
+Last updated **2026-10-29 13:48:53 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -42,6 +42,20 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**The hosted server moved to lapis-server — 2026-10-29 13:48:53 UTC.**
+Notes CI no longer runs server acceptance or builds the server image. The
+desktop package job stays removed. LN-PKG-142 records both limits. The server
+still path-depends on a local jj-store checkout and waits for
+https://github.com/stevejuma/jj-store/pull/22 before a Cargo git dependency.
+Retired `@lapis-notes/server-deno` stays out of check, test, build, and CI.
+Portable Docker validation is not native or release qualification.
+
+**Notes CI drops the desktop package job — 2026-10-29 13:19:33 UTC.**
+`desktop-packaged` built a validation-only native package and ran cold packaged
+acceptance on macOS and Linux. That job is removed from `lapis-ci.yml`.
+LN-PKG-162 records that this repository does not build, package, or publish
+the desktop app.
 
 **Public Notes CI repairs — 2026-10-29 13:12:00 UTC.** Published
 `@lapis-notes/history@0.1.4` does not export repository subpaths, so the hosted

@@ -261,11 +261,11 @@ unfiltered finding, dependency path, scope limitation, and removal procedure.
 The exact final Plugins version candidate is
 `da7d8bb73541eb3421ca8fdfaf1eaaf2baecc850`. The fixture lane builds all active
 archives from that commit for the complete Web installer lane; full application
-interactions and both native packaged lanes remain blocking independently.
+interactions remain blocking. Notes CI does not build or package the desktop app.
 
 <a id="ln-pkg-142"></a>
 
-**Requirement.** CI MUST populate package build outputs once, then run governance, quality, unit, static Storybook, interaction/accessibility, web acceptance, native packaged acceptance and release-artifact jobs concurrently before one stable `validate` aggregation job. Every required job MUST succeed; functional, interaction, and accessibility failures MUST block. Visual comparison MUST remain non-blocking.
+**Requirement.** CI MUST populate package build outputs once, then run governance, quality, unit, static Storybook, interaction/accessibility, web acceptance, and release-artifact jobs concurrently before one stable `validate` aggregation job. Every required job MUST succeed; functional, interaction, and accessibility failures MUST block. A failed required job MUST cancel the rest of that same workflow run and MUST NOT cancel another workflow or report the failed lane as success. Visual comparison MUST remain non-blocking. Notes CI MUST NOT build, package, or publish the desktop application. Notes CI MUST NOT build the server image or run server acceptance. The lapis-server repository owns that gate.
 
 ## LN-PKG-143 — Release candidates: reuse the validated Turbo build graph
 
@@ -332,14 +332,9 @@ explicitly re-selects Docker because the image harness fails closed without it.
 
 <a id="ln-pkg-162"></a>
 
-**Requirement.** Pull-request and reusable CI MUST build validation-only packages on native macOS and Linux runners and execute cold packaged acceptance for first launch, URL handoff, controller, tools, services and clean close. Both platforms MUST complete independently and retain candidate artifacts. This lane MUST NOT publish, use production signing credentials or notarize.
+**Requirement.** This Notes repository's pull-request and reusable CI MUST NOT build, package, or publish the desktop application. Desktop packaging and cold packaged acceptance belong to the lapis-desktop repository. The public server acceptance job stays.
 
-The separately installed controller CLI is provisioned from exact released source
-through its owning build and installer, in an isolated candidate area. Its npm SDK
-does not substitute for that executable. Acceptance passes the explicit CLI path
-and retains its runtime manifest alongside native package candidates.
-The validation pin includes the source-owned portable dependency staging repair
-on top of released 0.1.0 controller source; npm SDK ranges remain unchanged.
+Historical macOS and Linux packaged evidence remains recorded. It is not a current Notes CI lane.
 
 ## LN-PKG-163 — Portable terminal dependency during desktop packaging
 

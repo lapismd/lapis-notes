@@ -33,8 +33,8 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 ### Shared Rust application services
 
 - Follow `RUST_CORE_MIGRATION_PLAN.md` and the canonical Rust application-services
-  chapter. Notes owns native application policy in `crates/lapis-app-core`;
-  `lapis-app-protocol` owns transport-neutral DTOs and `lapis-server` owns HTTP.
+  chapter. The lapis-server repository owns `lapis-app-core`,
+  `lapis-app-protocol`, and the HTTP server. Notes does not run server acceptance.
 - Group native code by feature. Keep new production Rust/scripts within 300
   counted lines and separate tests within 500. Core code cannot depend on Tauri,
   HTTP frameworks, renderer frameworks or browser globals.

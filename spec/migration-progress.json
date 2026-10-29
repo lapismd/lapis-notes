@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-29 13:12:00 UTC",
+  "updated": "2026-10-29 13:48:53 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -1028,8 +1028,8 @@
   ],
   "activity": {
     "state": "Active",
-    "updated": "2026-10-29 13:12:00 UTC",
-    "reason": "Published @lapis-notes/history@0.1.4 does not export repository subpaths, so the hosted adapter and native repository profile no longer import them. The lapis-ai pin is published v0.2.0 (9a98293c26524c9320acdd9767e34e8ffdd7170c); the six-source pin contract is unchanged. Desktop release contract, native archive, and publication jobs are removed from this repository under LN-DENO-081. @lapis-notes/server-deno stays retired. Portable Docker validation is not native or release qualification. Notes package publication remains a separate human dispatch.",
+    "updated": "2026-10-29 13:48:53 UTC",
+    "reason": "The hosted server workspace and server acceptance moved to lapis-server. Notes CI no longer builds the server image. The desktop package job stays removed. The server still waits on jj-store pull request 22 before a Cargo git dependency. Portable Docker validation is not native or release qualification.",
     "handoff": "MIGRATION_HANDOFF.md",
     "workspaceRegister": "MIGRATION_WORKSPACES.md"
   }

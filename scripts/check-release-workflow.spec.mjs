@@ -179,35 +179,49 @@ test("generated Changesets PR retains remaining validation lanes", () => {
   assert.equal(workflow.jobs.validate.if, "always()");
 });
 
-test("CI runs complete web and native packaged acceptance before aggregation", () => {
+test("CI runs complete web acceptance and does not package the desktop app", () => {
   assert.equal(
     workflow.jobs["web-acceptance"].steps.some(
       (step) => step.run === "pnpm test:web:e2e",
     ),
     true,
   );
-  const native = workflow.jobs["desktop-packaged"];
-  assert.deepEqual(native.strategy.matrix.os, ["macos-15", "ubuntu-24.04"]);
-  assert.equal(native.strategy["fail-fast"], false);
-  assert.ok(native.steps.some((step) => step.run === "pnpm package:desktop"));
-  assert.ok(
-    native.steps.some((step) => step.run === "pnpm test:desktop:packaged"),
+  assert.equal(workflow.jobs["desktop-packaged"], undefined);
+  assert.equal(workflow.env.LAPIS_CONTROLLER_CANDIDATE_COMMIT, undefined);
+  const workflowText = readFileSync(
+    new URL("../.github/workflows/lapis-ci.yml", import.meta.url),
+    "utf8",
   );
-  assert.ok(
-    native.steps.some((step) =>
-      step.run?.includes(
-        "xvfb-run -a dbus-run-session -- pnpm test:desktop:packaged",
-      ),
-    ),
+  assert.doesNotMatch(workflowText, /package:desktop|test:desktop:packaged/);
+  assert.ok(workflow.jobs.validate.needs.includes("web-acceptance"));
+  assert.equal(workflow.jobs.validate.needs.includes("server-acceptance"), false);
+  assert.equal(workflow.jobs.validate.needs.includes("desktop-packaged"), false);
+});
+
+test("a failed required job cancels only that workflow run", () => {
+  assert.equal(workflow.permissions.actions, "write");
+  assert.equal(workflow.jobs.validate.if, "always()");
+  const lanes = Object.entries(workflow.jobs).filter(
+    ([name]) => name !== "validate",
   );
+  for (const [name, job] of lanes) {
+    const cancel = job.steps?.find(
+      (step) => step.name === "Cancel this run after a required failure",
+    );
+    assert.ok(cancel, name);
+    assert.equal(cancel.if, "${{ failure() && !cancelled() }}");
+    assert.match(
+      cancel.run,
+      /\$GITHUB_API_URL\/repos\/\$GITHUB_REPOSITORY\/actions\/runs\/\$GITHUB_RUN_ID\/cancel/u,
+    );
+    assert.equal(job.strategy, undefined, name);
+  }
   assert.equal(
-    native.steps.find((step) =>
-      step.uses?.startsWith("actions/upload-artifact@"),
-    ).if,
-    "always()",
+    workflow.jobs.validate.steps.some(
+      (step) => step.name === "Cancel this run after a required failure",
+    ),
+    false,
   );
-  for (const lane of ["web-acceptance", "desktop-packaged"])
-    assert.ok(workflow.jobs.validate.needs.includes(lane));
 });
 
 test("Web fixtures come from an immutable Plugins candidate", () => {
@@ -228,134 +242,17 @@ test("Web fixtures come from an immutable Plugins candidate", () => {
   assert.ok(workflow.jobs["web-acceptance"].needs.includes("registry-fixture"));
 });
 
-test("native acceptance provisions the released standalone controller CLI", () => {
-  const native = workflow.jobs["desktop-packaged"];
-  assert.match(
-    workflow.env.LAPIS_CONTROLLER_CANDIDATE_COMMIT,
-    /^[a-f0-9]{40}$/,
-  );
-  const checkout = native.steps.find(
-    (step) => step.with?.repository === "lapismd/ai-controller",
-  );
-  assert.equal(
-    checkout.with.ref,
-    "${{ env.LAPIS_CONTROLLER_CANDIDATE_COMMIT }}",
-  );
-  const install = native.steps.find(
-    (step) => step.name === "Provision the controller CLI candidate",
-  );
-  assert.match(install.run, /git rev-parse HEAD/);
-  assert.match(install.run, /pnpm install --frozen-lockfile/);
-  assert.match(install.run, /pnpm build:cli/);
-  assert.match(install.run, /node scripts\/install-cli\.mjs/);
-  assert.match(install.run, /LAPIS_AI_CONTROLLER_BIN=/);
-  assert.match(install.run, /GITHUB_ENV/);
-});
-
-test("Rust server acceptance acquires pinned native sources and tests the final image without Deno", () => {
-  const server = workflow.jobs["server-acceptance"];
-  assert.ok(server, "dedicated server acceptance job");
-  assert.equal(server.container, undefined);
-  assert.equal(
-    server.needs,
-    undefined,
-    "Rust gate must not depend on Deno builds",
-  );
-  assert.equal(server.defaults.run["working-directory"], "lapis-notes");
-  const pins = JSON.parse(
-    readFileSync("scripts/validation/native-sources.json", "utf8"),
-  );
-  assert.equal(pins.length, 6);
-  assert.equal(new Set(pins.map((pin) => pin.name)).size, pins.length);
-  for (const pin of pins) {
-    assert.match(pin.revision, /^[a-f0-9]{40}$/u);
-    const checkout = server.steps.find(
-      (step) => step.with?.repository === `lapismd/${pin.name}`,
-    );
-    assert.ok(checkout, `immutable checkout for ${pin.name}`);
-    assert.equal(checkout.with.path, pin.name);
-    assert.equal(
-      checkout.with.ref,
-      "${{ steps.native-pins.outputs." + pin.name.replaceAll("-", "_") + " }}",
-    );
-    assert.equal(checkout.with["persist-credentials"], false);
-  }
-  assert.equal(
-    server.steps.find((step) => step.id === "native-pins")?.run,
-    "node scripts/server-container/ci-sources.mjs pins",
-  );
-  assert.equal(
-    server.steps.some((step) => step.uses?.includes("setup-deno")),
-    false,
-  );
-  assert.equal(
-    server.steps.find((step) => step.uses?.startsWith("actions/setup-node@"))
-      ?.with["node-version"],
-    "24.15.0",
-  );
-  assert.ok(
-    server.steps.some(
-      (step) =>
-        step.run ===
-        "pnpm install --frozen-lockfile --ignore-pnpmfile --ignore-scripts",
-    ),
-  );
-  const smoke = server.steps.findIndex(
-    (step) => step.run === "pnpm test:server",
-  );
-  const sourceInit = server.steps.findIndex((step) =>
-    step.run?.includes("node scripts/server-container/ci-sources.mjs init"),
-  );
-  const jjInstall = server.steps.findIndex(
-    (step) => step.run === "node scripts/validation/install-tools.mjs --ci",
-  );
-  const image = server.steps.findIndex(
-    (step) => step.run === "pnpm build:server:container",
-  );
-  const browser = server.steps.findIndex(
-    (step) => step.run === "pnpm test:server:container",
-  );
-  assert.ok(
-    jjInstall >= 0 &&
-      sourceInit > jjInstall &&
-      smoke > sourceInit &&
-      image > smoke &&
-      browser > image,
-  );
-  assert.equal(
-    workflow.env.LAPIS_NOTES_VALIDATION_RUNTIME,
-    "native",
-    "hosted CI keeps its provisioned native runtime for every ordinary lane",
-  );
-  assert.deepEqual(
-    server.steps[browser].env,
-    { LAPIS_NOTES_VALIDATION_RUNTIME: "docker" },
-    "actual image acceptance explicitly re-selects the Docker runtime; the harness guard has no host fallback",
-  );
-  assert.equal(
-    server.steps.some((step) => /server-node|node-e2e/u.test(step.run ?? "")),
-    false,
-  );
-  assert.ok(
-    server.steps.some((step) =>
-      step.run?.includes("playwright install --with-deps chromium"),
-    ),
-  );
-  assert.ok(workflow.jobs.validate.needs.includes("server-acceptance"));
-  assert.equal(
-    workflow.jobs.validate.steps[0].env.SERVER_ACCEPTANCE,
-    "${{ needs.server-acceptance.result }}",
-  );
-  assert.match(workflow.jobs.validate.steps[0].run, /"\$SERVER_ACCEPTANCE"/);
-  const webConfig = readFileSync("packages/web/playwright.config.ts", "utf8");
-  const exclusions = /testIgnore:\s*\[([^\]]+)\]/u.exec(webConfig)?.[1];
-  assert.ok(exclusions, "standalone Web declares its hosted-suite exclusions");
-  assert.match(exclusions, /"rust-server-\*\.spec\.ts"/u);
-  const dedicatedConfig = readFileSync(
-    "packages/web/playwright.rust-server.config.ts",
+test("Notes CI does not run server acceptance", () => {
+  assert.equal(workflow.jobs["server-acceptance"], undefined);
+  assert.equal(workflow.jobs.validate.needs.includes("server-acceptance"), false);
+  const workflowText = readFileSync(
+    new URL("../.github/workflows/lapis-ci.yml", import.meta.url),
     "utf8",
   );
-  assert.match(dedicatedConfig, /"rust-server-host\.spec\.ts"/);
+  assert.doesNotMatch(
+    workflowText,
+    /pnpm test:server|pnpm build:server:container|pnpm test:server:container|desktop-packaged/,
+  );
 });
 
 test("fixture build uses the checked-out Plugins source instead of the host workflow SHA", () => {

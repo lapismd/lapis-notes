@@ -61,16 +61,10 @@ and specification validation to reject stale status groups and invalid task
 links. The authored activity checkpoint and historical intake remain separate
 from the generated task block; LN-GOV-051 governs their freshness.
 
-The shared application core has a separate root Cargo workspace and pinned
-Rust 1.99 toolchain. `pnpm rust:core` uses checkout-owned
-`.local/rust-core-target`, rejects target/manifest/config overrides and requires
-30 GiB free before compilation. Normal check/test/build include the core lanes;
-canonical specification checks also run native source/dependency boundaries and
-their regressions. The transitional native companion remains an excluded,
-independently built package until the hosted cutover.
-
-Native source snapshots pin the sibling plugin, Tasks and Docs algorithm crates
-separately in `scripts/validation/native-sources.json`. Their qualified parser
+The hosted server workspace, its jj-store path dependencies, and server
+acceptance live in the lapis-server repository. Notes check, test, and build
+do not compile that workspace. The lapis-ai tag `v0.2.0`
+(`9a98293c26524c9320acdd9767e34e8ffdd7170c`) stays unchanged. Qualified parser
 revisions do not select a host writer or admit a UI dependency cohort. Native
 Markdown version-2 parser intake retains its own locked source and cold-cache
 proof. Docs is
@@ -123,15 +117,15 @@ keeps image construction, source tests and full browser evidence distinct.
 
 The CI acceptance graph uses exact frozen source candidates for temporary signed
 registry fixtures before V2 production cutover. Public package ranges stay
-portable; full Web and native packaged results remain blocking under LN-PKG-142.
+portable; full Web acceptance remains blocking under LN-PKG-142. Notes CI does
+not build, package, or publish the desktop app.
 Fixture builds verify the checked-out Plugins commit before setting source
 provenance inside the executing shell, independently of the host workflow SHA.
 Final plugin acceptance pins `da7d8bb73541eb3421ca8fdfaf1eaaf2baecc850`,
 the version candidate containing AI 0.1.5, History 0.1.4, Markdown 0.1.6 and
 released Mira 0.0.4. Ephemeral fixture signatures establish acceptance evidence;
 production signing and publication retain their separate approval gate.
-Native acceptance provisions the separately installed controller CLI from its
-exact validation source based on the public release. Complete Web acceptance retains both browser jobs: the PWA/registry lane and
+Complete Web acceptance retains both browser jobs: the PWA/registry lane and
 an independent Node server lane. The latter builds its Docker image from the
 checked-out Notes candidate and requires no Deno setup or desktop build job.
 The server fixture seeds its private bootstrap secret into a Docker volume owned
