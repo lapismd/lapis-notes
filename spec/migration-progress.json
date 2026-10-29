@@ -966,7 +966,7 @@
       "area": "Hosted cutover",
       "work": "Static Web and health delivery",
       "status": "Working",
-      "spec": "spec/src/architecture/rust-hosted-delivery.md#ln-core-054",
+      "spec": "spec/src/architecture/rust-hosted-delivery.md#ln-core-070",
       "detail": "Static source9009bccf is integrated with native launcher in main. Focused native7 and directRust-only builtWeb1 pass. The prior combinedprofile hosted aggregate5pass/6fail is retained; final-main diagnosis and broad acceptance remain blockers. No Node/Vite server serves the directRust case; no ordinary defaultcompletion claimed."
     },
     {
@@ -982,7 +982,7 @@
       "area": "Hosted cutover",
       "work": "Native build and start entrypoints",
       "status": "Working",
-      "spec": "spec/src/architecture/rust-hosted-delivery.md#ln-core-064",
+      "spec": "spec/src/architecture/rust-hosted-delivery.md#ln-core-070",
       "detail": "Native launchercd520b71 is landed and its delivery5/routing1/installpolicy3 checks pass. Landed33846705/3e2e5a85 now passes complete release101 and validationtooling72 with zero tracked mutations, repairing prior98/3. Compiled release/container and final default acceptance remain pending."
     },
     {

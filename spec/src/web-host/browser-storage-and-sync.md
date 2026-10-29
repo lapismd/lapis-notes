@@ -151,8 +151,8 @@ Launcher copy progress verifies the startup surface:
 
 Server-mode browser acceptance verifies editing, shared events and persistence
 after clean container shutdown and recreation. Its test-owned network namespace
-remains alive across that restart under
-[LN-SRV-013](../server-node-host/core-contract.md#ln-srv-013), while the serving
+remains alive across that restart. Server lifecycle lives in the lapis-server
+specification, while the serving
 process and startup module graph are recreated normally.
 The server case's dedicated browser worker starts after this network is ready,
 isolating initial navigation from preceding PWA acceptance cases.
