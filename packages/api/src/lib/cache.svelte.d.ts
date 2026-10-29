@@ -1,3 +1,5 @@
+import type { ContributionStatus } from "./native-indexing-protocol";
+import type { IndexProjectionRegistration } from "./storage/index-projection";
 import type { App } from "./context.svelte";
 import { EventDispatcher } from "./events";
 import {
@@ -310,6 +312,7 @@ export declare class MetadataCache extends EventDispatcher<{
     readonly logger: import("./logging").Logger;
     private readonly saveSnapshotDebounced;
     constructor(app: App);
+    get backgroundIndexing(): import("./native-background-indexing").NativeBackgroundIndexingObserver | undefined;
     get metadataCache(): Record<string, CachedMetadata>;
     get resolvedLinks(): Record<string, Record<string, number>>;
     get unresolvedLinks(): Record<string, Record<string, number>>;
@@ -552,7 +555,11 @@ export declare class MetadataCache extends EventDispatcher<{
     getFirstLinkpathDest(linkpath: string, sourcePath: string): TFile | null;
     fileToLinktext(file: TFile, sourcePath: string, omitMdExtension?: boolean): string;
     rebuild(): Promise<void>;
-    addProcessor(ext: string, processor: MetadataProcessor): void;
+    registerNativeProjection(owner: string, id: string, registration: IndexProjectionRegistration): void;
+    finishNativeContributions(owner: string): Promise<void>;
+    disableNativeContributions(owner: string): Promise<void>;
+    get nativeContributionStatuses(): ContributionStatus[];
+    addProcessor(ext: string, processor: MetadataProcessor, owner?: string): void;
     removeProcessor(ext: string, processor: MetadataProcessor): boolean;
     addIndexedProjectionContributor(contributor: IndexedProjectionContributor): void;
     removeIndexedProjectionContributor(contributor: IndexedProjectionContributor): boolean;

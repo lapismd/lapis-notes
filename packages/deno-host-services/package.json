@@ -32,7 +32,8 @@
   "dependencies": {
     "@lapis-notes/api": "workspace:*",
     "@lapis-notes/language-service": "workspace:*",
-    "@tursodatabase/database": "0.7.2"
+    "@tursodatabase/database": "0.7.2",
+    "@lapis-notes/host-services": "workspace:*"
   },
   "devDependencies": {
     "typescript": "~5.9.3",

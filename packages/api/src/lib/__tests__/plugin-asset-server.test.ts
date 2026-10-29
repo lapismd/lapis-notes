@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createWebPluginAssetUrl,
   getInstalledPluginAssetHash,
+  getInstalledPluginAssetFingerprint,
   getInstalledPluginAssetVersion,
   getPluginAssetContentType,
   parseWebPluginAssetUrl,
@@ -12,6 +13,19 @@ import { sha256Hex, type InstalledPluginRecord } from "../plugin-distribution";
 import { InMemoryDataAdapter } from "./data-adapter-conformance";
 
 describe("plugin asset server helpers", () => {
+  it("sorts portable fingerprints independently of locale and input order", () => {
+    const record = createInstalledPluginRecord();
+    const paths = ["z.js", "a.js", "A.js", "Z.js", "\ue000.js", "😀.js"];
+    const hash = "a".repeat(64);
+    record.files = paths.map((path) => ({ path, size: 1, sha256: hash }));
+    const expected = ["A.js", "Z.js", "a.js", "z.js", "😀.js", "\ue000.js"]
+      .map((path) => `${path}:1:${hash}`)
+      .join("|");
+    expect(getInstalledPluginAssetFingerprint(record)).toBe(expected);
+    record.files.reverse();
+    expect(getInstalledPluginAssetFingerprint(record)).toBe(expected);
+  });
+
   it("builds and parses web plugin asset URLs", () => {
     const sha256 = "a".repeat(64);
     const url = createWebPluginAssetUrl({
@@ -77,11 +91,11 @@ describe("plugin asset server helpers", () => {
     const adapter = new InMemoryDataAdapter();
     const bytes = new TextEncoder().encode("export const value = 1;");
     const sha256 = await sha256Hex(bytes);
-    await adapter.mkdir(".obsidian");
-    await adapter.mkdir(".obsidian/plugins");
-    await adapter.mkdir(".obsidian/plugins/plugin-a");
+    await adapter.mkdir(".lapis");
+    await adapter.mkdir(".lapis/plugins");
+    await adapter.mkdir(".lapis/plugins/plugin-a");
     await adapter.writeBinary(
-      ".obsidian/plugins/plugin-a/main.mjs",
+      ".lapis/plugins/plugin-a/main.mjs",
       bytes.buffer as ArrayBuffer,
     );
 
@@ -163,11 +177,11 @@ describe("plugin asset server helpers", () => {
   it("rejects hash mismatches", async () => {
     const adapter = new InMemoryDataAdapter();
     const bytes = new TextEncoder().encode("changed");
-    await adapter.mkdir(".obsidian");
-    await adapter.mkdir(".obsidian/plugins");
-    await adapter.mkdir(".obsidian/plugins/plugin-a");
+    await adapter.mkdir(".lapis");
+    await adapter.mkdir(".lapis/plugins");
+    await adapter.mkdir(".lapis/plugins/plugin-a");
     await adapter.writeBinary(
-      ".obsidian/plugins/plugin-a/main.mjs",
+      ".lapis/plugins/plugin-a/main.mjs",
       bytes.buffer as ArrayBuffer,
     );
 
@@ -188,11 +202,11 @@ describe("plugin asset server helpers", () => {
     const adapter = new InMemoryDataAdapter();
     const bytes = new TextEncoder().encode("export const value = 1;");
     const sha256 = await sha256Hex(bytes);
-    await adapter.mkdir(".obsidian");
-    await adapter.mkdir(".obsidian/plugins");
-    await adapter.mkdir(".obsidian/plugins/plugin-a");
+    await adapter.mkdir(".lapis");
+    await adapter.mkdir(".lapis/plugins");
+    await adapter.mkdir(".lapis/plugins/plugin-a");
     await adapter.writeBinary(
-      ".obsidian/plugins/plugin-a/main.mjs",
+      ".lapis/plugins/plugin-a/main.mjs",
       bytes.buffer as ArrayBuffer,
     );
 

@@ -1,5 +1,33 @@
 # Architecture / Workspace integration
 
+LN-WS-101 keeps close policy generic and safe by default. A declared layout-only
+view still joins operation settlement and layout persistence; its App-owned
+staged state and unrelated failed writers survive removal. Retained
+text-conflict review is shared under LN-WS-102 through LN-WS-104: Workspace
+binds one App-owned presentation for shell and early host leases, reusing the
+stable `desktop:file-conflict` view id while the writer-captured conflict
+remains the sole persistence authority. Desktop keeps its own conflict-review
+opt-in; shared code contains no consumer view-type exception.
+
+Same-type state transitions retain LN-WS-005/062 authority through in-flight
+projection, including Search query/scope state.
+Foreground file routing joins LN-WS-005's projection-aware reveal. LN-ARCH-048
+history capture and the original App, leaf, view and writer owners are unchanged.
+
+Diagnostic navigation may register disposable App-owned resource openers before
+the existing vault-file fallback. The desktop routes conflict resources while
+retaining writer-owned persistence; the shared API grants no file authority.
+The actual hosted Properties cases navigate from the shared Problems diagnostic
+to the retained review leaf through that registered opener, without browser App
+instrumentation or a test-only recovery path;
+[their acceptance](../../records/2026-10-27-hosted-properties-review.md) stays
+separate from the original hosted Tasks journeys.
+
+Deferred imperative attachment follows LN-WS-006/064: the API waits for its
+queued compatibility projection and retains the same view/container owner.
+Layout authority, navigation policy and application service admission stay with
+their existing owners; attachment cannot create another App or execution scope.
+
 ## LN-ARCH-008 — Storybook: consume design-core's shared catalog stylesheet and layout
 
 <a id="ln-arch-008"></a>
@@ -11,6 +39,10 @@
 <a id="ln-arch-040"></a>
 
 **Requirement.** Lapis MUST classify statically shipped plugins by distribution while retaining one API core lifecycle. Design Core MUST own only the managed-plugin settings source and grouped presentation; Lapis MUST own registration, persistence, failures, and workspace recovery policy.
+
+The public Workspace Core Settings page consumes all managed-plugin sources.
+App Shell entries retain source-qualified lifecycle routing alongside Lapis
+entries, with no duplicate persistence or direct App Shell implementation.
 
 ## LN-ARCH-048 — File-opening navigation: capture the initiating leaf state before constructing
 
@@ -53,3 +85,20 @@
 <a id="ln-arch-090"></a>
 
 **Requirement.** Signed catalog metadata and unsigned aggregate download statistics MUST remain separate contracts. API owns summary validation and source access; Workspace owns optional display and sorting. Missing statistics MUST NOT affect signature verification, install availability, updates, or registry errors.
+
+The workspace compatibility owner versions explicit API view transitions and
+activations against queued controller projections. Older queued snapshots yield
+before reconciliation so they cannot unload a newly opened plugin view.
+
+The status bridge forwards left, centre and right contributions to the shared
+footer, retaining plugin-owned mounts and disposal. Design Core owns footer
+geometry, overflow, Settings chrome and notification placement; API retains App,
+command, context and persistence authority (LN-WS-054, LN-WS-075).
+
+Responsive plugin-directory acceptance follows the shared PanelToggle public
+part/side markers and retains actual open, close and focus checks after the
+source shell composition update (LN-ARCH-040, LN-WS-054).
+
+LN-WS-005 reveal now drains an in-flight host projection before publishing its
+selection. Generic host ownership under LN-ARCH-003 and view-access composition
+under LN-ARCH-059 remain unchanged; plugins retain their routing policy.

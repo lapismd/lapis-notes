@@ -47,7 +47,7 @@ Desktop renderer-engine selection verifies:
 
 <a id="ln-deno-081"></a>
 
-**Requirement.** Publication MUST occur only on tag pushes matching the private desktop package version. Publication MUST require native packaged and Homebrew installation acceptance for macOS ARM64 and Linux ARM64/x86-64. Releases MUST retain source revision, target, version, sizes and SHA-256 checksums in a machine-readable manifest. Published assets MUST NOT be silently replaced.
+**Requirement.** This Notes repository MUST NOT run desktop release contract, native desktop archive, or desktop publication jobs. Desktop release for the private Deno desktop package belongs to the lapis-desktop repository. Historical tag `2026.31.5` remains the last Notes-hosted publication; its manifest, checksums, and assets stay unchanged.
 
 ## LN-DENO-082 — Homebrew distribution
 

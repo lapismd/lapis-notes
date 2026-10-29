@@ -7,9 +7,5 @@
     "strict": true,
     "types": ["node", "@playwright/test"]
   },
-  "include": [
-    "./**/*.ts",
-    "../playwright.config.ts",
-    "../playwright.server.config.ts"
-  ]
+  "include": ["./**/*.ts", "../playwright.config.ts"]
 }

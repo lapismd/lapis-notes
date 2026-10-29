@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v3";
 
 import type { AppDatabase } from "./app-database";
 
@@ -80,7 +80,11 @@ export type RemoteAppDatabaseMethod =
   (typeof REMOTE_APP_DATABASE_METHODS)[number];
 
 export type RemoteAppDatabaseArgs<Method extends RemoteAppDatabaseMethod> =
-  AppDatabase[Method] extends (...args: infer Args) => unknown ? Args : never;
+  Method extends RemoteAppDatabaseMethod
+    ? AppDatabase[Method] extends (...args: infer Args) => unknown
+      ? Args
+      : never
+    : never;
 
 export type RemoteAppDatabaseResult<Method extends RemoteAppDatabaseMethod> =
   AppDatabase[Method] extends (...args: never[]) => infer Result

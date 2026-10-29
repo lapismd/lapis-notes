@@ -101,6 +101,8 @@
  */
 [data-ui-component="editor"] .inline-title,
 [data-ui-component="editor"] .cm-editor-inline-title {
+  box-sizing: border-box;
+  padding-inline-start: var(--ui-editor-inline-title-inset, 0px);
   color: var(--ui-editor-inline-title-color);
   font-family: var(--ui-editor-inline-title-font);
   font-size: var(--ui-editor-inline-title-size);
@@ -112,12 +114,14 @@
   margin-block-end: var(--ui-editor-inline-title-margin-bottom);
   width: 100%;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
   border: none;
   outline: none;
 }
 
 [data-ui-component="editor"]
   .cm-editor-inline-title[data-mobile-inline-title="true"] {
+  padding-inline-start: 0;
   text-align: center;
 }
 

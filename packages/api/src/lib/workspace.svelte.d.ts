@@ -7,7 +7,8 @@ import { SidebarState, type SidebarStateProps } from "@lapis-notes/ui/sidebar-cu
 import { HistoryManager } from "./history.svelte";
 import type { TransactionSpec } from "@codemirror/state";
 import type { App } from "./context.svelte";
-import { EditorViewRegistry, type EditorViewContribution, type RegisteredEditorViewContribution } from "./editor-view-registry";
+import type { DiagnosticLocation, DiagnosticsManager } from "./diagnostics";
+import { EditorViewRegistry, type EditorViewContribution, type ExtensionRegistrationOptions, type RegisteredEditorViewContribution } from "./editor-view-registry";
 /** @public */
 export type Constructor<T> = abstract new (...args: any[]) => T;
 /**
@@ -472,6 +473,10 @@ export declare class Workspace extends EventDispatcher<{
     containerEl: HTMLElement;
     private saveLayoutDebounced;
     requestSaveLayout(event?: WorkspaceLayoutChangeEvent): void;
+    /** Await serialized layout persistence before the owning host tears down. */
+    flushLayout(): Promise<void>;
+    /** Await admitted App Shell plugin transitions and their persistence. */
+    flushPluginChanges(): Promise<void>;
     private withoutLayoutPersistence;
     private dispatchLayoutDropEvent;
     willShowLayoutDropOverlay(options: Omit<WorkspaceLayoutDropEvent, "defaultPrevented" | "preventDefault">): WorkspaceLayoutDropEvent;
@@ -533,6 +538,9 @@ export declare class Workspace extends EventDispatcher<{
     bindConfiguration(): void;
     /** Dispose the API-owned shell controller and its compatibility bridges. */
     disposeWorkspaceHost(): Promise<void>;
+    readonly diagnostics: DiagnosticsManager;
+    /** Register an owned opener for application-specific diagnostic resources. */
+    registerDiagnosticOpener(opener: (location: DiagnosticLocation) => boolean | Promise<boolean>): () => void;
     getMostRecentLeaf(): WorkspaceLeaf | null;
     getVisibleHintTargets(): WorkspaceHintTarget[];
     changeLayout(workspace: WorkspaceJson | any): Promise<void>;
@@ -571,7 +579,9 @@ export declare class Workspace extends EventDispatcher<{
         view?: RegisteredEditorViewContribution;
     } | undefined;
     private resolveEditorAssociationViewType;
-    registerExtensions(extensions: string[], viewType: string): void;
+    getFileIconForPath(path: string): string | undefined;
+    onFileIconsChanged(listener: () => void): () => void;
+    registerExtensions(extensions: string[], viewType: string, options?: ExtensionRegistrationOptions): () => void;
     unregisterExtensions(extensions: string[], viewType: string): void;
     determineViewType(type: string): string | undefined;
     determineViewTypeForPath(path: string): string | undefined;
@@ -607,6 +617,7 @@ export declare class Workspace extends EventDispatcher<{
      * @public
      */
     getActiveFile(): TFile | null;
+    reconcileFileReference(oldPath: string, file: TFile | null): void;
     /**
      * Iterate through all leaves, including main area leaves, floating leaves,
      * and sidebar leaves.

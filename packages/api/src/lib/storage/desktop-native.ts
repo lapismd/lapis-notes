@@ -44,7 +44,7 @@ let registeredNativeDesktopBridge: NativeDesktopBridge | null = null;
 
 // ─── Neutral interface ────────────────────────────────────────────────────────
 
-export type NativeDesktopRuntime = "deno-desktop";
+export type NativeDesktopRuntime = "deno-desktop" | "tauri-desktop";
 
 export type NativeDesktopPlatformOs = "macos" | "windows" | "linux" | "unknown";
 
@@ -58,6 +58,9 @@ export interface NativeDesktopPlatformInfo {
 }
 
 export type NativeDesktopCapabilityId =
+  | "system-trash"
+  | "exclusive-create"
+  | "conditional-text-write"
   | "resource"
   | "database"
   | "search"
@@ -553,6 +556,10 @@ export class NativeDesktopVaultAdapter
 
   getCapabilities(): Partial<VaultAdapterCapabilities> {
     return {
+      exclusiveCreate: hasNativeDesktopCapability("exclusive-create"),
+      conditionalTextWrite: hasNativeDesktopCapability(
+        "conditional-text-write",
+      ),
       persistent: true,
       userVisibleFiles: true,
       requiresPermission: false,
@@ -560,7 +567,7 @@ export class NativeDesktopVaultAdapter
         hasNativeDesktopCapability("file-watch") ||
         typeof getNativeDesktopBridge()?.watch === "function",
       resourceUrls: true,
-      systemTrash: false,
+      systemTrash: hasNativeDesktopCapability("system-trash"),
     };
   }
 
@@ -582,9 +589,18 @@ export class NativeDesktopVaultAdapter
         .filter((subscription): subscription is NativeWatchSubscription =>
           Boolean(subscription),
         );
+      const ready = Promise.all(
+        subscriptions.map((subscription) => subscription.ready),
+      ).then(() => {});
+      void ready.catch(() => {});
       return {
-        close: () => {
-          subscriptions.forEach((subscription) => subscription.close());
+        ready,
+        close: async () => {
+          const results = await Promise.allSettled(
+            subscriptions.map(async (subscription) => subscription.close()),
+          );
+          const failed = results.find((result) => result.status === "rejected");
+          if (failed?.status === "rejected") throw failed.reason;
         },
       };
     }
@@ -626,6 +642,26 @@ export class NativeDesktopVaultAdapter
     return new Uint8Array(data).buffer;
   }
 
+  async writeExclusive(
+    normalizedPath: string,
+    data: string | ArrayBuffer,
+    options: DataWriteOptions = {},
+  ): Promise<void> {
+    const path = normalizeVaultPath(normalizedPath);
+    if (!hasNativeDesktopCapability("exclusive-create"))
+      throw createFsError("ENOTSUP", "Exclusive file creation is unavailable");
+    const bytes =
+      typeof data === "string"
+        ? new TextEncoder().encode(data)
+        : new Uint8Array(data);
+    await invokeNative<void>("desktop_fs_create_exclusive", {
+      rootPath: this.rootPath,
+      normalizedPath: path,
+      data: [...bytes],
+      options,
+    });
+  }
+
   async openRead(normalizedPath: string): Promise<VaultReadHandle> {
     const path = normalizeVaultPath(normalizedPath);
     const rootPath = this.rootPath;
@@ -643,7 +679,9 @@ export class NativeDesktopVaultAdapter
         return new ReadableStream<Uint8Array>({
           async pull(controller) {
             if (signal?.aborted) {
-              controller.error(signal.reason ?? new DOMException("Aborted", "AbortError"));
+              controller.error(
+                signal.reason ?? new DOMException("Aborted", "AbortError"),
+              );
               return;
             }
             if (cursor >= end) {
@@ -675,16 +713,21 @@ export class NativeDesktopVaultAdapter
     options: AtomicDataWriteOptions = {},
   ): Promise<void> {
     const path = normalizeVaultPath(normalizedPath);
-    const operationId = await invokeNative<string>("desktop_fs_atomic_write_begin", {
-      rootPath: this.rootPath,
-      normalizedPath: path,
-      options: { ctime: options.ctime, mtime: options.mtime },
-    });
+    const operationId = await invokeNative<string>(
+      "desktop_fs_atomic_write_begin",
+      {
+        rootPath: this.rootPath,
+        normalizedPath: path,
+        options: { ctime: options.ctime, mtime: options.mtime },
+      },
+    );
     const reader = source.getReader();
     try {
       while (true) {
         if (options.signal?.aborted) {
-          throw options.signal.reason ?? new DOMException("Aborted", "AbortError");
+          throw (
+            options.signal.reason ?? new DOMException("Aborted", "AbortError")
+          );
         }
         const next = await reader.read();
         if (next.done) break;
@@ -710,6 +753,27 @@ export class NativeDesktopVaultAdapter
     } finally {
       reader.releaseLock();
     }
+  }
+
+  async writeTextIfUnchanged(
+    normalizedPath: string,
+    data: string,
+    expected: string | null,
+    options?: DataWriteOptions,
+  ): Promise<void> {
+    if (expected !== null && typeof expected !== "string")
+      throw new Error("Invalid expected text snapshot");
+    if (!hasNativeDesktopCapability("conditional-text-write"))
+      throw new Error(
+        "Conditional text writes are unavailable in this native host",
+      );
+    await invokeNative<void>("desktop_fs_write_text_if_unchanged", {
+      rootPath: this.rootPath,
+      normalizedPath: normalizeVaultPath(normalizedPath),
+      data,
+      expected,
+      options,
+    });
   }
 
   async write(
@@ -846,8 +910,23 @@ export class NativeDesktopVaultAdapter
     return this.getResourcePath(normalizedPath);
   }
 
-  async trashSystem(): Promise<boolean> {
-    return false;
+  async trashSystem(normalizedPath: string): Promise<boolean> {
+    const path = normalizeVaultPath(normalizedPath);
+    if (path === "/")
+      throw createFsError("EINVAL", "Cannot trash the vault root");
+    if (!hasNativeDesktopCapability("system-trash")) return false;
+    try {
+      const handled = await invokeNative<unknown>("desktop_fs_trash_system", {
+        rootPath: this.rootPath,
+        normalizedPath: path,
+      });
+      if (typeof handled !== "boolean")
+        throw createFsError("EINVAL", "Invalid native trash acknowledgement");
+      return handled;
+    } catch (error) {
+      if ((error as { code?: string })?.code === "ENOTSUP") return false;
+      throw error;
+    }
   }
 
   async trashLocal(normalizedPath: string): Promise<void> {

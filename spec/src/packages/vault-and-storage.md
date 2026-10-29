@@ -1,5 +1,167 @@
 # Packages / Vault and storage
 
+Private `lapis-app-core` owns native files under the
+[shared service contract](../architecture/rust-application-services.md).
+Vault/AppDatabase interfaces remain. Root native lanes are independent of
+browser storage and hosted adoption. Explicit `rust-server` sessions require
+an injected AppDatabaseProvider and cannot select browser storage.
+
+Private `lapis-app-protocol` owns portable commands, replies and editor claims.
+`pnpm protocol:generate` emits schemas and TypeScript, including public
+call/change DTOs at `@lapis-notes/api/app-database`. Packed fixtures check exact
+method/change parity and union dispatch. `pnpm check:protocol` checks drift and
+positive/negative fixtures in normal native/spec lanes. Export uses the same
+guarded runner without a second target or disk-guard bypass. Portable file
+actions retain shell operations/metadata, excluding host-only OS commands.
+Admission consumes retained physical-root capabilities without reopening paths.
+
+The retained API projection-value implementation and native database storage
+share the API-owned `__tests__/fixtures/projection-values.json`. Their independent tests verify
+scalar conversion, missing values, arrays and typed columns; companion cases
+retain field ordering, cardinality and text/row limits under LN-DB-017.
+The API-owned projection-query fixture checks complete AST filtering, ordering,
+selection and cursor continuation through both retained providers. Turso narrows
+only provable SQL candidates before the shared evaluator cuts the final page.
+Native projection readers consume that same query fixture independently, retain
+bounded selected pages and generate their DTOs through the protocol drift gate.
+This does not change either host's existing database-adapter selection.
+API task-record fixtures independently qualify the retained providers and native
+facade, including full recurrence/structure data and effective view membership.
+Memory storage fixtures also qualify retained and native records, candidate
+queries, exact origins, daily recall totals and renewable job transitions.
+
+The Search-storage reference fixture retains prepared documents, manifests,
+embedding states and statistics through Memory and Turso. Its counts and error
+values are qualified before the native storage intake.
+The API-owned Search-preparation fixture also qualifies native normalization,
+scored breakpoints, tags, frontmatter text and UTF-16 offsets. LN-DB-058 keeps
+generated cutoffs outside surrogate pairs in retained and native implementations.
+This does not change public AppDatabase interfaces or select a native host
+adapter; semantic inference and retrieval retain separate qualification gates.
+Search-candidate conformance uses more than 100 eligible documents to qualify
+case-sensitive, field, property, negative, provider and path queries through
+Memory and both FTS-enabled and degraded Turso. Final result limits belong after
+complete table evaluation, including path-only queries (LN-DB-059).
+The Search-retrieval reference retains full result JSON for native intake,
+including score/fusion detail, source metadata and UTF-16 snippet ranges. Native
+retrieval and semantic inference are independently qualified before host adoption.
+
+## LN-PKG-185 — Core vault listing exclusions
+
+<a id="ln-pkg-185"></a>
+
+**Requirement.** The API MUST own `files.exclude` for vault discovery, defaulting to `.git` and `.jj` at any depth. File/folder enumeration, list and glob APIs MUST apply current patterns and excluded ancestors. Exclusions MUST NOT delete data or change explicit adapter access, native admission, backup selection or plugin lifetime.
+
+### Acceptance details
+
+Discovery follows these rules:
+
+- Patterns use the shared glob dialect with case-sensitive matching; an excluded folder hides all descendants while similarly named ordinary files remain visible.
+- Core settings MUST expose an editable string list at Workspace / File discovery / Excluded paths without a plugin, retain stored values through the App configuration bridge and allow an empty list to disable discovery exclusions. Updated patterns MUST refresh listing consumers without reloading or modifying vault contents.
+- Explicit resource lookup and adapter reads/writes MUST remain available to admitted metadata services; the setting is discovery policy, not an authorization boundary.
+
+## LN-PKG-184 — Optional native system-trash port
+
+<a id="ln-pkg-184"></a>
+
+**Requirement.** Native Vault adapters MUST advertise system trash only with its implemented host capability and invoke it with a normalized admitted path. Root trash MUST reject before invocation. Unsupported capability or ENOTSUP MUST return explicit unavailability for the existing local-trash fallback; other provider errors MUST propagate without fallback. Handled native trash MUST project removal without a second filesystem deletion.
+
+## LN-PKG-183 — App-owned watch ingestion
+
+<a id="ln-pkg-183"></a>
+
+**Requirement.** App MUST own an explicitly started watch/reconciliation service that awaits registration before its initial complete scan. It MUST bound/coalesce hints, reconcile after uncertainty, report failures through existing notifications and limit automatic retries. Stop MUST retire callbacks synchronously and drain registration, cleanup and scans; failed cleanup MUST remain retryable. Restart after a failed leave MUST register afresh and reconcile missed changes.
+
+## LN-PKG-182 — Serialized vault mutation projection
+
+<a id="ln-pkg-182"></a>
+
+**Requirement.** Vault mutations and reconciliation MUST serialize IO through cache/tree/event projection so a scan cannot publish over an in-flight internal mutation. App operation admission MUST include queued work. Rejection MUST NOT poison later operations; internal method delegation MUST NOT deadlock by re-entering the queue.
+
+- View projection MUST await admitted mutation guards before rebinding clean editors. Internal rename projections MUST retain event order and retire with their owning App; dirty external views retain their existing recovery owner.
+
+## LN-PKG-180 — Stable vault tree reconciliation
+
+<a id="ln-pkg-180"></a>
+
+**Requirement.** Vault reconciliation MUST preserve canonical nodes, parents, children and filename indexes for unchanged or explicitly renamed resources. Modified content MUST invalidate cached bytes; renames and deletions MUST notify each affected descendant through existing lifecycle events. Internal rename, copy, trash and atomic writes MUST preserve unrelated identities and use the same tree projection.
+
+## LN-PKG-181 — Complete bounded reconciliation snapshots
+
+<a id="ln-pkg-181"></a>
+
+**Requirement.** Reconciliation MUST bound snapshot entries and path storage, validate child paths and complete all required listing/stat operations before publishing tree changes. Incomplete or invalid scans MUST retain the previous complete tree and permit retry. Retired generations MUST NOT publish scanned changes. Successful scans MUST NOT write note bytes.
+
+## LN-PKG-178 — Optional exclusive-create transport
+
+<a id="ln-pkg-178"></a>
+
+**Requirement.** Vault adapters MAY expose an exclusive-create capability and write port for text or binary bytes. Native adapters MUST require the advertised capability, preserve bytes, options and collision errors, and reject unsupported requests before invocation without an overwrite fallback. Capability absence MUST remain explicit. An advertised incomplete port MUST fail closed.
+
+## LN-PKG-179 — New-file creation intent
+
+<a id="ln-pkg-179"></a>
+
+**Requirement.** Vault MUST expose explicit exclusive creation and preserve legacy low-level create semantics. FileManager new-file creation MUST use exclusivity when supported; Explorer new-note and landing actions MUST use this intent boundary. Admitted operations MUST span IO, cache/tree projection and creation events. Failed creation MUST NOT project success; existing destinations MUST remain unchanged on collision.
+
+## LN-PKG-177 — Watch registration readiness
+
+<a id="ln-pkg-177"></a>
+
+**Requirement.** NativeWatchSubscription MAY expose registration readiness. Supporting adapters and DirectoryWatcher MUST preserve that promise, including array subscriptions, so owners can register watching before their initial reconciliation. Failed registration MUST remain observable through readiness without an unhandled background rejection. Closing during registration MUST retain cleanup ownership until the native start and stop boundary completes.
+
+## LN-PKG-176 — Owned watcher retirement
+
+<a id="ln-pkg-176"></a>
+
+**Requirement.** DirectoryWatcher MUST retire callbacks synchronously when a subscription is replaced or closed. Its close boundary MUST await native cleanup and admitted polling, retain failed cleanup for retry, and reject incomplete polling snapshots without projecting deletions. Portable changes MAY carry an optional previous path for rename reconciliation. Array subscriptions MUST preserve options and await every owned subscription during closure.
+
+## LN-PKG-172 — Protected text mutations
+
+<a id="ln-pkg-172"></a>
+
+**Requirement.** Conditional-capable hosts MUST apply frontmatter and metadata text mutations through the owning App's file-writer lifecycle. Mutations MUST drain and protect existing document writers before reading authoritative content, retain failed conditional drafts for explicit recovery, and block shutdown until persistence or discard succeeds. Queued mutations MUST serialize without reentering the guard. Cached metadata MUST NOT replace authoritative mutation input.
+
+An admitted transform survives initial read failures; invalid transforms remain
+rejected actions. A rejected recovery projection retains the writer barrier.
+Pre-admission native failure retains Problems protection without a computed draft.
+
+## LN-PKG-170 — Source-owned text conflict recovery
+
+<a id="ln-pkg-170"></a>
+
+**Requirement.** API MUST export a generic FileTextPersistence contract for document-owned conditional baselines and the owning App's text-conflict registry. Recovery MUST acquire protection before yielding and await asynchronous admission before resolving a conflict. Each concurrent operation MUST use its own acknowledgement, reset and release lease. Storage snapshots MUST remain independent of background cache reads; stale decisions MUST reject, and failed resets MUST retain the conflict.
+
+Captured conflicts also expose `resolveMerged(text)`. It uses the same exact
+snapshot, asynchronous protection and conditional replacement as keeping a draft.
+Only a successful owner reset acknowledges merged text. Stale disk bytes, unreadable
+snapshots and failed resets retain the conflict; a failed post-write reset may
+require refresh to display the already-persisted result before retry.
+
+Application-state recovery may restore runtime state outside the persistence
+queue while retaining its owner lease. It revalidates the displayed disk bytes
+after asynchronous restoration and acknowledges only after that check or the
+conditional replacement succeeds. A failed or stale projection retains the
+original local draft, including when the next decision keeps that draft.
+
+## LN-PKG-169 — Conditional Vault writes
+
+<a id="ln-pkg-169"></a>
+
+**Requirement.** Vault MUST expose conditional text-write support and `modifyIfUnchanged` through the public built package. Unsupported adapters MUST reject conditional requests before IO. Successful writes MUST update the file tree, cache and modification events consistently; rejected writes MUST NOT acknowledge new contents through those projections.
+
+## LN-PKG-167 — Optional conditional text writes
+
+<a id="ln-pkg-167"></a>
+
+**Requirement.** `VaultAdapter` MAY expose `writeTextIfUnchanged` with exact expected text or explicit expected absence. A supporting adapter MUST reject an observed mismatch without an unconditional-write fallback. The public package MUST expose the method's types. `MemoryVaultAdapter` MUST advertise and implement this existing capability with an atomic in-memory comparison, including expected absence and competing writes.
+
+## LN-PKG-168 — Native conditional text transport
+
+<a id="ln-pkg-168"></a>
+
+**Requirement.** Native adapters MUST require an advertised `conditional-text-write` capability before conditional text IO. Missing or unavailable capability MUST reject before invocation. The adapter MUST transmit the explicit expected snapshot and preserve portable conflict errors without automatic retries or fallback writes.
+
 The native codec regression verifies the complete 256 KiB payload with exact
 byte comparison rather than generic deep property traversal. Prototype, length,
 canonical frames, invalid input and portable-fallback checks remain enforced
@@ -108,7 +270,7 @@ keeps sibling release preparation outside standalone CI.
 
 <a id="ln-pkg-144"></a>
 
-**Requirement.** Private `@lapis-notes/deno-host-services` MUST own reusable Deno filesystem, watch, resource, plugin-asset, language-service, native AppDatabase kernels, and durable opaque sync repositories governed by LN-ARCH-105. It MUST NOT own desktop windows, server authentication, HTTP routing, vault selection, or Web composition.
+**Requirement.** Private `@lapis-notes/deno-host-services` MUST own Deno filesystem, watch, resource, plugin-asset and durable opaque sync kernels governed by LN-ARCH-105. Private `@lapis-notes/host-services` MUST own runtime-independent path, language and native AppDatabase worker kernels, with retained Deno compatibility exports. Both packages MUST NOT own desktop windows, server authentication, HTTP routing, vault selection or Web composition.
 
 Its portable `test:sync-engine` script accepts a built engine path for development
 qualification with native storage and opaque host security capabilities. The
@@ -132,11 +294,11 @@ LN-ARCH-123. LN-ARCH-124 adds optional expected-authority metadata to opaque
 ports; production native RPC requires it while trusted low-level stores remain
 compatible. Client engines must supply their captured fences before activation.
 
-## LN-PKG-145 — Private @lapis-notes/server-deno: own the authenticated Deno server, managed-vault control
+## LN-PKG-145 — Private @lapis-notes/server-node: own the authenticated Node server, managed-vault control
 
 <a id="ln-pkg-145"></a>
 
-**Requirement.** Private `@lapis-notes/server-deno` MUST own the authenticated Deno server, managed-vault control database, tRPC router, direct data routes, static server-mode Web delivery, lifecycle, deployment packaging, and the browser adapter that translates public vault semantics into managed server requests. It MUST consume public Lapis interfaces and private Deno host services.
+**Requirement.** Private `@lapis-notes/server-node` MUST own the authenticated Node server, managed-vault control database, tRPC router, direct data routes, static server-mode Web delivery, lifecycle, deployment packaging, and the browser adapter that translates public vault semantics into managed server requests. It MUST consume public Lapis interfaces and private portable host services.
 
 ## LN-PKG-151 — @lapis-notes/api/build/vite: own the reusable Turso browser-bundle transform used
 
@@ -209,3 +371,30 @@ compatible. Client engines must supply their captured fences before activation.
 <a id="ln-pkg-160"></a>
 
 **Requirement.** Tests of live servers, installed native executables, external dependency staging, or baseline mutation MUST remain uncached while running through Turbo. Supplying live controller, terminal, or external Storybook configuration MUST disable result reuse and writes. Cold acceptance MUST use a forced run; cache-service credentials MUST NOT affect functional result identity.
+
+Native core, companion, daily reference, Tasks and host editing/leave acceptance use uncached root tasks. Their raw runners retain executable stages and forward explicit command arguments without recursive entry; package build preflights belong to declared task dependencies. The opt-in
+`test:search:onnx` lane also runs uncached: its default is offline, and only
+`--download` admits missing pinned model assets after digest verification.
+
+Managed FileManager trash follows LN-ARCH-145: the originally selected path
+remains protected through writer drain and removal, including failed descendant
+writes. Explorer uses this shared owner instead of low-level Vault trash.
+
+The existing FileManager new-file intent under LN-PKG-179 also accepts Explorer attachment bytes. File Explorer admits asynchronous reading before calling it and retains the operation through projection. Native exclusive publication remains source-owned; import does not retry collisions through low-level overwrite APIs.
+
+Native AppDatabase indexed-file intake retains LN-DB-061/062/063 through the
+shared database owner; low-level core publication remains independent of plugin
+projection work. The existing browser implementation remains explicit.
+
+The native Search encoder is an independent Notes-owned component under
+`lapis-app-core::embedding`; runtime/tokenizer files remain native host authority.
+`test:search:onnx` qualifies model math, publication and retrieval under LN-DB-007.
+
+AppDatabase owns portable Search configuration and invalidation. Remote schemas use patched Zod `^4.6.6` through its compatible `zod/v3` entry. Memory and
+Turso reuse the API's pending-record policy; native publication uses its actor.
+Native model/cache file registration stays outside serialized configuration.
+
+The semantic reference retains 16 Memory/Turso envelopes before Rust intake:
+fusion ranks, scope filters, preferred chunks and provider-kind diagnostics. Five
+extra cases qualify enhancement signals before limits; the call reference covers
+85 requests, all 68 methods, defaults and undefined/null/void without host adoption.

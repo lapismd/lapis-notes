@@ -102,6 +102,7 @@ export class MemoryVaultAdapter implements VaultAdapter, VaultIdentityAdapter {
       nativeWatch: false,
       resourceUrls: false,
       systemTrash: false,
+      conditionalTextWrite: true,
     };
   }
 
@@ -145,7 +146,10 @@ export class MemoryVaultAdapter implements VaultAdapter, VaultIdentityAdapter {
       size: bytes.byteLength,
       mtime: value.stat.mtime,
       stream: ({ offset = 0, length, signal } = {}) => {
-        const start = Math.max(0, Math.min(bytes.byteLength, Math.floor(offset)));
+        const start = Math.max(
+          0,
+          Math.min(bytes.byteLength, Math.floor(offset)),
+        );
         const end = Math.min(
           bytes.byteLength,
           start + Math.max(0, Math.floor(length ?? bytes.byteLength - start)),
@@ -154,7 +158,9 @@ export class MemoryVaultAdapter implements VaultAdapter, VaultIdentityAdapter {
         return new ReadableStream<Uint8Array>({
           pull(controller) {
             if (signal?.aborted) {
-              controller.error(signal.reason ?? new DOMException("Aborted", "AbortError"));
+              controller.error(
+                signal.reason ?? new DOMException("Aborted", "AbortError"),
+              );
               return;
             }
             if (cursor >= end) {
@@ -181,7 +187,9 @@ export class MemoryVaultAdapter implements VaultAdapter, VaultIdentityAdapter {
     try {
       while (true) {
         if (options.signal?.aborted) {
-          throw options.signal.reason ?? new DOMException("Aborted", "AbortError");
+          throw (
+            options.signal.reason ?? new DOMException("Aborted", "AbortError")
+          );
         }
         const next = await reader.read();
         if (next.done) break;
@@ -206,6 +214,26 @@ export class MemoryVaultAdapter implements VaultAdapter, VaultIdentityAdapter {
     options?: DataWriteOptions,
   ): Promise<void> {
     await this.#writeValue(path, data, options);
+  }
+
+  /** Compare and mutate synchronously before yielding to another memory writer. */
+  async writeTextIfUnchanged(
+    path: string,
+    data: string,
+    expected: string | null,
+    options?: DataWriteOptions,
+  ): Promise<void> {
+    if (expected !== null && typeof expected !== "string")
+      throw fsError("EINVAL", path);
+    const normalized = this.#path(path);
+    const stored = this.#files.get(normalized);
+    if (
+      stored
+        ? typeof stored.data !== "string" || stored.data !== expected
+        : expected !== null
+    )
+      throw fsError("ECONFLICT", normalized);
+    return this.#writeValue(normalized, data, options);
   }
 
   async writeBinary(

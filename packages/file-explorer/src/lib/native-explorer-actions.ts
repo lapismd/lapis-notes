@@ -29,13 +29,14 @@ export function revealInFileManagerLabel(
 }
 
 export async function copyExplorerText(
+  app: App,
   label: string,
   value: string,
 ): Promise<void> {
-  if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(value);
-  }
-  new Notice(`Copied ${label}`);
+  if (typeof navigator === "undefined" || !navigator.clipboard?.writeText)
+    throw new Error("Clipboard is unavailable");
+  await navigator.clipboard.writeText(value);
+  new Notice(`Copied ${label}`, undefined, app);
 }
 
 function vaultPath(node: ExplorerNode): string {
@@ -55,17 +56,20 @@ export function appendNativeExplorerMenu(
   );
   if (copyPath?.kind === "submenu") {
     copyPath.menu.addItem((item) =>
-      item.setTitle("From system root").onClick(() => {
-        void copySystemRootPath(adapter, node);
-      }),
+      item
+        .setTitle("From system root")
+        .onClick(() => copySystemRootPath(app, adapter, node)),
     );
     if (node.kind === "file") {
       copyPath.menu.addItem((item) =>
         item.setTitle("As Lapis URL").onClick(() => {
-          void copyExplorerText(
+          return copyExplorerText(
+            app,
             "Lapis URL",
             createLapisFileUrl(app.vault.getName(), vaultPath(node)),
-          );
+          ).catch((error) => {
+            report(app, error);
+          });
         }),
       );
     }
@@ -73,20 +77,19 @@ export function appendNativeExplorerMenu(
 
   menu.addSeparator();
   menu.addItem((item) =>
-    item.setTitle("Open in default app").onClick(() => {
-      void openVaultPath(adapter, node);
-    }),
+    item
+      .setTitle("Open in default app")
+      .onClick(() => openVaultPath(app, adapter, node)),
   );
   menu.addItem((item) =>
     item
       .setTitle(revealInFileManagerLabel(getNativeDesktopPlatform()?.os))
-      .onClick(() => {
-        void revealVaultPath(adapter, node);
-      }),
+      .onClick(() => revealVaultPath(app, adapter, node)),
   );
 }
 
 async function copySystemRootPath(
+  app: App,
   adapter: NativeDesktopVaultAdapter,
   node: ExplorerNode,
 ): Promise<void> {
@@ -96,30 +99,40 @@ async function copySystemRootPath(
       vaultPath(node),
     );
     if (!absolute) throw new Error("Unable to resolve the system path");
-    await copyExplorerText("system path", absolute);
+    await copyExplorerText(app, "system path", absolute);
   } catch (error) {
-    new Notice(error instanceof Error ? error.message : String(error));
+    report(app, error);
   }
 }
 
 async function openVaultPath(
+  app: App,
   adapter: NativeDesktopVaultAdapter,
   node: ExplorerNode,
 ): Promise<void> {
   try {
     await openNativeDesktopVaultPath(adapter.rootPath, vaultPath(node));
   } catch (error) {
-    new Notice(error instanceof Error ? error.message : String(error));
+    report(app, error);
   }
 }
 
 async function revealVaultPath(
+  app: App,
   adapter: NativeDesktopVaultAdapter,
   node: ExplorerNode,
 ): Promise<void> {
   try {
     await revealNativeDesktopVaultPath(adapter.rootPath, vaultPath(node));
   } catch (error) {
-    new Notice(error instanceof Error ? error.message : String(error));
+    report(app, error);
   }
+}
+
+function report(app: App, error: unknown): void {
+  new Notice(
+    error instanceof Error ? error.message : String(error),
+    undefined,
+    app,
+  );
 }

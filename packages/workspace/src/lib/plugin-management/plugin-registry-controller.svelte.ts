@@ -51,7 +51,11 @@ export class PluginRegistryController {
   }
   retain(): () => void {
     if (this.references++ === 0) {
-      for (const name of ["plugin-enabled", "plugin-disabled"] as const) {
+      for (const name of [
+        "plugin-enabled",
+        "plugin-disabled",
+        "plugin-unloaded",
+      ] as const) {
         const ref = this.app.plugins.on(name, () => {
           this.pluginLifecycleRevision += 1;
         });

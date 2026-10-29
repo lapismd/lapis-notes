@@ -1,5 +1,38 @@
 # Architecture / Host boundaries
 
+Required native-service admission uses the host's existing capability registry
+(LN-PLUG-121). A missing entry is unsupported; an unavailable entry is a disabled
+supported service. Checking availability does not launch or authorize services.
+
+[LN-WEB-066](../web-host/startup-and-plugins.md#ln-web-066) stages hosted native
+metadata on the existing admitted Rust connection before App construction.
+Its compatibility facade follows [LN-DB-064](../app-database/metadata-and-indexing.md#ln-db-064);
+neither host selection nor event-order repair introduces another native writer.
+
+Signed plugin installation consults the owning App's static profile and runtime
+retirement boundary. The API keeps identities generic, preserves configured
+startup choices during retirement and blocks stale activation until a new App
+owns the updated module. Native and browser adapters keep their existing file
+authority; this adds no process or filesystem host permission.
+
+LN-PKG-184 keeps OS-trash authority in the native host. The shared adapter
+advertises the optional port and distinguishes unsupported fallback from
+provider failure; the existing Vault projection never deletes handled items twice.
+
+LN-PKG-183 places watch ingestion and retirement on the explicitly owned App;
+hosts opt in and must stop/drain the service before destructive teardown,
+then resume/reconcile if leaving fails.
+
+LN-PKG-180 and LN-PKG-181 keep complete tree reconciliation in the shared Vault
+owner. Native transports supply hints; hosts do not replace canonical resource
+identities or synthesize a separate file tree.
+
+The optional conditional text-write port is governed by
+[LN-PKG-167](../packages/vault-and-storage.md#ln-pkg-167) and
+[LN-PKG-168](../packages/vault-and-storage.md#ln-pkg-168). Native capability
+advertisement and enforcement stay host-owned; the shared adapter cannot replace
+a rejected or unsupported conditional request with a normal write.
+
 Large-frame codec verification compares every byte directly while retaining
 Uint8Array prototype and length checks. Native, Buffer and portable fallback
 paths keep their canonical frame assertions and the existing test deadline;
@@ -30,6 +63,11 @@ Desktop routes new Sync security through the per-plugin provider boundary into
 an admitted native profile/runtime session (LN-DENO-086 through LN-DENO-088).
 The native host owns wrapping material, durable key storage and serialized
 operations; renderer/plugin code receives scoped crypto results.
+
+Memory-backed application hosts advertise the existing conditional text-write
+capability. Comparing the exact snapshot and mutating it occurs before yielding,
+so competing writes cannot silently overwrite each other. Native host policy and
+persistence remain separate.
 
 ## LN-ARCH-009 — Api compatibility projection: preserve every persisted design-core V3 workspace region
 
@@ -163,11 +201,15 @@ operations; renderer/plugin code receives scoped crypto results.
 
 **Requirement.** API MUST keep a stable per-vault Sync Identity in the same wrapped host key material as root, recovery, device, and epoch secrets. API owns purpose-scoped signing, owner-authorised identity transitions, and bounded encrypted pairing transfer of opaque plugin metadata; protocol plugins own outer transport schemas, non-secret endpoint configuration, remote authorization tests, provisioning UI, and provider-specific authentication policy.
 
-## LN-ARCH-096 — Deno desktop and server hosts: consume private reusable filesystem, watch, resource, plugin-asset
+## LN-ARCH-096 — Native desktop and server hosts: share private host kernels
 
 <a id="ln-arch-096"></a>
 
-**Requirement.** Deno desktop and server hosts MUST consume private reusable filesystem, watch, resource, plugin-asset, language-service, and native AppDatabase kernels without transferring host lifecycle, authentication, routing, window, or vault-selection policy into those kernels.
+**Requirement.** Native desktop and server hosts MUST consume private reusable filesystem, watch, resource, plugin-asset, language-service, and AppDatabase kernels without transferring host lifecycle, authentication, routing, window, or vault-selection policy into those kernels. Runtime-independent kernels MUST live in `@lapis-notes/host-services`; Deno compatibility subpaths MUST preserve the same implementations.
+
+The portable and server ESM packages declare their external native Turso and
+transformer dependencies explicitly, so deployed output resolves them without
+workspace-root module lookup. Their source file lists exclude deployment secrets.
 
 ## LN-ARCH-098 — Verified renderer ESM plugins: share public API modules with the host
 
@@ -317,3 +359,40 @@ lock/unlock. It does not qualify native filesystem apply or server routes.
 <a id="ln-arch-124"></a>
 
 **Requirement.** API local state/mutation ports MUST accept and capture expected endpoint authority outside encrypted protocol records. Scoped facades MUST forward supplied fences unchanged through host apply guards, without permitting admission-time retargeting. Native RPC adapters MUST require and validate those fences; legacy low-level ciphertext repositories MAY retain their trusted-host operation contract. Fences MUST NOT alter signed Nostr events or encrypted object formats.
+
+## LN-ARCH-140 — Shared application state default
+
+<a id="ln-arch-140"></a>
+
+**Requirement.** The shared application state directory MUST default to `.lapis` across desktop, web, server, and Storybook hosts. Configuration, workspace/layout, hotkeys, core plugin data, installed-plugin state, and registry caches MUST resolve under that directory. Pre-release state MAY be reset without legacy import or preservation. App construction MUST allow an omitted configuration path while resolved public properties retain a string path.
+
+## LN-ARCH-141 — Native desktop runtime classification
+
+<a id="ln-arch-141"></a>
+
+**Requirement.** Public runtime and native desktop bridge contracts MUST recognize `tauri-desktop` as a native desktop runtime. Plugin distribution MUST classify it as desktop without granting unavailable service capabilities. Existing Deno, browser, server, and explicit-test runtime behavior MUST remain supported.
+
+The optional native watch contract carries rename hints and awaitable cleanup
+under LN-PKG-176. DirectoryWatcher owns generation retirement; hosts own native
+resources and session release. This introduces no ambient App state or provider.
+
+LN-PKG-177 exposes optional watch registration readiness before initial
+reconciliation. Array adapters preserve it; the frozen Deno host is unchanged.
+
+LN-WS-096 projects notices from the explicit App into the existing shared
+notification UI and removes that subscription on host disposal. Explorer passes
+its owned App to Notice; native error handling keeps the existing presentation.
+
+LN-PKG-178 and LN-PKG-179 add opt-in exclusive creation and source-owned new-file
+intent. Existing low-level overwrite behavior and unsupported legacy hosts stay
+explicit; Deno host source remains frozen. Admission spans creation projection.
+
+Native Search App replacement reconciles the current App-owned plugin registry
+before metadata startup completes. An omitted or disabled Search declaration
+explicitly drains the retained native selection; passive detach keeps it alive.
+Enabled Search may declare after metadata-loaded without losing its owner.
+
+LN-WEB-068 exercises hosted Search through the same admitted native connection as
+metadata. Plugin declaration, refresh/rebuild and explicit disable retain that
+authority; external settings recovery uses App configuration observation. A
+browser detach never transfers native writer ownership to its replacement view.

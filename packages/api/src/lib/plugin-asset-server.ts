@@ -1,3 +1,4 @@
+import { appStatePath } from "./storage/path";
 import { joinPath } from "./storage/path";
 import { assertSafePluginRelativePath } from "./plugin-distribution/path-safety";
 import type { InstalledPluginRecord } from "./plugin-distribution/types";
@@ -148,7 +149,9 @@ export function getInstalledPluginAssetFingerprint(
       sha256: normalizePluginAssetSha256(file.sha256),
       size: file.size,
     }))
-    .sort((left, right) => left.path.localeCompare(right.path))
+    .sort((left, right) =>
+      left.path < right.path ? -1 : left.path > right.path ? 1 : 0,
+    )
     .map((file) => `${file.path}:${file.size}:${file.sha256}`)
     .join("|");
 }
@@ -210,7 +213,7 @@ export async function readInstalledPluginAsset({
   installedPlugin,
   relativePath,
   expectedSha256,
-  pluginsPath = ".obsidian/plugins",
+  pluginsPath = appStatePath("plugins"),
   verifyHash = true,
 }: InstalledPluginAssetReadOptions): Promise<InstalledPluginAsset> {
   const path = normalizePluginAssetRelativePath(relativePath);

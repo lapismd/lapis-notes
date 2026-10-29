@@ -25,18 +25,18 @@ describe("listExplorerVaultEntries", () => {
       new FakeFolder("Notes"),
       new FakeFile("Notes/welcome.md"),
       new FakeFile(".env"),
-      new FakeFolder(".obsidian"),
-      new FakeFile(".obsidian/app.json"),
+      new FakeFolder(".lapis"),
+      new FakeFile(".lapis/app.json"),
     ] as never);
 
     expect(entries.map((entry) => entry.path)).toEqual([
       "Notes",
       "Notes/welcome.md",
       ".env",
-      ".obsidian",
-      ".obsidian/app.json",
+      ".lapis",
+      ".lapis/app.json",
     ]);
-    expect(entries.find((entry) => entry.path === ".obsidian")?.kind).toBe(
+    expect(entries.find((entry) => entry.path === ".lapis")?.kind).toBe(
       "folder",
     );
     expect(entries.find((entry) => entry.path === ".env")?.kind).toBe("file");

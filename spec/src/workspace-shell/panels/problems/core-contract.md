@@ -1,5 +1,28 @@
 # Problems / Integration contracts
 
+LN-WS-005/063 foreground file reveal retains Problems and its original owner
+while selecting a note tab. LN-WS-025 diagnostic collections, navigation
+openers, quick fixes and their access/persistence guards are unchanged.
+
+Core listing exclusions under LN-PKG-185 do not change diagnostics ownership
+under LN-WS-025 or explicit access to an already-open resource. Problems does
+not own discovery configuration or an additional file index; the Workspace
+exclusion list uses existing core configuration persistence.
+
+Plugin load failures use canonical plugin IDs even when their messages include
+source paths. Successful external uninstall removes that owner's runtime
+failure through `plugin-unloaded` (LN-PLUG-119). Native-service admission failures
+retain their unsupported/disabled distinction (LN-PLUG-121). Problems presentation
+and diagnostic collection ownership remain unchanged.
+
+LN-PLUG-113 records rejected external plugin startup through existing runtime
+diagnostics before manifest contributions or code can activate. It adds no
+Problems presentation, document collection or diagnostic ownership boundary.
+
+LN-PKG-183 adds an App-owned watch service without changing diagnostic ownership.
+File changes reach existing workspace/editor lifecycles under LN-WS-097;
+Problems retains its existing open-document and disposal boundaries.
+
 Diagnostic registrations retain their component-owned disposal. The shared
 Plugin disable boundary additionally drains host security cleanup; unload or
 security cleanup failures propagate through the plugin failure state
@@ -8,9 +31,17 @@ security cleanup failures propagate through the plugin failure state
 Editor persistence/refresh failures under LN-ARCH-125 and LN-ARCH-127 remain
 observable through the editor boundary. This does not add a diagnostic cache
 or move file, buffer or Sync authority into Problems presentation.
+Quick fixes in an open editor drain that editor's captured save queue before
+refreshing diagnostics. They do not issue a competing direct vault write that
+would invalidate the editor's conditional-write baseline.
 Independent editing-session admission and cleanup failures remain observable
 through LN-ARCH-129 through LN-ARCH-131. The registry does not create diagnostics
 or alter Problems ownership.
+
+File operations started by owned actions remain attached to the originating
+App's admission registry. Conditional hosts drain that work before disposing
+their views and diagnostic collections; Problems does not acquire file-save or
+shutdown policy.
 
 ## LN-WS-025 — Design Core: own the application-independent WorkspaceDiagnostic model and WorkspaceDiagnosticsManager
 
@@ -41,6 +72,11 @@ or alter Problems ownership.
 <a id="ln-ws-029"></a>
 
 **Requirement.** Primary problem activation MUST delegate to a host navigation adapter. Context menus MUST provide Copy Message and Copy Problem before collection-owned actions, including on tree group rows. Copy Problem MUST copy a JSON array of serializable problem objects. Unlocated shell failures MUST remain non-navigable.
+
+Applications may register disposable diagnostic openers for opaque resources.
+The first opener that handles a location owns navigation; unmatched resources
+retain ordinary note navigation. Registration does not grant vault authority or
+change diagnostic data, and disposal removes only the owning registration.
 
 ## LN-WS-030 — Required Problems presentation plugin: preserve a persisted or moved Problems leaf
 
@@ -237,3 +273,44 @@ diagnostic snapshot rather than one provider's count.
 <a id="ln-ws-094"></a>
 
 **Requirement.** The API language-service manager MUST expose diagnostic invalidation for registered providers. Attached editors whose language matches MUST request diagnostics again without a document edit, keeping the gutter and Problems collection consistent. Unknown or unloaded providers MUST NOT trigger invalidation. Editor subscriptions MUST dispose with the owning view.
+
+Problems and editor acceptance hosts seed `.lapis` configuration and layout
+through the shared application state default under LN-ARCH-140. Diagnostic
+registration, code-action ownership, and save failure contracts still apply.
+
+The status-host repair preserves diagnostic collections, Problems presentation
+and quick-fix lifetimes. Only the generic Plugin status-element mount changes;
+diagnostic content remains outside that mount (LN-WS-054).
+
+Adding the optional App/session History port changes no Problems registration,
+file-conflict navigation, diagnostic selection or error presentation. History
+observation keeps its explicitly owned App and existing notification feedback;
+it introduces no alternative Problems panel or inline failure surface.
+
+Native editing admission and unresolved-claim recovery under LN-CORE-027 use
+this existing Problems collection/menu boundary. Diagnostics retain serializable
+claim/issue identifiers; callbacks and saved-file navigation stay App-owned.
+Ordinary healthy attached writers do not become diagnostics.
+
+## LN-WS-102 — App-owned retained text-conflict presentation
+
+<a id="ln-ws-102"></a>
+
+**Requirement.** WorkspaceShell MUST share one App-owned retained text-conflict presentation across shell and early host leases. The final idempotent release MUST remove only its own diagnostics, navigation and view registration without resolving or dropping writer conflicts.
+
+## LN-WS-103 — Guarded retained text-conflict review
+
+<a id="ln-ws-103"></a>
+
+**Requirement.** Activating a text-conflict problem MUST reveal the retained three-way MergeEditor for its captured path. Its editable centre MUST save through the writer-owned captured merge action; refresh MUST use that conflict's existing refresh action. Presentation MUST NOT add a writer or conflate native claim recovery with text-conflict resolution.
+
+Review leaves retain the existing layout-only close contract under LN-WS-101;
+closing and reopening a review preserves staged results without resolving its
+writer. The Desktop view ID `desktop:file-conflict`, diagnostic owner
+`desktop:file-conflicts` and `lapis-file-conflict:` URI remain stable.
+
+## LN-WS-104 — Combined host recovery inhibition
+
+<a id="ln-ws-104"></a>
+
+**Requirement.** Shared text-conflict review MUST combine every active host lease's current disabled predicate with its own busy state. A default shell lease MUST NOT remove an early host's inhibition, and releasing one lease MUST NOT retain its predicate.

@@ -1,5 +1,8 @@
 # Specification Governance / Verification and documents
 
+Hosted CORE verification now has its own table, preserving exactly one row
+per requirement while keeping each canonical page within its byte budget.
+
 ## LN-GOV-001 — Spec/src Markdown: canonical, indexed once by SUMMARY.md, and buildable
 
 <a id="ln-gov-001"></a>

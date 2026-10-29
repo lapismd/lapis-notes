@@ -34,7 +34,7 @@
 
 <a id="ln-ed-058"></a>
 
-**Requirement.** The Editor Settings story MUST open the Markdown Lint section, show the seeded MD013 disable and default file globs, and persist a setting change to `.obsidian/app.json`. The same vault setting MUST govern the plugin's worker and native desktop adapters.
+**Requirement.** The Editor Settings story MUST open the Markdown Lint section, show the seeded MD013 disable and default file globs, and persist a setting change to `.lapis/app.json`. The same vault setting MUST govern the plugin's worker and native desktop adapters.
 
 ## LN-ED-059 — Editor demo: seed a misspelled note and open it
 

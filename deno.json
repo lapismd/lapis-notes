@@ -1,8 +1,6 @@
 {
   "workspace": [
-    "packages/deno-host-services",
-    "packages/desktop-deno",
-    "packages/server-deno"
+    "packages/deno-host-services"
   ],
   "nodeModulesDir": "none",
   "imports": {
@@ -49,6 +47,7 @@
     "nostr-tools/nip46": "npm:nostr-tools@2.25.2/nip46",
     "nostr-tools/pure": "npm:nostr-tools@2.25.2/pure",
     "ws": "npm:ws@8.18.3",
-    "zod": "npm:zod@3.25.76"
+    "zod": "npm:zod@3.25.76",
+    "@lapis-notes/api/path": "./packages/api/src/lib/storage/path.ts"
   }
 }

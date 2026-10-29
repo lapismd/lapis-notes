@@ -1,6 +1,6 @@
 {
   "name": "@lapis-notes/api",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Lapis Notes API",
   "license": "Apache-2.0",
   "repository": {
@@ -18,8 +18,8 @@
   "type": "module",
   "dependencies": {
     "@lapismd/ai-host": "^0.1.0",
-    "@lapismd/design-core": "^0.5.0",
-    "@lapismd/mira": "~0.0.3",
+    "@lapismd/design-core": "^0.7.0",
+    "@lapismd/mira": "~0.1.2",
     "@huggingface/transformers": "^4.2.0",
     "@tursodatabase/database-wasm": "0.7.2",
     "@iconify-json/lucide": "^1.2.63",
@@ -34,7 +34,7 @@
     "@tanstack/svelte-virtual": "^3.13.12",
     "@tanstack/virtual-core": "^3.13.12",
     "@types/lodash-es": "^4.17.12",
-    "bits-ui": "2.19.5",
+    "bits-ui": "2.20.2",
     "clsx": "^2.1.1",
     "eventemitter3": "^5.0.1",
     "fflate": "^0.8.3",
@@ -46,7 +46,7 @@
     "nostr-tools": "^2.25.0",
     "tailwind-merge": "^2.6.0",
     "tailwind-variants": "^0.3.1",
-    "zod": "^3.25.76"
+    "zod": "^4.6.6"
   },
   "scripts": {
     "build": "pnpm run prepack",
@@ -95,6 +95,18 @@
       ],
       "build/vite": [
         "dist/build-tools/vite.d.ts"
+      ],
+      "native-turns": [
+        "dist/native-turns.d.ts"
+      ],
+      "native-history-index": [
+        "dist/native-history-index.d.ts"
+      ],
+      "native-tasks": [
+        "dist/native-tasks.d.ts"
+      ],
+      "native-editing-intents": [
+        "dist/native-editing-intents.d.ts"
       ]
     }
   },
@@ -112,9 +124,9 @@
     "@codemirror/search": "^6.5.11",
     "@codemirror/state": "^6.4.1",
     "@codemirror/view": "^6.35.0",
-    "@lapis-notes/ui": "^0.1.2",
-    "@lapismd/design-core": "^0.5.0",
-    "@lapismd/mira": "~0.0.3",
+    "@lapis-notes/ui": "^0.1.4",
+    "@lapismd/design-core": "^0.7.0",
+    "@lapismd/mira": "~0.1.2",
     "@lezer/highlight": "^1.2.1",
     "@lezer/markdown": "^1.4.3",
     "i18next": "^25.3.0",
@@ -195,6 +207,11 @@
       "import": "./dist/agent-skills.js",
       "default": "./dist/agent-skills.js"
     },
+    "./runtime": {
+      "types": "./dist/storage/runtime.d.ts",
+      "import": "./dist/storage/runtime.js",
+      "default": "./dist/storage/runtime.js"
+    },
     "./path": {
       "types": "./dist/storage/path.d.ts",
       "import": "./dist/storage/path.js",
@@ -255,6 +272,26 @@
       "types": "./dist/metadata-store.d.ts",
       "import": "./dist/metadata-store.js",
       "default": "./dist/metadata-store.js"
+    },
+    "./native-turns": {
+      "types": "./dist/native-turns.d.ts",
+      "import": "./dist/native-turns.js",
+      "default": "./dist/native-turns.js"
+    },
+    "./native-history-index": {
+      "types": "./dist/native-history-index.d.ts",
+      "import": "./dist/native-history-index.js",
+      "default": "./dist/native-history-index.js"
+    },
+    "./native-tasks": {
+      "types": "./dist/native-tasks.d.ts",
+      "import": "./dist/native-tasks.js",
+      "default": "./dist/native-tasks.js"
+    },
+    "./native-editing-intents": {
+      "types": "./dist/native-editing-intents.d.ts",
+      "import": "./dist/native-editing-intents.js",
+      "default": "./dist/native-editing-intents.js"
     }
   },
   "devDependencies": {

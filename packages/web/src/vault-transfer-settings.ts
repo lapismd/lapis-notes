@@ -19,7 +19,7 @@ export function registerWebVaultTransferSettings(app: App): () => void {
     id: "web-browser-vault",
     title: "Browser vault",
     description:
-      "Copy a local folder into this private OPFS vault, or export it to a folder. Import overwrites matching paths. Reload applies imported .obsidian settings.",
+      "Copy a local folder into this private OPFS vault, or export it to a folder. Import overwrites matching paths. Reload applies imported .lapis settings.",
     icon: "folder",
     order: 35,
     fields: [
@@ -38,7 +38,7 @@ export function registerWebVaultTransferSettings(app: App): () => void {
         type: "action",
         title: "Export to local folder",
         description:
-          "Copy this OPFS vault, including .obsidian, into a picked local folder.",
+          "Copy this OPFS vault, including .lapis, into a picked local folder.",
         label: "Export to local folder",
         icon: "folder-output",
         run: () => runExportVaultCommand(app),

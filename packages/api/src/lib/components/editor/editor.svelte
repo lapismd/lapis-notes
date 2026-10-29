@@ -4,6 +4,7 @@
   import { dirname } from "../../storage/path";
   import { WorkspaceLeaf } from "../../workspace.svelte";
   import { editorConfig } from "./editor";
+  import { syncInlineTitleAlignment } from "./inline-title-alignment";
   import { ScrollArea } from "@lapismd/design-core/shadcn/scroll-area";
   import { cn } from "../../utils";
   import type { App } from "../../context.svelte";
@@ -53,10 +54,11 @@
   const codeMirror = (node: HTMLDivElement) => {
     let focusTimeout: ReturnType<typeof setTimeout> | null = null;
     const root = node.getRootNode();
-    if (root instanceof Document || root instanceof ShadowRoot) {
-      editor.view.setRoot(root);
+    if (root.nodeType === 9 || root.nodeType === 11) {
+      editor.view.setRoot(root as Document | ShadowRoot);
     }
     node.append(editor.view.dom);
+    const stopTitleAlignment = syncInlineTitleAlignment(editor.view, node);
     focusTimeout = setTimeout(() => {
       editor.view.focus();
     });
@@ -64,6 +66,7 @@
     return {
       update(qs: string) {},
       destroy() {
+        stopTitleAlignment();
         if (focusTimeout !== null) {
           clearTimeout(focusTimeout);
           focusTimeout = null;
@@ -93,9 +96,20 @@
     }
   }
 
+  function titleText(node: HTMLDivElement, name: string) {
+    const update = (value: string) => {
+      // Native contenteditable input can replace Svelte's original text node.
+      // Project committed filenames onto the element, including after renames.
+      if (node.textContent !== value) node.textContent = value;
+    };
+    update(name);
+    return { update };
+  }
+
   function renameDone(evt: KeyboardEvent) {
     if (evt.key == "Enter") {
-      renameFile((evt.target as HTMLDivElement).getText());
+      // Focusing the editor commits through onfocusout. Starting another rename
+      // here races that same file operation against its original source path.
       editor.view.focus();
       evt.preventDefault();
     }
@@ -122,6 +136,7 @@
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           {#if shouldShowDesktopInlineTitle && file}
             <div
+              use:titleText={file?.name ?? ""}
               onkeydown={renameDone}
               onfocusout={(evt) =>
                 renameFile((evt.target as HTMLDivElement).getText())}
@@ -131,13 +146,12 @@
               autocapitalize="on"
               tabindex="-1"
               enterkeyhint="done"
-            >
-              {file?.name}
-            </div>
+            ></div>
           {/if}
           {#if shouldShowMobileInlineTitle && file}
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div
+              use:titleText={file?.name ?? ""}
               onkeydown={renameDone}
               onfocusout={(evt) =>
                 renameFile((evt.target as HTMLDivElement).getText())}
@@ -150,9 +164,7 @@
               autocapitalize="on"
               tabindex="-1"
               enterkeyhint="done"
-            >
-              {file?.name}
-            </div>
+            ></div>
           {/if}
           <div use:codeMirror class="cm-editor-content"></div>
         </div>

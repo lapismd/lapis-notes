@@ -1,5 +1,7 @@
 # Storybook Catalog / Plugin scenarios
 
+LN-SRCH-051 adds one metadata-only specification mirror for the Search/Problems provider boundary. Catalog runtime, harnesses, interaction setup and visual approval contracts are unchanged.
+
 ## LN-CAT-011 — Workspace/Shell: document the @lapis-notes/workspace integration with persisted desktop
 
 <a id="ln-cat-011"></a>
@@ -143,3 +145,10 @@
 <a id="ln-cat-091"></a>
 
 **Requirement.** `Plugins/AI/Shell` MUST demonstrate two descendant conversations in a Command View; use the transcript scope control to select Vault root and assert Explorer follows; open a stored folder conversation and assert both chat and Explorer scope; then pin it and keep that transcript after the active file changes. The play MUST use public Show Code and MUST NOT require a live agent.
+
+Shared file-conflict presentation imports its four retained action/setting icons
+through the public icon package. The existing eager dependency inventory includes
+those entries so the first cold review cannot trigger Vite re-optimization and
+invalidate unrelated in-flight Editing Recovery stories (LN-CAT-033). No
+startup/reload guard is relaxed; its real-App family is declared application in
+the existing parity inventory and retains `visual-pending` metadata.

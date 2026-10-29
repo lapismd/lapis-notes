@@ -37,7 +37,8 @@ export function normalizeEditorAssociationGlob(pattern: string): string {
   return normalizeGlobPath(pattern);
 }
 
-function compileEditorAssociationGlob(
+/** Compile once for owned consumers that evaluate a complete vault listing. */
+export function compileEditorAssociationGlob(
   pattern: string,
   options: EditorAssociationGlobOptions = {},
 ): Minimatch | null {

@@ -1,10 +1,20 @@
 # AI Plugin / Conversation presentation
 
+The `Search Tool Hits` catalog scenario uses Search-owned result buttons with
+both filename and full vault path in their accessible names. Acceptance keeps
+the exact opened path and retained chat-panel assertions after clicking a hit.
+
+Shell geometry follows the owning plugin's resolved composer dock padding for
+LN-AI-027. The former fixed 20px footer allowance is superseded by the shell's
+reserved footer track; the root-padding and message-overlap checks remain.
+
 Prepared Design Core CSS includes overlay entrance and exit transitions. The
 retained Notes chat and shell acceptance waits for visible menu state and
 released pointer handling, while preserving normal input guards and native
 animation. Tool summaries are selected through their public call-name part.
-Retained Mobile shell acceptance uses the published count-bearing tab-dock name.
+Footer qualification retains LN-AI-125 tool identity and expanded details;
+accessible-name assertions allow the shared target/context suffix. Evidence:
+`spec/records/2026-10-19-status-footer-bridge.md`.
 
 ## LN-AI-096 — Open Chat action
 
@@ -22,7 +32,7 @@ Retained Mobile shell acceptance uses the published count-bearing tab-dock name.
 
 <a id="ln-ai-027"></a>
 
-**Requirement.** The chat panel root MUST override the public workspace view paint tokens to body background and foreground and MUST NOT own bottom padding. The composer dock MUST own the workspace status-bar clearance below the composer so its lower border and shadow remain visible above the status bar.
+**Requirement.** The chat panel root MUST override the public workspace view paint tokens to body background and foreground and MUST NOT own bottom padding. The composer dock MUST retain ordinary content spacing without status-specific clearance; the workspace shell MUST reserve the footer track.
 
 ## LN-AI-030 — Workspace typography across chat surfaces
 

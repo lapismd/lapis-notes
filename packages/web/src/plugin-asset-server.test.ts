@@ -56,10 +56,10 @@ describe("WebCachePluginAssetServer", () => {
       ],
     };
     const adapter = createAdapter({
-      ".obsidian/installed-plugins.json": JSON.stringify({
+      ".lapis/installed-plugins.json": JSON.stringify({
         plugins: { "plugin-a": installedPlugin },
       }),
-      ".obsidian/plugins/plugin-a/main.mjs": bytes,
+      ".lapis/plugins/plugin-a/main.mjs": bytes,
     });
     const cacheStorage = new MemoryCacheStorage();
     const serviceWorker = new EventTarget() as EventTarget & {
@@ -77,7 +77,7 @@ describe("WebCachePluginAssetServer", () => {
     const pending = server
       .getPluginAssetUrl({
         pluginId: "plugin-a",
-        pluginPath: ".obsidian/plugins/plugin-a",
+        pluginPath: ".lapis/plugins/plugin-a",
         relativePath: "main.mjs",
         version: "1.2.3",
       })
@@ -117,13 +117,13 @@ describe("WebCachePluginAssetServer", () => {
       ],
     };
     const adapter = createAdapter({
-      ".obsidian/installed-plugins.json": JSON.stringify({
+      ".lapis/installed-plugins.json": JSON.stringify({
         schemaVersion: 1,
         updatedAt: "2026-01-01T00:00:00.000Z",
         plugins: { "plugin-a": installedPlugin },
       }),
-      ".obsidian/plugins/plugin-a/main.mjs": mainBytes,
-      ".obsidian/plugins/plugin-a/chunk.mjs": chunkBytes,
+      ".lapis/plugins/plugin-a/main.mjs": mainBytes,
+      ".lapis/plugins/plugin-a/chunk.mjs": chunkBytes,
     });
     const cacheStorage = new MemoryCacheStorage();
     const server = new WebCachePluginAssetServer({
@@ -138,7 +138,7 @@ describe("WebCachePluginAssetServer", () => {
 
     const url = await server.getPluginAssetUrl({
       pluginId: "plugin-a",
-      pluginPath: ".obsidian/plugins/plugin-a",
+      pluginPath: ".lapis/plugins/plugin-a",
       relativePath: "main.mjs",
       version: "1.2.3",
     });
@@ -170,7 +170,7 @@ describe("WebCachePluginAssetServer", () => {
 
   it("rejects traversal and asset-version mismatches", async () => {
     const adapter = createAdapter({
-      ".obsidian/installed-plugins.json": JSON.stringify({
+      ".lapis/installed-plugins.json": JSON.stringify({
         schemaVersion: 1,
         updatedAt: "2026-01-01T00:00:00.000Z",
         plugins: {
@@ -193,7 +193,7 @@ describe("WebCachePluginAssetServer", () => {
     await expect(
       server.getPluginAssetUrl({
         pluginId: "plugin-a",
-        pluginPath: ".obsidian/plugins/plugin-a",
+        pluginPath: ".lapis/plugins/plugin-a",
         relativePath: "../main.mjs",
         version: "1.0.0",
       }),
@@ -201,7 +201,7 @@ describe("WebCachePluginAssetServer", () => {
     await expect(
       server.getPluginAssetUrl({
         pluginId: "plugin-a",
-        pluginPath: ".obsidian/plugins/plugin-a",
+        pluginPath: ".lapis/plugins/plugin-a",
         relativePath: "main.mjs",
         version: "2.0.0",
       }),

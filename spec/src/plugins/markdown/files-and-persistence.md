@@ -1,9 +1,37 @@
 # Markdown Plugin / Files and persistence
 
+API-backed Markdown editors inherit the native editing-intent admission in
+[LN-CORE-019–021](../../architecture/native-editor-intents.md) when their App
+selects it. Raw editing stays protected until readiness, and protected mutations
+yield only the captured saved generation before rearming. Independent Mira
+preview binding and both actual host selections retain separate acceptance
+gates; the shared API never imports Mira internals.
+
+LN-WS-005/063 foreground file reveal selects the original Markdown leaf after
+queued host projection. LN-MD-001 ownership and existing editor state, save
+guards and persistence remain unchanged; no replacement editor is constructed.
+
+Core listing exclusions under LN-PKG-185 filter Markdown discovery through the
+Vault without changing explicit document reads, saves or writer admission.
+LN-MD-001 package ownership and editor persistence contracts are unchanged;
+editing the core Workspace exclusion list does not change Markdown saves.
+
+LN-PKG-183 and LN-WS-097 route external file changes through the owning App's
+existing view events. Clean editor refresh and dirty-draft recovery retain
+their original persistence owners; watching adds no replacement editor.
+
 API editor documents now register under LN-ARCH-132 through LN-ARCH-135. Native
 CodeMirror protection covers Markdown transactions in that editor shell.
 Independent Mira writers still require their public adapter registration hook;
 view loading, renaming and application shutdown remain separate integration.
+Problems quick fixes in API-backed Markdown editors drain the existing captured
+save queue under LN-WS-034. The direct vault fallback remains for resources
+without an open API editor; the plugin does not own another persistence path.
+
+Properties mutations retain their admitted transform through initial read
+failures under LN-PKG-172. Attachment creation joins the owning App's admitted
+IO boundary under LN-PKG-174, alongside the existing document-writer leases;
+the host drains that work before closing the Notes owner.
 
 API-backed Markdown editors inherit LN-ARCH-125 through LN-ARCH-128 for save
 ordering, dirty refresh protection and inactive-pane flushing. Mira-owned
@@ -78,3 +106,11 @@ Mira's public registration hook; API must not import Mira session internals.
 <a id="ln-md-097"></a>
 
 **Requirement.** Markdown `extractMetadata` MUST run off the renderer thread through a worker. Vault I/O, link resolution, `$state` apply, and `AppDatabase` writes MUST stay on the main thread. `read()` MAY use the same parse synchronously when a worker is unavailable.
+
+## Native Task ownership during metadata reads
+
+[CORE015](../../architecture/rust-task-host-port.md#ln-core-015) separates metadata reads from native Task startup policy. A compatibility snapshot may load before Tasks finishes activation. Final plugin startup reconciles the Task declaration, while passive metadata disposal detaches observation before plugin teardown. Selected Task transformations retain their admitted native writer and source-version guard.
+
+LN-CORE-027 reports native admission/rearm through the existing Problems
+collection without replacing Markdown persistence. Saved-file review opens a
+separate retained Reading tab; diagnostics never claim to contain draft bytes.

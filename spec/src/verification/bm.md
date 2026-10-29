@@ -4,7 +4,7 @@
 | ID | Chapter | Status | Evidence |
 | --- | --- | --- | --- |
 | LN-BM-001 | [bookmarks-plugin](../plugins/bookmarks/index.md#ln-bm-001) | In progress | package location, runtime id `bookmarks`, bundled default-enabled registration |
-| LN-BM-002 | [bookmarks-plugin](../plugins/bookmarks/index.md#ln-bm-002) | In progress | schema tests persist all six types plus unknown keys through `.obsidian/bookmarks.json` |
+| LN-BM-002 | [bookmarks-plugin](../plugins/bookmarks/index.md#ln-bm-002) | In progress | schema tests persist all six types plus unknown keys through `.lapis/bookmarks.json` |
 | LN-BM-003 | [bookmarks-plugin](../plugins/bookmarks/index.md#ln-bm-003) | In progress | `ViewAccess.command` opener `bookmarks:open-bookmarks` and default left surface |
 | LN-BM-004 | [bookmarks-plugin](../plugins/bookmarks/index.md#ln-bm-004) | In progress | toolbar actions plus Bookmark URL command; add/remove group refresh the tree |
 | LN-BM-005 | [bookmarks-plugin](../plugins/bookmarks/index.md#ln-bm-005) | In progress | add dialog plus CommandView group picker with create-on-miss |

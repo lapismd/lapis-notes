@@ -13,7 +13,7 @@ distribution is outside the supported matrix.
 
 Its AppDatabase compatibility catalogue aliases the API-owned remote contract.
 The desktop bridge retains its existing command names and worker lifecycle, but
-cannot diverge from the method surface later consumed by the Deno server.
+cannot diverge from the method surface later consumed by the Node server.
 Reusable filesystem, watch, resource, plugin-asset, language-service, and worker
 kernels come from `@lapis-notes/deno-host-services`; desktop wrappers retain
 renderer event channels, native folder selection, and file actions. The renderer

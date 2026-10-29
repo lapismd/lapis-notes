@@ -16,6 +16,7 @@
 </script>
 
 <script lang="ts">
+  import FixtureControls from "../../catalog/FixtureControls.svelte";
   import { onMount, untrack } from "svelte";
   import {
     App,
@@ -145,7 +146,7 @@
     );
     const runtimeApp = new App({
       version: "0.0.1-story",
-      configPath: ".obsidian/app.json",
+      configPath: ".lapis/app.json",
       adapter: runtimeAdapter,
       appDatabase: new MemoryAppDatabase(
         `lapis-editor-demo-${selectedScenario}-${runtimeAttempt}`,
@@ -296,10 +297,7 @@
     startedApps.add(nextApp);
     app = nextApp;
     adapter = nextAdapter;
-    compatibilityByApp.set(
-      nextApp,
-      installApplicationCompatibility(nextApp),
-    );
+    compatibilityByApp.set(nextApp, installApplicationCompatibility(nextApp));
     refreshDiagnostics(nextApp);
 
     let activeTask = "vault";
@@ -432,7 +430,12 @@
       {vaultPaths}
     </output>
     <output data-testid="lapis-editor-active-view">{activeViewType}</output>
+
+  </div>
+</div>
+
     {#if selectedScenario === "startup-failure"}
+      <FixtureControls label="Startup failure fixture">
       <button
         type="button"
         data-testid="lapis-editor-replay-failure"
@@ -440,6 +443,5 @@
       >
         Replay startup failure
       </button>
+      </FixtureControls>
     {/if}
-  </div>
-</div>

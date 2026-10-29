@@ -5,9 +5,9 @@ export const basesEmbedsExampleSource = `<script lang="ts">
 
   const app = new App({
     version: "1.0.0",
-    configPath: ".obsidian/app.json",
+    configPath: ".lapis/app.json",
     adapter: new MemoryVaultAdapter({
-      ".obsidian/app.json": "{}",
+      ".lapis/app.json": "{}",
       "Bases/Projects.base": "views:\\n  - type: table\\n    name: Projects",
     }),
     appDatabase: new MemoryAppDatabase("bases-embeds-example"),

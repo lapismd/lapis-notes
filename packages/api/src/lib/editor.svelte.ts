@@ -2,6 +2,7 @@ import {
   Annotation,
   Compartment,
   EditorState,
+  StateEffect,
   type Text,
   Transaction,
   type TransactionSpec,
@@ -20,6 +21,8 @@ import {
   type EditorSaveSnapshot,
 } from "./editor-save-context";
 import { resolveApplication } from "./application-compatibility";
+import { FileTextPersistence } from "./file-text-persistence";
+import type { FileEditingRegistration } from "./file-editing-sessions";
 
 export type EditorPosition = { line: number; ch: number };
 export interface EditorRange {
@@ -91,7 +94,8 @@ interface EditorDocumentBinding {
   persistence: EditorPersistence;
   writer?: EditorPersistenceWriter;
   saves: EditorSaveContext;
-  unregister?: () => void;
+  text?: FileTextPersistence;
+  unregister?: FileEditingRegistration;
   loading?: Promise<void>;
 }
 export interface MarkdownFileInfo {
@@ -161,35 +165,42 @@ export function createEditorState(
   return EditorState.create({
     doc,
     selection,
-    extensions: [
-      editorViewField.init(() => ({
-        get app() {
-          return editor.app;
-        },
-        editor,
-        get file() {
-          return editor.file;
-        },
-      })),
-      editor.protectionExtensions(),
-      EditorState.transactionFilter.of((transaction) =>
-        transaction.docChanged &&
-        editor.editingProtected &&
-        !transaction.annotation(syncAnnotation)
-          ? []
-          : transaction,
-      ),
-      EditorView.updateListener.of((v: ViewUpdate) => {
-        if (
-          v.docChanged &&
-          !v.transactions.some((it) => it.annotation(syncAnnotation))
-        ) {
-          editor.queueChange(v.state.doc.toString());
-        }
-      }),
-      ...extensions,
-    ],
+    extensions: editorStateExtensions(editor, extensions),
   });
+}
+
+function editorStateExtensions(
+  editor: Editor,
+  extensions: Extension[],
+): Extension[] {
+  return [
+    editorViewField.init(() => ({
+      get app() {
+        return editor.app;
+      },
+      editor,
+      get file() {
+        return editor.file;
+      },
+    })),
+    editor.protectionExtensions(),
+    EditorState.transactionFilter.of((transaction) =>
+      transaction.docChanged &&
+      editor.editingProtected &&
+      !transaction.annotation(syncAnnotation)
+        ? []
+        : transaction,
+    ),
+    EditorView.updateListener.of((v: ViewUpdate) => {
+      if (
+        v.docChanged &&
+        !v.transactions.some((it) => it.annotation(syncAnnotation))
+      ) {
+        editor.queueChange(v.state.doc.toString());
+      }
+    }),
+    ...extensions,
+  ];
 }
 
 export function createEditor(
@@ -305,12 +316,19 @@ export class Editor extends EventDispatcher<{
     this.#document?.saves.retire();
   }
 
+  #serializeWrite(run: () => Promise<void>): Promise<void> {
+    const result = this.#writeTail.then(run);
+    this.#writeTail = result.catch(() => undefined);
+    return result;
+  }
+
   #createDocument(
     application: App,
     file: TFile | null,
     persistence: EditorPersistence,
     writer?: EditorPersistenceWriter,
   ): EditorDocumentBinding {
+    const initialText = this.data;
     const document = {
       application,
       file,
@@ -320,15 +338,13 @@ export class Editor extends EventDispatcher<{
     } as EditorDocumentBinding;
     document.saves = new EditorSaveContext({
       unownedExternal: persistence === "external" && !writer,
-      serialize: (run) => {
-        const result = this.#writeTail.then(run);
-        this.#writeTail = result.catch(() => undefined);
-        return result;
-      },
+      serialize: (run) => this.#serializeWrite(run),
       persist: async (snapshot) => {
+        if (document.unregister?.native) await document.unregister.ready();
         if (file?.path !== document.path)
           throw new Error("Editor persistence target changed");
-        if (persistence === "vault" && file)
+        if (document.text) await document.text.persist(snapshot.content);
+        else if (persistence === "vault" && file)
           await application.vault.modify(file, snapshot.content);
         else if (persistence === "external" && writer)
           await writer({ application, file, content: snapshot.content });
@@ -355,12 +371,76 @@ export class Editor extends EventDispatcher<{
         this.#documents.delete(document);
       },
     });
+    if (
+      persistence === "vault" &&
+      file &&
+      application.vault.supportsConditionalTextWrites
+    ) {
+      document.text = new FileTextPersistence({
+        vault: application.vault,
+        file,
+        baseline: this.data,
+        conflicts: application.fileEditingSessions.textConflicts,
+        local: () => document.saves.latest?.content ?? this.data,
+        protect: () => ({
+          release:
+            !this.destroyed && this.#document === document
+              ? this.#holdEditing()
+              : () => undefined,
+          saved: () => {
+            const snapshot = document.saves.latest;
+            if (!snapshot) throw new Error("No retained editor snapshot");
+            document.saves.accept(snapshot);
+          },
+          reset: (contents) => {
+            if (!this.destroyed && this.#document === document) {
+              this.#replaceContent(contents);
+              this.onChange(contents);
+            }
+            document.saves.discard();
+          },
+        }),
+        settle: async () => {
+          await document.loading;
+          try {
+            await document.saves.flush(false);
+          } catch (error) {
+            if (!document.text?.hasConflict) throw error;
+          }
+        },
+        serialize: (run) => this.#serializeWrite(run),
+      });
+    }
     if (file) {
       if (!application.fileEditingSessions)
         throw new Error("App has no file editing-session registry");
       document.unregister = application.fileEditingSessions.register(
         file.path,
         {
+          native: {
+            hold: () => this.#holdEditing(),
+            savedText: () =>
+              document.text
+                ? document.text.baseline
+                : (document.saves.latest?.content ?? initialText),
+            refreshSavedText: (contents) => {
+              if (document.loading || document.saves.dirty || !document.text)
+                throw new Error(
+                  "Native editor refresh requires clean conditional text authority",
+                );
+              document.text.acceptBaseline(contents);
+              if (
+                !this.destroyed &&
+                this.#document === document &&
+                contents !== null
+              ) {
+                if (this.getValue() !== contents)
+                  this.#replaceContent(contents);
+                this.data = contents;
+                this.onChange(contents);
+              }
+            },
+          },
           get dirty() {
             return !!document.loading || document.saves.dirty;
           },
@@ -460,7 +540,10 @@ export class Editor extends EventDispatcher<{
     return this.#protectDocument(this.#currentDocument());
   }
 
-  /** Register and protect a target, then publish its file and contents atomically. */
+  /**
+   * Register and protect a target, then publish its file and contents
+   * atomically.
+   */
   async loadDocument(
     file: TFile,
     read: () => Promise<string>,
@@ -505,6 +588,13 @@ export class Editor extends EventDispatcher<{
     this.#loading = load;
     let published = false;
     try {
+      if (document.unregister?.native) {
+        const admission = await Promise.race([
+          document.unregister.ready().then(() => ({ ready: true as const })),
+          cancellation,
+        ]);
+        if ("canceled" in admission || canceled) return false;
+      }
       const drained = await Promise.race([
         this.flushChanges().then(() => ({ drained: true as const })),
         cancellation,
@@ -606,10 +696,9 @@ export class Editor extends EventDispatcher<{
   readonly save = Object.assign(
     () => {
       this.#assertWritable();
-      return this.#currentDocument().saves.queue(
-        this.captureChange(this.getValue()),
-        true,
-      );
+      const document = this.#currentDocument();
+      document.unregister?.changed();
+      return document.saves.queue(this.captureChange(this.getValue()), true);
     },
     {
       flush: () => this.#document?.saves.flushSave(),
@@ -631,7 +720,10 @@ export class Editor extends EventDispatcher<{
   /** Queue the latest editor contents for persistence/change notification. */
   queueChange(data: string): void {
     this.#assertWritable();
-    this.#currentDocument().saves.queue(this.captureChange(data));
+    const document = this.#currentDocument();
+    document.unregister?.changed();
+    document.saves.queue(this.captureChange(data));
+    document.text?.updateLocal(data);
   }
 
   /** Drain every captured document, including failed or retired saves. */
@@ -742,6 +834,8 @@ export class Editor extends EventDispatcher<{
                 this.#refreshError = undefined;
                 if (this.getValue() === contents) {
                   this.data = contents;
+                  if (!this.#document?.saves.dirty)
+                    this.#document?.text?.acceptBaseline(contents);
                   return;
                 }
                 if (
@@ -795,12 +889,12 @@ export class Editor extends EventDispatcher<{
         }
         span.setAttribute("editor.extension_count", editorExtensions.length);
         span.setAttribute("file.extension", ext ?? "");
-        const content = this.getValue();
-        const selection = this.view.state.selection;
         this.extensions = editorExtensions;
-        this.view.setState(
-          createEditorState(this, content, this.extensions, selection),
-        );
+        this.view.dispatch({
+          effects: StateEffect.reconfigure.of(
+            editorStateExtensions(this, this.extensions),
+          ),
+        });
         return this;
       },
       {
@@ -815,6 +909,8 @@ export class Editor extends EventDispatcher<{
     else if (this.destroyed) throw new Error("Editor is destroyed");
     this.#documentGeneration++;
     this.#refreshError = undefined;
+    if (!this.#document?.saves.dirty)
+      this.#document?.text?.acceptBaseline(content);
     this.app.telemetry.measure(
       "editor.set_value",
       (span) => {
@@ -838,6 +934,8 @@ export class Editor extends EventDispatcher<{
   #replaceContent(content: string, options: { userEvent?: string } = {}) {
     this.#documentGeneration++;
     this.#refreshError = undefined;
+    if (!this.#document?.saves.dirty)
+      this.#document?.text?.acceptBaseline(content);
     this.data = content;
     const annotations = [syncAnnotation.of(true)];
     this.view.dispatch({

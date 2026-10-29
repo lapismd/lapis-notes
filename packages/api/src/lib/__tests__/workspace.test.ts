@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { isEqual } from "lodash-es";
 import { effect_root } from "svelte/internal/client";
 import { APP_SHELL_SETTING_IDS } from "@lapismd/design-core/workspace/core";
-import type { App } from "../context.svelte";
+import { App } from "../context.svelte";
+import { FileEditingSessionRegistry } from "../file-editing-sessions";
 import { EventDispatcher } from "../events";
 import { Plugin } from "../plugin";
 import type { PluginSettingsDefinition } from "../plugin-settings";
@@ -384,6 +385,7 @@ function createWorkspaceHarness(
     },
   );
   const app = {
+    fileEditingSessions: new FileEditingSessionRegistry(),
     version: "1.10.0",
     telemetry: {
       measure<T>(
@@ -713,6 +715,43 @@ beforeEach(() => {
 });
 
 describe("Workspace compatibility", () => {
+  it("preserves live popup leaf identity without reopening the host", async () => {
+    const { workspace } = createWorkspaceHarness();
+    const leaf = workspace.getLeaf();
+    await leaf.setViewState({ type: "empty", state: {} });
+    const view = leaf.view;
+    const mainLeaf = workspace.getLeaf("tab");
+    await mainLeaf.setViewState({ type: "empty", state: {} });
+    const controller = getWorkspaceHostBinding(workspace).controller;
+    const open = vi.fn(() => ({
+      window: globalThis.window,
+      document: globalThis.document,
+      focus: vi.fn(),
+      close: vi.fn(),
+      onClose: () => () => {},
+    }));
+    controller.renderer.setPopoutHost({ open });
+    const popup = controller.renderer.popoutTab(leaf.id)!;
+    await workspace.flushLayout();
+    expect(workspace.floating.children.map((win) => win.id)).toContain(
+      popup.id,
+    );
+    expect(workspace.getLeafById(leaf.id)).toBe(leaf);
+    expect(leaf.view).toBe(view);
+    expect(open).toHaveBeenCalledTimes(1);
+    controller.renderer.selectTab(mainLeaf.id);
+    await workspace.flushLayout();
+    expect(workspace.getFocusedCommandHostId()).toBe("root");
+    controller.renderer.selectTab(leaf.id);
+    await workspace.flushLayout();
+    expect(open).toHaveBeenCalledTimes(1);
+    controller.renderer.moveTabToMain(leaf.id);
+    await workspace.flushLayout();
+    expect(workspace.getLeafById(leaf.id)).toBe(leaf);
+    expect(leaf.view).toBe(view);
+    expect(workspace.floating.children).toHaveLength(0);
+  });
+
   it("keeps leaves, views, and editors bound to their owning application", () => {
     const { app, workspace } = createWorkspaceHarness();
     const leaf = workspace.getLeaf();
@@ -743,6 +782,29 @@ describe("Workspace compatibility", () => {
     workspace.activeLeaf = workspace.getLeftLeaf(false)!;
 
     expect(workspace.getActiveFile()).toBe(file);
+  });
+
+  it("reconciles a remembered file after rename and deletion through its owner", () => {
+    const { workspace } = createWorkspaceHarness();
+    const leaf = workspace.getLeaf();
+    const file = new TFile(
+      "original.md",
+      { ctime: 0, mtime: 0, size: 0 },
+      null,
+    );
+    const view = new MockTextFileView(leaf);
+    view.file = file;
+    leaf.view = view;
+    workspace.activeLeaf = leaf;
+    workspace.getActiveFile();
+    workspace.activeLeaf = workspace.getLeftLeaf(false)!;
+    const renamed = file.copy({ path: "renamed.md" });
+    workspace.reconcileFileReference("original.md", renamed);
+    expect(workspace.getActiveFile()?.path).toBe("renamed.md");
+    workspace.reconcileFileReference("unrelated.md", null);
+    expect(workspace.getActiveFile()?.path).toBe("renamed.md");
+    workspace.reconcileFileReference("renamed.md", null);
+    expect(workspace.getActiveFile()).toBeNull();
   });
 
   it("projects API plugin lifecycle state into the managed settings registry", async () => {
@@ -1189,6 +1251,75 @@ describe("Workspace compatibility", () => {
     expect(workspace.getLeaf()).toBe(leaf);
     expect((leaf.view as MockTextFileView).file).toBe(file);
   });
+
+  it.each([false, true])(
+    "foreground file navigation selects its %s existing note tab after another view",
+    async (existing) => {
+      const { app, workspace } = createWorkspaceHarness();
+      await workspace.loadLayout();
+      workspace.registerView("markdown", (leaf) => new MockTextFileView(leaf));
+      workspace.registerExtensions(["md"], "markdown");
+      workspace.registerView(
+        "history-fixture",
+        (leaf) => new MockItemView(leaf, "history-fixture", "History"),
+      );
+      const file = new TFile("Note.md", { ctime: 0, mtime: 0, size: 0 }, null);
+      if (existing) {
+        const note = workspace.getLeaf("tab");
+        await note.openFile(file);
+        workspace.activateLeaf(note);
+      }
+      const history = workspace.getLeaf("tab");
+      await history.setViewState({ type: "history-fixture" });
+      workspace.activateLeaf(history);
+      await workspace.flushLayout();
+      const { controller } = getWorkspaceHostBinding(workspace);
+      controller.renderer.setSidebarOpen("right", true);
+      await Promise.resolve();
+      await App.prototype.openFile.call(app, file);
+      await workspace.flushLayout();
+      const note = workspace.iterateAllLeaves((leaf) =>
+        (leaf.view as MockTextFileView).file === file ? leaf : undefined,
+      );
+      expect(note).toBeTruthy();
+      expect(workspace.activeLeaf).toBe(note);
+      expect(controller.renderer.layout.active.tabId).toBe(note!.id);
+      const main = controller.renderer.layout.main;
+      const tabs = main.kind === "tabs" ? main : main.children[0];
+      expect(tabs.kind).toBe("tabs");
+      if (tabs.kind === "tabs") expect(tabs.activeItemId).toBe(note!.id);
+      expect(history.view.getViewType()).toBe("history-fixture");
+    },
+  );
+
+  it.each([false, true])(
+    "foreground file navigation preserves a newer selection while revealing a %s existing note",
+    async (existing) => {
+      const { app, workspace } = createWorkspaceHarness();
+      await workspace.loadLayout();
+      workspace.registerView("markdown", (leaf) => new MockTextFileView(leaf));
+      workspace.registerExtensions(["md"], "markdown");
+      workspace.registerView(
+        "history-fixture",
+        (leaf) => new MockItemView(leaf, "history-fixture", "History"),
+      );
+      const file = new TFile("Note.md", { ctime: 0, mtime: 0, size: 0 }, null);
+      if (existing) await workspace.getLeaf("tab").openFile(file);
+      const history = workspace.getLeaf("tab");
+      await history.setViewState({ type: "history-fixture" });
+      workspace.activateLeaf(history);
+      await workspace.flushLayout();
+      const opening = App.prototype.openFile.call(app, file);
+      workspace.activateLeaf(history, { operation: "newer-navigation" });
+      await opening;
+      await workspace.flushLayout();
+      expect(workspace.activeLeaf).toBe(history);
+      expect(
+        getWorkspaceHostBinding(workspace).controller.renderer.layout.active
+          .tabId,
+      ).toBe(history.id);
+    },
+  );
 
   it("triggers file-open after onLoadFile succeeds", async () => {
     const { workspace } = createWorkspaceHarness();
@@ -1676,7 +1807,7 @@ describe("Workspace compatibility", () => {
       ],
     };
     const workspaceFile = new TFile(
-      "/.obsidian/workspace.json",
+      "/.lapis/workspace.json",
       { ctime: 0, mtime: 0, size: 0 },
       null,
     );
@@ -1732,7 +1863,7 @@ describe("Workspace compatibility", () => {
       ],
     };
     const workspaceFile = new TFile(
-      "/.obsidian/workspace.json",
+      "/.lapis/workspace.json",
       { ctime: 0, mtime: 0, size: 0 },
       null,
     );
@@ -2003,9 +2134,7 @@ describe("Workspace compatibility", () => {
     );
     const extra = workspace.getRightLeaf(false)!;
     await extra.setViewState({ type: "graph", state: {} });
-    expect(
-      workspace.getLeavesOfType("graph"),
-    ).toHaveLength(1);
+    expect(workspace.getLeavesOfType("graph")).toHaveLength(1);
 
     await workspace.loadNamedLayout("Writing");
     const left: string[] = [];
@@ -2021,7 +2150,7 @@ describe("Workspace compatibility", () => {
     expect(left).toEqual(["file-explorer", "search", "bookmarks"]);
     expect(right).toEqual(["outline", "file-properties", "tag"]);
     expect(workspace.getLeavesOfType("graph")).toHaveLength(0);
-    expect(files.get("/.obsidian/workspaces.json")).toContain("Writing");
+    expect(files.get("/.lapis/workspaces.json")).toContain("Writing");
   });
 
   it("resets the live layout to the default sidebar seed", async () => {
@@ -2075,20 +2204,20 @@ describe("Workspace compatibility", () => {
     leaf.id = "alternate-leaf";
     layout.active = "alternate-leaf";
     const workspaceFile = new TFile(
-      "/.obsidian/mobile.json",
+      "/.lapis/mobile.json",
       { ctime: 0, mtime: 0, size: 0 },
       null,
     );
     const getFileByPath = vi
       .spyOn(app.vault, "getFileByPath")
       .mockImplementation((path) =>
-        path === "/.obsidian/mobile.json" ? workspaceFile : null,
+        path === "/.lapis/mobile.json" ? workspaceFile : null,
       );
     vi.spyOn(app.vault, "read").mockResolvedValue(JSON.stringify(layout));
 
     await workspace.loadLayout("mobile.json");
 
-    expect(getFileByPath).toHaveBeenCalledWith("/.obsidian/mobile.json");
+    expect(getFileByPath).toHaveBeenCalledWith("/.lapis/mobile.json");
     expect(workspace.activeLeaf?.id).toBe("alternate-leaf");
     expect(
       JSON.stringify(getWorkspaceHostBinding(workspace).controller.getLayout()),
@@ -2396,7 +2525,7 @@ describe("Workspace compatibility", () => {
     expect(await controller.managedPlugins.enable("app-shell:fmode")).toBe(
       true,
     );
-    expect(files.get(".obsidian/app-shell-plugins.json")).toContain(
+    expect(files.get(".lapis/app-shell-plugins.json")).toContain(
       '"fmode": true',
     );
     await controller.dispose();
@@ -2645,6 +2774,378 @@ describe("Workspace compatibility", () => {
     ).resolves.toBe(false);
   });
 
+  it("flushes the latest layout before debounce without a later duplicate write", async () => {
+    vi.useFakeTimers();
+    try {
+      const { app, workspace } = createWorkspaceHarness();
+      await workspace.loadLayout("mobile.json");
+      const create = vi.spyOn(app.vault, "create");
+      workspace.getBottomLeaf();
+      workspace.setBottomPanelSize(301);
+      await workspace.flushLayout();
+      expect(create).toHaveBeenCalledTimes(1);
+      expect(create.mock.calls[0]?.[0]).toBe("/.lapis/mobile.json");
+      expect(JSON.parse(String(create.mock.calls[0]?.[1])).bottom.height).toBe(
+        "301px",
+      );
+      await vi.advanceTimersByTimeAsync(1500);
+      expect(create).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("serializes an in-flight layout write with a newer explicit flush", async () => {
+    vi.useFakeTimers();
+    try {
+      const { app, workspace } = createWorkspaceHarness();
+      await workspace.loadLayout();
+      workspace.getBottomLeaf();
+      let release!: () => void;
+      const held = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const heights: string[] = [];
+      vi.spyOn(app.vault, "create").mockImplementation(async (_path, value) => {
+        heights.push(JSON.parse(value).bottom.height);
+        if (heights.length === 1) await held;
+        return null as never;
+      });
+      workspace.setBottomPanelSize(300);
+      const first = workspace.flushLayout();
+      await vi.advanceTimersByTimeAsync(0);
+      workspace.setBottomPanelSize(350);
+      let completed = false;
+      const second = workspace.flushLayout().then(() => {
+        completed = true;
+      });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(heights).toEqual(["300px"]);
+      expect(completed).toBe(false);
+      release();
+      await Promise.all([first, second]);
+      expect(heights).toEqual(["300px", "350px"]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("reports layout write failure and retries the latest state on flush", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    await workspace.loadLayout();
+    workspace.getBottomLeaf();
+    const create = vi
+      .spyOn(app.vault, "create")
+      .mockRejectedValueOnce(new Error("disk full"));
+    workspace.setBottomPanelSize(300);
+    await expect(workspace.flushLayout()).rejects.toThrow("disk full");
+    workspace.setBottomPanelSize(351);
+    await workspace.flushLayout();
+    expect(
+      JSON.parse(String(create.mock.calls.at(-1)?.[1])).bottom.height,
+    ).toBe("351px");
+  });
+
+  it("joins pending controller projections when flushing layout", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    await workspace.loadLayout();
+    const create = vi.spyOn(app.vault, "create");
+    const { controller } = getWorkspaceHostBinding(workspace);
+    controller.renderer.setSidebarOpen("left", true);
+    controller.renderer.setSidebarOpen("right", true);
+    await workspace.flushLayout();
+    const written = JSON.parse(String(create.mock.calls.at(-1)?.[1]));
+    expect(workspace.leftSplit.collapsed).toBe(false);
+    expect(workspace.rightSplit.collapsed).toBe(false);
+    expect(written.left.width).toBe(workspace.leftSplit.sidebar.width);
+    expect(written.right.width).toBe(workspace.rightSplit.sidebar.width);
+  });
+
+  it("reveals the requested sidebar view after an overlapping host projection", async () => {
+    const { workspace } = createWorkspaceHarness();
+    await workspace.loadLayout();
+    workspace.registerView(
+      "files-fixture",
+      (leaf) => new MockItemView(leaf, "files-fixture", "Files"),
+    );
+    workspace.registerView(
+      "search-fixture",
+      (leaf) => new MockItemView(leaf, "search-fixture", "Search"),
+    );
+    const files = workspace.getLeftLeaf(false)!;
+    await files.setViewState({ type: "files-fixture" });
+    const search = workspace.getLeftLeaf(false)!;
+    await search.setViewState({ type: "search-fixture" });
+    workspace.activateLeaf(files, { focusRootHost: false });
+    const { controller } = getWorkspaceHostBinding(workspace);
+    controller.renderer.setSidebarOpen("left", true);
+    await Promise.resolve();
+    await search.setViewState({
+      type: "search-fixture",
+      state: { query: "history" },
+    });
+    workspace.activateLeaf(search, { focusRootHost: false });
+    await workspace.revealLeaf(search);
+    await workspace.flushLayout();
+    const dock = controller.renderer.layout.left.root;
+    expect(dock.kind).toBe("tabs");
+    if (dock.kind === "tabs") expect(dock.activeItemId).toBe(search.id);
+    expect(workspace.activeLeaf).toBe(search);
+  });
+
+  it("preserves explicit same-type state during an overlapping sidebar projection", async () => {
+    const { workspace } = createWorkspaceHarness();
+    await workspace.loadLayout();
+    workspace.registerView(
+      "search-fixture",
+      (leaf) => new MockItemView(leaf, "search-fixture", "Search"),
+    );
+    const search = workspace.getLeftLeaf(false)!;
+    await search.setViewState({
+      type: "search-fixture",
+      state: { query: "", scope: "files" },
+    });
+    const { controller } = getWorkspaceHostBinding(workspace);
+    controller.renderer.setSidebarOpen("left", true);
+    await Promise.resolve();
+    await search.setViewState({
+      type: "search-fixture",
+      state: { query: "retained search", scope: "history" },
+    });
+    workspace.activateLeaf(search, { focusRootHost: false });
+    await workspace.revealLeaf(search);
+    await workspace.flushLayout();
+    expect(search.view.getState()).toEqual({
+      query: "retained search",
+      scope: "history",
+    });
+    expect(JSON.stringify(controller.getLayout())).toContain("retained search");
+    expect(workspace.activeLeaf).toBe(search);
+  });
+
+  it("fences stale leaf replay after plugin activation yields to a newer transition", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    await workspace.loadLayout();
+    workspace.registerView(
+      "search-fixture",
+      (leaf) => new MockItemView(leaf, "search-fixture", "Search"),
+    );
+    const search = workspace.getLeftLeaf(false)!;
+    await search.setViewState({
+      type: "search-fixture",
+      state: { query: "initial", scope: "files" },
+    });
+    const { controller } = getWorkspaceHostBinding(workspace);
+    await search.view.setState({ query: "live draft", scope: "files" });
+    let release!: () => void;
+    let entered!: () => void;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const replayEntered = new Promise<void>((resolve) => {
+      entered = resolve;
+    });
+    let activations = 0;
+    vi.spyOn(app.plugins, "activateForViewType").mockImplementation(
+      async (type) => {
+        if (type === "search-fixture" && ++activations === 2) {
+          entered();
+          await held;
+        }
+      },
+    );
+    controller.renderer.setSidebarOpen("left", true);
+    await replayEntered;
+    try {
+      await search.setViewState({
+        type: "search-fixture",
+        state: { query: "latest", scope: "history" },
+      });
+      const latestView = search.view;
+      workspace.activateLeaf(search, { focusRootHost: false });
+      release();
+      await workspace.revealLeaf(search);
+      await workspace.flushLayout();
+      expect(search.view).toBe(latestView);
+      expect(search.view.getState()).toEqual({
+        query: "latest",
+        scope: "history",
+      });
+      expect(JSON.stringify(controller.getLayout())).toContain("latest");
+      expect(workspace.activeLeaf).toBe(search);
+    } finally {
+      release();
+    }
+  });
+
+  it("discards a stale prepared view without replacing the newer live view", async () => {
+    const { workspace } = createWorkspaceHarness();
+    await workspace.loadLayout();
+    let release!: () => void;
+    let entered!: () => void;
+    let hold = false;
+    let prepared: View | undefined;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const replayEntered = new Promise<void>((resolve) => {
+      entered = resolve;
+    });
+    class DelayedPanel extends MockItemView {
+      override async setState(state: Record<string, unknown>) {
+        if (hold && state.query === "initial") {
+          prepared = this;
+          entered();
+          await held;
+        }
+        await super.setState(state);
+      }
+    }
+    workspace.registerView(
+      "search-fixture",
+      (leaf) => new DelayedPanel(leaf, "search-fixture", "Search"),
+    );
+    const search = workspace.getLeftLeaf(false)!;
+    await search.setViewState({
+      type: "search-fixture",
+      state: { query: "initial", scope: "files" },
+    });
+    const { controller } = getWorkspaceHostBinding(workspace);
+    await search.view.setState({ query: "live draft", scope: "files" });
+    hold = true;
+    controller.renderer.setSidebarOpen("left", true);
+    await replayEntered;
+    try {
+      await search.setViewState({
+        type: "search-fixture",
+        state: { query: "latest", scope: "history" },
+      });
+      const latestView = search.view;
+      workspace.activateLeaf(search, { focusRootHost: false });
+      release();
+      await workspace.revealLeaf(search);
+      await workspace.flushLayout();
+      expect(search.view).toBe(latestView);
+      expect(search.view.getState()).toEqual({
+        query: "latest",
+        scope: "history",
+      });
+      expect(prepared?.loaded).toBe(false);
+      expect(JSON.stringify(controller.getLayout())).toContain("latest");
+      expect(workspace.activeLeaf).toBe(search);
+    } finally {
+      release();
+    }
+  });
+
+  it("retains new ItemViews while sidebar projection and activation overlap", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    await workspace.loadLayout();
+    const loads = new Map<string, number>();
+    const unloads = new Map<string, number>();
+    class TrackingPanel extends MockItemView {
+      onload(): void {
+        const type = this.getViewType();
+        loads.set(type, (loads.get(type) ?? 0) + 1);
+        super.onload();
+      }
+      onunload(): void {
+        const type = this.getViewType();
+        unloads.set(type, (unloads.get(type) ?? 0) + 1);
+      }
+    }
+    workspace.registerView(
+      "graph",
+      (leaf) => new TrackingPanel(leaf, "graph", "Graph"),
+    );
+    workspace.registerView(
+      "graph-local",
+      (leaf) => new TrackingPanel(leaf, "graph-local", "Local graph"),
+    );
+    const main = workspace.getLeaf(true);
+    await main.setViewState({ type: "graph" });
+    workspace.activateLeaf(main, { focusRootHost: false });
+    await workspace.revealLeaf(main);
+    const { controller } = getWorkspaceHostBinding(workspace);
+    controller.renderer.setSidebarOpen("right", true);
+    const local = workspace.ensureSideLeaf("graph-local", "right");
+    await local.setViewState({ type: "graph-local" });
+    workspace.activateLeaf(local, { focusRootHost: false });
+    await workspace.revealLeaf(local);
+    await workspace.flushLayout();
+    expect(workspace.getLeavesOfType("graph")[0]).toBe(main);
+    expect(workspace.getLeavesOfType("graph-local")[0]).toBe(local);
+    expect(loads.get("graph-local")).toBe(1);
+    expect(unloads.get("graph-local") ?? 0).toBe(0);
+    expect(workspace.activeRootLeaf).toBe(main);
+    const layout = workspace.toJson();
+    expect(layout.main.children[0].type).toBe("tabs");
+    const saved = vi.spyOn(app.vault, "create");
+    await workspace.flushLayout();
+    expect(String(saved.mock.calls.at(-1)?.[1])).toContain('"graph-local"');
+  });
+
+  it("joins accepted layout writes and cancels timers before host disposal", async () => {
+    vi.useFakeTimers();
+    try {
+      const { app, workspace } = createWorkspaceHarness();
+      Object.assign(app, { languageServices: { unbindDiagnostics() {} } });
+      await workspace.loadLayout();
+      let release!: () => void;
+      const held = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const create = vi
+        .spyOn(app.vault, "create")
+        .mockImplementation(async () => {
+          await held;
+          return null as never;
+        });
+      workspace.getBottomLeaf();
+      const write = workspace.flushLayout();
+      await vi.advanceTimersByTimeAsync(0);
+      let disposed = false;
+      const disposal = workspace.disposeWorkspaceHost().then(() => {
+        disposed = true;
+      });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(disposed).toBe(false);
+      release();
+      await Promise.all([write, disposal]);
+      workspace.requestSaveLayout();
+      await vi.advanceTimersByTimeAsync(1500);
+      expect(create).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("observes background layout failures and permits an explicit retry", async () => {
+    vi.useFakeTimers();
+    const report = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
+    try {
+      const { app, workspace } = createWorkspaceHarness();
+      await workspace.loadLayout();
+      const failure = new Error("background disk full");
+      const create = vi
+        .spyOn(app.vault, "create")
+        .mockRejectedValueOnce(failure);
+      workspace.getBottomLeaf();
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(report).toHaveBeenCalledWith(
+        "Unable to save workspace layout",
+        failure,
+      );
+      await workspace.flushLayout();
+      expect(create).toHaveBeenCalledTimes(2);
+    } finally {
+      report.mockRestore();
+      vi.useRealTimers();
+    }
+  });
+
   it("debounces bottom layout writes and leaves settings out of workspace persistence", async () => {
     const { app, workspace } = createWorkspaceHarness();
     await workspace.loadLayout("mobile.json");
@@ -2662,7 +3163,7 @@ describe("Workspace compatibility", () => {
     );
 
     expect(create).toHaveBeenCalledWith(
-      "/.obsidian/mobile.json",
+      "/.lapis/mobile.json",
       expect.any(String),
     );
     const persisted = JSON.parse(String(create.mock.calls[0]?.[1]));
@@ -2685,8 +3186,9 @@ describe("Workspace compatibility", () => {
       { paneId: tabs.id, title: "Transient", active: true },
     );
     expect(added).not.toBeNull();
-    expect(binding.controller.workspace.closeLeaf(added!.id)).toBe(true);
+    const closing = binding.controller.renderer.requestCloseTab(added!.id);
     binding.controller.renderer.setSidebarOpen("left", true);
+    expect(await closing).toBe(true);
 
     await vi.waitFor(() => {
       expect(workspace.getLeafById(added!.id)).toBeNull();
@@ -2723,7 +3225,9 @@ describe("Workspace compatibility", () => {
     expect(binding.controller.workspace.setActiveLeaf(originalLeaf.id)).toBe(
       true,
     );
-    expect(binding.controller.workspace.closeLeaf(added!.id)).toBe(true);
+    expect(await binding.controller.renderer.requestCloseTab(added!.id)).toBe(
+      true,
+    );
 
     await vi.waitFor(() => {
       expect(workspace.getLeafById(added!.id)).toBeNull();
@@ -2734,14 +3238,10 @@ describe("Workspace compatibility", () => {
       ...app,
       vault: { ...app.vault, create: otherCreate },
     } as App;
-    await vi.waitFor(
-      () => {
-        expect(create).toHaveBeenCalledTimes(1);
-      },
-      { timeout: 2_000 },
-    );
-
-    const persisted = JSON.parse(String(create.mock.calls[0]?.[1]));
+    await workspace.flushLayout();
+    // Admission saves the still-reachable layout; final flush saves removal.
+    expect(create).toHaveBeenCalledTimes(2);
+    const persisted = JSON.parse(String(create.mock.calls.at(-1)?.[1]));
     expect(
       persisted.main.children[0].children.map(
         (child: { id: string }) => child.id,
@@ -2803,6 +3303,61 @@ describe("Workspace compatibility", () => {
       binding.controller.renderer.registry.resolve("graph"),
     ).toBeUndefined();
   });
+
+  it.each([false, true])(
+    "attaches a controller-opened view after projection unless its host closed: %s",
+    async (closed) => {
+      const { app, workspace } = createWorkspaceHarness();
+      Object.assign(app, { languageServices: { unbindDiagnostics: vi.fn() } });
+      const binding = getWorkspaceHostBinding(workspace);
+      const created = vi.fn(
+        (leaf: WorkspaceLeaf) =>
+          new MockItemView(leaf, "late-history", "History"),
+      );
+      workspace.registerView("late-history", created);
+      const tabs = workspace.rootSplit.children[0] as WorkspaceTabs;
+      const opened = binding.controller.workspace.openLeaf(
+        "late-history",
+        {},
+        { paneId: tabs.id, active: true },
+      );
+      expect(opened).not.toBeNull();
+      expect(workspace.getLeafById(opened!.id)).toBeNull();
+      const target = Object.assign(createElement(), {
+        getRootNode: () => ({ nodeType: 9 }),
+      }) as unknown as HTMLElement;
+      const definition =
+        binding.controller.renderer.registry.resolve("late-history");
+      if (definition?.kind !== "imperative")
+        throw new Error("Missing imperative definition");
+      const dispose = definition.mount(target, {
+        tab: {
+          id: opened!.id,
+          kind: "tab",
+          title: "History",
+          view: { type: "late-history", state: {} },
+        },
+        hostId: "root",
+        paneId: tabs.id,
+        active: true,
+        showInlineTitle: true,
+        activate: () => true,
+        close: () => true,
+        setState: () => true,
+      });
+      if (closed) dispose?.();
+      await vi.waitFor(() =>
+        expect(workspace.getLeafById(opened!.id)).not.toBeNull(),
+      );
+      await workspace.flushLayout();
+      const leaf = workspace.getLeafById(opened!.id)!;
+      expect(created).toHaveBeenCalledTimes(1);
+      if (closed) expect(target.children).toHaveLength(0);
+      else expect(target.children).toEqual([leaf.containerEl]);
+      dispose?.();
+      await workspace.disposeWorkspaceHost();
+    },
+  );
 
   it("projects view actions and pane-menu contributions into design-core chrome", async () => {
     const { workspace } = createWorkspaceHarness();
@@ -2895,7 +3450,10 @@ describe("Workspace compatibility", () => {
     async (title, direction, hostDirection) => {
       const { workspace } = createWorkspaceHarness();
       const binding = getWorkspaceHostBinding(workspace);
-      workspace.registerView("graph", (currentLeaf) => new MockChromeView(currentLeaf));
+      workspace.registerView(
+        "graph",
+        (currentLeaf) => new MockChromeView(currentLeaf),
+      );
       const leaf = workspace.getLeaf();
       await leaf.setViewState({
         type: "graph",
@@ -2928,7 +3486,9 @@ describe("Workspace compatibility", () => {
         hostSplitDirectionForTab(binding.controller.getLayout(), duplicate!.id),
       ).toBe(hostDirection);
       expect(binding.controller.renderer.activeTabId).toBe(duplicate!.id);
-      expect(binding.controller.renderer.registry.resolve("graph")).toBeDefined();
+      expect(
+        binding.controller.renderer.registry.resolve("graph"),
+      ).toBeDefined();
     },
   );
 
@@ -3723,10 +4283,7 @@ describe("Workspace compatibility", () => {
       },
     });
 
-    const originalGroup = workspace.getSidebarGroup(
-      "right",
-      "workspace-tools",
-    );
+    const originalGroup = workspace.getSidebarGroup("right", "workspace-tools");
     const originalLeaf = workspace.getLeafById("graph-leaf");
     expect(originalGroup).toBeInstanceOf(WorkspaceSidebarGroup);
     expect(originalLeaf).toBeInstanceOf(WorkspaceLeaf);
@@ -3942,7 +4499,7 @@ describe("Workspace compatibility", () => {
       active: "active-search",
     };
     const workspaceFile = new TFile(
-      "/.obsidian/workspace.json",
+      "/.lapis/workspace.json",
       { ctime: 0, mtime: 0, size: 0 },
       null,
     );
@@ -4000,8 +4557,8 @@ describe("Workspace compatibility", () => {
     await vi.advanceTimersByTimeAsync(1000);
     await Promise.resolve();
 
-    expect(files.has("/.obsidian/workspace.json")).toBe(true);
-    const written = JSON.parse(files.get("/.obsidian/workspace.json")!);
+    expect(files.has("/.lapis/workspace.json")).toBe(true);
+    const written = JSON.parse(files.get("/.lapis/workspace.json")!);
     expect(written.active).toBe(chat.id);
     const rightTabs = written.right.children[0];
     expect(rightTabs.currentTab).toBeGreaterThan(0);
@@ -4027,7 +4584,8 @@ describe("Workspace compatibility", () => {
 
     expect(restored.workspace.activeLeaf?.id).toBe(chat.id);
     expect(restored.workspace.activeLeaf?.view.getViewType()).toBe("search");
-    const restoredTabs = restored.workspace.rightSplit.children[0] as WorkspaceTabs;
+    const restoredTabs = restored.workspace.rightSplit
+      .children[0] as WorkspaceTabs;
     expect(restoredTabs.selectedChild).toBeInstanceOf(WorkspaceSidebarGroup);
     expect(
       (restoredTabs.selectedChild as WorkspaceSidebarGroup).getSelectedLeaf()
@@ -4737,6 +5295,24 @@ describe("Workspace compatibility", () => {
       "roles:open-actions",
     );
 
+    const removeCenter = app.statusBar.registerItem({
+      id: "demo:activity",
+      text: "Indexing notes",
+      alignment: "center",
+      priority: 10,
+    });
+    expect(
+      controller.status.items.find((item) => item.id === "demo:activity"),
+    ).toMatchObject({
+      align: "center",
+      label: "Indexing notes",
+      priority: 10,
+    });
+    removeCenter();
+    expect(
+      controller.status.items.some((item) => item.id === "demo:activity"),
+    ).toBe(false);
+
     removeStatus();
     removeRibbon();
     expect(
@@ -4773,6 +5349,37 @@ describe("Workspace compatibility", () => {
 
     expect(requestSaveLayout).not.toHaveBeenCalled();
     expect(layoutChange).not.toHaveBeenCalled();
+  });
+
+  it("projects owned Lapis notices into the shared workspace toasts", () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const controller = getWorkspaceHostBinding(workspace).controller;
+    const record = {
+      id: "owned-notice",
+      title: "File action failed",
+      message: "File changed on disk: Note.md",
+      severity: "error" as const,
+      source: "Explorer",
+    };
+    app.notifications.trigger("notify", record);
+    expect(controller.notifications.transient).toEqual(
+      expect.arrayContaining([expect.objectContaining(record)]),
+    );
+    controller.notifications.dismiss(record.id);
+  });
+
+  it("retires notice delivery when its workspace host is disposed", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const controller = getWorkspaceHostBinding(workspace).controller;
+    const notify = vi.spyOn(controller.notifications, "notify");
+    Object.assign(app, { languageServices: { unbindDiagnostics() {} } });
+    await workspace.disposeWorkspaceHost();
+    app.notifications.trigger("notify", {
+      id: "retired",
+      message: "not for this host",
+      severity: "error",
+    });
+    expect(notify).not.toHaveBeenCalled();
   });
 
   it("projects Lapis notification progress into the Design Core manager", async () => {
@@ -4849,5 +5456,77 @@ describe("Workspace compatibility", () => {
 
     expect(finalLeaf).toBeNull();
     expect(workspace.activeLeaf).toBeNull();
+  });
+});
+
+describe("plugin file icon routing", () => {
+  it("uses compound patterns and user associations without constructing views", () => {
+    const { workspace } = createWorkspaceHarness({ "*.diagram.json": "plain" });
+    const creator = vi.fn();
+    workspace.registerView("diagram", creator);
+    workspace.registerView("plain", creator);
+    workspace.registerEditorView({
+      id: "diagram",
+      label: "Diagram",
+      filenamePatterns: ["*.json", "*.diagram.json"],
+      priority: "default",
+      fileIcon: "workflow",
+    });
+    workspace.registerEditorView({
+      id: "plain",
+      label: "Plain",
+      filenamePatterns: ["*.json"],
+      fileIcon: "file-text",
+    });
+    expect(workspace.getFileIconForPath("a.diagram.json")).toBe("file-text");
+    expect(workspace.getFileIconForPath("other.json")).toBe("workflow");
+    expect(creator).not.toHaveBeenCalled();
+  });
+  it("keeps suffix icons and cleanup independent for a shared view type", () => {
+    const { workspace } = createWorkspaceHarness();
+    workspace.registerView("diagram", vi.fn());
+    const one = workspace.registerExtensions([".ONE"], "diagram", {
+      fileIcon: "star",
+    });
+    const two = workspace.registerExtensions(["two"], "diagram", {
+      fileIcon: "circle",
+    });
+    expect(workspace.getFileIconForPath("a.one")).toBe("star");
+    expect(workspace.getFileIconForPath("a.two")).toBe("circle");
+    one();
+    one();
+    expect(workspace.getFileIconForPath("a.one")).toBeUndefined();
+    expect(workspace.getFileIconForPath("a.two")).toBe("circle");
+    two();
+  });
+  it("notifies on associations and registry changes and disposes listeners", () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const configurationEvents = new EventDispatcher<{
+      updated: [{ key: string; value: unknown; prev: unknown }];
+    }>();
+    Object.assign(app.configuration, {
+      on: configurationEvents.on.bind(configurationEvents),
+      offref: configurationEvents.offref.bind(configurationEvents),
+    });
+    const listener = vi.fn();
+    const stop = workspace.onFileIconsChanged(listener);
+    workspace.registerEditorView({
+      id: "lazy",
+      label: "Lazy",
+      source: "manifest",
+      filenamePatterns: ["*.lazy"],
+      fileIcon: "workflow",
+    });
+    expect(workspace.getFileIconForPath("a.lazy")).toBe("workflow");
+    expect(listener).toHaveBeenCalledTimes(1);
+    configurationEvents.trigger("updated", {
+      key: "workspace.editorAssociations",
+      value: {},
+      prev: {},
+    });
+    expect(listener).toHaveBeenCalledTimes(2);
+    stop();
+    workspace.editorViews.unregister("lazy");
+    expect(listener).toHaveBeenCalledTimes(2);
   });
 });

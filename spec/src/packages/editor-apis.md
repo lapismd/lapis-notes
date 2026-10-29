@@ -1,5 +1,37 @@
 # Packages / Editor APIs
 
+Hosted model acceptance consumes the existing public AppDatabase embedding
+methods through the production Rust HTTP provider. Optional vector diagnostics
+are checked for a numeric score before the retained tolerance comparison.
+
+`Editor.updateExtensions` preserves the current document's state under
+[LN-ED-063](../editor-demo/core-contract-01.md#ln-ed-063). Embedded surfaces
+resolve declared reactive inputs before applying extensions under
+[LN-ED-064](../editor-demo/core-contract-01.md#ln-ed-064); native protection
+transitions do not become configuration dependencies.
+
+Noninteractive logical state uses operation-scoped native intent under
+[LN-CORE-026](../architecture/native-editor-intents.md#ln-core-026). The existing
+App queue captures changes after admission and yields only after acknowledged
+conditional persistence. Editors and Mira previews keep their full-duration
+editing fence; pending/failed local transition snapshots are passive.
+
+Native hosts select the optional [editor-intent lifecycle](../architecture/native-editor-intents.md)
+through `AppStateProperties.nativeEditingIntents` or the admitted `VaultSession`.
+The public `@lapis-notes/api/native-editing-intents` entry carries generated
+transport DTOs and read-only saved-snapshot access. Existing generic writer
+registrations add native input protection and saved-text authority when that
+port is selected; ordinary browser writers retain their existing behavior.
+Interactive producers may expose `native.refreshSavedText` to reconcile saved
+bytes while their existing local protection remains held. The registry invokes
+it only under held protection — after confirmed handoff and native rearm, and
+before a clean producer's guarded yield — never as a content writer or an
+out-of-guard conflict fallback (LN-CORE-028). Clean terminal retirement drains
+its producer before observing the current version or expected absence and never
+writes content. Recovery preflight drains admitted registry transitions before
+reporting unresolved issues; failed persistence stays fenced. See the
+[retirement qualification](../../records/2026-10-26-native-editor-retirement.md).
+
 LN-ARCH-137 and LN-ARCH-138 define guarded atomic `Editor.loadDocument` and
 publication cancellation. Text file views use that boundary while independent
 Mira and host flush/shutdown integration remain required for production Sync.
@@ -19,11 +51,16 @@ API builds also compile public editing-session usage against emitted declaration
 through `check:pack-types`; source-aliased Storybook alone does not prove the
 handwritten App declaration consumed by installed plugins.
 
+`EmbedRegistry` keeps one renderer per file extension and a separate declinable
+Markdown embedder list. The first embedder that accepts a file owns that
+full-file embed, and `Plugin.registerMarkdownEmbedder` removes its registration
+on unload.
+
 ## LN-PKG-004 — Specification before new package intake
 
 <a id="ln-pkg-004"></a>
 
-**Requirement.** Notebook and remaining unlisted plugin packages MUST NOT be added until specified and tracked in `MIGRATION.md`. The production hosts are Deno desktop and web. Authorized plugins are Source Editor, Markdown, Markdownlint, Spell Check, File Explorer, Bookmarks, Search, Graph, Bases, AI, History, Word Count, Roles, Tasks, Docs, and Terminal. Authorized host infrastructure MAY include public `@lapismd/ai-host` and `@lapismd/terminal-host`.
+**Requirement.** Notebook and remaining unlisted plugin packages MUST NOT be added until specified and tracked in `MIGRATION.md`. Production hosts are Deno desktop and web, and MAY include public `@lapismd/ai-host` and `@lapismd/terminal-host`. Authorized plugins are Source Editor, Markdown, Markdownlint, Spell Check, File Explorer, Bookmarks, Search, Graph, Bases, AI, History, Word Count, Roles, Tasks, Docs, Terminal, PDF, and CSV. PDF and CSV are specified in `lapis-plugins/spec/src/plugins/pdf/index.md` and `lapis-plugins/spec/src/plugins/csv/index.md`, and both stay in that repository.
 
 ## LN-PKG-011 — Development-only CodeMirror language dependencies
 
@@ -35,7 +72,7 @@ handwritten App declaration consumed by installed plugins.
 
 <a id="ln-pkg-013"></a>
 
-**Requirement.** `@lapis-notes/api` MUST paint the source-editor inline filename title with public `--ui-editor-inline-title-*` tokens and MUST contribute file-view breadcrumbs, leaf history, and header title rename (`titleEditable` / `onTitleCommit`) through the workspace-host `getChrome` projection. Non-file views MAY contribute prefix crumbs and a breadcrumb file path through View hooks.
+**Requirement.** `@lapis-notes/api` MUST paint the source-editor inline filename title with public `--ui-editor-inline-title-*` tokens and MUST contribute file-view breadcrumbs, leaf history, and header title rename (`titleEditable` / `onTitleCommit`) through the workspace-host `getChrome` projection. Non-file views MAY contribute prefix crumbs and a breadcrumb file path through View hooks. Inline renaming MUST commit once and display the authoritative filename.
 
 ## LN-PKG-014 — Editor language metadata
 
@@ -48,6 +85,12 @@ handwritten App declaration consumed by installed plugins.
 <a id="ln-pkg-048"></a>
 
 **Requirement.** `@lapis-notes/api` `markupEditor` MUST retain a 700px readable content column when its workspace pane is wide enough. Narrow panes MAY use the configured file margins, but closing either sidebar MUST NOT shrink the editor body.
+
+## LN-PKG-187 — Inline title text-column alignment
+
+<a id="ln-pkg-187"></a>
+
+**Requirement.** The desktop inline filename title MUST align with its owning CodeMirror text column, including the measured gutter spacing. Alignment MUST follow gutter configuration, line-number width, fonts, pane geometry and remounting without changing the readable column width. Each editor MUST own and dispose its measurement lifecycle. Mobile titles MUST retain their centered presentation.
 
 ## LN-PKG-059 — Public embedded editor and extension resolution
 

@@ -1,3 +1,4 @@
+import { appStatePath } from "../storage/path";
 import { EventDispatcher } from "$lib/events";
 import type { DataAdapter } from "$lib/storage/fs";
 import { hasNativeDesktopCapability } from "$lib/storage/desktop-native";
@@ -135,6 +136,7 @@ export interface PluginDistributionManager {
   setSourceEnabled(sourceId: string, enabled: boolean): Promise<void>;
   search(query?: PluginSearchQuery): PluginCatalogEntry[];
   getCatalogEntry(pluginId: string): PluginCatalogEntry | undefined;
+  getCompatibility?(pluginId: string): PluginCompatibilityResult | null;
   getPluginDetail(
     pluginId: string,
     options?: { registryId?: string },
@@ -211,6 +213,7 @@ export interface DefaultPluginDistributionManagerOptions {
   adapter: DataAdapter;
   appVersion: string;
   platform?: PluginPlatform;
+  unavailablePlugins?: PluginCompatibilityInput["unavailablePlugins"];
   workspaceTrusted?: () => Promise<boolean> | boolean;
   registries?: PluginRegistrySource[];
   trustedKeys?: TrustedSigningKey[];
@@ -501,11 +504,7 @@ export class DefaultPluginDistributionManager
         return false;
       }
       if (query.compatibleOnly) {
-        const compatibility = checkCatalogEntryCompatibility(
-          entry,
-          this.compatibilityInput(false),
-        );
-        if (!compatibility.compatible) return false;
+        if (!this.getCompatibility(entry.id)?.compatible) return false;
       }
       return true;
     });
@@ -513,6 +512,13 @@ export class DefaultPluginDistributionManager
 
   getCatalogEntry(pluginId: string): PluginCatalogEntry | undefined {
     return this.catalog?.plugins.find((entry) => entry.id === pluginId);
+  }
+
+  getCompatibility(pluginId: string): PluginCompatibilityResult | null {
+    const entry = this.getCatalogEntry(pluginId);
+    return entry
+      ? checkCatalogEntryCompatibility(entry, this.compatibilityInput(false))
+      : null;
   }
 
   async getPluginDetail(
@@ -588,6 +594,7 @@ export class DefaultPluginDistributionManager
       const releaseCompatibility = checkCatalogReleaseCompatibility(
         release,
         this.compatibilityInput(false),
+        pluginId,
       );
       if (!releaseCompatibility.compatible) {
         throw new PluginDistributionError(
@@ -865,6 +872,7 @@ export class DefaultPluginDistributionManager
         compatibility = checkCatalogReleaseCompatibility(
           targetRelease,
           this.compatibilityInput(false),
+          record.pluginId,
         );
       }
 
@@ -909,7 +917,9 @@ export class DefaultPluginDistributionManager
         fetch: this.options.fetch,
         cache: new PluginRegistryCache({
           adapter: this.options.adapter,
-          cachePath: `.obsidian/plugin-registry-cache/${encodeURIComponent(source.id)}/${encodeURIComponent(source.url)}.json`,
+          cachePath: appStatePath(
+            `plugin-registry-cache/${encodeURIComponent(source.id)}/${encodeURIComponent(source.url)}.json`,
+          ),
         }),
       });
       this.httpClients.set(key, client);
@@ -982,6 +992,7 @@ export class DefaultPluginDistributionManager
       appVersion: this.options.appVersion,
       platform: this.platform,
       workspaceTrusted,
+      unavailablePlugins: this.options.unavailablePlugins,
     };
   }
 

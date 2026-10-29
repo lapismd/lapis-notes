@@ -6,7 +6,10 @@ export interface EditorSaveSnapshot {
   documentGeneration: number;
 }
 
-/** One document's queued saves and failures; the editor supplies shared serialization. */
+/**
+ * One document's queued saves and failures; the editor supplies shared
+ * serialization.
+ */
 export class EditorSaveContext {
   #latest: EditorSaveSnapshot | undefined;
   #completed = 0;
@@ -43,6 +46,38 @@ export class EditorSaveContext {
       !!this.#failure ||
       this.#unverified
     );
+  }
+
+  get latest(): EditorSaveSnapshot | undefined {
+    return this.#latest;
+  }
+
+  /** A protected explicit recovery may acknowledge the latest retained snapshot. */
+  accept(snapshot: EditorSaveSnapshot): void {
+    this.#reset();
+    this.#completed = Math.max(this.#completed, snapshot.sequence);
+    this.options.saved(snapshot);
+    this.#releaseIfClean();
+  }
+
+  /**
+   * Discard only after the recovery owner has revalidated the external
+   * snapshot.
+   */
+  discard(): void {
+    this.#reset();
+    this.#completed = Math.max(this.#completed, this.#latest?.sequence ?? 0);
+    this.#latest = undefined;
+    this.#releaseIfClean();
+  }
+
+  #reset(): void {
+    if (this.#pending.size)
+      throw new Error("Editor recovery requires settled saves");
+    this.cancelChange();
+    this.cancelSave();
+    this.#failure = undefined;
+    this.#unverified = false;
   }
 
   queue(

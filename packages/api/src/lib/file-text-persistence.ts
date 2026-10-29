@@ -1,0 +1,294 @@
+import type { TFile } from "./storage/fs";
+import type { Vault } from "./storage/vault.svelte";
+import type {
+  FileTextConflict,
+  FileTextConflictRegistry,
+  FileTextResolution,
+} from "./file-text-conflicts";
+
+function hasCode(error: unknown, code: string): boolean {
+  return (
+    !!error &&
+    typeof error === "object" &&
+    "code" in error &&
+    error.code === code
+  );
+}
+
+/** A single recovery operation owns its protected document acknowledgement. */
+export type FileTextRecoveryLease = {
+  release(): void;
+  saved(): void;
+  reset(contents: string): void | Promise<void>;
+  resetSaved?(contents: string): void;
+};
+
+export type FileTextPersistenceOptions = {
+  vault: Pick<Vault, "read" | "modifyIfUnchanged">;
+  file: TFile;
+  baseline: string | null;
+  conflicts: FileTextConflictRegistry;
+  local(): string;
+  /** Acquire editing protection synchronously, before asynchronous admission. */
+  protect(): FileTextRecoveryLease | Promise<FileTextRecoveryLease>;
+  settle?(): Promise<void>;
+  serialize(run: () => Promise<void>): Promise<void>;
+  /** State restoration may itself write other owned files; revalidate afterward. */
+  recoverOutsideQueue?: boolean;
+};
+
+/** A single captured document's baseline and explicit text-conflict recovery. */
+export class FileTextPersistence {
+  readonly #id = crypto.randomUUID();
+  readonly #path: string;
+  readonly #error: Error & { code: string };
+  #baseline: string | null;
+  #conflict: FileTextConflict | undefined;
+
+  constructor(private readonly options: FileTextPersistenceOptions) {
+    this.#path = options.file.path;
+    this.#baseline = options.baseline;
+    this.#error = Object.assign(
+      new Error(`File changed on disk: ${this.#path}`),
+      { code: "ECONFLICT" },
+    );
+  }
+
+  get hasConflict(): boolean {
+    return !!this.#conflict;
+  }
+
+  get baseline(): string | null {
+    return this.#baseline;
+  }
+
+  acceptBaseline(contents: string | null): void {
+    if (!this.#conflict) this.#baseline = contents;
+  }
+
+  updateLocal(contents: string): void {
+    if (this.#conflict && this.#conflict.local !== contents)
+      this.#publish(this.#conflict.external, this.#conflict.readError);
+  }
+
+  /** Retain a computed draft and authoritative disk snapshot before rejecting. */
+  async rejectPersistence(error: unknown = this.#error): Promise<never> {
+    this.#assertTarget();
+    await this.#captureExternal();
+    throw error;
+  }
+
+  async persist(contents: string): Promise<void> {
+    this.#assertTarget();
+    if (this.#conflict) {
+      this.updateLocal(this.options.local());
+      throw this.#error;
+    }
+    try {
+      await this.options.vault.modifyIfUnchanged(
+        this.options.file,
+        contents,
+        this.#baseline,
+      );
+      this.#baseline = contents;
+    } catch (error) {
+      if (hasCode(error, "ECONFLICT")) {
+        await this.#captureExternal();
+        throw this.#error;
+      }
+      throw error;
+    }
+  }
+
+  #assertTarget(): void {
+    if (this.options.file.path !== this.#path)
+      throw new Error("File text persistence target changed");
+  }
+
+  #assertCurrent(conflict: FileTextConflict): void {
+    this.#assertTarget();
+    if (this.#conflict !== conflict)
+      throw new Error("Conflict changed; review the latest versions");
+  }
+
+  async #read(): Promise<string | null> {
+    this.#assertTarget();
+    try {
+      return await this.options.vault.read(this.options.file);
+    } catch (error) {
+      if (hasCode(error, "ENOENT")) return null;
+      throw error;
+    }
+  }
+
+  async #captureExternal(): Promise<void> {
+    try {
+      this.#publish(await this.#read());
+    } catch (error) {
+      this.#publish(
+        undefined,
+        error instanceof Error ? error.message : String(error),
+      );
+    }
+  }
+
+  #publish(external: string | null | undefined, readError?: string): void {
+    const conflict: FileTextConflict = {
+      id: this.#id,
+      path: this.#path,
+      baseline: this.#baseline,
+      local: this.options.local(),
+      external,
+      ...(readError === undefined ? {} : { readError }),
+      resolve: (choice) => this.#recover(conflict, choice),
+      resolveMerged: (contents) =>
+        typeof contents === "string"
+          ? this.#recover(conflict, "keep-local", contents)
+          : Promise.reject(new Error("Merged file contents must be text")),
+      refresh: () => this.#recover(conflict),
+    };
+    this.#conflict = conflict;
+    this.options.conflicts.publish(conflict);
+  }
+
+  async #recover(
+    conflict: FileTextConflict,
+    choice?: FileTextResolution,
+    merged?: string,
+  ): Promise<void> {
+    this.#assertCurrent(conflict);
+    if (
+      choice !== undefined &&
+      choice !== "keep-local" &&
+      choice !== "use-external"
+    )
+      throw new Error("Invalid text conflict resolution");
+    if (merged !== undefined && typeof merged !== "string")
+      throw new Error("Merged file contents must be text");
+    const lease = await this.options.protect();
+    try {
+      await this.options.settle?.();
+      if (this.options.recoverOutsideQueue && choice !== undefined) {
+        await this.#recoverState(conflict, choice, lease, merged);
+        return;
+      }
+      await this.options.serialize(async () => {
+        this.#assertCurrent(conflict);
+        if (choice === undefined) {
+          await this.#captureExternal();
+          return;
+        }
+        if (conflict.external === undefined)
+          throw new Error(
+            "Read the disk version before resolving this conflict",
+          );
+        if (choice === "keep-local") {
+          const contents = merged ?? this.options.local();
+          try {
+            await this.options.vault.modifyIfUnchanged(
+              this.options.file,
+              contents,
+              conflict.external,
+            );
+          } catch (error) {
+            if (hasCode(error, "ECONFLICT")) {
+              await this.#captureExternal();
+              throw this.#error;
+            }
+            throw error;
+          }
+          const previousBaseline = this.#baseline;
+          this.#baseline = contents;
+          if (merged !== undefined) {
+            try {
+              await lease.reset(contents);
+            } catch (error) {
+              this.#baseline = previousBaseline;
+              throw error;
+            }
+            lease.resetSaved?.(contents);
+          } else lease.saved();
+          this.#clear();
+        } else {
+          let external: string | null;
+          try {
+            external = await this.#read();
+          } catch (error) {
+            await this.#captureExternal();
+            throw error;
+          }
+          if (external !== conflict.external) {
+            this.#publish(external);
+            throw this.#error;
+          }
+          const previousBaseline = this.#baseline;
+          this.#baseline = external;
+          try {
+            await lease.reset(external ?? "");
+          } catch (error) {
+            this.#baseline = previousBaseline;
+            throw error;
+          }
+          this.#clear();
+          lease.resetSaved?.(external ?? "");
+        }
+      });
+    } finally {
+      lease.release();
+    }
+  }
+
+  async #recoverState(
+    conflict: FileTextConflict,
+    choice: FileTextResolution,
+    lease: FileTextRecoveryLease,
+    merged?: string,
+  ): Promise<void> {
+    let selected = "";
+    await this.options.serialize(async () => {
+      this.#assertCurrent(conflict);
+      if (conflict.external === undefined)
+        throw new Error("Read the disk version before resolving this conflict");
+      const actual = await this.#read();
+      if (actual !== conflict.external) {
+        this.#publish(actual);
+        throw this.#error;
+      }
+      selected =
+        merged ??
+        (choice === "keep-local" ? this.options.local() : (actual ?? ""));
+    });
+    // The owner lease remains held, but other owned files can use the queue.
+    await lease.reset(selected);
+    await this.options.serialize(async () => {
+      this.#assertCurrent(conflict);
+      if (choice === "keep-local") {
+        try {
+          await this.options.vault.modifyIfUnchanged(
+            this.options.file,
+            selected,
+            conflict.external!,
+          );
+        } catch (error) {
+          if (hasCode(error, "ECONFLICT")) await this.#captureExternal();
+          throw error;
+        }
+      } else {
+        const actual = await this.#read();
+        if (actual !== conflict.external) {
+          this.#publish(actual);
+          throw this.#error;
+        }
+      }
+      this.#baseline = choice === "keep-local" ? selected : conflict.external!;
+      this.#clear();
+      if (choice === "keep-local" && merged === undefined) lease.saved();
+      else lease.resetSaved?.(selected);
+    });
+  }
+
+  #clear(): void {
+    this.#conflict = undefined;
+    this.options.conflicts.clear(this.#id);
+  }
+}

@@ -1,8 +1,32 @@
 # Workspace Shell / Chrome and navigation
 
-The Design Core dependency refresh consumes released `0.5.0` CSS, fonts and
+LN-PKG-185 supplies common file/folder discovery exclusions to Explorer and
+pickers through Vault. The workspace keeps its existing App, chrome and settings
+presentation, adding the shared editable list under Workspace / File discovery
+through the existing Design Core list control; no plugin-specific policy is added.
+
+The shared Safe Mode banner uses an opaque workspace background and semantic
+fallback, with database, search and restart icons beside its accessible action
+names. Hosts retain recovery operations and failure status ownership.
+
+Desktop Safe Mode presentation is shared under LN-PKG-175. Its retained Deno
+labels and Design Core controls sit below the top tabs; the host supplies
+restriction descriptions, operation status and callbacks.
+
+The desktop chooser and startup precede the workspace through the shared
+public presentation in LN-PKG-171. Deno and Tauri provide native vault actions
+and session ownership while reusing the same chooser markup, native CSS and
+Lapis startup visual. The shared presentation contains no vault discovery,
+session teardown or alternate workspace renderer.
+
+The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.
+
+Mobile acceptance uses the dock's count-bearing `Open N tabs` accessible name,
+derives the initial count, and verifies its increment after adding a tab. The
+selector repair already qualified on Design Core 0.4.0 in `f15b61b4` is retained
+here without changing this migration's dependency target.
 
 ## LN-WS-014 — Desktop top and stacked main-workspace panes: expose design-core's pane-level maximize toggle beside tab
 
@@ -27,3 +51,9 @@ behavior and plugin activation remain unchanged.
 <a id="ln-ws-058"></a>
 
 **Requirement.** Default desktop shells MUST show Design Core's built-in Settings action in the left ribbon footer while the ribbon is visible. The action MUST expose the public "Open settings" label and activate the same settings dialog as any shell settings trigger.
+
+## LN-WS-096 — Owned notice projection
+
+<a id="ln-ws-096"></a>
+
+**Requirement.** A workspace host MUST project its owning App's notice events through the existing Design Core notification manager, preserving identity, message, title, severity and source. Disposing the host MUST unsubscribe notice delivery so a retired App cannot publish into that host. First-party callers with an App MUST pass that owner explicitly to Notice.

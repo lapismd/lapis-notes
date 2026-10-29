@@ -17,6 +17,16 @@ alignment assertions resolve the same DOM snapshot under
 [LN-WS-038](../workspace-shell/panels/problems/core-contract.md#ln-ws-038).
 The Problems badge reflects all active diagnostic providers under LN-WS-046;
 the two required Markdownlint codes remain independently verified.
+Contributed Problems fixes use the owning API editor's save queue for open
+resources before diagnostics refresh (LN-WS-034). Plugin providers do not add a
+second writer to that path.
+
+The separately selected native backup service distinguishes explicit persisted selection from observer disposal under LN-WEB-073, while retaining existing settings and default-profile ownership.
+
+The separately selected native Repository profile reuses the public restore
+controller and review dialog under LN-WEB-072. Its same-client adapter supplies
+native guarded restore without installing the optional legacy HistoryPlugin,
+changing the four-plugin default, or creating another plugin-owned writer.
 
 ## LN-PLUG-007 — Disabling a plugin with open owned views: replace those leaves with persisted missing-view placeholders
 
@@ -35,6 +45,8 @@ the two required Markdownlint codes remain independently verified.
 <a id="ln-plug-013"></a>
 
 **Requirement.** `Plugin.registerSearchDocumentProvider` MUST namespace provider IDs and dispose registrations with the owning plugin lifecycle. It MUST NOT grant providers direct generated-index ownership.
+
+`Plugin.registerMarkdownEmbedder` appends one declinable full-file Markdown embedder and removes that registration when the plugin unloads.
 
 ## LN-PLUG-015 — History-enabled navigation into a plugin-owned file view: preserve the initiating leaf state before constructing
 
@@ -119,3 +131,25 @@ the two required Markdownlint codes remain independently verified.
 <a id="ln-plug-108"></a>
 
 **Requirement.** Plugin installation from details MUST retain the selected verified version, including when a newer update is available. An update MUST NOT substitute a different recovery target for that selection. Historical installation MUST use the existing confirmation and verification flow. Bundled plugins MUST remain non-installable through registry actions.
+
+## LN-PLUG-122 — File-view icon metadata
+
+<a id="ln-plug-122"></a>
+
+**Requirement.** Editor-view contributions MUST accept optional serializable `fileIcon` metadata in runtime and admitted manifests. Path lookup MUST use existing association, priority and pattern-specificity rules without constructing a view or activating a plugin. Disabled or catalog-only plugins MUST NOT contribute file icons. The selected contribution without artwork MUST retain the filename fallback.
+
+Unchanged contract: File Explorer passes the selected file-view icon through published Design Core `getIcon` and `registerWorkspaceIcon`. `ExplorerControllerOptions` does not declare `iconResolver`.
+
+## LN-PLUG-123 — Owned plugin artwork
+
+<a id="ln-plug-123"></a>
+
+**Requirement.** Plugins MUST be able to register custom SVGs and icon packs through their explicitly owned App and receive namespaced icon IDs. Unload MUST dispose only those registrations; stale cleanup or loader results MUST NOT remove replacements. Legacy global icon registration MUST remain a compatibility fallback. Registry changes MUST invalidate artwork availability and notify subscribers.
+
+## LN-PLUG-124 — Registered icon resolution
+
+<a id="ln-plug-124"></a>
+
+**Requirement.** The API icon resolver MUST distinguish found, missing and failed artwork for registered SVGs, aliases and synchronous or asynchronous icon packs. It MUST deduplicate concurrent loads, retain explicit retry by re-registration, reject executable SVG content and preserve valid geometry and local definitions. Pending or failed artwork MUST NOT trigger plugin activation or repeat loads per Explorer row.
+
+The public `@lapis-notes/web` package does not contain the hosted Rust client or server screen ([LN-CORE-070](../architecture/rust-hosted-delivery.md#ln-core-070)).

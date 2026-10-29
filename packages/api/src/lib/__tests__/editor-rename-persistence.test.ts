@@ -158,7 +158,7 @@ it("does not rename when a registered draft fails to persist", async () => {
   const { app, file, editor, manager } = await fixture();
   try {
     edit(editor, "draft");
-    vi.spyOn(app.vault, "modify").mockRejectedValueOnce(
+    vi.spyOn(app.vault, "modifyIfUnchanged").mockRejectedValueOnce(
       new Error("save failed"),
     );
     await expect(manager.renameFile(file, "renamed.txt")).rejects.toThrow(

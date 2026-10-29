@@ -62,9 +62,12 @@ import {
 import { scanBarePluginDependencySpecifiers } from "./plugin-dependency-scanner";
 import pluginHostModuleRegistry from "./generated/plugin-host-modules.schema.generated";
 import { InstalledPluginStateStore } from "./plugin-distribution/installed-plugin-state";
-import type { PluginProvenance } from "./plugin-distribution/types";
+import type {
+  PluginProvenance,
+  PluginHostRestrictions,
+} from "./plugin-distribution/types";
 import { dirname, getAdapterVaultId, joinPath, normalizePath } from "./storage";
-import { debounce } from "lodash-es";
+import { readFileState, saveFileState } from "./file-state-store";
 import { EventDispatcher } from "./events";
 import type { ViewState } from "./view.svelte";
 import type { WorkspaceLeaf } from "./workspace.svelte";
@@ -80,8 +83,7 @@ function resolvePluginModuleExport(moduleExports: unknown): unknown {
     return exportRecord.default;
   }
   const namedPluginClass = Object.values(exportRecord).find(
-    (value) =>
-      typeof value === "function" && value.prototype instanceof Plugin,
+    (value) => typeof value === "function" && value.prototype instanceof Plugin,
   );
   return namedPluginClass ?? Object.values(exportRecord)[0] ?? moduleExports;
 }
@@ -157,6 +159,7 @@ export interface CommunityPluginExecutionHost {
 }
 
 export interface PluginManagerOptions {
+  unavailablePlugins?: PluginHostRestrictions;
   communityPluginHost?: CommunityPluginExecutionHost;
   createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
   pluginAssetServer?: PluginAssetServer;
@@ -737,6 +740,7 @@ export interface PluginEvents {
   "plugin-loaded": [plugin: Plugin];
   "plugin-enabled": [plugin: Plugin];
   "plugin-disabled": [plugin: Plugin];
+  "plugin-unloaded": [pluginId: string];
   "community-plugin-config-pruned": [pluginIds: string[]];
   "plugin-error": [id: string, message: string, error?: any];
 }
@@ -751,6 +755,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
   #defaultDisabledCorePlugins: Set<string> = new Set();
   #corePluginStyles: Map<string, CorePluginStyles> = new Map();
   #corePluginDistribution: Map<string, CorePluginDistribution> = new Map();
+  #pendingReloadPlugins = new Set<string>();
   #installedPluginProvenance: Map<string, PluginProvenance> = new Map();
   #installedPluginStateStore: InstalledPluginStateStore;
   #basesViewRegistrations: Map<string, BasesViewRegistrationEntry> = new Map();
@@ -779,6 +784,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     new Map();
   #communityPluginHost: CommunityPluginExecutionHost;
   #pluginAssetServer?: PluginAssetServer;
+  #unavailablePlugins: PluginHostRestrictions;
   #createSyncHostCapabilities?: PluginManagerOptions["createSyncHostCapabilities"];
   #revokeSyncHostCapabilities?: PluginManagerOptions["revokeSyncHostCapabilities"];
 
@@ -794,6 +800,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       options.createCommunityPluginDependencyResolver?.(this.dependencies) ??
       this.dependencies;
     this.#pluginAssetServer = options.pluginAssetServer;
+    this.#unavailablePlugins = { ...options.unavailablePlugins };
     this.#createSyncHostCapabilities = options.createSyncHostCapabilities;
     this.#revokeSyncHostCapabilities = options.revokeSyncHostCapabilities;
     const commonJsHost =
@@ -821,7 +828,10 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       if (event.origin === "plugin-save") {
         return;
       }
-      void this.syncLegacyPluginData(event.pluginId);
+      void this.syncLegacyPluginData(
+        event.pluginId,
+        event.value === undefined && event.prev !== undefined,
+      );
     });
   }
 
@@ -845,6 +855,65 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     return Boolean(this.plugins.get(pluginId)?.enabled);
   }
 
+  /** Registered application profiles own their identities, even when disabled. */
+  isStaticPlugin(pluginId: string): boolean {
+    return (
+      this.#corePluginDistribution.has(pluginId) ||
+      this.#systemExtensionManifests.has(pluginId)
+    );
+  }
+
+  /** Release an external registration before the installer removes its code. */
+  async unloadPlugin(pluginId: string): Promise<boolean> {
+    if (this.isStaticPlugin(pluginId)) return false;
+    const plugin = this.plugins.get(pluginId);
+    if (plugin && !(await this.disablePlugin(pluginId))) return false;
+    this.disableManifestOnlyExtension(pluginId);
+    this.plugins.delete(pluginId);
+    this.#lapisExtensionIndex.delete(pluginId);
+    this.#communityPluginDiagnostics.delete(pluginId);
+    this.#communityPluginDependencyDiagnostics.delete(pluginId);
+    this.#communityPluginRuntimeExecutionDiagnostics.delete(pluginId);
+    this.#installedPluginProvenance.delete(pluginId);
+    if (plugin) this.#pendingReloadPlugins.add(pluginId);
+    if (this.#configuredCommunityPlugins.delete(pluginId))
+      this.saveCommunityPluginState();
+    await this.flushPendingConfigWrites();
+    this.emit("plugin-unloaded", pluginId);
+    return true;
+  }
+
+  /** Retire a loaded module while preserving its configured startup choice. */
+  async preparePluginReplacement(pluginId: string): Promise<
+    | {
+        reloadRequired: boolean;
+        rollback(): Promise<void>;
+      }
+    | undefined
+  > {
+    if (this.isStaticPlugin(pluginId))
+      throw new Error(`Plugin ${pluginId} is registered by the application`);
+    const plugin = this.plugins.get(pluginId);
+    if (!plugin) return undefined;
+    const wasEnabled = plugin.enabled;
+    const wasPendingReload = this.#pendingReloadPlugins.has(pluginId);
+    if (!(await this.disablePluginNow(pluginId, false)))
+      throw new Error(
+        `Plugin ${pluginId} could not finish replacement teardown`,
+      );
+    this.#pendingReloadPlugins.add(pluginId);
+    return {
+      reloadRequired: true,
+      rollback: async () => {
+        if (!wasPendingReload) this.#pendingReloadPlugins.delete(pluginId);
+        if (wasEnabled && !(await this.enablePlugin(pluginId)))
+          throw new Error(
+            `Plugin ${pluginId} could not restore its previous runtime`,
+          );
+      },
+    };
+  }
+
   get corePluginEntries(): CorePluginListEntry[] {
     const runtimePlugins = this.corePlugins.map((plugin) => ({
       manifest: plugin.manifest,
@@ -854,9 +923,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       provenance: plugin.provenance,
       distribution:
         this.#corePluginDistribution.get(plugin.manifest.id) ??
-        (plugin.source === "official"
-          ? "first-party-external"
-          : "bundled"),
+        (plugin.source === "official" ? "first-party-external" : "bundled"),
       errorMessage: plugin.errorMessage,
     }));
 
@@ -1014,9 +1081,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         const registeredPlugin = this.registerPlugin(plugin, {
           source: "core",
           provenance:
-            distribution === "first-party-external"
-              ? "official"
-              : "bundled",
+            distribution === "first-party-external" ? "official" : "bundled",
           required,
           basePath: pluginPath,
         });
@@ -1281,6 +1346,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         });
         await this.activateIndexedExtensionsForWorkspace();
         this.#loaded = true;
+        if (this.app.nativeTasks) await this.app.nativeTasks.load();
         this.emit("plugins-loaded");
         await this.activateByEvent("onStartupFinished");
       },
@@ -1502,14 +1568,20 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
   ): Promise<string[]> {
     const configPath = this.getPluginStatePath(filename);
     try {
-      const exists = await this.adapter.exists(configPath);
-      if (!exists) {
+      const data = await this.readPluginState(configPath, (text) => {
+        const value = JSON.parse(text || "[]");
+        if (!Array.isArray(value) || value.some((id) => typeof id !== "string"))
+          throw new Error("Invalid community plugin configuration");
+        this.#configuredCommunityPlugins = new Set(value);
+      });
+      if (data === null) {
         if (options.createIfMissing) {
-          await this.adapter.write(configPath, "[]");
+          if (this.app.vault.supportsConditionalTextWrites)
+            await saveFileState(this.app, configPath, "[]");
+          else await this.adapter.write(configPath, "[]");
         }
         return [];
       }
-      const data = await this.adapter.read(configPath);
       const plugins = JSON.parse(data);
       if (Array.isArray(plugins)) {
         return plugins.map((it) => it.toString());
@@ -1528,12 +1600,10 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
   private async readCorePluginStateConfig(): Promise<CorePluginStateConfig> {
     const configPath = this.getPluginStatePath("core-plugins.json");
     try {
-      const exists = await this.adapter.exists(configPath);
-      if (!exists) {
-        return { disabled: [], enabled: [] };
-      }
-
-      const data = await this.adapter.read(configPath);
+      const data = await this.readPluginState(configPath, (text) =>
+        this.restoreCorePluginState(text),
+      );
+      if (data === null) return { disabled: [], enabled: [] };
       const config = JSON.parse(data);
 
       if (Array.isArray(config)) {
@@ -1564,74 +1634,95 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     return { disabled: [], enabled: [] };
   }
 
-  private async savePluginListConfig(
-    filename: string,
-    pluginIds: Iterable<string>,
-  ): Promise<void> {
-    const configPath = this.getPluginStatePath(filename);
-    try {
-      const file = this.app.vault.getFileByPath(configPath);
-      const payload = JSON.stringify([...pluginIds], null, 2);
-      if (file) {
-        await this.app.vault.modify(file, payload);
-        return;
-      }
+  readonly #pendingConfigWrites = new Set<Promise<void>>();
 
-      await this.app.vault.create(configPath, payload);
-    } catch (error) {
-      this.reportPluginError(
-        configPath,
-        `Failed to save plugin config ${configPath}: ${formatPluginError(error)}`,
-        error,
-      );
-    }
-  }
-
-  private async saveCorePluginStateConfig(): Promise<void> {
-    const configPath = this.getPluginStatePath("core-plugins.json");
-    try {
-      const file = this.app.vault.getFileByPath(configPath);
-      const payload =
-        this.#enabledCorePlugins.size === 0
-          ? JSON.stringify([...this.#disabledCorePlugins], null, 2)
-          : JSON.stringify(
-              {
-                disabled: [...this.#disabledCorePlugins],
-                enabled: [...this.#enabledCorePlugins],
-              },
-              null,
-              2,
-            );
-
-      if (file) {
-        await this.app.vault.modify(file, payload);
-        return;
-      }
-
-      await this.app.vault.create(configPath, payload);
-    } catch (error) {
-      this.reportPluginError(
-        configPath,
-        `Failed to save plugin config ${configPath}: ${formatPluginError(error)}`,
-        error,
-      );
-    }
-  }
-
-  private saveCommunityPluginState = debounce(() => {
-    return void this.savePluginListConfig(
-      "community-plugins.json",
-      this.#configuredCommunityPlugins,
+  private queuePluginState(filename: string, value: unknown): Promise<void> {
+    const path = this.getPluginStatePath(filename);
+    const payload = JSON.stringify(value, null, 2);
+    const operation = this.app.vault.supportsConditionalTextWrites
+      ? saveFileState(this.app, path, payload)
+      : (async () => {
+          const file = this.app.vault.getFileByPath(path);
+          if (file) await this.app.vault.modify(file, payload);
+          else await this.app.vault.create(path, payload);
+        })();
+    this.#pendingConfigWrites.add(operation);
+    void operation.then(
+      () => this.#pendingConfigWrites.delete(operation),
+      (error) => {
+        this.#pendingConfigWrites.delete(operation);
+        this.reportPluginError(
+          path,
+          `Failed to save plugin config ${path}: ${formatPluginError(error)}`,
+          error,
+        );
+      },
     );
-  }, 500);
+    return this.app.vault.supportsConditionalTextWrites
+      ? operation
+      : operation.catch(() => undefined);
+  }
 
-  private saveCorePluginState = debounce(() => {
-    return void this.saveCorePluginStateConfig();
-  }, 500);
+  private saveCommunityPluginState = (): void => {
+    this.queuePluginState("community-plugins.json", [
+      ...this.#configuredCommunityPlugins,
+    ]);
+  };
 
-  flushPendingConfigWrites(): void {
-    this.saveCommunityPluginState.flush();
-    this.saveCorePluginState.flush();
+  private saveCorePluginState = (): void => {
+    this.queuePluginState(
+      "core-plugins.json",
+      this.#enabledCorePlugins.size === 0
+        ? [...this.#disabledCorePlugins]
+        : {
+            disabled: [...this.#disabledCorePlugins],
+            enabled: [...this.#enabledCorePlugins],
+          },
+    );
+  };
+
+  async flushPendingConfigWrites(): Promise<void> {
+    if (this.app.vault.supportsConditionalTextWrites)
+      await this.app.fileEditingSessions.settleOperations();
+    await Promise.all([...this.#pendingConfigWrites]);
+  }
+
+  private async readPluginState(
+    path: string,
+    reset: (text: string) => void | Promise<void>,
+  ): Promise<string | null> {
+    if (this.app.vault.supportsConditionalTextWrites)
+      return readFileState(this.app, path, reset);
+    return (await this.adapter.exists(path)) ? this.adapter.read(path) : null;
+  }
+
+  private async restoreCorePluginState(text: string): Promise<void> {
+    const value = JSON.parse(text || "[]");
+    if (!Array.isArray(value) && !isRecord(value))
+      throw new Error("Invalid core plugin configuration");
+    const disabled = Array.isArray(value) ? value : (value.disabled ?? []);
+    const enabled = Array.isArray(value) ? [] : (value.enabled ?? []);
+    if (
+      !Array.isArray(disabled) ||
+      !Array.isArray(enabled) ||
+      [...disabled, ...enabled].some((id) => typeof id !== "string")
+    )
+      throw new Error("Invalid core plugin configuration");
+    this.#disabledCorePlugins = new Set(disabled);
+    this.#enabledCorePlugins = new Set(enabled);
+    const loaded = this.#loaded;
+    this.#loaded = false;
+    try {
+      for (const plugin of this.corePlugins) {
+        if (plugin.required) continue;
+        const success = this.isCorePluginEnabled(plugin.id)
+          ? await this.enablePlugin(plugin.id)
+          : await this.disablePlugin(plugin.id);
+        if (!success) throw new Error(`Could not restore plugin ${plugin.id}`);
+      }
+    } finally {
+      this.#loaded = loaded;
+    }
   }
 
   private isCorePluginEnabled(pluginId: string): boolean {
@@ -1678,10 +1769,9 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       this.#configuredCommunityPlugins.delete(pluginId);
     }
 
-    await this.savePluginListConfig(
-      "community-plugins.json",
-      this.#configuredCommunityPlugins,
-    );
+    await this.queuePluginState("community-plugins.json", [
+      ...this.#configuredCommunityPlugins,
+    ]);
     this.emit("community-plugin-config-pruned", missingPluginIds);
     return missingPluginIds;
   }
@@ -1767,6 +1857,21 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
           const manifestContent = await this.adapter.read(manifestPath);
           manifest = JSON.parse(manifestContent) as PluginManifest;
           pluginId = manifest.id || pluginId;
+          if (this.isStaticPlugin(pluginId)) {
+            throw new Error(
+              `Plugin id ${pluginId} is registered by the application`,
+            );
+          }
+          if (Object.hasOwn(this.#unavailablePlugins, manifest.id)) {
+            throw new Error(
+              `Plugin ${manifest.id} is unavailable: ${this.#unavailablePlugins[manifest.id]}`,
+            );
+          }
+          if (this.#pendingReloadPlugins.has(manifest.id)) {
+            throw new Error(
+              `Reload the app to load updated plugin ${manifest.id}`,
+            );
+          }
           span.setAttribute("plugin.id", manifest.id);
           manifest.dir ??= pluginPath;
           const runtimeSource =
@@ -1869,6 +1974,19 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
             );
           }
 
+          const installed = await this.#installedPluginStateStore.get(
+            manifest.id,
+          );
+          if (
+            installed?.restartRequired &&
+            installed.installedVersion === manifest.version
+          ) {
+            await this.#installedPluginStateStore.upsert({
+              ...installed,
+              restartRequired: false,
+            });
+          }
+
           return this.registerPlugin(plugin, {
             source: runtimeSource.source,
             provenance: runtimeSource.provenance,
@@ -1876,8 +1994,9 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
           });
         } catch (error) {
           const message = `Failed to load plugin from ${pluginPath}: ${formatPluginError(error)}`;
-          this.recordCommunityPluginFailure(pluginId, manifest, message);
-          this.reportPluginError(pluginPath, message, error);
+          if (!this.isStaticPlugin(pluginId))
+            this.recordCommunityPluginFailure(pluginId, manifest, message);
+          this.reportPluginError(pluginId, message, error);
           return null;
         }
       },
@@ -1969,7 +2088,20 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     return plugin;
   }
 
-  private async syncLegacyPluginData(pluginId: string): Promise<void> {
+  private syncLegacyPluginData(
+    pluginId: string,
+    removeMissing = false,
+  ): Promise<void> {
+    const run = () => this.syncLegacyPluginDataNow(pluginId, removeMissing);
+    return this.app.vault.supportsConditionalTextWrites
+      ? this.app.fileEditingSessions.track(run)
+      : run();
+  }
+
+  private async syncLegacyPluginDataNow(
+    pluginId: string,
+    removeMissing: boolean,
+  ): Promise<void> {
     const plugin = this.plugins.get(pluginId);
     if (!plugin) {
       return;
@@ -1986,6 +2118,8 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
 
     try {
       if (!this.app.configuration.hasPluginData(pluginId)) {
+        // Registration is not a deletion: loadData still needs this legacy file.
+        if (!removeMissing) return;
         const file = this.app.vault.getFileByPath(path);
         if (file) {
           await this.app.vault.delete(file, true);
@@ -1998,6 +2132,10 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         null,
         2,
       );
+      if (this.app.vault.supportsConditionalTextWrites) {
+        await saveFileState(this.app, path, payload);
+        return;
+      }
       const file = this.app.vault.getFileByPath(path);
       if (file) {
         await this.app.vault.modify(file, payload);
@@ -2015,7 +2153,21 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     }
   }
 
-  async enablePlugin(pluginId: string): Promise<boolean> {
+  enablePlugin(pluginId: string): Promise<boolean> {
+    const run = () => this.enablePluginNow(pluginId);
+    return this.#loaded && this.app.vault.supportsConditionalTextWrites
+      ? this.app.fileEditingSessions.track(run)
+      : run();
+  }
+
+  private async enablePluginNow(pluginId: string): Promise<boolean> {
+    if (this.#pendingReloadPlugins.has(pluginId)) {
+      this.reportPluginError(
+        pluginId,
+        `Reload the app to activate updated plugin ${pluginId}`,
+      );
+      return false;
+    }
     const plugin = this.plugins.get(pluginId);
     if (!plugin) {
       const indexedExtension = this.#lapisExtensionIndex.get(pluginId);
@@ -2160,7 +2312,17 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     );
   }
 
-  async disablePlugin(pluginId: string): Promise<boolean> {
+  disablePlugin(pluginId: string): Promise<boolean> {
+    const run = () => this.disablePluginNow(pluginId);
+    return this.#loaded && this.app.vault.supportsConditionalTextWrites
+      ? this.app.fileEditingSessions.track(run)
+      : run();
+  }
+
+  private async disablePluginNow(
+    pluginId: string,
+    persist = true,
+  ): Promise<boolean> {
     const plugin = this.plugins.get(pluginId);
     if (!plugin) {
       const indexedExtension = this.#lapisExtensionIndex.get(pluginId);
@@ -2174,7 +2336,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         }
 
         this.disableManifestOnlyExtension(pluginId);
-        if (this.#loaded) {
+        if (this.#loaded && persist) {
           if (
             indexedExtension.source === "community" ||
             indexedExtension.source === "official"
@@ -2231,7 +2393,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
           this.unloadPluginCSS(pluginId);
           this.updatePluginDiagnosticsFromPlugin(plugin);
           this.emit("plugin-disabled", plugin);
-          if (this.#loaded) {
+          if (this.#loaded && persist) {
             if (plugin.source === "community" || plugin.source === "official") {
               this.#configuredCommunityPlugins.delete(pluginId);
               this.saveCommunityPluginState();
@@ -2267,6 +2429,8 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
   }
 
   async restartPlugin(pluginId: string): Promise<boolean> {
+    if (this.#pendingReloadPlugins.has(pluginId))
+      return this.enablePlugin(pluginId);
     let plugin = this.plugins.get(pluginId);
     if (!plugin) {
       plugin =
@@ -2497,6 +2661,29 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     }
 
     if (isExternalPluginSource(source)) {
+      const services = manifest.requiredNativeServices;
+      if (services !== undefined) {
+        if (
+          !Array.isArray(services) ||
+          services.some((id) => typeof id !== "string" || !id.trim())
+        )
+          throw new Error(
+            `Plugin ${manifest.id} declares invalid required native services`,
+          );
+        const capabilities = getNativeDesktopBridge()?.capabilities;
+        for (const id of services) {
+          const service =
+            capabilities?.[id as keyof NonNullable<typeof capabilities>];
+          if (!service)
+            throw new Error(
+              `Plugin ${manifest.id} requires unsupported native service: ${id}`,
+            );
+          if (service.status !== "available")
+            throw new Error(
+              `Plugin ${manifest.id} requires disabled native service: ${id}`,
+            );
+        }
+      }
       if (
         requiresWorkspaceTrust(manifest) &&
         !this.app.workspaceTrust.trusted
@@ -3928,7 +4115,15 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     return selected?.path ?? null;
   }
 
+  private isTauriSession(): boolean {
+    return (
+      (this.app.session?.runtime ?? getNativeDesktopBridge()?.runtime) ===
+      "tauri-desktop"
+    );
+  }
+
   private getHostIdForManifest(manifest: PluginManifest): string {
+    if (this.isTauriSession()) return "tauri-desktop";
     return (
       this.#communityPluginHost.hostIdForManifest?.(manifest) ??
       this.#communityPluginHost.id
@@ -3938,6 +4133,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
   private getHostIdForIndexedExtension(
     indexedExtension: LapisIndexedExtension,
   ): string {
+    if (this.isTauriSession()) return "tauri-desktop";
     return isSidecarHost(this.#communityPluginHost.id) &&
       (indexedExtension.runtime?.desktop ||
         indexedExtension.runtime?.trustedDesktop ||
@@ -4027,6 +4223,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
   private getRequestedPluginExecutionHostForHostId(
     hostId: string,
   ): PluginExecutionHostId {
+    if (hostId === "tauri-desktop") return "tauri-desktop";
     if (isSidecarHost(hostId)) {
       return "electron-sidecar";
     }
@@ -4160,6 +4357,9 @@ function runtimeMatchesHost(runtime: string, hostId: string): boolean {
   if (runtime === hostId) {
     return true;
   }
+  if (hostId === "tauri-desktop") {
+    return ["renderer", "workspace", "browser", "pwa", "web"].includes(runtime);
+  }
   if (hostId === "renderer") {
     return ["renderer", "browser", "pwa", "web"].includes(runtime);
   }
@@ -4188,6 +4388,8 @@ function hostPlatformMatchesDependencyPlatform(
   platform: string,
 ): boolean {
   switch (host) {
+    case "tauri-desktop":
+      return platform === "web";
     case "electron-sidecar":
       return platform === "electron-sidecar";
     case "electron-renderer":

@@ -1,3 +1,4 @@
+import { appStatePath } from "@lapis-notes/api/path";
 import {
   assertSupportedPluginAssetPath,
   createWebPluginAssetUrl,
@@ -72,7 +73,7 @@ export class WebCachePluginAssetServer implements PluginAssetServer {
   ): Promise<InstalledPluginRecord> {
     try {
       const raw = await this.options.adapter.read(
-        ".obsidian/installed-plugins.json",
+        appStatePath("installed-plugins.json"),
       );
       const parsed = JSON.parse(raw) as {
         plugins?: Record<string, InstalledPluginRecord>;

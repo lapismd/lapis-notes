@@ -1,3 +1,4 @@
+import { rebindSearchDocument } from "./search-embedding-record";
 import { collectSearchQueryTerms } from "../search-query";
 import {
   buildSearchResult,
@@ -84,6 +85,7 @@ import {
   type MarkProjectionSourceErrorInput,
   type ReplaceProjectionSourceInput,
 } from "./index-projection";
+import { projectionQueryCandidates } from "./projection-query-candidates";
 import type {
   AppDatabaseTaskChildQuery,
   AppDatabaseTaskQuery,
@@ -487,7 +489,11 @@ const MAX_BOUND_PATHS_PER_QUERY = 400;
 
 function chunkPaths(paths: string[]): string[][] {
   const chunks: string[][] = [];
-  for (let index = 0; index < paths.length; index += MAX_BOUND_PATHS_PER_QUERY) {
+  for (
+    let index = 0;
+    index < paths.length;
+    index += MAX_BOUND_PATHS_PER_QUERY
+  ) {
     chunks.push(paths.slice(index, index + MAX_BOUND_PATHS_PER_QUERY));
   }
   return chunks;
@@ -759,6 +765,7 @@ export class TursoAppDatabase implements AppDatabase {
 
   private connection: TursoConnection | null = null;
   private opened = false;
+  private closeTask: Promise<void> | null = null;
   private nativeFullTextSearch = false;
   private nativeVectorSearch = false;
   private searchEmbeddingProviderConfig: SearchEmbeddingProviderConfig | null =
@@ -873,14 +880,23 @@ export class TursoAppDatabase implements AppDatabase {
   }
 
   async close(): Promise<void> {
-    if (!this.connection) return;
+    if (this.closeTask) return this.closeTask;
     const connection = this.connection;
-    this.connection = null;
-    this.opened = false;
-    await this.searchEmbeddingProvider?.dispose?.();
-    this.searchEmbeddingProvider = null;
-    this.changeListeners.clear();
-    await connection.close();
+    if (!connection) return;
+    this.closeTask = (async () => {
+      await this.commitQueue;
+      await this.searchEmbeddingProvider?.dispose?.();
+      this.searchEmbeddingProvider = null;
+      await connection.close();
+      this.connection = null;
+      this.opened = false;
+      this.changeListeners.clear();
+    })();
+    try {
+      await this.closeTask;
+    } finally {
+      this.closeTask = null;
+    }
   }
 
   async beginSearchIndexingBatch(): Promise<void> {}
@@ -890,25 +906,58 @@ export class TursoAppDatabase implements AppDatabase {
   async configureSearchEmbeddingProvider(
     provider: SearchEmbeddingProviderConfig | null,
   ): Promise<void> {
+    const pending = this.commitQueue.then(() =>
+      this.configureSearchProviderImmediately(provider),
+    );
+    this.commitQueue = pending.then(
+      () => undefined,
+      () => undefined,
+    );
+    return pending;
+  }
+
+  private async configureSearchProviderImmediately(
+    provider: SearchEmbeddingProviderConfig | null,
+  ): Promise<void> {
     if (
       JSON.stringify(provider) ===
       JSON.stringify(this.searchEmbeddingProviderConfig)
     )
       return;
     const previous = this.searchEmbeddingProvider;
-    this.searchEmbeddingProviderConfig = clone(provider);
-    this.searchEmbeddingProvider = createSearchEmbeddingProvider(provider);
-    await previous?.dispose?.();
-    await this.commit(
-      [
+    const next = createSearchEmbeddingProvider(provider);
+    try {
+      const statements: TursoStatementInput[] = [
         {
           sql: `INSERT INTO app_meta (key, value_json) VALUES (?, ?)
               ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json`,
           args: [SEARCH_EMBEDDING_PROVIDER_META_KEY, JSON.stringify(provider)],
         },
-      ],
-      ["search"],
-    );
+      ];
+      if (next)
+        for (const document of await this.listSearchDocuments()) {
+          statements.push(
+            ...this.searchDocumentStatements(
+              rebindSearchDocument(document, next.config),
+            ),
+          );
+        }
+      await this.commitImmediately(
+        statements,
+        ["search"],
+        [],
+        undefined,
+        () => {
+          this.searchEmbeddingProviderConfig = clone(provider);
+          this.searchEmbeddingProvider = next;
+        },
+      );
+    } catch (error) {
+      if (this.searchEmbeddingProvider === next) await previous?.dispose?.();
+      else await next?.dispose?.();
+      throw error;
+    }
+    await previous?.dispose?.();
   }
 
   async getSearchEmbeddingProvider(): Promise<SearchEmbeddingProviderConfig | null> {
@@ -1657,11 +1706,10 @@ export class TursoAppDatabase implements AppDatabase {
     const updated: AppDatabaseMemoryJobRecord = {
       ...existing,
       ...input.patch,
-      ownerId:
-        input.patch.status === "running" ? existing.ownerId : undefined,
+      ownerId: input.patch.status === "running" ? existing.ownerId : undefined,
       leaseUntil:
         input.patch.status === "running"
-          ? input.patch.leaseUntil ?? existing.leaseUntil
+          ? (input.patch.leaseUntil ?? existing.leaseUntil)
           : undefined,
     };
     await this.commit(
@@ -1789,10 +1837,7 @@ export class TursoAppDatabase implements AppDatabase {
       ...args,
     );
     const pagePaths = rows.slice(0, limit).map((row) => row.path);
-    const materialized = await this.readIndexedFiles(
-      pagePaths,
-      input.include,
-    );
+    const materialized = await this.readIndexedFiles(pagePaths, input.include);
     return {
       rows: materialized,
       nextCursor: rows.length > limit ? pagePaths.at(-1) : undefined,
@@ -2203,7 +2248,7 @@ export class TursoAppDatabase implements AppDatabase {
       return this.evaluateSearchDocumentsForPaths(
         query,
         options,
-        await this.queryAllSearchPaths(options.limit, options),
+        await this.queryAllSearchPaths(options),
       );
     }
 
@@ -2245,7 +2290,6 @@ export class TursoAppDatabase implements AppDatabase {
   }
 
   private async queryAllSearchPaths(
-    limit = 100,
     options: Pick<
       AppDatabaseSearchOptions,
       "pathPrefix" | "sourceProviderIds"
@@ -2266,9 +2310,8 @@ export class TursoAppDatabase implements AppDatabase {
     const rows = await this.requireConnection().all<{ path: string }>(
       `SELECT path FROM search_docs
        ${clauses.length > 0 ? `WHERE ${clauses.join(" AND ")}` : ""}
-       ORDER BY path LIMIT ?`,
+       ORDER BY path`,
       ...args,
-      Math.max(limit, 100),
     );
     return rows.map((row) => row.path);
   }
@@ -2279,7 +2322,7 @@ export class TursoAppDatabase implements AppDatabase {
   ): Promise<string[]> {
     const terms = collectSearchQueryTerms(query);
     if (!terms.length || !this.nativeFullTextSearch) {
-      return this.queryAllSearchPaths(limit);
+      return this.queryAllSearchPaths();
     }
     const ftsQuery = ftsQueryForTerms(terms);
     const rows = await this.requireConnection().all<{ path: string }>(
@@ -2650,11 +2693,7 @@ export class TursoAppDatabase implements AppDatabase {
     assertProjectionReadAccess(definition, readerPluginId);
     const compiled = compileProjectionQuerySql(
       projectionId,
-      {
-        ...query,
-        after: undefined,
-        limit: query.after ? undefined : query.limit,
-      },
+      projectionQueryCandidates(query),
       definition!,
     );
     const [rows, sources] = await Promise.all([
@@ -2718,12 +2757,17 @@ export class TursoAppDatabase implements AppDatabase {
     assertProjectionReadAccess(definition, readerPluginId);
     const edges = await this.requireConnection().all<Record<string, unknown>>(
       query.direction === "in"
-        ? `SELECT * FROM index_projection_edges WHERE projection_id = ? AND relation = ? AND target_row_id = ? ORDER BY ordinal LIMIT ?`
-        : `SELECT * FROM index_projection_edges WHERE projection_id = ? AND relation = ? AND source_row_id = ? ORDER BY ordinal LIMIT ?`,
+        ? `SELECT * FROM index_projection_edges
+           WHERE projection_id = ? AND relation = ?
+             AND (target_row_id = ? OR target_path = (
+               SELECT source_path FROM index_projection_rows
+               WHERE projection_id = ? AND row_id = ?
+             )) ORDER BY ordinal`
+        : `SELECT * FROM index_projection_edges WHERE projection_id = ? AND relation = ? AND source_row_id = ? ORDER BY ordinal`,
       query.projectionId,
       query.relation,
       query.rowId,
-      query.limit ?? 1000,
+      ...(query.direction === "in" ? [query.projectionId, query.rowId] : []),
     );
     const rows: IndexProjectionRowRecord[] = [];
     for (const edge of edges) {
@@ -2798,6 +2842,7 @@ export class TursoAppDatabase implements AppDatabase {
     domains: AppDatabaseChangeDomain[],
     paths: string[] = [],
     renamed?: { oldPath: string; newPath: string }[],
+    onCommitted?: () => void,
   ): Promise<AppDatabaseChangeSet> {
     const revision = this.currentRevision + 1;
     const change: AppDatabaseChangeSet = {
@@ -2831,6 +2876,7 @@ export class TursoAppDatabase implements AppDatabase {
       "immediate",
     );
     this.currentRevision = revision;
+    onCommitted?.();
     for (const listener of this.changeListeners) listener(clone(change));
     return change;
   }
@@ -2976,12 +3022,12 @@ export class TursoAppDatabase implements AppDatabase {
       }
       return values;
     };
-    const propertiesByPath = collectDomain<
-      AppDatabaseIndexedMetadataRow["properties"][number]
-    >(propertyRows);
-    const tagsByPath = collectDomain<
-      AppDatabaseIndexedMetadataRow["tags"][number]
-    >(tagRows);
+    const propertiesByPath =
+      collectDomain<AppDatabaseIndexedMetadataRow["properties"][number]>(
+        propertyRows,
+      );
+    const tagsByPath =
+      collectDomain<AppDatabaseIndexedMetadataRow["tags"][number]>(tagRows);
     const linksByPath = collectDomain<AppDatabaseLinkRecord>(linkRows);
     const filesByPath = new Map(
       fileRows.map((row) => [String(row.path), this.fileRecordFromRow(row)]),

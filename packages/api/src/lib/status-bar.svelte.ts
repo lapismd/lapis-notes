@@ -1,10 +1,11 @@
 import type { ContextKeyService } from "./context-keys.svelte";
 import type { Menu } from "./menu.svelte";
 
-export type StatusBarAlignment = "left" | "right";
+export type StatusBarAlignment = "left" | "center" | "right";
 
 export interface StatusBarItemDescriptor {
   id: string;
+  mount?: (host: HTMLElement) => () => void;
   text?: string;
   segments?: string[];
   icon?: string;
@@ -37,6 +38,7 @@ function sameVisibleStatusBarItem(
 ): boolean {
   return (
     left.id === right.id &&
+    left.mount === right.mount &&
     left.text === right.text &&
     sameSegments(left.segments, right.segments) &&
     left.icon === right.icon &&

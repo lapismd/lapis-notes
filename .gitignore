@@ -1,6 +1,7 @@
 node_modules
 dist
 dist-server
+dist-rust-server
 .turbo
 .svelte-kit
 storybook-static
@@ -38,3 +39,9 @@ packages/desktop-deno/terminal-host
 
 # Dedicated signed-registry acceptance builds contain ephemeral fixture trust.
 **/dist-registry-acceptance/
+
+# Preserve ignored data and caches from retired server runtimes.
+packages/server-node/secrets/
+packages/server-native/target/
+
+.local/

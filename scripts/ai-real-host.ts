@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import { spawn } from "node:child_process";
-import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -11,14 +10,13 @@ import {
   seedAiRealHostWorkspace,
 } from "./lib/ai-real-host-fixture.mjs";
 
-type Lane = "seed" | "storybook" | "desktop";
+type Lane = "seed" | "storybook";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 
 function usage(): never {
   console.error(
-    "Usage: tsx scripts/ai-real-host.ts <seed|storybook|desktop> [--reset] [--workspace <path>]",
+    "Usage: tsx scripts/ai-real-host.ts <seed|storybook> [--reset] [--workspace <path>]",
   );
   process.exit(2);
 }
@@ -29,7 +27,7 @@ function parseArgs(argv: string[]): {
   workspace: string;
 } {
   const lane = argv.shift() as Lane | undefined;
-  if (lane !== "seed" && lane !== "storybook" && lane !== "desktop") usage();
+  if (lane !== "seed" && lane !== "storybook") usage();
   let reset = false;
   let workspace = path.resolve(
     repoRoot,
@@ -137,36 +135,9 @@ async function startStorybook(workspace: string): Promise<void> {
   await supervise(child, () => host.close());
 }
 
-async function startDesktop(workspace: string): Promise<void> {
-  await runOnce(pnpm, [
-    "turbo",
-    "run",
-    "build",
-    "--filter=@lapis-notes/api...",
-  ]);
-  const userDataDir = path.resolve(
-    repoRoot,
-    AI_REAL_HOST_RELATIVE_ROOT,
-    "desktop-user-data",
-  );
-  await mkdir(userDataDir, { recursive: true });
-  console.log(`[ai-smoke] seeded native vault and agent workspace: ${workspace}`);
-  console.log("[ai-smoke] Deno desktop opens the AI chat with Codex Native selected");
-  const child = spawnChild(
-    pnpm,
-    ["--filter", "@lapis-notes/desktop-deno", "dev"],
-    {
-      LAPIS_DENO_VAULT: workspace,
-      LAPIS_DENO_VAULT_AUTO: "1",
-      LAPIS_DENO_USER_DATA: userDataDir,
-    },
-  );
-  await supervise(child, async () => {});
-}
-
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
-  const defaultRuntime = options.lane === "desktop" ? "codex-native" : "acp";
+  const defaultRuntime = "acp";
   const created = await seedAiRealHostWorkspace(options.workspace, {
     defaultRuntime,
     reset: options.reset,
@@ -178,11 +149,7 @@ async function main(): Promise<void> {
     console.log(`[ai-smoke] workspace: ${options.workspace}`);
     return;
   }
-  if (options.lane === "storybook") {
-    await startStorybook(options.workspace);
-    return;
-  }
-  await startDesktop(options.workspace);
+  await startStorybook(options.workspace);
 }
 
 void main().catch((error) => {

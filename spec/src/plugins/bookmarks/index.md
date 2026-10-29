@@ -1,7 +1,7 @@
 # Bookmarks Plugin
 
 `@lapis-notes/bookmarks` owns the movable Bookmarks panel and Obsidian-compatible
-`.obsidian/bookmarks.json`. It does not own Explorer, Search, or Graph.
+`.lapis/bookmarks.json`. It does not own Explorer, Search, or Graph.
 
 The package consumes the published Design Core semver contract and MUST NOT
 assume a sibling-repository path or a workspace `link:` override.
@@ -13,7 +13,7 @@ toolbar / CommandView / drag
         ↓
 BookmarksStore
         ↓
-.obsidian/bookmarks.json
+.lapis/bookmarks.json
         ↓
 typed tree rows
         ↓
@@ -30,11 +30,11 @@ uses registered commands. The canonical palette opener is
 
 **Requirement.** The sibling `lapis-plugins` repository MUST ship `@lapis-notes/bookmarks` at `packages/bookmarks` with runtime id `bookmarks` and support static composition or registry installation.
 
-## LN-BM-002 — Bookmarks: persist { items } to .obsidian/bookmarks.json
+## LN-BM-002 — Bookmarks: persist { items } to .lapis/bookmarks.json
 
 <a id="ln-bm-002"></a>
 
-**Requirement.** Bookmarks MUST persist `{ items }` to `.obsidian/bookmarks.json` through plugin data. Items MUST include `file` with optional `subpath`, `folder`, `group`, `search`, `url`, and `graph`. Unknown keys and item types MUST round-trip.
+**Requirement.** Bookmarks MUST persist `{ items }` to `.lapis/bookmarks.json` through plugin data. Items MUST include `file` with optional `subpath`, `folder`, `group`, `search`, `url`, and `graph`. Unknown keys and item types MUST round-trip.
 
 ## LN-BM-003 — Plugin: register the bookmarks view through ViewAccess.command
 

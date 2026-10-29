@@ -38,18 +38,19 @@ if (!__LAPIS_SERVER_MODE__) {
   );
   disposeWindowControls = controls.registerPwaWindowControlsOverlay();
   disposePwa = pwa.registerWebPwa();
-} else {
-  const serverDocument = await import("./server-host-document");
-  serverDocument.initializeServerHostDocument();
 }
 applyAppearance(await getBootstrapAppearanceMode());
 const disposeThemeColor = observeHostThemeColor();
 const target = document.getElementById("app");
 if (!target) throw new Error("Web renderer root is missing");
-const Host = __LAPIS_SERVER_MODE__
-  ? (await import("./ServerVaultHost.svelte")).default
-  : (await import("./WebVaultHost.svelte")).default;
-const mounted = mount(Host, { target });
+if (__LAPIS_SERVER_MODE__) {
+  throw new Error(
+    "The hosted Rust client belongs to lapis-server and is not compiled by @lapis-notes/web.",
+  );
+}
+const mounted = mount((await import("./WebVaultHost.svelte")).default, {
+  target,
+});
 
 window.addEventListener(
   "pagehide",

@@ -1,6 +1,61 @@
 # Packages / App and services
 
-The Design Core dependency refresh consumes released `0.5.0` CSS, fonts and
+The hosted renderer now selects the Rust backend through its private host
+composition. Ordinary server build/start no longer requires the Node host
+package; retained API compatibility runtime labels are separate public contracts.
+
+The opt-in installed-provider queue journey consumes the existing App-owned native
+chat observation port. It keeps model/thinking unrequested, uses declared
+read-only mode, and qualifies passive detach plus exact-head cold resume without
+adding a renderer scheduler or a second portable conversation writer.
+
+The R7 built-Web acceptance uses the same public App/API/workspace packages
+behind the selected native HTTP origin. Static delivery changes no App ownership,
+conversation writer or renderer callback authority under
+[CORE054–057](../architecture/rust-hosted-delivery.md).
+
+The private application profile owns the native-turn observer and optional AI
+plugin under LN-CORE-004/006/007/008. It uses the existing public Agent screens
+and built public exports. Temporary verified local archives admit unpublished
+Agent UI during migration; tracked dependency declarations keep normal ranges
+and publication remains separate. Its built native-chat entry is shared by
+Desktop and Rust-hosted Web, without another transcript writer or engine.
+The profile also owns retained workspace routing: History stays visible while
+its rows open exact main-area conversations. Native metadata is a read-only
+projection; draft creation and view selection never submit prompts.
+
+Native backup settings use the same saved configuration and admitted owner under LN-CORE-022/LN-WEB-073; LN-PKG-186 permits read-only post-mutation baseline reconciliation without a second writer.
+
+The selected Rust Repository profile adapts the existing public RestoreService
+through its admitted client under LN-CORE-023/LN-SRV-027/LN-WEB-072. Core owns the
+existing backup engine and guarded writer; the retained controller owns pending
+intent and explicit recovery. No public npm export or replacement screen is added.
+
+The private Rust-hosted chooser adapter consumes generated native protocol types
+and the existing public App/Vault interfaces. Managed-vault mutation authority
+and catalogue persistence stay in the Rust host; no public npm export, browser
+path selector or alternate file writer is introduced.
+
+The Rust server implements LN-SRV-021–023 directly through shared application
+services, replacing the private Node supervisor and Unix companion. The host
+supplies admitted caller scopes; history remains independent of AI and indexes.
+Public package ranges and the existing vault/AppDatabase APIs are unchanged.
+
+The retained public SearchManager is the API envelope oracle for the staged
+[native Markdown Search source](../architecture/rust-indexing-lifetime.md).
+Qualification MUST import the public Search package and transform its CSS
+without source aliases. Native metadata and projection cache identities retain
+their explicitly documented parser boundary; no AppDatabase interface changes.
+
+LN-SRCH-051 saved-version content identities and checkpoint references are additive presentation types. They preserve provider-owned navigation and introduce no database, Vault or repository authority.
+
+The API exports the result-provider types and registry under LN-SRCH-051. Each App owns its registry; this additive service does not change LN-PKG-001 or existing AppDatabase and Vault interfaces.
+
+The API-owned SyncHostService queues observed file changes behind initial
+identity reconciliation (LN-DB-047), retaining durable sequence checks while
+preventing its own startup and event writers from competing.
+
+The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.
 
@@ -54,7 +109,7 @@ security RPC and dedicated wrapped-key storage (LN-DENO-079 through LN-DENO-081)
 
 <a id="ln-pkg-057"></a>
 
-**Requirement.** `@lapis-notes/api` MUST expose reactive status-item changes and project visible items plus compatibility ribbon actions into the active public workspace shell.
+**Requirement.** `@lapis-notes/api` MUST expose reactive status-item changes and project visible left, center and right items plus compatibility ribbon actions into the active public workspace shell, preserving custom mount lifecycle.
 
 ## LN-PKG-061 — @lapis-notes/api WorkspaceLeaf.openFile: snapshot history before target-view construction so eager
 
@@ -72,7 +127,7 @@ security RPC and dedicated wrapped-key storage (LN-DENO-079 through LN-DENO-081)
 
 <a id="ln-pkg-072"></a>
 
-**Requirement.** Configuration schema defaults MUST NOT write `.obsidian/app.json` before the initial persisted configuration load completes. Initial loading MUST preserve persisted and unknown keys while adding registered defaults, and later schema registration MUST persist newly introduced defaults through the normal serialized writer.
+**Requirement.** Configuration schema defaults MUST NOT write `.lapis/app.json` before the initial persisted configuration load completes. Initial loading MUST preserve persisted and unknown keys while adding registered defaults, and later schema registration MUST persist newly introduced defaults through the normal serialized writer.
 
 ## LN-PKG-025 — @lapis-notes/markdown: export the real AllProperties Svelte component
 
@@ -135,3 +190,46 @@ key bytes.
 <a id="ln-pkg-080"></a>
 
 **Requirement.** `@lapis-notes/api` MUST own transport-neutral app-tool contracts, lifecycle, and Vault-backed file-tool wrappers. Search MUST own `notes_search` and Markdown MUST own `notes_list`. AI MUST own snapshots and policy. `@lapismd/ai-host` plus Deno desktop MUST own live MCP transport without becoming durable tool, note-content, or conversation authorities.
+
+Under LN-CORE-003/004/006, an explicitly owned `VaultSession.backgroundIndexing`
+port selects the existing native metadata owner. The retained MetadataCache
+remains the query/cache/event facade; absence preserves standalone browser
+processing. Declaration and passive status controls follow the
+[native indexing contract](../architecture/rust-indexing-lifetime.md).
+
+`App.backgroundIndexing` exposes that existing session as a shared declaration
+and observation facade. MetadataCache remains its sole passive teardown
+boundary; consumers MUST NOT construct a second indexing controller.
+
+The explicit Rust hosted metadata profile supplies that port on its existing
+admitted client before App startup (LN-WEB-066). Metadata compatibility reads
+retain copied Vault facade values and database/Vault event ordering under
+LN-DB-064, without adding renderer parsing or publication.
+
+Native Search App replacement reconciles the current App-owned plugin registry
+before metadata startup completes. An omitted or disabled Search declaration
+explicitly drains the retained native selection; passive detach keeps it alive.
+Enabled Search may declare after metadata-loaded without losing its owner.
+
+LN-WEB-068 verifies this boundary through the retained hosted Search UI. The
+admitted native client supplies metadata and Search while the plugin owns its
+query and recovered settings. Source qualification, the selected hosted profile
+and default cutover remain distinct recorded gates.
+
+## Admitted native Task port
+
+`@lapis-notes/api/native-tasks` exports generated commands, typed retained outcomes and an App-owned observer under [CORE013–015](../architecture/rust-task-host-port.md#ln-core-013). `VaultSession.nativeTasks` takes precedence over the explicit App option. The public host-module registry includes that entry for installed Tasks plugins; final plugin startup awaits declaration reconciliation.
+
+The staged Rust-hosted session supplies the same admitted native Tasks port
+before constructing its App. Passive host teardown drains the App observer
+before unloading configured plugins or releasing the attachment. The host never
+registers a replacement Tasks view or a static Tasks plugin; [hosted intake](../../records/2026-10-26-hosted-native-tasks.md)
+retains separate actual UI, timezone and installed-integrity gates.
+
+The retained hosted Properties journey drives the public File Properties
+surface over the admitted native metadata owner. Stale-draft capture and
+explicit recovery stay in the App-owned `fileEditingSessions` registry;
+[hosted Properties acceptance](../../records/2026-10-27-hosted-properties-review.md)
+keeps that final-cohort proof separate from the original Tasks journeys.
+
+The public `@lapis-notes/web` build and typecheck do not compile the hosted Rust client or the lapis-server protocol binding ([LN-CORE-070](../architecture/rust-hosted-delivery.md#ln-core-070)).

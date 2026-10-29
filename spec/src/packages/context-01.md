@@ -78,7 +78,7 @@ Domain plugins consume only the API contract.
 
 - `NativeDesktopRuntime` names only `deno-desktop`; the production hosts are Deno desktop and web.
 
-- Root `dev:desktop`, `dev:desktop:cef`, `build:desktop`, `package:desktop`, and `test:desktop:packaged` scripts select and exercise the Deno package.
+- Notes CI does not select `@lapis-notes/desktop-deno` or `@lapis-notes/server-deno`. Desktop packaging stays in lapis-desktop, and server-deno stays retired.
 
 - The Web and Deno packages share the same renderer dependency-optimization boundary for registry-installed plugins.
 
@@ -120,9 +120,9 @@ actions in desktop-owned wrappers.
 
 `@lapis-notes/api/app-database` exports the shared remote method contract, and
 `@lapis-notes/api/server-host` exports protocol, profile, capability, and stable
-error types. Neither entry exports a Deno server or tRPC implementation.
+error types. Neither entry exports a Node server or tRPC implementation.
 
-- `@lapis-notes/server-deno` pins matching tRPC v11 client and server packages, exports only the router type and browser client factory through its client entry, and keeps control migrations, password/session handling, Deno workers, managed storage, Fetch routing, and server startup in server-only modules.
+- `@lapis-notes/server-node` pins matching tRPC v11 client and server packages, exports only the router type and browser client factory through its client entry, and keeps control migrations, password/session handling, Deno workers, managed storage, Fetch routing, and server startup in server-only modules.
 
 - Bounded ZIP transfer and authenticated immutable plugin assets remain private data-plane implementations and do not enter that browser client entry.
 
@@ -136,7 +136,7 @@ error types. Neither entry exports a Deno server or tRPC implementation.
 
 - The server package continues to own authenticated upload limits, entry validation, and managed-vault creation for both picked folders and uploaded ZIP files.
 
-- The server entry publishes the `deno-server` document runtime before mount and does not publish the PWA-host document attributes.
+- The server entry publishes the `node-server` document runtime before mount and does not publish the PWA-host document attributes.
 
 - The server package owns a multi-stage, non-root container definition, health check, example secret mount, and operator documentation.
 
@@ -275,6 +275,10 @@ error types. Neither entry exports a Deno server or tRPC implementation.
 - Navigation does not replace a Search leaf that has been moved into the body.
 
 - Result parents retain only a regular extension-free filename; expanded-body headers own the full path and applied retrieval mode.
+
+The private native core also exports bounded archive extraction and immutable ZIP
+snapshots. Hosts own provisional-root admission/publication and transport; archive
+code owns content validation and streaming under the managed-vault contract.
 
 ## `@lapis-notes/api` (kernel slice)
 

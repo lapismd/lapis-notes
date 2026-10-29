@@ -1,4 +1,9 @@
 <script lang="ts">
+  import {
+    appStatePath,
+    DEFAULT_APP_STATE_DIRECTORY,
+  } from "@lapis-notes/api/path";
+
   import { ControllerClient } from "@lapismd/ai-controller/client";
   import type { Controller } from "@lapismd/ai-controller";
   import {
@@ -42,7 +47,7 @@
   import { getDenoNostrSignerBroker } from "./deno-nostr-signer";
   import { createDesktopSyncUnlockHandler } from "./desktop-sync-security";
   import { createDesktopSyncHostProviders } from "./deno-sync-security";
-  import DesktopWorkspaceStartup from "./DesktopWorkspaceStartup.svelte";
+  import { DesktopWorkspaceStartup } from "@lapis-notes/workspace";
   import type { DenoDesktopBridge, DesktopAppInfo } from "./main";
   import { collectTerminalAcceptance } from "./terminal-acceptance";
 
@@ -120,7 +125,7 @@
     });
     ownedApp = new App({
       version: appInfo.version,
-      configPath: ".obsidian/app.json",
+      configPath: appStatePath("app.json"),
       session,
       syncHost: {
         securityProvider: (pluginId) =>
@@ -242,7 +247,7 @@
     );
     const pluginAssetUrl = await pluginAssetServer.getPluginAssetUrl({
       pluginId: "deno-smoke-extension",
-      pluginPath: ".obsidian/plugins/deno-smoke-extension",
+      pluginPath: appStatePath("plugins/deno-smoke-extension"),
       relativePath: "main.mjs",
       version: "1.0.0",
     });
@@ -434,7 +439,7 @@
 
   async function resetSavedLayout(): Promise<void> {
     try {
-      const path = ".obsidian/workspace.json";
+      const path = appStatePath("workspace.json");
       if (await session.vaultAdapter.exists(path)) {
         await session.vaultAdapter.remove(path);
       }
@@ -502,7 +507,7 @@
       }
       await runStartupPhase(startupSpan, activeTask, async () => {
         await app.vault.load();
-        await app.vault.mkpath(".obsidian");
+        await app.vault.mkpath(DEFAULT_APP_STATE_DIRECTORY);
       });
       if (disposed) return;
       setTask(activeTask, "complete");
@@ -635,9 +640,11 @@
   async function writeWorkspaceLayout(): Promise<void> {
     if (!app.workspace.layoutReady) return;
     const serializedLayout = JSON.stringify(app.workspace.getLayout(), null, 2);
-    await session.vaultAdapter.mkdir(".obsidian", { recursive: true });
+    await session.vaultAdapter.mkdir(DEFAULT_APP_STATE_DIRECTORY, {
+      recursive: true,
+    });
     await session.vaultAdapter.write(
-      ".obsidian/workspace.json",
+      appStatePath("workspace.json"),
       serializedLayout,
     );
   }

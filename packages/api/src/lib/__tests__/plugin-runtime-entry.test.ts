@@ -17,6 +17,115 @@ function createManifest(
 }
 
 describe("selectPluginRuntimeEntry", () => {
+  it.each(["commonjs", "node-esm"] as const)(
+    "rejects %s on Tauri before any fallback",
+    (format) => {
+      expect(
+        selectPluginRuntimeEntry({
+          manifest: createManifest({
+            id: "unsupported-tauri",
+            lapis: {
+              manifestVersion: 1,
+              runtime: {
+                entries: {
+                  workspace: {
+                    path: "main.js",
+                    format,
+                    fallbackPath: "fallback.js",
+                  },
+                },
+              },
+            },
+          }),
+          requestedHost: "tauri-desktop",
+          supportsEsm: true,
+          supportsNodeEsm: false,
+          hasMainJs: true,
+        }),
+      ).toBeNull();
+    },
+  );
+
+  it("rejects legacy CommonJS main on Tauri", () => {
+    expect(
+      selectPluginRuntimeEntry({
+        manifest: createManifest({ id: "legacy-tauri" }),
+        requestedHost: "tauri-desktop",
+        supportsEsm: true,
+        supportsNodeEsm: false,
+        hasMainJs: true,
+      }),
+    ).toBeNull();
+  });
+
+  it("does not fall back from missing Tauri ESM support to CommonJS", () => {
+    expect(
+      selectPluginRuntimeEntry({
+        manifest: createManifest({
+          id: "fallback-tauri",
+          lapis: {
+            manifestVersion: 1,
+            runtime: {
+              entries: {
+                workspace: {
+                  path: "main.mjs",
+                  format: "esm",
+                  fallbackPath: "main.js",
+                },
+              },
+            },
+          },
+        }),
+        requestedHost: "tauri-desktop",
+        supportsEsm: false,
+        supportsNodeEsm: false,
+        hasMainJs: true,
+      }),
+    ).toBeNull();
+  });
+
+  it("selects portable ESM on Tauri without inheriting a CommonJS fallback", () => {
+    const manifest = createEsmWorkspaceRuntimeManifest();
+    manifest.lapis!.runtime!.entries!.workspace!.fallbackPath = "main.js";
+    const result = selectPluginRuntimeEntry({
+      manifest,
+      requestedHost: "tauri-desktop",
+      supportsEsm: true,
+      supportsNodeEsm: false,
+      hasMainJs: true,
+    });
+    expect(result).toMatchObject({
+      host: "tauri-desktop",
+      path: "main.mjs",
+      format: "esm",
+    });
+    expect(result?.fallbackPath).toBeUndefined();
+  });
+
+  it("rejects Electron-only and native service entries on Tauri", () => {
+    const manifest = createManifest({
+      id: "native-only",
+      lapis: {
+        manifestVersion: 1,
+        runtime: {
+          entries: {
+            electronRenderer: { path: "electron.mjs", format: "esm" },
+            trustedDesktop: { path: "service.mjs", format: "node-esm" },
+          },
+        },
+      },
+    });
+    expect(
+      selectPluginRuntimeEntry({
+        manifest,
+        requestedHost: "tauri-desktop",
+        supportsEsm: true,
+        supportsNodeEsm: true,
+        hasMainJs: true,
+      }),
+    ).toBeNull();
+  });
+
   it("selects Obsidian main.js for non-Lapis compatibility plugins", () => {
     expect(
       selectPluginRuntimeEntry({

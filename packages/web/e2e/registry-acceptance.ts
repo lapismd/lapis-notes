@@ -43,7 +43,7 @@ export async function installRegistryPlugin(
         const app = (window as typeof window & { app: RegistryAcceptanceApp })
           .app;
         return JSON.parse(
-          await app.vault.adapter.read(".obsidian/community-plugins.json"),
+          await app.vault.adapter.read(".lapis/community-plugins.json"),
         ) as string[];
       }),
     )

@@ -1,6 +1,19 @@
 # Lapis Editor Demo / Editor scenarios / Part 1
 
-The Design Core dependency refresh consumes released `0.5.0` CSS, fonts and
+LN-EXP-014 covers custom file artwork through the actual App and Explorer,
+including plugin enable/disable, opening and rename. Editor-demo cold acceptance
+retains its existing scenarios. The shared dependency optimizer includes API's
+actual `zod/v3` entry so schema loading cannot reload an active browser test.
+
+The desktop catalog's current dependency intake accepts Design Core 0.5.1
+alongside 0.4 through public prepared archives. Its manual presentation review
+does not qualify deferred source, interaction or native acceptance.
+
+The reusable Explorer retains existing menu components while LN-EXP-009 makes
+native/copy feedback explicitly App-owned. Unavailable clipboard support reports
+failure through the existing notice owner instead of claiming success.
+
+The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.
 
@@ -44,13 +57,17 @@ behavior and plugin activation remain unchanged.
 
 <a id="ln-ed-007"></a>
 
-**Requirement.** The demo MUST adapt Design Core Explorer to the API vault for listing, active-file selection, create, open, rename, move, delete, persisted auto-reveal, and persisted show-hidden files. Dotted names MUST stay hidden unless that setting is on. The left-sidebar Explorer play MUST persist the toolbar toggle to `.obsidian/app.json` and reveal `.env` and `.obsidian`.
+**Requirement.** The demo MUST adapt Design Core Explorer to the API vault for listing, active-file selection, create, open, rename, move, delete, persisted auto-reveal, and persisted show-hidden files. Dotted names MUST stay hidden unless that setting is on. The left-sidebar Explorer play MUST persist the toolbar toggle to `.lapis/app.json` and reveal `.env` and `.lapis`.
 
 ## LN-ED-008 — Empty landing view: expose functional Create note and Go
 
 <a id="ln-ed-008"></a>
 
 **Requirement.** The empty landing view MUST expose functional Create note and Go to file actions. Go to file MUST open the Design Core palette on the Files tab with its bounded starter files. Close MUST use the design-core leaf action.
+
+The production Explorer's create/open continuation uses the owning App's file
+operation admission on conditional hosts. The demo consumes that same public
+component; it does not implement a second creation or persistence path.
 
 ## LN-ED-009 — Startup: report real vault, configuration, required-plugin, and layout
 
@@ -87,6 +104,8 @@ behavior and plugin activation remain unchanged.
 <a id="ln-ed-019"></a>
 
 **Requirement.** The application-profile integration demo MUST register exactly Source Editor, Markdown, reusable File Explorer, and Search in the same order as Web and Deno. Extracted plugin component and workspace stories MUST live in the sibling `lapis-plugins` Storybook; Lapis Notes MAY retain only framework and management integration fixtures.
+
+Unchanged contract: File Explorer passes the selected file-view icon through published Design Core `getIcon` and `registerWorkspaceIcon`. `ExplorerControllerOptions` does not declare `iconResolver`.
 
 ## LN-ED-020 — Storybook: provide focused panel stories for All Properties
 
@@ -250,7 +269,7 @@ The live-edit parity scenario verifies:
 
 <a id="ln-ed-042"></a>
 
-**Requirement.** The real Editor Settings story MUST show separate Markdown and Features sections, toggle a representative feature, and verify its existing dotted key in `.obsidian/app.json`. It MUST verify that no `markdown.mira.features` group object is persisted. Optional-divider acceptance MUST wait for persisted enablement and reveal the divider in the editor viewport before checking its rendered SVG.
+**Requirement.** The real Editor Settings story MUST show separate Markdown and Features sections, toggle a representative feature, and verify its existing dotted key in `.lapis/app.json`. It MUST verify that no `markdown.mira.features` group object is persisted. Optional-divider acceptance MUST wait for persisted enablement and reveal the divider in the editor viewport before checking its rendered SVG.
 
 ## LN-ED-043 — Runnable editor demo: register Markdownlint after Markdown and open
 
@@ -314,8 +333,33 @@ Focused Explorer acceptance verifies:
 
 **Requirement.** API `Editor` instances MUST support host-owned persistence, expose a flushable pending-change lifecycle, and keep file identity separate from whether the editor writes directly to the vault.
 
+## LN-ED-063 — Same-document extension refresh
+
+<a id="ln-ed-063"></a>
+
+**Requirement.** Updating an editor's extensions MUST preserve its current document, selection and Undo/Redo history. Refresh MUST retain active edit protection and pending persistence. Explicit document replacement retains its existing history-reset semantics.
+
+## LN-ED-064 — Embedded extension reaction ownership
+
+<a id="ln-ed-064"></a>
+
+**Requirement.** Embedded extension reactions MUST observe their declared surface inputs and registered configuration/plugin changes. Applying resolved extensions MUST NOT subscribe those reactions to incidental editor protection or persistence state.
+
 ## LN-ED-052 — Serialized Markdown return targets
 
 <a id="ln-ed-052"></a>
 
 **Requirement.** The public Markdown view state MUST support a generic serialized return target so a domain file preview can delegate whole-file editing to the registered Markdown leaf without importing Markdown implementation internals.
+
+Explorer deletion now follows the shared FileManager guard under LN-ARCH-145
+and LN-EXP-008. The existing App owns writer protection, native IO failure and
+retry; the view continues to use its existing action and notice presentation.
+
+Owned failure notices follow LN-WS-096 in the existing shell notification UI;
+the editor demo receives no separate notification component or persistence.
+
+LN-PKG-178 and LN-PKG-179 add opt-in exclusive creation and source-owned new-file
+intent. Existing low-level overwrite behavior and unsupported legacy hosts stay
+explicit; Deno host source remains frozen. Admission spans creation projection.
+
+The reusable Explorer now connects the existing external-file drop callback to App-owned FileManager creation under LN-EXP-010/011/012. The editor demo consumes this same public package and component. Native byte, failure, rendering and restart qualification remains separate from deferred complete Storybook/axe and web lanes.

@@ -1,5 +1,79 @@
 # Packages / Host and plugin integration
 
+The private application profile owns optional Repository registration and its
+App-scoped binding before configured plugin loading. The generic Web session
+selects that public private-profile entry; it does not import plugin classes.
+
+The private Rust-hosted History profile consumes the retained public Repository
+plugin and lossless History SDK through the same App/session and admitted client.
+It adds no published API export or alternate plugin engine. The unpublished SDK
+uses the documented private-app sibling exception and exact public validation archive.
+
+The private native-chat application profile consumes host-authored target
+`default_mode` metadata under LN-CORE-009/010. It resolves the exact target again
+before Send, refuses missing or invalid metadata and preserves explicit native
+input modes. It never infers provider permissions from target IDs or labels.
+
+The private Web package's opt-in provider-screen acceptance exercises that
+profile through its real composer and History after explicit Sign out and cold
+service restart. Its dedicated Playwright configuration is type-checked with
+the hosted test sources; no acceptance helper enters package runtime exports.
+
+The private root package exposes `progress:generate` and `check:progress` for
+the master migration tracker. These development-only commands consume
+`spec/migration-progress.json` and do not enter published package exports or
+application runtime dependencies. Normal check includes the drift gate.
+
+The root development cohort selects released Mira `~0.1.2`. Its three
+`~0.0.3` companions stay at their published versions. API depends on and
+peers `@lapismd/mira` at `~0.1.2`. The
+[dependency intake receipt](../../records/2026-10-25-released-mira-dependency-intake.md)
+records the temporary committed Design Core archive, separate consumer checks
+and unresolved private-package frozen-registry gate under LN-PKG-012/064.
+
+Root, API and UI select the same published Bits UI `2.20.2` runtime. The
+[unified-runtime intake](../../records/2026-10-25-bits-runtime-intake.md) retains
+exact hover-preview regressions, final source/packing and separate consumer gates
+before admission. Published 2.20.2 still queues a Link Preview selection probe
+after teardown. `patches/bits-ui@2.20.2.patch` applies the timer cancel already
+qualified in that owning source, with no checkout-specific installation path.
+Remove the patch when the published Bits release contains the same teardown.
+
+Published `@lapis-notes/bases@0.1.4` omits accessible names on its Select
+triggers. `patches/@lapis-notes__bases@0.1.4.patch` applies the names already
+present in plugins source. Axe rules stay unchanged. Remove the patch when a
+published bases release includes those names.
+
+The private native core exposes bounded archive extraction and immutable ZIP
+snapshots under LN-CORE-004/007. Hosts own publication and transport; the engine
+accepts only an empty provisional root and regular content, retaining `.lapis`.
+
+R1.3.11 retains Web's existing public App-owned vault-change service. Starting it
+before ready and draining it before host teardown restores internal file-view
+projection; no API export, alternative file writer or scheduler is added.
+
+UI's existing public theme export supplies shared search-highlight defaults.
+Dark-mode contrast is qualified under LN-UI-020 on workspace/sidebar normal,
+hover and active rows, without a consumer override or an additional export.
+
+Plugin manifests expose optional `requiredNativeServices` for host capability
+admission (LN-PLUG-121). It is distinct from brokered `requiredCapabilities`: no
+new native permission or implicit service activation follows from a declaration.
+
+The API installer uses optional static-identity and replacement-preparation
+operations from its owning PluginManager. Preparation exposes an awaitable
+rollback and reload decision without leaking app IDs or host-specific services.
+Existing plugin data survives signed replacement and obsolete static copies can
+be removed without changing the application-owned plugin lifecycle.
+
+Workspace's exported plugin-management registration retains App Shell controls
+through Design Core's public managed-plugin registry. The consumer needs no
+private source import, replacement Settings page or additional export.
+
+The public editing-session registry exposes retained text conflicts under
+LN-ARCH-143 and explicit protected resolution under LN-ARCH-144. Host-owned
+presentation consumes those contracts; it must not create another save path.
+
 The UI 0.1.3 candidate retains the version and changelog prepared by Changesets
 PR #33 for the runtime dependency repair in PR #32. Its ordinary release
 follow-up also repairs the private desktop large-frame assertion cost; that
@@ -30,7 +104,7 @@ install the UI package's development dependencies.
 
 <a id="ln-pkg-046"></a>
 
-**Requirement.** Private `@lapis-notes/web` version `2026.6.3` MUST live at `packages/web` and expose `dev`, `build`, `check`, and `test` scripts.
+**Requirement.** Private `@lapis-notes/web` version `2026.6.3` MUST live at `packages/web` and expose `dev`, `build`, `check`, and `test` scripts. It MUST export `WebWorkspaceSession` from `@lapis-notes/web/session` so a hosted server can mount the Notes workspace.
 
 ## LN-PKG-065 — @lapis-notes/bases filter groups: preserve the initial predicate when adding another
 
@@ -79,3 +153,40 @@ install the UI package's development dependencies.
 <a id="ln-pkg-096"></a>
 
 **Requirement.** `@lapis-notes/api` MUST own skill-source and composer slash-command registration. `@lapis-notes/ai` MUST own discovery, snapshots, skill tools, and the composer router. Those APIs MUST NOT expose MCP, ACP, or vendor runtime types.
+
+## LN-PKG-165 — Public application state paths
+
+<a id="ln-pkg-165"></a>
+
+**Requirement.** API MUST export the shared `.lapis` directory default and application-state path builder through its root and headless `@lapis-notes/api/path` entrypoints. First-party hosts MUST use the shared path contract for default state rather than a Tauri-only override.
+
+## LN-PKG-166 — Independent runtime identity export
+
+<a id="ln-pkg-166"></a>
+
+**Requirement.** API MUST export runtime identity types and native desktop classification through `@lapis-notes/api/runtime` without importing database or model services. Existing root and application-database exports MUST retain those contracts.
+
+The same private core owns the installed-asset verifier extracted from Desktop
+under LN-CORE-004/007. Tauri and HTTP adapters retain URL and caller authority;
+Core receives only an admitted vault capability and installation coordinates.
+
+The optional App `nativeHistoryIndex` property and matching `VaultSession` field
+carry the already admitted public native History port. Explicit App construction
+wins over its session; absence retains the existing host profile. Construction
+performs no selection or network operation. The Repository plugin observes this
+port only after the host separately binds its admitted repository services;
+transport availability alone cannot create a replacement Repository view.
+
+Optional trusted `queue_selection` metadata follows [LN-CORE-037](../architecture/rust-queue-admission.md#ln-core-037). Hosts keep the exact saved recipient and ACP choices separate from opaque execution-target authority; absent metadata leaves shared UI capture unavailable while preserving R2 operation.
+
+The private native hosted build/start scripts follow
+[CORE-064/065](../architecture/rust-hosted-delivery.md). They compile the existing
+public renderer closure and native executable, add no npm runtime package and
+preserve registry manifests. Default replacement and container delivery remain
+separate from explicit development entrypoints.
+
+Native chat layout capture preserves saved conversation/scope before mount;
+only an observed new draft clears the saved conversation. This retains existing
+view state through native metadata/History/Tasks boot without creating a writer
+or resubmitting accepted work. The pre-mount regression reproduces0/1 and passes
+after the view-owned repair; final combined hosted acceptance remains R7.

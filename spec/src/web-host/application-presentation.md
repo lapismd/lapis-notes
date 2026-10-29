@@ -8,6 +8,17 @@ ready App, including the shared profile's plugin navigation action
 ([LN-PLUG-106](../plugin-model/app-ownership.md#ln-plug-106)). The requested
 release is preserved; installation remains an explicit verified app action.
 
+Rust-hosted native chat uses the shared profile's fresh declared target mode
+under [LN-CORE-009/010](../architecture/rust-turn-admission.md#ln-core-009).
+Unavailable metadata refuses before submission and preserves the draft. This
+does not select native AI for standalone Web or advance the Rust cutover gate.
+
+The opt-in R2.3 provider-screen journey uses the retained composer, vault menu,
+Sign out and conversation History. It verifies explicit client release before
+completion, then a fresh browser and cold Rust service read the same result and
+transcript without another submission. Credentials remain native and test-owned
+vault/profile data stays isolated; Linux delivery remains a separate gate.
+
 ## LN-WEB-001 — Private @lapis-notes/web version 2026.6.3: retain the legacy PWA identity, manifest, icons
 
 <a id="ln-web-001"></a>
@@ -26,11 +37,11 @@ release is preserved; installation remains an explicit verified app action.
 
 **Requirement.** The web launcher “View all” palette MUST compose `@lapismd/design-core/shadcn/command-view` for its inner search and result list.
 
-## LN-WEB-020 — Authenticated protocol-v3 web bridge: proxy application-tool calls, responses, and cancellation
+## LN-WEB-020 — Retired Web application-tool proxy
 
 <a id="ln-web-020"></a>
 
-**Requirement.** An authenticated protocol-v3 web bridge MUST proxy application-tool calls, responses, and cancellation through its existing agent-runtime connection while the browser App executes the tool. A real stdio-shim round trip MUST use that same connection, and disconnect MUST revoke bridge authorization and cancel pending calls without retaining note contents in host replay.
+**Requirement.** Web MUST NOT publish a controller application-tool proxy or authorize remote agent calls. Shared application-tool registry contracts required by native desktop MUST remain available without starting a Web agent connection.
 
 ## LN-WEB-047 — Web development renderer: pre-bundle deep @lapismd/mira modules used by registry-installed
 
@@ -43,3 +54,10 @@ release is preserved; installation remains an explicit verified app action.
 <a id="ln-web-051"></a>
 
 **Requirement.** The server login surface MUST show the Lapis app mark centered above its fields and compose Design Core inputs and theme-backed primary actions.
+
+The private Rust-hosted build flag `VITE_LAPIS_NATIVE_HISTORY=1` supplies the
+same admitted client through `HostedResources` and `VaultSession` before App
+construction. The port uses the generated start/status/query/context commands;
+its lifetime is the existing client lease. It does not enable a Repository
+screen without an admitted history reader. Node, standalone Web and ordinary
+Rust profiles keep the port absent until their separate cutover gates.

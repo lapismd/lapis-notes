@@ -1,5 +1,24 @@
 # Deno Desktop Host / Host integration
 
+The optional `native-repository` application profile is selected only by
+Rust-hosted Web. It adds no import, activation or state change to this frozen host.
+
+The Deno host is frozen. Its existing application-profile entry and four-plugin
+static registration remain unchanged. The new private `native-chat` entry is
+selected only by Tauri or Rust-hosted Web; Deno does not import or construct it.
+[Native observer adoption](../architecture/rust-turn-admission.md) owns that
+separate migration contract.
+
+The declared target-mode contract under LN-CORE-009/010 applies only to that
+native entry. Its metadata refresh cannot reactivate or change the frozen Deno
+chat path.
+
+The optional queue observer and target-discovery metadata under
+[LN-CORE-036/037](../architecture/rust-queue-admission.md#ln-core-036) apply only
+to that native entry. They add no command, capture constructor, timer or
+activation to Deno. This shared-profile intake preserves the frozen host;
+implementation and acceptance target Tauri and Rust-hosted Web.
+
 The Design Core dependency refresh consumes released `0.5.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.
@@ -62,3 +81,14 @@ The macOS close transport verifies:
 <a id="ln-deno-065"></a>
 
 **Requirement.** The desktop development renderer MUST pre-bundle deep `@lapismd/mira` modules used by registry-installed Markdown. System WebView and CEF MUST receive interoperable exports for their transitive CommonJS dependencies instead of importing raw CommonJS through native ESM URLs.
+
+Frozen Deno retains its current host implementation. The shared optional native
+participant projection under [LN-CORE-048](../architecture/rust-participants.md#ln-core-048)
+is selected by admitted native hosts; its profile/read ports preserve existing
+metadata-absent single-target behavior and the current complete Agent screen.
+
+Native chat layout capture preserves saved conversation/scope before mount;
+only an observed new draft clears the saved conversation. This retains existing
+view state through native metadata/History/Tasks boot without creating a writer
+or resubmitting accepted work. The pre-mount regression reproduces0/1 and passes
+after the view-owned repair; final combined hosted acceptance remains R7.

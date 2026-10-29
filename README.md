@@ -5,7 +5,7 @@
 [![Storybook](https://img.shields.io/badge/storybook-live-ff4785?logo=storybook&logoColor=white)](https://lapismd.github.io/lapis-notes/)
 
 Lapis Notes monorepo for the application shell, reusable framework packages,
-an app-owned plugin profile, Deno desktop host, web host, spec-first governance,
+an app-owned plugin profile, frozen Deno desktop host, Node server host, web host, spec-first governance,
 and Storybook acceptance.
 
 ## Public packages
@@ -119,6 +119,7 @@ for image refresh and local-container details.
 
 - Agent workflow: [`AGENTS.md`](./AGENTS.md)
 - Release process: [`RELEASING.md`](./RELEASING.md)
+- Active Rust migration plan: [`RUST_CORE_MIGRATION_PLAN.md`](./RUST_CORE_MIGRATION_PLAN.md)
 - Migration tracker: [`MIGRATION.md`](./MIGRATION.md)
 - Canonical requirements: [`spec/src/`](./spec/src/)
 - Supporting records: [`spec/records/`](./spec/records/)
@@ -162,3 +163,16 @@ preparation remains an explicit local-development choice.
 The `:run` scripts are internal raw runners; use the public commands above for
 local caching. Direct `pnpm exec vitest` or `pnpm --filter <package> test` invokes
 the underlying runner directly; use the root Turbo commands for cached runs.
+
+## Hosted server
+
+The hosted server, its image, and its browser client live in the lapis-server
+repository. This repository does not build that image or run server acceptance.
+The retired `@lapis-notes/server-deno` package is deprecated: it has no
+manifest, and check, test, build, and CI do not select it. The `deno-server`
+session value remains a compatibility alias for `node-server`.
+
+## Local checks
+
+Portable checks, builds and tests default to Docker. See [validation](docs/validation.md)
+for image preparation, remote execution, explicit native runs and story composition checks.

@@ -87,6 +87,7 @@ export interface LapisEditorViewContribution {
   viewType?: string;
   label: string;
   description?: string;
+  fileIcon?: string;
   filenamePatterns: string[];
   priority?: "default" | "option" | "exclusive";
   pluginId?: string;
@@ -123,7 +124,7 @@ export interface LapisStatusBarItemContribution {
   id: string;
   text?: string;
   icon?: string;
-  alignment?: "left" | "right";
+  alignment?: "left" | "center" | "right";
   priority?: number;
   tooltip?: string;
   command?: string;
@@ -169,7 +170,10 @@ export interface LapisExtensionManifest {
     };
   };
   database?: {
-    /** Query-native access avoids the one-release full MetadataCache snapshot lease. */
+    /**
+     * Query-native access avoids the one-release full MetadataCache snapshot
+     * lease.
+     */
     metadataAccess?: "queries" | "snapshot";
   };
   permissions?: LapisExtensionPermission[];
@@ -1055,6 +1059,7 @@ function isEditorViewContribution(
     Array.isArray(value.filenamePatterns) &&
     value.filenamePatterns.length > 0 &&
     value.filenamePatterns.every((entry) => typeof entry === "string") &&
+    (value.fileIcon === undefined || typeof value.fileIcon === "string") &&
     (value.viewType === undefined || typeof value.viewType === "string") &&
     (value.description === undefined ||
       typeof value.description === "string") &&
@@ -1102,6 +1107,7 @@ function isStatusBarItemContribution(
     (typeof value.text === "string" || typeof value.icon === "string") &&
     (value.alignment === undefined ||
       value.alignment === "left" ||
+      value.alignment === "center" ||
       value.alignment === "right") &&
     (value.priority === undefined || typeof value.priority === "number") &&
     (value.tooltip === undefined || typeof value.tooltip === "string") &&

@@ -107,12 +107,13 @@ export const SyncDocumentLoadingAndRename: Story = {
           insert: "draft retained across rename",
         },
       });
+      const previousPath = second.path;
       await app.fileManager.renameFile(second, "sync-loading-renamed.txt");
       const renamed = app.vault.getFileByPath("sync-loading-renamed.txt");
       if (!renamed) throw new Error("Managed rename did not produce its file");
       await view.onRename(renamed);
       await editor.flushChanges();
-      expect(app.vault.getFileByPath(second.path)).toBeNull();
+      expect(app.vault.getFileByPath(previousPath)).toBeNull();
       expect(await app.vault.read(renamed)).toBe(
         "draft retained across rename",
       );
@@ -261,7 +262,10 @@ export const SyncEditorPersistence: Story = {
   play: async ({ canvasElement }) => {
     await waitForReady(within(canvasElement));
     const app = activeStoryApp(canvasElement);
-    const inactive = await app.vault.create("sync-inactive.txt", "original inactive");
+    const inactive = await app.vault.create(
+      "sync-inactive.txt",
+      "original inactive",
+    );
     const active = await app.vault.create("sync-active.txt", "active contents");
     const inactiveLeaf = app.workspace.getLeaf("tab");
     await inactiveLeaf.openFile(inactive);
@@ -271,21 +275,40 @@ export const SyncEditorPersistence: Story = {
     await activeLeaf.openFile(active);
     app.workspace.activeLeaf = activeLeaf;
     expect(app.workspace.activeEditor?.editor).not.toBe(editor);
-    editor.view.dispatch({ changes: { from: 0, to: editor.view.state.doc.length, insert: "saved inactive buffer" } });
+    editor.view.dispatch({
+      changes: {
+        from: 0,
+        to: editor.view.state.doc.length,
+        insert: "saved inactive buffer",
+      },
+    });
     const service = takeHostSyncService(app);
-    const host = service.forPlugin("sync-editor-persistence-story", ["vault:stream"]);
+    const host = service.forPlugin("sync-editor-persistence-story", [
+      "vault:stream",
+    ]);
     try {
-      await expect(host.vault.flushOpenEditor(inactive.path)).resolves.toEqual({ flushed: true, path: inactive.path });
+      await expect(host.vault.flushOpenEditor(inactive.path)).resolves.toEqual({
+        flushed: true,
+        path: inactive.path,
+      });
       expect(await app.vault.read(inactive)).toBe("saved inactive buffer");
       expect(editor.hasUnsavedChanges).toBe(false);
-      editor.view.dispatch({ changes: { from: 0, to: editor.view.state.doc.length, insert: "new local draft" } });
+      editor.view.dispatch({
+        changes: {
+          from: 0,
+          to: editor.view.state.doc.length,
+          insert: "new local draft",
+        },
+      });
       app.workspace.dispatch("file-change", inactive, "modify");
       await waitForBrowserFrame(canvasElement);
       expect(editor.getValue()).toBe("new local draft");
       expect(editor.hasUnsavedChanges).toBe(true);
       await host.vault.flushOpenEditor();
       expect(await app.vault.read(inactive)).toBe("new local draft");
-    } finally { await service.revokePlugin("sync-editor-persistence-story"); }
+    } finally {
+      await service.revokePlugin("sync-editor-persistence-story");
+    }
   },
 };
 
@@ -404,9 +427,7 @@ async function persistedStoryConfiguration(
   canvasElement: HTMLElement,
 ): Promise<Record<string, unknown>> {
   return JSON.parse(
-    await activeStoryApp(canvasElement).vault.adapter.read(
-      ".obsidian/app.json",
-    ),
+    await activeStoryApp(canvasElement).vault.adapter.read(".lapis/app.json"),
   ) as Record<string, unknown>;
 }
 
@@ -1131,7 +1152,8 @@ export const MarkdownProblems: Story = {
     });
     const activeFile = runtimeApp.workspace.getActiveFile();
     if (!activeFile) throw new Error("The Problems story has no active file");
-    await runtimeApp.vault.modify(activeFile, invalidFixture);
+    await editor.flushChanges();
+    expect(await runtimeApp.vault.read(activeFile)).toBe(invalidFixture);
     await waitFor(
       () => {
         expect(
@@ -1174,6 +1196,10 @@ export const MarkdownProblems: Story = {
         ).resolves.toContain("##missing heading space");
       },
       { timeout: 3_000 },
+    );
+    await editor.flushChanges();
+    expect(runtimeApp.fileEditingSessions.textConflicts.entries).toHaveLength(
+      0,
     );
     canvasElement.dataset.markdownProblemsAcceptanceReady = "true";
   },
@@ -1265,6 +1291,11 @@ export const MarkdownSpellcheck: Story = {
       expect(editor.getValue()).not.toContain("sentense");
       expect(editor.getValue()).toContain("mispelled");
     });
+    await editor.flushChanges();
+    expect(await runtimeApp.vault.read(editor.file!)).toBe(editor.getValue());
+    expect(runtimeApp.fileEditingSessions.textConflicts.entries).toHaveLength(
+      0,
+    );
   },
 };
 
@@ -2914,6 +2945,14 @@ export const StartupFailure: Story = {
   args: { scenario: "startup-failure" },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const controls = canvas.getByRole("complementary", {
+      name: "Startup failure fixture",
+    });
+    expect(getComputedStyle(controls).borderTopStyle).toBe("dotted");
+    expect(parseFloat(getComputedStyle(controls).paddingTop)).toBeGreaterThan(
+      0,
+    );
+    expect(getComputedStyle(controls).position).toBe("fixed");
     await waitFor(
       () =>
         expect(canvas.getByRole("alert")).toHaveTextContent(

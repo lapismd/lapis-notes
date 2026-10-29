@@ -179,11 +179,11 @@ await writeFile(path.join(vaultPath, "Welcome.md"), "# Packaged Deno smoke\n");
 const pluginId = "deno-smoke-extension";
 const pluginSource = 'export default "deno plugin asset";\n';
 const pluginSha256 = createHash("sha256").update(pluginSource).digest("hex");
-const pluginDirectory = path.join(vaultPath, ".obsidian", "plugins", pluginId);
+const pluginDirectory = path.join(vaultPath, ".lapis", "plugins", pluginId);
 await mkdir(pluginDirectory, { recursive: true });
 await writeFile(path.join(pluginDirectory, "main.mjs"), pluginSource);
 await writeFile(
-  path.join(vaultPath, ".obsidian", "installed-plugins.json"),
+  path.join(vaultPath, ".lapis", "installed-plugins.json"),
   `${JSON.stringify({
     schemaVersion: 1,
     updatedAt: new Date().toISOString(),

@@ -1,3 +1,4 @@
+import { appStatePath } from "../storage/path";
 import { basename, dirname, joinPath } from "$lib/storage/path";
 import type { DataAdapter } from "$lib/storage/fs";
 import type { PluginManifest } from "../plugin";
@@ -66,6 +67,15 @@ export interface PluginInstallerProgressEvent {
 }
 
 export interface PluginInstallerManager {
+  unloadPlugin?(pluginId: string): Promise<boolean>;
+  isStaticPlugin?(pluginId: string): boolean;
+  preparePluginReplacement?(pluginId: string): Promise<
+    | {
+        reloadRequired: boolean;
+        rollback(): Promise<void>;
+      }
+    | undefined
+  >;
   loadPlugin?(
     pluginPath: string,
     options?: { provenance?: PluginProvenance },
@@ -196,7 +206,15 @@ export class VerifiedPluginInstaller {
     pluginId: string,
     options: UninstallVerifiedPluginOptions = {},
   ): Promise<void> {
-    await this.options.pluginManager?.disablePlugin?.(pluginId);
+    const manager = this.options.pluginManager;
+    if (!manager?.isStaticPlugin?.(pluginId)) {
+      if (manager?.unloadPlugin) {
+        if (!(await manager.unloadPlugin(pluginId)))
+          throw new Error(
+            `Plugin ${pluginId} cleanup failed; uninstall was cancelled.`,
+          );
+      } else await manager?.disablePlugin?.(pluginId);
+    }
     const pluginPath = joinPath(this.pluginsPath, pluginId);
 
     if (options.removeData) {
@@ -325,6 +343,14 @@ export class VerifiedPluginInstaller {
       files,
       nostrProof,
     } = payload;
+    if (
+      this.options.pluginManager?.isStaticPlugin?.(releaseManifest.pluginId)
+    ) {
+      throw new PluginDistributionError(
+        "reserved-id",
+        `Plugin ${releaseManifest.pluginId} is registered by the application.`,
+      );
+    }
     if (options.compatibility) {
       const compatibility = checkReleaseManifestCompatibility(
         releaseManifest,
@@ -379,37 +405,12 @@ export class VerifiedPluginInstaller {
       `${releaseManifest.pluginId}-${Date.now()}`,
     );
     const finalPath = joinPath(this.pluginsPath, releaseManifest.pluginId);
-
-    try {
-      throwIfAborted(options.signal);
-      options.onProgress?.({
-        phase: "staging",
-        message: "Staging plugin files",
-        processedBytes: 0,
-        totalBytes: totalFileBytes(files),
-      });
-      await this.writeStagingFiles(stagingPath, files, {
-        signal: options.signal,
-        onProgress: options.onProgress,
-      });
-      options.onProgress?.({
-        phase: "installing",
-        message: "Installing plugin files",
-      });
-      await this.swapIntoPlace(stagingPath, finalPath);
-    } catch (error) {
-      await this.removeIfExists(stagingPath);
-      if (!(await this.options.adapter.exists(finalPath))) {
-        await this.removeIfExists(finalPath);
-      }
-      throw error;
-    }
-
+    const previousRecord = await this.stateStore.get(releaseManifest.pluginId);
     const now = this.now();
     const record: InstalledPluginRecord = {
       pluginId: releaseManifest.pluginId,
       installedVersion: releaseManifest.version,
-      installedAt: now,
+      installedAt: previousRecord?.installedAt ?? now,
       updatedAt: now,
       provenance,
       registryId: options.registryId,
@@ -430,7 +431,57 @@ export class VerifiedPluginInstaller {
       restartRequired: Boolean(this.options.pluginManager),
     };
 
-    await this.stateStore.upsert(record);
+    let replacement: Awaited<
+      ReturnType<
+        NonNullable<PluginInstallerManager["preparePluginReplacement"]>
+      >
+    >;
+    try {
+      throwIfAborted(options.signal);
+      options.onProgress?.({
+        phase: "staging",
+        message: "Staging plugin files",
+        processedBytes: 0,
+        totalBytes: totalFileBytes(files),
+      });
+      await this.writeStagingFiles(stagingPath, files, {
+        signal: options.signal,
+        onProgress: options.onProgress,
+      });
+      if (await this.options.adapter.exists(finalPath)) {
+        replacement =
+          await this.options.pluginManager?.preparePluginReplacement?.(
+            releaseManifest.pluginId,
+          );
+        // Read after teardown so its final save wins over release defaults.
+        const dataPath = joinPath(finalPath, "data.json");
+        if (await this.options.adapter.exists(dataPath)) {
+          await this.options.adapter.writeBinary(
+            joinPath(stagingPath, "data.json"),
+            await this.options.adapter.readBinary(dataPath),
+          );
+        }
+      }
+      options.onProgress?.({
+        phase: "installing",
+        message: "Installing plugin files",
+      });
+      throwIfAborted(options.signal);
+      await this.swapIntoPlace(stagingPath, finalPath, {
+        publish: () => this.stateStore.upsert(record),
+        rollback: async () => {
+          if (previousRecord) await this.stateStore.upsert(previousRecord);
+          else await this.stateStore.remove(releaseManifest.pluginId);
+        },
+      });
+    } catch (error) {
+      try {
+        await this.removeIfExists(stagingPath);
+      } finally {
+        await replacement?.rollback();
+      }
+      throw error;
+    }
 
     if (this.options.pluginManager?.loadPlugin) {
       options.onProgress?.({
@@ -438,9 +489,11 @@ export class VerifiedPluginInstaller {
         message: "Loading installed plugin",
       });
     }
-    const loaded = await this.options.pluginManager?.loadPlugin?.(finalPath, {
-      provenance,
-    });
+    const loaded = replacement?.reloadRequired
+      ? null
+      : await this.options.pluginManager?.loadPlugin?.(finalPath, {
+          provenance,
+        });
     const shouldEnable = options.enable ?? true;
     const diagnostics =
       this.options.pluginManager?.getCommunityPluginDiagnostics?.(
@@ -452,6 +505,7 @@ export class VerifiedPluginInstaller {
     let enabled = false;
     if (
       shouldEnable &&
+      !replacement?.reloadRequired &&
       (loaded || cleanDormantExtension) &&
       this.options.pluginManager?.enablePlugin
     ) {
@@ -465,7 +519,8 @@ export class VerifiedPluginInstaller {
     }
 
     record.restartRequired = Boolean(
-      this.options.pluginManager && !loaded && !enabled,
+      this.options.pluginManager &&
+        (replacement?.reloadRequired || (!loaded && !enabled)),
     );
     await this.stateStore.upsert(record);
     return record;
@@ -590,6 +645,7 @@ export class VerifiedPluginInstaller {
   private async swapIntoPlace(
     stagingPath: string,
     finalPath: string,
+    metadata: { publish(): Promise<void>; rollback(): Promise<void> },
   ): Promise<void> {
     await ensureFolder(this.options.adapter, this.pluginsPath);
     const backupPath = joinPath(
@@ -601,14 +657,28 @@ export class VerifiedPluginInstaller {
     if (hadExisting) {
       await this.options.adapter.rename(finalPath, backupPath);
     }
+    let moved = false;
+    let publishingMetadata = false;
     try {
       await this.options.adapter.rename(stagingPath, finalPath);
-      if (hadExisting) await this.removeIfExists(backupPath);
+      moved = true;
+      publishingMetadata = true;
+      await metadata.publish();
     } catch (error) {
+      if (moved) await this.removeIfExists(finalPath);
       if (hadExisting && !(await this.options.adapter.exists(finalPath))) {
         await this.options.adapter.rename(backupPath, finalPath);
       }
+      if (publishingMetadata) await metadata.rollback();
       throw error;
+    }
+    // Code and metadata are committed. Cleanup cannot reactivate the old module.
+    if (hadExisting) {
+      try {
+        await this.removeIfExists(backupPath);
+      } catch (error) {
+        console.warn(`Could not remove plugin backup ${backupPath}`, error);
+      }
     }
   }
 
@@ -628,7 +698,7 @@ export class VerifiedPluginInstaller {
   private async removeCommunityPluginEnabledState(
     pluginId: string,
   ): Promise<void> {
-    const enabledPath = ".obsidian/community-plugins.json";
+    const enabledPath = appStatePath("community-plugins.json");
     try {
       const enabled = JSON.parse(await this.options.adapter.read(enabledPath));
       if (!Array.isArray(enabled)) return;
@@ -656,7 +726,7 @@ export class VerifiedPluginInstaller {
   }
 
   private get pluginsPath(): string {
-    return this.options.pluginsPath ?? ".obsidian/plugins";
+    return this.options.pluginsPath ?? appStatePath("plugins");
   }
 
   private now(): string {

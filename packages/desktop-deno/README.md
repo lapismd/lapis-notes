@@ -104,25 +104,20 @@ brew install --cask lapismd/tap/lapis-notes
 Homebrew 7 requires explicit trust for this cask. The command above scopes trust
 to Lapis Notes.
 
-Release tags use `desktop-v<version>` and must match this private package's
-version. The tag workflow builds and qualifies macOS ARM64 and Linux
-ARM64/x64 on native runners before publishing. macOS remains ad-hoc signed;
+This Notes repository does not run desktop release jobs. Desktop publication
+belongs to lapis-desktop. `pnpm desktop:release:check` asserts
+`.github/workflows/desktop-release.yml` is absent. macOS remains ad-hoc signed;
 the tap prepares only its installed application bundle for launch. Linux uses
 the tar bundle with system WebKitGTK 4.1, GTK 3 and Ayatana AppIndicator on
 Ubuntu 24.04. Intel macOS is deferred: `@tursodatabase/database@0.7.2` has
 no published Darwin x64 native addon. Renderer assets and the runtime are embedded, so installation does
 not require a source checkout, Node.js or Deno on the user's PATH.
 
-`pnpm desktop:release:check` and `pnpm desktop:release:test` check the release
-contract. `test:packaged` retains full controller and terminal acceptance;
+`pnpm desktop:release:check` and `pnpm desktop:release:test` assert those jobs
+stay absent. `test:packaged` retains full controller and terminal acceptance;
 `node scripts/smoke-packaged.mjs --core` separately exercises the core app
 without the external AI controller. macOS installed acceptance also uses
 `--launch-services <bundle>` and retains the existing argv URL handoff. Native
 macOS URL-opening event delivery remains upstream Deno issue #35465.
 
-Configure repository variable `HOMEBREW_TAP_APP_ID` and secret
-`HOMEBREW_TAP_APP_PRIVATE_KEY` for a GitHub App installed only on
-`lapismd/homebrew-tap`, with Contents and Pull requests write permissions.
-Publication opens a tap update PR; the tap's three audited native installation
-checks must pass before merge. A failed upload leaves a draft release and never
-replaces previously published assets.
+Tap publication is not run from this repository.

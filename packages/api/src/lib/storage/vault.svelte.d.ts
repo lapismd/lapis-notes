@@ -1,9 +1,11 @@
+import type { FileEditingSessionRegistry } from "../file-editing-sessions";
 import { EventDispatcher } from "$lib/events";
 import {
   FileCache,
   TFile,
   TFolder,
   type DataAdapter,
+  type ChangeEvent,
   type DataWriteOptions,
   type TAbstractFile,
 } from "./fs";
@@ -19,6 +21,9 @@ export declare const ENOTDIR: {
   prepareStackTrace(err: Error, stackTraces: NodeJS.CallSite[]): any;
   stackTraceLimit: number;
 };
+export interface VaultListingOptions {
+  listingExclusions?: () => readonly string[];
+}
 export interface VaultGlobOptions {
   caseSensitive?: boolean;
 }
@@ -42,9 +47,18 @@ export declare class Vault extends EventDispatcher<{
   readonly adapter: DataAdapter;
   private files;
   private filesByName;
+  private mutationTail;
+  private mutate;
+  private mutateFile;
+  private reconcileNow;
   configDir: string;
   readonly cache: FileCache;
-  constructor(adapter: DataAdapter);
+  private readonly listingFilter;
+  constructor(
+    adapter: DataAdapter,
+    operations?: Pick<FileEditingSessionRegistry, "track">,
+    options?: VaultListingOptions,
+  );
   private getPath;
   getName(): string;
   exists(path: string, sensitive?: boolean): Promise<boolean>;
@@ -52,6 +66,23 @@ export declare class Vault extends EventDispatcher<{
   list(path?: string): Promise<import("./fs").ListedFiles>;
   load(): Promise<void>;
   reload(): Promise<TFolder>;
+  reconcile(
+    hints?: readonly ChangeEvent[],
+    current?: () => boolean,
+    context?: Record<string, unknown>,
+  ): Promise<void>;
+  private deleteNow;
+  private trashNow;
+  private atomicWriteNow;
+  private renameNow;
+  private modifyNow;
+  private modifyIfUnchangedNow;
+  private modifyBinaryNow;
+  private processNow;
+  private appendNow;
+  private appendBinaryNow;
+  private copyNow;
+  private recordFile;
   private addToFileNameIndex;
   private removeFromFileNameIndex;
   private rebuildFileNameIndex;
@@ -70,6 +101,12 @@ export declare class Vault extends EventDispatcher<{
   create(
     path: string,
     data: string,
+    options?: DataWriteOptions,
+  ): Promise<TFile>;
+  get supportsExclusiveCreate(): boolean;
+  createExclusive(
+    path: string,
+    data: string | ArrayBuffer,
     options?: DataWriteOptions,
   ): Promise<TFile>;
   /**
@@ -103,9 +140,13 @@ export declare class Vault extends EventDispatcher<{
    *   children
    * @public
    */
-  delete(file: TAbstractFile, force?: boolean, context?: {
-    operationOrigin?: string;
-  }): Promise<void>;
+  delete(
+    file: TAbstractFile,
+    force?: boolean,
+    context?: {
+      operationOrigin?: string;
+    },
+  ): Promise<void>;
   trash(file: TAbstractFile, system?: boolean): Promise<void>;
   /**
    * Read a plaintext file that is stored inside the vault, directly from disk.
@@ -147,6 +188,13 @@ export declare class Vault extends EventDispatcher<{
    * @public
    */
   modify(file: TFile, data: string, options?: DataWriteOptions): Promise<void>;
+  get supportsConditionalTextWrites(): boolean;
+  modifyIfUnchanged(
+    file: TFile,
+    data: string,
+    expected: string | null,
+    options?: DataWriteOptions,
+  ): Promise<void>;
   /**
    * Modify the contents of a binary file.
    *
@@ -241,6 +289,7 @@ export declare class Vault extends EventDispatcher<{
   getFiles(): TFile[];
   /**
    * Iterate loaded files without allocating a second vault-sized collection.
+   *
    * @public
    */
   iterateFiles(): IterableIterator<TFile>;

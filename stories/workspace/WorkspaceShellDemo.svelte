@@ -181,22 +181,21 @@
         type: "split",
         direction: "vertical",
         sizes: mobile || bottomSettings || bundledDesktop ? [100] : [],
-        children:
-          bundledDesktop
+        children: bundledDesktop
+          ? [
+              tabs("left-tabs", [
+                leaf("files", "Files", "folder-closed", "file-explorer"),
+                leaf("search", "Search", "search", "search"),
+                leaf("bookmarks", "Bookmarks", "bookmark", "bookmarks"),
+              ]),
+            ]
+          : mobile || bottomSettings
             ? [
                 tabs("left-tabs", [
-                  leaf("files", "Files", "folder-closed", "file-explorer"),
-                  leaf("search", "Search", "search", "search"),
-                  leaf("bookmarks", "Bookmarks", "bookmark", "bookmarks"),
+                  leaf("files", "Files", "files", "story-files"),
                 ]),
               ]
-            : mobile || bottomSettings
-              ? [
-                  tabs("left-tabs", [
-                    leaf("files", "Files", "files", "story-files"),
-                  ]),
-                ]
-              : [],
+            : [],
         width:
           mobile || bottomSettings ? "18rem" : bundledDesktop ? "22rem" : "0px",
       },
@@ -205,27 +204,26 @@
         type: "split",
         direction: "vertical",
         sizes: mobile || bottomSettings || bundledDesktop ? [100] : [],
-        children:
-          bundledDesktop
+        children: bundledDesktop
+          ? [
+              tabs("right-tabs", [
+                leaf("outline", "Outline", "list", "outline"),
+                leaf(
+                  "file-properties",
+                  "File properties",
+                  "info",
+                  "file-properties",
+                ),
+                leaf("tags", "Tags", "tags", "tag"),
+              ]),
+            ]
+          : mobile || bottomSettings
             ? [
                 tabs("right-tabs", [
-                  leaf("outline", "Outline", "list", "outline"),
-                  leaf(
-                    "file-properties",
-                    "File properties",
-                    "info",
-                    "file-properties",
-                  ),
-                  leaf("tags", "Tags", "tags", "tag"),
+                  leaf("outline", "Outline", "list-tree", "story-outline"),
                 ]),
               ]
-            : mobile || bottomSettings
-              ? [
-                  tabs("right-tabs", [
-                    leaf("outline", "Outline", "list-tree", "story-outline"),
-                  ]),
-                ]
-              : [],
+            : [],
         width:
           mobile || bottomSettings ? "18rem" : bundledDesktop ? "22rem" : "0px",
       },
@@ -235,7 +233,12 @@
           bottomSettings
             ? [
                 leaf("terminal", "Terminal", "terminal", "story-terminal"),
-                leaf("problems", "Problems", "circle-alert", PROBLEMS_VIEW_TYPE),
+                leaf(
+                  "problems",
+                  "Problems",
+                  "circle-alert",
+                  PROBLEMS_VIEW_TYPE,
+                ),
               ]
             : [],
         ),
@@ -253,16 +256,16 @@
     shouldLoadBundledPlugins,
   );
 
-  const workspacePath = ".obsidian/workspace.json";
+  const workspacePath = ".lapis/workspace.json";
   const initialJson = JSON.stringify(initialLayout, null, 2);
   const adapter = new MemoryVaultAdapter({
     [`/${workspacePath}`]: initialJson,
-    ".obsidian/app.json": "{}",
+    ".lapis/app.json": "{}",
     "Notes/Welcome.md": "# Welcome\n\nBundled plugin shell acceptance.\n",
   });
   const app = new App({
     version: "0.0.1-story",
-    configPath: ".obsidian/app.json",
+    configPath: ".lapis/app.json",
     adapter,
     appDatabase: new MemoryAppDatabase(
       `workspace-story-${untrack(() => displayMode)}-${untrack(() => scenario)}`,
@@ -270,8 +273,7 @@
     markdownRenderer: async () => {},
   });
   provideApplicationState(app);
-  const disposeApplicationCompatibility =
-    installApplicationCompatibility(app);
+  const disposeApplicationCompatibility = installApplicationCompatibility(app);
   const bundledPluginIds = [
     "markdown",
     "lapis-markdown-lint",
@@ -350,10 +352,10 @@
     lastControllerOperation = event.operation ?? event.source;
   });
 
-  adapter.onWrite = (path, data, count) => {
+  adapter.onWrite = (path, data) => {
     if (path !== workspacePath) return;
     persistedLayout = data;
-    writeCount = count;
+    writeCount += 1;
   };
 
   onMount(() => {
@@ -440,8 +442,7 @@
   <div class="workspace-shell-story-observer" aria-live="polite">
     <span data-testid="workspace-shell-status">{bootStatus}</span>
     <span data-testid="workspace-write-count">{writeCount}</span>
-    <output data-testid="workspace-bundled-plugins"
-      >{bundledPluginState}</output
+    <output data-testid="workspace-bundled-plugins">{bundledPluginState}</output
     >
     <output data-testid="workspace-app-shell-plugins"
       >{appShellPluginState}</output

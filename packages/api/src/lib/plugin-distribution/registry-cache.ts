@@ -1,3 +1,4 @@
+import { appStatePath } from "../storage/path";
 import type { DataAdapter } from "$lib/storage/fs";
 import {
   pluginCatalogDetailSchema,
@@ -124,7 +125,7 @@ export class PluginRegistryCache {
   }
 
   private get cachePath(): string {
-    return this.options.cachePath ?? ".obsidian/plugin-registry-cache.json";
+    return this.options.cachePath ?? appStatePath("plugin-registry-cache.json");
   }
 
   private get cacheFolder(): string {

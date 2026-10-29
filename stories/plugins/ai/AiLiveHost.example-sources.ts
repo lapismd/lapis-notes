@@ -11,10 +11,10 @@ export const aiLiveHostExampleSource = `<script lang="ts">
   const storageKey = "lapis-ai-story:lapis-ai-live-host:portable-conversations";
   const portableFiles = JSON.parse(localStorage.getItem(storageKey) ?? "{}");
   const adapter = new MemoryVaultAdapter({
-    ".obsidian/app.json": JSON.stringify({
+    ".lapis/app.json": JSON.stringify({
       "appearence.interface.showTabTitleBar": true,
     }),
-    ".obsidian/ai.json": JSON.stringify({
+    ".lapis/ai.json": JSON.stringify({
       settings: {
         defaultRuntime: "acp",
         acpAgent: "codex",
@@ -33,7 +33,7 @@ export const aiLiveHostExampleSource = `<script lang="ts">
   };
   const app = new App({
     version: "1.0.0",
-    configPath: ".obsidian/app.json",
+    configPath: ".lapis/app.json",
     adapter,
     appDatabase: new MemoryAppDatabase("ai-live-host"),
     workspaceShell: { application: { name: "Lapis Notes" } },

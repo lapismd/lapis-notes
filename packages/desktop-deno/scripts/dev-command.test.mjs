@@ -271,7 +271,6 @@ describe("Deno desktop development command", () => {
     expect(rootDenoConfig.workspace).toEqual([
       "packages/deno-host-services",
       "packages/desktop-deno",
-      "packages/server-deno",
     ]);
     expect(rootDenoConfig.nodeModulesDir).toBe("none");
     expect(rootDenoConfig.imports.ws).toBe("npm:ws@8.18.3");

@@ -74,7 +74,7 @@ describe("DefaultPluginDistributionManager", () => {
     expect(events.map((event) => event.phase)).toContain("enabling");
     expect(events.at(-1)?.phase).toBe("complete");
     expect(managerCalls).toEqual([
-      "load:.obsidian/plugins/lapis-docs",
+      "load:.lapis/plugins/lapis-docs",
       "enable:lapis-docs",
     ]);
 
@@ -330,7 +330,7 @@ describe("DefaultPluginDistributionManager", () => {
       { source: { id: "lapis-nostr", enabled: false } },
     ]);
     await expect(
-      adapter.read(".obsidian/plugin-registry-sources.json"),
+      adapter.read(".lapis/plugin-registry-sources.json"),
     ).resolves.toContain('"lapis-nostr"');
 
     const reloaded = new DefaultPluginDistributionManager({
@@ -416,7 +416,7 @@ describe("DefaultPluginDistributionManager", () => {
       pluginId: "lapis-docs",
     });
     await expect(
-      adapter.exists(".obsidian/plugins/lapis-docs/manifest.json"),
+      adapter.exists(".lapis/plugins/lapis-docs/manifest.json"),
     ).resolves.toBe(true);
   });
 
@@ -518,6 +518,30 @@ describe("DefaultPluginDistributionManager", () => {
     await manager.refreshCatalog();
     await expect(manager.install("lapis-docs")).rejects.toMatchObject({
       code: "compatibility-failed",
+    });
+  });
+
+  it("host restrictions identify obsolete compatible catalog entries and reject installation", async () => {
+    const fixture = await createManagerFixture();
+    const manager = new DefaultPluginDistributionManager({
+      adapter: new InMemoryDataAdapter(),
+      appVersion: "0.20.0",
+      platform: "web",
+      unavailablePlugins: { "lapis-docs": "desktop-only" },
+      registries: [fixture.source],
+      trustedKeys: [fixture.trustedKey],
+      fetch: fakeFetch(fixture.responses),
+    });
+    await manager.refreshCatalog();
+    expect(manager.search().map((entry) => entry.id)).toContain("lapis-docs");
+    expect(manager.search({ compatibleOnly: true })).toEqual([]);
+    expect(manager.getCompatibility("lapis-docs")).toEqual({
+      compatible: false,
+      reasons: ["desktop-only"],
+    });
+    await expect(manager.install("lapis-docs")).rejects.toMatchObject({
+      code: "compatibility-failed",
+      details: { reasons: ["desktop-only"] },
     });
   });
 

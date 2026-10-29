@@ -25,6 +25,7 @@ export default defineConfig(headingRequirements(), {
   },
   documentRoles: [{ pattern: "^verification/", role: "verification" }],
   diagnostics: {
+    "STORYBOOK-PARITY": "LN-CAT-118",
     "SPEC-LINK-BROKEN": "LN-GOV-017",
     "SPEC-REQ-ID": "LN-GOV-002",
     "SPEC-REQ-DUPLICATE": "LN-GOV-002",
@@ -118,9 +119,36 @@ export default defineConfig(headingRequirements(), {
         "\\.stories\\.(?:svelte|[cm]?[jt]sx?)$",
         "^stories/(?!catalog/)",
         "^MIGRATION\\.md$",
+        "^spec/migration-progress\\.json$",
         "^README\\.md$",
       ],
       rules: [
+        {
+          pattern: "^scripts/(?:validation/|validation-install\\.test\\.mjs$)",
+          chapterPatterns: [
+            "^spec/src/architecture/build-and-validation\\.md$",
+          ],
+        },
+        {
+          pattern:
+            "^scripts/(?:server-runtime(?:\\.test)?\\.mjs$|server-container(?:/|(?:-ci)?\\.test\\.mjs$|\\.mjs$))",
+          chapterPatterns: [
+            "^spec/src/architecture/rust-hosted-delivery\\.md$",
+          ],
+        },
+        {
+          pattern: "^scripts/migration-progress\\.mjs$",
+          chapterPatterns: [
+            "^spec/src/spec-governance/requirement-authoring\\.md$",
+          ],
+        },
+        {
+          pattern:
+            "^(?:crates/|\\.cargo/config\\.toml$|Cargo\\.(?:toml|lock)$|rust-toolchain\\.toml$|scripts/(?:rust-core|rust-protocol|check-rust-boundaries|search-model-test)(?:\\.test)?\\.mjs$)",
+          chapterPatterns: [
+            "^spec/src/architecture/rust-application-services\\.md$",
+          ],
+        },
         {
           pattern:
             "^(?:\\.ci/(?:dependency-image\\.Dockerfile|images\\.json)|\\.env\\.example|\\.github/actions/ci-setup/action\\.yml|\\.github/workflows/(?:dependency-image|lapis-ci|publish-storybook-pages|release)\\.yml|\\.changeset/(?:config\\.json|README\\.md)|RELEASING\\.md|scripts/(?:run-web-registry-acceptance|public-packages|release-plan|release-manifest|prepare-release|publish-release|verify-release|create-github-releases|check-package-boundaries|check-package-tarballs|check-release-config|check-release-workflow|check-release-intent|prepare-local-plugin-consumer|pack-packages|prepare-ci-dependency-context|update-ci-image-manifest|run-ci-container|run-turbo|report-turbo-cache|lib/(?:local-plugin-consumer|concurrency|turbo-invocation|ci-images|ci-container))\\.mjs|scripts/local-plugin-pnpmfile(?:\\.test)?\\.(?:cjs|mjs))$",
@@ -245,18 +273,22 @@ export default defineConfig(headingRequirements(), {
           ],
         },
         {
+          pattern: "^packages/host-services/",
+          chapterPatterns: ["^spec/src/architecture/host-boundaries\\.md$"],
+        },
+        {
           pattern: "^packages/deno-host-services/",
           chapterPatterns: [
-            "^spec/src/server\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/server\\-node\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
             "^spec/src/desktop\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
             "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
             "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
           ],
         },
         {
-          pattern: "^packages/server-deno/",
+          pattern: "^packages/server-(?:deno|node|native)/",
           chapterPatterns: [
-            "^spec/src/server\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/server\\-node\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
             "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
             "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
             "^spec/src/app\\-database/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
@@ -265,7 +297,7 @@ export default defineConfig(headingRequirements(), {
         {
           pattern: "^packages/web/",
           chapterPatterns: [
-            "^spec/src/server\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/server\\-node\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
             "^spec/src/web\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
             "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
             "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
@@ -369,15 +401,38 @@ export default defineConfig(headingRequirements(), {
           ],
         },
       ],
-      protected: ["^(?:packages/[^/]+/src/|\\.storybook/|stories/catalog/)"],
+      protected: [
+        "^(?:packages/[^/]+/src/|crates/[^/]+/src/|\\.storybook/|stories/catalog/)",
+      ],
     },
   },
   plugins: [
+    "scripts/spec-validation/storybook-parity.mjs",
     "scripts/spec-validation/view-command-audit.mjs",
     "scripts/spec-validation/storybook-structure-audit.mjs",
   ],
   check: {
     lanes: [
+      {
+        name: "migration-progress",
+        command: "pnpm",
+        args: ["check:progress"],
+      },
+      {
+        name: "rust-protocol-contract",
+        command: "pnpm",
+        args: ["check:protocol"],
+      },
+      {
+        name: "rust-core-boundaries",
+        command: "node",
+        args: ["scripts/check-rust-boundaries.mjs"],
+      },
+      {
+        name: "rust-core-boundary-regressions",
+        command: "node",
+        args: ["--test", "scripts/check-rust-boundaries.test.mjs"],
+      },
       {
         name: "specification-docs",
         command: "pnpm",

@@ -1,5 +1,52 @@
 # Storybook Catalog / Documentation and navigation
 
+The specification catalog mirrors the hosted CORE verification page independently
+from the core service table; generated navigation follows SUMMARY order.
+
+The [Rust hosted delivery](../architecture/rust-hosted-delivery.md) chapter uses
+the generated metadata-only Specification mirror and SUMMARY/sidebar order.
+Its static-Web/health and explicit build/start contracts retain separate
+native/container/default
+acceptance; the documentation entry adds no application screen or runtime owner.
+
+The [Native service exports](../packages/native-service-exports.md) topic is
+separate from release policy and uses a metadata-only mirror in SUMMARY order.
+Its source owns the port contracts; navigation adds no runtime or release gate.
+
+The canonical [Native editor intents](../architecture/native-editor-intents.md)
+chapter uses the metadata-only Specification mirror in SUMMARY order. Its
+source and host verification remain separate; adding its navigation entry does
+not select native editing or replace the existing application presentation.
+
+The generated specification navigation includes
+[Native indexing lifetime](../architecture/rust-indexing-lifetime.md) beside the
+shared Rust architecture chapters, including the separate
+[Native History indexing lifetime](../architecture/rust-history-indexing-lifetime.md)
+[Admitted native History reader](../architecture/rust-history-reader.md) and
+[Remaining native History parity](../architecture/rust-history-parity.md).
+Their metadata-only MDX mirrors render canonical sources in SUMMARY order;
+these documentation entries do not select an application index owner or qualify
+the independent desktop/native acceptance gates.
+
+Backlog recommendations use canonical pages and generated metadata-only mirrors
+in SUMMARY order. The Legacy plugin ports page records future intake separately
+from implemented plugin contracts and verification status.
+
+Rust managed-vault intake is documented through its canonical architecture
+chapter and metadata-only MDX mirror in SUMMARY order. The specification source
+owns that content; this adds no alternative hosted chooser or application view.
+
+The shared Rust application-services chapter and CORE verification table remain
+browsable through generated Specification mirrors and navigation. The backup
+service lifetime and durable native turn-admission chapters use that same
+metadata-only mirror and SUMMARY order. Adding them does not change production
+stories or their interaction/visual gates.
+
+The optional development controller metadata bridge now lives in
+`scripts/lib/controller-connection-bridge.ts`, shared by catalog preview and
+live acceptance fixtures. It is excluded from the Web product; default stories
+remain Fake and no controller sidecar is started.
+
 Plugins app-link stories demonstrate the public App URL registry and Workspace
 navigator under [LN-PLUG-106](../plugin-model/app-ownership.md#ln-plug-106).
 Historical and unavailable release cases retain independent `visual-pending`
@@ -13,6 +60,9 @@ through LN-ARCH-139. Its Show Code includes public App construction, vault seed,
 Source Editor loading, layout restoration and disposal under LN-CAT-024.
 The authored description and independent visual-pending declaration remain
 governed by LN-CAT-016 and LN-CAT-017.
+Rename acceptance snapshots the original path before the managed operation
+mutates the public file object. Installation-failure acceptance identifies the
+detail's titled alert independently of the simultaneous notification toast.
 
 ## LN-CAT-001 — Repository Storybook catalog: run on port 7010 as the workspace
 
@@ -236,6 +286,10 @@ governed by LN-CAT-016 and LN-CAT-017.
 
 **Requirement.** Source-aliased framework packages and packages that own emitted workers MUST remain outside Storybook dependency optimization. Linked framework identities MUST be deduplicated. Deep Mira modules, pure catalog and Nostr leaves, the accessibility runtime, and transitive CommonJS leaves from installed plugins MUST be pre-bundled.
 
+Cold workspace acceptance MUST pre-bundle statically used recovery icons so late
+dependency discovery cannot reload an active interaction or its accessibility
+runtime.
+
 ## LN-CAT-100 — Workspace/Plugin Management/Browse Details And Readme: provide valid structured Overview and Changelog Markdown
 
 <a id="ln-cat-100"></a>
@@ -295,3 +349,28 @@ governed by LN-CAT-016 and LN-CAT-017.
 <a id="ln-cat-115"></a>
 
 **Requirement.** Specification Docs MUST derive chapter hierarchy, breadcrumbs, and previous/next navigation from SUMMARY. Every indexed canonical page MUST have exactly one metadata-only mirror and one unique built Docs route.
+
+The host compatibility story retains signed snapshot discovery and real PluginBrowser
+installation state under LN-PLUG-113. Its independent visual path is
+`workspace/plugins/desktop-only-ai`; review and capture remain
+pending without baseline changes.
+
+## Shared R3 source navigation
+
+The native daily Task lifecycle chapter is a canonical topic alongside indexing
+and History. SUMMARY, specification MDX mirrors and preview navigation retain
+the same chapter order when the qualified source lanes are integrated. This
+source intake adds documentation navigation; it does not add application
+screens, approve visual baselines or close the separate host-adoption gates.
+
+## Admitted Tasks specification navigation
+
+The [native Task port chapter](../architecture/rust-task-host-port.md) is indexed inside Architecture. Its metadata-only mirror and specification-first sidebar order are generated from SUMMARY alongside the existing service-lifetime chapters. Source service, API and owning-plugin evidence remain distinct from actual host catalog acceptance.
+
+## Native queue specification navigation
+
+The [native queue chapter](../architecture/rust-queue-admission.md) separates retained capture, FIFO, admitted transport and host metadata from ordinary turn admission. Its metadata-only mirror and navigation are generated from SUMMARY under LN-CAT-021/080/115. Requirement IDs and immutable evidence stay unchanged; cold catalog and static Docs acceptance remain explicit source gates.
+
+The native logical-participant source contract has its own Architecture page and
+raw-Markdown mirror, adjacent to durable turn admission in specification order.
+This navigation entry does not activate a participant host or executable story.

@@ -1,14 +1,31 @@
 # Plugin Model / App ownership
 
-The Design Core dependency refresh consumes released `0.5.0` CSS, fonts and
+The optional hosted Repository binding is scoped to the explicitly owned App
+before plugin loading. Plugin teardown drains its read handles before the binding
+and native attachment are released. It neither assigns a compatibility App nor
+changes legacy HistoryPlugin capture or any ordinary hosted default.
+
+LN-PKG-185 registers core file-listing settings on the owned App before plugins.
+Enabling or disabling a plugin cannot own or remove that shared policy or its
+Workspace settings list.
+
+Session popups inherit the owning shell context under LN-WS-055 and LN-WS-098.
+Their plugin views retain the same App and compatibility lease lifetime;
+detaching a view never boots another plugin manager or vault session.
+
+The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.
+
+The shared desktop chooser and startup presentation (LN-PKG-171) accept host
+callbacks and phase data. They do not construct an App, load plugins or acquire
+the compatibility lease; the owning desktop session retains those lifetimes.
 
 ## LN-PLUG-020 — F-Mode: register on the API-owned Design Core controller
 
 <a id="ln-plug-020"></a>
 
-**Requirement.** F-Mode MUST register on the API-owned Design Core controller, default disabled, and remain user-enableable. It MUST NOT enter `registerCorePlugins` or `.obsidian/core-plugins.json`. AppShell enablement persistence MUST resolve the App vault when load and save run.
+**Requirement.** F-Mode MUST register on the API-owned Design Core controller, default disabled, and remain user-enableable. It MUST NOT enter `registerCorePlugins` or `.lapis/core-plugins.json`. AppShell enablement persistence MUST resolve the App vault when load and save run.
 
 ## LN-PLUG-033 — Plugin that exposes multiple views over one: own single-flight construction above the view lifetime
 
@@ -45,3 +62,28 @@ behavior and plugin activation remain unchanged.
 <a id="ln-plug-109"></a>
 
 **Requirement.** Successful `plugins` App URL navigation MUST dismiss the owning App's Settings dialog so the selected plugin page is reachable. Rejected or disposed navigation MUST NOT close Settings after its owning registration is removed.
+
+## Admitted native Tasks observation
+
+[CORE013–015](../architecture/rust-task-host-port.md#ln-core-015) defines the optional App-owned native Task observer. Plugin startup awaits final declaration before publishing `plugins-loaded` and reconciles absent, disabled or failed Tasks. Passive metadata reads do not select native Task policy. Passive teardown detaches before plugin unload; explicit plugin disable fences future native admissions. Existing plugin views and standalone browser behavior remain unchanged.
+
+[Staged hosted Tasks](../web-host/startup-and-plugins.md#ln-web-070) binds its
+required native metadata owner before App construction, preserving one
+authoritative generated-state writer. Final teardown detaches and drains
+observation before unloading every configured plugin. Recoverable startup Retry
+reuses its live App controller/cache observers and re-enables declarations; it
+does not call terminal App disposal during partial cleanup. Existing installed
+plugin integrity remains independent of app signing.
+
+The retained hosted Properties cases end in an ordinary guarded logout:
+registered writers flush under the leave guard before plugin unload and
+disposal, and installed-plugin integrity remains independent of the shared
+conflict presentation.
+
+## Admitted native History observation
+
+An optional host-authored `nativeHistoryIndex` App property takes precedence
+over the matching session port. Construction performs no selection or IO.
+Persisted plugin/layout state grants no History authority; the Repository plugin
+still requires its separately bound reader and owned lifecycle. Other plugin
+registration and enablement contracts are unchanged.

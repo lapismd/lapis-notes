@@ -7,13 +7,14 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 
 - This is a pnpm + Turbo monorepo for a focused Lapis Notes slice.
 - Current packages include the API/runtime kernel, retained UI, workspace shell,
-  Deno desktop host, web host, internal language service, reusable File Explorer,
-  and the private Lapis Notes application profile.
+  frozen Deno desktop host, Node server host, web host, portable host services,
+  internal language service, reusable File Explorer, and the private Lapis Notes
+  application profile.
 - AI, Bases, Bookmarks, Graph, History, Markdown, Markdown Lint, Search, Source
   Editor, Spellcheck, and Word Count are owned by the sibling `lapis-plugins`
   repository and are consumed here through npm package boundaries.
 - Design Core F-Mode is optional default-disabled shell chrome.
-- Web/notebook hosts and unlisted plugins are not in this repo yet. Track intake
+- Unlisted hosts and plugins are not in this repo yet. Track intake
   in `MIGRATION.md` — do not invent them ahead of the spec.
 
 ## Package dependency policy
@@ -28,6 +29,27 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   lockfiles must continue to use registry semver packages.
 
 ## Application ownership
+
+### Shared Rust application services
+
+- Follow `RUST_CORE_MIGRATION_PLAN.md` and the canonical Rust application-services
+  chapter. The lapis-server repository owns `lapis-app-core`,
+  `lapis-app-protocol`, and the HTTP server. Notes does not run server acceptance.
+- Group native code by feature. Keep new production Rust/scripts within 300
+  counted lines and separate tests within 500. Core code cannot depend on Tauri,
+  HTTP frameworks, renderer frameworks or browser globals.
+- Keep existing Agent and Repository screens. Windows/tabs observe services;
+  selected native services own durable work and writers. Do not add another
+  authoritative renderer scheduler or fall back after uncertain native writes.
+- Extract source implementations and update callers directly. Do not retain
+  copied engines or compatibility re-exports at their old desktop locations.
+- Keep generic native engines and plugin algorithms in their owning sibling
+  packages. Standalone local web retains its explicit browser implementation.
+- Record qualified source and consumer revisions separately. Private native
+  consumers may use documented temporary sibling dependencies during migration;
+  publication, deployment and installed-app replacement remain separate gates.
+
+### Explicit App ownership
 
 - First-party runtime and Storybook code must receive `App` explicitly, derive
   it from an owning `Workspace` or leaf, or read it from Svelte context.
@@ -285,7 +307,7 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   presentation only and must never enter the flat configuration schema or
   persisted configuration. Do not use the collection-oriented `object-grid`
   control for independent feature flags. Prove presentation changes through
-  the real Editor Settings story and its `.obsidian/app.json` persistence path.
+  the real Editor Settings story and its `.lapis/app.json` persistence path.
 - Mount Mira extension styles and lifecycle callbacks with the owning Lapis
   CodeMirror view and clean them up on reconfiguration. Top-toolbar actions
   delegate to the existing Lapis `Editor`, configuration, image picker, and
@@ -432,6 +454,17 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   message descriptive enough for review context rather than using a terse label.
   This is a standing request for every workspace package; do not wait for the
   user to ask. When `jj` is unavailable, use Git with the same message quality.
+- Refresh root `MIGRATION.md` in every slice commit, including evidence and
+  completed, active and waiting work. Its last-updated stamp includes the date,
+  time and explicit UTC timezone. Refresh the shared tracker after related
+  consumer commits too; keep source qualification and host adoption separate.
+  Refresh the current activity checkpoint when validation or remaining work
+  changes during a slice; do not wait for the next commit.
+- Keep active Rust task statuses/evidence and the UTC timestamp in
+  `spec/migration-progress.json`. Update the authored activity checkpoint in
+  `MIGRATION.md`, run `pnpm progress:generate`, then `pnpm check:progress`.
+  Do not hand-edit the generated gate-status tables. Keep task IDs stable and
+  link them to their owning canonical specification; preserve historical intake.
 - Keep changes scoped to the package or surface needed for the request. Do not
   add broad refactors or metadata churn unless required to complete the task.
 

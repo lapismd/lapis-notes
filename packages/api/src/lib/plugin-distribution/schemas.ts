@@ -3,7 +3,7 @@ import {
   normalizeRegistryCatalogIndex,
   normalizeRegistryCatalogDetail,
 } from "../registry-schema/index.js";
-import { z } from "zod";
+import { z } from "zod/v3";
 import { PluginDistributionError } from "./errors";
 
 const isoDate = z.string().datetime({ offset: true });
@@ -217,6 +217,7 @@ export const pluginContributionSummarySchema = z
         z
           .object({
             id: nonEmpty,
+            fileIcon: z.string().optional(),
             filenamePatterns: z.array(nonEmpty).optional(),
             extensions: z.array(nonEmpty).optional(),
             mimeTypes: z.array(nonEmpty).optional(),

@@ -201,3 +201,5 @@ the current geometry instead of a rectangle captured before that focus change.
 <a id="ln-graph-033"></a>
 
 **Requirement.** Compact Group rows MUST give the drag handle balanced inline space without a mouse-hover outline. Rounded focus paint MUST cover the handle, query, colour, and close action as one row. The close action MUST remain visible, retain a trailing gutter inside the row, and gain a visible background on hover. Idle rows MUST have no divider or shadow, and focused paint MUST retain an outer trailing gap.
+
+Graph acceptance under LN-CAT-118 boots the production shell at the actual browser viewport height. Focus and preview checks establish their active file through an owned workspace leaf before closing that temporary context; fixture geometry and setup cannot substitute for application behavior.

@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { WorkspaceSettingsPageProps } from "@lapismd/design-core/workspace/settings";
   import { onMount, tick, untrack } from "svelte";
+  import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
   import { getPluginManagementContext } from "./plugin-management-context.svelte";
   import "./plugin-management.css";
   import PluginSettingsRow from "./PluginSettingsRow.svelte";
@@ -13,15 +14,34 @@
   let { controller }: WorkspaceSettingsPageProps = $props();
   const context = untrack(() => getPluginManagementContext(controller));
   const app = context.app;
+  const managed = untrack(
+    () => getWorkspaceHostBinding(app.workspace).controller.managedPlugins,
+  );
   let revision = $state(0);
   let expandedPluginIds = $state(new Set<string>());
   let entries = $derived.by(() => {
     revision;
-    const seen = new Set<string>();
-    return app.plugins.corePluginEntries.filter((entry) => {
-      if (seen.has(entry.manifest.id)) return false;
-      seen.add(entry.manifest.id);
-      return true;
+    const staticEntries = app.plugins.corePluginEntries;
+    return managed.states.map((entry) => {
+      const plugin =
+        entry.sourceId === "lapis"
+          ? staticEntries.find((plugin) => plugin.manifest.id === entry.id)
+          : undefined;
+      return {
+        ...entry,
+        manifest: {
+          id: entry.id,
+          name: entry.name,
+          description: entry.description,
+          version: plugin?.manifest.version,
+        },
+        errorMessage:
+          entry.error instanceof Error
+            ? entry.error.message
+            : entry.error == null
+              ? null
+              : String(entry.error),
+      };
     });
   });
 
@@ -34,8 +54,13 @@
     ) {
       return;
     }
-    const pluginId = context.reveal.entryId.slice("core:".length);
-    expandedPluginIds = new Set([...expandedPluginIds, pluginId]);
+    const target = context.reveal.entryId.slice("core:".length);
+    const entry = entries.find(
+      (entry) => entry.key === target || entry.id === target,
+    );
+    if (!entry) return;
+    const pluginId = entry.id;
+    expandedPluginIds = new Set([...expandedPluginIds, entry.key]);
     void tick().then(() => {
       document
         .querySelector(`[data-settings-plugin-id="${CSS.escape(pluginId)}"]`)
@@ -56,7 +81,6 @@
       app.plugins.offref(error);
     };
   });
-
 </script>
 
 <section
@@ -77,7 +101,7 @@
         No core plugins are registered.
       </p>
     {/if}
-    {#each entries as entry (entry.manifest.id)}
+    {#each entries as entry (entry.key)}
       <PluginSettingsRow
         pluginId={entry.manifest.id}
         name={entry.manifest.name}
@@ -92,18 +116,25 @@
         error={entry.errorMessage ?? undefined}
         enabled={entry.enabled}
         required={entry.required}
-        expanded={expandedPluginIds.has(entry.manifest.id)}
+        expanded={expandedPluginIds.has(entry.key)}
         hasOptions={Boolean(
           pluginSettingsSectionId(controller, entry.manifest.id),
         )}
-        diagnostics={pluginDiagnosticRows(app, entry.manifest.id)}
+        diagnostics={entry.sourceId === "lapis"
+          ? pluginDiagnosticRows(app, entry.manifest.id)
+          : [
+              { label: "State", value: entry.status },
+              { label: "Source", value: entry.sourceId },
+            ]}
         onOptions={() => openPluginSettings(controller, entry.manifest.id)}
-        onRestart={async () => {
-          await app.plugins.restartPlugin(entry.manifest.id);
-        }}
+        onRestart={entry.sourceId === "lapis"
+          ? async () => {
+              await app.plugins.restartPlugin(entry.manifest.id);
+            }
+          : undefined}
         onToggle={async (enabled) => {
-          if (enabled) await app.plugins.enablePlugin(entry.manifest.id);
-          else await app.plugins.disablePlugin(entry.manifest.id);
+          if (enabled) await managed.enable(entry.key);
+          else await managed.disable(entry.key);
         }}
       />
     {/each}

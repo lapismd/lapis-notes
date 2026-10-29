@@ -23,7 +23,12 @@ export type IndexFilter =
   | { op: "and"; operands: IndexFilter[] }
   | { op: "or"; operands: IndexFilter[] }
   | { op: "not"; operand: IndexFilter }
-  | { op: "compare"; field: string; comparison: IndexCompareOp; value: IndexScalar }
+  | {
+      op: "compare";
+      field: string;
+      comparison: IndexCompareOp;
+      value: IndexScalar;
+    }
   | { op: "in"; field: string; values: IndexScalar[] }
   | { op: "exists"; field: string }
   | { op: "not-exists"; field: string };
@@ -267,18 +272,26 @@ export function fieldValue(
 
 function scalarOf(value: unknown): IndexScalar | undefined {
   if (value === undefined) return undefined;
-  if (value === null || typeof value === "string" || typeof value === "number") {
+  if (
+    value === null ||
+    typeof value === "string" ||
+    typeof value === "number"
+  ) {
     return value;
   }
   if (typeof value === "boolean") return value;
   return String(value);
 }
 
-function compareScalars(left: IndexScalar | undefined, right: IndexScalar): number {
+function compareScalars(
+  left: IndexScalar | undefined,
+  right: IndexScalar,
+): number {
   if (left == null && right == null) return 0;
   if (left == null) return 1;
   if (right == null) return -1;
-  if (typeof left === "number" && typeof right === "number") return left - right;
+  if (typeof left === "number" && typeof right === "number")
+    return left - right;
   if (typeof left === "boolean" && typeof right === "boolean") {
     return Number(left) - Number(right);
   }
@@ -292,9 +305,13 @@ export function matchesIndexFilter(
   if (!filter) return true;
   switch (filter.op) {
     case "and":
-      return filter.operands.every((operand) => matchesIndexFilter(data, operand));
+      return filter.operands.every((operand) =>
+        matchesIndexFilter(data, operand),
+      );
     case "or":
-      return filter.operands.some((operand) => matchesIndexFilter(data, operand));
+      return filter.operands.some((operand) =>
+        matchesIndexFilter(data, operand),
+      );
     case "not":
       return !matchesIndexFilter(data, filter.operand);
     case "exists":
@@ -303,7 +320,9 @@ export function matchesIndexFilter(
       return fieldValue(data, filter.field) == null;
     case "in": {
       const value = scalarOf(fieldValue(data, filter.field));
-      return filter.values.some((candidate) => compareScalars(value, candidate) === 0);
+      return filter.values.some(
+        (candidate) => compareScalars(value, candidate) === 0,
+      );
     }
     case "compare": {
       const left = scalarOf(fieldValue(data, filter.field));
@@ -331,7 +350,10 @@ function encodeCursor(values: IndexScalar[], rowId: string): string {
   return btoa(unescape(encodeURIComponent(JSON.stringify({ values, rowId }))));
 }
 
-function decodeCursor(cursor: string): { values: IndexScalar[]; rowId: string } {
+function decodeCursor(cursor: string): {
+  values: IndexScalar[];
+  rowId: string;
+} {
   return JSON.parse(decodeURIComponent(escape(atob(cursor)))) as {
     values: IndexScalar[];
     rowId: string;
@@ -345,15 +367,24 @@ function afterCursor(
   orderBy: IndexOrderBy[],
 ): boolean {
   const cursor = decodeCursor(after);
-  const length = Math.max(sortValues.length, cursor.values.length, orderBy.length);
+  const length = Math.max(
+    sortValues.length,
+    cursor.values.length,
+    orderBy.length,
+  );
   for (let index = 0; index < length; index += 1) {
     const spec = orderBy[index] ?? { field: "id", direction: "asc" as const };
     const direction = spec.direction === "desc" ? -1 : 1;
-    const comparison = compareScalars(sortValues[index] ?? null, cursor.values[index] ?? null);
+    const left = sortValues[index] ?? null;
+    const right = cursor.values[index] ?? null;
+    const comparison = compareScalars(left, right);
     if (comparison === 0) continue;
+    if (spec.nulls && (left == null || right == null)) {
+      return left == null ? spec.nulls === "last" : spec.nulls === "first";
+    }
     return comparison * direction > 0;
   }
-  return rowId > cursor.rowId;
+  return rowId.localeCompare(cursor.rowId) > 0;
 }
 
 export function selectProjectionRow<T>(
@@ -361,9 +392,9 @@ export function selectProjectionRow<T>(
   select?: string[],
 ): T {
   if (!select?.length) return data as T;
-  const picked: Record<string, unknown> = {};
-  for (const field of select) picked[field] = data[field];
-  return picked as T;
+  return Object.fromEntries(
+    select.map((field) => [field, fieldValue(data, field)]),
+  ) as T;
 }
 
 export function evaluateProjectionQuery<T>(
@@ -373,7 +404,9 @@ export function evaluateProjectionQuery<T>(
   indexStatus: IndexStatus,
 ): IndexQueryResult<T> {
   const orderBy = query.orderBy ?? [];
-  const filtered = rows.filter((row) => matchesIndexFilter(row.data, query.where));
+  const filtered = rows.filter((row) =>
+    matchesIndexFilter(row.data, query.where),
+  );
   filtered.sort((left, right) => {
     for (const spec of orderBy) {
       const direction = spec.direction === "desc" ? -1 : 1;
@@ -382,10 +415,17 @@ export function evaluateProjectionQuery<T>(
         scalarOf(fieldValue(right.data, spec.field)) ?? null,
       );
       if (comparison !== 0) {
-        if (spec.nulls === "first" && fieldValue(left.data, spec.field) == null) return -1;
-        if (spec.nulls === "first" && fieldValue(right.data, spec.field) == null) return 1;
-        if (spec.nulls === "last" && fieldValue(left.data, spec.field) == null) return 1;
-        if (spec.nulls === "last" && fieldValue(right.data, spec.field) == null) return -1;
+        if (spec.nulls === "first" && fieldValue(left.data, spec.field) == null)
+          return -1;
+        if (
+          spec.nulls === "first" &&
+          fieldValue(right.data, spec.field) == null
+        )
+          return 1;
+        if (spec.nulls === "last" && fieldValue(left.data, spec.field) == null)
+          return 1;
+        if (spec.nulls === "last" && fieldValue(right.data, spec.field) == null)
+          return -1;
         return comparison * direction;
       }
     }
@@ -394,7 +434,9 @@ export function evaluateProjectionQuery<T>(
   const after = query.after
     ? filtered.filter((row) =>
         afterCursor(
-          orderBy.map((spec) => scalarOf(fieldValue(row.data, spec.field)) ?? null),
+          orderBy.map(
+            (spec) => scalarOf(fieldValue(row.data, spec.field)) ?? null,
+          ),
           row.rowId,
           query.after!,
           orderBy,
@@ -409,7 +451,9 @@ export function evaluateProjectionQuery<T>(
     nextCursor:
       last && after.length > page.length
         ? encodeCursor(
-            orderBy.map((spec) => scalarOf(fieldValue(last.data, spec.field)) ?? null),
+            orderBy.map(
+              (spec) => scalarOf(fieldValue(last.data, spec.field)) ?? null,
+            ),
             last.rowId,
           )
         : undefined,
@@ -431,7 +475,8 @@ export function indexedValuesForRow(
     fieldCount += 1;
     if (fieldCount > MAX_PROJECTION_INDEXED_FIELDS) break;
     const raw = row.data[field];
-    const items = definition.cardinality === "many" && Array.isArray(raw) ? raw : [raw];
+    const items =
+      definition.cardinality === "many" && Array.isArray(raw) ? raw : [raw];
     items.forEach((item, ordinal) => {
       const scalar = scalarOf(item);
       const record: IndexProjectionValueRecord = {
@@ -446,10 +491,14 @@ export function indexedValuesForRow(
         return;
       }
       if (definition.type === "number") record.numberValue = Number(scalar);
-      else if (definition.type === "boolean") record.booleanValue = Boolean(scalar);
-      else if (definition.type === "datetime") record.datetimeValue = Number(scalar);
-      else if (definition.type === "date") record.dateValue = String(scalar).slice(0, MAX_PROJECTION_VALUE_CHARS);
-      else record.textValue = String(scalar).slice(0, MAX_PROJECTION_VALUE_CHARS);
+      else if (definition.type === "boolean")
+        record.booleanValue = Boolean(scalar);
+      else if (definition.type === "datetime")
+        record.datetimeValue = Number(scalar);
+      else if (definition.type === "date")
+        record.dateValue = String(scalar).slice(0, MAX_PROJECTION_VALUE_CHARS);
+      else
+        record.textValue = String(scalar).slice(0, MAX_PROJECTION_VALUE_CHARS);
       values.push(record);
     });
   }
@@ -461,7 +510,11 @@ export function compileProjectionQuerySql(
   query: IndexQuery,
   definition: IndexProjectionDefinitionRecord,
 ): { sql: string; args: unknown[] } {
-  const args: unknown[] = [projectionId, definition.schemaVersion, definition.configHash];
+  const args: unknown[] = [
+    projectionId,
+    definition.schemaVersion,
+    definition.configHash,
+  ];
   const where = query.includeStale
     ? "r.projection_id = ? AND s.schema_version = ? AND s.config_hash = ?"
     : `r.projection_id = ?
@@ -488,15 +541,23 @@ export function compileProjectionQuerySql(
 }
 
 function jsonExtract(field: string): string {
-  return `json_extract(r.data_json, '$.${field.replaceAll("'", "''")}')`;
+  return `json_extract(r.data_json, '$.${JSON.stringify(field).replaceAll("'", "''")}')`;
 }
 
 function compileFilterSql(filter: IndexFilter, args: unknown[]): string {
   switch (filter.op) {
     case "and":
-      return filter.operands.map((operand) => `(${compileFilterSql(operand, args)})`).join(" AND ");
+      return (
+        filter.operands
+          .map((operand) => `(${compileFilterSql(operand, args)})`)
+          .join(" AND ") || "1"
+      );
     case "or":
-      return filter.operands.map((operand) => `(${compileFilterSql(operand, args)})`).join(" OR ");
+      return (
+        filter.operands
+          .map((operand) => `(${compileFilterSql(operand, args)})`)
+          .join(" OR ") || "0"
+      );
     case "not":
       return `NOT (${compileFilterSql(filter.operand, args)})`;
     case "exists":
@@ -505,14 +566,21 @@ function compileFilterSql(filter: IndexFilter, args: unknown[]): string {
       return `${jsonExtract(filter.field)} IS NULL`;
     case "in": {
       if (filter.values.length === 0) return "0";
-      const placeholders = filter.values.map(() => "?").join(", ");
-      args.push(...filter.values);
-      return `${jsonExtract(filter.field)} IN (${placeholders})`;
+      const values = filter.values.filter((value) => value != null);
+      const placeholders = values.map(() => "?").join(", ");
+      args.push(...values);
+      const expr = jsonExtract(filter.field);
+      const member = values.length ? `${expr} IN (${placeholders})` : "0";
+      return values.length !== filter.values.length
+        ? `(${expr} IS NULL OR ${member})`
+        : member;
     }
     case "compare": {
       const expr = jsonExtract(filter.field);
-      if (filter.comparison === "eq" && filter.value == null) return `${expr} IS NULL`;
-      if (filter.comparison === "ne" && filter.value == null) return `${expr} IS NOT NULL`;
+      if (filter.comparison === "eq" && filter.value == null)
+        return `${expr} IS NULL`;
+      if (filter.comparison === "ne" && filter.value == null)
+        return `${expr} IS NOT NULL`;
       const operator =
         filter.comparison === "eq"
           ? "="
@@ -605,14 +673,19 @@ export function matchesProjectionSource(
   if (!source) return true;
   if (source.extensions?.length) {
     const extension = file.extension.replace(/^\./, "").toLowerCase();
-    if (!source.extensions.some((entry) => entry.replace(/^\./, "").toLowerCase() === extension)) {
+    if (
+      !source.extensions.some(
+        (entry) => entry.replace(/^\./, "").toLowerCase() === extension,
+      )
+    ) {
       return false;
     }
   }
   if (source.basename && file.name !== source.basename) return false;
   if (source.pathPrefix) {
     const prefix = source.pathPrefix.replace(/^\/+|\/+$/g, "");
-    if (file.path !== prefix && !file.path.startsWith(`${prefix}/`)) return false;
+    if (file.path !== prefix && !file.path.startsWith(`${prefix}/`))
+      return false;
   }
   if (source.propertyEquals) {
     const frontmatter = cache?.frontmatter ?? {};
@@ -626,7 +699,10 @@ export function matchesProjectionSource(
 export class IndexProjectionRegistry {
   private readonly registrations = new Map<string, RegisteredIndexProjection>();
 
-  register(ownerPluginId: string, registration: IndexProjectionRegistration): RegisteredIndexProjection {
+  register(
+    ownerPluginId: string,
+    registration: IndexProjectionRegistration,
+  ): RegisteredIndexProjection {
     const projectionId = qualifyProjectionId(ownerPluginId, registration.id);
     const record = { projectionId, ownerPluginId, registration };
     this.registrations.set(projectionId, record);

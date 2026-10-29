@@ -119,7 +119,7 @@ local buttons, focus state, compact action geometry, or paint overrides.
 
 - A missing workspace file seeds File Explorer then Search on the left and Outline, File Properties, then Tags on the right when those views are registered, without writing workspace.json during that seed.
 
-- Save and Load workspace layout commands store named snapshots in `.obsidian/workspaces.json`.
+- Save and Load workspace layout commands store named snapshots in `.lapis/workspaces.json`.
 
 - Reset workspace layout reapplies that default seed and then persists `workspace.json`.
 

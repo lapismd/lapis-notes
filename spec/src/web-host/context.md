@@ -14,7 +14,7 @@ The server build is selected by Vite's compile-time `server` mode and emits to
 `dist-server`. That profile omits the PWA plugin, manifest generation, offline
 cache, search-embedding worker registration, window-controls integration, and
 service-worker registration. The ordinary build retains each of those paths.
-Before mounting, the profile sets the root document runtime to `deno-server`
+Before mounting, the profile sets the root document runtime to `node-server`
 without setting PWA-host attributes, making runtime ownership observable and
 unambiguous.
 
@@ -27,6 +27,16 @@ Folder import creates the ZIP in the browser and reuses the authenticated,
 bounded server import route. Opening constructs the explicit server vault,
 event, plugin-asset, and database adapters before mounting the existing
 workspace shell; AI and terminal host attachment remain disabled in this mode.
+
+The shared Rust migration adds a separately selected `server-rust` build profile.
+It reuses this production login/chooser/workspace through a host connection,
+uses the Rust-generated protocol and admitted client IDs, and reports its actual
+`rust-server` runtime. It has no PWA storage or Node fallback. Its source and
+real-screen gates remain in progress under R1.3.9; the Node profile retains its
+existing serving baseline until the final cutover. Its generated transfer
+capability enables the retained folder/ZIP import and Export ZIP controls only
+when the selected Rust installation supports them. Uploads and downloads use
+that host; the browser does not select a Node fallback.
 
 ## Implemented host boundary
 
@@ -132,3 +142,12 @@ return a route that the current page cannot yet fetch.
 The static Web profile uses API-owned schema and build tooling under LN-PKG-150 and LN-PKG-151. Concrete Community NIP-29 startup composition remains deferred.
 
 The web host registers the default Plugins browser before loading workspace layout and disposes it during session teardown (LN-PLUG-098–103). Built browser acceptance uses the controlling service worker for verified installed plugin assets and the existing host-configured registry.
+
+M8.2 retires Web AI and Terminal. App-owned restrictions reject their identities
+before manifest indexing or module evaluation and report desktop-only discovery,
+including older manifests that claim Web support. The Web graph contains no
+service bridge, client, connection Settings or environment attachment. Startup
+removes only dedicated obsolete connection tokens; conversations, settings,
+installed records, enabled choices and unknown saved views remain. The optional
+controller bridge used by development catalogs lives under `scripts/lib`,
+outside the Web product. Native desktop tools retain their shared API contracts.

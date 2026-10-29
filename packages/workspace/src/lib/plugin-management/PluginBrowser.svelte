@@ -117,6 +117,15 @@
   );
   const installAction = $derived.by<RegistryInstallAction>(() => {
     if (!selected) return { state: "disabled" };
+    if (
+      ownedApp.pluginDistribution
+        .getCompatibility?.(selected.id)
+        ?.reasons.includes("desktop-only")
+    )
+      return {
+        state: "disabled",
+        reason: "This plugin is available in the desktop app.",
+      };
     const feedback =
       registry.actionFeedback?.pluginId === selected.id
         ? registry.actionFeedback
@@ -158,6 +167,12 @@
   const downloads = (id: string) =>
     registry.downloadStats?.periods["30d"].plugins[id]?.total ?? 0;
   function reason(entry: PluginCatalogEntry): string | undefined {
+    if (
+      ownedApp.pluginDistribution
+        .getCompatibility?.(entry.id)
+        ?.reasons.includes("desktop-only")
+    )
+      return "This plugin is available in the desktop app.";
     if (entry.status && entry.status !== "active")
       return `This plugin is ${entry.status}.`;
     if (
@@ -431,7 +446,7 @@
                       onOpenPlugin={open}
                       onOpenCategory={(category) => go("directory", category)}
                     />
-                   {:else if selected && resolved && selectedVersion !== undefined && !Object.hasOwn(resolved.detail.versions, selectedVersion)}<PluginRegistryContentState
+                  {:else if selected && resolved && selectedVersion !== undefined && !Object.hasOwn(resolved.detail.versions, selectedVersion)}<PluginRegistryContentState
                       kind="empty"
                       heading="Plugin version unavailable"
                       description={`Version ${selectedVersion} is not available from your enabled registry.`}

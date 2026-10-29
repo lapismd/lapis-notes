@@ -17,7 +17,7 @@ App / plugins
      ↓ AppDatabase
 AppDatabaseProvider
      ├─ Deno desktop renderer → bounded bridge → native Turso
-     ├─ Deno server client → typed tRPC bridge → native Turso
+     ├─ Node server client → typed tRPC bridge → native Turso
      ├─ browser owner worker → Turso WASM + OPFS
      └─ browser proxy → BroadcastChannel RPC → owner
 ```
@@ -31,7 +31,7 @@ dispatching only catalogue methods to their generated domain procedures. It
 shares the vault event subscription with the remote vault adapter and projects
 database change sets through the ordinary `subscribeToChanges` contract.
 The server Web composition passes that provider explicitly to
-`createVaultSession` with runtime `deno-server`; it never opens browser Turso or
+`createVaultSession` with runtime `node-server`; it never opens browser Turso or
 participates in browser-owner election.
 Container packaging retains native Turso in the server process and scopes FFI
 to the cached dependency tree; database paths remain under the managed data
@@ -46,7 +46,7 @@ catalogue, typed argument and result schemas, message bounds, and domain
 classification used by both native hosts. Desktop compatibility names alias
 that catalogue rather than retaining another list.
 
-The reusable Deno host-services worker protocol and runtime own bounded native
+The reusable portable host-services worker protocol and runtime own bounded native
 database dispatch and change forwarding. Each concrete host owns its database
 path, provider descriptor, worker entry point, and lifecycle trigger.
 
@@ -66,6 +66,9 @@ the Memory provider's maps. Markdown remains authoritative for rebuildable note
 metadata, Search documents, tasks, and plugin projections. Migration must retain
 database-only History and other non-rebuildable application state.
 
+Search index statistics follow [LN-DB-057](metadata-and-indexing.md#ln-db-057)
+across explicitly injected Memory fixtures and direct Turso.
+
 Memory-derived state follows that same provider contract. The in-memory and
 direct-Turso implementations expose source checkpoints, normalized candidates
 with exact origins, salted daily recall aggregates, and renewable jobs through
@@ -82,7 +85,10 @@ Search path-prefix filtering uses exact directory boundaries and runs on the
 shared candidate set before score calculation, ranking, and limiting. Turso
 applies provider and exact-or-descendant path predicates in SQL before its
 candidate limit, then uses the shared evaluator for ranking; native and browser
-proxies forward the same typed option. A completed memory job is terminal and
+proxies forward the same typed option. Native Core retains these typed storage operations on its serialized writer,
+including atomic claim/update checks and post-commit revisions. Storage
+qualification does not complete R5 scheduling or maintenance.
+A completed memory job is terminal and
 cannot be reclaimed as a new lease, while expired running jobs remain eligible
 for owner takeover.
 
@@ -135,6 +141,10 @@ SQLite's bind ceiling. Path-only Search applies the same query, provider, path,
 mode, ranking, and limit semantics as document Search, but returns only ordered
 vault-relative paths through direct, browser-proxy, and desktop-native
 transports.
+The Search retrieval fixture independently retains complete result JSON through
+Memory and Turso FTS before native lexical/structured intake. It includes parser
+fallback, field/content scopes, nested properties, ranking, snippets and explicit
+FTS candidate differences; it does not substitute token hashes for inference.
 Structured tag evaluation receives decoded query literal values from the API
 parser. Slash-bearing tags remain bare query words, quoted tags preserve spaces
 and escaped delimiters, and leading slash literals continue to reach regex

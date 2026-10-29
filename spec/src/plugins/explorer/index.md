@@ -1,6 +1,34 @@
 # Explorer Plugin
 
-The Design Core dependency refresh consumes released `0.5.0` CSS, fonts and
+File Explorer accepts Design Core 0.5.1 alongside 0.4 without changing file
+actions or persistence. The temporary desktop review archive remains separate
+from portable registry manifests and the deferred full qualification lanes.
+
+## LN-EXP-010 — Existing file import surface
+
+<a id="ln-exp-010"></a>
+
+**Requirement.** Explorer MUST connect its existing external-file drop surface to the owning FileManager's new-file intent. Imported files MUST preserve complete binary bytes beneath the selected vault folder and retain FileManager's optional exclusive-creation contract. A rejected creation MUST NOT retry as an overwrite. Empty or cancelled drops MUST leave the vault unchanged.
+
+## LN-EXP-011 — Import lifecycle admission
+
+<a id="ln-exp-011"></a>
+
+**Requirement.** File imports MUST enter the owning App's admitted-operation boundary before asynchronous byte reading and remain admitted through creation and tree projection. Leave MUST await that work; failed creation MUST propagate without an overwrite retry or projected success.
+
+## LN-EXP-012 — Bounded import bytes and names
+
+<a id="ln-exp-012"></a>
+
+**Requirement.** File imports MUST validate every imported name as a single nonempty filename before reading or writing. Dot, parent, separator and NUL names MUST reject. Files larger than 64 MiB MUST reject before byte reads, and actual buffers MUST obey the same bound. Multiple files MUST be read and created sequentially.
+
+## LN-EXP-009 — Owned native action feedback
+
+<a id="ln-exp-009"></a>
+
+**Requirement.** Explorer copy, import and native-action feedback MUST use the explicitly owning App's existing Notice boundary. Missing clipboard support MUST reject without a success notice; UI callers MUST present failure through that same owner. Native open, reveal and path-copy actions MUST preserve provider failures rather than report an unperformed action as successful.
+
+The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.
 
@@ -24,6 +52,11 @@ Public `@lapis-notes/file-explorer@0.1.0` owns the reusable Explorer view and it
 command opener. Vault, file-manager, workspace navigation, and editor-demo
 requirements remain defined at their owning API and host boundaries.
 
+On conditional hosts, Explorer actions enter the owning App's admitted-operation
+boundary before reading paths or starting IO. Creation remains admitted through
+the existing open-file action, including the landing view's Create new note.
+The API and host retain persistence and shutdown policy.
+
 The package exports its production `ExplorerPanel` for Autodocs. Canonical
 Storybook coverage remains registration-driven and demonstrates Explorer in
 all six command-panel placements under `Plugins/Explorer/Panels/Explorer`.
@@ -46,7 +79,7 @@ that root leaf before falling back to the App's normal main-area open policy.
 
 <a id="ln-exp-003"></a>
 
-**Requirement.** Explorer MUST persist Show hidden files, expose a palette command that toggles it, and hide dotted names at any depth unless it is on, including `.obsidian`, `.trash`, and `.lapis`.
+**Requirement.** Explorer MUST persist Show hidden files, expose a palette command that toggles it, and hide dotted names at any depth unless it is on, including `.lapis`, `.trash`, and `.lapis`.
 
 ### Acceptance details
 
@@ -89,3 +122,31 @@ but appears in the Files palette only while Show hidden files is enabled.
 <a id="ln-exp-007"></a>
 
 **Requirement.** The Files palette extension allowlist MUST be exposed as the flat `workspace.fileExplorer.paletteFileExtensions` list setting. Its default MUST include Markdown, text, JSON, and YAML/YML source-editor extensions. Values MUST be normalized without leading dots and case-insensitively before filtering; an explicit empty list MUST yield no file results.
+
+## LN-EXP-008 — Protected Explorer deletion
+
+<a id="ln-exp-008"></a>
+
+**Requirement.** Explorer deletion MUST use the owning App's FileManager writer guard. It MUST NOT bypass failed or dirty writers through low-level Vault trash. The existing action and notice presentation MUST remain available for retry after explicit persistence or conflict recovery.
+
+LN-WS-096 projects notices from the explicit App into the existing shared
+notification UI and removes that subscription on host disposal. Explorer passes
+its owned App to Notice; native error handling keeps the existing presentation.
+
+LN-PKG-178 and LN-PKG-179 add opt-in exclusive creation and source-owned new-file
+intent. Existing low-level overwrite behavior and unsupported legacy hosts stay
+explicit; Deno host source remains frozen. Admission spans creation projection.
+
+## LN-EXP-013 — Explorer enable survives a late workspace host binding
+
+<a id="ln-exp-013"></a>
+
+**Requirement.** Explorer enable MUST complete when the workspace host binding is not yet visible. Settings and the Files palette MUST attach once that binding can be read, including a retry on `layout-ready`. A missing binding MUST NOT reject plugin enable.
+
+## LN-EXP-014 — Plugin file icons
+
+<a id="ln-exp-014"></a>
+
+**Requirement.** Explorer MUST render the owning App's selected file-view icon through Design Core's public scoped resolver, with filename fallback while artwork is missing, loading or failed. Registration, removal, plugin lifecycle and editor-association changes MUST refresh icons without resetting selection, focus, expansion or rename state. Teardown MUST remove subscriptions and fence pending resolution.
+
+Unchanged contract: published `ExplorerControllerOptions` does not declare `iconResolver`. Explorer passes the selected file-view icon through `getIcon` and registers resolved artwork with `registerWorkspaceIcon`. The filename fallback is the published workspace icon. `node scripts/validation.mjs run test:storybook -- stories/plugins/explorer/panels/Explorer.stories.ts` is the milestone check. A Docker pass is not native qualification.

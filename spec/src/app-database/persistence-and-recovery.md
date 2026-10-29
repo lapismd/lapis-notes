@@ -1,5 +1,10 @@
 # App Database / Persistence and recovery
 
+Server-image build repairs retain the existing AppDatabase ownership and
+persistence contracts. [Server qualification](../../records/2026-10-16-m7-server-qualification.md)
+reopens the same private data volume after a clean container restart; dependency
+installation and frontend compilation alone do not prove persistence.
+
 ## LN-DB-028 — Change publication after commit
 
 <a id="ln-db-028"></a>
@@ -16,7 +21,7 @@
 
 <a id="ln-db-047"></a>
 
-**Requirement.** File identity reconciliation MAY preserve a unique recent tombstone by strong content fingerprint, but size and mtime alone MUST NOT establish identity. A database rebuild MUST receive a new database-generation ID while vault content remains authoritative.
+**Requirement.** File identity reconciliation MAY preserve a unique recent tombstone by strong content fingerprint, but size and mtime alone MUST NOT establish identity. A database rebuild MUST receive a new database-generation ID while vault content remains authoritative. Observed file events MUST queue behind startup reconciliation so local writes cannot starve readiness.
 
 ## LN-DB-048 — AppDatabase: expose a generation-scoped, monotonically increasing change cursor
 

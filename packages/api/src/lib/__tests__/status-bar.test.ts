@@ -3,6 +3,24 @@ import { ContextKeyService } from "../context-keys.svelte";
 import { StatusBarManager } from "../status-bar.svelte";
 
 describe("status bar manager", () => {
+  it("projects custom mount identity and notifies when its owner changes", () => {
+    const statusBar = new StatusBarManager();
+    const listener = vi.fn();
+    statusBar.subscribe(listener);
+    const mount = (_host: HTMLElement) => () => {};
+    statusBar.upsertItem({ id: "custom", mount } as Parameters<
+      typeof statusBar.upsertItem
+    >[0] & { mount: typeof mount });
+    listener.mockClear();
+    statusBar.upsertItem({ id: "custom", mount } as Parameters<
+      typeof statusBar.upsertItem
+    >[0] & { mount: typeof mount });
+    expect(listener).not.toHaveBeenCalled();
+    statusBar.upsertItem({ id: "custom", mount: () => () => {} } as Parameters<
+      typeof statusBar.upsertItem
+    >[0] & { mount: typeof mount });
+    expect(listener).toHaveBeenCalledOnce();
+  });
   it("notifies shell adapters when descriptors are added, updated, or removed", () => {
     const statusBar = new StatusBarManager();
     const listener = vi.fn();

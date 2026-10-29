@@ -75,7 +75,7 @@ test("Plugins ribbon opens the category homepage and shares verified installs wi
           }
         ).app;
         const layout = JSON.parse(
-          await app.vault.adapter.read(".obsidian/workspace.json"),
+          await app.vault.adapter.read(".lapis/workspace.json"),
         );
         const leafId = app.workspace.getLeavesOfType("plugins")[0]?.id;
         type SavedNode = {

@@ -20,6 +20,10 @@ packages/desktop-deno/native
 packages/desktop-deno/release
 packages/web/e2e
 packages/web/playwright*.ts
-packages/server-deno/Dockerfile
-packages/server-deno/README.md
-packages/server-deno/compose.example.yaml
+
+.local
+.cache
+**/secrets
+spec/book
+storybook.log
+.local-plugin-install.json

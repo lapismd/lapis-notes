@@ -12,7 +12,6 @@ describe("web renderer configuration", () => {
     expect(rendererOptimizeDependencyExclusions).toEqual([
       "@lapis-notes/api",
       "harper.js",
-      "ghostty-web",
       "@tursodatabase/database-wasm/vite",
       "@lapismd/design-core",
     ]);

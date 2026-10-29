@@ -11,6 +11,7 @@ export const checkCatalogEntryCompatibility = (
   input: PluginCompatibilityInput,
 ): PluginCompatibilityResult =>
   checkBaseCompatibility(
+    entry.id,
     entry.minAppVersion,
     entry.platforms,
     false,
@@ -22,8 +23,10 @@ export const checkCatalogEntryCompatibility = (
 export const checkCatalogReleaseCompatibility = (
   release: PluginCatalogRelease,
   input: PluginCompatibilityInput,
+  pluginId = "",
 ): PluginCompatibilityResult =>
   checkBaseCompatibility(
+    pluginId,
     release.minAppVersion,
     release.platforms,
     false,
@@ -37,6 +40,7 @@ export const checkReleaseManifestCompatibility = (
   input: PluginCompatibilityInput,
 ): PluginCompatibilityResult =>
   checkBaseCompatibility(
+    manifest.pluginId,
     manifest.compatibility.minAppVersion,
     manifest.compatibility.platforms,
     Boolean(manifest.compatibility.desktopOnly),
@@ -46,6 +50,7 @@ export const checkReleaseManifestCompatibility = (
   );
 
 const checkBaseCompatibility = (
+  pluginId: string,
   minAppVersion: string,
   platforms: string[],
   desktopOnly: boolean,
@@ -54,6 +59,9 @@ const checkBaseCompatibility = (
   input: PluginCompatibilityInput,
 ): PluginCompatibilityResult => {
   const reasons: PluginCompatibilityResult["reasons"] = [];
+  if (Object.hasOwn(input.unavailablePlugins ?? {}, pluginId)) {
+    reasons.push(input.unavailablePlugins![pluginId]!);
+  }
 
   if (compareVersions(input.appVersion, minAppVersion) < 0) {
     reasons.push("app-version-too-old");
@@ -63,7 +71,11 @@ const checkBaseCompatibility = (
     reasons.push("platform-unsupported");
   }
 
-  if (desktopOnly && input.platform === "web") {
+  if (
+    desktopOnly &&
+    input.platform === "web" &&
+    !reasons.includes("desktop-only")
+  ) {
     reasons.push("desktop-only");
   }
 

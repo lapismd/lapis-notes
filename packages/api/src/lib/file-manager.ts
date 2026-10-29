@@ -1,7 +1,12 @@
 import { getFrontMatterInfo } from "./cache.svelte";
 import type { App } from "./context.svelte";
 import { TFile } from "./storage/fs";
-import type { DataWriteOptions, TAbstractFile, TFolder } from "./storage/fs";
+import type {
+  DataWriteOptions,
+  TAbstractFile,
+  TFolder,
+  VaultAdapter,
+} from "./storage/fs";
 import { joinPath } from "./storage/path";
 import {
   defaultLinkSettings,
@@ -10,8 +15,17 @@ import {
   type VaultIndex,
 } from "./links";
 import { parseLinktext } from "./utils";
+import {
+  mutateFileText,
+  type FileTextMutationOptions,
+} from "./file-text-mutation";
 
 const FRONTMATTER_RETRY_ERROR = "__lapis_frontmatter_retry__";
+
+export type FrontmatterMutationOptions = FileTextMutationOptions & {
+  /** The record shown by a Properties controller before its current edit. */
+  expectedFrontmatter?: Record<string, unknown>;
+};
 
 function linkOffsets(position: unknown): { start: number; end: number } | null {
   if (!position || typeof position !== "object") return null;
@@ -45,7 +59,9 @@ export class FileManager {
     content?: string,
   ): Promise<Record<string, unknown>> {
     const cachedFrontmatter =
-      (await this.app.metadataCache.getFileCacheAsync(file))?.frontmatter;
+      content !== undefined && this.app.vault.supportsConditionalTextWrites
+        ? undefined
+        : (await this.app.metadataCache.getFileCacheAsync(file))?.frontmatter;
     if (cachedFrontmatter && typeof cachedFrontmatter === "object") {
       return this.cloneFrontmatter(
         cachedFrontmatter as Record<string, unknown>,
@@ -176,15 +192,17 @@ export class FileManager {
   private async collectRenameEdits(
     file: TFile,
     newPath: string,
-  ): Promise<Array<{
-    sourcePath: string;
-    refs: Array<{
-      start: number;
-      end: number;
-      link: string;
-      original: string;
-    }>;
-  }>> {
+  ): Promise<
+    Array<{
+      sourcePath: string;
+      refs: Array<{
+        start: number;
+        end: number;
+        link: string;
+        original: string;
+      }>;
+    }>
+  > {
     void newPath;
     const editsBySource = new Map<
       string,
@@ -200,14 +218,14 @@ export class FileManager {
     for (const ref of refs) {
       const offsets = linkOffsets(ref.position);
       if (!offsets) continue;
-        const sourceEdits = editsBySource.get(ref.sourcePath) ?? [];
-        sourceEdits.push({
-          start: offsets.start,
-          end: offsets.end,
-          link: ref.targetText,
-          original: ref.original ?? ref.targetText,
-        });
-        editsBySource.set(ref.sourcePath, sourceEdits);
+      const sourceEdits = editsBySource.get(ref.sourcePath) ?? [];
+      sourceEdits.push({
+        start: offsets.start,
+        end: offsets.end,
+        link: ref.targetText,
+        original: ref.original ?? ref.targetText,
+      });
+      editsBySource.set(ref.sourcePath, sourceEdits);
     }
 
     return [...editsBySource.entries()].map(([sourcePath, refs]) => ({
@@ -229,6 +247,25 @@ export class FileManager {
    */
   getNewFileParent(sourcePath: string, newFilePath?: string): TFolder {
     return this.app.vault.getRoot();
+  }
+
+  /** New-file intent; exclusive-capable hosts never fall back to overwrite. */
+  createFile(
+    path: string,
+    data: string | ArrayBuffer,
+    options?: DataWriteOptions,
+  ): Promise<TFile> {
+    return this.app.fileEditingSessions.track(async () => {
+      await this.app.vault.load();
+      if (
+        (this.app.vault.adapter as VaultAdapter).getCapabilities?.()
+          .exclusiveCreate === true
+      )
+        return this.app.vault.createExclusive(path, data, options);
+      return typeof data === "string"
+        ? this.app.vault.create(path, data, options)
+        : this.app.vault.createBinary(path, data, options);
+    });
   }
 
   getAvailablePathForAttachment(filename: string, sourcePath?: string): string {
@@ -273,28 +310,28 @@ export class FileManager {
     const oldPath = file.path;
     const edits = await this.collectRenameEdits(file, newPath);
     await this.app.vault.rename(file, newPath);
-      for (const edit of edits) {
-        const sourcePath =
-          edit.sourcePath === oldPath ? newPath : edit.sourcePath;
-        const sourceFile = this.app.vault.getFileByPath(sourcePath);
-        if (!sourceFile) {
-          continue;
-        }
-
-        await this.app.vault.process(sourceFile, (data) => {
-          let next = data;
-          for (const ref of edit.refs) {
-            const replacement = this.getReplacementLink(
-              sourcePath,
-              newPath,
-              ref.link,
-              ref.original,
-            );
-            next = next.slice(0, ref.start) + replacement + next.slice(ref.end);
-          }
-          return next;
-        });
+    for (const edit of edits) {
+      const sourcePath =
+        edit.sourcePath === oldPath ? newPath : edit.sourcePath;
+      const sourceFile = this.app.vault.getFileByPath(sourcePath);
+      if (!sourceFile) {
+        continue;
       }
+
+      await this.app.vault.process(sourceFile, (data) => {
+        let next = data;
+        for (const ref of edit.refs) {
+          const replacement = this.getReplacementLink(
+            sourcePath,
+            newPath,
+            ref.link,
+            ref.original,
+          );
+          next = next.slice(0, ref.start) + replacement + next.slice(ref.end);
+        }
+        return next;
+      });
+    }
   }
 
   /**
@@ -304,8 +341,13 @@ export class FileManager {
    * @param file
    * @public
    */
-  trashFile(file: TAbstractFile): Promise<void> {
-    return this.app.vault.trash(file, true);
+  async trashFile(file: TAbstractFile): Promise<void> {
+    const capturedPath = file.path;
+    await this.app.fileEditingSessions.guard(undefined, async () => {
+      if (file.path !== capturedPath)
+        throw new Error("Trash target changed during editor admission");
+      await this.app.vault.trash(file, true);
+    });
   }
 
   promptForDeletion(file: TAbstractFile): Promise<void> {
@@ -374,8 +416,27 @@ export class FileManager {
   processFrontMatter(
     file: TFile,
     fn: (frontmatter: any) => void,
-    options?: DataWriteOptions,
+    options?: FrontmatterMutationOptions,
   ): Promise<void> {
+    if (this.app.vault.supportsConditionalTextWrites) {
+      let matches = true;
+      return mutateFileText(
+        this.app,
+        file,
+        async (snapshot) => {
+          const seed = await this.readFrontmatterSeed(file, snapshot);
+          matches =
+            options?.expectedFrontmatter === undefined ||
+            this.isFrontmatterEqual(seed, options.expectedFrontmatter);
+          const next = this.cloneFrontmatter(seed);
+          fn(next);
+          return this.isFrontmatterEqual(seed, next)
+            ? snapshot
+            : this.writeUpdatedFrontmatter(file, snapshot, next);
+        },
+        { ...options, validateBaseline: () => matches },
+      );
+    }
     const attempt = async (): Promise<void> => {
       const snapshot = await this.app.vault.read(file);
       const seedFrontmatter = await this.readFrontmatterSeed(file, snapshot);

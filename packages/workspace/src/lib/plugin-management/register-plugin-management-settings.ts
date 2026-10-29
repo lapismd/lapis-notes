@@ -29,12 +29,13 @@ interface SearchableSettingsSection extends WorkspaceSettingsSection {
 }
 
 function coreSearchEntries(app: App): PluginSettingsSearchEntry[] {
-  return app.plugins.corePluginEntries.map((entry) => ({
-    id: `core:${entry.manifest.id}`,
-    title: entry.manifest.name,
-    description: entry.manifest.description,
-    keywords: [entry.manifest.id, entry.distribution, "plugin"],
-    path: ["Core plugins", entry.manifest.name],
+  const { managedPlugins } = getWorkspaceHostBinding(app.workspace).controller;
+  return managedPlugins.states.map((entry) => ({
+    id: `core:${entry.sourceId === "lapis" ? entry.id : entry.key}`,
+    title: entry.name,
+    description: entry.description,
+    keywords: [entry.id, entry.distribution, "plugin"],
+    path: ["Core plugins", entry.name],
   }));
 }
 

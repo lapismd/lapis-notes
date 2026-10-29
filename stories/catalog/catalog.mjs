@@ -1,6 +1,4 @@
-/**
- * Catalog of API-consumed `@lapis-notes/ui` verification stories.
- */
+/** Catalog of API-consumed `@lapis-notes/ui` verification stories. */
 
 export {
   pluginPanelCatalog,
@@ -9,7 +7,16 @@ export {
 } from "./plugin-panels.mjs";
 import { pluginPanelCatalog } from "./plugin-panels.mjs";
 
-/** @typedef {{ id: string, title: string, spec: string, publicSurface: string, storyId: string, skipVisual?: boolean }} CatalogEntry */
+/**
+ * @typedef {{
+ *   id: string;
+ *   title: string;
+ *   spec: string;
+ *   publicSurface: string;
+ *   storyId: string;
+ *   skipVisual?: boolean;
+ * }} CatalogEntry
+ */
 
 /** @type {CatalogEntry[]} */
 export const apiUiCatalog = [
@@ -659,6 +666,41 @@ export const workspaceCatalog = [
     publicSurface: "@lapis-notes/workspace",
     storyId: "workspace-shell--bottom-panel-settings",
   },
+  {
+    id: "workspace-editing-recovery-detached",
+    title: "Editing Recovery: Detached Claim",
+    spec: "spec/src/architecture/native-editor-intents.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-editing-recovery--detached-claim",
+  },
+  {
+    id: "workspace-editing-recovery-admission",
+    title: "Editing Recovery: Admission Failure",
+    spec: "spec/src/architecture/native-editor-intents.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-editing-recovery--admission-failure",
+  },
+  {
+    id: "workspace-editing-recovery-handoff",
+    title: "Editing Recovery: Handoff Failure",
+    spec: "spec/src/architecture/native-editor-intents.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-editing-recovery--handoff-failure",
+  },
+  {
+    id: "workspace-file-conflicts-edit-and-save",
+    title: "File Conflicts: Edit And Save",
+    spec: "spec/src/workspace-shell/panels/problems/core-contract.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-file-conflicts--edit-and-save",
+  },
+  {
+    id: "workspace-file-conflicts-close-and-reopen",
+    title: "File Conflicts: Close And Reopen",
+    spec: "spec/src/workspace-shell/panels/problems/core-contract.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-file-conflicts--close-and-reopen",
+  },
   ...pluginPanelCatalog,
   {
     id: "workspace-plugins-app-link-release-selection",
@@ -674,25 +716,139 @@ export const workspaceCatalog = [
     publicSurface: "@lapis-notes/workspace",
     storyId: "workspace-plugins--app-link-unavailable-version",
   },
-  { id: "workspace-plugins-detail-images-loading", title: "Plugin Detail Images Loading", spec: "spec/src/plugin-model.md", publicSurface: "@lapis-notes/workspace", storyId: "workspace-plugins--detail-images-loading" },
-  { id: "workspace-plugins-detail-images-unavailable", title: "Plugin Detail Images Unavailable", spec: "spec/src/plugin-model.md", publicSurface: "@lapis-notes/workspace", storyId: "workspace-plugins--detail-images-unavailable" },
-  { id: "workspace-plugin-management-updates-details", title: "Settings Updates to Plugins Details", spec: "spec/src/plugin-model.md", publicSurface: "@lapis-notes/workspace", storyId: "workspace-plugin-management--updates-open-plugins-details" },
-  { id: "workspace-plugin-management-moved-details", title: "Settings Browse Reuses Moved Plugins View", spec: "spec/src/plugin-model.md", publicSurface: "@lapis-notes/workspace", storyId: "workspace-plugin-management--browse-reuses-moved-plugins-view" },
-  {id:"workspace-plugins-snapshot-landing",title:"Plugins Snapshot Landing",spec:"spec/src/plugin-model.md",publicSurface:"@lapis-notes/workspace",storyId:"workspace-plugins-registry-snapshot--landing"},
-  {id:"workspace-plugins-snapshot-directory",title:"Plugins Snapshot Directory",spec:"spec/src/plugin-model.md",publicSurface:"@lapis-notes/workspace",storyId:"workspace-plugins-registry-snapshot--directory"},
-  {id:"workspace-plugins-snapshot-graph-details",title:"Plugins Snapshot Graph Details",spec:"spec/src/plugin-model.md",publicSurface:"@lapis-notes/workspace",storyId:"workspace-plugins-registry-snapshot--graph-details"},
-  {id:"workspace-plugins-snapshot-ai-details",title:"Plugins Snapshot AI Details",spec:"spec/src/plugin-model.md",publicSurface:"@lapis-notes/workspace",storyId:"workspace-plugins-registry-snapshot--ai-details"},
-  {id:"workspace-plugins-responsive-landing",title:"Plugins Responsive Landing",spec:"spec/src/plugin-model.md",publicSurface:"@lapis-notes/workspace",storyId:"workspace-plugins--responsive-landing"},
-  {id:"workspace-plugins-responsive-directory",title:"Plugins Responsive Directory",spec:"spec/src/plugin-model.md",publicSurface:"@lapis-notes/workspace",storyId:"workspace-plugins--responsive-directory"},
-  {id:"workspace-plugins-responsive-details",title:"Plugins Responsive Details",spec:"spec/src/plugin-model.md",publicSurface:"@lapis-notes/workspace",storyId:"workspace-plugins--responsive-details"},
-  {"id": "workspace-plugins-updates-landing", "title": "Plugins Updates Landing", "spec": "spec/src/plugin-model.md", "publicSurface": "@lapis-notes/workspace", "storyId": "workspace-plugins--updates-landing"},
-  {"id": "workspace-plugins-updates-directory", "title": "Plugins Updates Directory", "spec": "spec/src/plugin-model.md", "publicSurface": "@lapis-notes/workspace", "storyId": "workspace-plugins--updates-directory"},
-  {"id": "workspace-plugins-update-details", "title": "Plugins Update Details", "spec": "spec/src/plugin-model.md", "publicSurface": "@lapis-notes/workspace", "storyId": "workspace-plugins--update-details"},
-  {id:"workspace-plugins-directory",title:"Plugins Directory",spec:"spec/src/plugin-model.md",publicSurface:"@lapis-notes/workspace",storyId:"workspace-plugins--directory"},
-  {id:"workspace-plugins-graph-details",title:"Plugins Graph Details",spec:"spec/src/plugin-model.md",publicSurface:"@lapis-notes/workspace",storyId:"workspace-plugins--graph-details"},
-  {id:"workspace-plugins-plugin-details",title:"Plugins Plugin Details",spec:"spec/src/plugin-model.md",publicSurface:"@lapis-notes/workspace",storyId:"workspace-plugins--plugin-details"},
-  {id:"workspace-plugins-plugin-changelog",title:"Plugins Plugin Changelog",spec:"spec/src/plugin-model.md",publicSurface:"@lapis-notes/workspace",storyId:"workspace-plugins--plugin-changelog"},
-  {id:"workspace-plugins-media-viewer",title:"Plugins Media Viewer",spec:"spec/src/plugin-model.md",publicSurface:"@lapis-notes/workspace",storyId:"workspace-plugins--media-viewer"},
+  {
+    id: "workspace-plugins-detail-images-loading",
+    title: "Plugin Detail Images Loading",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins--detail-images-loading",
+  },
+  {
+    id: "workspace-plugins-detail-images-unavailable",
+    title: "Plugin Detail Images Unavailable",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins--detail-images-unavailable",
+  },
+  {
+    id: "workspace-plugin-management-updates-details",
+    title: "Settings Updates to Plugins Details",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugin-management--updates-open-plugins-details",
+  },
+  {
+    id: "workspace-plugin-management-moved-details",
+    title: "Settings Browse Reuses Moved Plugins View",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugin-management--browse-reuses-moved-plugins-view",
+  },
+  {
+    id: "workspace-plugins-snapshot-landing",
+    title: "Plugins Snapshot Landing",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins-registry-snapshot--landing",
+  },
+  {
+    id: "workspace-plugins-snapshot-directory",
+    title: "Plugins Snapshot Directory",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins-registry-snapshot--directory",
+  },
+  {
+    id: "workspace-plugins-snapshot-graph-details",
+    title: "Plugins Snapshot Graph Details",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins-registry-snapshot--graph-details",
+  },
+  {
+    id: "workspace-plugins-snapshot-ai-details",
+    title: "Plugins Snapshot AI Details",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins-registry-snapshot--ai-details",
+  },
+  {
+    id: "workspace-plugins-responsive-landing",
+    title: "Plugins Responsive Landing",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins--responsive-landing",
+  },
+  {
+    id: "workspace-plugins-responsive-directory",
+    title: "Plugins Responsive Directory",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins--responsive-directory",
+  },
+  {
+    id: "workspace-plugins-responsive-details",
+    title: "Plugins Responsive Details",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins--responsive-details",
+  },
+  {
+    id: "workspace-plugins-updates-landing",
+    title: "Plugins Updates Landing",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins--updates-landing",
+  },
+  {
+    id: "workspace-plugins-updates-directory",
+    title: "Plugins Updates Directory",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins--updates-directory",
+  },
+  {
+    id: "workspace-plugins-update-details",
+    title: "Plugins Update Details",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins--update-details",
+  },
+  {
+    id: "workspace-plugins-directory",
+    title: "Plugins Directory",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins--directory",
+  },
+  {
+    id: "workspace-plugins-graph-details",
+    title: "Plugins Graph Details",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins--graph-details",
+  },
+  {
+    id: "workspace-plugins-plugin-details",
+    title: "Plugins Plugin Details",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins--plugin-details",
+  },
+  {
+    id: "workspace-plugins-plugin-changelog",
+    title: "Plugins Plugin Changelog",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins--plugin-changelog",
+  },
+  {
+    id: "workspace-plugins-media-viewer",
+    title: "Plugins Media Viewer",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins--media-viewer",
+  },
   {
     id: "workspace-plugins-middle-top-tabs",
     title: "Plugins Middle (Top Tabs)",

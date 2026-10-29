@@ -1,5 +1,15 @@
 # Deno Desktop Host / Native vault and storage / Part 1
 
+The neutral native adapter gains an optional system-trash port under LN-PKG-184.
+Tauri implements the new capability; the superseded Deno host remains frozen
+and does not advertise it. This annotation changes no Deno host source.
+
+The optional conditional text port is governed by
+[LN-PKG-168](../packages/vault-and-storage.md#ln-pkg-168). A shared adapter method
+alone does not make it available: this legacy host does not advertise that
+capability, so calls reject before invocation. Existing filesystem bindings and
+database authority retain their own contracts.
+
 ## LN-DENO-002 — Host: implement NativeDesktopBridge through win.bind() and register it
 
 <a id="ln-deno-002"></a>
@@ -68,7 +78,7 @@ Plugin registration parity verifies:
 
 <a id="ln-deno-009"></a>
 
-**Requirement.** Session boot MUST render Design Core `WorkspaceStartup` with vault, configuration, plugin, and layout tasks, then mount `WorkspaceShell` with an API `App`. While loading without failure, it MUST replace the visible title with the package-local Lapis logo while retaining the title as the region's accessible name. It MUST NOT copy the workspace renderer.
+**Requirement.** Session boot MUST render the shared Workspace `DesktopWorkspaceStartup`, composing Design Core `WorkspaceStartup` with vault, configuration, plugin, and layout tasks, then mount `WorkspaceShell` with an API `App`. While loading without failure, it MUST replace the visible title with the shared Lapis logo while retaining the title as the region's accessible name. It MUST NOT copy the workspace renderer.
 
 ### Acceptance details
 
@@ -317,3 +327,14 @@ Desktop session lifecycle telemetry verifies:
 <a id="ln-deno-037"></a>
 
 **Requirement.** Vault resource URLs MUST use a capability-scoped same-origin HTTP route with vault-root containment, explicit content types, no-store and nosniff headers, and binary response bodies. Raw vault bytes and `file:` URLs MUST NOT cross the Laufey binding string boundary, and text reads containing NUL bytes MUST fail before producing a native string response.
+
+The shared API watch subscription now permits awaited cleanup and optional
+rename hints (LN-PKG-176) for Tauri ingestion. The superseded Deno host remains
+frozen; this shared-contract annotation requires no legacy host changes.
+
+LN-PKG-177 exposes optional watch registration readiness before initial
+reconciliation. Array adapters preserve it; the frozen Deno host is unchanged.
+
+LN-PKG-178 and LN-PKG-179 add opt-in exclusive creation and source-owned new-file
+intent. Existing low-level overwrite behavior and unsupported legacy hosts stay
+explicit; Deno host source remains frozen. Admission spans creation projection.

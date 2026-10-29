@@ -24,10 +24,10 @@ const transport: typeof fetch = (input, init) => {
 };
 const app = new App({
   version: "0.1.0",
-  configPath: ".obsidian/app.json",
+  configPath: ".lapis/app.json",
   adapter: new MemoryVaultAdapter({
-    ".obsidian/app.json": "{}",
-    ".obsidian/workspace.json": JSON.stringify(${JSON.stringify(pluginsBrowserLayout("middle-top-tabs", state), null, 2)})
+    ".lapis/app.json": "{}",
+    ".lapis/workspace.json": JSON.stringify(${JSON.stringify(pluginsBrowserLayout("middle-top-tabs", state), null, 2)})
   }),
   appDatabase: new MemoryAppDatabase("registry-review"),
   markdownRenderer: async () => {}, // No document leaves or signed Markdown in this snapshot.

@@ -15,6 +15,10 @@ Backlinks and Outgoing Links retain this preview behavior when a legacy
 view-type alias is restored. Canonicalization changes only persisted workspace
 identity, not link resolution or preview ownership.
 
+Preview geometry acceptance waits for the existing opening animation to settle
+before measuring the full card. Visibility alone does not establish final width;
+the 400px minimum-width assertions for Backlinks and Outgoing Links remain unchanged.
+
 The shared link sidebar rebuilds mention groups under `LN-MD-098` after late
 metadata load or a new followed path, then applies this preview contract to those rows.
 Linked rows come from indexed incoming or outgoing link queries plus async
@@ -29,7 +33,7 @@ indexed.
 
 <a id="ln-md-026"></a>
 
-**Requirement.** The Markdown package MUST adapt the Lapis vault, metadata cache, workspace navigation, and `EmbedRegistry` to Mira's public `MiraFileAdapter`. One App MUST reuse one adapter instance so preview effects do not churn.
+**Requirement.** The Markdown package MUST adapt the Lapis vault, metadata cache, workspace navigation, and `EmbedRegistry` to Mira's public `MiraFileAdapter`, and MUST ask registered Markdown embedders in order for `md` and `markdown`, retaining the portable preview when every embedder declines. One App MUST reuse one adapter instance so preview effects do not churn.
 
 ## LN-MD-027 — Mira-owned internal-link previews
 
@@ -108,6 +112,9 @@ indexed.
 <a id="ln-md-062"></a>
 
 **Requirement.** Editable panel `FileEmbed` MUST omit the embedded-note guide and retain a sticky top-right open-note action that stays visible while content scrolls and reserves normal-flow content space.
+
+Pointer acceptance distinguishes the omitted outer guide from image embeds
+authored inside the note. The seeded Ideas preview retains its map image.
 
 ## LN-MD-063 — In edit mode, the preview viewport: constrain FileEmbed so CodeMirror owns vertical scrolling
 

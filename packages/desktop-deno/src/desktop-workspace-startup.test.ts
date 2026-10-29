@@ -7,11 +7,11 @@ function readSource(relativePath: string): string {
 
 describe("Deno desktop workspace startup branding", () => {
   it("uses the Lapis logo visual for saved-vault and session loading", () => {
-    const startup = readSource("./DesktopWorkspaceStartup.svelte");
+    const startup = readSource("../../workspace/src/lib/desktop/DesktopWorkspaceStartup.svelte");
     const host = readSource("./DesktopVaultHost.svelte");
     const session = readSource("./DesktopWorkspaceSession.svelte");
 
-    expect(startup).toContain('from "./assets/lapis-logo.svg"');
+    expect(startup).toContain('from "./lapis-logo.svg"');
     expect(startup).toContain('title="Opening Lapis Notes"');
     expect(startup).toContain("loadingVisual={lapisVisual}");
     expect(startup).toContain('data-ui-part="logo"');
@@ -19,7 +19,7 @@ describe("Deno desktop workspace startup branding", () => {
 
     for (const consumer of [host, session]) {
       expect(consumer).toContain(
-        'import DesktopWorkspaceStartup from "./DesktopWorkspaceStartup.svelte"',
+        'import { DesktopWorkspaceStartup } from "@lapis-notes/workspace"',
       );
       expect(consumer).toContain("<DesktopWorkspaceStartup");
       expect(consumer).not.toContain(

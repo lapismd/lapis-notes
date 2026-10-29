@@ -3,10 +3,7 @@ import {
   type BasesAllOptions,
   type QueryController,
 } from "@lapis-notes/api";
-import type {
-  BasesDocument,
-  BasesViewRegistration,
-} from "@lapis-notes/bases";
+import type { BasesDocument, BasesViewRegistration } from "@lapis-notes/bases";
 
 export type BasesViewScenario =
   | "table"
@@ -214,8 +211,8 @@ export function createBasesViewsDocument(
 
 export function createBasesViewsSeed(): Record<string, string | ArrayBuffer> {
   return {
-    ".obsidian/app.json": "{}",
-    ".obsidian/types.json": JSON.stringify(BASES_SAMPLE_TYPES, null, 2),
+    ".lapis/app.json": "{}",
+    ".lapis/types.json": JSON.stringify(BASES_SAMPLE_TYPES, null, 2),
     "Bases/Projects.base": JSON.stringify(
       createBasesViewsDocument("table"),
       null,

@@ -1,5 +1,12 @@
 # Specification Governance / Validation and CI
 
+Local validation selects the isolated Docker runtime under LN-ARCH-146. Hosted
+CI explicitly selects its provisioned native runtime. The source composition
+audit enforces LN-CAT-118 and LN-CAT-119 in both normal and specification lanes;
+existing shell placement, App ownership and public Show Code checks remain.
+Docker smoke checks enforce real filesystem permission denial under dropped
+capabilities; a worker's root identity cannot waive native permission assertions.
+
 ## LN-GOV-004 — Local gate: inspect the current VCS change (jj preferred
 
 <a id="ln-gov-004"></a>
@@ -11,6 +18,12 @@
 <a id="ln-gov-005"></a>
 
 **Requirement.** Tests, generated output, and ordinary story files MUST NOT satisfy or spuriously trigger the specification-first gate.
+
+The explicit Rust-hosted Web build writes generated assets to
+`packages/web/dist-rust-server`. That directory is ignored alongside the other
+Web build outputs; it does not become authored source or satisfy a protected
+change's canonical-document requirement. The build profile, adapter source and
+their contracts remain subject to the ordinary specification-first gate.
 
 ## LN-GOV-023 — Specification validation: inspect repository and authorized package-local Autodocs stories
 
@@ -45,3 +58,12 @@ Chromium document or script `ERR_NETWORK_CHANGED` failures. Retry annotations
 and attachments remain visible in diagnostic artifacts after a successful
 recovery. Readiness, later application steps and a failed second attempt retain
 their original failure behavior.
+
+The Rust server acceptance job is independent of Deno setup and desktop builds.
+Its native and container browser commands are uncached bounded root tasks. The
+job keeps the workflow-wide provisioned native runtime except for actual image
+acceptance, which explicitly re-selects the Docker runtime because the image
+harness fails closed without Docker and has no host fallback.
+Workflow regressions verify job ordering, that exact Docker override and that
+removing either Web job's success still fails the aggregate; splitting
+execution cannot remove coverage.

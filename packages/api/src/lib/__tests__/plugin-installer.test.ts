@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { Zip, ZipDeflate, ZipPassThrough } from "fflate";
 import {
   bytesToBase64,
@@ -19,6 +19,262 @@ import {
 import { InMemoryDataAdapter } from "./data-adapter-conformance";
 
 describe("VerifiedPluginInstaller", () => {
+  it("unloads runtime before removing installed code", async () => {
+    const fixture = await createInstallFixture();
+    const adapter = new InMemoryDataAdapter();
+    const pluginManager = {
+      unloadPlugin: vi.fn(async () => {
+        expect(await adapter.exists(".lapis/plugins/lapis-docs/main.mjs")).toBe(
+          true,
+        );
+        return true;
+      }),
+      disablePlugin: vi.fn(async () => true),
+    };
+    const installer = new VerifiedPluginInstaller({
+      adapter,
+      trustedKeys: [fixture.trustedKey],
+      pluginManager,
+    });
+    await installer.installBundle({ bundle: fixture.bundle });
+    await installer.uninstall("lapis-docs");
+    expect(pluginManager.unloadPlugin).toHaveBeenCalledOnce();
+    expect(pluginManager.disablePlugin).not.toHaveBeenCalled();
+    expect(await adapter.exists(".lapis/plugins/lapis-docs/main.mjs")).toBe(
+      false,
+    );
+  });
+
+  it("retains installed bytes when owned runtime cleanup rejects uninstall", async () => {
+    const fixture = await createInstallFixture();
+    const adapter = new InMemoryDataAdapter();
+    const pluginManager = {
+      unloadPlugin: async () => false,
+      disablePlugin: async () => true,
+    };
+    const installer = new VerifiedPluginInstaller({
+      adapter,
+      trustedKeys: [fixture.trustedKey],
+      pluginManager,
+    });
+    await installer.installBundle({ bundle: fixture.bundle });
+    await expect(installer.uninstall("lapis-docs")).rejects.toThrow(/cleanup/i);
+    expect(await adapter.exists(".lapis/plugins/lapis-docs/main.mjs")).toBe(
+      true,
+    );
+    expect(
+      await new InstalledPluginStateStore(adapter).get("lapis-docs"),
+    ).not.toBeNull();
+  });
+
+  it("rejects signed replacement of registered static identities before staging", async () => {
+    const fixture = await createInstallFixture({ pluginId: "terminal" });
+    const adapter = new InMemoryDataAdapter();
+    const pluginManager = {
+      isStaticPlugin: (id: string) => id === "terminal",
+      loadPlugin: vi.fn(async () => ({})),
+    };
+    const installer = new VerifiedPluginInstaller({
+      adapter,
+      trustedKeys: [fixture.trustedKey],
+      pluginManager,
+    });
+    await expect(
+      installer.installBundle({ bundle: fixture.bundle }),
+    ).rejects.toMatchObject({ code: "reserved-id" });
+    expect(await adapter.exists(".lapis/plugins/terminal")).toBe(false);
+    expect(pluginManager.loadPlugin).not.toHaveBeenCalled();
+  });
+
+  it("removes obsolete installed code without disabling its registered static owner", async () => {
+    const fixture = await createInstallFixture({ pluginId: "terminal" });
+    const adapter = new InMemoryDataAdapter();
+    const pluginManager = {
+      isStaticPlugin: (id: string) => id === "terminal",
+      disablePlugin: vi.fn(async () => true),
+    };
+    const installer = new VerifiedPluginInstaller({
+      adapter,
+      trustedKeys: [fixture.trustedKey],
+      pluginManager,
+    });
+    await adapter.mkdir(".lapis");
+    await adapter.mkdir(".lapis/plugins");
+    await adapter.mkdir(".lapis/plugins/terminal");
+    await adapter.write(".lapis/plugins/terminal/main.mjs", "obsolete code");
+    await adapter.write(
+      ".lapis/plugins/terminal/data.json",
+      '{"shell":"saved"}',
+    );
+    await installer.uninstall("terminal");
+    expect(pluginManager.disablePlugin).not.toHaveBeenCalled();
+    expect(await adapter.read(".lapis/plugins/terminal/data.json")).toBe(
+      '{"shell":"saved"}',
+    );
+    expect(await adapter.exists(".lapis/plugins/terminal/main.mjs")).toBe(
+      false,
+    );
+  });
+
+  it("preserves exact plugin data bytes when replacing a signed release with bundled defaults", async () => {
+    const fixture = await createInstallFixture({
+      fileOverrides: { "data.json": '{"default":true}' },
+    });
+    const adapter = new InMemoryDataAdapter();
+    const installer = new VerifiedPluginInstaller({
+      adapter,
+      trustedKeys: [fixture.trustedKey],
+    });
+    await installer.installBundle({ bundle: fixture.bundle });
+    const data = '{\n  "saved": "café 笔记"\n}\n';
+    await adapter.write(".lapis/plugins/lapis-docs/data.json", data);
+    await installer.installBundle({ bundle: fixture.bundle });
+    expect(await adapter.read(".lapis/plugins/lapis-docs/data.json")).toBe(
+      data,
+    );
+  });
+
+  it("awaits replacement teardown and leaves reload-required runtime inactive", async () => {
+    const fixture = await createInstallFixture();
+    const adapter = new InMemoryDataAdapter();
+    const calls: string[] = [];
+    const pluginManager = {
+      loadPlugin: vi.fn(async () => {
+        calls.push("load");
+        return {};
+      }),
+      enablePlugin: vi.fn(async () => {
+        calls.push("enable");
+        return true;
+      }),
+      preparePluginReplacement: vi.fn(async () => {
+        calls.push("teardown");
+        expect(await adapter.read(".lapis/plugins/lapis-docs/main.mjs")).toBe(
+          fixture.files["main.mjs"],
+        );
+        await adapter.write(
+          ".lapis/plugins/lapis-docs/data.json",
+          "final teardown data",
+        );
+        return { reloadRequired: true, rollback: async () => {} };
+      }),
+    };
+    const installer = new VerifiedPluginInstaller({
+      adapter,
+      trustedKeys: [fixture.trustedKey],
+      pluginManager,
+    });
+    await installer.installBundle({ bundle: fixture.bundle });
+    const record = await installer.installBundle({ bundle: fixture.bundle });
+    expect(calls).toEqual(["load", "enable", "teardown"]);
+    expect(record.restartRequired).toBe(true);
+    expect(await adapter.read(".lapis/plugins/lapis-docs/data.json")).toBe(
+      "final teardown data",
+    );
+  });
+
+  it("restores previous files and runtime when replacement publication fails", async () => {
+    const fixture = await createInstallFixture();
+    const adapter = new InMemoryDataAdapter();
+    const rollback = vi.fn(async () => {
+      expect(await adapter.read(".lapis/plugins/lapis-docs/main.mjs")).toBe(
+        fixture.files["main.mjs"],
+      );
+    });
+    const installer = new VerifiedPluginInstaller({
+      adapter,
+      trustedKeys: [fixture.trustedKey],
+      pluginManager: {
+        preparePluginReplacement: async () => ({
+          reloadRequired: true,
+          rollback,
+        }),
+      },
+    });
+    await installer.installBundle({ bundle: fixture.bundle });
+    const before = await new InstalledPluginStateStore(adapter).load();
+    const rename = adapter.rename.bind(adapter);
+    vi.spyOn(adapter, "rename").mockImplementation(async (from, to) => {
+      if (
+        from.includes("/.installing/") &&
+        !from.includes("-backup-") &&
+        to === ".lapis/plugins/lapis-docs"
+      )
+        throw new Error("Publication failed");
+      await rename(from, to);
+    });
+    await expect(
+      installer.installBundle({ bundle: fixture.bundle }),
+    ).rejects.toThrow("Publication failed");
+    expect(rollback).toHaveBeenCalledOnce();
+    expect(await new InstalledPluginStateStore(adapter).load()).toEqual(before);
+  });
+
+  it("restores previous code and runtime when installed metadata publication fails", async () => {
+    const original = await createInstallFixture();
+    const update = await createInstallFixture({
+      fileOverrides: { "main.mjs": "export default class Updated {};" },
+    });
+    const adapter = new InMemoryDataAdapter();
+    const stateStore = new InstalledPluginStateStore(adapter);
+    await new VerifiedPluginInstaller({
+      adapter,
+      trustedKeys: [original.trustedKey],
+      stateStore,
+    }).installBundle({ bundle: original.bundle });
+    const before = await stateStore.get("lapis-docs");
+    const rollback = vi.fn(async () => {});
+    const installer = new VerifiedPluginInstaller({
+      adapter,
+      trustedKeys: [update.trustedKey],
+      stateStore,
+      pluginManager: {
+        preparePluginReplacement: async () => ({
+          reloadRequired: true,
+          rollback,
+        }),
+      },
+    });
+    vi.spyOn(stateStore, "upsert").mockRejectedValueOnce(
+      new Error("Metadata publication failed"),
+    );
+    await expect(
+      installer.installBundle({ bundle: update.bundle }),
+    ).rejects.toThrow("Metadata publication failed");
+    expect(await adapter.read(".lapis/plugins/lapis-docs/main.mjs")).toBe(
+      original.files["main.mjs"],
+    );
+    expect(await stateStore.get("lapis-docs")).toEqual(before);
+    expect(rollback).toHaveBeenCalledOnce();
+  });
+
+  it("cancels after teardown without publishing replacement files", async () => {
+    const fixture = await createInstallFixture();
+    const adapter = new InMemoryDataAdapter();
+    const controller = new AbortController();
+    const rollback = vi.fn(async () => {});
+    const installer = new VerifiedPluginInstaller({
+      adapter,
+      trustedKeys: [fixture.trustedKey],
+      pluginManager: {
+        preparePluginReplacement: async () => {
+          controller.abort();
+          return { reloadRequired: true, rollback };
+        },
+      },
+    });
+    await installer.installBundle({ bundle: fixture.bundle });
+    const before = await new InstalledPluginStateStore(adapter).load();
+    await expect(
+      installer.installBundle({
+        bundle: fixture.bundle,
+        signal: controller.signal,
+      }),
+    ).rejects.toMatchObject({ name: "AbortError" });
+    expect(rollback).toHaveBeenCalledOnce();
+    expect(await new InstalledPluginStateStore(adapter).load()).toEqual(before);
+  });
+
   it("uses the signed download endpoint for the selected release", async () => {
     const fixture = await createInstallFixture();
     fixture.detail.versions["0.1.0"].bundle.downloadUrl =
@@ -157,7 +413,7 @@ describe("VerifiedPluginInstaller", () => {
       installer.install({ entry: fixture.entry, detail: fixture.detail }),
     ).rejects.toMatchObject({ code: "hash-mismatch" });
     expect(requests).toEqual([endpoint]);
-    expect(await adapter.exists(".obsidian/plugins/lapis-docs")).toBe(false);
+    expect(await adapter.exists(".lapis/plugins/lapis-docs")).toBe(false);
   });
 
   it("installs verified official plugin files and records external provenance", async () => {
@@ -194,9 +450,9 @@ describe("VerifiedPluginInstaller", () => {
       enable: true,
     });
 
-    expect(
-      await adapter.read(".obsidian/plugins/lapis-docs/manifest.json"),
-    ).toBe(fixture.files["manifest.json"]);
+    expect(await adapter.read(".lapis/plugins/lapis-docs/manifest.json")).toBe(
+      fixture.files["manifest.json"],
+    );
     expect(record).toMatchObject({
       pluginId: "lapis-docs",
       installedVersion: "0.1.0",
@@ -204,7 +460,7 @@ describe("VerifiedPluginInstaller", () => {
       registryId: "lapis-official",
     });
     expect(managerCalls).toEqual([
-      "load:.obsidian/plugins/lapis-docs",
+      "load:.lapis/plugins/lapis-docs",
       "enable:lapis-docs",
     ]);
     expect(stateSeenDuringLoad).toEqual(["official"]);
@@ -230,7 +486,7 @@ describe("VerifiedPluginInstaller", () => {
     await expect(
       installer.install({ entry: fixture.entry, detail: fixture.detail }),
     ).rejects.toMatchObject({ code: "hash-mismatch" });
-    expect(await adapter.exists(".obsidian/plugins/lapis-docs")).toBe(false);
+    expect(await adapter.exists(".lapis/plugins/lapis-docs")).toBe(false);
   });
 
   it("aborts before signature verification when bundle metadata is tampered", async () => {
@@ -278,9 +534,9 @@ describe("VerifiedPluginInstaller", () => {
       installedVersion: "0.1.0",
       provenance: "official",
     });
-    expect(
-      await adapter.read(".obsidian/plugins/lapis-docs/manifest.json"),
-    ).toBe(fixture.files["manifest.json"]);
+    expect(await adapter.read(".lapis/plugins/lapis-docs/manifest.json")).toBe(
+      fixture.files["manifest.json"],
+    );
   });
 
   it("verifies bundles in a worker when auto mode can use Worker", async () => {
@@ -331,7 +587,7 @@ describe("VerifiedPluginInstaller", () => {
       expect(progressPhases).toContain("verifying-bundle");
       expect(progressPhases).toContain("verifying-files");
       expect(
-        await adapter.read(".obsidian/plugins/lapis-docs/manifest.json"),
+        await adapter.read(".lapis/plugins/lapis-docs/manifest.json"),
       ).toBe(fixture.files["manifest.json"]);
     } finally {
       fakeWorker.restore();
@@ -364,7 +620,7 @@ describe("VerifiedPluginInstaller", () => {
       });
       expect(fakeWorker.workers).toHaveLength(1);
       expect(fakeWorker.workers[0].terminated).toBe(true);
-      expect(await adapter.exists(".obsidian/plugins/lapis-docs")).toBe(false);
+      expect(await adapter.exists(".lapis/plugins/lapis-docs")).toBe(false);
     } finally {
       fakeWorker.restore();
     }
@@ -415,7 +671,7 @@ describe("VerifiedPluginInstaller", () => {
         detail: mismatch.detail,
       }),
     ).rejects.toMatchObject({ code: "metadata-invalid" });
-    expect(await adapter.exists(".obsidian/plugins/lapis-docs")).toBe(false);
+    expect(await adapter.exists(".lapis/plugins/lapis-docs")).toBe(false);
   });
 
   it("aborts before final install on invalid official runtime metadata", async () => {
@@ -457,7 +713,7 @@ describe("VerifiedPluginInstaller", () => {
         ],
       },
     });
-    expect(await adapter.exists(".obsidian/plugins/lapis-docs")).toBe(false);
+    expect(await adapter.exists(".lapis/plugins/lapis-docs")).toBe(false);
   });
 
   it("records runtime compatibility warnings for manual legacy CommonJS releases", async () => {
@@ -498,22 +754,22 @@ describe("VerifiedPluginInstaller", () => {
       },
     });
     await installer.install({ entry: fixture.entry, detail: fixture.detail });
-    await adapter.write(".obsidian/plugins/lapis-docs/data.json", "{}");
+    await adapter.write(".lapis/plugins/lapis-docs/data.json", "{}");
     await adapter.write(
-      ".obsidian/community-plugins.json",
+      ".lapis/community-plugins.json",
       JSON.stringify(["lapis-docs"]),
     );
 
     await installer.uninstall("lapis-docs");
 
-    expect(await adapter.exists(".obsidian/plugins/lapis-docs/data.json")).toBe(
+    expect(await adapter.exists(".lapis/plugins/lapis-docs/data.json")).toBe(
       true,
     );
-    expect(await adapter.exists(".obsidian/plugins/lapis-docs/main.mjs")).toBe(
+    expect(await adapter.exists(".lapis/plugins/lapis-docs/main.mjs")).toBe(
       false,
     );
     expect(
-      JSON.parse(await adapter.read(".obsidian/community-plugins.json")),
+      JSON.parse(await adapter.read(".lapis/community-plugins.json")),
     ).toEqual([]);
     expect(await new InstalledPluginStateStore(adapter).get("lapis-docs")).toBe(
       null,

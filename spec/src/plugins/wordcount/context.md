@@ -24,7 +24,7 @@ occurrence state.
 
 - Markdownlint and Spell Check Problems action titles (LN-MDL-005, LN-SPL-010) also MUST NOT change Word Count ownership.
 
-- Web agent-server URL and token Settings stay on the web host and MUST NOT change Word Count registration or status-bar ownership.
+- Retired Web agent Settings and desktop-only AI/Terminal restrictions do not change Word Count registration or status-bar ownership.
 
 - The token field uses password presentation on that host Settings surface.
 

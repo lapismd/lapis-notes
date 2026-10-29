@@ -11,7 +11,6 @@ import {
   type PluginConstructor,
   type WorkspaceLeaf,
 } from "@lapis-notes/api";
-import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
 import { ExplorerController } from "@lapismd/design-core/workspace/explorer";
 import type { WorkspaceAction } from "@lapismd/design-core/workspace/core";
 import { mount, unmount } from "svelte";
@@ -22,12 +21,16 @@ import {
   copyExplorerText,
 } from "./native-explorer-actions";
 import { openExplorerFile } from "./open-explorer-file";
+import { importExplorerFiles } from "./explorer-imports";
 import {
   DEFAULT_VAULT_PALETTE_FILE_EXTENSIONS,
   EXPLORER_SETTING_IDS,
 } from "./explorer-settings";
 import { listExplorerVaultEntries } from "./explorer-vault-entries";
-import { registerExplorerSettings } from "./register-explorer-settings";
+import {
+  readWorkspaceHostBinding,
+  registerExplorerSettings,
+} from "./register-explorer-settings";
 import { subscribeExplorerVaultTreeChanges } from "./explorer-tree-subscription";
 import {
   listVaultPaletteFiles,
@@ -35,6 +38,7 @@ import {
   VAULT_PALETTE_RECENT_GROUP,
 } from "./vault-palette-files";
 import { bindExplorerSelectionNotifications } from "./explorer-selection";
+import { createExplorerFileIcons } from "./explorer-file-icons";
 
 const EXPLORER_MANIFEST: PluginManifest = {
   id: "lapis-file-explorer",
@@ -104,22 +108,42 @@ async function uniquePath(
   }
 }
 
-async function withNotice<T>(operation: () => Promise<T>): Promise<T> {
+async function withNotice<T>(
+  app: App,
+  operation: () => Promise<T>,
+): Promise<T> {
   try {
-    return await operation();
+    return await (app.vault.supportsConditionalTextWrites
+      ? app.fileEditingSessions.track(operation)
+      : operation());
   } catch (error) {
-    new Notice(displayError(error));
+    new Notice(displayError(error), undefined, app);
     throw error;
   }
 }
 
 function createExplorerController(app: App, loading: boolean) {
+  const fileIcons = createExplorerFileIcons(app);
   const controller = new ExplorerController({
     loading,
+    getIcon: (node) =>
+      node.kind === "file" ? fileIcons.nameForPath(node.path) : undefined,
     tree: {
       listEntries: () =>
         listExplorerVaultEntries(app.vault.getAllLoadedFiles()),
-      subscribe: (onChange) => subscribeExplorerVaultTreeChanges(app, onChange),
+      subscribe: (onChange) => {
+        const refreshIcons = () => {
+          void fileIcons.publish().then(onChange);
+        };
+        const stopTree = subscribeExplorerVaultTreeChanges(app, onChange);
+        const stopIcons = app.workspace.onFileIconsChanged(refreshIcons);
+        refreshIcons();
+        return () => {
+          stopTree();
+          stopIcons();
+          fileIcons.release();
+        };
+      },
     },
     selection: {
       subscribe: (onActivePath) => {
@@ -155,27 +179,29 @@ function createExplorerController(app: App, loading: boolean) {
         ),
     },
     actions: {
+      importExternalFiles: (folder, files) =>
+        withNotice(app, () => importExplorerFiles(app, folder, files)),
       openFile: (path, options) =>
-        withNotice(async () => {
+        withNotice(app, async () => {
           const file = app.vault.getFileByPath(path);
           if (!file) throw new Error(`Unable to find file: ${path}`);
           await openExplorerFile(app, file, options?.disposition ?? "current");
         }),
       createFile: (parent) =>
-        withNotice(async () => {
+        withNotice(app, async () => {
           const path = await uniquePath(app, parent, "Untitled.md");
-          const file = await app.vault.create(path, "");
+          const file = await app.fileManager.createFile(path, "");
           await app.openFile(file);
           return path;
         }),
       createFolder: (parent) =>
-        withNotice(async () => {
+        withNotice(app, async () => {
           const path = await uniquePath(app, parent, "New folder");
           await app.vault.createFolder(path);
           return path;
         }),
       rename: (path, nextName) =>
-        withNotice(async () => {
+        withNotice(app, async () => {
           const file = app.vault.getAbstractFileByPath(path);
           if (!file) throw new Error(`Unable to find path: ${path}`);
           const nextPath = joinPath(parentPath(path), nextName);
@@ -186,7 +212,7 @@ function createExplorerController(app: App, loading: boolean) {
           return nextPath;
         }),
       move: (path, destinationFolderPath) =>
-        withNotice(async () => {
+        withNotice(app, async () => {
           const file = app.vault.getAbstractFileByPath(path);
           if (!file) throw new Error(`Unable to find path: ${path}`);
           const nextPath = joinPath(destinationFolderPath, basename(path));
@@ -197,12 +223,13 @@ function createExplorerController(app: App, loading: boolean) {
           return nextPath;
         }),
       delete: (path) =>
-        withNotice(async () => {
+        withNotice(app, async () => {
           const file = app.vault.getAbstractFileByPath(path);
           if (!file) throw new Error(`Unable to find path: ${path}`);
-          await app.vault.trash(file, false);
+          await app.fileManager.trashFile(file);
         }),
-      copyText: copyExplorerText,
+      copyText: (label, value) =>
+        withNotice(app, () => copyExplorerText(app, label, value)),
     },
     buildItemMenu: (menu, node) => {
       appendNativeExplorerMenu(menu, node, app);
@@ -288,11 +315,12 @@ export class LapisLandingView extends View {
         id: "create-note",
         label: "Create new note",
         icon: "square-pen",
-        onSelect: async () => {
-          const path = await uniquePath(this.app, "", "Untitled.md");
-          const file = await this.app.vault.create(path, "");
-          await this.app.openFile(file);
-        },
+        onSelect: () =>
+          withNotice(this.app, async () => {
+            const path = await uniquePath(this.app, "", "Untitled.md");
+            const file = await this.app.fileManager.createFile(path, "");
+            await this.app.openFile(file);
+          }),
       },
       {
         id: "go-to-file",
@@ -344,7 +372,7 @@ export function createFileExplorerPlugin(
       this.register(() => {
         this.app.configuration.schema.unregister(EXPLORER_SCHEMA);
       });
-      registerExplorerSettings(this);
+      const settingsRegistered = registerExplorerSettings(this);
       const configurationRef = this.app.configuration.on(
         "updated",
         ({ key, value }) => {
@@ -399,36 +427,53 @@ export function createFileExplorerPlugin(
         },
       });
 
-      const { controller } = getWorkspaceHostBinding(this.app.workspace);
-      this.register(
-        controller.commands.registerPaletteProvider({
-          id: "lapis-vault-files",
-          tab: VAULT_PALETTE_FILES_TAB,
-          emptyQueryLimit: 5,
-          search: (query) => {
-            const starterFiles = query.trim().length === 0;
-            const recentPaths = starterFiles
-              ? new Set(
-                  this.app.workspace
-                    .getRecentFiles()
-                    .map((recent) => recent.path),
-                )
-              : null;
-            return listVaultPaletteFiles(this.app, query).map((file) => ({
-              id: `vault-file:${file.path}`,
-              title: file.name,
-              subtitle: file.path,
-              icon: "file",
-              providerId: "lapis-vault-files",
-              tab: VAULT_PALETTE_FILES_TAB.id,
-              group: recentPaths?.has(file.path)
-                ? VAULT_PALETTE_RECENT_GROUP
-                : undefined,
-              run: () => this.app.openFile(file),
-            }));
-          },
-        }),
-      );
+      let paletteAttached = false;
+      let paletteDisposed = false;
+      this.register(() => {
+        paletteDisposed = true;
+      });
+      const attachVaultPalette = () => {
+        if (paletteDisposed || paletteAttached) return;
+        const binding = readWorkspaceHostBinding(this.app.workspace);
+        if (!binding) return;
+        paletteAttached = true;
+        this.register(
+          binding.controller.commands.registerPaletteProvider({
+            id: "lapis-vault-files",
+            tab: VAULT_PALETTE_FILES_TAB,
+            emptyQueryLimit: 5,
+            search: (query) => {
+              const starterFiles = query.trim().length === 0;
+              const recentPaths = starterFiles
+                ? new Set(
+                    this.app.workspace
+                      .getRecentFiles()
+                      .map((recent) => recent.path),
+                  )
+                : null;
+              return listVaultPaletteFiles(this.app, query).map((file) => ({
+                id: `vault-file:${file.path}`,
+                title: file.name,
+                subtitle: file.path,
+                icon: "file",
+                providerId: "lapis-vault-files",
+                tab: VAULT_PALETTE_FILES_TAB.id,
+                group: recentPaths?.has(file.path)
+                  ? VAULT_PALETTE_RECENT_GROUP
+                  : undefined,
+                run: () => this.app.openFile(file),
+              }));
+            },
+          }),
+        );
+      };
+      attachVaultPalette();
+      if (!paletteAttached || !settingsRegistered) {
+        this.app.workspace.onLayoutReady(() => {
+          if (!settingsRegistered) registerExplorerSettings(this);
+          attachVaultPalette();
+        });
+      }
 
       await this.app.configuration.materializeSchemaDefaults();
     }

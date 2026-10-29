@@ -13,6 +13,6 @@
       "@lapis-notes/workspace": ["../workspace/src/lib/index.ts"]
     }
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.svelte"],
   "exclude": ["src/**/*.test.ts"]
 }

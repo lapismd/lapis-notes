@@ -5,6 +5,7 @@
     MemoryAppDatabase,
     installApplicationCompatibility,
     type PluginCatalogDetail,
+    type PluginHostRestrictions,
   } from "@lapis-notes/api";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import { registerNotesPluginBrowser } from "../../packages/app-profile/src/plugin-browser";
@@ -16,15 +17,21 @@
   } from "./registry-snapshot";
   import { onMount, untrack } from "svelte";
 
-  let { browserState = {} }: { browserState?: Record<string, unknown> } =
-    $props();
+  let {
+    browserState = {},
+    unavailablePlugins,
+  }: {
+    browserState?: Record<string, unknown>;
+    unavailablePlugins?: PluginHostRestrictions;
+  } = $props();
   const originalFetch = window.fetch.bind(window);
   const app = new App({
     version: "0.1.0",
-    configPath: ".obsidian/app.json",
+    unavailablePlugins: untrack(() => unavailablePlugins),
+    configPath: ".lapis/app.json",
     adapter: new MemoryVaultAdapter({
-      ".obsidian/app.json": "{}",
-      ".obsidian/workspace.json": JSON.stringify(
+      ".lapis/app.json": "{}",
+      ".lapis/workspace.json": JSON.stringify(
         pluginsBrowserLayout(
           "middle-top-tabs",
           untrack(() => browserState),

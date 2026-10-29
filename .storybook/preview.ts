@@ -1,6 +1,6 @@
 import type { Preview } from "@storybook/svelte-vite";
 import { withThemeByDataAttribute } from "@storybook/addon-themes";
-import { createControllerConnectionBridge } from "../packages/web/src/controller-connection-bridge";
+import { createControllerConnectionBridge } from "../scripts/lib/controller-connection-bridge";
 import { syncCatalogStoryLayout } from "@lapismd/design-core/storybook/catalog-layout";
 import { SpecificationDocsContainer } from "./specification-docs";
 // Brand + shadcn paint: design-core. ui/theme.css is Obsidian alias-only.
@@ -62,7 +62,21 @@ const preview: Preview = {
               "Dependency boundaries",
               "Workspace integration",
               "Host boundaries",
+              "Rust application services",
+              "Rust hosted runtime delivery",
+              "Rust managed vaults",
+              "Durable native turn admission",
+              "Native conversation queues",
+              "Native logical participants",
+              "Native indexing lifetime",
+              "Native daily Task lifecycle",
+              "Admitted native Tasks port",
+              "Native History indexing lifetime",
+              "Admitted native History reader",
+              "Remaining native History parity",
+              "Backup service lifetime",
               "Editor integration",
+              "Native editor intents",
               "Build and validation",
               "Application ownership",
               "Plugin integration",
@@ -76,6 +90,7 @@ const preview: Preview = {
               "Host and plugin integration",
               "Editor APIs",
               "Releases and exports",
+              "Native service exports",
               "Vault and storage",
               "Workspace APIs",
               "Configuration and lifecycle",
@@ -120,7 +135,7 @@ const preview: Preview = {
               "Browser integration",
               "Context",
             ],
-            "Deno Server Host",
+            "Hosted Server",
             ["Integration contracts", "Context"],
             "Workspace Shell",
             [
@@ -135,7 +150,11 @@ const preview: Preview = {
                 "Integration contracts",
                 "Context",
                 "Problems",
-                ["Integration contracts", "Context"],
+                [
+                  "Integration contracts",
+                  "Search result provider boundaries",
+                  "Context",
+                ],
               ],
             ],
             "Lapis Editor Demo",
@@ -219,6 +238,8 @@ const preview: Preview = {
               "Discovery",
               "Context",
             ],
+            "Backlog",
+            ["Legacy plugin ports"],
             "Verification",
             [
               "AI — Part 1",
@@ -247,6 +268,8 @@ const preview: Preview = {
               "SPL",
               "SRCH",
               "SRV",
+              "CORE",
+              "CORE hosted",
               "UI",
               "WC",
               "WEB",

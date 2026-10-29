@@ -9,3 +9,16 @@ export { PluginsView } from "./plugin-management/plugins-view.svelte";
 export { default as PluginBrowser } from "./plugin-management/PluginBrowser.svelte";
 
 export { openPluginBrowser } from "./plugin-management/plugin-browser-navigation";
+
+export { default as DesktopVaultLauncher } from "./desktop/DesktopVaultLauncher.svelte";
+export { default as DesktopWorkspaceStartup } from "./desktop/DesktopWorkspaceStartup.svelte";
+export type {
+  DesktopVaultLauncherHost,
+  DesktopLauncherAppearance,
+  LauncherStatus,
+} from "./desktop/desktop-vault-launcher";
+
+export { default as DesktopRecoveryBanner } from "./desktop/DesktopRecoveryBanner.svelte";
+
+export { bindFileConflictReviews } from "./file-conflicts/register-conflict-reviews";
+export type { FileConflictReviewOptions } from "./file-conflicts/register-conflict-reviews";

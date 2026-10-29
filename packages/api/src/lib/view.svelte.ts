@@ -269,8 +269,8 @@ export interface ViewState {
 }
 
 /**
- * Header breadcrumb contributed by a view. Keep the leaf filename in the
- * header title rather than this list.
+ * Header breadcrumb contributed by a view. Keep the leaf filename in the header
+ * title rather than this list.
  *
  * @public
  */
@@ -333,8 +333,18 @@ export abstract class View extends Component {
   abstract getDisplayText(): string;
 
   /**
-   * Vault path used for parent-path header breadcrumbs. File views return
-   * the open file; other views MAY return a related path or null.
+   * Layout-only views own no file writers and retain staged state outside their
+   * UI. Every other view keeps the complete application writer close guard.
+   *
+   * @public
+   */
+  getClosePersistenceScope(): "application" | "layout" {
+    return "application";
+  }
+
+  /**
+   * Vault path used for parent-path header breadcrumbs. File views return the
+   * open file; other views MAY return a related path or null.
    *
    * @public
    */

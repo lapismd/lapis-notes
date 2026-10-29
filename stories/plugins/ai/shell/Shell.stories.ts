@@ -112,9 +112,11 @@ function assertStackedComposer(panel: HTMLElement): void {
   );
   expect(emptyBox.height).toBeGreaterThan(shellBox.height * 0.7);
   expect(shellBox.bottom).toBeLessThanOrEqual(dockBox.top + 2);
+  const dockPadding = parseFloat(getComputedStyle(dock!).paddingBottom);
+  expect(dockPadding).toBeGreaterThan(0);
   expect(
     dockBox.bottom - composerBody!.getBoundingClientRect().bottom,
-  ).toBeGreaterThanOrEqual(20);
+  ).toBeGreaterThanOrEqual(dockPadding);
   expect(dockBox.bottom).toBeLessThanOrEqual(panelBox.bottom + 2);
   expect(dockBox.top).toBeGreaterThan(panelBox.top + panelBox.height * 0.4);
 }
@@ -298,7 +300,7 @@ export const Desktop: Story = {
     await userEvent.click(await body.findByRole("option", { name: "Cursor" }));
     await waitFor(async () => {
       const raw =
-        await demoApp(canvasElement).vault.adapter.read(".obsidian/ai.json");
+        await demoApp(canvasElement).vault.adapter.read(".lapis/ai.json");
       expect(JSON.parse(raw).settings.acpAgent).toBe("cursor");
     });
     const closeSettings = within(dialog).getByRole("button", {
@@ -309,7 +311,7 @@ export const Desktop: Story = {
     });
     await userEvent.click(closeSettings);
     const raw =
-      await demoApp(canvasElement).vault.adapter.read(".obsidian/ai.json");
+      await demoApp(canvasElement).vault.adapter.read(".lapis/ai.json");
     expect(JSON.parse(raw)).not.toHaveProperty("sessions");
     expect(app.workspace.rightSplit.collapsed).toBe(true);
   },
@@ -449,7 +451,7 @@ export const CommunityToolOptIn: Story = {
     await expect(community).toHaveAttribute("data-state", "checked");
     await waitFor(async () => {
       const raw =
-        await demoApp(canvasElement).vault.adapter.read(".obsidian/ai.json");
+        await demoApp(canvasElement).vault.adapter.read(".lapis/ai.json");
       const persisted = JSON.parse(raw).settings;
       expect(persisted.enabledAppToolNames).toContain("story_word_count");
       expect(persisted).not.toHaveProperty("enabledCommunityToolPluginIds");

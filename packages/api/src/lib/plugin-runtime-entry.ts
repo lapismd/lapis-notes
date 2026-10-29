@@ -7,6 +7,7 @@ import type { PluginManifest } from "./plugin";
 
 export type PluginExecutionHostId =
   | "workspace"
+  | "tauri-desktop"
   | "electron-renderer"
   | "electron-sidecar";
 
@@ -33,6 +34,23 @@ export function selectPluginRuntimeEntry(options: {
   const structuredEntry = lapis
     ? selectStructuredEntry(lapis, options.requestedHost)
     : null;
+
+  // Tauri executes portable browser ESM only. Never select a compatibility
+  // fallback or an Electron/native service entry, even when main.js exists.
+  if (options.requestedHost === "tauri-desktop") {
+    const entry = lapis?.runtime?.entries?.workspace;
+    if (!options.supportsEsm || entry?.format !== "esm") return null;
+    return {
+      host: "tauri-desktop",
+      path: entry.path,
+      format: "esm",
+      sharedDependencies:
+        entry.sharedDependencies ??
+        getSharedDependencyDefaults(lapis, "workspace"),
+      requiresReloadOnUpdate: entry.requiresReloadOnUpdate,
+      source: "lapis-runtime-entry",
+    };
+  }
 
   if (!lapis) {
     if (!options.hasMainJs) {

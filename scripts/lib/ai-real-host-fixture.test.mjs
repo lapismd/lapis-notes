@@ -11,9 +11,9 @@ import {
 
 test("the real-host seed opens AI beside a deterministic note", () => {
   const seed = aiRealHostSeed("codex-native");
-  assert.match(seed[".obsidian/ai.json"], /"codex-native"/u);
-  assert.match(seed[".obsidian/workspace.json"], /"type": "ai"/u);
-  assert.match(seed[".obsidian/ai.json"], /"appToolsEnabled": true/u);
+  assert.match(seed[".lapis/ai.json"], /"codex-native"/u);
+  assert.match(seed[".lapis/workspace.json"], /"type": "ai"/u);
+  assert.match(seed[".lapis/ai.json"], /"appToolsEnabled": true/u);
   assert.match(seed["Notes/Agent Smoke.md"], /lapis-smoke-ready/u);
   assert.match(seed["Notes/Bridge Search.md"], /bridge-search-token/u);
   assert.match(seed["Notes/Patch Target.md"], /status: draft/u);

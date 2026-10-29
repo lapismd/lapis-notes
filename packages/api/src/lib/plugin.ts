@@ -1,3 +1,11 @@
+import type { IconLoader } from "./icons";
+import type { ExtensionRegistrationOptions } from "./editor-view-registry";
+import type {
+  SearchResultProvider,
+  SearchResultProviderRegistration,
+} from "./search-result-provider";
+import { saveFileState } from "./file-state-store";
+import { appStatePath } from "./storage/path";
 import type { CachedMetadata, MetadataProcessor } from "./cache.svelte";
 import type {
   IndexProjectionRegistration,
@@ -21,6 +29,7 @@ import type {
   LapisServiceProviderRegistration,
   LapisSystemExtensionRegistration,
 } from "./lapis-extension";
+import type { MarkdownEmbedder } from "./embed-registry";
 import type { EditorViewContribution } from "./editor-view-registry";
 import type {
   ConfigurationOptionSourceProvider,
@@ -178,6 +187,9 @@ export interface PluginManifest {
    */
   requiredCapabilities?: HostedPluginCapability[];
 
+  /** Native host services that must be available before module evaluation. */
+  requiredNativeServices?: string[];
+
   /**
    * Optional host-specific execution hints for future sidecar scheduling.
    *
@@ -215,7 +227,7 @@ export type PluginSource = "core" | "community" | "official" | "system";
  * Resolve the compatibility data path used by `loadData()` and `saveData()`.
  *
  * Community plugins store data beside their manifest folder, while bundled and
- * system plugins use the shared `/.obsidian/<id>.json` location.
+ * system plugins use the shared `/.lapis/<id>.json` location.
  *
  * @public
  */
@@ -225,7 +237,7 @@ export function resolvePluginDataPath(
   basePath?: string,
 ): string | null {
   if (source === "core" || source === "system") {
-    return joinPath("/.obsidian", `${pluginId}.json`);
+    return joinPath("/", appStatePath(`${pluginId}.json`));
   }
 
   if (!basePath) {
@@ -371,13 +383,25 @@ export abstract class Plugin extends Component {
         (this.source === "community" || this.source === "official") &&
         this.manifest.lapis?.database?.metadataAccess !== "queries"
       ) {
-        const lease = await this.app.metadataCache.acquireMetadataSnapshotLease();
+        const lease =
+          await this.app.metadataCache.acquireMetadataSnapshotLease();
         this.register(() => lease.release());
       }
       await this.loadAsync();
+      await this.app.metadataCache?.finishNativeContributions?.(this.id);
       this.#runtimeState = "enabled";
       this.emit("enable");
     } catch (error) {
+      if (this.app.session?.backgroundIndexing && this.loaded) {
+        try {
+          await this.unloadAsync();
+        } catch (cleanupError) {
+          console.error(
+            "Failed to rollback native plugin activation",
+            cleanupError,
+          );
+        }
+      }
       this.#runtimeState = "failed";
       this.#failureMessage = formatPluginError(error);
       this.#lastFailureMessage = this.#failureMessage;
@@ -472,6 +496,10 @@ export abstract class Plugin extends Component {
     }
 
     const payload = JSON.stringify(data, null, 2);
+    if (this.app.vault.supportsConditionalTextWrites) {
+      await saveFileState(this.app, path, payload);
+      return;
+    }
     const file = this.app.vault.getFileByPath(path);
     if (file) {
       await this.app.vault.modify(file, payload);
@@ -528,6 +556,7 @@ export abstract class Plugin extends Component {
   async disable(): Promise<void> {
     if (!this.loaded) {
       try {
+        await this.app.metadataCache?.disableNativeContributions?.(this.id);
         await this.#revokeSyncHostCapabilities?.();
       } finally {
         this.#syncHostCapabilities = null;
@@ -540,6 +569,7 @@ export abstract class Plugin extends Component {
     this.#runtimeState = "disabling";
 
     try {
+      await this.app.metadataCache?.disableNativeContributions?.(this.id);
       try {
         await this.unloadAsync();
       } finally {
@@ -562,34 +592,17 @@ export abstract class Plugin extends Component {
   }
 
   addStatusBarItem(): HTMLElement {
-    let parent: HTMLElement | null =
-      this.app.workspace.statusCompatEl ??
-      document.querySelector<HTMLElement>("#status-bar");
-
-    if (!parent) {
-      parent = document.querySelector<HTMLElement>(
-        "#lapis-status-bar-compat-fallback",
-      );
-    }
-
-    if (!parent) {
-      parent = document.body.createDiv({
-        attr: {
-          id: "lapis-status-bar-compat-fallback",
-          hidden: "true",
-          "aria-hidden": "true",
-        },
-      });
-    }
-
-    this.app.workspace.statusCompatEl = parent;
-
-    const statusEl = parent.createDiv({
-      cls: "status-bar-item plugin-" + this.manifest.id,
+    const statusEl = document.createElement("div");
+    statusEl.className = "status-bar-item plugin-" + this.manifest.id;
+    const dispose = this.app.statusBar.registerItem({
+      id: `${this.manifest.id}:compat-status:${crypto.randomUUID()}`,
+      sourcePlugin: this.manifest.id,
+      mount: (host) => {
+        host.append(statusEl);
+        return () => statusEl.remove();
+      },
     });
-    this.register(() => {
-      statusEl.detach();
-    });
+    this.register(dispose);
     return statusEl;
   }
 
@@ -601,6 +614,16 @@ export abstract class Plugin extends Component {
    * @see {@link https://docs.obsidian.md/Plugins/User+interface/Settings}
    */
   loadData(): Promise<any> {
+    return this.runDataOperation(() => this.loadDataNow());
+  }
+
+  private runDataOperation<T>(run: () => Promise<T>): Promise<T> {
+    return this.app.vault.supportsConditionalTextWrites
+      ? this.app.fileEditingSessions.track(run)
+      : run();
+  }
+
+  private loadDataNow(): Promise<any> {
     return this.measureTelemetryAsync("plugin.load_data", async () => {
       if (this.app.configuration.hasPluginData(this.id)) {
         const data = this.app.configuration.getPluginData(this.id);
@@ -624,6 +647,10 @@ export abstract class Plugin extends Component {
    * @see {@link https://docs.obsidian.md/Plugins/User+interface/Settings}
    */
   saveData(data: any): Promise<void> {
+    return this.runDataOperation(() => this.saveDataNow(data));
+  }
+
+  private saveDataNow(data: any): Promise<void> {
     return this.measureTelemetryAsync("plugin.save_data", async () => {
       await this.app.configuration.updatePluginData(this.id, data, {
         origin: "plugin-save",
@@ -823,6 +850,27 @@ export abstract class Plugin extends Component {
     });
   }
 
+  /** Register an App-owned SVG and dispose it automatically on plugin unload. */
+  registerIcon(localId: string, svg: string): string {
+    const registration = this.app.icons.registerIcon(
+      this.manifest.id,
+      localId,
+      svg,
+    );
+    this.register(registration.dispose);
+    return registration.id;
+  }
+
+  /** Register an owned icon pack; use the returned prefix in `prefix:icon` IDs. */
+  registerIconPack(input: IconLoader): string {
+    const registration = this.app.icons.registerIconPack(
+      this.manifest.id,
+      input,
+    );
+    this.register(registration.dispose);
+    return registration.prefix;
+  }
+
   registerEditorView(contribution: EditorViewContribution): void {
     const dispose = this.app.workspace.registerEditorView({
       ...contribution,
@@ -918,7 +966,14 @@ export abstract class Plugin extends Component {
   registerExtensions(
     extensions: string[],
     viewType: string = "markdown",
+    options?: ExtensionRegistrationOptions,
   ): void {
+    if (options) {
+      this.register(
+        this.app.workspace.registerExtensions(extensions, viewType, options),
+      );
+      return;
+    }
     this.app.workspace.registerExtensions(extensions, viewType);
     this.register(() => {
       this.app.workspace.unregisterExtensions(extensions, viewType);
@@ -971,9 +1026,7 @@ export abstract class Plugin extends Component {
   }
 
   /** Register a plugin-owned Markdown contribution for every Markdown surface. */
-  registerMarkdownExtension(
-    contribution: MarkdownExtensionContribution,
-  ): void {
+  registerMarkdownExtension(contribution: MarkdownExtensionContribution): void {
     this.register(this.app.markdownExtensions.register(this.id, contribution));
   }
 
@@ -1090,8 +1143,12 @@ export abstract class Plugin extends Component {
     });
   }
 
+  registerMarkdownEmbedder(embedder: MarkdownEmbedder): void {
+    this.register(this.app.embedRegistry.registerMarkdownEmbedder(embedder));
+  }
+
   registerMetadataProcessor(processor: MetadataProcessor, ext: string = "md") {
-    this.app.metadataCache.addProcessor(ext, processor);
+    this.app.metadataCache.addProcessor(ext, processor, this.id);
     this.register(() => {
       this.app.metadataCache.removeProcessor(ext, processor);
     });
@@ -1101,23 +1158,34 @@ export abstract class Plugin extends Component {
     registration: IndexProjectionRegistration,
   ): RegisteredIndexProjectionHandle<T> {
     const recorded = this.app.indexProjections.register(this.id, registration);
-    void this.app.appDatabase.registerProjectionDefinition({
-      projectionId: recorded.projectionId,
-      ownerPluginId: this.id,
-      schemaVersion: registration.version,
-      configHash: registration.configurationHash ?? "",
-      visibility: registration.visibility ?? "public",
-      fields: registration.fields,
-      active: true,
-      updatedAt: Date.now(),
-    });
-    this.register(() => {
-      this.app.indexProjections.unregister(recorded.projectionId);
-      void this.app.appDatabase.unregisterProjectionDefinition(
+    if (this.app.session?.backgroundIndexing) {
+      this.app.metadataCache.registerNativeProjection(
+        this.id,
         recorded.projectionId,
+        registration,
       );
-    });
-    void this.backfillIndexProjection(recorded.projectionId);
+      this.register(() =>
+        this.app.indexProjections.unregister(recorded.projectionId),
+      );
+    } else {
+      void this.app.appDatabase.registerProjectionDefinition({
+        projectionId: recorded.projectionId,
+        ownerPluginId: this.id,
+        schemaVersion: registration.version,
+        configHash: registration.configurationHash ?? "",
+        visibility: registration.visibility ?? "public",
+        fields: registration.fields,
+        active: true,
+        updatedAt: Date.now(),
+      });
+      this.register(() => {
+        this.app.indexProjections.unregister(recorded.projectionId);
+        void this.app.appDatabase.unregisterProjectionDefinition(
+          recorded.projectionId,
+        );
+      });
+      void this.backfillIndexProjection(recorded.projectionId);
+    }
     return {
       id: recorded.projectionId,
       query: (query) =>
@@ -1204,6 +1272,21 @@ export abstract class Plugin extends Component {
     const registration = this.app.searchDocumentProviders.register({
       ...provider,
       id,
+    });
+    this.register(() => registration.dispose());
+    return registration;
+  }
+
+  /** Contribute query results whose navigation remains provider-owned. */
+  registerSearchResultProvider(
+    localId: string,
+    provider: Omit<SearchResultProvider, "id">,
+  ): SearchResultProviderRegistration {
+    if (!localId.trim())
+      throw new Error("Search result provider local id must not be empty.");
+    const registration = this.app.searchResultProviders.register({
+      ...provider,
+      id: `${this.id}:${localId.trim()}`,
     });
     this.register(() => registration.dispose());
     return registration;
@@ -1333,7 +1416,8 @@ export abstract class Plugin extends Component {
     if (!binding) {
       throw new Error("Workspace host binding is not initialized");
     }
-    const unregister = binding.controller.settings.registerDefinition(definition);
+    const unregister =
+      binding.controller.settings.registerDefinition(definition);
     let disposed = false;
     const registration: PluginSettingsRegistration = {
       definition,

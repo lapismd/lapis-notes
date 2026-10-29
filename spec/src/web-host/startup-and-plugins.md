@@ -1,34 +1,47 @@
 # Web Host / Startup and plugins
 
+Ordinary hosted builds identify as `rust-server` and select the native
+metadata/History/Tasks backend together under LN-CORE-069. Both retained hosted
+Vite mode names produce that same application; standalone Web/PWA stays separate.
+
+The Rust metadata browser family includes an explicit actual-model opt-in
+(`LAPIS_TEST_HOSTED_ONNX=1`) for the qualified Linux CPU/runtime context. It
+keeps the retained login and production HTTP database provider; the ordinary
+Search selection journey runs alongside it. [Evidence](../../records/2026-10-27-hosted-semantic-acceptance.md).
+
+While a hosted attachment opens, its retained workspace startup/recovery surface
+stays visible. The chooser can hide a retained ready session; it cannot hide a
+prepared session's progress or failure while waiting for that session's readiness.
+
 ## LN-WEB-002 — Web host: own its launcher, profile selection, session lifecycle
 
 <a id="ln-web-002"></a>
 
 **Requirement.** The web host MUST own its launcher, profile selection, session lifecycle, PWA registration, and plugin boot while `@lapis-notes/workspace` remains shell-only.
 
-## LN-WEB-031 — Web host: keep terminal-host configuration and bridge attachment independent
+## LN-WEB-031 — Desktop-only Terminal identity
 
 <a id="ln-web-031"></a>
 
-**Requirement.** The web host MUST keep terminal-host configuration and bridge attachment independent from static plugin composition. An installed `@lapis-notes/lapis-plugin-terminal` MUST load through configured plugin persistence rather than a host import.
+**Requirement.** Web MUST exclude Terminal from its static profile and reject activation of the `terminal` identity through the App-owned host restriction, including older installed manifests that advertise Web support. Saved plugin data, disabled preferences and layout MUST remain intact.
 
-## LN-WEB-033 — After configuration load and whenever those values: register or replace only a lapis-terminal-host contribution
+## LN-WEB-033 — No Terminal bridge attachment
 
 <a id="ln-web-033"></a>
 
-**Requirement.** After configuration load and whenever those values change, the web session MUST register or replace only a `lapis-terminal-host` contribution. It MUST NOT overwrite a desktop IPC bridge.
+**Requirement.** Web startup and configuration changes MUST NOT publish a terminal runtime contribution or connect to a terminal-host service.
 
-## LN-WEB-035 — After attaching or replacing the terminal-host contribution: refresh an installed Terminal plugin so already-constructed
+## LN-WEB-035 — No Terminal runtime refresh
 
 <a id="ln-web-035"></a>
 
-**Requirement.** After attaching or replacing the terminal-host contribution, the web session MUST refresh an installed Terminal plugin so already-constructed panels remount. Absence of that plugin MUST remain a no-op.
+**Requirement.** Web MUST NOT refresh installed Terminal runtime clients. The desktop-only rejection MUST precede external module evaluation and command or view registration.
 
-## LN-WEB-036 — Portable Terminal package dependencies
+## LN-WEB-036 — Retired Terminal distribution inputs
 
 <a id="ln-web-036"></a>
 
-**Requirement.** Web Vite and the web package manifest MUST NOT contain a linked `@lapis-notes/lapis-plugin-terminal` source root. Registry-installed plugin assets, including Ghostty WASM, MUST be served through the verified plugin-asset contract.
+**Requirement.** The Web package and Vite configuration MUST NOT import the standalone Terminal plugin, terminal-host client or Ghostty assets. Other compatible installed plugins MUST retain verified asset delivery.
 
 ## LN-WEB-008 — Owner shutdown or stale heartbeats: allow one proxy to promote without losing
 
@@ -54,17 +67,17 @@
 
 **Requirement.** Bases MUST be absent from the static web profile and load only when installed and enabled through configured plugin persistence. Browser acceptance MUST install it, create and reopen a Bases fixture, query rows, edit frontmatter, and preserve the configured view after restart.
 
-## LN-WEB-012 — AI: absent from the static web profile
+## LN-WEB-012 — Desktop-only AI identity
 
 <a id="ln-web-012"></a>
 
-**Requirement.** AI MUST be absent from the static web profile and load only when installed and enabled through configured plugin persistence. Live runtimes MUST be available only when both a runtime URL and token are configured. Otherwise the installed chat MUST stay usable through Fake or an unavailable state.
+**Requirement.** Web MUST exclude AI from its static profile and reject activation of the `ai` identity through App-owned host restrictions, including older installed manifests that advertise Web support. Discovery MUST report desktop-only compatibility without deleting conversations, enabled preferences or saved layout.
 
-## LN-WEB-014 — Web session: register an agent-runtime WebSocket bridge before loading
+## LN-WEB-014 — No AI environment attachment
 
 <a id="ln-web-014"></a>
 
-**Requirement.** The web session MUST register an agent-runtime WebSocket bridge before loading configured plugins only when URL and token are both set. It MUST NOT overwrite an existing desktop bridge. The bridge MUST expose agent-scoped model discovery, reject pending commands on transport closure, and retain active-session cursors for reconnect rather than terminating them on a transient socket close.
+**Requirement.** Web startup MUST NOT publish an AI bridge or connect to an agent runtime, regardless of obsolete URL/token environment variables. Retired service environment prefixes MUST NOT be exposed to the Web renderer.
 
 ## LN-WEB-013 — Web renderer: load the public Lapis CodeMirror autocomplete stylesheet
 
@@ -78,11 +91,11 @@
 
 **Requirement.** Each web session MUST own its compatibility App lease. PWA commands and status bindings MUST use the explicit session App, unbind before replacement, and MUST NOT poll or execute through `globalThis.app`.
 
-## LN-WEB-017 — Standalone bridge: reconnect and resubscribe active sessions
+## LN-WEB-017 — Retired Web agent subscriptions
 
 <a id="ln-web-017"></a>
 
-**Requirement.** The standalone bridge MUST reconnect and resubscribe active sessions from their last accepted sequence before admitting live frames. Duplicate or older frames MUST be discarded. A replay gap or unknown host session MUST become a retryable interrupted turn and MUST NOT automatically resend input that may have caused side effects.
+**Requirement.** Web MUST NOT establish agent-session subscriptions, reconnect streams or replay agent input. Reusable native/runtime protocols and development-only catalog fixtures MUST remain outside the Web product graph.
 
 ## LN-WEB-023 — Metadata indexing after layout restoration
 
@@ -99,19 +112,11 @@ Web boot restores the layout before opening the metadata store:
 - `loaded` MUST make persisted metadata queries available before vault reconciliation completes.
 - Tags, Outline, Backlinks, Outgoing Links, Search, Bases, and File Properties MUST refresh on readiness and relevant committed revisions.
 
-## LN-WEB-025 — After configuration load and whenever those values: register or replace its lapis-ai-controller WebSocket bridge
+## LN-WEB-025 — No AI configuration attachment
 
 <a id="ln-web-025"></a>
 
-**Requirement.** After configuration load and whenever those values change, the web session MUST register or replace its `lapis-ai-controller` WebSocket bridge and refresh AI host runtimes. It MUST NOT overwrite a desktop IPC bridge.
-
-### Acceptance details
-
-Web attach after configuration verifies:
-
-- Settings-backed attach MUST run after `configuration.load` and before `loadPlugins`.
-- A later Settings change MUST replace only a `lapis-ai-controller` bridge.
-- The loaded AI plugin MUST gain ACP and Codex host runtimes once the capability appears.
+**Requirement.** Web configuration changes MUST NOT attach or replace an AI controller contribution or refresh AI host runtimes. Existing unrelated host lifecycle and configuration behavior MUST remain unchanged.
 
 ## LN-WEB-026 — Launcher visibility during profile resolution
 
@@ -132,7 +137,7 @@ Web restore verifies the host boot gate:
 
 <a id="ln-web-040"></a>
 
-**Requirement.** Export MUST pick a folder, copy the current OPFS tree including `.obsidian` with overwrite, report determinate progress, and notify success through the session App. Picker cancel MUST be silent.
+**Requirement.** Export MUST pick a folder, copy the current OPFS tree including `.lapis` with overwrite, report determinate progress, and notify success through the session App. Picker cancel MUST be silent.
 
 ## LN-WEB-042 — In-session import and export: report each copied file through notifications.withProgress. After
 
@@ -153,6 +158,20 @@ In-session copy progress verifies the notification message:
 <a id="ln-web-044"></a>
 
 **Requirement.** The web host MUST NOT statically import or register `@lapis-notes/lapis-plugin-tasks`. When installed and enabled, Tasks MUST load through configured plugin persistence and register its own workspace views.
+
+## LN-WEB-070 — Staged native Tasks ownership
+
+<a id="ln-web-070"></a>
+
+**Requirement.** When explicitly selected, the staged Rust-hosted App MUST receive the admitted native Tasks and required native metadata owner before construction. Installed Tasks MUST retain its existing UI and observe native projections. Final workspace teardown MUST detach and drain native observation before unloading every configured plugin and releasing its client. Unknown lifecycle results MUST remain inspectable through persisted plugin references without replay.
+
+Tasks selection is default-off through `VITE_LAPIS_NATIVE_TASKS`. Selecting it binds the shared native metadata owner and editor-intent transport together, so renderer metadata cannot compete with native Tasks publication. Startup reconciliation waits for settled declarations. Recoverable startup Retry keeps its existing App controller/cache observers live; only final teardown disposes them. The normal configured
+plugin loader retains installed-byte verification. Community/development plugin
+lifecycle receives the same passive teardown ordering as core plugins. The
+[hosted Tasks record](../../records/2026-10-26-hosted-native-tasks.md) separates
+source, actual UI, timezone and installed-plugin integrity acceptance from
+publication, default cutover and app signing. Standalone browser behavior is
+unchanged.
 
 ## LN-WEB-048 — Web development renderer: keep @lapis-notes/api outside dependency optimization and resolve
 
@@ -189,3 +208,83 @@ In-session copy progress verifies the notification message:
 <a id="ln-web-064"></a>
 
 **Requirement.** Web plugin asset readiness MUST report `asset-server-unavailable` after thirty seconds without control. Completion and failure MUST remove their controller-change listeners and timer handles.
+
+The Rust client exposes generated native indexing controls under LN-CORE-004.
+The ordinary hosted profile keeps its renderer selection; the explicit native
+metadata option below stages hosted observation separately from final R3 parity.
+
+## LN-WEB-066 — Opt-in hosted native metadata
+
+<a id="ln-web-066"></a>
+
+**Requirement.** An explicitly selected Rust hosted native-metadata profile MUST pass its existing admitted indexing transport into `VaultSession` before App construction. It MUST reuse the admitted vault/database connection and existing App observer, with passive detach and visible service failure. Node, standalone Web and the default Rust profile MUST retain their current indexing selection.
+
+The private build flag `VITE_LAPIS_NATIVE_METADATA=1` selects this staged profile.
+It supplies no new scheduler or native path authority. Native Search remains a
+separate plugin/archive and host-acceptance gate; metadata-only selection keeps
+the retained Search writer available until that gate is admitted.
+
+## LN-WEB-067 — Thin hosted indexed History adapter
+
+<a id="ln-web-067"></a>
+
+**Requirement.** An explicitly selected Rust hosted History adapter MUST expose the shared start, status, query and context service through its existing admitted client. Views MUST observe the native owner without renderer batch scheduling. Teardown MUST fence later requests and drain accepted observation without disabling native work. Ordinary Node, Rust and standalone Web defaults MUST retain their existing profiles until separately qualified.
+
+## LN-WEB-068 — Selected hosted native Search
+
+<a id="ln-web-068"></a>
+
+**Requirement.** The qualified Search plugin MUST use the existing native indexing opt-in and admitted Rust client for provider/chunk declarations, refresh and rebuild. The renderer MUST retain existing Search presentation and queries without publishing Search rows. Native work MUST survive detach. A replacement App with persisted Search disabled MUST drain that selection while retaining native metadata and saved files; ordinary hosted profiles MUST remain renderer-owned.
+
+## LN-WEB-069 — Retained hosted Repository screen
+
+<a id="ln-web-069"></a>
+
+**Requirement.** The explicitly selected Rust History profile MUST bind the
+public RepositoryFactory before plugin loading and use the retained Repository
+screen for reads, Search and blame. Workspace close MUST fence new requests,
+drain accepted reads and release its handles before detaching its admitted
+client. It MUST NOT add a replacement screen, renderer indexing scheduler or
+fake navigation. Ordinary hosted and standalone defaults MUST remain unchanged.
+
+## LN-WEB-071 — Hosted editing-intent binding
+
+<a id="ln-web-071"></a>
+
+**Requirement.** The Rust-hosted App MUST receive native editing intents through its existing vault admission before editable surfaces become ready. The binding MUST preserve typed commands and snapshots, map only a typed missing-file result to absence, and retain all other failures without replay. Existing editing registry guards MUST coordinate flush, yield, native mutation and rearm.
+
+[Hosted Tasks acceptance](../../records/2026-10-26-hosted-native-tasks.md) tracks
+actual two-browser editor/refusal/rearm behavior separately from transport source
+checks. Native authority and intent contracts belong to the shared application
+services; the hosted binding adds no second journal, save path or scheduler.
+
+## LN-WEB-072 — Retained hosted restore review
+
+<a id="ln-web-072"></a>
+
+**Requirement.** The selected Rust Repository profile MUST adapt the public RestoreService and retain its existing file/vault review, pending intent and explicit recovery controls. It MUST preserve exact request identities, validate preview identity and fence late responses. Workspace close MUST reject new restores and drain accepted observations. The adapter MUST NOT add a screen, writer, retry policy or automatic replay.
+
+## LN-WEB-073 — Retained backup settings and observation
+
+<a id="ln-web-073"></a>
+
+**Requirement.** The selected hosted Repository MUST reuse its public backup settings/status components and optional persisted-selection service. Observer start/stop MUST remain passive. Explicit selection MUST join the App configuration-file guard, fetch its expected version after pending writes, and enqueue read-only baseline reconciliation before later configuration saves. Failed acknowledgements MUST reconcile without automatically replaying setting or file mutations.
+
+## LN-WEB-074 — Guarded hosted workspace leave
+
+<a id="ln-web-074"></a>
+
+**Requirement.** Hosted vault switch, archive and logout MUST preflight native recovery and flush registered writers under their guard before disposing views, plugins, registry or clients. Refusal MUST retain the same App, draft and Problems, report through existing notifications and permit explicit retry. Concurrent callers MUST join complete disposal. Later cleanup failure MUST remain distinct from refusal and failed on subsequent leave requests without replay or admission release.
+
+R7's retained Properties acceptance uses the shared text-conflict presentation
+under LN-WS-102 through LN-WS-104, separately from native claim recovery. The
+actual hosted cases exercise the existing FileManager guard, filesystem watch,
+Problems navigation and reviewed disk-side resolution without browser App
+instrumentation. [Current qualification](../../records/2026-10-27-hosted-properties-review.md)
+keeps that final-cohort proof separate from the original 15 Tasks journeys.
+
+## LN-WEB-075 — Retained independent repository sources
+
+<a id="ln-web-075"></a>
+
+**Requirement.** Hosted Repository surfaces MUST retain each selected source, exact operation pin and independent tab/read lifetime. Opening, refreshing or closing a view MUST NOT initialize, capture or mutate either repository. Both source clients MUST use the existing preparation queue and drain their own handles before release. An unavailable or fenced original scope MUST refuse without falling back to managed backup.

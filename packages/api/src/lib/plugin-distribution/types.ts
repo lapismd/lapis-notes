@@ -65,6 +65,7 @@ export interface PluginContributionSummary {
   commands?: Array<{ id: string; name: string }>;
   editorViews?: Array<{
     id: string;
+    fileIcon?: string;
     filenamePatterns?: string[];
     extensions?: string[];
     mimeTypes?: string[];
@@ -387,7 +388,13 @@ export interface PluginCompatibilityInput {
   appVersion: string;
   platform: PluginPlatform;
   workspaceTrusted?: boolean;
+  unavailablePlugins?: PluginHostRestrictions;
 }
+
+/** App-owned exclusions override older manifests' compatibility claims. */
+export type PluginHostRestrictions = Readonly<
+  Record<string, "desktop-only" | "platform-unsupported">
+>;
 
 export interface PluginCompatibilityResult {
   compatible: boolean;

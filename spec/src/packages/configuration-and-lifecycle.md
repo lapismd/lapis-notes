@@ -1,5 +1,54 @@
 # Packages / Configuration and lifecycle
 
+LN-PKG-185 owns the plugin-independent `Workspace / File discovery / Excluded paths` list, persisted through the existing App configuration writer as `files.exclude`.
+Configuration updates refresh discovery projections; plugin configuration,
+direct metadata access and native admission keep their existing authority.
+
+Tauri portable loading preserves the existing installed records and enabled preferences when rejecting unsupported entries. Installed asset identities use the locale-independent fingerprint in LN-PLUG-115; no second plugin configuration or data store is introduced.
+
+Web retirement removes dedicated connection tokens through the existing
+serialized configuration writer. LN-PLUG-113 does not reset plugin data,
+conversations, unrelated secrets or retained workspace state.
+
+## LN-PKG-186 — Read-only configuration reconciliation
+
+<a id="ln-pkg-186"></a>
+
+**Requirement.** Configuration reload MUST accept an optional read-only reconciliation mode that updates its saved baseline and visible values without materializing schema defaults or enqueueing persistence. Default reload behavior MUST remain unchanged. Hosts MAY run read-only reconciliation after an externally admitted guarded mutation; later queued saves MUST calculate from the reconciled state without reentering the registry queue.
+
+## LN-PKG-173 — Serialized configuration changes
+
+<a id="ln-pkg-173"></a>
+
+**Requirement.** Configuration updates, plugin-data updates, removals and schema-default materialization MUST serialize calculation and persistence against the latest acknowledged state. Concurrent independent updates MUST preserve every key. Successful persistence MUST precede observable configuration updates and events; rejected validation MUST NOT enqueue a draft.
+
+## LN-PKG-174 — App-owned application-state writers
+
+<a id="ln-pkg-174"></a>
+
+**Requirement.** Configuration, hotkey and plugin-enablement writes on conditional-capable hosts MUST join the owning App's file-writer lifecycle before asynchronous IO or debounce. Pending and failed drafts MUST block shutdown, preserve external changes and permit explicit recovery. A guarded flush MUST await completion without reentering its own registry queue. Recovery MUST update the owning visible state; a rejected reset MUST retain its conflict and barrier.
+
+Core enablement, App Shell enablement and secondary compatibility data files
+participate in this owner. Lazy first-write admission retains the supplied draft
+across initial read failures. Compatibility files mirror canonical plugin data;
+accepting one file's disk version does not rewrite the canonical application
+configuration. Runtime enablement recovery awaits the owning plugin lifecycle.
+The recovery callback is registered before the initial state read so a failed
+load cannot detach later saves from their runtime owner. Invalid top-level core
+configuration records reject recovery without clearing the retained conflict.
+
+Hosts make the workspace inert, await App Shell plugin transitions, and drain
+admitted multi-step operations before entering the global file-writer teardown
+guard. Plugin data operations and runtime transitions register before their
+first asynchronous boundary. Conditional-host Vault creation is tracked through
+file-tree projection; Explorer also tracks the surrounding create/open action.
+
+The public API Workspace owns awaitable layout persistence under
+[LN-WS-095](../workspace-shell/layout-and-persistence.md#ln-ws-095). Hosts call
+`flushLayout()` before teardown instead of implementing a second layout writer.
+The packaged method uses the same shared `.lapis` path and selected workspace
+filename as normal debounced persistence.
+
 The private application profile owns plugin App URL registration, while
 Workspace's public navigator accepts an optional selected release version.
 The profile and hosts consume that generic navigator under
@@ -50,7 +99,7 @@ Successful profile URL navigation dismisses owning Settings under
 
 <a id="ln-pkg-099"></a>
 
-**Requirement.** `@lapis-notes/bookmarks` MUST live in the sibling `lapis-plugins` monorepo as an independently versioned installable plugin. It MUST depend on API and Design Core, MUST NOT depend on `@lapis-notes/ui`, and MUST persist `{ items }` through `.obsidian/bookmarks.json`.
+**Requirement.** `@lapis-notes/bookmarks` MUST live in the sibling `lapis-plugins` monorepo as an independently versioned installable plugin. It MUST depend on API and Design Core, MUST NOT depend on `@lapis-notes/ui`, and MUST persist `{ items }` through `.lapis/bookmarks.json`.
 
 ## LN-PKG-103 — Portable Docs plugin dependencies
 
@@ -63,3 +112,28 @@ Successful profile URL navigation dismisses owning Settings under
 <a id="ln-pkg-104"></a>
 
 **Requirement.** `@lapis-notes/api` MUST own a daily-document provider registry, the desktop and web hosts MUST register the shared default provider before configuration loads, and generated settings MUST persist `dailyNotes.folder` and Luxon `dailyNotes.dateFormat` with defaults `daily` and `yyyy-MM-dd`. The default provider MUST locate canonical `type: daily-note` plus `date: YYYY-MM-DD` front matter before deriving a path, MUST fail visibly on duplicate dates or occupied generated paths, and MUST never move an existing note after configuration changes.
+
+The native Task coordination intake freezes the unchanged public provider and
+formatter against explicit storage and metadata fixtures. Full traces retain
+non-creating lookup, exact configured paths and canonical seeds, source errors,
+registry priority/ambiguity/disposal and the effective formatting locale.
+`pnpm capture:native-daily-reference` writes only a collected authoring artifact;
+`pnpm test:native-daily-reference` compares the frozen artifact without replacing
+it. Capturing reference data alone grants no native persistence or host default.
+
+`pnpm capture:native-daily-locales-reference` and
+`pnpm test:native-daily-locales-reference` retain the original en-US 7/4 corpus,
+actual en-GB 1/4 defaults and a separately declared legacy-Intl en-US 7/1 profile.
+Each complete source corpus preserves all 200 filename, 45 provider and 19
+registry outcomes. [Native source qualification](../../records/2026-10-26-native-daily-locale-parity.md)
+adds guarded default-provider IO without selecting either application or
+introducing timezone policy; actual-host and signed acceptance remain separate.
+
+Registration does not itself express data removal. LN-PLUG-112 preserves unadopted
+compatibility files; confirmed canonical removals retain their existing mirror
+cleanup. Both paths keep LN-PKG-174 writer ownership and recovery unchanged.
+
+The file-icon intake upgrades API-owned Zod to the patched `^4.6.6` package
+while using its public `zod/v3` entry to preserve the existing configuration,
+registry and remote-database schema contracts. This closes the dependency audit
+finding GHSA-mrhx-c7xc-m3w5 without adding an advisory suppression.

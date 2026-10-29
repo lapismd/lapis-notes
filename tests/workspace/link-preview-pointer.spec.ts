@@ -6,14 +6,13 @@ const storyUrl = (storyId: string) =>
 for (const scenario of [
   {
     name: "Outgoing Links",
-    storyId:
-      "workspace-panels-markdown-link-preview-acceptance--outgoing-links",
+    storyId: "plugins-markdown-panels-link-preview-acceptance--outgoing-links",
     triggerName: /^Open Ideas:/,
     openName: "Open Ideas.markdown",
   },
   {
     name: "Backlinks",
-    storyId: "workspace-panels-markdown-link-preview-acceptance--backlinks",
+    storyId: "plugins-markdown-panels-link-preview-acceptance--backlinks",
     triggerName: /^Open Research:/,
     openName: "Open Research.md",
   },
@@ -62,7 +61,18 @@ for (const scenario of [
       preview.locator('[data-ui-component="file-embed"]'),
     ).toBeVisible();
     await expect(preview.locator(".lapis-file-embed__title")).toHaveCount(0);
-    await expect(preview.locator(".mira-embed.internal-embed")).toHaveCount(0);
+    await expect(
+      preview.locator(
+        ".lapis-file-embed__content > .mira-embed.internal-embed",
+      ),
+    ).toHaveCount(0);
+    if (scenario.name === "Outgoing Links") {
+      // Ideas contains an authored image embed. Content-only preview chrome
+      // must not remove that content along with the outer embed guide.
+      await expect(
+        preview.locator("[data-markdown-embed] .mira-embed.internal-embed img"),
+      ).toBeVisible();
+    }
     const openButton = preview.getByRole("button", { name: scenario.openName });
     await expect(openButton).toBeVisible();
     await expect(preview.locator(".lapis-file-embed__header")).toHaveCSS(

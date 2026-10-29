@@ -107,7 +107,7 @@
     if (!enableMarkdown) return undefined;
     return new App({
       version: "0.0.1-story",
-      configPath: ".obsidian/app.json",
+      configPath: ".lapis/app.json",
       adapter: new MemoryVaultAdapter({
         "Notes/alpha.md": "# Notes\n\nTODO: summarize this note.",
       }),

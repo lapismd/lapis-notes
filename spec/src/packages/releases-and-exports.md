@@ -1,7 +1,7 @@
 # Packages / Releases and exports
 
-Dependency-image pin publication selects only an open review under LN-GOV-050.
-Every fresh PR retains the complete validation graph required by LN-PKG-142.
+Dependency-image reviews retain LN-GOV-050/LN-PKG-142; API Mira uses public ranges.
+The [native service exports](./native-service-exports.md) define generated admitted ports separately from release and registry policy.
 
 Release and validation containers consume shared image `2026.10.14.1` by
 digest. GitHub CLI 2.102.0 is supplied upstream so approved npm publication can
@@ -38,7 +38,7 @@ Registry-consumer toolchain and build-policy acceptance is recorded in
 
 <a id="ln-pkg-012"></a>
 
-**Requirement.** `@lapis-notes/api` MUST consume `@lapismd/mira` through its published npm package and built public exports for the shared source-editor CodeMirror shell; package manifests MUST use a portable semver dependency range.
+**Requirement.** `@lapis-notes/api` MUST consume Mira through built public exports with portable registry dependency and peer ranges. During the Tauri migration, hosts MAY use verified source-owned pnpm archives; publication remains deferred to the final release gate.
 
 ## LN-PKG-016 — @lapismd/storybook-addon-visual-delta: remain a private root development dependency resolved
 
@@ -51,6 +51,8 @@ Registry-consumer toolchain and build-policy acceptance is recorded in
 <a id="ln-pkg-043"></a>
 
 **Requirement.** Public `@lapis-notes/file-explorer` MUST own the reusable File Explorer plugin implementation formerly co-located with Storybook, publish from built exports at an independent `0.1.0` baseline, and consume framework dependencies through npm semver ranges. It MAY map Design Core current, reveal-or-create, and forced-new-tab activation intents to API workspace leaves and MUST persist Show hidden files, but MUST NOT own vault selection, session boot, persistence policy, or source-editor fixtures.
+
+Unchanged contract: File Explorer passes the selected file-view icon through published Design Core `getIcon` and `registerWorkspaceIcon`. `ExplorerControllerOptions` does not declare `iconResolver`.
 
 ## LN-PKG-051 — @lapis-notes/lapis-plugin-cv-roles: consume Markdown rendering and source presentation
 
@@ -261,11 +263,13 @@ unfiltered finding, dependency path, scope limitation, and removal procedure.
 The exact final Plugins version candidate is
 `da7d8bb73541eb3421ca8fdfaf1eaaf2baecc850`. The fixture lane builds all active
 archives from that commit for the complete Web installer lane; full application
-interactions and both native packaged lanes remain blocking independently.
+interactions remain blocking. Notes CI does not build or package the desktop app.
 
 <a id="ln-pkg-142"></a>
 
-**Requirement.** CI MUST populate package build outputs once, then run governance, quality, unit, static Storybook, interaction/accessibility, web acceptance, native packaged acceptance and release-artifact jobs concurrently before one stable `validate` aggregation job. Every required job MUST succeed; functional, interaction, and accessibility failures MUST block. Visual comparison MUST remain non-blocking.
+**Requirement.** CI MUST populate package build outputs once, then run governance, quality, unit, Storybook, web acceptance, and release-artifact jobs before one validate job. Every required job MUST succeed, and a failure MUST cancel only that workflow run. Visual comparison MUST remain non-blocking. Notes CI MUST NOT build the desktop application or the server image.
+
+The lapis-server repository owns server acceptance. Interaction and accessibility failures stay blocking. A failed job MUST NOT cancel another workflow or report the failed lane as success.
 
 ## LN-PKG-143 — Release candidates: reuse the validated Turbo build graph
 
@@ -289,7 +293,7 @@ interactions and both native packaged lanes remain blocking independently.
 
 <a id="ln-pkg-150"></a>
 
-**Requirement.** `@lapis-notes/api/registry/schema` MUST expose transport-neutral V2 catalog schemas, types, verified-input V1 normalization, authored media fallback, and validated Changesets notes without importing Community, application boot, UI, or relay implementations.
+**Requirement.** `@lapis-notes/api/registry/schema` MUST expose transport-neutral V2 catalog schemas, types, verified-input V1 normalization, authored media fallback, and validated Changesets notes without importing Community, application boot, UI, or relay implementations. Its Zod dependency uses patched `^4.6.6` through `zod/v3` to retain schema compatibility.
 
 ## LN-PKG-079 — @lapis-notes/history: live in the sibling lapis-plugins monorepo, expose
 
@@ -321,25 +325,20 @@ interactions and both native packaged lanes remain blocking independently.
 
 **Requirement.** Pull-request and reusable CI MUST run the complete Web end-to-end suite against freshly built output after a frozen registry install. Failures MUST retain browser diagnostics and block the aggregate. Before production V2 cutover, CI MUST use a retained fixture from an exact frozen Plugins source candidate with ephemeral signing keys; production builds MUST ignore fixture trust.
 
-Fixture builds verify their checkout and export source provenance in the executing
-shell so the host workflow SHA cannot label another repository's artifacts.
-The full suite includes server-host Docker acceptance, so the runner provisions
-Docker and builds the candidate server image before browser execution.
-Server acceptance seeds bootstrap credentials through stdin into a private
-service-user-owned Docker volume and mounts it read-only into the candidate.
+Fixture builds verify their checkout and export source provenance in the executing shell so the
+host workflow SHA cannot label another repository's artifacts. The runner provisions Docker and
+builds the candidate server image with its checksum-matched public pnpm hook and frozen registry
+installation. Server acceptance seeds bootstrap credentials through stdin into a private
+service-user-owned Docker volume mounted read-only into the candidate; its actual-image step
+explicitly re-selects Docker because the image harness fails closed without it.
 
 ## LN-PKG-162 — Native packaged acceptance in CI
 
 <a id="ln-pkg-162"></a>
 
-**Requirement.** Pull-request and reusable CI MUST build validation-only packages on native macOS and Linux runners and execute cold packaged acceptance for first launch, URL handoff, controller, tools, services and clean close. Both platforms MUST complete independently and retain candidate artifacts. This lane MUST NOT publish, use production signing credentials or notarize.
+**Requirement.** This Notes repository's pull-request and reusable CI MUST NOT build, package, or publish the desktop application. Desktop packaging and cold packaged acceptance belong to the lapis-desktop repository. Server acceptance belongs to the lapis-server repository.
 
-The separately installed controller CLI is provisioned from exact released source
-through its owning build and installer, in an isolated candidate area. Its npm SDK
-does not substitute for that executable. Acceptance passes the explicit CLI path
-and retains its runtime manifest alongside native package candidates.
-The validation pin includes the source-owned portable dependency staging repair
-on top of released 0.1.0 controller source; npm SDK ranges remain unchanged.
+Notes CI does not select `@lapis-notes/desktop-deno` or the retired `@lapis-notes/server-deno` package.
 
 ## LN-PKG-163 — Portable terminal dependency during desktop packaging
 
@@ -387,7 +386,7 @@ batch through npm ranges: AI 0.1.5; Bases, Bookmarks, Graph, Search and Spellche
 0.1.3; History 0.1.4; Markdown 0.1.6; Markdown Lint, Source Editor and Word Count
 0.1.2. Slides 0.1.0 remains available through installed-plugin management rather
 than the static profile. The tracked lockfile resolves public npm packages;
-test-signed archive fixtures remain separate acceptance inputs.
+test-signed archive fixtures remain separate acceptance inputs. Local consumer qualification builds the five public host packages from exact source and records archive hashes under LN-ARCH-146. It does not create a release candidate or change registry dependency ranges.
 
 <!-- ci-dependency-image:start -->
 

@@ -24,6 +24,27 @@ describe("lapis contribution registry", () => {
     );
   });
 
+  it("indexes all footer regions and rejects unknown status alignment", () => {
+    for (const alignment of ["left", "center", "right", "elsewhere"]) {
+      const index = buildLapisContributionIndex({
+        pluginId: "example",
+        manifestPath: "/.lapis/plugins/example/manifest.json",
+        classification: "lapis-extension",
+        source: "community",
+        grantedCapabilities: [],
+        lapis: {
+          manifestVersion: 1,
+          contributes: {
+            statusBarItems: [{ id: "activity", text: "Working", alignment }],
+          },
+        } as never,
+      });
+      expect(index.contributions[0].state).toBe(
+        alignment === "elsewhere" ? "invalid" : "valid",
+      );
+    }
+  });
+
   it("exposes built-in contribution point descriptors", () => {
     expect(getLapisContributionPointDescriptors().map((it) => it.kind)).toEqual(
       [
@@ -44,7 +65,7 @@ describe("lapis contribution registry", () => {
     const indexed = buildLapisContributionIndex({
       pluginId: "example",
       name: "Example",
-      manifestPath: "/.obsidian/plugins/example/manifest.json",
+      manifestPath: "/.lapis/plugins/example/manifest.json",
       classification: "lapis-extension",
       source: "community",
       lapis: {
@@ -118,7 +139,7 @@ describe("lapis contribution registry", () => {
   it("derives activation events from the contribution descriptor registry", () => {
     const indexed = buildLapisContributionIndex({
       pluginId: "example",
-      manifestPath: "/.obsidian/plugins/example/manifest.json",
+      manifestPath: "/.lapis/plugins/example/manifest.json",
       classification: "lapis-extension",
       source: "community",
       lapis: {
@@ -211,4 +232,37 @@ describe("lapis contribution registry", () => {
       "Plugin invalid-runtime has invalid lapis.runtime.compatibilityOverrides.deprecatedHostModules.workspace",
     ]);
   });
+});
+
+it("validates file icon IDs on admitted editor metadata", () => {
+  for (const fileIcon of [
+    "custom:example-diagram",
+    "example-pack:alias",
+    undefined,
+    42,
+  ]) {
+    const index = buildLapisContributionIndex({
+      pluginId: "example",
+      manifestPath: "/.lapis/plugins/example/manifest.json",
+      classification: "lapis-extension",
+      source: "community",
+      grantedCapabilities: [],
+      lapis: {
+        manifestVersion: 1,
+        contributes: {
+          editorViews: [
+            {
+              id: "diagram",
+              label: "Diagram",
+              filenamePatterns: ["*.diagram"],
+              fileIcon,
+            },
+          ],
+        },
+      },
+    } as never);
+    expect(index.contributions[0].state).toBe(
+      fileIcon === 42 ? "invalid" : "valid",
+    );
+  }
 });

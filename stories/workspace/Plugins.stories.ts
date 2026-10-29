@@ -1,3 +1,4 @@
+import { desktopOnlyAI } from "./plugin-host-compatibility";
 import "./Plugins.docs.css";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
@@ -17,7 +18,7 @@ const exampleFor = (
   placement: PluginsPlacement,
 ) => `import { App, MemoryVaultAdapter, MemoryAppDatabase } from "@lapis-notes/api";
 import { PluginsView, WorkspaceShell } from "@lapis-notes/workspace";
-const adapter = new MemoryVaultAdapter({ ".obsidian/workspace.json": JSON.stringify(${JSON.stringify(pluginsBrowserLayout(placement), null, 2)}) });
+const adapter = new MemoryVaultAdapter({ ".lapis/workspace.json": JSON.stringify(${JSON.stringify(pluginsBrowserLayout(placement), null, 2)}) });
 const app = new App({ adapter, appDatabase: new MemoryAppDatabase("plugins-review") });
 app.workspace.registerView("plugins", leaf => new PluginsView(leaf));
 await app.vault.load();
@@ -211,7 +212,7 @@ export const RibbonOpensPlugins: Story = {
       source: {
         code: `import { App, MemoryVaultAdapter, MemoryAppDatabase } from "@lapis-notes/api";
 import { PluginsView, WorkspaceShell } from "@lapis-notes/workspace";
-const app = new App({ adapter: new MemoryVaultAdapter({ ".obsidian/workspace.json": JSON.stringify(${JSON.stringify(pluginsBrowserOpeningLayout(), null, 2)}) }), appDatabase: new MemoryAppDatabase("plugins-opening") });
+const app = new App({ adapter: new MemoryVaultAdapter({ ".lapis/workspace.json": JSON.stringify(${JSON.stringify(pluginsBrowserOpeningLayout(), null, 2)}) }), appDatabase: new MemoryAppDatabase("plugins-opening") });
 app.workspace.registerView("plugins", leaf => new PluginsView(leaf));
 app.workspace.leftRibbon.addItem({ id: "plugins", title: "Plugins", icon: "package", callback: async () => {
   const leaf = app.workspace.getLeavesOfType("plugins")[0] ?? app.workspace.getLeaf(true);
@@ -456,9 +457,15 @@ export const InstallFailure: Story = {
         exact: true,
       }),
     );
-    await expect(await canvas.findByRole("alert")).toHaveTextContent(
-      "runtime metadata is invalid",
-    );
+    await waitFor(() => {
+      const alerts = canvas
+        .getAllByRole("alert")
+        .filter((alert) =>
+          within(alert).queryByText("Couldn’t install Graph", { exact: true }),
+        );
+      expect(alerts).toHaveLength(1);
+      expect(alerts[0]).toHaveTextContent("runtime metadata is invalid");
+    });
     await expect(
       canvas.getByRole("button", { name: "Retry install", exact: true }),
     ).toHaveTextContent("Retry install");
@@ -826,7 +833,7 @@ export const ResponsiveDirectory: Story = {
       });
       const nav = toggle.closest("nav") as HTMLElement;
       expect(toggle).toHaveAttribute(
-        "data-ui-component",
+        "data-ui-part",
         "workspace-sidebar-toggle",
       );
       expect(toggle.getBoundingClientRect().left).toBeCloseTo(
@@ -876,7 +883,7 @@ export const ResponsiveDirectory: Story = {
         exact: true,
       });
       expect(
-        filters.querySelector('[data-ui-component="workspace-sidebar-toggle"]'),
+        filters.querySelector("[data-workspace-sidebar-toggle]"),
       ).toBeNull();
       expect(toggle).toHaveAttribute("data-state", "expanded");
       await userEvent.click(
@@ -1343,3 +1350,5 @@ export const DetailImagesUnavailable: Story = {
     ).toBeEnabled();
   },
 };
+
+export const DesktopOnlyAI: Story = desktopOnlyAI;

@@ -29,11 +29,11 @@ configured-plugin restoration; a signed fixture does not replace npm resolution.
 
 **Requirement.** Development, preview, and production responses MUST provide cross-origin isolation required by the database and embedding workers. Production assets MUST include required WASM files.
 
-## LN-WEB-037 — Terminal server Settings: tell the user to start lapis-terminal-host serve
+## LN-WEB-037 — Retired Terminal setup guidance
 
 <a id="ln-web-037"></a>
 
-**Requirement.** Terminal server Settings MUST tell the user to start `lapis-terminal-host serve --workspace` on the vault, or a parent of `terminal.cwd`.
+**Requirement.** Web Settings MUST NOT display terminal server setup instructions or a terminal-host connection section. Browser vault transfer and unrelated Settings MUST remain available.
 
 ## LN-WEB-007 — One tab: own each vault database while secondary tabs
 
@@ -72,7 +72,7 @@ Web session boot verifies the shared startup surface:
 
 <a id="ln-web-022"></a>
 
-**Requirement.** A web vault without `.obsidian/workspace.json` MUST use the same default sidebar seed as desktop: File Explorer, Search, then Bookmarks on the left, and Outline, File Properties, then Tags on the right when those views are registered.
+**Requirement.** A web vault without `.lapis/workspace.json` MUST use the same default sidebar seed as desktop: File Explorer, Search, then Bookmarks on the left, and Outline, File Properties, then Tags on the right when those views are registered.
 
 ## LN-WEB-027 — Creating an OPFS vault: collect the name in a compact dialog
 
@@ -111,7 +111,7 @@ Web Manage Vaults overlay verifies:
 
 <a id="ln-web-039"></a>
 
-**Requirement.** In-session import MUST pick a folder, copy it into the current OPFS vault with overwrite, report determinate progress, reload the vault, and start metadata rebuild without blocking. It MUST then offer a confirm to reload the page so imported `.obsidian` settings apply. Picker cancel MUST be silent. Notifications MUST use the session App and MUST NOT mention community plugins.
+**Requirement.** In-session import MUST pick a folder, copy it into the current OPFS vault with overwrite, report determinate progress, reload the vault, and start metadata rebuild without blocking. It MUST then offer a confirm to reload the page so imported `.lapis` settings apply. Picker cancel MUST be silent. Notifications MUST use the session App and MUST NOT mention community plugins.
 
 ## LN-WEB-041 — Launcher: offer Import Vault beside Create New Vault
 
@@ -124,7 +124,7 @@ Web Manage Vaults overlay verifies:
 Launcher Import Vault verifies a copy into a new private OPFS vault:
 
 - Import Vault MUST NOT replace Open Folder; the latter still mounts the picked directory as `file-system-access`.
-- Copy MUST finish before `WorkspaceShell` mounts so the first session sees imported files and `.obsidian` settings.
+- Copy MUST finish before `WorkspaceShell` mounts so the first session sees imported files and `.lapis` settings.
 - Host boot during copy MUST stay on Design Core `WorkspaceStartup` or the existing opening gate, not the branded landing copy.
 - Picker or name-dialog cancel MUST leave the chooser recoverable without a new profile.
 - A failed copy after create MUST delete that new OPFS vault and stay on the chooser with an error.
@@ -143,16 +143,16 @@ Launcher copy progress verifies the startup surface:
 - The active `import` task `detail` MUST use the same `N of M` path string as in-session import.
 - The host MUST NOT construct App notifications before `WorkspaceShell` mounts.
 
-## LN-WEB-049 — Web package: provide a compile-time deno-server mode that uses
+## LN-WEB-049 — Web package: provide a compile-time node-server mode that uses
 
 <a id="ln-web-049"></a>
 
-**Requirement.** The Web package MUST provide a compile-time `deno-server` mode that uses explicit remote vault and AppDatabase adapters while retaining the existing PWA build unchanged. It MUST NOT emulate or populate `NativeDesktopBridge`.
+**Requirement.** The Web package MUST provide a compile-time `node-server` mode that uses explicit remote vault and AppDatabase adapters while retaining the existing PWA build unchanged. It MUST NOT emulate or populate `NativeDesktopBridge`.
 
 Server-mode browser acceptance verifies editing, shared events and persistence
 after clean container shutdown and recreation. Its test-owned network namespace
 remains alive across that restart under
-[LN-SRV-013](../server-deno-host/core-contract.md#ln-srv-013), while the serving
+[LN-SRV-013](../server-node-host/core-contract.md#ln-srv-013), while the serving
 process and startup module graph are recreated normally.
 The server case's dedicated browser worker starts after this network is ready,
 isolating initial navigation from preceding PWA acceptance cases.
@@ -163,11 +163,11 @@ assertions. Retry evidence is written to disk and attached by path, with passing
 test output retained by both Web Playwright configurations; later application, sharing
 and restart steps are not replayed.
 
-## LN-WEB-050 — Deno-server Web build: authenticate before vault selection, use only server-managed
+## LN-WEB-050 — Node-server Web build: authenticate before vault selection, use only server-managed
 
 <a id="ln-web-050"></a>
 
-**Requirement.** The `deno-server` Web build MUST authenticate before vault selection, use only server-managed vault profiles, require the matching protocol major, and remain online-only without registering the PWA service worker.
+**Requirement.** The `node-server` Web build MUST authenticate before vault selection, use only server-managed vault profiles, require the matching protocol major, and remain online-only without registering the PWA service worker.
 
 ## LN-WEB-052 — Server managed-vault chooser: use the same branded header, Design Core
 

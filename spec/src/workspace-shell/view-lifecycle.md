@@ -1,5 +1,32 @@
 # Workspace Shell / View lifecycle
 
+File artwork registration follows the owning Plugin and App under LN-PLUG-123.
+Plugin unload releases its SVG/pack entries, and complete workspace-host
+teardown disposes the App resolver. Explorer invalidation preserves live tree
+selection and rename state without constructing a file view for icon lookup.
+
+When an App selects [native editing intents](../architecture/native-editor-intents.md),
+its existing writer registry retains admission through document, view and App
+teardown. Failed retirement or rearm keeps local input protected and preserves
+the original writer. Workspace disposal does not silently release the native
+fence or add another save path.
+
+## LN-WS-101 — Explicit close persistence scope
+
+<a id="ln-ws-101"></a>
+
+**Requirement.** Views MUST default to application-wide writer protection for shell closure. A view MAY declare layout-only closure when it owns no file writers and retains unsaved state outside its UI. The guard MUST flush layout, drain admitted operations and revalidate each view identity and policy after awaits; mixed or unknown closures MUST retain application protection. Application shutdown MUST always protect all writers.
+
+Search result registrations under LN-SRCH-051 belong to the owning App and Plugin lifecycle. Workspace leaf persistence, placement and diagnostic collections remain unchanged.
+
+## LN-WS-097 — File change projection
+
+<a id="ln-ws-097"></a>
+
+**Requirement.** App-owned reconciliation MUST forward external file changes through existing workspace events so clean editors refresh while dirty drafts remain protected. Rename/delete projection MUST use existing file-view and layout lifecycle APIs. Dirty or retained failed writers MUST prevent automatic retargeting or removal of their views and receive an existing notification explaining the change. Explicit recovery MUST retain its existing owner.
+
+- Clean internal rename/move projection MUST run after the admitted editing guard releases and before a later queued mutation can interfere. Rebinding MUST preserve ordered event snapshots and the existing editor save owner.
+
 Text file loading registers and protects its target under LN-ARCH-137 and
 LN-ARCH-138. A failed original save preserves the old binding; superseded or
 unloaded reads cannot publish stale content. Managed rename protects and flushes all registered writers under LN-ARCH-139.
@@ -26,13 +53,13 @@ their complete lifetime boundary before releasing backing storage.
 
 <a id="ln-ws-063"></a>
 
-**Requirement.** `Workspace.getLeaf()` without a new-leaf flag and `App.openFile` MUST reuse an empty or file-backed main-area leaf, or create a new main tab. They MUST NOT replace a non-file main-area view and MUST NOT reuse a sidebar leaf.
+**Requirement.** `Workspace.getLeaf()` without a new-leaf flag and `App.openFile` MUST reuse an empty or file-backed main-area leaf, or create a new main tab. They MUST NOT replace a non-file main-area view and MUST NOT reuse a sidebar leaf. Foreground file opens MUST reveal their destination after queued host projection while preserving newer navigation.
 
 ## LN-WS-064 — Imperative view host: remount a Lapis view only
 
 <a id="ln-ws-064"></a>
 
-**Requirement.** An imperative view host MUST remount a Lapis view only when the tab id or view type changes. Remount MUST look up the existing leaf by that id and reattach its `containerEl`.
+**Requirement.** An imperative view host MUST remount a Lapis view only when the tab id or view type changes. Remount MUST look up the existing leaf by that id and reattach its `containerEl`. Cross-document attachment MUST retarget a retained editor to its new document without replacing its state or history.
 
 ## LN-WS-065 — Missing-view placeholder: use the Lucide ghost icon on
 
@@ -45,6 +72,9 @@ their complete lifetime boundary before releasing backing storage.
 <a id="ln-ws-006"></a>
 
 **Requirement.** Api view registration MUST expose registered Lapis views to design-core through imperative view definitions while retaining Lapis view creation, state, load, mount, unload, history, and missing-view behavior. Each imperative compatibility root MUST fill its Design Core view host without depending on a host-global utility stylesheet. Each transition MUST remove the previous view root before mounting the next while reattaching the shared `ItemView` content element when required. The `empty` type MUST use design-core's built-in visual empty view.
+
+- Attachment MUST wait for the original queued compatibility projection when the controller opens a leaf before its API wrapper exists. Completion MUST attach that wrapper's retained container without recreating its view.
+- A disposed mount MUST fence its deferred attachment so later projection cannot attach content to a retired host.
 
 ## LN-WS-012 — Stacked-pane width tokens
 
@@ -111,3 +141,33 @@ their complete lifetime boundary before releasing backing storage.
 <a id="ln-ws-091"></a>
 
 **Requirement.** Workspace plugin activation MUST accept a verified renderer ESM module whose plugin constructor is a named `Plugin` subclass when no default export exists. Supporting constants, views, settings helpers, and manifest exports MUST remain available without becoming constructor candidates.
+
+Link-preview pointer acceptance follows the current
+`plugins-markdown-panels-link-preview-acceptance` catalog family. Renamed
+catalog paths retain the original preview interaction assertions.
+
+Native background indexing under LN-CORE-003 is owned by the admitted vault.
+Disposing a MetadataCache or workspace view MUST NOT disable or unregister
+service-owned projections. Explicit plugin disable is the separate draining
+control described in the [native indexing contract](../architecture/rust-indexing-lifetime.md).
+
+Search views observe the same App-owned indexing session. View/manager disposal
+MUST NOT wait for an accepted native refresh or stop it. Explicit plugin disable
+remains a separate native drain; native pending convergence is not ready.
+
+The optional native History port is supplied before App construction and does
+not create a view, restore navigation or alter workspace startup. The shared
+Repository plugin still needs its admitted reader/factory. Existing shell,
+leaf disposal, guarded editing and layout contracts remain unchanged.
+
+Under LN-CORE-027, WorkspaceShell binds one App-owned editing Problems
+collection across its main and detached surfaces. Final unmount disposes the
+observer and fences pending publication. Host leave preflights unresolved
+claims before destructive App/registry disposal; a failed leave preserves its
+existing editors and explicit recovery actions.
+
+Retained text-conflict review is shared by WorkspaceShell and early host leases
+under [LN-WS-102 through LN-WS-104](panels/problems/core-contract.md#ln-ws-102).
+Its existing `desktop:file-conflict` leaf uses LN-WS-101 layout-only close;
+staged merge text stays in the App-owned presentation model while the writer's
+captured conflict remains the sole persistence and explicit-recovery authority.

@@ -1,3 +1,4 @@
+import { appStatePath } from "../storage/path";
 import { dirname } from "$lib/storage/path";
 import type { DataAdapter } from "$lib/storage/fs";
 import { ensureFolder } from "./installed-plugin-state";
@@ -47,7 +48,7 @@ export class PluginRegistrySourcePreferenceStore {
   }
 
   private get path(): string {
-    return this.options.path ?? ".obsidian/plugin-registry-sources.json";
+    return this.options.path ?? appStatePath("plugin-registry-sources.json");
   }
 
   private now(): string {

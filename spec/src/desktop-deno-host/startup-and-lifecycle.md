@@ -1,10 +1,15 @@
 # Deno Desktop Host / Startup and lifecycle
 
+The frozen Deno host retains its existing application profile. The staged
+[Rust-owned chat navigator](../architecture/rust-turn-admission.md) and
+[native index owner](../architecture/rust-indexing-lifetime.md) are Tauri/hosted
+migration work; neither changes Deno startup or selects a new Deno writer.
+
 ## LN-DENO-008 — Language, plugin, AI, and terminal host services: use public package boundaries and Deno-owned process
 
 <a id="ln-deno-008"></a>
 
-**Requirement.** Language, plugin, AI, and terminal host services MUST use public package boundaries and Deno-owned process lifecycles. Terminal sessions MUST use public `@lapismd/terminal-host/deno`; Deno code MUST NOT import another desktop host.
+**Requirement.** Language, plugin, AI, and terminal host services MUST use public package boundaries and Deno-owned process lifecycles. Terminal sessions MUST use public `@lapismd/terminal-host/deno`; Deno code MUST NOT import another desktop host. Retained host-service subpaths MUST forward portable kernels without changing the frozen desktop runtime.
 
 ## LN-DENO-015 — Production host: serve the built renderer from the launch
 
@@ -177,3 +182,7 @@ First-party prompt and leftover ACP embed acceptance verifies:
 <a id="ln-deno-067"></a>
 
 **Requirement.** The desktop renderer MUST keep `@lapis-notes/api` outside dependency optimization, expose `@lapis-notes/api` and `@lapis-notes/api/workspace-host` through host-owned plugin import-map proxy entries in development and production, and resolve them as singletons across the host and packed static plugins. Registry releases and local release-candidate tarballs MUST bind the same API peer so workspace host bindings and other API-owned state remain visible.
+
+The shared native bridge also accepts `tauri-desktop` under LN-ARCH-141. This
+adds a host runtime identity without changing the Deno command transport. The
+Tauri database admission boundary follows LN-DB-055.

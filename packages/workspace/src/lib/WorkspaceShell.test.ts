@@ -77,6 +77,35 @@ describe("WorkspaceShell", () => {
     for (const component of mounted.splice(0)) await unmount(component);
   });
 
+  it("forwards a host-owned popup policy without replacing the App", async () => {
+    const target = document.createElement("div");
+    document.body.append(target);
+    const open = vi.fn(() => null);
+    let app!: App;
+    mounted.push(
+      mount(WorkspaceShellTestHarness, {
+        target,
+        props: {
+          layout: initialLayout,
+          popoutHost: { open },
+          onAppReady: (readyApp) => {
+            app = readyApp;
+          },
+        },
+      }),
+    );
+    await vi.waitFor(() =>
+      expect(
+        target.querySelector('[data-app-shell-ready="true"]'),
+      ).not.toBeNull(),
+    );
+    const { controller } = getWorkspaceHostBinding(app.workspace);
+    expect(controller.renderer.popoutTab("empty-start")).toBeNull();
+    expect(open).toHaveBeenCalledOnce();
+    expect(app.workspace.getLeafById("empty-start")?.app).toBe(app);
+    target.remove();
+  });
+
   it("mounts a restored API App without loading Lapis plugins", async () => {
     const target = document.createElement("div");
     document.body.append(target);

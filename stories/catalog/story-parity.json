@@ -1,0 +1,223 @@
+{
+  "stories/api/Button.stories.ts": {
+    "kind": "component",
+    "subject": "@lapismd/design-core/shadcn/button#Button"
+  },
+  "stories/api/Command.stories.ts": {
+    "kind": "component",
+    "subject": "@lapismd/design-core/shadcn/command#Root"
+  },
+  "stories/api/ConfirmDialog.stories.ts": {
+    "kind": "component",
+    "subject": "@lapis-notes/ui/confirm-dialog#default"
+  },
+  "stories/api/ContextMenu.stories.ts": {
+    "kind": "component",
+    "subject": "@lapismd/design-core/shadcn/context-menu#Root"
+  },
+  "stories/api/DateSetting.stories.ts": {
+    "kind": "component",
+    "subject": "packages/api/src/lib/components/configuration/date-setting.svelte#default"
+  },
+  "stories/api/Drawer.stories.ts": {
+    "kind": "component",
+    "subject": "@lapismd/design-core/shadcn/drawer#Root"
+  },
+  "stories/api/DropdownMenu.stories.ts": {
+    "kind": "component",
+    "subject": "@lapismd/design-core/shadcn/dropdown-menu#Root"
+  },
+  "stories/api/Helpers.stories.ts": {
+    "kind": "component",
+    "subject": "@lapis-notes/ui#fuzzySearch"
+  },
+  "stories/api/Input.stories.ts": {
+    "kind": "component",
+    "subject": "@lapismd/design-core/shadcn/input#Input"
+  },
+  "stories/api/Modal.stories.ts": {
+    "kind": "component",
+    "subject": "@lapis-notes/ui/modal#default"
+  },
+  "stories/api/Popover.stories.ts": {
+    "kind": "component",
+    "subject": "@lapismd/design-core/shadcn/popover#Root"
+  },
+  "stories/api/Progress.stories.ts": {
+    "kind": "component",
+    "subject": "@lapismd/design-core/shadcn/progress#Progress"
+  },
+  "stories/api/ScrollArea.stories.ts": {
+    "kind": "component",
+    "subject": "@lapismd/design-core/shadcn/scroll-area#ScrollArea"
+  },
+  "stories/api/Search.stories.ts": {
+    "kind": "component",
+    "subject": "@lapis-notes/ui/search#default"
+  },
+  "stories/api/SearchHighlight.stories.ts": {
+    "kind": "component",
+    "subject": "@lapis-notes/api#useTextHighlight"
+  },
+  "stories/api/Select.stories.ts": {
+    "kind": "component",
+    "subject": "@lapismd/design-core/shadcn/select#Root"
+  },
+  "stories/api/SidebarCustom.stories.ts": {
+    "kind": "component",
+    "subject": "@lapis-notes/ui/sidebar-custom#Provider"
+  },
+  "stories/api/Slider.stories.ts": {
+    "kind": "component",
+    "subject": "@lapismd/design-core/shadcn/slider#Slider"
+  },
+  "stories/api/Switch.stories.ts": {
+    "kind": "component",
+    "subject": "@lapismd/design-core/shadcn/switch#Switch"
+  },
+  "stories/api/Table.stories.ts": {
+    "kind": "component",
+    "subject": "@lapismd/design-core/shadcn/table#Root"
+  },
+  "stories/api/TableDnd.stories.ts": {
+    "kind": "component",
+    "subject": "@lapis-notes/ui/table-dnd#TableDragGrip"
+  },
+  "stories/api/Textarea.stories.ts": {
+    "kind": "component",
+    "subject": "@lapismd/design-core/shadcn/textarea#Textarea"
+  },
+  "stories/api/ToggleGroup.stories.ts": {
+    "kind": "component",
+    "subject": "@lapismd/design-core/shadcn/toggle-group#Root"
+  },
+  "stories/api/Tooltip.stories.ts": {
+    "kind": "component",
+    "subject": "@lapismd/design-core/shadcn/tooltip#Provider"
+  },
+  "stories/plugins/ai/AiChat.stories.ts": {
+    "kind": "component",
+    "subject": "@lapis-notes/ai#AiChatPanel"
+  },
+  "stories/plugins/ai/AiLiveHost.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/ai/panels/Catalog.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/ai/panels/Chat.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/ai/panels/History.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/ai/shell/Shell.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/bases/BasesViews.stories.ts": {
+    "kind": "component",
+    "subject": "@lapis-notes/bases#BasesViewSurface"
+  },
+  "stories/plugins/bases/BasesWorkflows.stories.ts": {
+    "kind": "component",
+    "subject": "@lapis-notes/bases#BasesViewSurface"
+  },
+  "stories/plugins/bases/Embeds.stories.ts": {
+    "kind": "integration",
+    "requirement": "LN-CAT-118",
+    "reason": "Tests imperative App embed and fenced-code registries in a focused fixture; does not claim full application-shell parity."
+  },
+  "stories/plugins/bases/shell/Lifecycle.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/bases/shell/Shell.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/bookmarks/panels/Bookmarks.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/explorer/panels/Explorer.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/graph/panels/Graph.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/graph/panels/LocalGraph.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/history/Compare.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/history/panels/History.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/history/shell/Shell.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/markdown/panels/AllProperties.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/markdown/panels/Backlinks.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/markdown/panels/FileProperties.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/markdown/panels/LinkPreviewAcceptance.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/markdown/panels/OutgoingLinks.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/markdown/panels/Outline.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/markdown/panels/Tags.stories.ts": {
+    "kind": "application"
+  },
+  "stories/plugins/search/panels/Search.stories.ts": {
+    "kind": "application"
+  },
+  "stories/workspace/DesktopRecoveryBanner.stories.ts": {
+    "kind": "component",
+    "subject": "@lapis-notes/workspace#DesktopRecoveryBanner"
+  },
+  "stories/workspace/DesktopVaultLauncher.stories.ts": {
+    "kind": "component",
+    "subject": "@lapis-notes/workspace#DesktopVaultLauncher"
+  },
+  "stories/workspace/DesktopWorkspaceStartup.stories.ts": {
+    "kind": "component",
+    "subject": "@lapis-notes/workspace#DesktopWorkspaceStartup"
+  },
+  "stories/workspace/EditingRecovery.stories.ts": {
+    "kind": "application"
+  },
+  "stories/workspace/FileConflicts.stories.ts": {
+    "kind": "application"
+  },
+  "stories/workspace/PluginManagement.stories.ts": {
+    "kind": "component",
+    "subject": "@lapismd/design-core/workspace/settings#WorkspaceSettingsSurface",
+    "stories": {
+      "BrowseReusesMovedPluginsView": {
+        "kind": "application"
+      }
+    }
+  },
+  "stories/workspace/Plugins.stories.ts": {
+    "kind": "application"
+  },
+  "stories/workspace/PluginsSnapshot.stories.ts": {
+    "kind": "application"
+  },
+  "stories/workspace/WorkspaceShell.stories.ts": {
+    "kind": "application"
+  },
+  "stories/workspace/lapis-editor-demo/LapisEditorDemo.stories.ts": {
+    "kind": "application"
+  },
+  "stories/workspace/popouts/WorkspacePopout.stories.ts": {
+    "kind": "application"
+  }
+}

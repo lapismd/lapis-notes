@@ -1,5 +1,17 @@
 # Storybook Catalog / App-owned fixtures
 
+## LN-CAT-118 — Declared story composition parity
+
+<a id="ln-cat-118"></a>
+
+**Requirement.** Every executable story family MUST declare application, component, integration or prototype coverage. Application stories MUST render the public production WorkspaceShell through their actual render path, without replacement chrome, production-style overrides or unresolved alternate composition. Components MUST identify their production subject; integration fixtures and prototypes MUST record a governing requirement and purpose. Normal and specification checks MUST reject missing declarations, stale inventories or overrides and unresolved composition; imports alone MUST NOT prove parity.
+
+## LN-CAT-119 — Distinct fixture controls
+
+<a id="ln-cat-119"></a>
+
+**Requirement.** Synthetic story controls MUST use a reusable padded, dotted-border FixtureControls surface. Application fixture controls MUST stay outside production layout. Component fixtures MAY keep controls inline. The composition audit MUST distinguish fixture setup from production presentation; visual approval, interaction and accessibility gates remain independent.
+
 ## LN-CAT-012 — Workspace shell plays: boot a real api App, exercise meaningful
 
 <a id="ln-cat-012"></a>
@@ -90,6 +102,8 @@
 
 **Requirement.** The Storybook browser project MUST retain a bounded 120-second per-story ceiling and run four deterministic Chromium shards sequentially, with files serialized inside each shard, so real-App database and linked-plugin scenarios remain reliable without retaining one browser across the entire catalog. Scenario-local waits MUST remain narrower and focused runs MUST still diagnose functional failures independently.
 
+Browser file serialization MUST be configured on the browser pool itself.
+
 ## LN-CAT-109 — Standalone first-party plugin Storybook: render Plugins/&lt;Plugin&gt;/Shell through a static @lapis-notes/workspace WorkspaceShell
 
 <a id="ln-cat-109"></a>
@@ -107,3 +121,15 @@
 <a id="ln-cat-111"></a>
 
 **Requirement.** Shared Storybook interaction setup MUST treat Svelte runtime diagnostics from `console.warn` or `console.error` as fatal, including `derived_inert`, formatted messages, diagnostic URLs and Error objects. Diagnostics caught during teardown MUST remain recorded and fail the after-story or final-cleanup check. Unrelated logging MUST remain unchanged, and focused regressions MUST prove this contract.
+
+Application panel fixtures own a full viewport even when the browser test host
+omits Storybook body classes. Plays verify the actual viewport height before
+checking placement; isolated Docs canvases retain their explicit 700px height.
+
+LN-CORE-027 adds three real WorkspaceShell Problems scenarios: detached native
+claim recovery/discard with saved-file Reading review, failed local admission,
+and failed protected handoff with explicit retry. The catalog binds the production App, registry,
+collection and menu, using only disposable transport/storage fixtures. No JSON
+observer output or alternate recovery screen is visible. All stories stay
+`visual-pending`; independent nested paths under
+`stories/workspace/editing-recovery/` are declared without PNG capture.

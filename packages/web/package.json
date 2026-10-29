@@ -4,31 +4,37 @@
   "version": "2026.6.3",
   "license": "Apache-2.0",
   "type": "module",
+  "exports": {
+    "./session": {
+      "types": "./src/WebWorkspaceSession.svelte",
+      "svelte": "./src/WebWorkspaceSession.svelte",
+      "import": "./src/WebWorkspaceSession.svelte",
+      "default": "./src/WebWorkspaceSession.svelte"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "pnpm generate-icons && NODE_OPTIONS=--max-old-space-size=8192 vite build",
-    "build:server": "NODE_OPTIONS=--max-old-space-size=8192 vite build --mode server",
     "preview": "vite preview",
     "check": "pnpm check:svelte && pnpm check:types && pnpm check:e2e",
     "check:svelte": "svelte-check --tsconfig ./tsconfig.app.json --fail-on-warnings --output human",
     "check:types": "tsc -p tsconfig.node.json --noEmit",
     "check:e2e": "tsc -p e2e/tsconfig.json --noEmit",
     "test": "vitest run",
-    "test:e2e": "pnpm --dir ../.. build:web && playwright test -c ./playwright.config.ts",
-    "test:e2e:server": "docker build --progress=plain -f ../server-deno/Dockerfile -t lapis-server:e2e ../.. && playwright test -c ./playwright.server.config.ts",
+    "test:e2e": "pnpm --dir ../.. build:web && node node_modules/@playwright/test/cli.js test -c ./playwright.config.ts",
     "generate-icons": "node ./scripts/generate-pwa-icons.mjs"
   },
   "dependencies": {
     "@lapis-notes/api": "workspace:*",
     "@lapis-notes/app-profile": "workspace:*",
-    "@lapis-notes/server-deno": "workspace:*",
-    "@lapismd/terminal-host": "^0.1.0",
     "@lapis-notes/ui": "workspace:*",
     "@lapis-notes/workspace": "workspace:*",
-    "@lapismd/design-core": "^0.5.0",
+    "@lapismd/design-core": "^0.7.0",
     "@lucide/svelte": "^0.523.0",
     "fflate": "^0.8.3",
-    "workbox-window": "^7.4.1"
+    "workbox-window": "^7.4.1",
+    "@lapis-notes/history": "^0.1.4",
+    "@lapismd/jj-history": "~0.1.0"
   },
   "devDependencies": {
     "@playwright/test": "1.61.1",

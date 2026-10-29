@@ -1,5 +1,10 @@
 # Architecture / Dependency boundaries
 
+Actual hosted semantic Search acceptance uses the production HTTP database
+provider and the source-qualified CPU/model reference. Vector/ranking, admitted
+client lifetime and offline-cache evidence stay separate from engine source
+qualification and the retained Search selection journey.
+
 Framework packages and application hosts require published Design Core
 `^0.5.0`, including its prepared browser CSS and bundled font assets. The
 registry dependency refresh retains public export resolution and existing
@@ -30,6 +35,10 @@ with fresh execution for tests of external state.
 Development specification acceptance uses the
 [portable installed-graph startup](../storybook-catalog/build-and-process.md#ln-cat-117)
 so standalone CI needs no sibling release directory.
+
+The API accepts the Mira 0.1 public-export line alongside its existing 0.0.5
+range for isolated Lapis Desktop shared-screen acceptance. Package source and
+installed applications retain their existing ownership.
 
 ## LN-ARCH-001 — Repository: a pnpm workspace orchestrated by Turbo. Targeted
 
@@ -245,3 +254,25 @@ the server is stopped and recreated; production host networking and remote
 vault adapters remain governed by their existing contracts.
 Its dedicated browser worker starts after network preparation, so preceding
 PWA cases cannot carry delayed Docker interface events into initial navigation.
+
+## Released Mira dependency intake
+
+The root development range selects released Mira `~0.1.2`. Editor, AI and
+Mermaid companions stay at their published `~0.0.3` ranges. API's direct
+dependency and peer are `~0.1.2`, so the resolved package is npm `0.1.2`
+(integrity `sha512-7QQsCm8q1T6XnbszhK+g9u5VMlLLu60ECT3iru8oTAncT8z2orLd5PLxUcZnFfCKVp/ivSjD691YkLhtGKYagw==`). Temporary consumer validation retains the qualified
+committed Design Core `944cd448` archive and explicitly records all unpublished
+prerequisites; it does not consume another task's dirty source inputs.
+The tracked lock predates private App Profile's Agent UI dependency and is not
+claimed as a complete frozen registry install. Its final regeneration follows
+publication of the private prerequisites. The
+[dependency receipt](../../records/2026-10-25-released-mira-dependency-intake.md)
+separates source admission, consumer qualification and remaining release gates.
+
+The final shared migration cohort selects published Bits UI `2.20.2` in root,
+API and UI to preserve shared Bits component context with Design Core's
+current declaration. The previous approved 2.19.5 patch is removed; the remaining
+timer-lifetime repair is qualified upstream and admitted through a documented
+temporary archive, with exact cold families before consumer admission.
+[Runtime intake evidence](../../records/2026-10-25-bits-runtime-intake.md)
+separates candidate source, source qualification and each consumer's acceptance.

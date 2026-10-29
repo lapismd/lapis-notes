@@ -219,7 +219,10 @@ export type SyncEndpointSecurityCapabilities = Pick<
 /** Trusted host custody. This controller is never included in plugin facades. */
 export interface SyncHostSecurityProvider {
   forRuntime(runtimeId: string): SyncEndpointSecurityCapabilities;
-  /** Must stop admission synchronously, then drain and destroy this runtime's keys. */
+  /**
+   * Must stop admission synchronously, then drain and destroy this runtime's
+   * keys.
+   */
   revokeRuntime(runtimeId: string): void | Promise<void>;
 }
 
@@ -227,7 +230,10 @@ export interface SyncHostServiceOptions {
   localProvider?: (pluginId: string) => SyncHostLocalProvider | undefined;
   /** Required before local mutations or receipt recovery can enter a provider. */
   guardLocalApply?: SyncLocalApplyGuard;
-  /** Select custody per plugin; returning undefined explicitly retains legacy custody. */
+  /**
+   * Select custody per plugin; returning undefined explicitly retains legacy
+   * custody.
+   */
   securityProvider?: (pluginId: string) => SyncHostSecurityProvider | undefined;
   /** Dedicated host custody; omitted only for legacy AppDatabase-backed callers. */
   securityStore?: SyncSecurityStore;
@@ -391,6 +397,7 @@ export class SyncHostService {
           : undefined;
       this.#eventQueue = this.#eventQueue
         .then(async () => {
+          await this.#ready;
           await this.#recordFileChange(event, file, previousPath, originId);
         })
         .catch(() => undefined);
@@ -847,7 +854,10 @@ export class SyncHostService {
       );
   }
 
-  /** Host-controlled enrollment; this operation is intentionally absent from plugin facades. */
+  /**
+   * Host-controlled enrollment; this operation is intentionally absent from
+   * plugin facades.
+   */
   async enrollPluginCrypto(
     pluginId: string,
     passphrase: string,

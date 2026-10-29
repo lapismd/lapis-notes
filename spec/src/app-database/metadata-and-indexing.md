@@ -1,5 +1,20 @@
 # App Database / Metadata and indexing
 
+LN-PKG-185 filters the core Vault enumeration used by discovery consumers.
+The retained resource map, explicit metadata reads and database persistence
+formats remain unchanged; discovery exclusions are not backup or access policy.
+
+An explicitly selected [native background owner](../architecture/rust-indexing-lifetime.md)
+fences client-generated metadata and its known projections under LN-CORE-006.
+Accepted client writes drain before ownership changes; queries and unrelated
+domains remain available. An absent App-owned port retains browser processing.
+
+## LN-DB-064 — Native metadata observation ordering
+
+<a id="ln-db-064"></a>
+
+**Requirement.** The native metadata facade MUST deliver compatible metadata changes whether a committed database change precedes or follows its Vault create, modify or rename event. Delivery MUST use the current committed row and matching readable source bytes, without renderer parsing or publication. Detach MUST prevent late compatibility events while leaving native work admitted.
+
 ## LN-DB-002 — Database: expose a descriptor with provider, engine, transport
 
 <a id="ln-db-002"></a>
@@ -11,6 +26,76 @@
 <a id="ln-db-004"></a>
 
 **Requirement.** Turso storage MUST persist indexed files, metadata, links, tags, properties, plugin projections, notifications, history, search documents, chunks, embedding state, and application metadata in normalized tables. Metadata and other durable domains MUST NOT depend on a whole-database compatibility snapshot.
+
+## LN-DB-057 — Complete Search index statistics
+
+<a id="ln-db-057"></a>
+
+**Requirement.** Search index statistics MUST count each stored chunk as ready,
+pending or error, treating missing or unknown embedding status as pending.
+Nullable error strings MUST retain empty strings, including after replacing or
+deleting an error-owning document. Memory and Turso MUST retain this classification.
+
+The shared native storage owner retains LN-DB-004/057 through the same prepared
+document/chunk fixture. Publication, rollback, cold reopen and body-free manifest
+reads qualify storage independently of native embedding generation and retrieval.
+
+## LN-DB-058 — Unicode-safe Search chunk boundaries
+
+<a id="ln-db-058"></a>
+
+**Requirement.** Generated Search chunks MUST retain their exact source text and
+UTF-16 offsets without dividing a surrogate pair. A target cutoff inside a pair
+MUST advance to the pair's end before chunk construction. The retained and native
+preparation implementations MUST share conformance evidence for this boundary.
+
+## LN-DB-059 — Complete Search table evaluation
+
+<a id="ln-db-059"></a>
+
+**Requirement.** Search table evaluation MUST evaluate every eligible candidate
+before ranking and applying the final result limit. Provider and path predicates
+MAY narrow candidates only when preserving the complete query's result
+membership and ordering. Path-only Search MUST retain the same final results.
+
+## LN-DB-060 — Unicode-safe Search snippets
+
+<a id="ln-db-060"></a>
+
+**Requirement.** Clipped Search snippets MUST retain complete Unicode scalars at
+both boundaries. Offsets and match ranges MUST remain UTF-16-based and refer to
+the retained source text. Retained and native implementations MUST share
+conformance evidence for this boundary.
+
+## LN-DB-061 — Native indexed-file upsert stages
+
+<a id="ln-db-061"></a>
+
+**Requirement.** Native indexed-file upsert MUST commit core metadata before
+optional task projection work, retaining LN-DB-020. An omitted task MUST leave
+existing task state unchanged; explicit null MUST delete it; a task record MUST
+upsert it. A later projection failure MUST preserve and publish earlier committed
+stages under LN-CORE-003.
+
+## LN-DB-062 — Native indexed-file rename
+
+<a id="ln-db-062"></a>
+
+**Requirement.** Native indexed-file rename MUST preserve the retained direct-Turso
+metadata, incoming links, notebook, task, projection and Search effects in one
+transaction. An absent indexed source MUST remain a no-op. Successful publication
+MUST include both paths and their rename pair; failure MUST roll back every
+domain and revision.
+
+## LN-DB-063 — Native indexed-file deletion
+
+<a id="ln-db-063"></a>
+
+**Requirement.** Native indexed-file deletion MUST atomically tombstone the file
+and clear its source-owned metadata, notebook, task, projection and Search state
+as retained by direct Turso. Its committed notification MUST identify every
+affected domain, including notebook. Failed publication MUST retain the previous
+state and revision.
 
 ## LN-DB-005 — Lexical retrieval: use Turso full-text search when available. Unsupported
 
@@ -29,6 +114,22 @@
 <a id="ln-db-007"></a>
 
 **Requirement.** Document and query embeddings MUST be generated locally through the provider-neutral embedding contract. Configuration MUST remain lazy until the first semantic index or query, and changing model identity or dimensions MUST invalidate affected vectors.
+
+Native inference qualification under LN-DB-007 uses real model outputs and exact
+retained tokenization, padding and truncation. CPU floating-point comparisons
+retain an explicit tolerance; a fake encoder or token-hash fallback cannot
+qualify the current model. Native host-supplied runtime/model assets remain
+separate from portable configuration and host adoption.
+Reference acceptance includes Unicode, mixed padded batches, configured
+truncation, normalized and unnormalized vectors, and explicit unavailable errors.
+
+Native provider configuration retains portable model identity and options, with
+no native path fields. The database owner persists configuration and invalidates
+old vectors in one committed Search change. Configuration and cold reopen stay
+lazy. Admitted model assets load on an owned blocking worker; a detached waiter
+cannot cancel publication. Runtime status remains observable while that worker
+loads or infers. Missing assets produce explicit error state without token-hash
+substitution. Native asset installation/download remains a separate intake gate.
 
 ## LN-DB-008 — Hybrid retrieval: combine lexical and vector candidates
 
@@ -90,6 +191,18 @@
 
 **Requirement.** The query AST MUST support and, or, not, compare, in, exists, select, orderBy, limit, and cursor after. Default queries MUST return only current ready rows.
 
+Projection fields name direct own properties, including literal dots. The shared
+evaluator defines scalar/null comparisons and locale ordering. SQL candidate
+planning can retain extra rows but cannot discard a possible evaluator match or
+cut a page before that complete ordering. Cursor continuation follows the same
+null policy and row-ID tie ordering. Selection retains own JSON fields without
+changing the result object's prototype.
+
+Related queries apply the same target registration, private-read authority and
+current-source checks as direct row reads. Incoming queries resolve path-only
+edges against the queried row's source path. Target filtering precedes the final
+result limit.
+
 ## LN-DB-022 — Plugin namespaces for projection IDs
 
 <a id="ln-db-022"></a>
@@ -101,6 +214,12 @@
 <a id="ln-db-023"></a>
 
 **Requirement.** `queryTasks` and `getTaskRow` MAY wrap the public `tasks/task` projection. `listTaskDescendants` MUST follow resolved `task-entry` and `list-entry` projection edges rather than infer structure from generic indexed links.
+
+The retained Turso facade uses current projection reads for ID lookup and task
+view queries. Its path lookup reads the compatibility `task_records` table;
+descendant traversal retains breadth-first edge-ordinal order, path-only targets
+and cycle deduplication. Native staging keeps this boundary while general
+`queryRelated` retains its explicit private/current-target checks.
 
 ## LN-DB-024 — Public tasks/task projection version 4: retain the complete RRULE and tracking contracts
 
@@ -225,3 +344,17 @@ changing either the Task document or the daily note.
 <a id="ln-db-044"></a>
 
 **Requirement.** The memory schema migration MUST be additive and transactional. Deleting all derived memory tables and Search rows MUST permit a deterministic rebuild from transcripts, curated Markdown, revision files, reviews, and exclusions without touching unrelated AppDatabase domains.
+
+## Native Search observation
+
+Search uses the same App-owned observer when a native port is selected. Its
+client MUST NOT publish Search documents, chunks or reconciliation checkpoints;
+queries retain the existing AppDatabase contract.
+Progress MUST retain native failures and pending convergence without announcing
+the Search index ready.
+
+## LN-DB-065 — Search selection during App replacement
+
+<a id="ln-db-065"></a>
+
+**Requirement.** A new native App whose Search plugin is absent, disabled or failed MUST explicitly drain retained native Search before completing metadata startup. An enabled plugin awaiting metadata-loaded declaration MUST retain its owner. Search controls MUST preserve declaration/disable order, including a late enable during startup drain. Passive App detach MUST retain native work; failed drains MUST remain visible without renderer fallback.

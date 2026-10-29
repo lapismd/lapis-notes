@@ -1,9 +1,11 @@
-import { z } from "zod";
+import { z } from "zod/v3";
 import type { App } from "./context.svelte";
 import { SettingTab } from "./settings.svelte";
 import { cloneDeep, isEqual } from "lodash-es";
 import { EventDispatcher } from "./events";
-import { dirname } from "./storage";
+import { dirname, normalizePath } from "./storage";
+import { TFile } from "./storage/fs";
+import { FileTextStateWriter } from "./file-text-state-writer";
 
 type PluginDataUpdateOrigin =
   | "plugin-save"
@@ -946,6 +948,9 @@ export class Configuration extends EventDispatcher<{
 }> {
   private values: Record<string, any> = $state({});
   private loaded = false;
+  private stateBaseline: string | null = null;
+  private stateWriter: FileTextStateWriter | undefined;
+  private updateTail: Promise<void> = Promise.resolve();
   readonly schema: ConfigurationSchema = new ConfigurationSchema();
 
   constructor(
@@ -977,19 +982,23 @@ export class Configuration extends EventDispatcher<{
     value: any,
     options: { origin?: PluginDataUpdateOrigin } = {},
   ): Promise<void> {
-    const prev = this.getPluginData(pluginId);
-    const pluginData = this.getPluginDataStore(this.values);
-    const nextPluginData = {
-      ...pluginData,
-      [pluginId]: cloneDeep(value),
-    };
-    const next = { ...this.values, pluginData: nextPluginData };
-    await this.persist(next);
-    this.emit("plugin-data-updated", {
-      pluginId,
-      value: this.getPluginData(pluginId),
-      prev,
-      origin: options.origin ?? "configuration-update",
+    const captured = cloneDeep(value);
+    return this.change(() => {
+      const prev = this.getPluginData(pluginId);
+      const pluginData = {
+        ...this.getPluginDataStore(this.values),
+        [pluginId]: captured,
+      };
+      return {
+        data: { ...this.values, pluginData },
+        notify: () =>
+          this.emit("plugin-data-updated", {
+            pluginId,
+            value: this.getPluginData(pluginId),
+            prev,
+            origin: options.origin ?? "configuration-update",
+          }),
+      };
     });
   }
 
@@ -997,38 +1006,47 @@ export class Configuration extends EventDispatcher<{
     pluginId: string,
     options: { origin?: PluginDataUpdateOrigin } = {},
   ): Promise<void> {
-    const pluginData = this.getPluginDataStore(this.values);
-    if (!Object.hasOwn(pluginData, pluginId)) {
-      return;
-    }
-    const prev = cloneDeep(pluginData[pluginId]);
-    const nextPluginData = { ...pluginData };
-    delete nextPluginData[pluginId];
-    const next = { ...this.values };
-    if (Object.keys(nextPluginData).length > 0) {
-      next.pluginData = nextPluginData;
-    } else {
-      delete next.pluginData;
-    }
-    await this.persist(next);
-    this.emit("plugin-data-updated", {
-      pluginId,
-      value: undefined,
-      prev,
-      origin: options.origin ?? "configuration-update",
+    return this.change(() => {
+      const pluginData = this.getPluginDataStore(this.values);
+      if (!Object.hasOwn(pluginData, pluginId)) return;
+      const prev = cloneDeep(pluginData[pluginId]);
+      const nextPluginData = { ...pluginData };
+      delete nextPluginData[pluginId];
+      const next = { ...this.values };
+      if (Object.keys(nextPluginData).length) next.pluginData = nextPluginData;
+      else delete next.pluginData;
+      return {
+        data: next,
+        notify: () =>
+          this.emit("plugin-data-updated", {
+            pluginId,
+            value: undefined,
+            prev,
+            origin: options.origin ?? "configuration-update",
+          }),
+      };
     });
   }
 
   async reloadFromDisk(
     options: {
       emitPluginDataEvents?: boolean;
+      materializeDefaults?: boolean;
       origin?: PluginDataUpdateOrigin;
     } = {},
   ): Promise<void> {
+    if (this.stateWriter?.dirty) return;
     const previousValues = cloneDeep(this.values);
-    this.values = await this.readValuesFromDisk();
+    const loaded = await this.readValuesFromDisk();
+    if (
+      this.stateWriter &&
+      !this.stateWriter.acceptBaseline(this.stateBaseline)
+    )
+      return;
+    this.values = loaded;
     this.loaded = true;
-    await this.materializeSchemaDefaults();
+    if (options.materializeDefaults !== false)
+      await this.materializeSchemaDefaults();
 
     if (options.emitPluginDataEvents !== false) {
       this.emitPluginDataDiffs(
@@ -1095,41 +1113,112 @@ export class Configuration extends EventDispatcher<{
   ): Promise<void> {
     const validated = Object.entries(changes).map(([key, value]) => ({
       key,
-      value: this.schema.validateConfigurationOption(key, value),
+      value: cloneDeep(this.schema.validateConfigurationOption(key, value)),
     }));
-    const changed = validated
-      .map(({ key, value }) => ({
-        key,
-        value,
-        prev: this.values[key],
-      }))
-      .filter(({ value, prev }) => !isEqual(value, prev));
+    return this.change(() => {
+      const changed = validated
+        .map(({ key, value }) => ({
+          key,
+          value,
+          prev: this.values[key],
+        }))
+        .filter(({ value, prev }) => !isEqual(value, prev));
 
-    if (changed.length === 0) return;
+      if (changed.length === 0) return;
 
-    const next = { ...this.values };
-    for (const { key, value } of changed) {
-      next[key] = cloneDeep(value);
-    }
+      const next = { ...this.values };
+      for (const { key, value } of changed) {
+        next[key] = cloneDeep(value);
+      }
 
-    await this.persist(next);
-    for (const { key, value, prev } of changed) {
-      this.emit("updated", {
-        key,
-        value: cloneDeep(value),
-        prev: cloneDeep(prev),
-      });
-    }
+      return {
+        data: next,
+        notify: () => {
+          for (const { key, value, prev } of changed)
+            this.emit("updated", {
+              key,
+              value: cloneDeep(value),
+              prev: cloneDeep(prev),
+            });
+        },
+      };
+    });
   }
 
   async removeConfigurationOption(key: string): Promise<void> {
-    const value = this.values[key];
-    if (value !== undefined) {
+    return this.change(() => {
+      const value = this.values[key];
+      if (value === undefined) return;
       const next = { ...this.values };
       delete next[key];
-      await this.persist(next);
-      this.emit("updated", { key, prev: value, value: undefined });
+      return {
+        data: next,
+        notify: () =>
+          this.emit("updated", { key, prev: value, value: undefined }),
+      };
+    });
+  }
+
+  private getStateWriter(): FileTextStateWriter {
+    if (this.stateWriter) return this.stateWriter;
+    const file =
+      this.app.vault.getFileByPath(this.basePath) ??
+      new TFile(
+        normalizePath(this.basePath),
+        { ctime: 0, mtime: 0, size: 0 },
+        null,
+      );
+    this.stateWriter = new FileTextStateWriter(
+      this.app,
+      file,
+      this.stateBaseline,
+      (text) => {
+        const next = JSON.parse(text || "{}");
+        if (!next || typeof next !== "object" || Array.isArray(next))
+          throw new Error("Invalid app configuration record");
+        const previous = this.values;
+        this.values = next;
+        this.emitPluginDataDiffs(previous, next, "external-reload");
+        for (const key of new Set([
+          ...Object.keys(previous),
+          ...Object.keys(next),
+        ])) {
+          if (!isEqual(previous[key], next[key]))
+            this.emit("updated", {
+              key,
+              prev: previous[key],
+              value: next[key],
+            });
+        }
+      },
+    );
+    return this.stateWriter;
+  }
+
+  private change(
+    calculate: () => { data: Record<string, any>; notify?(): void } | undefined,
+  ): Promise<void> {
+    if (this.app.vault.supportsConditionalTextWrites) {
+      return this.getStateWriter().update(() => {
+        const change = calculate();
+        if (!change) return;
+        return {
+          contents: JSON.stringify(change.data, null, 2),
+          onSaved: () => {
+            this.values = change.data;
+            change.notify?.();
+          },
+        };
+      });
     }
+    const run = this.updateTail.then(async () => {
+      const change = calculate();
+      if (!change) return;
+      await this.persist(change.data);
+      change.notify?.();
+    });
+    this.updateTail = run.catch(() => {});
+    return run;
   }
 
   private async persist(data: Record<string, any>) {
@@ -1158,11 +1247,13 @@ export class Configuration extends EventDispatcher<{
   private async readValuesFromDisk(): Promise<Record<string, any>> {
     const file = this.app.vault.getFileByPath(this.basePath);
     if (!file) {
+      this.stateBaseline = null;
       return {};
     }
 
     try {
       const contents = await this.app.vault.read(file);
+      this.stateBaseline = contents;
       const data = JSON.parse(contents);
       if (typeof data === "object" && data !== null && !Array.isArray(data)) {
         return data;
@@ -1221,39 +1312,37 @@ export class Configuration extends EventDispatcher<{
       return;
     }
 
-    const next = { ...this.values };
-    let changed = false;
+    return this.change(() => {
+      const next = { ...this.values };
+      let changed = false;
 
-    for (const [key, defaultValue] of this.schema.getDefaultEntries()) {
-      if (!(key in next) || next[key] === undefined) {
-        next[key] = cloneDeep(defaultValue);
-        changed = true;
-        continue;
-      }
+      for (const [key, defaultValue] of this.schema.getDefaultEntries()) {
+        if (!(key in next) || next[key] === undefined) {
+          next[key] = cloneDeep(defaultValue);
+          changed = true;
+          continue;
+        }
 
-      try {
-        const validated = this.schema.validateConfigurationOption(
-          key,
-          next[key],
-        );
-        if (!isEqual(validated, next[key])) {
-          next[key] = validated;
+        try {
+          const validated = this.schema.validateConfigurationOption(
+            key,
+            next[key],
+          );
+          if (!isEqual(validated, next[key])) {
+            next[key] = validated;
+            changed = true;
+          }
+        } catch (error) {
+          console.warn(
+            `Invalid configuration value for ${key}; restoring default.`,
+            error,
+          );
+          next[key] = cloneDeep(defaultValue);
           changed = true;
         }
-      } catch (error) {
-        console.warn(
-          `Invalid configuration value for ${key}; restoring default.`,
-          error,
-        );
-        next[key] = cloneDeep(defaultValue);
-        changed = true;
       }
-    }
 
-    if (changed) {
-      await this.persist(next);
-    } else {
-      this.values = next;
-    }
+      return changed ? { data: next } : undefined;
+    });
   }
 }

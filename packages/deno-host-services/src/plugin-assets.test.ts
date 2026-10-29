@@ -49,7 +49,7 @@ describe("Deno plugin assets", () => {
       rootPath: "/vault",
       pluginId: "plugin-a",
       version: "1.0.0",
-      pluginsPath: ".obsidian/plugins",
+      pluginsPath: ".lapis/plugins",
       installedPlugin: {
         pluginId: "plugin-a",
         installedVersion: "1.0.0",
@@ -61,8 +61,7 @@ describe("Deno plugin assets", () => {
     });
     expect(registration.fingerprintSha256).toBe(fingerprintSha256);
 
-    const mainUrl =
-      `http://127.0.0.1/__lapis/plugins/${encodeURIComponent("desktop-folder:/vault")}/plugin-a/1.0.0/${fingerprintSha256}/main.mjs`;
+    const mainUrl = `http://127.0.0.1/__lapis/plugins/${encodeURIComponent("desktop-folder:/vault")}/plugin-a/1.0.0/${fingerprintSha256}/main.mjs`;
     const response = await service.respond(mainUrl);
     const chunkResponse = await service.respond(
       new URL("./chunk.mjs", mainUrl).href,
@@ -74,7 +73,7 @@ describe("Deno plugin assets", () => {
     expect(chunkResponse?.status).toBe(200);
     expect(await chunkResponse?.text()).toBe("export const value = 1;\n");
     expect(stat).toHaveBeenLastCalledWith(
-      "/vault/.obsidian/plugins/plugin-a/chunk.mjs",
+      "/vault/.lapis/plugins/plugin-a/chunk.mjs",
     );
   });
 

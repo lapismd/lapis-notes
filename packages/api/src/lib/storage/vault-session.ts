@@ -1,3 +1,4 @@
+import type { NativeTasks } from "../native-tasks";
 import {
   EMPTY_APP_DATABASE_CAPABILITIES,
   MemoryAppDatabase,
@@ -7,6 +8,9 @@ import {
   type AppDatabaseProvider,
   type RuntimeTarget,
 } from "./app-database";
+import type { NativeBackgroundIndexing } from "../native-background-indexing";
+import type { NativeHistoryIndex } from "../native-history-index";
+import type { NativeEditingIntents } from "../native-editing-intents";
 import { BrowserCoordinatedAppDatabase } from "./browser-coordinated-app-database";
 import { BrowserAppDatabaseCoordinator } from "./browser-app-database-coordination";
 import type { VaultAdapter, VaultIdentityAdapter } from "./fs";
@@ -45,6 +49,10 @@ export interface VaultSession {
   profile?: VaultProfile;
   vaultAdapter: VaultAdapter;
   appDatabase?: AppDatabase;
+  backgroundIndexing?: NativeBackgroundIndexing;
+  nativeHistoryIndex?: NativeHistoryIndex;
+  nativeEditingIntents?: NativeEditingIntents;
+  nativeTasks?: NativeTasks;
   appDatabaseState: VaultSessionAppDatabaseState;
   awaitAppDatabase?: (options?: {
     signal?: AbortSignal;
@@ -230,6 +238,12 @@ async function createPreferredAppDatabase(
     if (!provider) await database.open();
     return { appDatabase: database, state: readyState(database, false) };
   }
+  if (runtime === "tauri-desktop") {
+    if (!provider)
+      throw new Error("tauri-desktop requires an AppDatabaseProvider");
+    const database = await provider.open({ vaultId, runtime, role: "direct" });
+    return { appDatabase: database, state: readyState(database, false) };
+  }
   if (runtime === "deno-desktop") {
     const database = provider
       ? await provider.open({ vaultId, runtime, role: "direct" })
@@ -240,9 +254,13 @@ async function createPreferredAppDatabase(
         });
     return { appDatabase: database, state: readyState(database, false) };
   }
-  if (runtime === "deno-server") {
+  if (
+    runtime === "node-server" ||
+    runtime === "deno-server" ||
+    runtime === "rust-server"
+  ) {
     if (!provider) {
-      throw new Error("deno-server requires an AppDatabaseProvider");
+      throw new Error("server-hosted vaults require an AppDatabaseProvider");
     }
     const database = await provider.open({
       vaultId,

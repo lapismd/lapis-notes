@@ -1,5 +1,10 @@
 <script lang="ts">
   import {
+    appStatePath,
+    DEFAULT_APP_STATE_DIRECTORY,
+  } from "@lapis-notes/api/path";
+
+  import {
     App,
     type AppPluginDistributionOptions,
     createBrowserSyncUnlockHandler,
@@ -23,6 +28,15 @@
     registerNotesPluginSettings,
     registerNotesPluginBrowser,
   } from "@lapis-notes/app-profile";
+  import {
+    createNativeChatPlugin,
+    prepareNativeChatLeave,
+    type NativeChatHost,
+  } from "@lapis-notes/app-profile/native-chat";
+  import {
+    registerNativeRepository,
+    type RepositoryFactory,
+  } from "@lapis-notes/app-profile/native-repository";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
   import {
@@ -31,16 +45,11 @@
     type WorkspaceStartupTask,
   } from "@lapismd/design-core/workspace/startup";
   import { onMount, untrack } from "svelte";
-  import { registerWebAgentRuntimeBridge } from "./agent-runtime-attach";
+  import { createWorkspaceLeave } from "./workspace/leave";
   import {
-    registerWebAgentRuntimeSettings,
-    syncWebAgentRuntime,
-  } from "./agent-runtime-settings";
-  import { registerWebTerminalRuntimeBridge } from "./terminal-runtime-attach";
-  import {
-    registerWebTerminalRuntimeSettings,
-    syncWebTerminalRuntime,
-  } from "./terminal-runtime-settings";
+    webPluginRestrictionsFor,
+    removeObsoleteServiceSecrets,
+  } from "./desktop-plugin-policy";
   import { registerWebVaultTransferSettings } from "./vault-transfer-settings";
   import { createWebPluginAssetServer } from "./plugin-asset-server";
   import { setPwaRuntimeApplication } from "./pwa-runtime-application";
@@ -56,6 +65,8 @@
     listProfiles = listVaultProfiles,
     pluginAssetServer,
     pluginDistributionOptions,
+    nativeChat,
+    repositoryFactory,
   }: {
     adapter: VaultAdapter;
     profile: VaultProfile;
@@ -63,10 +74,12 @@
     onReady(): void;
     onOpenRecent(profile: VaultProfile): Promise<void>;
     onManageVaults(): Promise<void>;
-    runtime?: "web-pwa" | "deno-server";
+    runtime?: "web-pwa" | "node-server" | "rust-server";
     listProfiles?: () => Promise<VaultProfile[]>;
     pluginAssetServer?: PluginAssetServer;
     pluginDistributionOptions?: AppPluginDistributionOptions;
+    nativeChat?: (app: App) => NativeChatHost;
+    repositoryFactory?: RepositoryFactory;
   } = $props();
 
   const staticPluginDistributionOptions = untrack(() =>
@@ -114,7 +127,7 @@
     });
     ownedApp = new App({
       version: "2026.6.3",
-      configPath: ".obsidian/app.json",
+      configPath: appStatePath("app.json"),
       session,
       syncHost: {
         requestCryptoUnlock,
@@ -149,6 +162,7 @@
       pluginAssetServer:
         pluginAssetServer ?? createWebPluginAssetServer({ adapter }),
       pluginDistributionOptions: staticPluginDistributionOptions,
+      unavailablePlugins: webPluginRestrictionsFor(!!nativeChat),
       workspaceShell: {
         application: {
           name: "Lapis Notes",
@@ -162,6 +176,7 @@
     hostSync = takeHostSyncService(ownedApp);
     return ownedApp;
   });
+  let disposeRepositoryBinding: (() => void) | undefined;
   provideApplicationState(app);
   const disposeApplicationCompatibility = installApplicationCompatibility(app);
   const disposePluginManagementSettings = registerNotesPluginSettings(app);
@@ -174,13 +189,42 @@
   let tasks = $state<WorkspaceStartupTask[]>(structuredClone(STARTUP_TASKS));
   let failure = $state<WorkspaceStartupFailure | null>(null);
   let disposed = false;
+  // Match Desktop's stop/drain/guard order; session closure stays outside the guard.
+  const leaveWorkspace = createWorkspaceLeave({
+    preflight: async () => {
+      await app.vaultChanges.stop();
+      await app.workspace.flushPluginChanges();
+      await app.plugins.flushPendingConfigWrites();
+      await app.fileEditingSessions.settleOperations();
+      await app.fileEditingSessions.preflightNativeRecovery();
+    },
+    commit: disposeOwnedWorkspace,
+    isDisposed: () => disposed,
+    onRefused: async (error) => {
+      let failure = error;
+      try {
+        await app.vaultChanges.start();
+      } catch (resume) {
+        failure = new AggregateError(
+          [error, resume],
+          "Leaving failed and file watching could not resume",
+        );
+      }
+      app.notifications.notify({
+        title: "Vault could not close",
+        message: failure instanceof Error ? failure.message : String(failure),
+        severity: "error",
+        source: "workspace",
+        persist: true,
+      });
+      if (failure !== error) throw failure;
+    },
+  });
   let booting = false;
   let corePluginsRegistered = false;
   let stopMetadataTracking: (() => void) | null = null;
   let disposeDatabaseStatus: (() => void) | null = null;
   let disposeCoordinationListener: (() => void) | null = null;
-  let disposeAgentRuntimeSettings: (() => void) | null = null;
-  let disposeTerminalRuntimeSettings: (() => void) | null = null;
   let disposeVaultTransferSettings: (() => void) | null = null;
   let recentVaults = $state.raw<VaultProfile[]>([]);
   let workspaceNavigation = $derived.by<WorkspaceNavigation>(() => {
@@ -266,7 +310,7 @@
   }
 
   function registerDatabaseStatus(): void {
-    if (runtime === "deno-server") {
+    if (runtime === "node-server" || runtime === "rust-server") {
       syncDatabaseStatus("server");
       return;
     }
@@ -290,17 +334,13 @@
     stopMetadataTracking = null;
     disposeCoordinationListener?.();
     disposeDatabaseStatus?.();
-    disposeAgentRuntimeSettings?.();
-    disposeTerminalRuntimeSettings?.();
     disposeVaultTransferSettings?.();
     disposeCoordinationListener = null;
     disposeDatabaseStatus = null;
-    disposeAgentRuntimeSettings = null;
-    disposeTerminalRuntimeSettings = null;
     disposeVaultTransferSettings = null;
-    await app.workspace.disposeWorkspaceHost().catch(() => undefined);
-    await app.metadataCache.dispose().catch(() => undefined);
-    for (const plugin of [...app.plugins.corePlugins].reverse()) {
+    await app.vaultChanges.stop().catch(() => undefined);
+    // Retry reuses this App. Its controller/cache observers retire on final dispose.
+    for (const plugin of [...app.plugins.plugins.values()].reverse()) {
       await plugin.disable().catch(() => undefined);
     }
   }
@@ -318,32 +358,32 @@
       if (disposed) return;
 
       setTask(activeTask, "active");
-      if (runtime === "web-pwa") {
-        registerWebAgentRuntimeBridge();
-        registerWebTerminalRuntimeBridge();
-      }
       if (!corePluginsRegistered) {
         app.plugins.registerStaticPlugins(notesPluginProfile);
+        if (repositoryFactory)
+          disposeRepositoryBinding = registerNativeRepository(app, repositoryFactory);
+        if (nativeChat)
+          app.plugins.registerStaticPlugins([
+            {
+              plugin: createNativeChatPlugin(nativeChat),
+              required: false,
+              enabledByDefault: false,
+            },
+          ]);
         corePluginsRegistered = true;
       }
       await app.vault.load();
-      await app.vault.mkpath(".obsidian");
+      await app.vault.mkpath(DEFAULT_APP_STATE_DIRECTORY);
       if (disposed) return;
       setTask(activeTask, "complete");
 
       activeTask = "configuration";
       setTask(activeTask, "active");
       await app.configuration.load();
-      disposeAgentRuntimeSettings?.();
-      disposeTerminalRuntimeSettings?.();
+      await removeObsoleteServiceSecrets(app);
       disposeVaultTransferSettings?.();
       if (runtime === "web-pwa") {
-        disposeAgentRuntimeSettings = registerWebAgentRuntimeSettings(app);
-        disposeTerminalRuntimeSettings =
-          registerWebTerminalRuntimeSettings(app);
         disposeVaultTransferSettings = registerWebVaultTransferSettings(app);
-        syncWebAgentRuntime(app);
-        syncWebTerminalRuntime(app);
       }
       if (disposed) return;
       setTask(activeTask, "complete");
@@ -365,6 +405,7 @@
       await app.workspace.loadLayout();
       recentVaults = await listProfiles();
       registerDatabaseStatus();
+      await app.vaultChanges.start();
       if (disposed) return;
       setTask(activeTask, "complete");
       ready = true;
@@ -402,9 +443,11 @@
   async function writeWorkspaceLayout(): Promise<void> {
     if (!app.workspace.layoutReady) return;
     const serializedLayout = JSON.stringify(app.workspace.getLayout(), null, 2);
-    await session.vaultAdapter.mkdir(".obsidian", { recursive: true });
+    await session.vaultAdapter.mkdir(DEFAULT_APP_STATE_DIRECTORY, {
+      recursive: true,
+    });
     await session.vaultAdapter.write(
-      ".obsidian/workspace.json",
+      appStatePath("workspace.json"),
       serializedLayout,
     );
   }
@@ -414,38 +457,55 @@
     await writeWorkspaceLayout();
   }
 
-  export async function dispose(persistLayout: boolean): Promise<void> {
+  export function canRecoverLeave(): boolean {
+    return !disposed;
+  }
+
+  export function dispose(persistLayout: boolean): Promise<void> {
+    return leaveWorkspace(persistLayout);
+  }
+
+  async function disposeOwnedWorkspace(persistLayout: boolean): Promise<void> {
     if (disposed) return;
-    disposed = true;
     try {
-      if (persistLayout) await writeWorkspaceLayout();
-      ready = false;
-      await app.workspace.disposeWorkspaceHost();
-      stopMetadataTracking?.();
-      stopMetadataTracking = null;
-      await app.metadataCache.dispose();
-      for (const plugin of [...app.plugins.corePlugins].reverse()) {
-        await plugin.disable().catch(() => undefined);
-      }
-      disposeCoordinationListener?.();
-      disposeDatabaseStatus?.();
-      disposeAgentRuntimeSettings?.();
-      disposeTerminalRuntimeSettings?.();
-      disposeVaultTransferSettings?.();
-      disposeCoordinationListener = null;
-      disposeDatabaseStatus = null;
-      disposeAgentRuntimeSettings = null;
-      disposeTerminalRuntimeSettings = null;
-      disposeVaultTransferSettings = null;
+      await app.fileEditingSessions.guard(undefined, async () => {
+        await app.workspace.flushLayout();
+        if (persistLayout) await writeWorkspaceLayout();
+        // Every writer has flushed and remains protected before this fence.
+        disposed = true;
+        const nativeTasksDetached = app.nativeTasks?.detach();
+        prepareNativeChatLeave(app, "detach");
+        await nativeTasksDetached;
+        ready = false;
+        await app.workspace.disposeWorkspaceHost();
+        stopMetadataTracking?.();
+        stopMetadataTracking = null;
+        await app.metadataCache.dispose();
+        for (const plugin of [...app.plugins.plugins.values()].reverse()) {
+          await plugin.disable().catch(() => undefined);
+        }
+        disposeCoordinationListener?.();
+        disposeDatabaseStatus?.();
+        disposeVaultTransferSettings?.();
+        disposeCoordinationListener = null;
+        disposeDatabaseStatus = null;
+        disposeVaultTransferSettings = null;
+      });
+      // Closing the registry/session inside its queued guard would re-enter it.
+      await app.fileEditingSessions.dispose();
       await session.close();
     } finally {
-      dailyDocumentProvider.dispose();
-      disposePluginBrowser();
-      disposePluginManagementSettings();
-      disposePwaRuntimeApplication();
-      disposeApplicationCompatibility();
+      if (disposed) {
+        disposeRepositoryBinding?.();
+        dailyDocumentProvider.dispose();
+        disposePluginBrowser();
+        disposePluginManagementSettings();
+        disposePwaRuntimeApplication();
+        disposeApplicationCompatibility();
+      }
     }
   }
+
 </script>
 
 <section

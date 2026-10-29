@@ -1,5 +1,39 @@
 # Packages / Workspace APIs
 
+LN-WS-101 adds `View.getClosePersistenceScope()`, defaulting to `application`.
+Only views with no file writers and externally retained staged state may return
+`layout`; old plugins, mixed targets and application shutdown retain full
+protection. The host rechecks identity and policy after asynchronous admission.
+
+LN-WS-005/063 foreground file routing awaits the existing reveal contract.
+Public package exports, signatures and generic workspace ownership are unchanged.
+
+The optional WorkspaceShell popup host in LN-WS-008 uses the public Design Core
+host contract. API host binding remains on the host-only subpath; LN-WS-098
+projects existing handles rather than constructing another App or host. The
+binding is also stored on the workspace, so a second copy of the host module
+can still read the binding created by `Workspace`.
+
+The LN-WS-006/064 attachment correction changes no public export or root API
+type. Controller-opened views attach their retained API container after the
+existing projection completes, with disposal fencing the pending attachment.
+
+## LN-PKG-171 — Shared desktop vault presentation
+
+<a id="ln-pkg-171"></a>
+
+**Requirement.** `@lapis-notes/workspace` MUST export the existing desktop vault chooser and branded startup components for Deno and Tauri consumers. The chooser MUST retain the Deno layout, labels, recent-project search, appearance controls and drag exclusions through native CSS and public Design Core primitives. Hosts MUST inject profile storage and actions; unavailable profile operations MUST remain absent. Vault selection and session ownership MUST remain host-owned.
+
+## LN-PKG-175 — Shared desktop recovery presentation
+
+<a id="ln-pkg-175"></a>
+
+**Requirement.** Workspace MUST export the existing desktop Safe Mode banner using public Design Core controls and native CSS. The banner MUST describe active restrictions and expose metadata rebuild, Search rebuild and normal restart through host-owned callbacks. It MUST keep startup policy, App ownership and persistence in the host, remain outside the top tab strips, and omit unavailable recovery capabilities.
+
+The recovery banner uses an opaque themed background and relevant icons for
+metadata rebuild, Search rebuild and restart. Decorative icons retain each
+button's existing accessible name and callback.
+
 ## LN-PKG-009 — @lapis-notes/api: expose the design-core V3 bottom panel
 
 <a id="ln-pkg-009"></a>
@@ -16,7 +50,7 @@
 
 <a id="ln-pkg-090"></a>
 
-**Requirement.** API `StatusBarManager.upsertItem` MUST notify subscribers only when a visible status field changes. Identical id, text, segments, icon, spin, tooltip, command, when, alignment, priority, and sourcePlugin MUST NOT notify. A `buildMenu` replacement alone MUST NOT count as a visible change.
+**Requirement.** API `StatusBarManager.upsertItem` MUST notify subscribers only when a visible status field changes. Identical id, text, segments, icon, spin, tooltip, command, when, alignment, priority, sourcePlugin, and custom mount identity MUST NOT notify. A `buildMenu` replacement alone MUST NOT count as a visible change.
 
 ## LN-PKG-020 — Editable FileEmbed: expose an imperative exit() that delegates
 
@@ -77,3 +111,37 @@
 <a id="ln-pkg-105"></a>
 
 **Requirement.** `@lapis-notes/api` MUST own the bridge from Design Core pane-menu split actions to Lapis `WorkspaceLeaf` duplication. Lapis-hosted imperative views MUST keep live leaf ids, containers, copied view state, translated split directions, and projected host layout before the new pane renders.
+
+LN-WS-096 projects notices from the explicit App into the existing shared
+notification UI and removes that subscription on host disposal. Explorer passes
+its owned App to Notice; native error handling keeps the existing presentation.
+
+API view-state transitions and leaf activation retain their existing public
+signatures. Internal layout replay does not count as a newer user mutation;
+queued older snapshots cannot discard a later live view or its selected leaf,
+including query/scope changes made while an earlier projection is in flight.
+
+The projection repair carries API patch intent and a verified public archive
+for Tauri intake. Publication remains at the migration release gate.
+
+The existing `Workspace.revealLeaf` promise joins in-flight host projection and
+publishes the requested selection under LN-WS-005. Package signatures and
+instance ownership remain unchanged; a superseding navigation fences the reveal.
+
+LN-CORE-027 exposes the App-owned native editing recovery/issue facade and
+`bindNativeEditingProblems(app)` through public API exports. WorkspaceShell
+reference-counts that disposable collection binding per App; the source model
+is passive until mounted or explicitly refreshed. Hosts call the registry
+preflight before destructive teardown, preserving failed-leave recovery.
+
+LN-WS-102 through LN-WS-104 expose `bindFileConflictReviews(app)` from
+`@lapis-notes/workspace`: one App-owned retained text-conflict presentation
+shared by WorkspaceShell mounts and early host leases. The binding is
+reference-counted per App; its final idempotent release removes only its own
+diagnostics, navigation and view registration and never resolves or drops the
+writer-captured conflicts.
+
+LN-PLUG-122–124 expose optional editor-view `fileIcon`, extension-registration
+options, `Workspace.getFileIconForPath`/`onFileIconsChanged` and the App-owned
+icon registry. Plugin helpers register lifecycle-owned SVGs and icon packs;
+Explorer consumes the public Design Core resolver under LN-EXP-014.

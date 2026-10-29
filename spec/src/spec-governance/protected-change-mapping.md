@@ -1,5 +1,27 @@
 # Specification Governance / Protected change mapping
 
+Validation install projections and their regressions map to the architecture
+build/validation chapter, retaining effective security overrides during private
+archive installs. Native build/start tooling and its private regressions map to
+[Rust hosted delivery](../architecture/rust-hosted-delivery.md). The explicit
+profile does not waive ordinary default-switch or deployment gates.
+
+The hosted server workspace moved to the lapis-server repository. Notes no
+longer owns that Cargo workspace. Its historical canonical authority remains
+[Rust application services](../architecture/rust-application-services.md).
+Existing source-ownership and protected-change rules remain enforced; the
+native source, manifests, toolchain and boundary/build scripts map explicitly to
+that chapter, including `rust-protocol.mjs` for generated schema/type drift and
+`search-model-test.mjs` for actual model, download and offline-cache acceptance.
+Native `crates/*/src` joins the fail-closed protected source set. The configured
+protocol-contract lane checks generation and client type fixtures alongside the
+core boundary audit and its regressions.
+
+The H02 map includes `packages/server-native` beside `server-node` so native
+history admission and IPC changes require the owning hosted contracts and
+cross-cutting architecture, package and database confirmations. LN-GOV-003 and
+LN-GOV-013 remain unchanged; native source is not excluded from spec-first.
+
 The approved `2026.10.14.1` shared-image refresh maps direct workflow pins,
 the dependency-only Docker base and its regenerated immutable digest to
 Architecture, Packages and this chapter. All existing CI and release gates
@@ -103,11 +125,11 @@ overlay teardown fix; test-signed fixtures never authorize public assets.
 
 **Requirement.** The spec-first map MUST route CI images, dependency-context helpers, signed Turbo cache configuration, local container runners, workflow orchestration, release packing, and environment examples to Architecture, Packages, and Specification Governance. Environment examples MUST document only public Nostr registry transport and trust configuration, never signer secrets. Storybook runtime-warning guards MUST remain mapped to Storybook Catalog.
 
-## LN-GOV-045 — Spec-first map: route Deno host-service kernels to Deno Server
+## LN-GOV-045 — Spec-first map: route Deno host-service kernels to Node Server
 
 <a id="ln-gov-045"></a>
 
-**Requirement.** The spec-first map MUST route Deno host-service kernels to Deno Server Host, Desktop Host, Packages, and Architecture. Server package and server-mode Web changes MUST additionally route through Deno Server Host.
+**Requirement.** The spec-first map MUST route Deno host-service kernels to Node Server Host, Desktop Host, Packages, and Architecture. Server package and server-mode Web changes MUST additionally route through Node Server Host. Runtime-independent `host-services` kernels MUST route to Architecture.
 
 ## LN-GOV-046 — Dependency-image pin automation: update the verified digest, lockfile tag,
 

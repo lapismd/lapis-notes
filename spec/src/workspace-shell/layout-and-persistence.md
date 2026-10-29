@@ -1,9 +1,10 @@
 # Workspace Shell / Layout and persistence
 
-Retained Mobile acceptance uses the published Design Core dock name
-`Open <count> tabs`. Creating a tab must update that accessible count before
-opening the overview; persisted-layout and controller identity assertions stay
-unchanged.
+Foreground App file navigation joins the same projection-aware reveal as
+explicit view navigation. LN-WS-005 retains its original revision fence;
+opening a note preserves a non-file tab and selects its intended main tab.
+The same LN-WS-005/062 fence covers a projection already awaiting plugin/view
+activation when a later explicit same-type query/scope transition completes.
 
 ## LN-WS-001 — Design Core layout engine
 
@@ -45,25 +46,31 @@ unchanged.
 
 <a id="ln-ws-004"></a>
 
-**Requirement.** Layout loading and saving MUST remain owned by the api workspace: normalize the existing Lapis JSON shape, read `/.obsidian/<requested-file>`, and write `/.obsidian/workspace.json` through the owning api instance's existing 1000 ms debounce with one writer.
+**Requirement.** Layout loading and saving MUST remain owned by the api workspace: normalize the existing Lapis JSON shape, read `/.lapis/<requested-file>`, and write `/.lapis/workspace.json` through the owning api instance's existing 1000 ms debounce with one writer.
+
+## LN-WS-095 — Awaitable layout persistence
+
+<a id="ln-ws-095"></a>
+
+**Requirement.** `Workspace.flushLayout` MUST await pending controller projections and serialized layout writes, persist the latest live state without waiting for the debounce, and reject on persistence failure. A later flush MUST permit retry. Explicit flush and disposal MUST cancel obsolete timers; disposal MUST join accepted writes before releasing the host. Background write failures MUST remain observable without unhandled rejections.
 
 ## LN-WS-005 — Bidirectional controller synchronization
 
 <a id="ln-ws-005"></a>
 
-**Requirement.** Api mutations MUST commit to the design-core controller, and controller-originated layout changes MUST project back into api wrappers, lifecycle state, legacy events, and persistence without feedback loops. Projection reconciliation MUST remove against a child snapshot so no stale node survives mutation.
+**Requirement.** Api mutations MUST commit to the design-core controller, and controller-originated layout changes MUST project back into api wrappers, lifecycle state, legacy events, and persistence without feedback loops. Projection reconciliation MUST remove against a child snapshot so no stale node survives mutation. A queued controller snapshot MUST NOT replace a newer explicit API view transition or activation before it is applied. Revealing a leaf MUST join in-flight projection and commit its selection unless superseded by newer navigation.
 
 ## LN-WS-008 — WorkspaceShell public inputs
 
 <a id="ln-ws-008"></a>
 
-**Requirement.** `WorkspaceShell` MUST accept `app`, optional `displayMode`, `workspaceLabel`, generic `workspaceNavigation`, and `class`, and MUST mount `AppShell.Root` with `autoStart={false}` because application and layout boot remain consumer-owned. It MUST forward navigation presentation without discovering profiles or owning selection policy.
+**Requirement.** `WorkspaceShell` MUST accept `app`, optional `displayMode`, `workspaceLabel`, generic `workspaceNavigation`, optional `popoutHost`, and `class`, and MUST mount `AppShell.Root` with `autoStart={false}` because application and layout boot remain consumer-owned. It MUST forward navigation presentation without discovering profiles or owning selection policy.
 
 ## LN-WS-009 — Persisted desktop and mobile stories
 
 <a id="ln-ws-009"></a>
 
-**Requirement.** Storybook MUST provide persisted desktop and mobile shell stories backed by an actual api `App` and a story-only in-memory data adapter seeded at `/.obsidian/workspace.json`. Navigation acceptance MUST wait for menu close completion, the host callback outcome and restored pointer ownership before continuing.
+**Requirement.** Storybook MUST provide persisted desktop and mobile shell stories backed by an actual api `App` and a story-only in-memory data adapter seeded at `/.lapis/workspace.json`. Navigation acceptance MUST wait for menu close completion, the host callback outcome and restored pointer ownership before continuing.
 
 ## LN-WS-011 — Application metadata in shell chrome
 
@@ -76,6 +83,13 @@ unchanged.
 <a id="ln-ws-016"></a>
 
 **Requirement.** Bottom-panel layout changes MUST round-trip through the existing api-owned 1000 ms workspace writer. Design-core settings, including `appearence.interface.scrollbarVisibility`, MUST persist separately through api configuration with atomic writes and no layout/configuration feedback loop.
+
+On conditional-capable hosts, the Workspace configuration bridge applies
+[LN-PKG-173](../packages/configuration-and-lifecycle.md#ln-pkg-173) and
+[LN-PKG-174](../packages/configuration-and-lifecycle.md#ln-pkg-174) before the
+presentation controller's debounce. A shared Settings change enters the owning
+App's writer queue immediately. API recovery projection does not enqueue another
+save, and the deferred presentation flush does not reenter a protected queue.
 
 ## LN-WS-017 — Imperative view lifetime
 
@@ -105,7 +119,7 @@ unchanged.
 
 <a id="ln-ws-054"></a>
 
-**Requirement.** API compatibility ribbon registrations and reactive status-bar descriptors MUST project into the API-owned Design Core shell registries. Projection MUST preserve identifiers, icons, labels, alignment, priority, commands, menus, updates, and plugin teardown without introducing a second plugin-facing registration contract.
+**Requirement.** API compatibility ribbon registrations and reactive status-bar descriptors MUST project into the API-owned Design Core shell registries. Projection MUST preserve identifiers, icons, labels, left/center/right alignment, priority, custom mounts, commands, menus, updates, and plugin teardown without introducing a second plugin-facing registration contract.
 
 ## LN-WS-075 — Status updates without layout writes
 
@@ -119,6 +133,11 @@ unchanged.
 
 **Requirement.** Default shells MUST include Design Core `fModePlugin({ enabled: false })` on the API-owned controller. AppShell enablement MUST persist through Design Core `persistence.plugins`. Missing persistence MUST keep F-Mode disabled. Plugin-state load and save MUST resolve the App vault when they run.
 
+Conditional hosts retain the acknowledged App Shell enablement snapshot in the
+App-owned writer registry. Conflicts block shutdown and explicit disk recovery
+projects the accepted choices through the existing plugin manager. Recovery
+projection does not enqueue a second save.
+
 ## LN-WS-059 — Default sidebar layout
 
 <a id="ln-ws-059"></a>
@@ -129,7 +148,7 @@ unchanged.
 
 <a id="ln-ws-060"></a>
 
-**Requirement.** The workspace MUST register Save workspace layout and Load workspace layout commands. Those commands MUST persist and restore named layouts in `.obsidian/workspaces.json` while the live layout continues to write `workspace.json`.
+**Requirement.** The workspace MUST register Save workspace layout and Load workspace layout commands. Those commands MUST persist and restore named layouts in `.lapis/workspaces.json` while the live layout continues to write `workspace.json`.
 
 ## LN-WS-061 — Reset Workspace Layout command
 
@@ -154,3 +173,34 @@ unchanged.
 <a id="ln-ws-085"></a>
 
 **Requirement.** The `@lapis-notes/workspace` public `0.1.0` package MUST remain a shell adapter around a host-supplied API `App`. Its release manifest, README, and package metadata MUST keep vault discovery, plugin boot, persistence, profile management, and backend setup outside the package.
+
+## LN-WS-098 — Live popup projection
+
+<a id="ln-ws-098"></a>
+
+**Requirement.** Live controller projection MUST preserve session-only popup records and claimed leaf, view, editor and history identity. Compatibility windows MUST bind existing controller handles without opening another host. Cold restoration MUST omit popups. The API workspace MUST remain the sole layout writer.
+
+## LN-WS-099 — Popup close admission
+
+<a id="ln-ws-099"></a>
+
+**Requirement.** Shared tab and popup removal MUST await focused-control blur, pending file writers and layout persistence through the owning App before destroying views, except when every closing view qualifies for the explicit layout-only policy in LN-WS-101. Rejected saving MUST preserve reachable content.
+
+## LN-WS-100 — Focused popup command ownership
+
+<a id="ln-ws-100"></a>
+
+**Requirement.** Popup focus and commands MUST use the existing owned App and its document. Selecting a main tab while popups remain open MUST restore main-host command routing.
+
+Plugin registration now retains unadopted data under LN-PLUG-112; workspace layout,
+projection, guarded close and popup contracts remain unchanged. No host source
+change is required to consume the generic registration repair.
+
+Custom `mount(host)` descriptors MUST retain callback identity through projection
+and dispose on replacement/removal. `Plugin.addStatusBarItem()` MUST register a
+visible plugin-owned element through this same path, without a hidden fallback.
+Plugins own their controls, CSS, accessibility and asynchronous resource lifetime.
+
+Status-bar hosts MUST keep custom content in the same item ordering and context
+visibility as standard descriptors. The mount callback is a rendering input;
+replacing it MUST notify the shell even when text/icon metadata is unchanged.

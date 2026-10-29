@@ -1,5 +1,11 @@
 # Search Plugin / Search queries and results
 
+Consumer placement acceptance identifies results through the full-path caption
+and its real vault file. The released Search package exposes the accessible
+name as the vault path and match count. Its result-copy control uses the
+accessible name `Copy search results` and shows the visible result count.
+Geometry, match text, counts and open behavior retain their existing assertions.
+
 ## LN-SRCH-001 — Search: owned by the sibling lapis-plugins repository, retain
 
 <a id="ln-srch-001"></a>
@@ -299,3 +305,11 @@
 <a id="ln-srch-050"></a>
 
 **Requirement.** API MUST export one vault Search-filter syntax factory that owns the canonical fields, examples, notes, human-readable labels, and parser-safe filename, path, and tag insertion values. Search and Graph MUST provide their vault-derived values to that factory and compose the public Design Core query input with the API language support rather than duplicating syntax catalogs.
+
+## LN-SRCH-051 — Provider-owned search results
+
+<a id="ln-srch-051"></a>
+
+**Requirement.** The API MUST expose an App-owned, plugin-lifecycle search-result provider registry. Providers MUST declare query capabilities, return cancellable paginated results with stable identities and opaque navigation targets, and own activation and optional context expansion. Invalidations MUST be disposable and late callbacks MUST NOT revive removed providers. Existing search-document providers and current-file query contracts remain independent.
+
+Saved-version results may expose an immutable content identity and explicit checkpoint navigation references. Search groups identical contents only within the same source and file; author/date filtering remains provider-owned before grouping (LN-SRCH-051).

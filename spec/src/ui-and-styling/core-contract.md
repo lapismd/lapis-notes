@@ -1,9 +1,11 @@
 # UI and Styling / Retained UI contracts
 
-The retained UI consumes published Design Core `^0.5.0`, including prepared
+Active API, retained UI, Workspace, Explorer and Web consumers require published
+Design Core `^0.6.0`, including prepared
 browser CSS and bundled font assets, through the existing public style exports.
-Its patch release intent updates dependency compatibility without adding a
-second component styling path.
+The minimum includes the close guard, asynchronous plugin flush and centered
+bottom-panel contracts already used by current source. Earlier supported ranges
+cannot advertise those required capabilities. The frozen Deno host is unchanged.
 
 UI 0.1.3 is the prepared packaging patch for the retained runtime dependency
 declarations. Its CSS, tokens, component markup and public exports are unchanged.
@@ -19,6 +21,14 @@ package boundary without adding utility classes to component markup.
 <a id="ln-ui-001"></a>
 
 **Requirement.** Overlapping shadcn primitives SHOULD migrate to `@lapismd/design-core/shadcn/*` over time; progress MUST be tracked in `MIGRATION.md`.
+
+The retained Select story follows the public primitive's native `combobox`
+semantics, locates the labelled Workspace control by that role, selects Daily,
+and verifies the selected value with axe enabled. Application-owned Select
+controls provide their purpose through labels; visible option text does not
+replace the control's accessible name. The
+[runtime intake receipt](../../records/2026-10-25-bits-runtime-intake.md) separates
+this Notes story update from the source-owned Bases naming repair.
 
 ## LN-UI-002 — UI families consumed by @lapis-notes/api (and Lapis-specific: keep API/ Storybook stories, plays, and docs
 
@@ -133,3 +143,6 @@ package boundary without adding utility classes to component markup.
 <a id="ln-ui-020"></a>
 
 **Requirement.** The alias-only Lapis theme MUST define public `--ui-search-highlight-background` and `--ui-search-highlight-foreground` defaults with WCAG AA text contrast so Search and other plugin-owned highlighted matches share accessible application paint.
+
+- Light and dark matches retain at least 4.5:1 text contrast on workspace and sidebar surfaces, including hover and active rows.
+- Dark yellow highlights preserve readable text without changing light-mode defaults or requiring consumer color overrides.

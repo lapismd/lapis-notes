@@ -14,13 +14,13 @@ export const historyShellExampleSource = `<script lang="ts">
   import { WorkspaceShell } from "@lapis-notes/workspace";
 
   const adapter = new MemoryVaultAdapter({
-    ".obsidian/app.json": ${JSON.stringify(JSON.stringify(HISTORY_SHELL_CONFIGURATION))},
-    ".obsidian/workspace.json": ${JSON.stringify(JSON.stringify(createHistoryShellLayout()))},
+    ".lapis/app.json": ${JSON.stringify(JSON.stringify(HISTORY_SHELL_CONFIGURATION))},
+    ".lapis/workspace.json": ${JSON.stringify(JSON.stringify(createHistoryShellLayout()))},
     "Notes/Welcome.md": ${JSON.stringify(HISTORY_SHELL_NOTE)},
   });
   const app = new App({
     version: "1.0.0",
-    configPath: ".obsidian/app.json",
+    configPath: ".lapis/app.json",
     adapter,
     appDatabase: new MemoryAppDatabase("history-shell"),
     workspaceShell: { application: { name: "Lapis Notes" } },

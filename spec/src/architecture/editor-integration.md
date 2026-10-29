@@ -1,5 +1,96 @@
 # Architecture / Editor integration
 
+Inline title alignment under [LN-PKG-187](../packages/editor-apis.md#ln-pkg-187)
+is derived by the mounted API editor from its own CodeMirror geometry. The
+component owns observers and measurement cleanup; gutters, filenames and pane
+widths do not create another application state or persistence path. Enter
+commits a title rename through the same focus-out boundary as pointer blur.
+
+Selected native hosts additionally use the [native editor-intent contract](native-editor-intents.md).
+The App registry admits that fence before input, yields only under its existing
+writer guard and rearms before local protection releases. Existing persistence
+and standalone browser behavior remain owned by these editor contracts.
+
+Same-document extension refresh follows
+[LN-ED-063/064](../editor-demo/core-contract-01.md#ln-ed-063): it reconfigures
+the retained editor state without clearing history or subscribing surface
+effects to incidental protection state. Explicit document replacement retains
+its separate reset boundary.
+
+Popup attachment under LN-WS-064 retargets the retained CodeMirror view to its
+new owner document. State, drafts and undo history remain on that same editor;
+LN-WS-099 uses the existing App-owned registry for close admission.
+
+## LN-ARCH-145 — Protected managed trash
+
+<a id="ln-arch-145"></a>
+
+**Requirement.** FileManager trash and deletion commands MUST protect and flush registered writers before filesystem removal, including folder descendants. Failed persistence MUST prevent removal and release protection for explicit retry. Admission MUST retain the originally selected source path; changed targets MUST reject before IO. Native removal failures MUST remain observable without leaving editing protected.
+
+Application-state writers under
+[LN-PKG-173](../packages/configuration-and-lifecycle.md#ln-pkg-173) and
+[LN-PKG-174](../packages/configuration-and-lifecycle.md#ln-pkg-174) share the
+App-owned registry. Their logical updates serialize before calculating a new
+record, and their flush performs IO directly within its admitted operation.
+Configuration, shortcut and plugin state retain distinct file baselines and
+recovery callbacks; the host cannot replace them with independent save paths.
+On conditional-capable hosts, the API Workspace configuration bridge admits
+shared Settings changes synchronously through the public change event, before
+the presentation controller's debounce. It submits only the changed field when
+one is supplied, preserving independent queued API updates. API-to-controller
+projection does not submit another write. The controller's deferred save does
+not enqueue a second operation from inside the protected shutdown callback.
+
+## LN-ARCH-142 — Document-owned conditional save baselines
+
+<a id="ln-arch-142"></a>
+
+**Requirement.** API editors on a vault advertising conditional text writes MUST save against their document-owned last acknowledged text. Background reads MUST NOT advance a dirty document's baseline. Successful saves and accepted clean refreshes MUST advance only that document's baseline. Hosts without that optional capability MAY retain existing persistence; an attempted conditional operation MUST NOT fall back to an unconditional write.
+
+## LN-ARCH-143 — Retained editor conflicts
+
+<a id="ln-arch-143"></a>
+
+**Requirement.** Conditional API editor save conflicts MUST retain local text, the document baseline and an authoritative external snapshot or observable read failure. The original App MUST expose conflicts through a subscribable registry, including inactive and retired writers. Further editing MUST update retained local text without silently resolving the conflict. Flush and shutdown MUST remain blocked until explicit resolution.
+
+## LN-ARCH-144 — Explicit conflict resolution
+
+<a id="ln-arch-144"></a>
+
+**Requirement.** Persisting local or reviewed merged text MUST condition replacement on the displayed external snapshot; accepting external text MUST revalidate that snapshot before discarding local text. Another external change or unavailable snapshot MUST retain the conflict and require a new decision. Resolution MUST protect the document, drain pending saves and update only its original context. Resolving a retired writer MUST release its barrier without changing another document.
+
+An explicit reviewed merge may replace the disk snapshot through the original
+FileTextPersistence owner. It resets only that document to the saved result;
+read failures, changed snapshots and rejected owner resets retain recovery.
+
+Host shutdown uses the pathless editing guard before destructive teardown. The
+API-owned layout flush under [LN-WS-095](../workspace-shell/layout-and-persistence.md#ln-ws-095)
+joins workspace persistence while that protection remains held. Registry disposal
+follows the guard; a callback cannot await its own queued registry operations.
+App-owned event projection uses `afterMutations` to schedule clean view rebinding
+between admitted mutation guards. It does not acquire another editing guard or
+flush dirty external writers. Guard callbacks may schedule this detached work,
+but must not await it while holding their guard.
+
+The public FileTextPersistence contract under
+[LN-PKG-170](../packages/vault-and-storage.md#ln-pkg-170) lets independent file
+writers share this conflict lifecycle. Each recovery carries its own protected
+acknowledgement and reset callbacks, including asynchronous surface admission.
+
+Managed frontmatter and metadata mutations under
+[LN-PKG-172](../packages/vault-and-storage.md#ln-pkg-172) join the same serialized
+registry before transformation. Their writer is admitted after existing
+documents are protected and flushed. Failed computed drafts remain registered;
+recovery excludes only that retained writer while protecting the other writers
+of its file. A presentation-owned property record is checked against parsed
+authoritative input, independently of unrelated body edits.
+
+Mutable metadata type state retains one App-owned text writer and acknowledged
+baseline across edits. Its saves and recovery run on the registry queue;
+protection blocks model edits before yielding. Later edits update a retained
+conflict's local snapshot. A flush already admitted by a lifecycle guard performs
+IO directly without reentering the queued guard, preventing shutdown deadlock.
+
 ## LN-ARCH-137 — Guarded document-load admission
 
 <a id="ln-arch-137"></a>
@@ -60,6 +151,13 @@
 
 **Requirement.** Registry guards MUST serialize callbacks, protect every matching session before flushing and admit mutation only after all protections and saves settle successfully; pathless guards MUST cover every file. Matching registration during admission or mutation MUST reject synchronously so writers can disable editing. Failed admission MUST drain all acquired releases. Callback failure MUST still release every acquired protection; failed release MUST withhold subsequent admission until cleanup succeeds.
 
+A failed native handoff retains its original release and observable issue.
+Cleanup cannot treat a still-active lease as a successful rearm. Reporting the
+same reference error from admission and cleanup preserves that error's identity;
+independent failures remain aggregated even when their messages or primitive
+values match. Explicit retry never replays the rejected callback.
+Independent writer admissions retain multiplicity even when they share an Error.
+
 ## LN-ARCH-131 — Editing-session registry shutdown
 
 <a id="ln-arch-131"></a>
@@ -99,6 +197,8 @@ the production apply guard.
 <a id="ln-arch-010"></a>
 
 **Requirement.** The runnable editor demo MUST keep demo bootstrap and source-editor policy in Storybook fixtures while reusable runtime contracts remain in API, reusable File Explorer remains in `@lapis-notes/file-explorer`, Markdown owns Tags, and generic startup presentation remains in Design Core. Design Core MUST own current, reveal-or-create, and forced-new-tab Explorer intents while Lapis maps them to workspace leaves.
+
+Unchanged contract: File Explorer passes the selected file-view icon through published Design Core `getIcon` and `registerWorkspaceIcon`. `ExplorerControllerOptions` does not declare `iconResolver`.
 
 ## LN-ARCH-020 — Api source-editor shell: expose the configured CodeMirror fold gutter
 
@@ -142,11 +242,11 @@ the production apply guard.
 
 **Requirement.** Bases MUST own advanced-filter draft validation inside its query workflow. CodeMirror presents and describes the draft's accessible invalid state, while only a valid expression may cross into the applied document filter; API and Design Core contracts remain unchanged.
 
-## LN-ARCH-065 — API: own plugin-scoped Markdown extension and file-surface registries
+## LN-ARCH-065 — API: own plugin-scoped Markdown extension, file-surface, and embedder registries
 
 <a id="ln-arch-065"></a>
 
-**Requirement.** API MUST own plugin-scoped Markdown extension and file-surface registries. Domain plugins MAY contribute CodeMirror and rendered-Markdown behavior through public contracts, while the bundled Markdown plugin remains the sole Mira adapter and full-file surface provider. Contributions and providers MUST be disposed with their registering plugin.
+**Requirement.** API MUST own plugin-scoped Markdown extension, file-surface, and declinable Markdown embedder registries. Domain plugins MAY contribute CodeMirror and rendered-Markdown behavior, including a full-file Markdown embedder that declines any file it does not own, through public contracts, while the bundled Markdown plugin remains the sole Mira adapter and full-file surface provider. Contributions and providers MUST be disposed with their registering plugin.
 
 ## LN-ARCH-080 — Graph: cross the AppDatabase boundary through bounded metadata
 
@@ -171,3 +271,5 @@ the production apply guard.
 <a id="ln-arch-088"></a>
 
 **Requirement.** Workspace-owned plugin management MAY compose public Design Core SearchFilterBar, FilterCommandPicker, Resizable, and settings navigation primitives. Registry state, verified Markdown, filtering, installation actions, and application policy MUST remain in Lapis; reusable search, command-option, resizing, and responsive settings-shell behavior MUST remain in Design Core.
+
+Attachment dropping keeps Design Core presentation and the existing Explorer callback. File Explorer owns admission, input bounds and FileManager new-file integration under LN-EXP-010/011/012. The API retains exclusive publication and tree projection; hosts do not add a replacement importer or bypass existing save ownership.

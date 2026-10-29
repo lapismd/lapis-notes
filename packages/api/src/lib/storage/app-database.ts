@@ -1,3 +1,4 @@
+import { rebindSearchDocument } from "./search-embedding-record";
 import type {
   HostMetadataStore,
   AppDatabaseMetaTransaction,
@@ -66,7 +67,8 @@ export type {
   SearchEmbeddingRuntimeStatus,
 } from "./search-embedding-provider";
 
-export type RuntimeTarget = "web-pwa" | "deno-desktop" | "deno-server" | "test";
+import type { RuntimeTarget } from "./runtime";
+export { isNativeDesktopRuntime, type RuntimeTarget } from "./runtime";
 
 export interface LocalSearchQueryEnhancementProviderConfig {
   kind: "local-model";
@@ -218,7 +220,10 @@ export interface AppDatabaseFileRecord {
   mtime: number;
   size: number;
   hash: string;
-  /** Parser signature from the indexed metadata row when requested as a manifest. */
+  /**
+   * Parser signature from the indexed metadata row when requested as a
+   * manifest.
+   */
   parserVersion?: string;
   indexed: boolean;
   deleted?: boolean;
@@ -886,7 +891,18 @@ function buildSearchChunks(
             codeFences,
           )
         : content.length;
-    const safeEnd = chunkEnd > chunkStart ? chunkEnd : targetEnd;
+    let safeEnd = chunkEnd > chunkStart ? chunkEnd : targetEnd;
+    // Search offsets use UTF-16, but chunks must remain complete Unicode text.
+    if (
+      safeEnd > 0 &&
+      safeEnd < content.length &&
+      content.charCodeAt(safeEnd - 1) >= 0xd800 &&
+      content.charCodeAt(safeEnd - 1) <= 0xdbff &&
+      content.charCodeAt(safeEnd) >= 0xdc00 &&
+      content.charCodeAt(safeEnd) <= 0xdfff
+    ) {
+      safeEnd += 1;
+    }
     const chunk = createChunk(path, content, metadata, chunkStart, safeEnd);
     if (!chunk) {
       if (safeEnd <= chunkStart) {
@@ -1242,9 +1258,7 @@ export interface AppDatabase extends HostMetadataStore {
     sourceKey: string,
   ): Promise<AppDatabaseMemorySourceRecord | undefined>;
   listMemorySourceStates(): Promise<AppDatabaseMemorySourceRecord[]>;
-  upsertMemorySourceState(
-    record: AppDatabaseMemorySourceRecord,
-  ): Promise<void>;
+  upsertMemorySourceState(record: AppDatabaseMemorySourceRecord): Promise<void>;
   deleteMemorySourceState(sourceKey: string): Promise<void>;
   upsertMemoryCandidate(input: AppDatabaseMemoryCandidateInput): Promise<void>;
   queryMemoryCandidates(
@@ -1779,6 +1793,24 @@ function renameChunkId(
   return `${newPath}${chunkId.slice(oldPath.length)}`;
 }
 
+function searchSnippetBounds(
+  text: string,
+  start: number,
+  end: number,
+): [number, number] {
+  const splitsPair = (offset: number) =>
+    offset > 0 &&
+    offset < text.length &&
+    text.charCodeAt(offset - 1) >= 0xd800 &&
+    text.charCodeAt(offset - 1) <= 0xdbff &&
+    text.charCodeAt(offset) >= 0xdc00 &&
+    text.charCodeAt(offset) <= 0xdfff;
+  return [
+    splitsPair(start) ? start - 1 : start,
+    splitsPair(end) ? end + 1 : end,
+  ];
+}
+
 function buildFieldSnippet(
   field: Exclude<AppDatabaseSearchField, "content">,
   text: string,
@@ -1800,11 +1832,12 @@ function buildFieldSnippet(
 
   const focus = ranges[0];
   const padding = Math.max(16, Math.floor(snippetLength / 3));
-  const start = Math.max(0, focus.start - padding);
-  const end = Math.min(
+  const initialStart = Math.max(0, focus.start - padding);
+  const initialEnd = Math.min(
     text.length,
-    Math.max(start + snippetLength, focus.end + padding),
+    Math.max(initialStart + snippetLength, focus.end + padding),
   );
+  const [start, end] = searchSnippetBounds(text, initialStart, initialEnd);
 
   return [
     {
@@ -1853,13 +1886,21 @@ function buildContentSnippets(
         return { ...snippet, ranges };
       }
       const focus = ranges[0];
-      const start = Math.max(0, focus.start - Math.floor(snippetLength / 3));
-      const end = Math.min(
+      const initialStart = Math.max(
+        0,
+        focus.start - Math.floor(snippetLength / 3),
+      );
+      const initialEnd = Math.min(
         snippet.text.length,
         Math.max(
-          start + snippetLength,
+          initialStart + snippetLength,
           focus.end + Math.floor(snippetLength / 3),
         ),
+      );
+      const [start, end] = searchSnippetBounds(
+        snippet.text,
+        initialStart,
+        initialEnd,
       );
       return {
         field: "content" as const,
@@ -2522,8 +2563,7 @@ export class MemoryAppDatabase implements AppDatabase {
         key,
         value: clone(this.meta[key]) as T,
       })),
-      nextCursor:
-        keys.length > pageKeys.length ? pageKeys.at(-1) : undefined,
+      nextCursor: keys.length > pageKeys.length ? pageKeys.at(-1) : undefined,
     };
   }
 
@@ -2853,7 +2893,9 @@ export class MemoryAppDatabase implements AppDatabase {
     targetRef?: string,
   ): Promise<AppDatabaseMemoryRecallSignalRecord[]> {
     return [...this.memoryRecallSignals.values()]
-      .filter((record) => targetRef === undefined || record.targetRef === targetRef)
+      .filter(
+        (record) => targetRef === undefined || record.targetRef === targetRef,
+      )
       .sort(
         (left, right) =>
           right.day.localeCompare(left.day) ||
@@ -2909,11 +2951,10 @@ export class MemoryAppDatabase implements AppDatabase {
     const updated: AppDatabaseMemoryJobRecord = {
       ...existing,
       ...clone(input.patch),
-      ownerId:
-        input.patch.status === "running" ? existing.ownerId : undefined,
+      ownerId: input.patch.status === "running" ? existing.ownerId : undefined,
       leaseUntil:
         input.patch.status === "running"
-          ? input.patch.leaseUntil ?? existing.leaseUntil
+          ? (input.patch.leaseUntil ?? existing.leaseUntil)
           : undefined,
     };
     this.memoryJobs.set(updated.id, updated);
@@ -3668,6 +3709,8 @@ export class MemoryAppDatabase implements AppDatabase {
         query.direction === "in"
           ? edge.projectionId
           : (edge.targetProjectionId ?? query.projectionId);
+      const targetDefinition = this.projections.get(targetProjection);
+      assertProjectionReadAccess(targetDefinition, readerPluginId);
       const row =
         query.direction === "in"
           ? this.projectionRows.get(
@@ -3682,7 +3725,7 @@ export class MemoryAppDatabase implements AppDatabase {
                   candidate.projectionId === targetProjection &&
                   candidate.sourcePath === edge.targetPath,
               );
-      if (!row) continue;
+      if (!row || !this.currentProjectionData(row, targetDefinition)) continue;
       if (
         query.targetWhere &&
         !evaluateProjectionQuery(
@@ -3976,30 +4019,10 @@ export class MemoryAppDatabase implements AppDatabase {
   protected rebindSearchDocumentForProvider(
     document: SearchDocumentRecord,
   ): SearchDocumentRecord {
-    const provider = this.searchEmbeddingProvider;
-    if (!provider || !document.chunks?.length) {
-      return clone(document);
-    }
-
-    return {
-      ...clone(document),
-      chunks: document.chunks.map((chunk) => {
-        if (!chunk.text.trim().length) {
-          return clone(chunk);
-        }
-
-        return {
-          ...clone(chunk),
-          embedding: {
-            status: "pending",
-            modelId: provider.config.modelId ?? "lapis/token-hash-v0",
-            modelVersion: provider.config.modelVersion,
-            dimensions: provider.config.dimensions,
-            dirty: true,
-          },
-        };
-      }),
-    };
+    return rebindSearchDocument(
+      document,
+      this.searchEmbeddingProvider?.config ?? null,
+    );
   }
 
   protected toState(): AppDatabaseState {
@@ -4044,9 +4067,9 @@ export class MemoryAppDatabase implements AppDatabase {
       memoryCandidates: [...this.memoryCandidates.values()].map((value) =>
         clone(value),
       ),
-      memoryCandidateOrigins: [
-        ...this.memoryCandidateOrigins.values(),
-      ].flatMap((origins) => origins.map((origin) => clone(origin))),
+      memoryCandidateOrigins: [...this.memoryCandidateOrigins.values()].flatMap(
+        (origins) => origins.map((origin) => clone(origin)),
+      ),
       memoryRecallSignals: [...this.memoryRecallSignals.values()].map((value) =>
         clone(value),
       ),
@@ -4185,6 +4208,9 @@ export class MemoryAppDatabase implements AppDatabase {
           errorChunkCount += 1;
           lastError ??= embedding.error ?? null;
           break;
+        default:
+          pendingChunkCount += 1;
+          break;
       }
     }
 
@@ -4231,7 +4257,7 @@ export class MemoryAppDatabase implements AppDatabase {
     this.searchIndexStats.readyChunkCount += stats.readyChunkCount;
     this.searchIndexStats.pendingChunkCount += stats.pendingChunkCount;
     this.searchIndexStats.errorChunkCount += stats.errorChunkCount;
-    if (stats.lastError) {
+    if (stats.lastError !== null) {
       this.searchIndexStats.lastError = stats.lastError;
       this.searchIndexLastErrorPath = path;
     }
@@ -4251,7 +4277,7 @@ export class MemoryAppDatabase implements AppDatabase {
       this.searchIndexStats.lastError = null;
       this.searchIndexLastErrorPath = null;
       for (const [nextPath, nextStats] of this.searchIndexStatsByPath) {
-        if (nextPath === path || !nextStats.lastError) {
+        if (nextPath === path || nextStats.lastError === null) {
           continue;
         }
         this.searchIndexStats.lastError = nextStats.lastError;

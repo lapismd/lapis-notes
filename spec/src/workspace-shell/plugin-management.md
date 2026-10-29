@@ -1,5 +1,24 @@
 # Workspace Shell / Plugin management
 
+External uninstall emits an App-owned `plugin-unloaded` event after runtime and
+registration cleanup (LN-PLUG-119). Managed Settings and shared registry surfaces
+observe that event so retired official plugins disappear from Core inventory.
+Each surface releases that subscription with its other lifecycle listeners.
+`Plugin.registerMarkdownEmbedder` uses that same unload cleanup, so disabling a
+plugin removes only the Markdown embedder it registered.
+
+The public Core page retains all registered managed-plugin sources, including
+App Shell F-Mode and notifications. Source-qualified keys preserve owning
+lifecycle and guarded persistence while Lapis entries retain their version,
+Options, restart and runtime diagnostic details (LN-PLUG-008).
+
+Tauri runtime diagnostics identify the explicit portable execution host. Unsupported Node, Electron-only and CommonJS entries fail before evaluation while their saved installation state remains available for existing recovery and management controls (LN-PLUG-114).
+
+Registry discovery consumes App-owned LN-PLUG-113 compatibility reasons. A
+desktop-only entry displays the existing disabled installation state with clear
+desktop guidance, including already installed older copies. Registry signatures,
+shared module identity and unrelated install/disable flows retain their owners.
+
 App links and persisted Plugins routes retain a selected release version
 ([LN-PLUG-103](../plugin-model/app-ownership.md#ln-plug-103)). The view resolves
 that version from verified detail metadata's indexed own entries, shows an unavailable state for a
@@ -56,3 +75,7 @@ Successful app-link navigation dismisses owning Settings under
 <a id="ln-ws-093"></a>
 
 **Requirement.** Manual plugin installation MUST accept a portable Nostr `.lapis-plugin` through the existing file action, retain its verified source provenance, and surface a persistent revocation-refresh warning until an online relay-quorum verification succeeds. Workspace presentation MUST NOT independently verify or reinterpret its Nostr proof.
+
+## Native Task startup observation
+
+[CORE015](../architecture/rust-task-host-port.md#ln-core-015) binds Task declaration reconciliation to completed plugin loading. The App waits for that observer before reporting `plugins-loaded`. Existing plugin views and settings stay registered by their owning plugin; window teardown detaches the App observer before explicit plugin cleanup can change native policy.

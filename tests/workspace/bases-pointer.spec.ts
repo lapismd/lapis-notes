@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
 const storyUrl =
-  "/iframe.html?id=workspace-plugins-bases--file-view&viewMode=story";
+  "/iframe.html?id=plugins-bases-shell-lifecycle--file-view&viewMode=story";
 
 test.describe.configure({ mode: "serial" });
 

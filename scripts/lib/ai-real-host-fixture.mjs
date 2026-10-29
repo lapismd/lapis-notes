@@ -83,13 +83,13 @@ function workspaceLayout() {
 
 export function aiRealHostSeed(defaultRuntime = "acp") {
   return {
-    ".obsidian/app.json": JSON.stringify(
+    ".lapis/app.json": JSON.stringify(
       { "appearence.interface.showTabTitleBar": true },
       null,
       2,
     ),
-    ".obsidian/ai.json": JSON.stringify(aiPluginData(defaultRuntime), null, 2),
-    ".obsidian/workspace.json": JSON.stringify(workspaceLayout(), null, 2),
+    ".lapis/ai.json": JSON.stringify(aiPluginData(defaultRuntime), null, 2),
+    ".lapis/workspace.json": JSON.stringify(workspaceLayout(), null, 2),
     "Notes/Agent Smoke.md": [
       "# Agent Smoke",
       "",

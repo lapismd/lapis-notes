@@ -1,8 +1,26 @@
 # Markdown Plugin / Integration contracts
 
+File-view artwork follows LN-PLUG-122 independently of an instantiated tab's
+icon. Markdown retains filename-based Explorer artwork unless its selected
+contribution supplies fileIcon metadata. Icon lookup does not load a document
+or change Markdown's editor, preview, association or persistence ownership.
+
+LN-SRCH-051 adds provider-owned search targets. Markdown document extraction, extension contributions and current-file opening keep their existing contracts; historical activation belongs to its contributing provider.
+
+LN-PLUG-121 adds optional native-service declarations to the shared Plugin
+manifest. Markdown's portable runtime, authoring registries and document
+ownership remain unchanged; it acquires no native-service dependency.
+
+LN-PLUG-113 restricts retired Web service identities before plugin evaluation.
+Markdown rendering, shared application-tool contracts and document ownership
+remain unchanged; this host policy adds no Markdown runtime or wrapper.
+
 Markdown uses the shared Plugin disable boundary. Its registered contribution
 cleanup runs through component unload; host security revocation then drains
-before disable completes, including failed unloads (LN-ARCH-118).
+before disable completes, including failed unloads (LN-ARCH-118). Full-file
+Markdown embeds ask registered Markdown embedders in order for `md` and
+`markdown`. The first acceptance owns the embed, and a complete decline keeps
+the portable Markdown preview.
 
 ## LN-MD-015 — Storybook and demo hosts that load Markdown: call metadataTypeManager.trackChanges() or an equivalent watchMetadata helper
 
@@ -27,3 +45,25 @@ before disable completes, including failed unloads (LN-ARCH-118).
 <a id="ln-md-099"></a>
 
 **Requirement.** Published `parse-metadata` MUST import the metadata worker as `./metadata-worker?worker&inline` without a `.ts` suffix so Vite hosts resolve the packaged `metadata-worker.js`.
+
+Markdown acceptance hosts use the shared `.lapis` configuration and layout
+default under LN-ARCH-140; plugin contributions retain their public API-owned
+persistence and editor lifecycle boundaries.
+
+The status-host repair preserves Markdown editor, file-surface and extension
+registration contracts. Only the shared Plugin status-element mount changes;
+Markdown contributes no replacement status host (LN-WS-054).
+
+With an explicitly supplied native background port, Markdown registration
+retains its local pure parser for presentation while background publication
+belongs to the compiled service under LN-CORE-005/006. No native failure may
+activate the JavaScript metadata writer.
+
+The shared App indexing facade reuses that same MetadataCache-owned session
+for Search declarations and progress; it does not change Markdown presentation
+parsing or create another metadata writer.
+
+The optional App-native History observation port changes no Markdown editor,
+preview, embed, parser or authoring contract. Markdown keeps its explicit owning
+App; immutable saved-version reads remain a separately admitted Repository
+capability rather than a Markdown file writer or editor fallback.

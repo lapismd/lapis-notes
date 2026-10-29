@@ -384,19 +384,22 @@ export const BrowseSearchAndExpandableFilters: Story = {
       canvas.getByRole("button", { name: "Show browse filters" }),
     );
     await expect(
-      canvas.getByRole("button", { name: "Filter by platform" }),
+      canvas.getByRole("button", { name: "Filter by platform: All platforms" }),
     ).toBeVisible();
     await expect(
       canvas.getByRole("button", { name: "Hide browse filters" }),
     ).toBeVisible();
     const body = within(canvasElement.ownerDocument.body);
     await userEvent.click(
-      canvas.getByRole("button", { name: "Filter by channel" }),
+      canvas.getByRole("button", { name: "Filter by channel: All channels" }),
     );
     await userEvent.click(
       await body.findByRole("option", { name: /Community/ }),
     );
     await expect(canvas.getByText("2 active filters")).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "Filter by channel: Community" }),
+    ).toBeVisible();
     await expect(
       canvas.getByRole("heading", { name: "No plugins match" }),
     ).toBeVisible();
@@ -420,7 +423,7 @@ export const BrowseRecentlyUpdatedSort: Story = {
       canvas.getByRole("button", { name: "Show browse filters" }),
     );
     await userEvent.click(
-      canvas.getByRole("button", { name: "Sort Browse plugins" }),
+      canvas.getByRole("button", { name: "Sort Browse plugins: Name" }),
     );
     const body = within(canvasElement.ownerDocument.body);
     await userEvent.click(
@@ -440,7 +443,7 @@ export const BrowseMostDownloadedSort: Story = {
       canvas.getByRole("button", { name: "Show browse filters" }),
     );
     await userEvent.click(
-      canvas.getByRole("button", { name: "Sort Browse plugins" }),
+      canvas.getByRole("button", { name: "Sort Browse plugins: Name" }),
     );
     const body = within(canvasElement.ownerDocument.body);
     await userEvent.click(
@@ -765,8 +768,7 @@ export const DisableInsteadKeepsInstalledArtifact: Story = {
     );
     const bodyElement = canvasElement.ownerDocument.body;
     const body = within(bodyElement);
-    const dialog = await body.findByRole("alertdialog");
-    await waitFor(() => expect(dialog).toBeVisible());
+    const dialog = body.getByRole("alertdialog");
     await userEvent.click(
       within(dialog).getByRole("switch", {
         name: "Choose Disable instead for Graph",
@@ -821,7 +823,7 @@ export const InstalledUpdatesRevocationAndConfirmation: Story = {
       canvas.getByRole("button", { name: "Uninstall Graph" }),
     );
     const body = within(canvasElement.ownerDocument.body);
-    const dialog = await body.findByRole("alertdialog");
+    const dialog = body.getByRole("alertdialog");
     await waitFor(() => expect(dialog).toBeVisible());
     await expect(
       body.getByRole("heading", { name: "Uninstall plugin?" }),
@@ -951,6 +953,30 @@ export const CoreTogglesOptionsRestartAndDiagnostics: Story = {
     await waitForReady(canvas);
     await expect(
       canvas.getByRole("heading", { name: "Installed Core Plugins" }),
+    ).toBeVisible();
+    const fmode = canvas.getByRole("switch", { name: "Enable F-Mode" });
+    await expect(fmode).toBeVisible();
+    await userEvent.click(fmode);
+    await expect(
+      await canvas.findByRole("switch", { name: "Disable F-Mode" }),
+    ).toBeVisible();
+    const app = (
+      canvas.getByTestId("plugin-management-story") as HTMLElement & {
+        __lapisApp: import("@lapis-notes/api").App;
+      }
+    ).__lapisApp;
+    expect(
+      getWorkspaceHostBinding(
+        app.workspace,
+      ).controller.managedPlugins.states.find(
+        (entry) => entry.key === "app-shell:fmode",
+      )?.enabled,
+    ).toBe(true);
+    await userEvent.click(
+      canvas.getByRole("switch", { name: "Disable F-Mode" }),
+    );
+    await expect(
+      await canvas.findByRole("switch", { name: "Enable F-Mode" }),
     ).toBeVisible();
     await expect(
       canvas.getByRole("button", { name: "Options for Source Editor" }),

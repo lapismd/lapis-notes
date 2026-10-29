@@ -1,3 +1,5 @@
+import type { IconRegistry } from "./icons/registry";
+import type { NativeTasks, NativeTasksSession } from "./native-tasks";
 import { Workspace } from "./workspace.svelte";
 import { TFile, Vault, type AppDatabase, type DataAdapter, type VaultSession } from "./storage";
 import { AppSettings } from "./settings.svelte";
@@ -6,12 +8,16 @@ import { PluginManager } from "./plugin-manager";
 import { Configuration } from "./configuration.svelte";
 import { CommandManager, Keymap, Scope, type UserEvent } from "./command.svelte";
 import { MetadataCache } from "./cache.svelte";
+import type { NativeBackgroundIndexingObserver } from "./native-background-indexing";
+import type { NativeHistoryIndex } from "./native-history-index";
+import type { NativeEditingIntents } from "./native-editing-intents";
 import type { MarkdownDirectiveRenderer, MarkdownPostProcessor, MarkdownViewMenuItemProvider } from "./markdown";
 import { type Logger } from "./logging";
 import type { Component } from "./view.svelte";
 import { MetadataTypeManager } from "./metadata.svelte";
 import type { EditorSuggest } from "./suggest";
 import { FileManager } from "./file-manager";
+import { VaultChangeService } from "./vault-changes";
 import { EmbedRegistry } from "./embed-registry";
 import type { OpenViewState } from "./workspace.svelte";
 import { LocalizationManager } from "./localization-manager.svelte";
@@ -26,6 +32,7 @@ import { DefaultPluginDistributionManager, type DefaultPluginDistributionManager
 import type { PluginDependencyResolverFactory } from "./plugin-dependency-resolver";
 import type { PluginAssetServer } from "./plugin-asset-server";
 import { SearchDocumentProviderRegistry } from "./search-document-provider";
+import { SearchResultProviderRegistry } from "./search-result-provider";
 import { DailyDocumentProviderRegistry } from "./daily-document-provider";
 import { AppToolRegistry } from "./agent-tools";
 import { MarkdownExtensionRegistry } from "./markdown-extension-registry";
@@ -55,14 +62,19 @@ export interface AppWorkspaceShellProperties {
  */
 export type AppStateProperties = {
     version: string;
-    configPath: string;
+    configPath?: string;
     adapter?: DataAdapter;
     session?: VaultSession;
+    nativeHistoryIndex?: NativeHistoryIndex;
+    nativeEditingIntents?: NativeEditingIntents;
+    nativeTasks?: NativeTasks;
     appDatabase?: AppDatabase;
     safeMode?: AppSafeModeState;
     createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
     pluginAssetServer?: PluginAssetServer;
     pluginDistributionOptions?: AppPluginDistributionOptions;
+    /** Host restrictions apply to discovery, installation and external loading. */
+    unavailablePlugins?: DefaultPluginDistributionManagerOptions["unavailablePlugins"];
     /** Host-owned Nostr account, keychain, and remote-signer implementation. */
     nostrSignerBroker?: NostrSignerBroker;
     syncHost?: SyncHostServiceOptions;
@@ -70,8 +82,8 @@ export type AppStateProperties = {
     markdownRenderer: (markdown: string, el: HTMLElement, sourcePath: string, component: Component) => Promise<void>;
 };
 /** Renderer-safe application properties exposed to plugins and views. */
-export type AppPublicProperties = Pick<AppStateProperties, "version" | "configPath" | "workspaceShell" | "markdownRenderer">;
-export type AppPluginDistributionOptions = Omit<DefaultPluginDistributionManagerOptions, "adapter" | "appVersion" | "platform" | "workspaceTrusted" | "pluginManager">;
+export type AppPublicProperties = Pick<AppStateProperties, "version" | "configPath" | "workspaceShell" | "markdownRenderer"> & { configPath: string };
+export type AppPluginDistributionOptions = Omit<DefaultPluginDistributionManagerOptions, "adapter" | "appVersion" | "platform" | "workspaceTrusted" | "pluginManager" | "unavailablePlugins">;
 export type ExtType = Extension | ((context: Record<string, any>) => Extension);
 /**
  * Details about the last startup failure that caused safe mode to activate.
@@ -156,10 +168,13 @@ export declare class SecretStorage {
 export declare class App {
     readonly props: AppPublicProperties;
     readonly i18n: LocalizationManager;
+    readonly icons: IconRegistry;
     readonly workspace: Workspace;
     readonly vault: Vault;
     readonly appDatabase: AppDatabase;
     readonly session?: VaultSession;
+    readonly nativeHistoryIndex?: NativeHistoryIndex;
+    readonly nativeTasks?: NativeTasksSession;
     readonly safeMode: AppSafeModeState;
     plugins: PluginManager;
     scope: Scope;
@@ -169,6 +184,7 @@ export declare class App {
     readonly editorSuggest: Map<string, Set<EditorSuggest<any>>>;
     readonly configuration: Configuration;
     readonly fileManager: FileManager;
+    readonly vaultChanges: VaultChangeService;
     readonly contextKeys: ContextKeyService;
     readonly statusBar: StatusBarManager;
     readonly urls: AppUrlService;
@@ -184,8 +200,10 @@ export declare class App {
     settingsOpen: boolean;
     settingsTabId: string | null;
     metadataCache: MetadataCache;
+    get backgroundIndexing(): NativeBackgroundIndexingObserver | undefined;
     embedRegistry: EmbedRegistry;
     readonly searchDocumentProviders: SearchDocumentProviderRegistry;
+    readonly searchResultProviders: SearchResultProviderRegistry;
     readonly dailyDocumentProviders: DailyDocumentProviderRegistry;
     readonly indexProjections: import("./storage/index-projection").IndexProjectionRegistry;
     readonly agentTools: AppToolRegistry;

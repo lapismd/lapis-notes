@@ -1,0 +1,215 @@
+# Architecture / Native editor intents
+
+The shared App editing registry remains the owner of document persistence.
+Native services add an editing-intent fence before a host exposes editable
+content. An intent is independent of a dirty buffer: even a clean, editable
+document conservatively blocks foreign native mutations until its owner yields
+under protection or retires it. Ordinary saves continue through the existing
+conditional writer; this contract adds no save engine.
+
+## LN-CORE-019 — Admitted native editing intent
+
+<a id="ln-core-019"></a>
+
+**Requirement.** A host selecting native editing intents MUST acquire an
+App-owned, file-bound intent before exposing editable access. Native writers
+MUST fence active intents as well as dirty claims, including descendants and
+physical aliases. Intent ownership MUST use the admitted client and retained
+physical vault root. Client retirement MUST retain unresolved intents separately
+from dirty state until explicit recovery or discard.
+
+### Acceptance details
+
+Admission retains these boundaries:
+
+- A client-minted nonnil identity acquires one native intent atomically. Same
+  client, identity and path repeat the existing admission; foreign ownership or
+  another path cannot replace it.
+- The existing caller exemption applies only to its own attached editor saves.
+  Service-owned Tasks, restore and tool writers retain their stricter guard.
+- Clean content remains clean in status. An active intent is an independent
+  blocker, including after the sole client-detach boundary.
+- A replaced root, file alias or ancestor-directory alias cannot bypass the
+  existing checked-writer admission.
+
+## LN-CORE-020 — Protected native intent handoff
+
+<a id="ln-core-020"></a>
+
+**Requirement.** The App registry MUST protect and flush matching real writers
+before yielding their native intents. Yield MUST validate the captured saved
+generation and authoritative existing-file version or expected absence.
+Protected native mutations MUST finish before retained writers rearm; editable
+access MUST remain blocked until rearming succeeds. Clean retirement MUST
+release the native intent before removing local ownership. Failed saves or
+handoff MUST retain protection and observable recovery state.
+
+### Acceptance details
+
+Protected handoff retains these boundaries:
+
+- Initial document loads, API text editors, mutable state writers and editable
+  Markdown surfaces use the same admitted lifecycle. A detached failed writer
+  remains registered and cannot be silently retired.
+- A guarded Tasks call executes inside the existing registry guard, rather than
+  after a separate flush. Independent files remain independently admitted.
+- A saved acknowledgement for an earlier document or dirty revision cannot
+  clear a later one. Expected absence is a first-class snapshot, never an empty
+  file or an unconditional-write fallback.
+- Rearming precedes every local protection release, including exceptional
+  operation completion. A failed rearm blocks the next guarded admission.
+- A failed protected Yield retains its local input lease and Problems issue.
+  A still-active Resume is not proof of handoff. Explicit retry revalidates the
+  original lease before rearming; clean terminal retirement remains separate.
+
+## LN-CORE-021 — Bounded intent reconciliation
+
+<a id="ln-core-021"></a>
+
+**Requirement.** Native intent transitions MUST use monotonic generations and
+bounded identity retention. Exact idempotent transitions and read-only status
+MAY reconcile lost replies; stale transitions MUST NOT clear newer state.
+Uncertain outcomes MUST remain observable and fail closed until reconciled or
+explicitly recovered. Reconciliation MUST NOT replay content mutations, discard
+buffers or silently create another persistence owner.
+
+### Acceptance details
+
+Reconciliation retains these boundaries:
+
+- Acquire, resume, yield and clean retirement can be inspected by the same
+  admitted client. Retired identities cannot be reacquired by delayed messages.
+- Dirty and active-intent state remain distinct in recovery records. A new
+  client explicitly recovers a detached claim before changing its state.
+- Browser transport failure cannot enable editing. Neither a missing reply nor
+  cancellation proves native retirement or successful persistence.
+- Identity ledgers stay bounded per attachment and reset only when that client
+  retires. Exhaustion rejects new intent admission without weakening live
+  fences.
+
+Host adoption and real two-client browser/native acceptance are separate from
+source qualification. Existing Deno hosts remain frozen. Signing and final
+distribution remain deferred.
+
+## LN-CORE-026 — Operation-scoped noninteractive state
+
+<a id="ln-core-026"></a>
+
+**Requirement.** Noninteractive state writers MUST acquire native ownership
+before applying an admitted logical change and yield after acknowledged clean
+persistence. Idle clean state MUST NOT retain an active fence. Failed, dirty or
+uncertain operations MUST retain their recovery boundary. Interactive document
+and preview writers MUST retain their full editing-lifetime fence.
+
+### Acceptance details
+
+Operation-scoped state retains these boundaries:
+
+- Ordinary settings, layout and plugin state use the existing conditional
+  writer and serialized App queue; another idle App cannot block their saves.
+- Successful operations reuse bounded native identity and version checks.
+  Native foreign interactive, dirty and detached claims keep their existing
+  strict fence; there is no global caller exemption or content-write replay.
+- Pending and failed local transitions expose passive, captured-identity state.
+  Explicit protected retry may reconcile the fence; observing it does not
+  retry persistence, discard a buffer or submit native Tasks.
+
+## LN-CORE-025 — Captured-state explicit intent recovery
+
+<a id="ln-core-025"></a>
+
+**Requirement.** Explicit recovery and discard MUST match the retained intent's
+captured generation and revision. Recovery MUST require detached ownership,
+advance its generation and preserve dirty/active state. Discard MUST require
+detached or caller-owned state and retire its identity; stale actions, foreign
+live owners and retired clients MUST remain fenced. Both operations MUST NOT
+write files, acknowledge unknown drafts or replay mutations.
+
+Read-only inspection MAY reconcile lost acknowledgements. Exact terminal
+discard repeats remain harmless because retired identities cannot be acquired
+again. Recovery consumes the existing per-client identity budget. Both actions
+retain physical-root validation and run under the vault's existing state lock.
+Application-owned Problems actions remain a separate presentation gate.
+
+### Acceptance details
+
+Legacy compatibility retains these boundaries:
+
+- ID-only legacy recovery/discard MUST reject managed intents. Existing
+  unmanaged editor claims MUST retain their current behavior.
+- Recovery and cross-owner discard MUST retain the existing per-client identity
+  budget without removing another live client's protection.
+- Explicit discard MUST preserve saved file bytes and leave detached draft
+  content outside native recovery authority.
+
+## LN-CORE-027 — Existing Problems editing-claim recovery
+
+<a id="ln-core-027"></a>
+
+**Requirement.** Native-intent hosts MUST expose unresolved editing claims and
+local pending or failed admission through the existing Problems collection.
+Explicit actions MUST validate captured claim or local issue identity, join App
+operation admission, and preserve saved bytes. Closing the host MUST preflight
+unresolved claims before disposing recovery ownership; observation MUST NOT
+recover, discard or replay mutations.
+
+### Acceptance details
+
+Recovery presentation retains these boundaries:
+
+- Detached claims and claims explicitly adopted through recovery remain visible;
+  ordinary healthy attached writers do not become Problems.
+- Native dirty metadata describes an unacknowledged generation, not retained
+  draft bytes. Saved-file review must not promise recovery of unsaved content.
+- Local admission and rearm remain observable even when Acquire never reached
+  native service and List has no corresponding record.
+- Claim recovery/discard use LN-CORE-025. Local retries use the captured
+  registration and issue through existing protected registry paths.
+- Shared shells reference-count passive observation for one App. Construction
+  performs no native calls; final unmount fences pending publication.
+- Lost acknowledgements reconcile by read-only inspection. Failures remain
+  visible and stale actions cannot release newer protection.
+- A failed handoff cannot disappear through successful no-op cleanup. Retrying
+  its captured issue never invokes the rejected mutation callback.
+- Minimal real WorkspaceShell stories show recovery and failed admission without
+  debug JSON, replacement screens or visual-baseline changes.
+
+## LN-CORE-028 — Protected saved-text reconciliation
+
+<a id="ln-core-028"></a>
+
+**Requirement.** Clean interactive producers MUST reconcile authoritative saved
+bytes through the protected in-guard observation after native rearm following
+confirmed yield and before releasing local input protection, and before the
+saved-baseline comparison in a live guarded yield. This observation MUST NOT
+write content, clear dirty drafts or accept an out-of-guard mismatch. Expected
+absence MUST remain distinct from empty text; failed refresh MUST retain
+protection and observable explicit retry.
+
+### Acceptance details
+
+Protected saved-text refresh retains these boundaries:
+
+- Resume restores the native foreign-writer fence before reading authoritative
+  bytes, preventing a read-to-rearm race. A failed or lost rearm retains the
+  pending refresh boundary for explicit reconciliation.
+- API editors update their existing conditional baseline and clean buffer;
+  editable Markdown uses Mira's public protected text-recovery lease. Neither
+  path submits content writes or replays the native mutation.
+- Clean managed rename/delete retains expected absence and existing view
+  retirement. A drifted clean producer reconciles to the authoritative bytes;
+  dirty, failed or unacknowledgeable persistence still fails the original yield
+  check and cannot be acknowledged by a saved-text refresh.
+- A guarded pre-yield reconciliation reads only the guarded producer's own path
+  while its fence and input protection remain held. A producer that cannot
+  acknowledge authoritative bytes proceeds to the original yield comparison and
+  still fails closed with its observable handoff retry.
+
+Clean terminal retirement of a detached producer drains its existing save owner
+before observing the current destination version or expected absence. It releases
+only that clean intent and performs no content write or buffer acknowledgement.
+Live guards reconcile clean interactive saved authority in-guard and then retain
+the original saved-baseline comparison; unacknowledgeable producers and
+failed/dirty detached writers remain fenced. Host recovery preflight drains
+already admitted registry transitions before deciding whether a local issue
+remains unresolved.

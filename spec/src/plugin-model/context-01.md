@@ -25,9 +25,11 @@ Lapis distinguishes ownership and distribution without changing runtime plugin
 identities or creating a second lifecycle. A `deno-desktop` session reports
 plugin-distribution platform `desktop` rather than `electron` or `web`.
 Electron-labelled manifest hosts remain accepted compatibility vocabulary for
-installed plugins; they do not imply an Electron application runtime. Verified
-desktop assets are served only through the Deno host's same-origin route, while
-web retains its public route. Workspace `activateLeaf` remains an
+installed plugins; they do not imply an Electron application runtime. Verified Deno
+desktop assets retain their frozen same-origin route. Tauri sessions explicitly
+select portable ESM workspace entries, independent of legacy asset capability
+labels, and receive their asset server from the owning native host. Web retains
+its public route. Workspace `activateLeaf` remains an
 API-owned selection that the persisted layout must restore. Statically shipped plugins use the
 core manager even when their source is maintained in a separate repository.
 First-party plugin surfaces compose Design Core public parts for shared chrome;
@@ -41,11 +43,11 @@ Selected metadata parser changes invalidate Search; unrelated metadata inputs
 retain the checkpoint. The unfiltered API call continues to cover every
 processable metadata file (LN-DB-035, LN-PLUG-030).
 
-- The online Deno-server profile uses that same public version-and-digest plugin asset URL, but the authenticated server validates and serves the bytes instead of mirroring them into PWA Cache Storage.
+- The online Node-server profile uses that same public version-and-digest plugin asset URL, but the authenticated server validates and serves the bytes instead of mirroring them into PWA Cache Storage.
 
 - Installed metadata remains the asset authority in both Web profiles.
 
-- The profile is explicitly identified by the document runtime `deno-server`; plugins must not use the absence of PWA attributes as a substitute capability check.
+- The profile is explicitly identified by the document runtime `node-server`; plugins must not use the absence of PWA attributes as a substitute capability check.
 
 - Server login, vault selection, and local-folder import occur before plugin boot and remain host-owned.
 

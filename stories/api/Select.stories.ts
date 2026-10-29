@@ -11,12 +11,13 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Select: Story = {
-  ...apiStoryMeta("api-select", "Select used by api configuration and menus.", { baselineImage: "/visual-baselines/stories/api/select-chromium.png" }),
+  ...apiStoryMeta("api-select", "Select used by api configuration and menus.", {
+    baselineImage: "/visual-baselines/stories/api/select-chromium.png",
+  }),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const body = within(canvasElement.ownerDocument.body);
-    // bits-ui select trigger is a button with listbox popup, not combobox.
-    await userEvent.click(canvas.getByRole("button", { name: "Workspace" }));
+    await userEvent.click(canvas.getByRole("combobox", { name: "Workspace" }));
     await userEvent.click(await body.findByRole("option", { name: "Daily" }));
     await waitFor(() =>
       expect(canvas.getByTestId("api-ui-status")).toHaveTextContent(

@@ -97,12 +97,12 @@ export function createBasesEditorShellSeed(): Record<
 > {
   return {
     ...createBasesViewsSeed(),
-    ".obsidian/app.json": JSON.stringify(
+    ".lapis/app.json": JSON.stringify(
       BASES_EDITOR_SHELL_CONFIGURATION,
       null,
       2,
     ),
-    ".obsidian/workspace.json": JSON.stringify(
+    ".lapis/workspace.json": JSON.stringify(
       createBasesEditorShellLayout(),
       null,
       2,
@@ -121,7 +121,7 @@ export async function bootBasesEditorShellDemo(): Promise<{
   });
   const app = new App({
     version: "0.0.1-story",
-    configPath: ".obsidian/app.json",
+    configPath: ".lapis/app.json",
     adapter,
     appDatabase: new MemoryAppDatabase("lapis-bases-editor-shell"),
     workspaceShell: { application: { name: "Lapis Notes" } },

@@ -2,12 +2,19 @@ import "$lib/enhance";
 
 export * from "./editor.svelte";
 export * from "./file-editing-sessions";
+export { bindNativeEditingProblems } from "./native-editing-problems";
+export type { NativeEditingIntents } from "./native-editing-intents";
 export * from "./events";
 export * from "./components/editor/extensions/autocomplete";
 export * from "./components/editor/extensions/lint";
 export * from "./components/editor/language-service";
 export * from "./menu.svelte";
 export * from "./cache.svelte";
+export type {
+  NativeBackgroundIndexing,
+  NativeBackgroundIndexingObserver,
+  NativeIndexingProgressPresentation,
+} from "./native-background-indexing";
 export * from "./plugin";
 export * from "./plugin-capability-facade";
 export * from "./sync-host";
@@ -55,7 +62,16 @@ export * from "./configuration-option-source-registry";
 export * from "./configuration-option-source-providers";
 export * from "./plugin-settings";
 export * from "./editor-view-registry";
-export * from "./glob";
+export {
+  normalizeGlobPath,
+  normalizeEditorAssociationGlob,
+  validateEditorAssociationGlob,
+  matchesEditorAssociationGlob,
+  hasEditorAssociationGlobMagic,
+  compareEditorAssociationPatternSpecificity,
+  type EditorAssociationGlobOptions,
+  type EditorAssociationGlobValidation,
+} from "./glob";
 export * from "./platform";
 export * from "./suggest";
 export * from "./markdown";
@@ -84,6 +100,7 @@ export * from "./promise-worker";
 export * from "./search";
 export * from "./search-query";
 export * from "./search-document-provider";
+export * from "./search-result-provider";
 export * from "./daily-document-provider";
 export * from "./loaders";
 export * from "./bases";

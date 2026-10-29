@@ -4,7 +4,11 @@ export interface PluginDependencyContext {
   pluginId: string;
   pluginPath: string;
   manifest: PluginManifest;
-  host: "workspace" | "electron-renderer" | "electron-sidecar";
+  host:
+    | "workspace"
+    | "tauri-desktop"
+    | "electron-renderer"
+    | "electron-sidecar";
   format: "commonjs" | "esm" | "node-esm";
 }
 

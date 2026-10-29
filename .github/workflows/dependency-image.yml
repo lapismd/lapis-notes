@@ -26,6 +26,9 @@ concurrency:
   group: dependency-image-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  LAPIS_NOTES_VALIDATION_RUNTIME: native
+
 jobs:
   publish:
     if: github.repository == 'lapismd/lapis-notes'

@@ -1,3 +1,6 @@
+import { projectVaultTree, scanVaultTree } from "./vault-reconciliation";
+import type { FileEditingSessionRegistry } from "../file-editing-sessions";
+import { DEFAULT_APP_STATE_DIRECTORY } from "./path";
 import { EventDispatcher } from "$lib/events";
 import {
   hasEditorAssociationGlobMagic,
@@ -10,13 +13,20 @@ import {
   TFile,
   TFolder,
   type AsyncResourceAdapter,
+  type ChangeEvent,
+  type Stat,
   type AtomicDataWriteOptions,
   type DataAdapter,
   type DataWriteOptions,
   type VaultReadHandle,
+  type VaultAdapter,
   type TAbstractFile,
 } from "./fs";
 import { dirname, joinPath, normalizePath } from "./path";
+import {
+  createVaultListingFilter,
+  DEFAULT_VAULT_EXCLUDES,
+} from "./vault-listing";
 
 function Err(name: string) {
   return class extends Error {
@@ -34,6 +44,11 @@ function Err(name: string) {
 }
 
 export const ENOTDIR = Err("ENOTDIR");
+
+export interface VaultListingOptions {
+  /** Current discovery exclusions; defaults to Git and JJ metadata names. */
+  listingExclusions?: () => readonly string[];
+}
 
 export interface VaultGlobOptions {
   caseSensitive?: boolean;
@@ -57,11 +72,49 @@ export class Vault extends EventDispatcher<{
 }> {
   private files: Record<string, TAbstractFile> = {};
   private filesByName = new Map<string, Set<string>>();
-  public configDir: string = ".obsidian";
+  private mutationTail: Promise<void> = Promise.resolve();
+
+  private mutate<T>(operation: () => Promise<T>): Promise<T> {
+    const enqueue = () => {
+      const pending = this.mutationTail.then(async () => {
+        await this.load();
+        return operation();
+      });
+      this.mutationTail = pending.then(
+        () => {},
+        () => {},
+      );
+      return pending;
+    };
+    return this.operations ? this.operations.track(enqueue) : enqueue();
+  }
+
+  private mutateFile<T>(
+    file: TAbstractFile,
+    operation: () => Promise<T>,
+  ): Promise<T> {
+    const path = file.path;
+    return this.mutate(async () => {
+      if (file.path !== path)
+        throw new Error("Mutation target changed during admission");
+      return operation();
+    });
+  }
+
+  public configDir: string = DEFAULT_APP_STATE_DIRECTORY;
   readonly cache = new FileCache(1024);
 
-  constructor(readonly adapter: DataAdapter) {
+  private readonly listingFilter: ReturnType<typeof createVaultListingFilter>;
+
+  constructor(
+    readonly adapter: DataAdapter,
+    private readonly operations?: Pick<FileEditingSessionRegistry, "track">,
+    options: VaultListingOptions = {},
+  ) {
     super();
+    this.listingFilter = createVaultListingFilter(
+      options.listingExclusions ?? (() => DEFAULT_VAULT_EXCLUDES),
+    );
     this.load();
   }
 
@@ -85,7 +138,13 @@ export class Vault extends EventDispatcher<{
   }
 
   list(path: string = "/") {
-    return this.adapter.list(this.getPath(path));
+    const base = this.getPath(path);
+    const included = this.listingFilter();
+    if (!included(base)) return Promise.resolve({ files: [], folders: [] });
+    return this.adapter.list(base).then(({ files, folders }) => ({
+      files: files.filter((entry) => included(joinPath(base, entry))),
+      folders: folders.filter((entry) => included(joinPath(base, entry))),
+    }));
   }
 
   #loaded: Promise<any> | null = null;
@@ -101,13 +160,60 @@ export class Vault extends EventDispatcher<{
   }
 
   reload(): Promise<TFolder> {
-    const files = {};
-    return this.loadPath("/", files).then(() => {
-      this.files = files;
-      this.rebuildFileNameIndex();
+    return this.mutate(async () => {
+      await this.reconcileNow();
       this.trigger("load");
       return this.getRoot();
     });
+  }
+
+  /** Reconcile a complete disk snapshot without replacing live resources. */
+  reconcile(
+    hints: readonly ChangeEvent[] = [],
+    current: () => boolean = () => true,
+    context: Record<string, unknown> = {},
+  ): Promise<void> {
+    return this.mutate(() => this.reconcileNow(hints, current, context));
+  }
+
+  private async reconcileNow(
+    hints: readonly ChangeEvent[] = [],
+    current: () => boolean = () => true,
+    context: Record<string, unknown> = {},
+  ): Promise<void> {
+    await this.load();
+    const snapshot = await scanVaultTree(this.adapter, current);
+    if (!snapshot || !current()) return;
+    const projected = projectVaultTree(this, this.files, snapshot, hints);
+    this.files = projected.files;
+    this.rebuildFileNameIndex();
+    for (const event of projected.events) {
+      if (event.type === "rename")
+        this.cache.rename(event.oldPath!, event.file.path);
+      else this.cache.invalidate(event.file.path);
+      if (event.type === "rename")
+        this.dispatch("rename", event.file, event.oldPath!);
+      else this.dispatch(event.type, event.file);
+      this.dispatch("all", event.type, event.file, {
+        ...context,
+        ...(event.oldPath === undefined ? {} : { oldPath: event.oldPath }),
+      });
+    }
+  }
+
+  private recordFile(path: string, stat: Stat): TFile {
+    const existing = this.files[path];
+    if (existing instanceof TFile) {
+      Object.assign(existing.stat, stat);
+      return existing;
+    }
+    const parent = this.files[dirname(path)];
+    if (!(parent instanceof TFolder)) throw new ENOTDIR(dirname(path));
+    const file = new TFile(path, stat, parent, this);
+    this.files[path] = file;
+    this.addToFileNameIndex(file);
+    parent.children.push(file);
+    return file;
   }
 
   private addToFileNameIndex(file: TFile): void {
@@ -190,10 +296,19 @@ export class Vault extends EventDispatcher<{
     data: string,
     options?: DataWriteOptions,
   ): Promise<TFile> {
+    const run = () => this.createNow(path, data, options);
+    return this.mutate(run);
+  }
+
+  private createNow(
+    path: string,
+    data: string,
+    options?: DataWriteOptions,
+  ): Promise<TFile> {
     path = this.getPath(path);
     const file = this.getFileByPath(path);
     if (file) {
-      return this.modify(file, data, options).then(() => file);
+      return this.modifyNow(file, data, options).then(() => file);
     }
     return this.adapter
       .write(path, data, options)
@@ -202,16 +317,58 @@ export class Vault extends EventDispatcher<{
         if (!stat) {
           return Promise.reject(`Unable to write file: ${path}`);
         }
-        let parent = this.files[dirname(path)] as TFolder;
-        const file = new TFile(path, stat, parent, this);
-        this.files[path] = file;
-        this.addToFileNameIndex(file);
+        const file = this.recordFile(path, stat);
         this.cache.put(path, data);
-        parent.children.push(file);
         this.dispatch("create", file);
         this.dispatch("all", "create", file, {});
         return file;
       });
+  }
+
+  get supportsExclusiveCreate(): boolean {
+    const adapter = this.adapter as VaultAdapter;
+    return (
+      adapter.getCapabilities?.().exclusiveCreate === true &&
+      typeof adapter.writeExclusive === "function"
+    );
+  }
+
+  /** Create new bytes without replacing a cached or newly arriving file. */
+  createExclusive(
+    path: string,
+    data: string | ArrayBuffer,
+    options?: DataWriteOptions,
+  ): Promise<TFile> {
+    if (!this.supportsExclusiveCreate)
+      return Promise.reject(
+        Object.assign(new Error("Exclusive file creation is unavailable"), {
+          code: "ENOTSUP",
+        }),
+      );
+    const run = async () => {
+      await this.load();
+      path = this.getPath(path);
+      if (this.files[path])
+        throw Object.assign(new Error(`A file already exists at ${path}`), {
+          code: "EEXIST",
+        });
+      const parent = this.files[dirname(path)];
+      if (!(parent instanceof TFolder)) throw new ENOTDIR(dirname(path));
+      await (this.adapter as VaultAdapter).writeExclusive!(path, data, options);
+      const stat = await this.adapter.stat(path);
+      if (!stat || stat.type !== "file")
+        throw new Error(`Unable to create file: ${path}`);
+      const file = new TFile(path, stat, parent, this);
+      this.files[path] = file;
+      this.addToFileNameIndex(file);
+      if (typeof data === "string") this.cache.put(path, data);
+      else this.cache.invalidate(path);
+      parent.children.push(file);
+      this.dispatch("create", file);
+      this.dispatch("all", "create", file, {});
+      return file;
+    };
+    return this.mutate(run);
   }
 
   /**
@@ -228,6 +385,15 @@ export class Vault extends EventDispatcher<{
     data: ArrayBuffer,
     options?: DataWriteOptions,
   ): Promise<TFile> {
+    const run = () => this.createBinaryNow(path, data, options);
+    return this.mutate(run);
+  }
+
+  private createBinaryNow(
+    path: string,
+    data: ArrayBuffer,
+    options?: DataWriteOptions,
+  ): Promise<TFile> {
     path = this.getPath(path);
     return this.adapter
       .writeBinary(path, data, options)
@@ -236,11 +402,8 @@ export class Vault extends EventDispatcher<{
         if (!stat) {
           return Promise.reject(`Unable to write file: ${path}`);
         }
-        let parent = this.files[dirname(path)] as TFolder;
-        const file = new TFile(path, stat, parent, this);
-        this.files[path] = file;
-        this.addToFileNameIndex(file);
-        parent.children.push(file);
+        const file = this.recordFile(path, stat);
+        this.cache.invalidate(path);
         this.dispatch("create", file);
         this.dispatch("all", "create", file, {});
         return file;
@@ -254,7 +417,12 @@ export class Vault extends EventDispatcher<{
    * @throws Error if folder already exists
    * @public
    */
-  async createFolder(path: string): Promise<TFolder> {
+  createFolder(path: string): Promise<TFolder> {
+    const run = () => this.createFolderNow(path);
+    return this.mutate(run);
+  }
+
+  private async createFolderNow(path: string): Promise<TFolder> {
     path = this.getPath(path);
 
     try {
@@ -326,6 +494,14 @@ export class Vault extends EventDispatcher<{
     force?: boolean,
     context: { operationOrigin?: string } = {},
   ): Promise<void> {
+    return this.mutateFile(file, () => this.deleteNow(file, force, context));
+  }
+
+  private deleteNow(
+    file: TAbstractFile,
+    force?: boolean,
+    context: { operationOrigin?: string } = {},
+  ): Promise<void> {
     const remove =
       file instanceof TFolder
         ? this.adapter.rmdir(file.path, force ?? true)
@@ -356,18 +532,16 @@ export class Vault extends EventDispatcher<{
   }
 
   trash(file: TAbstractFile, system: boolean = true): Promise<void> {
+    return this.mutateFile(file, () => this.trashNow(file, system));
+  }
+
+  private trashNow(file: TAbstractFile, system: boolean = true): Promise<void> {
     const trash = system
       ? this.adapter.trashSystem(file.path)
       : Promise.resolve(false);
-    return trash.then((handled) => {
-      if (handled) {
-        return this.delete(file, true);
-      }
-      return this.adapter.trashLocal(file.path).then(async () => {
-        await this.reload();
-        this.dispatch("delete", file);
-        this.dispatch("all", "delete", file, { system });
-      });
+    return trash.then(async (handled) => {
+      if (!handled) await this.adapter.trashLocal(file.path);
+      await this.reconcileNow([], () => true, { system });
     });
   }
 
@@ -419,7 +593,10 @@ export class Vault extends EventDispatcher<{
       size: data.byteLength,
       mtime: file.stat.mtime,
       stream: ({ offset = 0, length, signal } = {}) => {
-        const start = Math.max(0, Math.min(data.byteLength, Math.floor(offset)));
+        const start = Math.max(
+          0,
+          Math.min(data.byteLength, Math.floor(offset)),
+        );
         const end = Math.min(
           data.byteLength,
           start + Math.max(0, Math.floor(length ?? data.byteLength - start)),
@@ -427,7 +604,9 @@ export class Vault extends EventDispatcher<{
         return new ReadableStream<Uint8Array>({
           start(controller) {
             if (signal?.aborted) {
-              controller.error(signal.reason ?? new DOMException("Aborted", "AbortError"));
+              controller.error(
+                signal.reason ?? new DOMException("Aborted", "AbortError"),
+              );
               return;
             }
             controller.enqueue(data.slice(start, end));
@@ -439,7 +618,15 @@ export class Vault extends EventDispatcher<{
   }
 
   /** Stream a file into the adapter's atomic or strongest safe replacement path. */
-  async atomicWrite(
+  atomicWrite(
+    path: string,
+    source: ReadableStream<Uint8Array>,
+    options: AtomicDataWriteOptions = {},
+  ): Promise<TFile> {
+    return this.mutate(() => this.atomicWriteNow(path, source, options));
+  }
+
+  private async atomicWriteNow(
     path: string,
     source: ReadableStream<Uint8Array>,
     options: AtomicDataWriteOptions = {},
@@ -462,7 +649,9 @@ export class Vault extends EventDispatcher<{
       try {
         while (true) {
           if (options.signal?.aborted) {
-            throw options.signal.reason ?? new DOMException("Aborted", "AbortError");
+            throw (
+              options.signal.reason ?? new DOMException("Aborted", "AbortError")
+            );
           }
           const next = await reader.read();
           if (next.done) break;
@@ -480,16 +669,13 @@ export class Vault extends EventDispatcher<{
       }
       await adapter.writeBinary(path, data.buffer, options);
     }
-    this.files = await this.loadPath("/", {});
-    this.rebuildFileNameIndex();
+    await this.reconcileNow(
+      [{ type: existed ? "modify" : "create", path }],
+      () => true,
+      { operationOrigin: options.operationOrigin },
+    );
     const file = this.getFileByPath(path);
     if (!file) throw new Error(`Unable to write file: ${path}`);
-    this.cache.invalidate(path);
-    const event = existed ? "modify" : "create";
-    this.dispatch(event, file);
-    this.dispatch("all", event, file, {
-      operationOrigin: options.operationOrigin,
-    });
     return file;
   }
 
@@ -502,33 +688,23 @@ export class Vault extends EventDispatcher<{
    * @public
    */
   rename(file: TAbstractFile, newPath: string): Promise<void> {
+    return this.mutateFile(file, () => this.renameNow(file, newPath));
+  }
+
+  private renameNow(file: TAbstractFile, newPath: string): Promise<void> {
     newPath = this.getPath(newPath);
     if (file.path == newPath) {
       return Promise.resolve();
     }
     const oldPath = file.path;
 
-    const paths = new Set<string>();
-    if (file instanceof TFile) {
-      paths.add(file.parent?.path ?? "/");
-      paths.add(dirname(newPath));
-    } else {
-      paths.add(file.path);
-      paths.add(newPath);
-    }
-
-    return this.adapter.rename(file.path, newPath).then(async () => {
-      this.files = await this.loadPath("/", {});
-      this.rebuildFileNameIndex();
-      let newFile = this.getAbstractFileByPath(newPath);
-      if (newFile) {
-        this.cache.rename(file.path, newFile.path);
-        this.dispatch("rename", newFile, oldPath);
-        this.dispatch("all", "rename", newFile, { oldPath });
-      } else {
-        console.warn(`Failed to rename file: ${file.path}`);
-      }
-    });
+    return this.adapter
+      .rename(oldPath, newPath)
+      .then(() =>
+        this.reconcileNow([
+          { type: "create", path: newPath, previousPath: oldPath },
+        ]),
+      );
   }
 
   /**
@@ -540,26 +716,77 @@ export class Vault extends EventDispatcher<{
    * @public
    */
   modify(file: TFile, data: string, options?: DataWriteOptions): Promise<void> {
+    return this.mutateFile(file, () => this.modifyNow(file, data, options));
+  }
+
+  private modifyNow(
+    file: TFile,
+    data: string,
+    options?: DataWriteOptions,
+  ): Promise<void> {
     if (!this.getFileByPath(file.path)) {
-      return this.create(file.path, data, options).then(() => {});
+      return this.createNow(file.path, data, options).then(() => {});
     }
     const path = file.path;
     return this.adapter
       .write(path, data, options)
-      .then(() => this.adapter.stat(path))
-      .then((stat) => {
-        if (!stat) {
-          return Promise.reject(`Unable to write file: ${path}`);
-        }
-        let parent = this.files[dirname(path)] as TFolder;
-        const file = new TFile(path, stat, parent, this);
-        this.files[path] = file;
-        this.cache.put(path, data);
+      .then(() => this.#recordTextWrite(path, data, options));
+  }
 
-        this.cache.put(file.path, data);
-        this.dispatch("modify", file);
-        this.dispatch("all", "modify", file, { data, options });
-      });
+  get supportsConditionalTextWrites(): boolean {
+    const adapter = this.adapter as VaultAdapter;
+    return (
+      adapter.getCapabilities?.().conditionalTextWrite === true &&
+      typeof adapter.writeTextIfUnchanged === "function"
+    );
+  }
+
+  /** Persist only the caller's captured text version; never fall back to write. */
+  modifyIfUnchanged(
+    file: TFile,
+    data: string,
+    expected: string | null,
+    options?: DataWriteOptions,
+  ): Promise<void> {
+    return this.mutateFile(file, () =>
+      this.modifyIfUnchangedNow(file, data, expected, options),
+    );
+  }
+
+  private async modifyIfUnchangedNow(
+    file: TFile,
+    data: string,
+    expected: string | null,
+    options?: DataWriteOptions,
+  ): Promise<void> {
+    if (!this.supportsConditionalTextWrites)
+      throw new Error("Conditional text writes are unavailable");
+    if (expected !== null && typeof expected !== "string")
+      throw new Error("Invalid expected text snapshot");
+    const path = file.path;
+    await (this.adapter as VaultAdapter).writeTextIfUnchanged!(
+      path,
+      data,
+      expected,
+      options,
+    );
+    await this.#recordTextWrite(path, data, options);
+  }
+
+  #recordTextWrite(
+    path: string,
+    data: string,
+    options?: DataWriteOptions,
+  ): Promise<void> {
+    return this.adapter.stat(path).then((stat) => {
+      if (!stat) {
+        return Promise.reject(`Unable to write file: ${path}`);
+      }
+      const file = this.recordFile(path, stat);
+      this.cache.put(file.path, data);
+      this.dispatch("modify", file);
+      this.dispatch("all", "modify", file, { data, options });
+    });
   }
 
   /**
@@ -575,8 +802,18 @@ export class Vault extends EventDispatcher<{
     data: ArrayBuffer,
     options?: DataWriteOptions,
   ): Promise<void> {
+    return this.mutateFile(file, () =>
+      this.modifyBinaryNow(file, data, options),
+    );
+  }
+
+  private modifyBinaryNow(
+    file: TFile,
+    data: ArrayBuffer,
+    options?: DataWriteOptions,
+  ): Promise<void> {
     if (!this.getFileByPath(file.path)) {
-      return this.createBinary(file.path, data, options).then(() => {});
+      return this.createBinaryNow(file.path, data, options).then(() => {});
     }
     const path = file.path;
     return this.adapter
@@ -586,9 +823,8 @@ export class Vault extends EventDispatcher<{
         if (!stat) {
           return Promise.reject(`Unable to write file: ${path}`);
         }
-        let parent = this.files[dirname(path)] as TFolder;
-        const file = new TFile(path, stat, parent, this);
-        this.files[path] = file;
+        const file = this.recordFile(path, stat);
+        this.cache.invalidate(path);
         this.dispatch("modify", file);
         this.dispatch("all", "modify", file, { data, options });
       });
@@ -616,15 +852,29 @@ export class Vault extends EventDispatcher<{
     fn: (data: string) => string,
     options?: DataWriteOptions,
   ): Promise<string> {
-    return this.adapter.process(file.path, fn, options).then((data) => {
-      this.cache.put(file.path, data);
-      this.dispatch("modify", file);
-      this.dispatch("all", "modify", file, { data, options });
+    return this.mutateFile(file, () => this.processNow(file, fn, options));
+  }
+
+  private processNow(
+    file: TFile,
+    fn: (data: string) => string,
+    options?: DataWriteOptions,
+  ): Promise<string> {
+    return this.adapter.process(file.path, fn, options).then(async (data) => {
+      await this.#recordTextWrite(file.path, data, options);
       return data;
     });
   }
 
   append(file: TFile, data: string, options?: DataWriteOptions): Promise<void> {
+    return this.mutateFile(file, () => this.appendNow(file, data, options));
+  }
+
+  private appendNow(
+    file: TFile,
+    data: string,
+    options?: DataWriteOptions,
+  ): Promise<void> {
     return this.adapter
       .append(file.path, data, options)
       .then(() => this.adapter.stat(file.path))
@@ -632,9 +882,7 @@ export class Vault extends EventDispatcher<{
         if (!stat) {
           return Promise.reject(`Unable to append file: ${file.path}`);
         }
-        const parent = this.files[dirname(file.path)] as TFolder;
-        const next = new TFile(file.path, stat, parent, this);
-        this.files[file.path] = next;
+        const next = this.recordFile(file.path, stat);
         this.cache.invalidate(file.path);
         this.dispatch("modify", next);
         this.dispatch("all", "modify", next, { data, options });
@@ -646,6 +894,16 @@ export class Vault extends EventDispatcher<{
     data: ArrayBuffer,
     options?: DataWriteOptions,
   ): Promise<void> {
+    return this.mutateFile(file, () =>
+      this.appendBinaryNow(file, data, options),
+    );
+  }
+
+  private appendBinaryNow(
+    file: TFile,
+    data: ArrayBuffer,
+    options?: DataWriteOptions,
+  ): Promise<void> {
     return this.adapter
       .appendBinary(file.path, data, options)
       .then(() => this.adapter.stat(file.path))
@@ -653,25 +911,28 @@ export class Vault extends EventDispatcher<{
         if (!stat) {
           return Promise.reject(`Unable to append file: ${file.path}`);
         }
-        const parent = this.files[dirname(file.path)] as TFolder;
-        const next = new TFile(file.path, stat, parent, this);
-        this.files[file.path] = next;
+        const next = this.recordFile(file.path, stat);
         this.cache.invalidate(file.path);
         this.dispatch("modify", next);
         this.dispatch("all", "modify", next, { data, options });
       });
   }
 
-  async copy<T extends TAbstractFile>(file: T, newPath: string): Promise<T> {
+  copy<T extends TAbstractFile>(file: T, newPath: string): Promise<T> {
+    return this.mutateFile(file, () => this.copyNow(file, newPath));
+  }
+
+  private async copyNow<T extends TAbstractFile>(
+    file: T,
+    newPath: string,
+  ): Promise<T> {
     newPath = this.getPath(newPath);
     await this.adapter.copy(file.path, newPath);
-    await this.reload();
+    await this.reconcileNow([], () => true, { originalPath: file.path });
     const copied = this.getAbstractFileByPath(newPath);
     if (!copied) {
       throw new Error(`Unable to copy file: ${file.path}`);
     }
-    this.dispatch("create", copied);
-    this.dispatch("all", "create", copied, { originalPath: file.path });
     return copied as T;
   }
 
@@ -749,7 +1010,8 @@ export class Vault extends EventDispatcher<{
   }
 
   getAllLoadedFiles(): TAbstractFile[] {
-    return Object.values(this.files);
+    const included = this.listingFilter();
+    return Object.values(this.files).filter((file) => included(file.path));
   }
 
   /**
@@ -759,8 +1021,12 @@ export class Vault extends EventDispatcher<{
    * @public
    */
   getAllFolders(includeRoot?: boolean): TFolder[] {
+    const included = this.listingFilter();
     return Object.values(this.files).filter(
-      (it) => it instanceof TFolder && (includeRoot || it.path !== "/"),
+      (it) =>
+        it instanceof TFolder &&
+        included(it.path) &&
+        (includeRoot || it.path !== "/"),
     ) as TFolder[];
   }
 
@@ -770,7 +1036,10 @@ export class Vault extends EventDispatcher<{
    * @public
    */
   getFiles(): TFile[] {
-    return Object.values(this.files).filter((it) => it instanceof TFile);
+    const included = this.listingFilter();
+    return Object.values(this.files).filter(
+      (it): it is TFile => it instanceof TFile && included(it.path),
+    );
   }
 
   /**
@@ -783,9 +1052,11 @@ export class Vault extends EventDispatcher<{
   *iterateFiles(): IterableIterator<TFile> {
     const root = this.files["/"];
     if (!(root instanceof TFolder)) return;
+    const included = this.listingFilter();
 
     function* visit(folder: TFolder): IterableIterator<TFile> {
       for (const child of folder.children) {
+        if (!included(child.path)) continue;
         if (child instanceof TFile) yield child.copy();
         else if (child instanceof TFolder) yield* visit(child);
       }
@@ -835,9 +1106,10 @@ export class Vault extends EventDispatcher<{
       }
     }
 
+    const included = this.listingFilter();
     return [...paths]
       .map((path) => this.getFileByPath(path))
-      .filter((file): file is TFile => Boolean(file))
+      .filter((file): file is TFile => Boolean(file) && included(file!.path))
       .sort((left, right) =>
         left.path < right.path ? -1 : left.path > right.path ? 1 : 0,
       );

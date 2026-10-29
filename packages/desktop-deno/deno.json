@@ -43,7 +43,8 @@
     "zod": "npm:zod@3.25.76",
     "nostr-tools": "npm:nostr-tools@2.25.2",
     "nostr-tools/": "npm:nostr-tools@2.25.2/",
-    "@lapismd/ai-controller/managed": "npm:@lapismd/ai-controller@^0.1.0/managed"
+    "@lapismd/ai-controller/managed": "npm:@lapismd/ai-controller@^0.1.0/managed",
+    "@lapis-notes/api/path": "../api/src/lib/storage/path.ts"
   },
   "tasks": {
     "dev": "deno desktop --config deno.json --quiet --hmr --no-check --sloppy-imports --include src-deno/app-database-worker.ts --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts",

@@ -6,11 +6,7 @@ import type {
 import type { WorkspaceMenu } from "@lapismd/design-core/workspace/core";
 import type { Menu } from "./menu.svelte";
 
-export type DiagnosticSeverity =
-  | "error"
-  | "warning"
-  | "information"
-  | "hint";
+export type DiagnosticSeverity = "error" | "warning" | "information" | "hint";
 
 export interface DiagnosticPosition {
   line: number;
@@ -53,6 +49,14 @@ export interface WorkspaceDiagnosticEntry {
   collectionLabel: string;
   resource: DiagnosticResource | null;
   diagnostic: WorkspaceDiagnostic;
+}
+
+/** Application-owned navigation target for a serializable diagnostic resource. */
+export interface DiagnosticLocation {
+  resource: DiagnosticResource;
+  range?: DiagnosticRange;
+  diagnostic: WorkspaceDiagnostic;
+  related?: DiagnosticRelatedInformation;
 }
 
 export interface DiagnosticCollectionOptions {
@@ -149,7 +153,11 @@ export class DiagnosticsManager {
 
 export function bindRuntimePluginDiagnostics(
   plugins: {
-    on(name: "plugin-error", listener: (id: string, message: string) => void): unknown;
+    on(
+      name: "plugin-error",
+      listener: (id: string, message: string) => void,
+    ): unknown;
+    on(name: "plugin-unloaded", listener: (id: string) => void): unknown;
     on(
       name: "plugin-enabled",
       listener: (plugin: { manifest: { id: string } }) => void,
@@ -179,9 +187,14 @@ export function bindRuntimePluginDiagnostics(
     if (!pluginFailures.delete(plugin.manifest.id)) return;
     publish();
   });
+  const unloadedRef = plugins.on("plugin-unloaded", (id) => {
+    if (!pluginFailures.delete(id)) return;
+    publish();
+  });
   return () => {
     plugins.offref(errorRef);
     plugins.offref(enabledRef);
+    plugins.offref(unloadedRef);
   };
 }
 

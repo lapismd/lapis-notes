@@ -278,30 +278,11 @@
         ".ci/dependency-image.Dockerfile",
         "!**/.DS_Store",
         ".pnpmfile.cjs",
-        ".local-plugin-install.json"
+        ".local-plugin-install.json",
+        "packages/web/playwright*.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"
-    },
-    "//#test:desktop:packaged:run": {
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "packages/*/src/**",
-        "packages/*/scripts/**",
-        "packages/*/package.json",
-        "packages/*/tsconfig*.json",
-        "packages/*/svelte.config.*",
-        "packages/*/vite.config.*",
-        ".github/actions/ci-setup/action.yml",
-        ".ci/images.json",
-        ".ci/dependency-image.Dockerfile",
-        "!**/.DS_Store",
-        ".pnpmfile.cjs",
-        ".local-plugin-install.json"
-      ],
-      "outputs": [],
-      "cache": false,
-      "envMode": "loose"
     },
     "//#test:local-plugin-consumer:run": {
       "inputs": [
@@ -500,6 +481,135 @@
       ],
       "outputs": [],
       "outputLogs": "new-only"
+    },
+    "//#test:server:e2e:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": [],
+      "dependsOn": ["@lapis-notes/app-profile#build"]
+    },
+    "//#test:server:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
+    },
+    "//#test:search:onnx:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
+    },
+    "//#test:rust-core:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
+    },
+    "//#test:server:native:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
+    },
+    "//#test:server:e2e:host:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": [],
+      "dependsOn": ["@lapis-notes/app-profile#build"]
+    },
+    "//#test:storybook-parity:run": {
+      "cache": true,
+      "inputs": [
+        "scripts/spec-validation/storybook-parity*.mjs",
+        "scripts/spec-validation/story-parity/**",
+        "package.json",
+        "pnpm-lock.yaml"
+      ],
+      "outputs": []
+    },
+    "//#test:native-daily-reference:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
+    },
+    "//#test:api:native-tasks:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
+    },
+    "//#test:native-daily-locales-reference:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
+    },
+    "//#test:web:native-tasks:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": [],
+      "dependsOn": ["@lapis-notes/api#build"]
+    },
+    "//#test:server:tasks:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": [],
+      "dependsOn": [
+        "@lapis-notes/app-profile#build",
+        "@lapis-notes/workspace#build"
+      ]
+    },
+    "//#test:web:native-editing-intents:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": [],
+      "dependsOn": ["@lapis-notes/api#build"]
+    },
+    "//#test:server:tasks:recovery:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": [],
+      "dependsOn": [
+        "@lapis-notes/app-profile#build",
+        "@lapis-notes/workspace#build"
+      ]
+    },
+    "//#test:server:tasks:references:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": [],
+      "dependsOn": [
+        "@lapis-notes/app-profile#build",
+        "@lapis-notes/workspace#build"
+      ]
+    },
+    "//#test:server:tasks:editors:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": [],
+      "dependsOn": [
+        "@lapis-notes/app-profile#build",
+        "@lapis-notes/workspace#build"
+      ]
+    },
+    "//#test:server:tasks:leave:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": [],
+      "dependsOn": [
+        "@lapis-notes/app-profile#build",
+        "@lapis-notes/workspace#build"
+      ]
+    },
+    "//#test:web:workspace-leave:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
+    },
+    "//#test:server:delivery:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
+    },
+    "//#test:server:container:run": {
+      "cache": false,
+      "envMode": "loose",
+      "outputs": []
     }
   },
   "globalEnv": [
@@ -510,7 +620,8 @@
     "DENO_BIN",
     "TZ",
     "LANG",
-    "LC_ALL"
+    "LC_ALL",
+    "LAPIS_NOTES_VALIDATION_WORKER"
   ],
   "globalPassThroughEnv": [
     "LAPIS_AGENT_RUNTIME_URL",
@@ -518,6 +629,9 @@
     "LAPIS_TERMINAL_HOST_URL",
     "LAPIS_TERMINAL_HOST_TOKEN",
     "LAPIS_DENO_PACKAGED_EXECUTABLE",
-    "LAPIS_WEB_REGISTRY_ACCEPTANCE"
+    "LAPIS_WEB_REGISTRY_ACCEPTANCE",
+    "LAPIS_NOTES_VALIDATION_RUNTIME",
+    "PLAYWRIGHT_BROWSERS_PATH",
+    "DENO_DIR"
   ]
 }

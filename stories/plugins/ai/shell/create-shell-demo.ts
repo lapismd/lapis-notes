@@ -104,10 +104,13 @@ function split(
   };
 }
 
-export function createAiWorkspaceLayout(initialLocation?: {
-  scopeDir: string;
-  conversationId: string;
-}, scenario: AiWorkspaceScenario = "default") {
+export function createAiWorkspaceLayout(
+  initialLocation?: {
+    scopeDir: string;
+    conversationId: string;
+  },
+  scenario: AiWorkspaceScenario = "default",
+) {
   const jsonlPath = `Notes/.lapis/agents/sessions/${LOCAL_CONVERSATION_ID}/transcript.jsonl`;
   const mainLeaf =
     scenario === "jsonl-preview"
@@ -120,9 +123,7 @@ export function createAiWorkspaceLayout(initialLocation?: {
         )
       : leaf("ai-chat", "AI", "sparkles", AiViewType, initialLocation);
   return {
-    main: split("main", "horizontal", [
-      tabs("main-tabs", [mainLeaf]),
-    ]),
+    main: split("main", "horizontal", [tabs("main-tabs", [mainLeaf])]),
     left: split(
       "left",
       "vertical",
@@ -165,13 +166,13 @@ export function createAiWorkspaceSeed(
             }
           : undefined;
   return {
-    ".obsidian/app.json": JSON.stringify(AI_WORKSPACE_CONFIGURATION, null, 2),
-    ".obsidian/workspace.json": JSON.stringify(
+    ".lapis/app.json": JSON.stringify(AI_WORKSPACE_CONFIGURATION, null, 2),
+    ".lapis/workspace.json": JSON.stringify(
       createAiWorkspaceLayout(initialLocation, scenario),
       null,
       2,
     ),
-    ".obsidian/ai.json": JSON.stringify(pluginData, null, 2),
+    ".lapis/ai.json": JSON.stringify(pluginData, null, 2),
     "Notes/Welcome.md": "# Welcome\n\nAsk the AI chat in the workspace.\n",
     "Notes/alpha.md": "# Alpha\n\nTODO: summarize this note.\n",
     ...(scenario === "follow-scope"
@@ -275,7 +276,7 @@ export async function bootAiWorkspaceDemo(
   }
   const app = new App({
     version: "0.0.1-story",
-    configPath: ".obsidian/app.json",
+    configPath: ".lapis/app.json",
     adapter,
     appDatabase: new MemoryAppDatabase("lapis-ai-workspace"),
     workspaceShell: { application: { name: "Lapis Notes" } },
@@ -505,87 +506,87 @@ function createConversationScenarioSeed(
               ),
             ]
           : scenario === "agent-switching"
-          ? [
-              message("user-1", "user", "Review the note", "binding-codex"),
-              message(
-                "assistant-1",
-                "assistant",
-                "Codex reviewed the project note.",
-                "binding-codex",
-              ),
-              {
-                schemaVersion: 3,
-                id: "switch-1",
-                type: "agent.switch",
-                createdAt: "2026-08-16T09:02:00.000Z",
-                agentBindingId: "binding-cursor",
-                fromBindingId: "binding-codex",
-                toBindingId: "binding-cursor",
-                handoffId: "handoff-codex-to-cursor",
-                handoffMode: "full",
-                handoffThroughEntryId: "assistant-1",
-                omittedEntryCount: 0,
-              },
-              message(
-                "user-2",
-                "user",
-                "Continue with Cursor",
-                "binding-cursor",
-              ),
-              message(
-                "assistant-2",
-                "assistant",
-                "Cursor continued in the same local conversation.",
-                "binding-cursor",
-              ),
-              {
-                schemaVersion: 3,
-                id: "switch-2",
-                type: "agent.switch",
-                createdAt: "2026-08-16T09:04:00.000Z",
-                agentBindingId: "binding-codex",
-                fromBindingId: "binding-cursor",
-                toBindingId: "binding-codex",
-                handoffId: "handoff-cursor-to-codex",
-                handoffMode: "delta",
-                handoffThroughEntryId: "assistant-2",
-                omittedEntryCount: 0,
-              },
-              {
-                schemaVersion: 3,
-                id: "agent-config-1",
-                type: "agent.config",
-                createdAt: "2026-08-16T09:04:30.000Z",
-                agentBindingId: "binding-codex",
-                model: { provider: "codex", model: "gpt-5.6-terra" },
-              },
-              message(
-                "user-3",
-                "user",
-                "Finish back in Codex",
-                "binding-codex",
-              ),
-              message(
-                "assistant-3",
-                "assistant",
-                "Codex resumed its original binding with the Cursor delta.",
-                "binding-codex",
-              ),
-            ]
-          : [
-              message(
-                "user-1",
-                "user",
-                "Summarize the project",
-                "binding-codex",
-              ),
-              message(
-                "assistant-1",
-                "assistant",
-                "The project has one welcome note and one TODO.",
-                "binding-codex",
-              ),
-            ],
+            ? [
+                message("user-1", "user", "Review the note", "binding-codex"),
+                message(
+                  "assistant-1",
+                  "assistant",
+                  "Codex reviewed the project note.",
+                  "binding-codex",
+                ),
+                {
+                  schemaVersion: 3,
+                  id: "switch-1",
+                  type: "agent.switch",
+                  createdAt: "2026-08-16T09:02:00.000Z",
+                  agentBindingId: "binding-cursor",
+                  fromBindingId: "binding-codex",
+                  toBindingId: "binding-cursor",
+                  handoffId: "handoff-codex-to-cursor",
+                  handoffMode: "full",
+                  handoffThroughEntryId: "assistant-1",
+                  omittedEntryCount: 0,
+                },
+                message(
+                  "user-2",
+                  "user",
+                  "Continue with Cursor",
+                  "binding-cursor",
+                ),
+                message(
+                  "assistant-2",
+                  "assistant",
+                  "Cursor continued in the same local conversation.",
+                  "binding-cursor",
+                ),
+                {
+                  schemaVersion: 3,
+                  id: "switch-2",
+                  type: "agent.switch",
+                  createdAt: "2026-08-16T09:04:00.000Z",
+                  agentBindingId: "binding-codex",
+                  fromBindingId: "binding-cursor",
+                  toBindingId: "binding-codex",
+                  handoffId: "handoff-cursor-to-codex",
+                  handoffMode: "delta",
+                  handoffThroughEntryId: "assistant-2",
+                  omittedEntryCount: 0,
+                },
+                {
+                  schemaVersion: 3,
+                  id: "agent-config-1",
+                  type: "agent.config",
+                  createdAt: "2026-08-16T09:04:30.000Z",
+                  agentBindingId: "binding-codex",
+                  model: { provider: "codex", model: "gpt-5.6-terra" },
+                },
+                message(
+                  "user-3",
+                  "user",
+                  "Finish back in Codex",
+                  "binding-codex",
+                ),
+                message(
+                  "assistant-3",
+                  "assistant",
+                  "Codex resumed its original binding with the Cursor delta.",
+                  "binding-codex",
+                ),
+              ]
+            : [
+                message(
+                  "user-1",
+                  "user",
+                  "Summarize the project",
+                  "binding-codex",
+                ),
+                message(
+                  "assistant-1",
+                  "assistant",
+                  "The project has one welcome note and one TODO.",
+                  "binding-codex",
+                ),
+              ],
       usage: { used: 12_920, limit: 128_000 },
     }),
     ...conversationFiles({

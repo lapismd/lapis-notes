@@ -14,7 +14,9 @@ export const DateSetting: Story = {
   ...apiStoryMeta(
     "api-date-setting",
     "Date/time settings via api date-setting (design-core forms DatePicker/TimePicker).",
-    { baselineImage: "/visual-baselines/stories/api/date-setting-chromium.png" },
+    {
+      baselineImage: "/visual-baselines/stories/api/date-setting-chromium.png",
+    },
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -24,8 +26,10 @@ export const DateSetting: Story = {
       "date: (empty); time: 12:00; legacy: 2026-01-15T14:30",
     );
 
-    const dateTriggers = canvas.getAllByRole("button", { name: "Choose date" });
-    await userEvent.click(dateTriggers[0]!);
+    const dateTrigger = canvas.getByRole("button", {
+      name: "Choose date: Pick date",
+    });
+    await userEvent.click(dateTrigger);
     await userEvent.click(await body.findByRole("button", { name: "Today" }));
     await waitFor(() =>
       expect(canvas.getByTestId("api-ui-status")).toHaveTextContent(
@@ -41,9 +45,9 @@ export const DateSetting: Story = {
     );
 
     // Legacy datetime-local inbound value renders as the date part in the trigger.
-    const legacyTrigger = canvas.getAllByRole("button", {
-      name: "Choose date",
-    }).at(-1);
+    const legacyTrigger = canvas.getByRole("button", {
+      name: "Choose date: Jan 15, 2026",
+    });
     await expect(legacyTrigger).toBeVisible();
     await expect(legacyTrigger).toHaveTextContent(/Jan/);
   },

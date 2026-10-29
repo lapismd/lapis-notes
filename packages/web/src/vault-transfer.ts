@@ -43,8 +43,7 @@ function resolveDependencies(
       ((hostDocument) =>
         promptConfirm(hostDocument, {
           title: "Apply imported settings",
-          description:
-            "Reload the app to apply imported .obsidian settings.",
+          description: "Reload the app to apply imported .lapis settings.",
           confirmLabel: "Reload now",
           cancelLabel: "Later",
         })),
@@ -173,7 +172,7 @@ export async function importLocalFolderIntoCurrentVault(
         : `Imported ${handle.name}. Metadata refresh continues in the background.`;
     app.notifications.notify({
       title: "Imported local folder into browser vault",
-      message: `${imported} Reloading applies imported .obsidian settings.`,
+      message: `${imported} Reloading applies imported .lapis settings.`,
       source: "Import",
     });
 
@@ -183,7 +182,10 @@ export async function importLocalFolderIntoCurrentVault(
   } catch (error) {
     app.notifications.notify({
       title: "Failed to import local folder",
-      message: errorMessage(error, "An unexpected error occurred during import."),
+      message: errorMessage(
+        error,
+        "An unexpected error occurred during import.",
+      ),
       severity: "error",
       source: "Import",
     });

@@ -179,35 +179,49 @@ test("generated Changesets PR retains remaining validation lanes", () => {
   assert.equal(workflow.jobs.validate.if, "always()");
 });
 
-test("CI runs complete web and native packaged acceptance before aggregation", () => {
+test("CI runs complete web acceptance and does not package the desktop app", () => {
   assert.equal(
     workflow.jobs["web-acceptance"].steps.some(
       (step) => step.run === "pnpm test:web:e2e",
     ),
     true,
   );
-  const native = workflow.jobs["desktop-packaged"];
-  assert.deepEqual(native.strategy.matrix.os, ["macos-15", "ubuntu-24.04"]);
-  assert.equal(native.strategy["fail-fast"], false);
-  assert.ok(native.steps.some((step) => step.run === "pnpm package:desktop"));
-  assert.ok(
-    native.steps.some((step) => step.run === "pnpm test:desktop:packaged"),
+  assert.equal(workflow.jobs["desktop-packaged"], undefined);
+  assert.equal(workflow.env.LAPIS_CONTROLLER_CANDIDATE_COMMIT, undefined);
+  const workflowText = readFileSync(
+    new URL("../.github/workflows/lapis-ci.yml", import.meta.url),
+    "utf8",
   );
-  assert.ok(
-    native.steps.some((step) =>
-      step.run?.includes(
-        "xvfb-run -a dbus-run-session -- pnpm test:desktop:packaged",
-      ),
-    ),
+  assert.doesNotMatch(workflowText, /package:desktop|test:desktop:packaged/);
+  assert.ok(workflow.jobs.validate.needs.includes("web-acceptance"));
+  assert.equal(workflow.jobs.validate.needs.includes("server-acceptance"), false);
+  assert.equal(workflow.jobs.validate.needs.includes("desktop-packaged"), false);
+});
+
+test("a failed required job cancels only that workflow run", () => {
+  assert.equal(workflow.permissions.actions, "write");
+  assert.equal(workflow.jobs.validate.if, "always()");
+  const lanes = Object.entries(workflow.jobs).filter(
+    ([name]) => name !== "validate",
   );
+  for (const [name, job] of lanes) {
+    const cancel = job.steps?.find(
+      (step) => step.name === "Cancel this run after a required failure",
+    );
+    assert.ok(cancel, name);
+    assert.equal(cancel.if, "${{ failure() && !cancelled() }}");
+    assert.match(
+      cancel.run,
+      /\$GITHUB_API_URL\/repos\/\$GITHUB_REPOSITORY\/actions\/runs\/\$GITHUB_RUN_ID\/cancel/u,
+    );
+    assert.equal(job.strategy, undefined, name);
+  }
   assert.equal(
-    native.steps.find((step) =>
-      step.uses?.startsWith("actions/upload-artifact@"),
-    ).if,
-    "always()",
+    workflow.jobs.validate.steps.some(
+      (step) => step.name === "Cancel this run after a required failure",
+    ),
+    false,
   );
-  for (const lane of ["web-acceptance", "desktop-packaged"])
-    assert.ok(workflow.jobs.validate.needs.includes(lane));
 });
 
 test("Web fixtures come from an immutable Plugins candidate", () => {
@@ -228,42 +242,16 @@ test("Web fixtures come from an immutable Plugins candidate", () => {
   assert.ok(workflow.jobs["web-acceptance"].needs.includes("registry-fixture"));
 });
 
-test("native acceptance provisions the released standalone controller CLI", () => {
-  const native = workflow.jobs["desktop-packaged"];
-  assert.match(
-    workflow.env.LAPIS_CONTROLLER_CANDIDATE_COMMIT,
-    /^[a-f0-9]{40}$/,
+test("Notes CI does not run server acceptance", () => {
+  assert.equal(workflow.jobs["server-acceptance"], undefined);
+  assert.equal(workflow.jobs.validate.needs.includes("server-acceptance"), false);
+  const workflowText = readFileSync(
+    new URL("../.github/workflows/lapis-ci.yml", import.meta.url),
+    "utf8",
   );
-  const checkout = native.steps.find(
-    (step) => step.with?.repository === "lapismd/ai-controller",
-  );
-  assert.equal(
-    checkout.with.ref,
-    "${{ env.LAPIS_CONTROLLER_CANDIDATE_COMMIT }}",
-  );
-  const install = native.steps.find(
-    (step) => step.name === "Provision the controller CLI candidate",
-  );
-  assert.match(install.run, /git rev-parse HEAD/);
-  assert.match(install.run, /pnpm install --frozen-lockfile/);
-  assert.match(install.run, /pnpm build:cli/);
-  assert.match(install.run, /node scripts\/install-cli\.mjs/);
-  assert.match(install.run, /LAPIS_AI_CONTROLLER_BIN=/);
-  assert.match(install.run, /GITHUB_ENV/);
-});
-
-test("Web acceptance provisions Docker and builds the server candidate", () => {
-  const web = workflow.jobs["web-acceptance"];
-  assert.equal(web.container, undefined);
-  const server = web.steps.findIndex((step) =>
-    step.run?.includes("docker build -f packages/server-deno/Dockerfile"),
-  );
-  const suite = web.steps.findIndex((step) => step.run === "pnpm test:web:e2e");
-  assert.ok(server >= 0 && suite > server);
-  assert.ok(
-    web.steps.some((step) =>
-      step.run?.includes("playwright install --with-deps chromium"),
-    ),
+  assert.doesNotMatch(
+    workflowText,
+    /pnpm test:server|pnpm build:server:container|pnpm test:server:container|desktop-packaged/,
   );
 });
 

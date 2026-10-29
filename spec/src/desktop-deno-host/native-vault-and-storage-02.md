@@ -34,7 +34,7 @@ writer selection remain required before runtime activation.
 
 <a id="ln-deno-039"></a>
 
-**Requirement.** System WebView and CEF sessions MUST consume the same Design Core scrollbar visibility setting persisted through `.obsidian/app.json`. File Explorer, Markdown, and other shared Scroll Areas MUST use Design Core's engine strategy without desktop-local scrollbar CSS, and the File Explorer thumb MUST remain flush to its container edge.
+**Requirement.** System WebView and CEF sessions MUST consume the same Design Core scrollbar visibility setting persisted through `.lapis/app.json`. File Explorer, Markdown, and other shared Scroll Areas MUST use Design Core's engine strategy without desktop-local scrollbar CSS, and the File Explorer thumb MUST remain flush to its container edge.
 
 ### Acceptance details
 

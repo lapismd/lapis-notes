@@ -74,6 +74,10 @@ Retained Mobile shell acceptance uses the published count-bearing tab-dock name.
 
 **Requirement.** Governed Storybook coverage MUST exercise public table, cards, grouped-list, map-unavailable, unknown-view, workflow, schema/settings, editable-cell, Desktop and Mobile real editor shells with Explorer visible and indexed Search retained collapsed, real file-view, Markdown-embed, and disable/restore scenarios. Standalone shell previews MUST fill the viewport without padding or page scrolling while Docs remain isolated at 700px. File-view and pointer acceptance MUST wait for explicit preview readiness before interacting with persisted layout controls. Every scenario MUST include interaction assertions and remain `visual-pending` until human review.
 
+File-view pointer acceptance follows the current catalog entry
+`plugins-bases-shell-lifecycle--file-view`; the retired Workspace-prefixed URL
+is not a valid acceptance target.
+
 ## LN-BASE-012 — Port: document real-map, Obsidian wrapper/formula, this binding, richer
 
 <a id="ln-base-012"></a>
@@ -193,3 +197,6 @@ Retained Mobile shell acceptance uses the published count-bearing tab-dock name.
 <a id="ln-base-031"></a>
 
 **Requirement.** Governed Bases Storybook coverage MUST start from persisted indexed rows, surface an async metadata query failure, and recover after a later committed invalidation without enumerating a MetadataCache snapshot.
+
+Retained Bases hosts seed configuration and layout under the API-owned `.lapis`
+default (LN-ARCH-140). Source ownership stays in the sibling plugin repository.

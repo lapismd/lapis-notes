@@ -1,5 +1,5 @@
 import { connect } from "@tursodatabase/database";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   TURSO_APP_DATABASE_SCHEMA,
@@ -26,6 +26,63 @@ function createDatabase(vaultId = "turso-test"): TursoAppDatabase {
 }
 
 describe("TursoAppDatabase", () => {
+  it("retains connection ownership when close fails and retries the same driver", async () => {
+    const connection = (await connect(":memory:", {
+      experimental: ["index_method"],
+    })) as TursoConnection;
+    const close = vi.spyOn(connection, "close");
+    close.mockRejectedValueOnce(new Error("native close rejected"));
+    const connectionFactory = vi.fn(async () => connection);
+    const database = new TursoAppDatabase("close-retry", {
+      kind: "turso-native",
+      transport: "native",
+      connectionFactory,
+    });
+    await database.open();
+    await database.setMeta("saved", "durable");
+
+    await expect(database.close()).rejects.toThrow("native close rejected");
+    await database.open();
+    expect(connectionFactory).toHaveBeenCalledTimes(1);
+    await expect(database.getMeta("saved")).resolves.toBe("durable");
+    const pendingWrite = database.setMeta("accepted-before-close", "latest");
+    await database.close();
+    await expect(pendingWrite).resolves.toBeUndefined();
+    expect(close).toHaveBeenCalledTimes(2);
+    await database.close();
+    expect(close).toHaveBeenCalledTimes(2);
+  });
+
+  it("waits for concurrent close calls to finish the owned driver", async () => {
+    const connection = (await connect(":memory:")) as TursoConnection;
+    const originalClose = connection.close.bind(connection);
+    let finishClose!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      finishClose = resolve;
+    });
+    const close = vi.spyOn(connection, "close").mockImplementation(async () => {
+      await gate;
+      await originalClose();
+    });
+    const database = new TursoAppDatabase("concurrent-close", {
+      kind: "turso-native",
+      transport: "native",
+      connectionFactory: async () => connection,
+    });
+    await database.open();
+    let secondFinished = false;
+    const first = database.close();
+    const second = database.close().then(() => {
+      secondFinished = true;
+    });
+    await vi.waitFor(() => expect(close).toHaveBeenCalledTimes(1));
+    expect(secondFinished).toBe(false);
+    finishClose();
+    await Promise.all([first, second]);
+    expect(secondFinished).toBe(true);
+    expect(close).toHaveBeenCalledTimes(1);
+  });
+
   it("opens the Turso schema and reports probed capabilities", async () => {
     const database = createDatabase();
     await database.open();
@@ -430,9 +487,14 @@ describe("TursoAppDatabase", () => {
     const trackedConnection: TursoConnection = {
       exec: (sql) => connection.exec(sql),
       run: (sql, ...args) => connection.run(sql, ...args),
-      get: <T extends Record<string, unknown>>(sql: string, ...args: unknown[]) =>
-        connection.get<T>(sql, ...args),
-      all: <T extends Record<string, unknown>>(sql: string, ...args: unknown[]) => {
+      get: <T extends Record<string, unknown>>(
+        sql: string,
+        ...args: unknown[]
+      ) => connection.get<T>(sql, ...args),
+      all: <T extends Record<string, unknown>>(
+        sql: string,
+        ...args: unknown[]
+      ) => {
         allCalls += 1;
         return connection.all<T>(sql, ...args);
       },

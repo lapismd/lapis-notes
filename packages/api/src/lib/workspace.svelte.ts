@@ -1,3 +1,4 @@
+import { appStatePath } from "./storage/path";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { EventDispatcher, type DefaultEventMap, type EventMap } from "./events";
@@ -20,6 +21,8 @@ import {
   type SidebarStateProps,
 } from "@lapis-notes/ui/sidebar-custom";
 import { uniqueId } from "./utils";
+import { attachWorkspaceView } from "./workspace-view-document";
+import { workspaceCloseGuard } from "./workspace-close-guard";
 import { normalizeWorkspaceJson } from "./workspace-layout-normalizer";
 import {
   promptLoadWorkspaceLayout,
@@ -32,6 +35,7 @@ import {
   type NamedWorkspaceStore,
 } from "./workspace-layouts";
 import { debounce, isEqual } from "lodash-es";
+import { registerWorkspaceFileSettings } from "./files-configuration";
 import { basename, dirname, joinPath } from "./storage";
 import { HistoryManager } from "./history.svelte";
 import type { TransactionSpec } from "@codemirror/state";
@@ -40,6 +44,7 @@ import type { PluginCatalogEntry } from "./plugin-distribution";
 import {
   EditorViewRegistry,
   type EditorViewContribution,
+  type ExtensionRegistrationOptions,
   type RegisteredEditorViewContribution,
 } from "./editor-view-registry";
 import {
@@ -84,7 +89,11 @@ import {
   setWorkspaceHostBinding,
 } from "./workspace-host-internal";
 import { getWorkspaceHostBinding } from "./workspace-host";
-import { DiagnosticsManager, pathFromDiagnosticResource } from "./diagnostics";
+import {
+  DiagnosticsManager,
+  pathFromDiagnosticResource,
+  type DiagnosticLocation,
+} from "./diagnostics";
 import {
   getApplicationCompatibility,
   resolveApplication,
@@ -318,7 +327,9 @@ export abstract class WorkspaceParent<
   }
 }
 
-type WorkspaceProjectionItems = Map<string, WorkspaceItem>;
+type WorkspaceProjectionItems = Map<string, WorkspaceItem> & {
+  isCurrent?: () => boolean;
+};
 
 function collectWorkspaceProjectionItem(
   item: WorkspaceItem,
@@ -346,8 +357,9 @@ function collectWorkspaceProjectionItem(
 
 function beginWorkspaceProjection(
   workspace: Workspace,
+  isCurrent: () => boolean,
 ): WorkspaceProjectionItems {
-  const items = new Map<string, WorkspaceItem>();
+  const items = Object.assign(new Map<string, WorkspaceItem>(), { isCurrent });
   workspace.rootSplit.children.forEach((child) =>
     collectWorkspaceProjectionItem(child, items),
   );
@@ -383,8 +395,14 @@ function claimWorkspaceProjectionItem<T extends WorkspaceItem>(
 
 function finishWorkspaceProjection(
   projectionItems: WorkspaceProjectionItems,
+  workspace: Workspace,
 ): void {
+  const retained =
+    projectionItems.isCurrent?.() === false
+      ? beginWorkspaceProjection(workspace, () => true)
+      : undefined;
   for (const item of projectionItems.values()) {
+    if (retained?.get(item.id) === item) continue;
     if (item instanceof WorkspaceLeaf) {
       item.view.unload();
       if (hasDestroyableEditor(item.view)) item.view.editor.destroy();
@@ -446,6 +464,13 @@ export const WORKSPACE_POPOUT_UNSUPPORTED_ERROR_MESSAGE =
   "Workspace popout windows are not supported in the current renderer host.";
 
 let workspacePopoutHost: WorkspacePopoutHost | null = null;
+const layoutMutationRevisions = new WeakMap<Workspace, number>();
+function recordLayoutMutation(workspace: Workspace): void {
+  layoutMutationRevisions.set(
+    workspace,
+    (layoutMutationRevisions.get(workspace) ?? 0) + 1,
+  );
+}
 
 export function setWorkspacePopoutHost(host: WorkspacePopoutHost | null): void {
   workspacePopoutHost = host;
@@ -512,6 +537,7 @@ export abstract class WorkspaceSplit<
     });
 
     return Promise.all(promises).then(() => {
+      if (projectionItems?.isCurrent?.() === false) return;
       this.id = layout.id;
       this.type = layout.direction;
     });
@@ -685,6 +711,7 @@ export class WorkspaceSidedock extends WorkspaceSplit<{
     projectionItems?: WorkspaceProjectionItems,
   ) {
     return super.loadJson(layout, projectionItems).then(() => {
+      if (projectionItems?.isCurrent?.() === false) return;
       if (/^0(?:px|rem|em|%)?$/.test(layout.width.trim())) {
         this.open = false;
       } else {
@@ -822,6 +849,7 @@ export class WorkspaceWindow extends WorkspaceContainer {
         projectionItems,
       )
       .then(() => {
+        if (projectionItems?.isCurrent?.() === false) return;
         this.id = layout.id;
         this.applyInitData({
           mode: layout.mode,
@@ -875,9 +903,7 @@ export class WorkspaceWindow extends WorkspaceContainer {
   }
 }
 
-function hasDestroyableEditor(
-  view: View,
-): view is View & {
+function hasDestroyableEditor(view: View): view is View & {
   editor: { bindApplication?: (app: App) => unknown; destroy: () => void };
 } {
   const candidate = view as View & { editor?: { destroy?: unknown } };
@@ -901,6 +927,7 @@ export class WorkspaceFloating extends WorkspaceParent {
   loadJson(
     layouts: WorkspaceWindowJson[] = [],
     projectionItems?: WorkspaceProjectionItems,
+    resolveHandle?: (id: string) => WorkspacePopoutHostHandle | null,
   ) {
     const promises: Array<Promise<any>> = [];
     this.children.slice().forEach((child) => this.removeChild(child, true));
@@ -914,16 +941,19 @@ export class WorkspaceFloating extends WorkspaceParent {
       this.addChild(child);
       promises.push(
         child.loadWindowJson(layout, projectionItems).then(() => {
+          if (projectionItems?.isCurrent?.() === false) return;
           if (child.mode !== "popout") {
             return;
           }
 
-          const handle = openWorkspacePopoutHandle({
-            x: child.x,
-            y: child.y,
-            size: { width: child.width, height: child.height },
-            mode: "popout",
-          });
+          const handle = resolveHandle
+            ? resolveHandle(child.id)
+            : openWorkspacePopoutHandle({
+                x: child.x,
+                y: child.y,
+                size: { width: child.width, height: child.height },
+                mode: "popout",
+              });
           if (!handle) {
             child.mode = "floating";
             return;
@@ -1169,9 +1199,7 @@ export class WorkspaceSidebarGroup extends WorkspaceParent {
         )
       : undefined;
     return (
-      selected ??
-      this.children.find((leaf) => !this.isLeafHidden(leaf)) ??
-      null
+      selected ?? this.children.find((leaf) => !this.isLeafHidden(leaf)) ?? null
     );
   }
 
@@ -1262,10 +1290,13 @@ export class WorkspaceSidebarGroup extends WorkspaceParent {
         () => new WorkspaceLeaf(),
       );
       this.addChild(leaf);
-      promises.push(leaf.loadJson(config));
+      promises.push(
+        loadWorkspaceLeafJson(leaf, config, projectionItems?.isCurrent),
+      );
     });
 
     return Promise.all(promises).then(() => {
+      if (projectionItems?.isCurrent?.() === false) return;
       this.id = layout.id;
       this.name = layout.name;
       this.icon = layout.icon;
@@ -1351,11 +1382,14 @@ export class WorkspaceTabs extends WorkspaceParent {
           () => new WorkspaceLeaf(),
         );
         this.addChild(leaf);
-        promises.push(leaf.loadJson(config));
+        promises.push(
+          loadWorkspaceLeafJson(leaf, config, projectionItems?.isCurrent),
+        );
       }
     });
 
     return Promise.all(promises).then(() => {
+      if (projectionItems?.isCurrent?.() === false) return;
       this.id = layout.id;
       this.stacked = layout.stacked;
       this.selected = layout.currentTab;
@@ -1545,6 +1579,7 @@ export class WorkspaceBottomPanel extends WorkspaceTabs {
     projectionItems?: WorkspaceProjectionItems,
   ) {
     return super.loadJson(layout, projectionItems).then(() => {
+      if (projectionItems?.isCurrent?.() === false) return;
       const collapsed = /^0(?:px|rem|em|%)?$/.test(layout.height.trim());
       this.open = !collapsed;
       if (!collapsed) this.height = layout.height;
@@ -2013,6 +2048,12 @@ export class Workspace extends EventDispatcher<{
   private viewTypes: Map<string, ViewCreator> = new Map([
     ["empty", (leaf) => new EmptyView(leaf)],
   ]);
+  private readonly fileIconListeners = new Set<() => void>();
+  private iconExtensionSequence = 0;
+  private readonly iconExtensions = new Map<
+    string,
+    { keys: string[]; viewType: string; dispose: () => void }
+  >();
   private viewExtensions: Map<string, string> = new Map();
   readonly editorViews: EditorViewRegistry = new EditorViewRegistry();
   private sidebarViewPlacements: Map<string, SidebarViewPlacementOptions> =
@@ -2042,6 +2083,9 @@ export class Workspace extends EventDispatcher<{
   private layoutHandlers: Array<() => void> = [];
   private suspendedLayoutPersistence = 0;
   #workspaceHostController: AppShellController | null = null;
+  #diagnosticOpeners = new Set<
+    (location: DiagnosticLocation) => boolean | Promise<boolean>
+  >();
   readonly diagnostics: DiagnosticsManager;
   #syncingWorkspaceHost = 0;
   #workspaceHostProjection: Promise<void> = Promise.resolve();
@@ -2053,6 +2097,8 @@ export class Workspace extends EventDispatcher<{
   #notificationProgressBridgeDisposer: (() => void) | null = null;
   #commandBridgeDisposer: (() => void) | null = null;
   private workspaceLayoutFile = "workspace.json";
+  #layoutSaveTail: Promise<void> = Promise.resolve();
+  #layoutPersistenceDisposed = false;
 
   public statusEl: HTMLElement = $state()!;
   public statusCompatEl: HTMLElement = $state()!;
@@ -2061,21 +2107,47 @@ export class Workspace extends EventDispatcher<{
   public containerEl: HTMLElement = $state(createDiv("workspace"));
 
   private saveLayoutDebounced = debounce(() => {
-    tick().then(() => {
-      if (!this.layoutReady) {
-        return;
-      }
-      return this.app.vault.create(
-        joinPath("/.obsidian", this.workspaceLayoutFile),
-        JSON.stringify(this.toJson(), null, 2),
-      );
+    void this.saveLayoutNow().catch((error) => {
+      console.error("Unable to save workspace layout", error);
     });
   }, 1000);
+
+  private saveLayoutNow(): Promise<void> {
+    const write = this.#layoutSaveTail
+      .catch(() => undefined)
+      .then(async () => {
+        await tick();
+        await this.#workspaceHostProjection;
+        if (!this.layoutReady || this.#layoutPersistenceDisposed) return;
+        await this.app.vault.create(
+          joinPath("/", appStatePath(this.workspaceLayoutFile)),
+          JSON.stringify(this.toJson(), null, 2),
+        );
+      });
+    this.#layoutSaveTail = write;
+    return write;
+  }
+
+  /** Await admitted App Shell transitions before the owning host tears down. */
+  public async flushPluginChanges(): Promise<void> {
+    await this.#workspaceHostController?.plugins.flushChanges();
+  }
+
+  /** Drain the single layout writer before a host closes, reloads or switches. */
+  public async flushLayout(): Promise<void> {
+    await tick();
+    await this.#workspaceHostProjection;
+    this.saveLayoutDebounced.cancel();
+    await this.saveLayoutNow();
+  }
 
   public requestSaveLayout(
     event: WorkspaceLayoutChangeEvent = { source: "api" },
   ): void {
-    if (this.suspendedLayoutPersistence > 0) {
+    if (
+      this.suspendedLayoutPersistence > 0 ||
+      this.#layoutPersistenceDisposed
+    ) {
       return;
     }
     untrack(() => this.commitCompatibilityLayoutToHost(event));
@@ -2085,6 +2157,7 @@ export class Workspace extends EventDispatcher<{
   private emitLayoutChangeAndScheduleSave(
     event: WorkspaceLayoutChangeEvent,
   ): void {
+    if (this.#layoutPersistenceDisposed) return;
     this.trigger("layout-change", event);
     this.saveLayoutDebounced();
   }
@@ -2681,23 +2754,48 @@ export class Workspace extends EventDispatcher<{
 
   private async restoreLayoutJson(
     config: WorkspaceJson | unknown,
+    live = false,
+    isCurrent: () => boolean = () => true,
   ): Promise<void> {
-    this.exitFocusMode();
-    const normalized = normalizeWorkspaceJson(config);
+    if (!live) this.exitFocusMode();
+    const normalized = normalizeWorkspaceJson(config, {
+      preservePopouts: live,
+    });
     await this.activateLayoutPlugins(normalized);
-    const projectionItems = beginWorkspaceProjection(this);
+    if (!isCurrent()) return;
+    const projectionItems = beginWorkspaceProjection(this, isCurrent);
     try {
       await Promise.all([
         this.rootSplit.loadJson(normalized.main, projectionItems),
         this.leftSplit.loadJson(normalized.left, projectionItems),
         this.rightSplit.loadJson(normalized.right, projectionItems),
         this.bottomPanel.loadJson(normalized.bottom, projectionItems),
-        this.floating.loadJson(normalized.floating, projectionItems),
+        this.floating.loadJson(
+          normalized.floating,
+          projectionItems,
+          live
+            ? (id) => {
+                const handle =
+                  this.#workspaceHostController?.renderer.getPopoutHandle(id);
+                return handle
+                  ? {
+                      win: handle.window,
+                      doc: handle.document,
+                      focus: () => handle.focus(),
+                      // The controller owns host removal; wrappers only project identity.
+                      close: () => {},
+                      onClose: () => () => {},
+                    }
+                  : null;
+              }
+            : undefined,
+        ),
       ]);
     } finally {
-      finishWorkspaceProjection(projectionItems);
+      finishWorkspaceProjection(projectionItems, this);
     }
 
+    if (!isCurrent()) return;
     if (!normalized.active) {
       if (!this.containsLeaf(this.activeLeaf)) this.activeLeaf = null;
       return;
@@ -2723,7 +2821,7 @@ export class Workspace extends EventDispatcher<{
       async (span) => {
         span.setAttribute("workspace.layout_file", file);
         const workspaceFile = this.app.vault.getFileByPath(
-          joinPath("/.obsidian", file),
+          joinPath("/", appStatePath(file)),
         );
         this.layoutReady = false;
         if (workspaceFile) {
@@ -2775,7 +2873,7 @@ export class Workspace extends EventDispatcher<{
   }
 
   private namedWorkspacesPath(): string {
-    return joinPath("/.obsidian", NAMED_WORKSPACES_FILE);
+    return joinPath("/", appStatePath(NAMED_WORKSPACES_FILE));
   }
 
   private async readNamedWorkspaceStore(): Promise<NamedWorkspaceStore> {
@@ -2978,14 +3076,44 @@ export class Workspace extends EventDispatcher<{
             ),
           }),
           save: async (snapshot) => {
+            // Conditional hosts admit changes in bindConfiguration, before debounce.
+            if (this.app.vault?.supportsConditionalTextWrites) return;
             await this.app.configuration.updateConfigurationOptions(
               snapshot.values,
             );
           },
         },
-        plugins: createAppShellPluginPersistence(() => this.app.vault),
+        plugins: createAppShellPluginPersistence(
+          () => this.app.vault,
+          this.app,
+          async (enabled) => {
+            const plugins = this.#workspaceHostController!.plugins;
+            for (const state of plugins.states) {
+              if (state.required || typeof enabled[state.id] !== "boolean")
+                continue;
+              const success = enabled[state.id]
+                ? await plugins.enable(state.id)
+                : await plugins.disable(state.id);
+              if (!success)
+                throw new Error(
+                  `Could not restore App Shell plugin ${state.id}`,
+                );
+            }
+          },
+        ),
       },
     });
+    this.#workspaceHostController.renderer.setCloseGuard(
+      workspaceCloseGuard(this, () =>
+        this.#workspaceHostController!.renderer.layout.windows.flatMap(
+          (win) => {
+            const handle =
+              this.#workspaceHostController!.renderer.getPopoutHandle(win.id);
+            return handle ? [handle.document] : [];
+          },
+        ),
+      ),
+    );
     setWorkspaceHostBinding(this, {
       controller: this.#workspaceHostController,
     });
@@ -3028,9 +3156,21 @@ export class Workspace extends EventDispatcher<{
     });
   }
 
+  /** Register an owned opener for application-specific diagnostic resources. */
+  registerDiagnosticOpener(
+    opener: (location: DiagnosticLocation) => boolean | Promise<boolean>,
+  ): () => void {
+    this.#diagnosticOpeners.add(opener);
+    return () => {
+      this.#diagnosticOpeners.delete(opener);
+    };
+  }
+
   private async openDiagnosticLocation(
     location: WorkspaceDiagnosticLocation,
   ): Promise<void> {
+    for (const opener of [...this.#diagnosticOpeners])
+      if (await opener(location)) return;
     const path = pathFromDiagnosticResource(location.resource);
     if (!path) return;
     const file = this.app.vault.getFileByPath(path);
@@ -3066,6 +3206,28 @@ export class Workspace extends EventDispatcher<{
     const controller = this.#workspaceHostController;
     if (!controller) return;
 
+    let projecting = false;
+    registerWorkspaceFileSettings(controller.settings);
+    const project = (values: Record<string, unknown>) => {
+      projecting = true;
+      try {
+        controller.settings.changeSnapshot({ version: 1, values });
+      } finally {
+        projecting = false;
+      }
+    };
+
+    const settingsRef = controller.settings.on("change", ({ id }) => {
+      if (projecting || !this.app.vault?.supportsConditionalTextWrites) return;
+      const { values } = controller.settings.getSnapshot();
+      if (id && !Object.hasOwn(values, id)) return;
+      const change = this.app.configuration.updateConfigurationOptions(
+        id ? { [id]: values[id] } : values,
+      );
+      // The App-owned writer retains failures in the visible conflict registry.
+      void change.catch(() => undefined);
+    });
+
     const syncAll = () => {
       const snapshot = controller.settings.getSnapshot();
       const apiValues = Object.fromEntries(
@@ -3076,7 +3238,7 @@ export class Workspace extends EventDispatcher<{
         if (Object.hasOwn(apiValues, key)) next[key] = apiValues[key];
       }
       if (!isEqual(next, snapshot.values)) {
-        controller.settings.changeSnapshot({ version: 1, values: next });
+        project(next);
       }
     };
 
@@ -3089,7 +3251,7 @@ export class Workspace extends EventDispatcher<{
         if (value === undefined) delete next[key];
         else next[key] = value;
         if (!isEqual(next, snapshot.values)) {
-          controller.settings.changeSnapshot({ version: 1, values: next });
+          project(next);
         }
       },
     );
@@ -3097,6 +3259,7 @@ export class Workspace extends EventDispatcher<{
     this.#configurationBridgeDisposer = () => {
       this.app.configuration.offref(configurationRef);
       controller.settings.offref(schemaRef);
+      controller.settings.offref(settingsRef);
     };
   }
 
@@ -3130,11 +3293,13 @@ export class Workspace extends EventDispatcher<{
         const loaded = manager.on("plugins-loaded", listener);
         const enabled = manager.on("plugin-enabled", listener);
         const disabled = manager.on("plugin-disabled", listener);
+        const unloaded = manager.on("plugin-unloaded", listener);
         const error = manager.on("plugin-error", listener);
         return () => {
           manager.offref(loaded);
           manager.offref(enabled);
           manager.offref(disabled);
+          manager.offref(unloaded);
           manager.offref(error);
         };
       },
@@ -3145,6 +3310,12 @@ export class Workspace extends EventDispatcher<{
 
   /** Dispose the API-owned shell controller and its compatibility bridges. */
   async disposeWorkspaceHost(): Promise<void> {
+    await this.#workspaceHostProjection;
+    this.saveLayoutDebounced.cancel();
+    await this.#layoutSaveTail;
+    this.#layoutPersistenceDisposed = true;
+    this.saveLayoutDebounced.cancel();
+    this.app.icons?.dispose();
     this.app.languageServices.unbindDiagnostics();
     this.#configurationBridgeDisposer?.();
     this.#configurationBridgeDisposer = null;
@@ -3161,6 +3332,7 @@ export class Workspace extends EventDispatcher<{
     this.#workspaceHostViewDisposers.forEach((dispose) => dispose());
     this.#workspaceHostViewDisposers.clear();
     await this.#workspaceHostController?.dispose();
+    this.#diagnosticOpeners.clear();
   }
 
   private installCommandBridge(controller: AppShellController): void {
@@ -3210,10 +3382,11 @@ export class Workspace extends EventDispatcher<{
   private projectStatusBarItem(
     controller: AppShellController,
     item: StatusBarItemDescriptor,
-    align: "left" | "right",
+    align: "left" | "center" | "right",
   ): void {
     controller.status.addItem({
       id: item.id,
+      mount: item.mount,
       align,
       priority: item.priority,
       label: item.text,
@@ -3239,19 +3412,14 @@ export class Workspace extends EventDispatcher<{
     const sync = () => {
       for (const id of projectedIds) controller.status.removeItem(id);
       projectedIds.clear();
-      for (const item of this.app.statusBar.getVisibleItems(
-        "left",
-        this.app.contextKeys,
-      )) {
-        projectedIds.add(item.id);
-        this.projectStatusBarItem(controller, item, "left");
-      }
-      for (const item of this.app.statusBar.getVisibleItems(
-        "right",
-        this.app.contextKeys,
-      )) {
-        projectedIds.add(item.id);
-        this.projectStatusBarItem(controller, item, "right");
+      for (const align of ["left", "center", "right"] as const) {
+        for (const item of this.app.statusBar.getVisibleItems(
+          align,
+          this.app.contextKeys,
+        )) {
+          projectedIds.add(item.id);
+          this.projectStatusBarItem(controller, item, align);
+        }
       }
     };
     const unsubscribeStatus = this.app.statusBar.subscribe(sync);
@@ -3310,9 +3478,19 @@ export class Workspace extends EventDispatcher<{
       }
     };
     const changed = notifications.on("changed", sync);
+    const notified = notifications.on("notify", (record) => {
+      controller.notifications.notify({
+        id: record.id,
+        title: record.title,
+        message: record.message,
+        severity: record.severity,
+        source: record.source,
+      });
+    });
     sync();
     this.#notificationProgressBridgeDisposer = () => {
       notifications.offref(changed);
+      notifications.offref(notified);
       for (const handle of projected.values()) {
         handle.complete();
       }
@@ -3372,8 +3550,10 @@ export class Workspace extends EventDispatcher<{
     layout: unknown,
     event: DesignWorkspaceLayoutChangeEvent,
   ): void {
+    if (this.#layoutPersistenceDisposed) return;
+    const mutationRevision = layoutMutationRevisions.get(this) ?? 0;
     const projected = workspaceJsonForCompatibility(
-      normalizeWorkspaceJson(layout),
+      normalizeWorkspaceJson(layout, { preservePopouts: true }),
     );
     const preserveSidebarWidth = (
       side: SidebarSide,
@@ -3390,13 +3570,25 @@ export class Workspace extends EventDispatcher<{
     preserveSidebarWidth("right", this.rightSplit);
 
     const run = this.#workspaceHostProjection.then(async () => {
+      const isCurrent = () =>
+        mutationRevision === (layoutMutationRevisions.get(this) ?? 0);
+      if (!isCurrent()) return;
       await this.withoutLayoutPersistence(async () => {
-        await this.restoreLayoutJson(projected);
+        await this.restoreLayoutJson(projected, true, isCurrent);
+        if (!isCurrent()) return;
+        this.focusedHostId = this.getCommandHostIdForLeaf(this.activeLeaf);
         // Sidedock compatibility effects flush after loadJson resolves. Keep
         // persistence suppressed through that flush so an older queued
         // projection cannot be committed back over a newer controller layout.
         await tick();
       });
+      if (!isCurrent()) {
+        this.requestSaveLayout({
+          source: "api",
+          operation: "superseded-projection",
+        });
+        return;
+      }
       this.emitLayoutChangeAndScheduleSave(
         compatibilityLayoutEventFromDesign(event),
       );
@@ -3539,12 +3731,25 @@ export class Workspace extends EventDispatcher<{
         };
       },
       mount: (target, context) => {
-        const leaf = this.getLeafById(context.tab.id);
-        if (!leaf) return;
-        target.replaceChildren(leaf.containerEl);
+        let active = true;
+        let attached: WorkspaceLeaf | null = null;
+        const attach = () => {
+          if (!active) return;
+          const leaf = this.getLeafById(context.tab.id);
+          if (!leaf || leaf.containerEl.parentElement === target) return;
+          attachWorkspaceView(target, leaf);
+          attached = leaf;
+        };
+        attach();
+        // Controller leaves can render before their compatibility projection.
+        // Reattach the same retained view; do not create another lifecycle owner.
+        void this.#workspaceHostProjection.then(attach).catch((error) => {
+          console.error("Unable to attach projected workspace view", error);
+        });
         return () => {
-          if (leaf.containerEl.parentElement === target) {
-            leaf.containerEl.remove();
+          active = false;
+          if (attached?.containerEl.parentElement === target) {
+            attached.containerEl.remove();
           }
         };
       },
@@ -3632,6 +3837,16 @@ export class Workspace extends EventDispatcher<{
    * @public
    */
   async revealLeaf(leaf: WorkspaceLeaf): Promise<void> {
+    const wasActive = this.activeLeaf === leaf;
+    const revision = layoutMutationRevisions.get(this) ?? 0;
+    await this.#workspaceHostProjection;
+    if (
+      revision !== (layoutMutationRevisions.get(this) ?? 0) ||
+      !this.containsLeaf(leaf)
+    )
+      return;
+    recordLayoutMutation(this);
+    if (wasActive) this.activeLeaf = leaf;
     let child: WorkspaceItem = leaf;
     let parent: WorkspaceItem = leaf.parent;
     while (parent) {
@@ -3656,14 +3871,25 @@ export class Workspace extends EventDispatcher<{
     if (floatingWindow) {
       this.focusFloatingWindow(floatingWindow);
     }
+    this.requestSaveLayout({ source: "api", operation: "reveal-leaf" });
   }
 
   registerView(type: string, viewCreator: ViewCreator): void {
     this.viewTypes.set(type, viewCreator);
     this.registerWorkspaceHostView(type);
+    for (const listener of this.fileIconListeners) listener();
   }
 
   registerEditorView(contribution: EditorViewContribution): () => void {
+    const existing = this.editorViews.get(contribution.id);
+    if (
+      existing?.source === "manifest" &&
+      contribution.source === "plugin" &&
+      existing.pluginId &&
+      existing.pluginId === contribution.pluginId
+    ) {
+      return this.editorViews.overlay(contribution);
+    }
     return this.editorViews.register(contribution);
   }
 
@@ -3713,7 +3939,9 @@ export class Workspace extends EventDispatcher<{
   unregisterView(type: string) {
     this.#workspaceHostViewDisposers.get(type)?.();
     this.#workspaceHostViewDisposers.delete(type);
-    return this.viewTypes.delete(type);
+    const removed = this.viewTypes.delete(type);
+    if (removed) for (const listener of this.fileIconListeners) listener();
+    return removed;
   }
 
   private normalizeExtensionKey(extension: string): string {
@@ -3732,7 +3960,12 @@ export class Workspace extends EventDispatcher<{
       return undefined;
     }
 
-    return this.viewExtensions.get(extensionKey);
+    return (
+      [...this.iconExtensions.values()]
+        .reverse()
+        .find((entry) => entry.keys.includes(extensionKey))?.viewType ??
+      this.viewExtensions.get(extensionKey)
+    );
   }
 
   private resolveViewTypeForPath(path: string): string | undefined {
@@ -3771,6 +4004,7 @@ export class Workspace extends EventDispatcher<{
 
   private registeredEditorViewForPath(
     path: string,
+    metadataOnly = false,
   ): RegisteredEditorViewContribution | undefined {
     return this.editorViews
       .getAll()
@@ -3779,7 +4013,11 @@ export class Workspace extends EventDispatcher<{
           .filter((pattern) => matchesEditorAssociationGlob(pattern, path))
           .map((pattern) => ({ view, viewIndex, pattern })),
       )
-      .filter(({ view }) => this.viewTypes.has(view.viewType))
+      .filter(
+        ({ view }) =>
+          this.viewTypes.has(view.viewType) ||
+          (metadataOnly && view.source === "manifest"),
+      )
       .sort((left, right) => {
         const priority = { option: 0, default: 1, exclusive: 2 };
         const priorityDelta =
@@ -3850,7 +4088,65 @@ export class Workspace extends EventDispatcher<{
     return this.registeredEditorViewForPath(path)?.viewType;
   }
 
-  registerExtensions(extensions: string[], viewType: string): void {
+  /** Resolve presentation metadata without activating plugins or creating views. */
+  getFileIconForPath(path: string): string | undefined {
+    const association = this.getEditorAssociationForPath(path)?.view;
+    const eligible =
+      association &&
+      (this.viewTypes.has(association.viewType) ||
+        association.source === "manifest");
+    return (
+      eligible ? association : this.registeredEditorViewForPath(path, true)
+    )?.fileIcon;
+  }
+
+  onFileIconsChanged(listener: () => void): () => void {
+    this.fileIconListeners.add(listener);
+    const view = this.editorViews.on("changed", listener);
+    const config = this.app.configuration.on("updated", ({ key }) => {
+      if (key === "workspace.editorAssociations") listener();
+    });
+    return () => {
+      this.fileIconListeners.delete(listener);
+      this.editorViews.offref(view);
+      this.app.configuration.offref(config);
+    };
+  }
+
+  registerExtensions(
+    extensions: string[],
+    viewType: string,
+    options?: ExtensionRegistrationOptions,
+  ): () => void {
+    if (options) {
+      const keys = [
+        ...new Set(
+          extensions
+            .map((ext) => this.normalizeExtensionKey(ext))
+            .filter(Boolean),
+        ),
+      ];
+      if (!keys.length) return () => {};
+      const id = `compat:${viewType}:${++this.iconExtensionSequence}`;
+      const dispose = this.editorViews.register({
+        id,
+        viewType,
+        label: this.humanizeViewType(viewType),
+        filenamePatterns: keys.map((key) =>
+          this.extensionKeyToFilenamePattern(key),
+        ),
+        priority: "default",
+        source: "compat",
+        fileIcon: options.fileIcon,
+      });
+      const entry = { keys, viewType, dispose };
+      this.iconExtensions.set(id, entry);
+      return () => {
+        if (this.iconExtensions.get(id) !== entry) return;
+        this.iconExtensions.delete(id);
+        dispose();
+      };
+    }
     const filenamePatterns: string[] = [];
     extensions.forEach((ext) => {
       const extensionKey = this.normalizeExtensionKey(ext);
@@ -3863,13 +4159,13 @@ export class Workspace extends EventDispatcher<{
     });
 
     if (filenamePatterns.length === 0) {
-      return;
+      return () => {};
     }
 
     const existing = this.editorViews.getByViewType(viewType)[0];
     if (existing) {
       this.editorViews.update(existing.id, { filenamePatterns });
-      return;
+      return () => this.unregisterExtensions(extensions, viewType);
     }
 
     this.editorViews.upsert({
@@ -3880,9 +4176,21 @@ export class Workspace extends EventDispatcher<{
       priority: "default",
       source: "compat",
     });
+    return () => this.unregisterExtensions(extensions, viewType);
   }
 
   unregisterExtensions(extensions: string[], viewType: string) {
+    const removed = new Set(
+      extensions.map((ext) => this.normalizeExtensionKey(ext)),
+    );
+    for (const [id, entry] of this.iconExtensions) {
+      if (entry.viewType !== viewType) continue;
+      entry.keys = entry.keys.filter((key) => !removed.has(key));
+      if (!entry.keys.length) {
+        this.iconExtensions.delete(id);
+        entry.dispose();
+      }
+    }
     const filenamePatterns: string[] = [];
     extensions.forEach((ext) => {
       const extensionKey = this.normalizeExtensionKey(ext);
@@ -4078,6 +4386,12 @@ export class Workspace extends EventDispatcher<{
     return this.lastActiveFile;
   }
 
+  /** Reconcile the remembered file through its workspace owner. */
+  reconcileFileReference(oldPath: string, file: TFile | null): void {
+    if (this.lastActiveFile?.path === oldPath)
+      this.lastActiveFile = file?.copy() ?? null;
+  }
+
   /**
    * Iterate through all leaves, including main area leaves, floating leaves,
    * and sidebar leaves.
@@ -4227,6 +4541,7 @@ export class Workspace extends EventDispatcher<{
     if (!this.containsLeaf(leaf)) {
       return false;
     }
+    if (options.source !== "layout-load") recordLayoutMutation(this);
 
     const tabs = this.tabsForLeaf(leaf);
     if (leaf.parent instanceof WorkspaceSidebarGroup) {
@@ -5081,7 +5396,9 @@ export class Workspace extends EventDispatcher<{
       this.app.workspace.requestSaveLayout({
         source: "api",
         operation:
-          leafType === "split" ? `duplicate-leaf-${direction}` : "duplicate-leaf-tab",
+          leafType === "split"
+            ? `duplicate-leaf-${direction}`
+            : "duplicate-leaf-tab",
       });
       return duplicateLeaf;
     });
@@ -5367,9 +5684,7 @@ function canReuseLeafForFileNavigation(
   leaf: WorkspaceLeaf | null,
 ): leaf is WorkspaceLeaf {
   if (!leaf) return false;
-  return (
-    leaf.view.getViewType() === "empty" || leaf.view instanceof FileView
-  );
+  return leaf.view.getViewType() === "empty" || leaf.view instanceof FileView;
 }
 
 function isPoorerViewState(
@@ -5383,6 +5698,34 @@ function isPoorerViewState(
   if (liveEntries.length === 0) return false;
   if (Object.keys(next).length === 0) return true;
   return liveEntries.some(([key]) => !(key in next));
+}
+
+function loadWorkspaceLeafJson(
+  leaf: WorkspaceLeaf,
+  layout: WorkspaceLeafJson,
+  isCurrent: () => boolean = () => true,
+): Promise<void> {
+  if (!isCurrent()) return Promise.resolve();
+  leaf.id = layout.id;
+  const liveState = leaf.view.getState();
+  if (
+    leaf.view.getViewType() === layout.state.type &&
+    (isEqual(liveState, layout.state.state) ||
+      isPoorerViewState(layout.state.state, liveState))
+  ) {
+    leaf.state = { type: layout.state.type, state: { ...liveState } };
+    return Promise.resolve();
+  }
+  return leaf.setViewState(
+    { type: layout.state.type, state: layout.state.state },
+    {
+      history: true,
+      layoutProjection: true,
+      projectionIsCurrent: isCurrent,
+      title: layout.state.title,
+      icon: layout.state.icon,
+    },
+  );
 }
 
 function collectLayoutViewTypes(
@@ -5404,8 +5747,8 @@ function collectLayoutViewTypes(
 }
 
 /**
- * Compatibility stand-in for a Design Core class view. The host owns the
- * live mount; this view only preserves type and chrome across API commits.
+ * Compatibility stand-in for a Design Core class view. The host owns the live
+ * mount; this view only preserves type and chrome across API commits.
  */
 class HostOwnedWorkspaceView extends View {
   readonly #viewType: string;
@@ -5448,9 +5791,9 @@ function isHostOwnedViewType(workspace: Workspace, type: string): boolean {
     return true;
   }
   return (
-    resolveWorkspaceHostBinding(workspace)?.controller.renderer.registry.resolve(
-      type,
-    ) != null
+    resolveWorkspaceHostBinding(
+      workspace,
+    )?.controller.renderer.registry.resolve(type) != null
   );
 }
 
@@ -5744,6 +6087,9 @@ export class WorkspaceLeaf extends WorkspaceItem<{
   }
 
   async setViewState(viewState: ViewState, eState?: any) {
+    if (!eState?.layoutProjection) recordLayoutMutation(this.app.workspace);
+    const isCurrent: () => boolean =
+      eState?.projectionIsCurrent ?? (() => true);
     return this.app.telemetry.measureAsync(
       "workspace.leaf.set_view_state",
       async (span) => {
@@ -5769,13 +6115,18 @@ export class WorkspaceLeaf extends WorkspaceItem<{
               file,
               { confirm: false },
             );
+          if (!isCurrent()) return;
           if (promptView) {
-            this.state = viewState;
-            this.pinned = !!viewState.pinned;
             const result: ViewStateResult = {
               history: eState?.history === true,
             };
             await promptView.setState({ ...(viewState.state || {}) });
+            if (!isCurrent()) {
+              promptView.unload();
+              return;
+            }
+            this.state = viewState;
+            this.pinned = !!viewState.pinned;
             await this.open(promptView, result, viewState);
             return;
           }
@@ -5784,6 +6135,7 @@ export class WorkspaceLeaf extends WorkspaceItem<{
         if (eState?.activatePlugins !== false) {
           await this.app.plugins.activateForViewType(requestedViewType);
         }
+        if (!isCurrent()) return;
         let viewCreator = this.app.workspace.viewCreator(requestedViewType);
         let resolvedViewState = viewState;
 
@@ -5841,11 +6193,16 @@ export class WorkspaceLeaf extends WorkspaceItem<{
             this.app.workspace.viewCreator("empty") ||
             ((leaf: WorkspaceLeaf) => new EmptyView(leaf));
         }
-        this.state = resolvedViewState;
-        this.pinned = !!viewState.pinned;
         const view = viewCreator(this);
         const result: ViewStateResult = { history: eState?.history === true };
         await view.setState({ ...(resolvedViewState.state || {}) });
+        if (!isCurrent()) {
+          view.unload();
+          if (hasDestroyableEditor(view)) view.editor.destroy();
+          return;
+        }
+        this.state = resolvedViewState;
+        this.pinned = !!viewState.pinned;
         await this.open(view, result, resolvedViewState);
       },
       {
@@ -5918,30 +6275,7 @@ export class WorkspaceLeaf extends WorkspaceItem<{
   }
 
   loadJson(layout: WorkspaceLeafJson) {
-    this.id = layout.id;
-    const liveState = this.view.getState();
-    if (
-      this.view.getViewType() === layout.state.type &&
-      (isEqual(liveState, layout.state.state) ||
-        isPoorerViewState(layout.state.state, liveState))
-    ) {
-      this.state = {
-        type: layout.state.type,
-        state: { ...liveState },
-      };
-      return Promise.resolve();
-    }
-    return this.setViewState(
-      {
-        type: layout.state.type,
-        state: layout.state.state,
-      },
-      {
-        history: true,
-        title: layout.state.title,
-        icon: layout.state.icon,
-      },
-    );
+    return loadWorkspaceLeafJson(this, layout);
   }
 
   reload() {

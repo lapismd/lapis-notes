@@ -1,6 +1,11 @@
+import { IconRegistry } from "./icons/registry";
+import { FILES_CONFIGURATION_SCHEMA } from "./files-configuration";
+import { DEFAULT_VAULT_EXCLUDES } from "./storage/vault-listing";
 import { Workspace } from "./workspace.svelte";
 import {
   getAdapterVaultId,
+  isNativeDesktopRuntime,
+  appStatePath,
   TFile,
   Vault,
   type AppDatabase,
@@ -24,6 +29,7 @@ import {
   Scope,
   type UserEvent,
 } from "./command.svelte";
+import { NativeTasksSession, type NativeTasks } from "./native-tasks";
 import { MetadataCache } from "./cache.svelte";
 import type {
   MarkdownDirectiveRenderer,
@@ -35,6 +41,7 @@ import type { Component } from "./view.svelte";
 import { MetadataTypeManager } from "./metadata.svelte";
 import type { EditorSuggest } from "./suggest";
 import { FileManager } from "./file-manager";
+import { VaultChangeService } from "./vault-changes";
 import { EmbedRegistry } from "./embed-registry";
 import {
   findOpenFileLeaf,
@@ -70,6 +77,10 @@ import type { Editor } from "./editor.svelte";
 import { flushWorkspaceEditors } from "./sync-editor-flush";
 import { FileEditingSessionRegistry } from "./file-editing-sessions";
 import { SearchDocumentProviderRegistry } from "./search-document-provider";
+import type { NativeBackgroundIndexingObserver } from "./native-background-indexing";
+import type { NativeHistoryIndex } from "./native-history-index";
+import type { NativeEditingIntents } from "./native-editing-intents";
+import { SearchResultProviderRegistry } from "./search-result-provider";
 import { DailyDocumentProviderRegistry } from "./daily-document-provider";
 import { AppToolRegistry } from "./agent-tools";
 import { AppSkillRegistry, AppSlashCommandRegistry } from "./agent-skills";
@@ -133,14 +144,20 @@ export interface AppWorkspaceShellProperties {
 
 export type AppStateProperties = {
   version: string;
-  configPath: string;
+  configPath?: string;
   adapter?: DataAdapter;
   session?: VaultSession;
+  /** Already admitted by the host; construction does not start native work. */
+  nativeHistoryIndex?: NativeHistoryIndex;
+  nativeEditingIntents?: NativeEditingIntents;
+  nativeTasks?: NativeTasks;
   appDatabase?: AppDatabase;
   safeMode?: AppSafeModeState;
   createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
   pluginAssetServer?: PluginAssetServer;
   pluginDistributionOptions?: AppPluginDistributionOptions;
+  /** Host restrictions apply to discovery, installation and external loading. */
+  unavailablePlugins?: DefaultPluginDistributionManagerOptions["unavailablePlugins"];
   /** Host-owned Nostr account, keychain, and remote-signer implementation. */
   nostrSignerBroker?: NostrSignerBroker;
   syncHost?: SyncHostServiceOptions;
@@ -157,11 +174,16 @@ export type AppStateProperties = {
 export type AppPublicProperties = Pick<
   AppStateProperties,
   "version" | "configPath" | "workspaceShell" | "markdownRenderer"
->;
+> & { configPath: string };
 
 export type AppPluginDistributionOptions = Omit<
   DefaultPluginDistributionManagerOptions,
-  "adapter" | "appVersion" | "platform" | "workspaceTrusted" | "pluginManager"
+  | "adapter"
+  | "appVersion"
+  | "platform"
+  | "workspaceTrusted"
+  | "pluginManager"
+  | "unavailablePlugins"
 >;
 
 export type ExtType = Extension | ((context: Record<string, any>) => Extension);
@@ -275,10 +297,13 @@ export class SecretStorage {
 export class App {
   readonly props: AppPublicProperties;
   readonly i18n: LocalizationManager = localeManager;
+  readonly icons = new IconRegistry();
   readonly workspace: Workspace;
   readonly vault: Vault = $state()!;
   readonly appDatabase: AppDatabase;
   readonly session?: VaultSession;
+  readonly nativeHistoryIndex?: NativeHistoryIndex;
+  readonly nativeTasks?: NativeTasksSession;
   readonly safeMode: AppSafeModeState;
   plugins: PluginManager = $state()!;
   scope: Scope = $state(new Scope(undefined, this));
@@ -288,6 +313,7 @@ export class App {
   readonly editorSuggest: Map<string, Set<EditorSuggest<any>>> = new Map();
   readonly configuration: Configuration;
   readonly fileManager: FileManager = new FileManager(this);
+  readonly vaultChanges = new VaultChangeService(this);
   readonly contextKeys: ContextKeyService = new ContextKeyService();
   readonly statusBar: StatusBarManager = new StatusBarManager();
   readonly urls: AppUrlService = new AppUrlService(this);
@@ -308,9 +334,13 @@ export class App {
   settingsOpen: boolean = $state(false);
   settingsTabId: string | null = $state(null);
   metadataCache: MetadataCache = $state()!;
+  get backgroundIndexing(): NativeBackgroundIndexingObserver | undefined {
+    return this.metadataCache.backgroundIndexing;
+  }
   embedRegistry: EmbedRegistry = new EmbedRegistry();
   readonly configurationOptionSources = new ConfigurationOptionSourceRegistry();
   readonly searchDocumentProviders = new SearchDocumentProviderRegistry();
+  readonly searchResultProviders = new SearchResultProviderRegistry();
   readonly dailyDocumentProviders = new DailyDocumentProviderRegistry();
   readonly indexProjections = new IndexProjectionRegistry();
   readonly agentTools = new AppToolRegistry();
@@ -319,7 +349,7 @@ export class App {
   readonly agentResultViews = new AppResultViewRegistry();
   readonly markdownExtensions = new MarkdownExtensionRegistry();
   readonly markdownFileSurfaces = new MarkdownFileSurfaceRegistry();
-  readonly fileEditingSessions = new FileEditingSessionRegistry();
+  readonly fileEditingSessions: FileEditingSessionRegistry;
   lastEvent: UserEvent | null = $state(null);
   renderContext: RenderContext = new RenderContext();
   secretStorage: SecretStorage = new SecretStorage();
@@ -349,7 +379,7 @@ export class App {
   constructor(props: AppStateProperties) {
     this.props = Object.freeze({
       version: props.version,
-      configPath: props.configPath,
+      configPath: props.configPath ?? appStatePath("app.json"),
       workspaceShell: props.workspaceShell,
       markdownRenderer: props.markdownRenderer,
     });
@@ -359,6 +389,11 @@ export class App {
       throw new Error("App requires a vault adapter or vault session");
     }
     this.session = props.session;
+    this.fileEditingSessions = new FileEditingSessionRegistry(
+      props.nativeEditingIntents ?? props.session?.nativeEditingIntents,
+    );
+    this.nativeHistoryIndex =
+      props.nativeHistoryIndex ?? props.session?.nativeHistoryIndex;
     this.safeMode = props.safeMode ?? createDefaultAppSafeModeState();
     const appDatabase = props.session?.appDatabase ?? props.appDatabase;
     if (!appDatabase) {
@@ -396,9 +431,18 @@ export class App {
     this.settings.addGroup((options) =>
       options.setId("community-plugins").setTitle("Community plugins"),
     );
-    this.configuration = new Configuration(this, props.configPath);
+    this.configuration = new Configuration(this, this.props.configPath);
+    this.configuration.schema.register(FILES_CONFIGURATION_SCHEMA);
     this.workspace.bindConfiguration();
-    this.vault = new Vault(adapter);
+    this.vault = new Vault(adapter, this.fileEditingSessions, {
+      listingExclusions: () =>
+        this.configuration
+          .getConfiguration()
+          .get<readonly string[]>("files.exclude", DEFAULT_VAULT_EXCLUDES),
+    });
+    this.configuration.on("updated", ({ key }) => {
+      if (key === "files.exclude") this.vault.trigger("load");
+    });
     this.#syncHost = new SyncHostService(
       this.appDatabase,
       this.vault,
@@ -411,23 +455,36 @@ export class App {
     hostSyncServices.set(this, this.#syncHost);
     this.workspaceTrust = new WorkspaceTrustService(adapter);
     this.metadataCache = new MetadataCache(this);
+    const nativeTasks = props.session?.nativeTasks ?? props.nativeTasks;
+    this.nativeTasks = nativeTasks
+      ? new NativeTasksSession(nativeTasks, () => {
+          const state = this.plugins?.plugins.get("tasks")?.state;
+          return state === "enabled" || state === "enabling";
+        })
+      : undefined;
     installVaultMaintenanceCommands(this);
-    this.plugins = new PluginManager(this, "/.obsidian/plugins", adapter, {
-      communityPluginHost: hasNativeDesktopCapability("plugin-sidecar")
-        ? new NativeDesktopCommunityPluginExecutionHost(
-            adapter,
-            undefined,
-            props.createCommunityPluginDependencyResolver,
-          )
-        : undefined,
-      createCommunityPluginDependencyResolver:
-        props.createCommunityPluginDependencyResolver,
-      pluginAssetServer: props.pluginAssetServer,
-      createSyncHostCapabilities: (pluginId, grants) =>
-        this.#syncHost.forPlugin(pluginId, grants),
-      revokeSyncHostCapabilities: (pluginId) =>
-        this.#syncHost.revokePlugin(pluginId),
-    });
+    this.plugins = new PluginManager(
+      this,
+      "/" + appStatePath("plugins"),
+      adapter,
+      {
+        communityPluginHost: hasNativeDesktopCapability("plugin-sidecar")
+          ? new NativeDesktopCommunityPluginExecutionHost(
+              adapter,
+              undefined,
+              props.createCommunityPluginDependencyResolver,
+            )
+          : undefined,
+        createCommunityPluginDependencyResolver:
+          props.createCommunityPluginDependencyResolver,
+        pluginAssetServer: props.pluginAssetServer,
+        unavailablePlugins: props.unavailablePlugins,
+        createSyncHostCapabilities: (pluginId, grants) =>
+          this.#syncHost.forPlugin(pluginId, grants),
+        revokeSyncHostCapabilities: (pluginId) =>
+          this.#syncHost.revokePlugin(pluginId),
+      },
+    );
     this.workspace.bindPlugins();
     const languageServiceDiagnostics =
       this.workspace.diagnostics.createCollection("lapis:language-service", {
@@ -445,7 +502,10 @@ export class App {
       ...props.pluginDistributionOptions,
       adapter,
       appVersion: this.version,
-      platform: props.session?.runtime === "deno-desktop" ? "desktop" : "web",
+      unavailablePlugins: props.unavailablePlugins,
+      platform: isNativeDesktopRuntime(props.session?.runtime)
+        ? "desktop"
+        : "web",
       workspaceTrusted: async () => (await this.workspaceTrust.ready()).trusted,
       pluginManager: this.plugins,
     });
@@ -519,17 +579,19 @@ export class App {
               ? view.editor
               : undefined;
           });
-          openEditor?.view.dispatch({
-            changes: [...edits]
-              .sort((left, right) => left.from - right.from)
-              .map((edit) => ({
-                from: edit.from,
-                to: edit.to,
-                insert: edit.insert,
-              })),
-            userEvent: "input.complete",
-          });
-          await this.vault.modify(file, value);
+          if (openEditor) {
+            openEditor.view.dispatch({
+              changes: [...edits]
+                .sort((left, right) => left.from - right.from)
+                .map((edit) => ({
+                  from: edit.from,
+                  to: edit.to,
+                  insert: edit.insert,
+                })),
+              userEvent: "input.complete",
+            });
+            await openEditor.flushChanges();
+          } else await this.vault.modify(file, value);
         }
       }
     }
@@ -624,17 +686,19 @@ export class App {
 
         if (existingLeaf) {
           span.setAttribute("workspace.file_already_open", true);
-          await applyOpenViewStateToLeaf(existingLeaf, openState);
           this.workspace.activateLeaf(existingLeaf, {
             operation: "open-existing-file",
           });
+          await this.workspace.revealLeaf(existingLeaf);
+          await applyOpenViewStateToLeaf(existingLeaf, openState);
           return;
         }
 
         const reusedRootLeaf = Boolean(this.workspace.activeRootLeaf);
         const leaf = this.workspace.getLeaf();
         span.setAttribute("workspace.reused_active_leaf", reusedRootLeaf);
-        this.workspace.activeLeaf = leaf;
+        this.workspace.activateLeaf(leaf, { operation: "open-file" });
+        await this.workspace.revealLeaf(leaf);
         if (leafFilePath(leaf) === file.path) {
           span.setAttribute("workspace.file_already_open", true);
           if (openState?.state) {

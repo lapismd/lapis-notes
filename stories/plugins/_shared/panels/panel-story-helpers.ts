@@ -245,6 +245,10 @@ export async function expectPanelPlacement(
   const viewport = canvasElement.ownerDocument.documentElement;
   const demoBox = demo.getBoundingClientRect();
   const rootBox = storyRoot.getBoundingClientRect();
+  await expect(
+    Math.abs(demoBox.height - viewport.clientHeight),
+    "Application fixture fills the browser viewport without relying on Storybook body classes",
+  ).toBeLessThan(1);
   await expect(Math.abs(demoBox.width - rootBox.width)).toBeLessThan(1);
   await expect(Math.abs(demoBox.height - rootBox.height)).toBeLessThan(1);
   if (storyRoot.id === "storybook-root") {
