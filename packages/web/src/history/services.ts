@@ -1,7 +1,63 @@
 import type { HistoryClient, Handle } from "@lapismd/jj-history";
-import type { BackupService } from "./backup";
 import { PreparationQueue } from "./preparation-queue";
-import type { RestoreService } from "./restore";
+
+export type BackupCheckpoint = {
+  operation: string;
+  commit: string;
+  change_id: string;
+  description: string;
+  timestamp_millis: number;
+};
+
+export type BackupStatus = {
+  phase: "saving" | "ready" | "failed" | "closed";
+  checkpoint: BackupCheckpoint | null;
+  error: string | null;
+};
+
+export interface BackupService {
+  setEnabled?(enabled: boolean): Promise<void>;
+  start(changed: (status: BackupStatus) => void): Promise<BackupStatus>;
+  capture(): Promise<BackupStatus>;
+  stop(): Promise<void>;
+}
+
+export type RestorePreview = {
+  checkpoint: string;
+  path: string;
+  expected: string;
+  bytes: number;
+  deleted: boolean;
+};
+
+export type VaultRestorePreview = {
+  checkpoint: string;
+  expected: string;
+  added: number;
+  modified: number;
+  deleted: number;
+};
+
+export type FileRestoreRequest = {
+  request_id: string;
+  checkpoint: string;
+  path: string;
+  expected: string;
+};
+
+export type VaultRestoreRequest = {
+  request_id: string;
+  checkpoint: string;
+  expected: string;
+};
+
+export interface RestoreService {
+  preview(checkpoint: string, path: string): Promise<RestorePreview>;
+  apply(request: FileRestoreRequest): Promise<unknown>;
+  previewVault?(checkpoint: string): Promise<VaultRestorePreview>;
+  applyVault?(request: VaultRestoreRequest): Promise<unknown>;
+  keepCurrent?(): Promise<unknown>;
+}
 
 type RepositoryReader = Pick<
   HistoryClient,

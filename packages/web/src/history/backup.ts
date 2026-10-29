@@ -2,16 +2,8 @@ import type { App } from "@lapis-notes/api";
 import type {
   RepositoryBackupCommand,
   RepositoryBackupSnapshot,
-  RepositoryBackupStatus,
 } from "../../../../crates/lapis-app-protocol/bindings/protocol";
-
-export type BackupStatus = RepositoryBackupStatus;
-export interface BackupService {
-  setEnabled?(enabled: boolean): Promise<void>;
-  start(changed: (status: BackupStatus) => void): Promise<BackupStatus>;
-  capture(): Promise<BackupStatus>;
-  stop(): Promise<void>;
-}
+import type { BackupService, BackupStatus } from "./services";
 
 /** Views observe the selected native owner; only an explicit setting persists. */
 export function createHostedBackup(
