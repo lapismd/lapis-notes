@@ -6,7 +6,7 @@ import { hash, laneImage, label } from "./model.mjs";
 import { image } from "./images.mjs";
 import { cachePlan } from "./cache.mjs";
 import { containerIdentity, completed, withWorkspaceLease } from "./leases.mjs";
-import { snapshot, snapshotFile } from "./source.mjs";
+import { snapshot, snapshotFile, snapshotFileIfPresent } from "./source.mjs";
 import { execute } from "./process.mjs";
 import {
   docker,
@@ -52,17 +52,21 @@ async function performRun(config, lane, args, selected, workspace) {
     native: selected.target === "full",
     sourceRoots: config.sourceRoots,
   });
+  const cargoLock =
+    selected.target === "full"
+      ? snapshotFileIfPresent(root, source.revision, "Cargo.lock")
+      : undefined;
   const caches = cachePlan({
     image: selected.id,
     workspace,
     pnpmLock: snapshotFile(root, source.revision, "pnpm-lock.yaml"),
     archives: source.archives,
-    ...(selected.target === "full"
-      ? {
-          cargoLock: snapshotFile(root, source.revision, "Cargo.lock"),
+    ...(cargoLock === undefined
+      ? {}
+      : {
+          cargoLock,
           nativeSources: source.nativeSources,
-        }
-      : {}),
+        }),
   });
   const request = {
     run: name,

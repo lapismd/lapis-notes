@@ -24,8 +24,18 @@ export function snapshotFile(root, revision, path) {
     {
       cwd: root,
       maxBuffer: 64 * 1024 * 1024,
+      stdio: ["ignore", "pipe", "pipe"],
     },
   );
+}
+export function snapshotFileIfPresent(root, revision, path) {
+  try {
+    return snapshotFile(root, revision, path);
+  } catch (error) {
+    const detail = `${error.stderr ?? ""}\n${error.message}`;
+    if (detail.includes("No such path")) return undefined;
+    throw error;
+  }
 }
 export async function snapshot(root, directory, archiveManifest, options = {}) {
   await mkdir(directory, { recursive: true });

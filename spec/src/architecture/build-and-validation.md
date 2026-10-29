@@ -34,7 +34,9 @@ inside the worker. A clean snapshot cannot assume that API or profile `dist`
 already exists from an earlier host run.
 JavaScript and native cache identities are independent. JavaScript archives and
 pnpm locks MUST NOT invalidate Cargo targets; native source pins and Cargo locks
-MUST NOT invalidate JavaScript caches. Exact image/tool identities fence both.
+MUST NOT invalidate JavaScript caches. A full-image snapshot omits the Cargo
+cache when the tracked tree has no `Cargo.lock` and does not recreate that lock
+or the server crates. Exact image/tool identities fence both.
 Image fingerprints use only the actual Docker build inputs, architecture and
 target; application manifests and dependency locks cannot rebuild a tool image.
 Cache inputs come from the transferred immutable source snapshot, and receipts
