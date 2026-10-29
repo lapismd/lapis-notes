@@ -1,8 +1,20 @@
 import type { HistoryClient, Handle } from "@lapismd/jj-history";
-import type { RepositoryServices } from "@lapis-notes/history/repository/controllers/history-reader";
-import type { RestoreService } from "@lapis-notes/history/repository/controllers/restore";
-import { PreparationQueue } from "@lapis-notes/history/repository/controllers/preparation-queue";
-import type { BackupService } from "@lapis-notes/history/repository/controllers/backup";
+import type { BackupService } from "./backup";
+import { PreparationQueue } from "./preparation-queue";
+import type { RestoreService } from "./restore";
+
+type RepositoryReader = Pick<
+  HistoryClient,
+  "heads" | "open" | "status" | "read" | "blame" | "close"
+>;
+export type RepositoryServices = {
+  reader: RepositoryReader;
+  backup?: BackupService;
+  restore?: RestoreService;
+  sources?: () => Promise<{ original: boolean }>;
+  original?: RepositoryReader;
+  close(mode?: string): Promise<void>;
+};
 
 type OriginalSource = {
   discover: () => Promise<{ original: boolean }>;

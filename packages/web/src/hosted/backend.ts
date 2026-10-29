@@ -1,6 +1,6 @@
 import type { NativeTasks } from "@lapis-notes/api/native-tasks";
 import type { NativeEditingIntents } from "@lapis-notes/api/native-editing-intents";
-import type { RepositoryFactory } from "@lapis-notes/app-profile/native-repository";
+import type { RepositoryServices } from "../history/services";
 import type { NativeHistoryIndex } from "@lapis-notes/api/native-history-index";
 import type { App, NativeBackgroundIndexing } from "@lapis-notes/api";
 import type { NativeChatHost } from "@lapis-notes/app-profile/native-chat";
@@ -19,7 +19,7 @@ export type HostedVault = {
 export type HostedResources = {
   nativeTasks?: NativeTasks;
   nativeEditingIntents?: NativeEditingIntents;
-  repositoryFactory?: RepositoryFactory;
+  repositoryFactory?: (app: App) => RepositoryServices;
   nativeChat?: (app: App) => NativeChatHost;
   backgroundIndexing?: NativeBackgroundIndexing;
   nativeHistoryIndex?: NativeHistoryIndex;

@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-29 12:46:00 UTC**.
+Last updated **2026-10-29 13:12:00 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -42,6 +42,17 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**Public Notes CI repairs — 2026-10-29 13:12:00 UTC.** Published
+`@lapis-notes/history@0.1.4` does not export repository subpaths, so the hosted
+adapter and native repository profile no longer import them. The lapis-ai
+native pin is published tag `v0.2.0`
+(`9a98293c26524c9320acdd9767e34e8ffdd7170c`); the six-source pin contract is
+unchanged. Desktop release contract, native archive, and publication jobs are
+removed from this repository under LN-DENO-081. Retired
+`@lapis-notes/server-deno` stays deprecated and out of check, test, build, and
+CI. Portable Docker validation is not native or release qualification. Notes
+package publication remains a separate human dispatch.
 
 **Public Notes release candidate records published Agent UI —
 2026-10-29 12:46:00 UTC.** The lockfile resolves `@lapismd/agent-ui@0.1.0`

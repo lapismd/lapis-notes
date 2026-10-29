@@ -1,6 +1,5 @@
 import { expect, it, vi } from "vitest";
 import type { HistoryClient } from "@lapismd/jj-history";
-import { RestoreController } from "@lapis-notes/history/repository/controllers/restore";
 import type {
   RepositoryRestoreCommand,
   RepositoryRestoreValue,
@@ -137,36 +136,4 @@ it("fences new restores while workspace close drains accepted observation", asyn
   await closing;
   expect(closed).toBe(true);
   expect(call).toHaveBeenCalledOnce();
-});
-
-it("retains the public controller's pending intent after a lost acknowledgement without replay", async () => {
-  const call = vi.fn(
-    async (_command: RepositoryRestoreCommand) =>
-      capture as RepositoryRestoreValue,
-  );
-  call.mockResolvedValueOnce(preview);
-  const report = vi.fn();
-  const persist = vi.fn(async (_pending?: unknown) => {});
-  const controller = new RestoreController(
-    createHostedRestore(call),
-    async (_path, action) => action(),
-    { report, recovered: vi.fn() },
-    persist,
-  );
-  await controller.prepare("checkpoint", "Note.md");
-  call.mockRejectedValueOnce(new Error("unknown outcome"));
-  await controller.apply();
-  expect(report).toHaveBeenCalledOnce();
-  const intent = call.mock.calls[1][0];
-  expect(intent).toMatchObject({
-    kind: "apply",
-    request: { checkpoint: "checkpoint", path: "Note.md", expected: "exact" },
-  });
-  expect(persist).toHaveBeenCalledOnce();
-  // Only an explicit user retry sends the retained request again.
-  await controller.apply();
-  expect(call.mock.calls[2][0]).toEqual(intent);
-  expect(call).toHaveBeenCalledTimes(3);
-  expect(persist).toHaveBeenLastCalledWith(undefined);
-  controller.close();
 });

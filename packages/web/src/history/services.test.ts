@@ -1,7 +1,7 @@
 import { expect, it, vi } from "vitest";
 import type { Handle, HistoryClient } from "@lapismd/jj-history";
 import { createHostedRepository } from "./services";
-import type { BackupService } from "@lapis-notes/history/repository/controllers/backup";
+import type { BackupService } from "./backup";
 
 function fixture() {
   const handle = "prepared-handle" as Handle;

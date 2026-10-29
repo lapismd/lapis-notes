@@ -1,12 +1,21 @@
 import type {
-  RestoreService,
-  RestorePreview,
-  VaultRestorePreview,
-} from "@lapis-notes/history/repository/controllers/restore";
-import type {
+  RepositoryFileRestorePreview,
+  RepositoryFileRestoreRequest,
   RepositoryRestoreCommand,
   RepositoryRestoreValue,
+  RepositoryVaultRestorePreview,
+  RepositoryVaultRestoreRequest,
 } from "../../../../crates/lapis-app-protocol/bindings/protocol";
+
+export type RestorePreview = RepositoryFileRestorePreview;
+export type VaultRestorePreview = RepositoryVaultRestorePreview;
+export interface RestoreService {
+  preview(checkpoint: string, path: string): Promise<RestorePreview>;
+  apply(request: RepositoryFileRestoreRequest): Promise<unknown>;
+  previewVault?(checkpoint: string): Promise<VaultRestorePreview>;
+  applyVault?(request: RepositoryVaultRestoreRequest): Promise<unknown>;
+  keepCurrent?(): Promise<unknown>;
+}
 
 /** The existing controller owns pending intents, explicit recovery and replay policy. */
 export function createHostedRestore(

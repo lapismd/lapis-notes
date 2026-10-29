@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-29 12:46:00 UTC",
+  "updated": "2026-10-29 13:12:00 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -1028,8 +1028,8 @@
   ],
   "activity": {
     "state": "Active",
-    "updated": "2026-10-29 12:46:00 UTC",
-    "reason": "Public package versions are prepared for the next dist-tag: api 0.2.0, workspace 0.3.0, file-explorer 0.2.0, ui 0.1.4, language-service 0.1.2. Direct Mira ranges resolve @lapismd/mira@0.1.2 and the web host consumes published @lapismd/jj-history@0.1.0. lapis-ai-service is pinned to git tag v0.2.0. The public server image documents a lapis-notes checkout context. @lapis-notes/server-deno stays deprecated and out of check, test, build, and CI. The lockfile records published @lapismd/agent-ui@0.1.0 for private @lapis-notes/app-profile and omits the ignored local pnpmfile checksum, so a frozen install without that file matches the lock. Notes package publication remains a separate human dispatch.",
+    "updated": "2026-10-29 13:12:00 UTC",
+    "reason": "Published @lapis-notes/history@0.1.4 does not export repository subpaths, so the hosted adapter and native repository profile no longer import them. The lapis-ai pin is published v0.2.0 (9a98293c26524c9320acdd9767e34e8ffdd7170c); the six-source pin contract is unchanged. Desktop release contract, native archive, and publication jobs are removed from this repository under LN-DENO-081. @lapis-notes/server-deno stays retired. Portable Docker validation is not native or release qualification. Notes package publication remains a separate human dispatch.",
     "handoff": "MIGRATION_HANDOFF.md",
     "workspaceRegister": "MIGRATION_WORKSPACES.md"
   }
