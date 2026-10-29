@@ -109,6 +109,8 @@ portable test-server startup contract.
 
 **Requirement.** The spec-first map MUST route Lapis package release workflows, Changesets configuration, pre- and post-publication release and local-consumer helper scripts, release documentation, and public package metadata to Packages and Specification Governance, with API, UI, Language Service, File Explorer, and Workspace package docs also routed to their owning architectural chapters. Local-consumer preparation MUST preserve an existing ignored pnpm hook so independently owned source-package overrides remain composable.
 
+The release caller token grant, including `actions: write` for reusable CI, is recorded on [LN-PKG-140](../packages/releases-and-exports.md#ln-pkg-140). This routing requirement is unchanged.
+
 ## LN-GOV-042 — Spec-first map: route app-profile, Web, Deno, and plugin-management Workspace
 
 <a id="ln-gov-042"></a>
