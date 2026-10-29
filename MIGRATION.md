@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-29 17:37:00 UTC**.
+Last updated **2026-10-29 17:43:09 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -42,6 +42,13 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**Notes consumes published markdown 0.1.7 — 2026-10-29 17:43:09 UTC.**
+Published `@lapis-notes/markdown@0.1.7` is on the registry. The workspace and
+`@lapis-notes/app-profile` now require `^0.1.7`, and the lockfile resolves that
+release. Search placement stories stay matched to published
+`@lapis-notes/search@0.1.3`. This dependency bump does not release the Notes
+packages. Portable Docker validation is not native or release qualification.
 
 **Search placements follow published search 0.1.3 — 2026-10-29 17:37:00 UTC.**
 Published `@lapis-notes/search@0.1.3` names each result by vault path and match

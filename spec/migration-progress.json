@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-29 17:37:00 UTC",
+  "updated": "2026-10-29 17:43:09 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -1028,8 +1028,8 @@
   ],
   "activity": {
     "state": "Active",
-    "updated": "2026-10-29 17:37:00 UTC",
-    "reason": "Search placement stories follow published @lapis-notes/search@0.1.3: result names are the vault path and match count, and the copy control is named Copy search results with the visible result count. Registry Docker storybook on 4 CPU / 12 GiB passed that file 6/6. Editing Recovery and File Conflicts still fail axe on published @lapis-notes/markdown@0.1.6 because an empty paragraph sits inside the outline menu. markdown 0.1.7 is not on the registry, so Notes stays on 0.1.6. Portable Docker validation is not native or release qualification.",
+    "updated": "2026-10-29 17:43:09 UTC",
+    "reason": "Notes consumes published @lapis-notes/markdown@0.1.7. The workspace and app profile require ^0.1.7, and the lockfile resolves that release. Search placement stories stay matched to published @lapis-notes/search@0.1.3. This dependency bump does not release the Notes packages. Portable Docker validation is not native or release qualification.",
     "handoff": "MIGRATION_HANDOFF.md",
     "workspaceRegister": "MIGRATION_WORKSPACES.md"
   }

@@ -152,7 +152,7 @@
     "@lapis-notes/bookmarks": "^0.1.3",
     "@lapis-notes/file-explorer": "workspace:*",
     "@lapis-notes/graph": "^0.1.3",
-    "@lapis-notes/markdown": "^0.1.6",
+    "@lapis-notes/markdown": "^0.1.7",
     "@lapis-notes/markdown-lint": "^0.1.2",
     "@lapis-notes/spellcheck": "^0.1.3",
     "@lapis-notes/history": "^0.1.4",
