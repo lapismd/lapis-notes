@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-29 20:30:47 UTC**.
+Last updated **2026-10-29 20:34:12 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -43,9 +43,11 @@ deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
 
-**Notes uses Deno-free spec-validator 0.2.0 — 2026-10-29 20:30:47 UTC.**
+**Notes uses Deno-free spec-validator 0.2.0 — 2026-10-29 20:34:12 UTC.**
 `@lapismd/spec-validator` is `^0.2.0` (installed 0.2.0). `spec-validator doctor`
-passed, including the repository-local QMD binary and native modules.
+passed, including the pinned root QMD binary and native modules. It still warns
+that `spec:validate`, `spec:check`, `spec:first`, and `spec:build` stay on the
+validation router so `spec:check` keeps its extra lanes.
 `pnpm spec:search LN-GOV-022` and one `--semantic` query both returned
 canonical `spec/src` hits. `AGENTS.md` points at
 `~/.agents/skills/spec-validator/SKILL.md`. This does not publish Notes.

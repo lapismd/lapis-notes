@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-29 20:18:49 UTC",
+  "updated": "2026-10-29 20:34:12 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -1028,8 +1028,8 @@
   ],
   "activity": {
     "state": "Active",
-    "updated": "2026-10-29 20:18:49 UTC",
-    "reason": "Release verification retries a pending install for under two minutes. A repeated publish dispatch skips npm versions that already exist and keeps a published version selected until its GitHub release exists. Provenance and the next dist-tag stay in place. Release script regressions passed 47/47, the release workflow checker passed, and spec:first passed. This does not republish markdown 0.1.7.",
+    "updated": "2026-10-29 20:34:12 UTC",
+    "reason": "Root @lapismd/spec-validator is the published Deno-free 0.2.0. Doctor and spec:search passed, and specification commands stay on the validation router. Release verification still retries a pending install and skips npm versions that already exist. This does not publish Notes packages.",
     "handoff": "MIGRATION_HANDOFF.md",
     "workspaceRegister": "MIGRATION_WORKSPACES.md"
   }

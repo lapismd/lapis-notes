@@ -91,7 +91,7 @@ registry install. Ignored local archive overlays do not enter that build.
 [Fresh server qualification](../../records/2026-10-16-m7-server-qualification.md)
 keeps image construction, source tests and full browser evidence distinct.
 
-## LN-ARCH-023 — Root specification discovery: invoke the repository-local QMD binary through @lapismd/spec-validator
+## LN-ARCH-023 — Root specification discovery: resolve qmd from PATH through @lapismd/spec-validator
 
 <a id="ln-arch-023"></a>
 
