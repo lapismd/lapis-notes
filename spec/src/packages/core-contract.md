@@ -98,7 +98,7 @@ install the UI package's development dependencies.
 
 <a id="ln-pkg-046"></a>
 
-**Requirement.** Private `@lapis-notes/web` version `2026.6.3` MUST live at `packages/web` and expose `dev`, `build`, `check`, and `test` scripts.
+**Requirement.** Private `@lapis-notes/web` version `2026.6.3` MUST live at `packages/web` and expose `dev`, `build`, `check`, and `test` scripts. It MUST export `WebWorkspaceSession` from `@lapis-notes/web/session` so a hosted server can mount the Notes workspace.
 
 ## LN-PKG-065 — @lapis-notes/bases filter groups: preserve the initial predicate when adding another
 

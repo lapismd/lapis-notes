@@ -34,6 +34,8 @@ when opening an exact existing main conversation. Draft creation and restored
 selection never dispatch prompts; portable metadata supplies saved titles.
 
 The public web package does not contain the hosted Rust client or server screen.
+It exports `WebWorkspaceSession` at `@lapis-notes/web/session`. lapis-server mounts
+that entry, and the session source stays in this package.
 lapis-server owns that client and its generated protocol binding
 ([LN-CORE-070](../architecture/rust-hosted-delivery.md#ln-core-070)).
 The explicit `server-rust` profile is not part of this package's production

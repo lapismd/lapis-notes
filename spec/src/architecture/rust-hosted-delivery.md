@@ -5,6 +5,8 @@ application and existing native authority. Ordinary hosted entrypoints select
 Rust with native metadata, History and Tasks together. Container delivery,
 retired transport removal and complete cutover retain separate evidence.
 It introduces no replacement screen or JavaScript application runtime.
+The hosted screen mounts `WebWorkspaceSession` from `@lapis-notes/web/session`
+and `WorkspaceShell` from `@lapis-notes/workspace`. Those packages stay in Notes.
 
 ## LN-CORE-054 — Operator-owned application build
 

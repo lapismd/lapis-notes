@@ -4,6 +4,14 @@
   "version": "2026.6.3",
   "license": "Apache-2.0",
   "type": "module",
+  "exports": {
+    "./session": {
+      "types": "./src/WebWorkspaceSession.svelte",
+      "svelte": "./src/WebWorkspaceSession.svelte",
+      "import": "./src/WebWorkspaceSession.svelte",
+      "default": "./src/WebWorkspaceSession.svelte"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "pnpm generate-icons && NODE_OPTIONS=--max-old-space-size=8192 vite build",
