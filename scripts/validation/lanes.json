@@ -1,6 +1,5 @@
 {
   "build": "node --env-file-if-exists=.env scripts/run-turbo.mjs build",
-  "build:desktop": "node --env-file-if-exists=.env scripts/run-turbo.mjs build --filter=@lapis-notes/desktop-deno...",
   "build:web": "node --env-file-if-exists=.env scripts/run-turbo.mjs build --filter=@lapis-notes/web...",
   "check": "pnpm check:storybook-parity && pnpm spec:validate && pnpm check:progress && pnpm check:specification-docs && pnpm check:no-tailwind && pnpm check:app-ownership && pnpm check:metadata-queries && node --env-file-if-exists=.env scripts/run-turbo.mjs check",
   "check:all": "pnpm check && pnpm test && pnpm build",
@@ -36,15 +35,7 @@
   "test:spec-validation:view-commands": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:spec-validation:view-commands:run --task-args",
   "test:spec-validation:storybook-structure": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:spec-validation:storybook-structure:run --task-args",
   "test:package-boundaries": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:package-boundaries:run --task-args",
-  "build:server": "node scripts/server-runtime.mjs build",
-  "test:server": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:server:run --task-args",
-  "test:server:native": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:server:native:run --task-args",
   "test:search:onnx": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:search:onnx:run --task-args",
-  "check:rust-boundaries": "node scripts/check-rust-boundaries.mjs",
-  "check:rust-core": "pnpm check:rust-boundaries && pnpm check:protocol && pnpm rust:core -- fmt --all -- --check && pnpm rust:core -- clippy --workspace --all-targets --locked -- -D warnings",
-  "test:rust-core": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:rust-core:run --task-args",
-  "build:rust-core": "pnpm rust:core -- build --workspace --locked",
-  "check:protocol": "node scripts/rust-protocol.mjs --check && tsc -p crates/lapis-app-protocol/tsconfig.json",
   "validation:check": "node --test scripts/validation.test.mjs scripts/validation-install.test.mjs scripts/validation-native.test.mjs scripts/validation-leases.test.mjs scripts/validation-cache.test.mjs scripts/validation-images.test.mjs scripts/spec-validation/storybook-parity.test.mjs scripts/validation-transfer.test.mjs scripts/server-container.test.mjs scripts/server-container-ci.test.mjs",
   "validation:smoke": "node scripts/validation/smoke.mjs",
   "check:storybook-parity": "node scripts/spec-validation/check-storybook-parity.mjs",
@@ -56,14 +47,5 @@
   "test:api:native-tasks": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:api:native-tasks:run --task-args",
   "capture:native-daily-locales-reference": "LAPIS_NOTES_CAPTURE_DAILY_LOCALES_REFERENCE=1 pnpm --filter @lapis-notes/api exec vitest run src/lib/native-daily-reference.test.ts src/lib/native-daily-en-gb-reference.test.ts src/lib/native-daily-en-us-week-reference.test.ts",
   "test:native-daily-locales-reference": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:native-daily-locales-reference:run --task-args",
-  "test:web:native-tasks": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:web:native-tasks:run --task-args",
-  "test:server:tasks": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:server:tasks:run --task-args",
-  "test:web:native-editing-intents": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:web:native-editing-intents:run --task-args",
-  "test:server:tasks:recovery": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:server:tasks:recovery:run --task-args",
-  "test:server:tasks:references": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:server:tasks:references:run --task-args",
-  "test:web:workspace-leave": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:web:workspace-leave:run --task-args",
-  "test:server:tasks:editors": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:server:tasks:editors:run --task-args",
-  "test:server:tasks:leave": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:server:tasks:leave:run --task-args",
-  "build:server:rust": "node scripts/server-runtime.mjs build",
-  "test:server:delivery": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:server:delivery:run --task-args"
+  "test:web:workspace-leave": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:web:workspace-leave:run --task-args"
 }

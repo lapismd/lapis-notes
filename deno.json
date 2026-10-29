@@ -1,7 +1,6 @@
 {
   "workspace": [
-    "packages/deno-host-services",
-    "packages/desktop-deno"
+    "packages/deno-host-services"
   ],
   "nodeModulesDir": "none",
   "imports": {

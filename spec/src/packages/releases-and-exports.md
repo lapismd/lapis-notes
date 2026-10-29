@@ -338,7 +338,7 @@ explicitly re-selects Docker because the image harness fails closed without it.
 
 **Requirement.** This Notes repository's pull-request and reusable CI MUST NOT build, package, or publish the desktop application. Desktop packaging and cold packaged acceptance belong to the lapis-desktop repository. Server acceptance belongs to the lapis-server repository.
 
-Historical macOS and Linux packaged evidence remains recorded. It is not a current Notes CI lane.
+Notes CI does not select `@lapis-notes/desktop-deno` or the retired `@lapis-notes/server-deno` package.
 
 ## LN-PKG-163 — Portable terminal dependency during desktop packaging
 

@@ -125,15 +125,9 @@ Final plugin acceptance pins `da7d8bb73541eb3421ca8fdfaf1eaaf2baecc850`,
 the version candidate containing AI 0.1.5, History 0.1.4, Markdown 0.1.6 and
 released Mira 0.0.4. Ephemeral fixture signatures establish acceptance evidence;
 production signing and publication retain their separate approval gate.
-Complete Web acceptance retains both browser jobs: the PWA/registry lane and
-an independent Node server lane. The latter builds its Docker image from the
-checked-out Notes candidate and requires no Deno setup or desktop build job.
-The server fixture seeds its private bootstrap secret into a Docker volume owned
-by the image's service user, so host UID differences cannot prevent startup.
-That file-seeding container has no network. Initial server navigation retries
-once only after an observed same-origin Chromium document or script
-`ERR_NETWORK_CHANGED` failure and retains a diagnostic attachment. Application
-assertions and the later editing, sharing and restart sequence remain unchanged.
+Complete Web acceptance retains Storybook and the public web end-to-end lane.
+Notes CI does not select `@lapis-notes/desktop-deno` or `@lapis-notes/server-deno`,
+and it does not build a server image or seed bootstrap credentials.
 Web diagnostic artifacts upload after successful recovery as well as failures,
 so a passing retry retains its observed transport errors.
 The retry diagnostic is file-backed JSON attached by path, and both Web

@@ -1,5 +1,7 @@
 packages:
   - "packages/*"
+  - "!packages/desktop-deno"
+  - "!packages/server-deno"
 
 linkWorkspacePackages: true
 

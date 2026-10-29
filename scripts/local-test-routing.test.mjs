@@ -74,7 +74,6 @@ test("local test entry points use bounded Turbo tasks without raw-script recursi
     "test:visual",
     "test:visual:update",
     "test:workspace:pointer",
-    "test:desktop:packaged",
     "test:web:e2e",
     "test:server",
     "test:server:e2e",
