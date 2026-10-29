@@ -32,8 +32,6 @@ overrides:
   undici@>=7.0.0 <7.29.1: '>=7.29.1 <8'
   vitest@>=4.0.0 <4.1.11: 4.1.11
 
-pnpmfileChecksum: sha256-FyEq4wnWyct3/xbxSgNp/cTpWLG71ed3ZRKZzfHRLHM=
-
 importers:
 
   .:

@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-29 16:03:54 UTC**.
+Last updated **2026-10-29 16:16:37 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -42,6 +42,17 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**Frozen install omits the local pnpmfile checksum — 2026-10-29 16:16:37 UTC.**
+The hosted lockfile refresh recorded `pnpmfileChecksum` for the ignored
+`.pnpmfile.cjs`, so CI `pnpm install --frozen-lockfile` failed with
+`ERR_PNPM_LOCKFILE_CONFIG_MISMATCH` and cancelled the other lanes. That field
+is removed again. Package resolutions are unchanged: api 0.2.0, workspace
+0.3.0, file-explorer 0.2.0, ui 0.1.4, and language-service 0.1.2 stay prepared
+for the `next` dist-tag. Mira stays at published 0.1.2 and Design Core at
+published 0.7.0. The digest-pinned dependency image contract is unchanged; no
+new image was published. A frozen install without the local pnpmfile matches
+the lock. Portable Docker validation is not native or release qualification.
 
 **Public package notes no longer describe hosted integration — 2026-10-29 16:03:54 UTC.**
 The api 0.2.0, workspace 0.3.0, file-explorer 0.2.0, and ui 0.1.4 changelogs
