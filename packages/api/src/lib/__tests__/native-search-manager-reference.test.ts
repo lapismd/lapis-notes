@@ -4,7 +4,7 @@ import type { App } from "../context.svelte";
 import type { CachedMetadata } from "../cache.svelte";
 import { TFile } from "../storage/fs";
 import type { SearchDocumentRecord } from "../storage/app-database";
-import fixtures from "../../../../../crates/lapis-app-core/tests/fixtures/native-search-manager.json";
+import fixtures from "../../../fixtures/native/native-search-manager.json";
 
 describe("native Search retained SearchManager envelopes", () => {
   for (const fixture of fixtures) {

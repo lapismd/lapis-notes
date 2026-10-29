@@ -42,7 +42,7 @@ it("freezes the complete unchanged en-GB daily filename provider and registry or
         JSON.parse(
           await readFile(
             resolve(
-              "../../crates/lapis-app-core/tests/fixtures/daily-provider-en-gb.json",
+              "fixtures/native/daily-provider-en-gb.json",
             ),
             "utf8",
           ),
@@ -53,7 +53,7 @@ it("freezes the complete unchanged en-GB daily filename provider and registry or
         JSON.parse(
           await readFile(
             resolve(
-              "../../crates/lapis-app-core/tests/fixtures/daily-provider-en-gb-io.json",
+              "fixtures/native/daily-provider-en-gb-io.json",
             ),
             "utf8",
           ),

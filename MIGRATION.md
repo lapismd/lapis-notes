@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-29 16:25:22 UTC**.
+Last updated **2026-10-29 16:39:02 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -42,6 +42,13 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**API reference tests keep their native oracles — 2026-10-29 16:39:02 UTC.**
+The daily, indexing, and search reference tests still compare the same frozen
+bytes. Those files now live in `packages/api/fixtures/native` because the
+crates tree left this repository. The oracle contract is unchanged. The five
+files that failed CI with missing crate paths now pass 57/57. Portable Docker
+validation is not native or release qualification.
 
 **Public web e2e typecheck drops the removed server runtime — 2026-10-29 16:25:22 UTC.**
 `packages/web/e2e/rust-participant-fixture.ts` still imported the deleted

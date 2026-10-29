@@ -49,7 +49,7 @@ it("freezes complete retained en-US behavior for declared legacy Intl minimalDay
         JSON.parse(
           await readFile(
             resolve(
-              "../../crates/lapis-app-core/tests/fixtures/daily-provider-en-us-minimal-one.json",
+              "fixtures/native/daily-provider-en-us-minimal-one.json",
             ),
             "utf8",
           ),
@@ -59,7 +59,7 @@ it("freezes complete retained en-US behavior for declared legacy Intl minimalDay
         JSON.parse(
           await readFile(
             resolve(
-              "../../crates/lapis-app-core/tests/fixtures/daily-provider-en-us-minimal-one-io.json",
+              "fixtures/native/daily-provider-en-us-minimal-one-io.json",
             ),
             "utf8",
           ),

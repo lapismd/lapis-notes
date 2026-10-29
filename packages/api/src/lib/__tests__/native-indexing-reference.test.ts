@@ -4,8 +4,8 @@ import type { App } from "../context.svelte";
 import { TFile } from "../storage/fs";
 import { inferMetadataPropertyType } from "../metadata-value";
 import type { AppDatabaseIndexedFile } from "../storage/app-database";
-import records from "../../../../../crates/lapis-app-core/tests/fixtures/native-indexed-metadata.json";
-import types from "../../../../../crates/lapis-app-core/tests/fixtures/native-metadata-types.json";
+import records from "../../../fixtures/native/native-indexed-metadata.json";
+import types from "../../../fixtures/native/native-metadata-types.json";
 
 describe("native indexing retained application reference", () => {
   for (const fixture of types) {

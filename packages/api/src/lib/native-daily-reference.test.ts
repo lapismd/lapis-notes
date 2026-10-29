@@ -5,7 +5,7 @@ import { expect, it } from "vitest";
 import { filenameInputs, providerInputs } from "./native-daily-inputs.test.fixture";
 import { captureFilename, captureProvider, captureRegistry } from "./native-daily-reference.test.fixture";
 
-const fixture = resolve("../../crates/lapis-app-core/tests/fixtures/daily-provider.json");
+const fixture = resolve("fixtures/native/daily-provider.json");
 it("freezes complete retained daily-provider, filename and registry behavior", async () => {
   const providers = [];
   for (const input of providerInputs()) providers.push({ ...input, expected: await captureProvider(input) });
