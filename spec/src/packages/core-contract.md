@@ -34,9 +34,15 @@ and unresolved private-package frozen-registry gate under LN-PKG-012/064.
 Root, API and UI select the same published Bits UI `2.20.2` runtime. The
 [unified-runtime intake](../../records/2026-10-25-bits-runtime-intake.md) retains
 exact hover-preview regressions, final source/packing and separate consumer gates
-before admission. The timer repair is qualified in its owning source and consumed
-through a documented temporary archive, without a tracked dependency patch or
-checkout-specific installation path.
+before admission. Published 2.20.2 still queues a Link Preview selection probe
+after teardown. `patches/bits-ui@2.20.2.patch` applies the timer cancel already
+qualified in that owning source, with no checkout-specific installation path.
+Remove the patch when the published Bits release contains the same teardown.
+
+Published `@lapis-notes/bases@0.1.4` omits accessible names on its Select
+triggers. `patches/@lapis-notes__bases@0.1.4.patch` applies the names already
+present in plugins source. Axe rules stay unchanged. Remove the patch when a
+published bases release includes those names.
 
 The private native core exposes bounded archive extraction and immutable ZIP
 snapshots under LN-CORE-004/007. Hosts own publication and transport; the engine

@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-29 17:45:43 UTC**.
+Last updated **2026-10-29 18:15:32 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -42,6 +42,18 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**Storybook interaction matches published search, bases, and Bits UI — 2026-10-29 18:15:32 UTC.**
+Published `@lapis-notes/search@0.1.3` names a file hit `Open auth.md`. The search
+tool story now expects that name and still checks the vault path and snippet.
+Published Bits UI 2.20.2 still reads a Link Preview selection after teardown, so
+`patches/bits-ui@2.20.2.patch` cancels that probe. Published
+`@lapis-notes/bases@0.1.4` omits Select accessible names that plugins source
+already has; `patches/@lapis-notes__bases@0.1.4.patch` applies those names.
+Axe rules are unchanged. Registry Docker storybook on 4 CPU / 12 GiB passed
+Search Tool Hits, both Editable Cells stories, Query Controls, and Middle Top
+Tabs, 5/5. This does not release Notes packages or republish markdown 0.1.7.
+Portable Docker validation is not native or release qualification.
 
 **Notes consumes published markdown 0.1.7 — 2026-10-29 17:45:43 UTC.**
 Published `@lapis-notes/markdown@0.1.7` is on the registry. The workspace and
