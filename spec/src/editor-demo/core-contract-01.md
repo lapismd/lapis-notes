@@ -105,7 +105,7 @@ component; it does not implement a second creation or persistence path.
 
 **Requirement.** The application-profile integration demo MUST register exactly Source Editor, Markdown, reusable File Explorer, and Search in the same order as Web and Deno. Extracted plugin component and workspace stories MUST live in the sibling `lapis-plugins` Storybook; Lapis Notes MAY retain only framework and management integration fixtures.
 
-Unchanged contract: File Explorer passes the selected file-view icon through published Design Core `getIcon`. `ExplorerControllerOptions` does not declare `iconResolver`.
+Unchanged contract: File Explorer passes the selected file-view icon through published Design Core `getIcon` and `registerWorkspaceIcon`. `ExplorerControllerOptions` does not declare `iconResolver`.
 
 ## LN-ED-020 — Storybook: provide focused panel stories for All Properties
 

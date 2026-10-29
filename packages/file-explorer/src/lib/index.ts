@@ -38,6 +38,7 @@ import {
   VAULT_PALETTE_RECENT_GROUP,
 } from "./vault-palette-files";
 import { bindExplorerSelectionNotifications } from "./explorer-selection";
+import { createExplorerFileIcons } from "./explorer-file-icons";
 
 const EXPLORER_MANIFEST: PluginManifest = {
   id: "lapis-file-explorer",
@@ -122,21 +123,25 @@ async function withNotice<T>(
 }
 
 function createExplorerController(app: App, loading: boolean) {
+  const fileIcons = createExplorerFileIcons(app);
   const controller = new ExplorerController({
     loading,
     getIcon: (node) =>
-      node.kind === "file"
-        ? app.workspace.getFileIconForPath(node.path)
-        : undefined,
+      node.kind === "file" ? fileIcons.nameForPath(node.path) : undefined,
     tree: {
       listEntries: () =>
         listExplorerVaultEntries(app.vault.getAllLoadedFiles()),
       subscribe: (onChange) => {
+        const refreshIcons = () => {
+          void fileIcons.publish().then(onChange);
+        };
         const stopTree = subscribeExplorerVaultTreeChanges(app, onChange);
-        const stopIcons = app.workspace.onFileIconsChanged(onChange);
+        const stopIcons = app.workspace.onFileIconsChanged(refreshIcons);
+        refreshIcons();
         return () => {
           stopTree();
           stopIcons();
+          fileIcons.release();
         };
       },
     },

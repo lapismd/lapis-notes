@@ -220,13 +220,17 @@ export const PluginFileIcons: Story = {
     );
     const app = panelDemoApp(canvasElement);
     const file = await app.vault.create("example.diagram", "{}");
-    const row = () =>
-      canvasElement.querySelector('[data-path="example.diagram"]')!;
-    await waitFor(() =>
-      expect(
-        row()?.querySelector('[data-ui-component="file-type-icon"]'),
-      ).not.toBeNull(),
-    );
+    const explorer = () =>
+      canvasElement.querySelector<HTMLElement>(
+        '[data-testid="lapis-editor-explorer"]',
+      );
+    const row = (path = "example.diagram") =>
+      explorer()?.querySelector<HTMLElement>(`[data-path="${path}"]`) ?? null;
+    const icon = (path = "example.diagram") =>
+      row(path)?.querySelector<HTMLElement>(
+        '[data-ui-component="workspace-icon"], [data-ui-component="file-type-icon"]',
+      ) ?? null;
+    await waitFor(() => expect(icon()).not.toBeNull());
     app.plugins.registerCorePlugins([
       { plugin: DiagramIconPlugin, required: false, enabledByDefault: false },
     ]);
@@ -240,23 +244,13 @@ export const PluginFileIcons: Story = {
       expect(app.workspace.getLeavesOfType("example-diagram")).toHaveLength(1),
     );
     await app.plugins.disablePlugin("example-file-icons");
-    await waitFor(() =>
-      expect(
-        row()?.querySelector('[data-ui-component="file-type-icon"]'),
-      ).not.toBeNull(),
-    );
+    await waitFor(() => expect(icon()).not.toBeNull());
     await app.plugins.enablePlugin("example-file-icons");
     await waitFor(() =>
       expect(row()?.querySelector('path[d="M2 3h7v9H2z"]')).not.toBeNull(),
     );
     await app.fileManager.renameFile(file, "example.other");
-    await waitFor(() =>
-      expect(
-        canvasElement.querySelector(
-          '[data-path="example.other"] [data-ui-component="file-type-icon"]',
-        ),
-      ).not.toBeNull(),
-    );
+    await waitFor(() => expect(icon("example.other")).not.toBeNull());
     await app.fileManager.renameFile(file, "example.diagram");
     await waitFor(() =>
       expect(row()?.querySelector('path[d="M2 3h7v9H2z"]')).not.toBeNull(),

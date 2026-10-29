@@ -52,7 +52,7 @@ Registry-consumer toolchain and build-policy acceptance is recorded in
 
 **Requirement.** Public `@lapis-notes/file-explorer` MUST own the reusable File Explorer plugin implementation formerly co-located with Storybook, publish from built exports at an independent `0.1.0` baseline, and consume framework dependencies through npm semver ranges. It MAY map Design Core current, reveal-or-create, and forced-new-tab activation intents to API workspace leaves and MUST persist Show hidden files, but MUST NOT own vault selection, session boot, persistence policy, or source-editor fixtures.
 
-Unchanged contract: File Explorer passes the selected file-view icon through published Design Core `getIcon`. `ExplorerControllerOptions` does not declare `iconResolver`.
+Unchanged contract: File Explorer passes the selected file-view icon through published Design Core `getIcon` and `registerWorkspaceIcon`. `ExplorerControllerOptions` does not declare `iconResolver`.
 
 ## LN-PKG-051 — @lapis-notes/lapis-plugin-cv-roles: consume Markdown rendering and source presentation
 

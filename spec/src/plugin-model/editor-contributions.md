@@ -138,7 +138,7 @@ changing the four-plugin default, or creating another plugin-owned writer.
 
 **Requirement.** Editor-view contributions MUST accept optional serializable `fileIcon` metadata in runtime and admitted manifests. Path lookup MUST use existing association, priority and pattern-specificity rules without constructing a view or activating a plugin. Disabled or catalog-only plugins MUST NOT contribute file icons. The selected contribution without artwork MUST retain the filename fallback.
 
-Unchanged contract: File Explorer passes the selected file-view icon through published Design Core `getIcon`. `ExplorerControllerOptions` does not declare `iconResolver`.
+Unchanged contract: File Explorer passes the selected file-view icon through published Design Core `getIcon` and `registerWorkspaceIcon`. `ExplorerControllerOptions` does not declare `iconResolver`.
 
 ## LN-PLUG-123 — Owned plugin artwork
 
