@@ -250,7 +250,7 @@ unfiltered finding, dependency path, scope limitation, and removal procedure.
 
 <a id="ln-pkg-140"></a>
 
-**Requirement.** Push-triggered release runs MUST stop after preparing the verified candidate artifact. Package publication MUST require an explicit manual workflow dispatch with its `publish` input enabled, in addition to the protected `npm-production` environment and release-script approval guard.
+**Requirement.** Push-triggered release runs MUST stop after preparing the verified candidate artifact. Package publication MUST require an explicit manual workflow dispatch with its `publish` input enabled, in addition to the protected `npm-production` environment and release-script approval guard. The release caller MUST grant every token permission the called CI workflow requests, including `actions: write`.
 
 ## LN-PKG-141 — Post-publication verification of a partial manifest: install each selected package at its manifest
 
