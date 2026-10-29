@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-29 16:16:37 UTC**.
+Last updated **2026-10-29 16:25:22 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -42,6 +42,15 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**Public web e2e typecheck drops the removed server runtime — 2026-10-29 16:25:22 UTC.**
+`packages/web/e2e/rust-participant-fixture.ts` still imported the deleted
+`rust-server-runtime` module, so `@lapis-notes/web` check failed with one
+TS2307. No remaining acceptance imports that fixture. It is removed. The
+public web contract is unchanged: the package still excludes the hosted Rust
+client and server screen. `pnpm --filter @lapis-notes/web check` passes with
+svelte-check 0 errors, node types 0 errors, and e2e types 0 errors. Portable
+Docker validation is not native or release qualification.
 
 **Frozen install omits the local pnpmfile checksum — 2026-10-29 16:16:37 UTC.**
 The hosted lockfile refresh recorded `pnpmfileChecksum` for the ignored

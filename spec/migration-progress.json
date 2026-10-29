@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-29 16:16:37 UTC",
+  "updated": "2026-10-29 16:25:22 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -1028,8 +1028,8 @@
   ],
   "activity": {
     "state": "Active",
-    "updated": "2026-10-29 16:16:37 UTC",
-    "reason": "The lockfile omits the ignored local pnpmfile checksum, so a frozen install without that file matches the lock. Public versions stay api 0.2.0, workspace 0.3.0, file-explorer 0.2.0, ui 0.1.4, and language-service 0.1.2 on the next dist-tag. Mira stays at published 0.1.2 and Design Core at published 0.7.0. The digest-pinned dependency image contract is unchanged. Notes CI does not build, package, or publish the desktop app, and it does not select the retired deno-server package. Portable Docker validation is not native or release qualification.",
+    "updated": "2026-10-29 16:25:22 UTC",
+    "reason": "The public web e2e typecheck no longer imports the removed server runtime. The public web contract is unchanged. The lockfile omits the ignored local pnpmfile checksum. Public versions stay api 0.2.0, workspace 0.3.0, file-explorer 0.2.0, ui 0.1.4, and language-service 0.1.2 on the next dist-tag. Mira stays at published 0.1.2 and Design Core at published 0.7.0. The digest-pinned dependency image contract is unchanged. Notes CI does not select the desktop package job or the retired deno-server package. Portable Docker validation is not native or release qualification.",
     "handoff": "MIGRATION_HANDOFF.md",
     "workspaceRegister": "MIGRATION_WORKSPACES.md"
   }
