@@ -1,9 +1,10 @@
 # Search Plugin / Search queries and results
 
 Consumer placement acceptance identifies results through the full-path caption
-and its real vault file. The accessible name separately includes filename,
-count and path; it is not a file identity string. Geometry, match text, counts
-and open behavior retain their existing assertions.
+and its real vault file. The released Search package exposes the accessible
+name as the vault path and match count. Its result-copy control uses the
+accessible name `Copy search results` and shows the visible result count.
+Geometry, match text, counts and open behavior retain their existing assertions.
 
 ## LN-SRCH-001 — Search: owned by the sibling lapis-plugins repository, retain
 

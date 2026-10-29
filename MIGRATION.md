@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-29 16:39:02 UTC**.
+Last updated **2026-10-29 17:37:00 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -42,6 +42,18 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**Search placements follow published search 0.1.3 — 2026-10-29 17:37:00 UTC.**
+Published `@lapis-notes/search@0.1.3` names each result by vault path and match
+count, and names the copy control `Copy search results` while showing the
+result count as its visible label. The six Search placements now assert those
+released names and still check the caption, filename, result count, clipboard
+copy, geometry, and open behavior. Registry Docker storybook on 4 CPU / 12 GiB
+passed that file 6/6. Editing Recovery and File Conflicts still fail axe
+because published `@lapis-notes/markdown@0.1.6` puts an empty paragraph inside
+`ul.markdown-outline__menu`. `@lapis-notes/markdown@0.1.7` is not on the
+registry, so Notes stays on 0.1.6 and axe is unchanged. Portable Docker
+validation is not native or release qualification.
 
 **API reference tests keep their native oracles — 2026-10-29 16:39:02 UTC.**
 The daily, indexing, and search reference tests still compare the same frozen

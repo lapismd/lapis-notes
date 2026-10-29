@@ -6,9 +6,11 @@ and `Filter by file type: Markdown` afterward. All six placement stories retain
 the real filter interaction and selected-state assertions.
 
 Search placement acceptance reads the full-path caption as file identity and
-asserts the filename/count/path spoken label independently. Copy controls retain
-their result-summary suffix. AI's Search Tool Hits scenario selects the complete
-filename/path label and still proves exact file navigation with chat retained.
+asserts the released accessible name, the vault path and match count. Copy
+controls use the accessible name `Copy search results` and show the result
+count as their visible label. AI's Search Tool Hits scenario selects the
+complete filename/path label and still proves exact file navigation with chat
+retained.
 
 API Date Setting acceptance also asserts full date-picker names, including
 `Choose date: Pick date` and the retained legacy date value. Selected values

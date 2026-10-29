@@ -1,7 +1,7 @@
 import type { App } from "@lapis-notes/api";
 import { expect } from "storybook/test";
 
-/** A spoken label contains filename/count/path; the caption retains file identity. */
+/** The match caption identifies the vault file; the visible label is its basename. */
 export function searchResultIdentity(row: HTMLElement, app: App) {
   const caption = row
     .closest(".search-panel__result")
