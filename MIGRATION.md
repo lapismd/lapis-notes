@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-29 12:42:23 UTC**.
+Last updated **2026-10-29 12:46:00 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -44,9 +44,10 @@ deployment and installed-app replacement remain separate from runtime cutover.
 ## Current work and next handoff
 
 **Public Notes release candidate records published Agent UI —
-2026-10-29 12:42:23 UTC.** The lockfile now resolves `@lapismd/agent-ui@0.1.0`
-from the registry for private `@lapis-notes/app-profile`, and a frozen install
-matches that lock. Public versions stay api 0.2.0, workspace 0.3.0,
+2026-10-29 12:46:00 UTC.** The lockfile resolves `@lapismd/agent-ui@0.1.0`
+from the registry for private `@lapis-notes/app-profile`. It does not record
+the ignored local pnpmfile, and a frozen install without that file matches
+the lock. Public versions stay api 0.2.0, workspace 0.3.0,
 file-explorer 0.2.0, ui 0.1.4, and language-service 0.1.2 on the `next`
 dist-tag. Direct Mira ranges resolve `@lapismd/mira@0.1.2`, and
 `@lapis-notes/web` depends on published `@lapismd/jj-history@~0.1.0`.
