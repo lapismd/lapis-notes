@@ -142,8 +142,8 @@ Missing native inputs MUST fail explicitly without silently changing ownership.
 
 <a id="ln-core-070"></a>
 
-**Requirement.** Native container assembly is owned by the lapis-server
-repository. Notes MUST NOT build that image or run server acceptance.
+**Requirement.** The lapis-server repository MUST own native container assembly.
+Notes MUST NOT build that image or run server acceptance.
 Qualified private package inputs MUST retain verified identity and digest.
 The runtime MUST launch the compiled executable without Node or Deno, as a
 non-root user with read-only application files and explicit persistent storage.

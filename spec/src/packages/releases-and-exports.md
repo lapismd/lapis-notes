@@ -265,7 +265,9 @@ interactions remain blocking. Notes CI does not build or package the desktop app
 
 <a id="ln-pkg-142"></a>
 
-**Requirement.** CI MUST populate package build outputs once, then run governance, quality, unit, static Storybook, interaction/accessibility, web acceptance, and release-artifact jobs concurrently before one stable `validate` aggregation job. Every required job MUST succeed; functional, interaction, and accessibility failures MUST block. A failed required job MUST cancel the rest of that same workflow run and MUST NOT cancel another workflow or report the failed lane as success. Visual comparison MUST remain non-blocking. Notes CI MUST NOT build, package, or publish the desktop application. Notes CI MUST NOT build the server image or run server acceptance. The lapis-server repository owns that gate.
+**Requirement.** CI MUST populate package build outputs once, then run governance, quality, unit, Storybook, web acceptance, and release-artifact jobs before one validate job. Every required job MUST succeed, and a failure MUST cancel only that workflow run. Visual comparison MUST remain non-blocking. Notes CI MUST NOT build the desktop application or the server image.
+
+The lapis-server repository owns server acceptance. Interaction and accessibility failures stay blocking. A failed job MUST NOT cancel another workflow or report the failed lane as success.
 
 ## LN-PKG-143 — Release candidates: reuse the validated Turbo build graph
 
