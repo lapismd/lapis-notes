@@ -12,7 +12,10 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { context } from "./server-container/context.mjs";
+import {
+  context,
+  repositoryBuildContext,
+} from "./server-container/context.mjs";
 import { hash } from "./validation/model.mjs";
 
 const jj = (root, args) =>
@@ -287,3 +290,33 @@ for (const changed of ["sha256", "name", "version", "path"]) {
     );
   });
 }
+
+test("server image context is the Notes checkout and keeps pinned siblings beside it", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "lapis-server-context-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const output = join(directory, "context");
+  await mkdir(join(output, "lapis-notes/crates"), { recursive: true });
+  await mkdir(join(output, "jj-store"), { recursive: true });
+  await mkdir(join(output, ".qualification"), { recursive: true });
+  await writeFile(join(output, "lapis-notes/Cargo.toml"), "[workspace]\n");
+  await writeFile(join(output, "jj-store/Cargo.toml"), "[workspace]\n");
+  await writeFile(join(output, ".qualification/archives.json"), "[]\n");
+  const notes = await repositoryBuildContext(output);
+  assert.equal(notes, join(output, "lapis-notes"));
+  assert.equal(
+    await readFile(join(notes, "Cargo.toml"), "utf8"),
+    "[workspace]\n",
+  );
+  assert.equal(
+    await readFile(
+      join(notes, ".image-inputs/siblings/jj-store/Cargo.toml"),
+      "utf8",
+    ),
+    "[workspace]\n",
+  );
+  assert.equal(
+    await readFile(join(notes, ".image-inputs/qualification/archives.json"), "utf8"),
+    "[]\n",
+  );
+  assert.deepEqual(await readdir(output), ["lapis-notes"]);
+});

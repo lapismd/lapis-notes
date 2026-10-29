@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-28 03:02:00 UTC",
+  "updated": "2026-10-29 12:34:24 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -1028,8 +1028,8 @@
   ],
   "activity": {
     "state": "Active",
-    "updated": "2026-10-28 03:02:00 UTC",
-    "reason": "The hosted-Properties lineage is landed above its LN-CORE-028 guarded pre-yield reconciliation repair (2/2 qualified, R7.8 Complete), and the full native lane set passed on the landed main (check 16/16, package tests 2,143/0, Rust 705/0/7 retained ignores after the platform-bound docs case-exclusion fixture repair, build 9/9, spec:check 10 lanes). The pre-existing rust-server-tasks-editors failure is repaired as a platform caret defect in the e2e harness: hard-coded Control+End is a silent macOS no-op, so the retained draft typed into the task document's raw frontmatter and the corrupted flush emptied the indexed task projection; the shared helper now sends the platform-native document-end accelerator and the spec pins the exact flushed bytes (tasks family native 15/15 and Docker runner 15/15, hosted family 11/11, retained Properties cohort 2/2, web 136/136). Publication preparation per the readiness record is the declared next step.",
+    "updated": "2026-10-29 12:34:24 UTC",
+    "reason": "Public package versions are prepared for the next dist-tag: api 0.2.0, workspace 0.3.0, file-explorer 0.2.0, ui 0.1.4, language-service 0.1.2. Direct Mira ranges resolve @lapismd/mira@0.1.2 and the web host consumes published @lapismd/jj-history@0.1.0. lapis-ai-service is pinned to git tag v0.2.0. The public server image documents a lapis-notes checkout context. @lapis-notes/server-deno stays deprecated and out of check, test, build, and CI. A frozen registry install still cannot include @lapismd/agent-ui@^0.1.0 because that version is not published, so this slice stops at the release pull request.",
     "handoff": "MIGRATION_HANDOFF.md",
     "workspaceRegister": "MIGRATION_WORKSPACES.md"
   }

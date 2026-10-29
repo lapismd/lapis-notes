@@ -1,6 +1,6 @@
 {
   "name": "@lapis-notes/language-service",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Provider-neutral Markdown language services for Lapis applications",
   "license": "Apache-2.0",
   "repository": {
@@ -56,7 +56,7 @@
     }
   },
   "dependencies": {
-    "@lapis-notes/api": "^0.1.0",
+    "@lapis-notes/api": "^0.2.0",
     "character-entities": "^2.0.2",
     "markdownlint": "^0.40.0"
   },

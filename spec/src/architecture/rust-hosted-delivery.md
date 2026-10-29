@@ -148,9 +148,15 @@ Qualified private package inputs MUST retain verified identity and digest.
 The runtime MUST launch the compiled executable without Node or Deno, as a
 non-root user with read-only application files and explicit persistent storage.
 
-Container builds use `pnpm build:server:container`. Node/pnpm are build tools
-only. The example Compose file retains UID/GID1993 and mounts operator config
-and bootstrap credentials read-only; `/data` is persistent and `/tmp` temporary.
+Container builds use `pnpm build:server:container`. The Dockerfile context is a
+`lapismd/lapis-notes` checkout copied to `/work/lapis-notes`. Qualification
+stages path-pinned sibling crates inside that checkout. Node/pnpm are build
+tools only. The public image name is `ghcr.io/lapismd/lapis-server`.
+It listens on port `8787`, stores the profile on volume `/data`, and reports
+readiness at `http://127.0.0.1:8787/readyz`. Root `docker-compose.yml` runs
+that image. The local example Compose file retains UID/GID1993 and mounts operator
+config and bootstrap credentials read-only; `/data` is persistent and `/tmp`
+temporary.
 An explicitly supplied `LAPIS_SERVER_ARCHIVES` manifest qualifies unpublished
 source packages without changing portable manifests or registry lockfiles.
 

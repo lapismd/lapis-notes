@@ -4,6 +4,16 @@
 
 ### Patch Changes
 
+- [`d8946b9`](https://github.com/lapismd/lapis-notes/commit/d8946b941569484b813eb0c1e8b1c5729fffc1a7)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Add owned
+  diagnostic-resource navigation and themed recovery-banner actions. Accept
+  Design Core 0.5.1 alongside the existing 0.4 range.
+
+- Require released Design Core 0.6 for the close-guard, plugin-flush and
+  centered panel contracts used by current source. Retain portable registry
+  dependency ranges when integrating the Node server and its shared application
+  runtime.
+
 - [#36](https://github.com/lapismd/lapis-notes/pull/36)
   [`17060a1`](https://github.com/lapismd/lapis-notes/commit/17060a1df152c9fc2302c93767cd7172868ff030)
   Thanks [@stevejuma](https://github.com/stevejuma)! - Consume published Design

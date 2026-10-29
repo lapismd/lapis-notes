@@ -1,6 +1,6 @@
 {
   "name": "@lapis-notes/api",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Lapis Notes API",
   "license": "Apache-2.0",
   "repository": {
@@ -19,7 +19,7 @@
   "dependencies": {
     "@lapismd/ai-host": "^0.1.0",
     "@lapismd/design-core": "^0.6.0",
-    "@lapismd/mira": "~0.0.5 || ~0.1.0",
+    "@lapismd/mira": "~0.1.2",
     "@huggingface/transformers": "^4.2.0",
     "@tursodatabase/database-wasm": "0.7.2",
     "@iconify-json/lucide": "^1.2.63",
@@ -124,9 +124,9 @@
     "@codemirror/search": "^6.5.11",
     "@codemirror/state": "^6.4.1",
     "@codemirror/view": "^6.35.0",
-    "@lapis-notes/ui": "^0.1.2",
+    "@lapis-notes/ui": "^0.1.4",
     "@lapismd/design-core": "^0.6.0",
-    "@lapismd/mira": "~0.0.5 || ~0.1.0",
+    "@lapismd/mira": "~0.1.2",
     "@lezer/highlight": "^1.2.1",
     "@lezer/markdown": "^1.4.3",
     "i18next": "^25.3.0",

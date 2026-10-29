@@ -257,9 +257,10 @@ PWA cases cannot carry delayed Docker interface events into initial navigation.
 
 ## Released Mira dependency intake
 
-The root development ranges select released Mira `~0.1.1` and its Editor, AI
-and Mermaid companions at `~0.0.3`. Existing API and Markdown peer ranges
-already admit that cohort. Temporary consumer validation retains the qualified
+The root development range selects released Mira `~0.1.2`. Editor, AI and
+Mermaid companions stay at their published `~0.0.3` ranges. API's direct
+dependency and peer are `~0.1.2`, so the resolved package is npm `0.1.2`
+(integrity `sha512-7QQsCm8q1T6XnbszhK+g9u5VMlLLu60ECT3iru8oTAncT8z2orLd5PLxUcZnFfCKVp/ivSjD691YkLhtGKYagw==`). Temporary consumer validation retains the qualified
 committed Design Core `944cd448` archive and explicitly records all unpublished
 prerequisites; it does not consume another task's dirty source inputs.
 The tracked lock predates private App Profile's Agent UI dependency and is not

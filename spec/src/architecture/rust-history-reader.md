@@ -49,7 +49,6 @@ inner frames through ordinary JavaScript JSON, copy the query engine or replace
 native query diagnostics with generic I/O failures. Hosted read errors MUST
 retain actionable native diagnostic fields without exposing filesystem authority.
 
-The current unpublished `@lapismd/jj-history` SDK is a private-app migration
-dependency. Exact public archives and source pins are recorded in qualification
-evidence and ignored validation overlays. Publishable API/plugin manifests keep
-portable registry ranges. SDK publication remains a separate gate.
+The web host consumes published `@lapismd/jj-history` at `~0.1.0`. Notes Cargo
+still uses jj-store crate paths because that repository has no crate tag.
+Publishable API and plugin manifests keep portable registry ranges.

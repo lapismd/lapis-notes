@@ -1,11 +1,27 @@
 import { execFileSync } from "node:child_process";
-import { mkdir, readFile, writeFile, rm } from "node:fs/promises";
+import { mkdir, readFile, writeFile, rm, readdir, rename } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import {
   exportNativeSources,
   restoreNativeSources,
 } from "../validation/native-sources.mjs";
 import { hash, validateArchives } from "../validation/model.mjs";
+
+/** Stage a Notes-checkout build context. Pinned siblings stay path dependencies. */
+export async function repositoryBuildContext(output) {
+  const notes = join(output, "lapis-notes");
+  const inputs = join(notes, ".image-inputs");
+  await mkdir(join(inputs, "siblings"), { recursive: true });
+  for (const entry of await readdir(output)) {
+    if (entry === "lapis-notes") continue;
+    const target =
+      entry === ".qualification"
+        ? join(inputs, "qualification")
+        : join(inputs, "siblings", entry);
+    await rename(join(output, entry), target);
+  }
+  return notes;
+}
 
 /** Export tracked, exact inputs; never copy mutable sibling checkouts or secrets. */
 export async function context(root, destination, manifest, options = {}) {

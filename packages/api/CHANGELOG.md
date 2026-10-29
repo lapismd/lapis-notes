@@ -1,5 +1,186 @@
 # @lapis-notes/api
 
+## 0.2.0
+
+### Minor Changes
+
+- [`bdd4923`](https://github.com/lapismd/lapis-notes/commit/bdd492357135de2cc0175fa42413709b2a38cd63)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Expose optional native
+  watch registration readiness and preserve it through DirectoryWatcher and
+  array subscriptions, allowing an initial reconciliation to run after native
+  observation is established.
+
+- [`86e85f6`](https://github.com/lapismd/lapis-notes/commit/86e85f6e814430c1755147c913eb91090a439bf4)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Expose
+  `Workspace.flushLayout()` for hosts to await the latest serialized layout
+  write before closing or reloading. Retain normal debounced persistence, report
+  and retry failures, and drain accepted writes before disposing the host.
+
+- [`fdee7e4`](https://github.com/lapismd/lapis-notes/commit/fdee7e4defde17a1009e16138d78c93c3ead8e2f)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Expose an optional
+  conditional text-write port and an explicit native capability. Supporting
+  native hosts receive the caller's exact text snapshot or expected absence.
+  Unsupported hosts reject without falling back to an ordinary write.
+
+- [`d8946b9`](https://github.com/lapismd/lapis-notes/commit/d8946b941569484b813eb0c1e8b1c5729fffc1a7)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Add owned
+  diagnostic-resource navigation and themed recovery-banner actions. Accept
+  Design Core 0.5.1 alongside the existing 0.4 range.
+
+- [`ebf033a`](https://github.com/lapismd/lapis-notes/commit/ebf033af0fc0752be5ce5ffa7d55784163d291b4)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Retain document-owned
+  conditional save baselines and expose App-owned text conflicts with explicit,
+  snapshot-checked recovery for supporting vaults.
+
+- [`978b987`](https://github.com/lapismd/lapis-notes/commit/978b987ba4c95408a63e49fad11bc44bab020758)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Support the Node server
+  runtime through the explicit server-owned AppDatabase provider while retaining
+  the deprecated Deno server runtime value for existing consumers.
+
+- [`ad4490c`](https://github.com/lapismd/lapis-notes/commit/ad4490ca1cd808002765582a17a5c81fa5335e0d)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Expose optional rename
+  hints and awaitable native watch cleanup. Retire replaced or closed
+  DirectoryWatcher generations before awaiting cleanup, retain failures for
+  retry, and preserve complete polling state after read failures.
+
+- [`55be8dc`](https://github.com/lapismd/lapis-notes/commit/55be8dce6f7b19b0e8036be86a3cf5305db25317)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Let file-view plugins
+  contribute a fileIcon ID for their filename patterns or registered extensions.
+  Add App-owned SVG and icon-pack registration with plugin lifecycle cleanup,
+  preserve legacy icon registrations, and refresh Explorer artwork on editor,
+  plugin and file changes.
+
+  Release the scoped Design Core resolver first and raise the dependent minimum
+  ranges to the releases containing these contracts before publishing consumers.
+
+  Upgrade API-owned Zod to the patched package while retaining its public v3
+  schema entry for compatibility.
+
+- [`8a27bc3`](https://github.com/lapismd/lapis-notes/commit/8a27bc36a7a7fa81594e517908a6f5ed8ca77313)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Expose captured, guarded
+  merged-text conflict recovery for desktop review.
+
+- [`1e64589`](https://github.com/lapismd/lapis-notes/commit/1e6458922b486c07f36a5bc7d85d020b5805cd49)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Use `.lapis` as the
+  shared application-state default and recognize the Tauri desktop runtime.
+  Tauri database sessions require an injected native provider. Expose runtime
+  classification independently of database and model services. Unreleased state
+  is not imported from the old directory.
+
+### Patch Changes
+
+- [`631aeec`](https://github.com/lapismd/lapis-notes/commit/631aeec539e2fb061dc80c5c3a30a248ee15c529)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Preserve newer plugin
+  views and activation when an older workspace controller snapshot is still
+  queued.
+
+- [`a91d5e2`](https://github.com/lapismd/lapis-notes/commit/a91d5e2eb5ec037029f6a7a2df316a9bd9440af7)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Attach controller-opened
+  views after their API workspace projection completes, and cancel deferred
+  attachment when the view host closes.
+
+- [`fbba8d4`](https://github.com/lapismd/lapis-notes/commit/fbba8d48498c34939fec475e6bed67a682045820)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Retain plugin-state and
+  compatibility-file drafts through close and conflict recovery, drain admitted
+  plugin/file operations before teardown, and preserve Properties mutations
+  after initial read failures.
+
+- [`023259d`](https://github.com/lapismd/lapis-notes/commit/023259d96d4ff0414fec6427924ed917f89405a3)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Add an optional exclusive
+  file-creation transport and route Explorer new-note actions through the
+  FileManager creation intent. Preserve existing destinations on collisions and
+  keep legacy Vault creation semantics explicit.
+
+- Require released Design Core 0.6 for the close-guard, plugin-flush and
+  centered panel contracts used by current source. Retain portable registry
+  dependency ranges when integrating the Node server and its shared application
+  runtime.
+
+- [`63a5e7f`](https://github.com/lapismd/lapis-notes/commit/63a5e7fe40eea45762b5842b588c742076c7dd1d)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Rebind clean file views
+  after their rename or move releases editing protection, so the open editor
+  continues saving to the new path. Preserve ordered App-owned projection and
+  dirty external-file recovery.
+
+- [`2bffe48`](https://github.com/lapismd/lapis-notes/commit/2bffe484b38761af197afe7ab9b0d7b3affb50d7)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Serialize configuration
+  changes and retain pending or failed settings and hotkey drafts in the owning
+  App's conditional persistence lifecycle. Admit shared Workspace Settings
+  changes before presentation debounce so immediate close cannot lose them.
+
+- [`86f6316`](https://github.com/lapismd/lapis-notes/commit/86f63166c3d5be648c595ef4e230ea6c4081bc48)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Protect frontmatter and
+  metadata type mutations with the App-owned writer lifecycle, authoritative
+  conditional baselines and retained text-conflict recovery.
+
+- [`edf1d76`](https://github.com/lapismd/lapis-notes/commit/edf1d76f4f3aa0442c1d9153d812f29b7d14e5c2)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Allow read-only
+  configuration baseline reconciliation after a guarded native mutation without
+  materializing defaults or adding another persistence operation.
+
+- [`b3be91d`](https://github.com/lapismd/lapis-notes/commit/b3be91daecbd43187bacf8cfdc39f8311d700720)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Reconcile a clean
+  interactive producer's drifted authoritative saved bytes under held protection
+  before the guarded native-yield saved-baseline comparison (LN-CORE-028). An
+  external file change that a lagging watch projection has not acknowledged no
+  longer aborts an admitted frontmatter/state mutation with a bare ECONFLICT
+  notice; producers that cannot acknowledge, and dirty writers, keep the
+  fail-closed handoff fence with its observable explicit retry.
+
+- [`5ef0a63`](https://github.com/lapismd/lapis-notes/commit/5ef0a6331c1b846b70357f990d919977a561112c)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Qualify the shared editor
+  against Mira 0.0.5 so native hosts can consume the source-owned accessible
+  block-control repair through verified local archives during migration.
+
+  Retain direct Turso connection ownership after a failed close, drain accepted
+  mutations, and share concurrent close completion so native teardown can be
+  retried safely.
+
+- [`bac3e5e`](https://github.com/lapismd/lapis-notes/commit/bac3e5eda6f467dbc86ec88c9f27a275f2b27953)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Expose optional
+  implemented system trash through the neutral native adapter with explicit
+  unsupported fallback and validated acknowledgements. Attribute Explorer
+  native/copy feedback to its owning App and reject unavailable clipboard
+  support without reporting success.
+
+- [`74f544e`](https://github.com/lapismd/lapis-notes/commit/74f544e2aa8a967524c0c218f3db7e1a495a1a17)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Add an explicitly started
+  App-owned watch service with bounded reconciliation and awaitable
+  stop/restart. Project external changes through existing workspace/editor
+  lifecycles, preserving dirty views and retained writers while clean views
+  follow file moves and removals.
+
+- [`501c50e`](https://github.com/lapismd/lapis-notes/commit/501c50e049264560e13e29c75a74c089922c7297)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Project owned App notices
+  through the existing workspace notification UI and retire their subscription
+  on host disposal. Pass the explicit Explorer App when reporting file-action
+  failures.
+
+- [`98b333f`](https://github.com/lapismd/lapis-notes/commit/98b333f73ff5ba8d5f28c52e4e3a2ceaa5ade0fb)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Protect and flush
+  registered file writers before FileManager trash or deletion, including folder
+  descendants. Route Explorer deletion through that guard so failed writes
+  retain the file and dirty draft until explicit recovery.
+
+- [`535a6cc`](https://github.com/lapismd/lapis-notes/commit/535a6cc7b39f397cf8761a06db7b831386121928)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Expose document-owned
+  conditional text persistence with asynchronous, operation-owned recovery
+  leases for independent file writers.
+
+- [`109e208`](https://github.com/lapismd/lapis-notes/commit/109e208a63253dcc1a7abad3fd5a9b13c39d3def)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Reconcile complete
+  bounded disk snapshots while preserving canonical Vault resource identities,
+  descendant lifecycle events and filename indexes. Serialize mutations through
+  projection and keep existing binary/text writes coherent with cached content
+  and tree children.
+
+- [`f828eae`](https://github.com/lapismd/lapis-notes/commit/f828eaeba8411aa342d7ab4954393e84612af2f3)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Expose core file
+  discovery exclusions as an editable list under Workspace settings.
+- Updated dependencies
+  [[`d8946b9`](https://github.com/lapismd/lapis-notes/commit/d8946b941569484b813eb0c1e8b1c5729fffc1a7)]:
+  - @lapis-notes/ui@0.1.4
+
 ## 0.1.5
 
 ### Patch Changes

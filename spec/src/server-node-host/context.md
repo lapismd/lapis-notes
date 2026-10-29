@@ -148,6 +148,14 @@ outside the active profile.
 
 Server-backed browser sessions inherit the default Plugins browser registration from the shared web workspace session (LN-PLUG-098–103). Production registry/trust configuration stays with the host; development fixture configuration remains ignored in server mode.
 
+The retired Deno server package, `@lapis-notes/server-deno`, is deprecated.
+It is not a workspace member, has no package manifest, and check, test, build,
+Turbo, and CI lanes must not select it. The public `deno-server` runtime value
+remains a compatibility alias for `node-server` sessions. `@lapis-notes/web`,
+`@lapis-notes/app-profile`, `@lapis-notes/host-services`,
+`@lapis-notes/deno-host-services`, and `@lapis-notes/desktop-deno` stay on
+their existing private lanes.
+
 ## Node delivery and development
 
 The server-only CI job installs pnpm dependencies, builds the server dependency

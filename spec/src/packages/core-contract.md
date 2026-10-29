@@ -24,9 +24,9 @@ the master migration tracker. These development-only commands consume
 `spec/migration-progress.json` and do not enter published package exports or
 application runtime dependencies. Normal check includes the drift gate.
 
-The root development cohort selects released Mira `~0.1.1` and its three
-`~0.0.3` companions through public exports. Current API and Markdown peer
-ranges admit those releases. The
+The root development cohort selects released Mira `~0.1.2`. Its three
+`~0.0.3` companions stay at their published versions. API depends on and
+peers `@lapismd/mira` at `~0.1.2`. The
 [dependency intake receipt](../../records/2026-10-25-released-mira-dependency-intake.md)
 records the temporary committed Design Core archive, separate consumer checks
 and unresolved private-package frozen-registry gate under LN-PKG-012/064.

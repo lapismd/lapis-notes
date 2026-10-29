@@ -9,7 +9,7 @@ description = "Hosted HTTP adapter for shared Lapis native application services"
 
 [dependencies]
 lapis-app-core = { path = "../lapis-app-core" }
-lapis-ai-service = { path = "../../../lapis-ai/crates/lapis-ai-service", version = "0.1.0" }
+lapis-ai-service = { git = "https://github.com/lapismd/lapis-ai", tag = "v0.2.0", version = "0.2.0" }
 lapis-app-protocol = { path = "../lapis-app-protocol" }
 axum = { version = "=0.8.9", default-features = false, features = ["http1", "json", "query", "tokio"] }
 serde = { version = "1", features = ["derive"] }

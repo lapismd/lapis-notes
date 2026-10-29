@@ -45,8 +45,17 @@ builder uses the local validation resource settings and keeps reusable caches.
 An optional `LAPIS_SERVER_ARCHIVES` manifest qualifies unpublished package
 archives by identity and SHA-256 without changing the registry manifest/lock.
 
+The Dockerfile builds from a `lapismd/lapis-notes` checkout. The published
+image is `ghcr.io/lapismd/lapis-server`; run it with the root
+[`docker-compose.yml`](../../docker-compose.yml) and
+[hosted server notes](../../docs/hosted-server.md). It listens on `8787`,
+stores the profile in `/data`, and answers readiness at
+`http://127.0.0.1:8787/readyz`.
+
 Set `LAPIS_SERVER_CONFIG_FILE` and `LAPIS_SERVER_PASSWORD_FILE` to absolute files,
-then run `docker compose -f crates/lapis-server/compose.example.yaml up -d`.
+then run `docker compose up -d` for that public image, or
+`docker compose -f crates/lapis-server/compose.example.yaml up -d` for the
+local `lapis-server:rust-local` image.
 The example uses local HTTP by default. Set its public Origin and cookie setting
 appropriately for an HTTPS reverse proxy. It mounts config/secrets read-only,
 retains `/data` in a named volume, and supplies temporary `/tmp`. The application

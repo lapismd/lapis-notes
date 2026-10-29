@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-28 11:24:29 UTC**.
+Last updated **2026-10-29 12:34:24 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -42,6 +42,18 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**Public Notes release candidate prepared; publication stays gated —
+2026-10-29 12:34:24 UTC.** Changesets consumed the pending public notes into
+api 0.2.0, workspace 0.3.0, file-explorer 0.2.0, ui 0.1.4, and
+language-service 0.1.2. The dist-tag remains `next`. Direct Mira ranges
+resolve `@lapismd/mira@0.1.2`, and `@lapis-notes/web` depends on published
+`@lapismd/jj-history@~0.1.0`. `lapis-ai-service` uses git tag `v0.2.0`. The
+public server compose file runs `ghcr.io/lapismd/lapis-server` from a
+lapis-notes checkout context; the image is not pushed here. Retired
+`@lapis-notes/server-deno` stays deprecated and is absent from check, test,
+build, Turbo, and CI. `@lapismd/agent-ui@^0.1.0` is still unpublished, so a
+frozen registry install cannot close and this slice stops at the pull request.
 
 **`@lapismd/jj-history@0.1.0` published (manual first) + trusted publisher —
 2026-10-28 11:24:29 UTC.** First registry publish from the Phase 2 tip

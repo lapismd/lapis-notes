@@ -1,7 +1,16 @@
 # syntax=docker/dockerfile:1.7
 FROM rust:1.99.0-bookworm AS native
 RUN apt-get update && apt-get install -y --no-install-recommends cmake clang pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
-COPY . /work/
+COPY . /work/lapis-notes
+# A lapis-notes checkout is the build context. Qualification may stage
+# path-pinned sibling crates and the archive manifest inside .image-inputs;
+# promote them beside the repository before compilation.
+RUN set -eu; \
+    sib=/work/lapis-notes/.image-inputs/siblings; \
+    qual=/work/lapis-notes/.image-inputs/qualification; \
+    if [ -d "$sib" ]; then find "$sib" -mindepth 1 -maxdepth 1 -exec mv {} /work/ \;; fi; \
+    if [ -d "$qual" ]; then mv "$qual" /work/.qualification; fi; \
+    rm -rf /work/lapis-notes/.image-inputs
 WORKDIR /work/lapis-notes
 ENV CARGO_BUILD_JOBS=2
 RUN --mount=type=cache,id=lapis-server-rust-cargo,target=/usr/local/cargo/registry \
@@ -11,7 +20,16 @@ RUN --mount=type=cache,id=lapis-server-rust-cargo,target=/usr/local/cargo/regist
 
 FROM node:24.15.0-bookworm-slim AS web
 RUN corepack enable && corepack prepare pnpm@10.34.5 --activate
-COPY . /work/
+COPY . /work/lapis-notes
+# A lapis-notes checkout is the build context. Qualification may stage
+# path-pinned sibling crates and the archive manifest inside .image-inputs;
+# promote them beside the repository before compilation.
+RUN set -eu; \
+    sib=/work/lapis-notes/.image-inputs/siblings; \
+    qual=/work/lapis-notes/.image-inputs/qualification; \
+    if [ -d "$sib" ]; then find "$sib" -mindepth 1 -maxdepth 1 -exec mv {} /work/ \;; fi; \
+    if [ -d "$qual" ]; then mv "$qual" /work/.qualification; fi; \
+    rm -rf /work/lapis-notes/.image-inputs
 WORKDIR /work/lapis-notes
 ENV NODE_OPTIONS=--max-old-space-size=8192 GOMAXPROCS=2 UV_THREADPOOL_SIZE=2
 ENV VITE_LAPIS_NATIVE_METADATA=1 VITE_LAPIS_NATIVE_HISTORY=1 VITE_LAPIS_NATIVE_TASKS=1

@@ -12,7 +12,7 @@ lapis-docs-projection = { path = "../../../lapis-plugin-docs/crates/lapis-docs-p
 lapis-task-services = { path = "../../../lapis-plugin-tasks/crates/lapis-task-services", version = "0.1.0" }
 lapis-plugin-services = { path = "../../../lapis-plugins/crates/lapis-plugin-services", version = "0.1.0" }
 lapis-app-protocol = { path = "../lapis-app-protocol" }
-lapis-ai-service = { path = "../../../lapis-ai/crates/lapis-ai-service", version = "0.1.0" }
+lapis-ai-service = { git = "https://github.com/lapismd/lapis-ai", tag = "v0.2.0", version = "0.2.0" }
 async-trait = "0.1"
 jj-history-service = { path = "../../../jj-store/crates/jj-history-service", version = "0.1.0" }
 jj-store-model = { path = "../../../jj-store/crates/jj-store-model", version = "0.1.0" }

@@ -2,7 +2,7 @@ import { mkdir, writeFile, rm } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
-import { context } from "./server-container/context.mjs";
+import { context, repositoryBuildContext } from "./server-container/context.mjs";
 import { validationConfig } from "./validation/model.mjs";
 import { docker, dockerOutput, sendDirectory } from "./validation/docker.mjs";
 import { json } from "./validation/paths.mjs";
@@ -32,6 +32,7 @@ try {
     output,
     process.env.LAPIS_SERVER_ARCHIVES,
   );
+  const buildContext = await repositoryBuildContext(output);
   receipt.status = "building";
   await writeFile(join(run, "receipt.json"), JSON.stringify(receipt, null, 2));
   try {
@@ -58,12 +59,12 @@ try {
       "--load",
       "--progress=plain",
       "-f",
-      "lapis-notes/crates/lapis-server/Dockerfile",
+      "crates/lapis-server/Dockerfile",
       "-t",
       image,
       "-",
     ],
-    output,
+    buildContext,
   );
   receipt.status = "built";
   receipt.imageId = dockerOutput(config, [
