@@ -143,10 +143,12 @@ Missing native inputs MUST fail explicitly without silently changing ownership.
 <a id="ln-core-070"></a>
 
 **Requirement.** The lapis-server repository MUST own native container assembly.
-Notes MUST NOT build that image or run server acceptance.
+Notes MUST NOT build that image, compile the hosted Rust client, or run server acceptance.
 Qualified private package inputs MUST retain verified identity and digest.
 The runtime MUST launch the compiled executable without Node or Deno, as a
 non-root user with read-only application files and explicit persistent storage.
+
+The public `@lapis-notes/web` production build does not import the lapis-server protocol binding. `node scripts/validation.mjs run build:web` is the milestone check for that boundary. A Docker pass is not native qualification.
 
 The public image name is `ghcr.io/lapismd/lapis-server`.
 It listens on port `8787`, stores the profile on volume `/data`, and reports

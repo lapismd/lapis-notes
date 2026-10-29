@@ -151,3 +151,5 @@ Unchanged contract: File Explorer passes the selected file-view icon through pub
 <a id="ln-plug-124"></a>
 
 **Requirement.** The API icon resolver MUST distinguish found, missing and failed artwork for registered SVGs, aliases and synchronous or asynchronous icon packs. It MUST deduplicate concurrent loads, retain explicit retry by re-registration, reject executable SVG content and preserve valid geometry and local definitions. Pending or failed artwork MUST NOT trigger plugin activation or repeat loads per Explorer row.
+
+The public `@lapis-notes/web` build does not compile the hosted Rust client or the lapis-server protocol binding ([LN-CORE-070](../architecture/rust-hosted-delivery.md#ln-core-070)).

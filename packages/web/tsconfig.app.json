@@ -10,5 +10,12 @@
     "moduleDetection": "force",
     "strict": true
   },
-  "include": ["src/**/*.ts", "src/**/*.svelte"]
+  "include": ["src/**/*.ts", "src/**/*.svelte"],
+  "exclude": [
+    "src/hosted/rust/**",
+    "src/history/backup.ts",
+    "src/history/backup.test.ts",
+    "src/history/restore.ts",
+    "src/history/restore.test.ts"
+  ]
 }

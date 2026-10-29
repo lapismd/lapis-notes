@@ -46,20 +46,14 @@ applyAppearance(await getBootstrapAppearanceMode());
 const disposeThemeColor = observeHostThemeColor();
 const target = document.getElementById("app");
 if (!target) throw new Error("Web renderer root is missing");
-async function mountHosted(target: HTMLElement) {
-  const Host = (await import("./ServerVaultHost.svelte")).default;
-  const backend = (
-    await import("./hosted/rust/backend")
-  ).createRustHostedBackend(undefined, {
-    nativeMetadata: true,
-    nativeHistory: true,
-    nativeTasks: true,
-  });
-  return mount(Host, { target, props: { backend } });
+if (__LAPIS_SERVER_MODE__) {
+  throw new Error(
+    "The hosted Rust client belongs to lapis-server and is not compiled by @lapis-notes/web.",
+  );
 }
-const mounted = __LAPIS_SERVER_MODE__
-  ? await mountHosted(target)
-  : mount((await import("./WebVaultHost.svelte")).default, { target });
+const mounted = mount((await import("./WebVaultHost.svelte")).default, {
+  target,
+});
 
 window.addEventListener(
   "pagehide",

@@ -15,5 +15,18 @@
     "../playwright.rust-metadata.config.ts",
     "../playwright.rust-provider.config.ts",
     "../playwright.rust-tasks.config.ts"
+  ],
+  "exclude": [
+    "rust-server-provider.spec.ts",
+    "rust-server-provider-queue.spec.ts",
+    "rust-server-provider-queue.fixture.ts",
+    "rust-server-provider-resume.spec.ts",
+    "rust-server-search-model.spec.ts",
+    "rust-server-properties.spec.ts",
+    "rust-server-tasks.spec.ts",
+    "rust-server-tasks-editors.spec.ts",
+    "rust-server-tasks-leave.spec.ts",
+    "rust-server-tasks-recovery.spec.ts",
+    "rust-tasks-fixture.ts"
   ]
 }

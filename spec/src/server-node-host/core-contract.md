@@ -2,6 +2,8 @@
 
 The ordinary hosted application now selects the Rust executable and existing
 Web UI under [native delivery](../architecture/rust-hosted-delivery.md).
+The public Notes web build does not compile the hosted Rust client
+([LN-CORE-070](../architecture/rust-hosted-delivery.md#ln-core-070)).
 The historical `server-node-host` chapter path and LN-SRV IDs remain stable for
 links and evidence. The Node application package and its private Unix companion
 are retired; Node/pnpm remain build tooling only. Publication and deployment keep

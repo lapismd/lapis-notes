@@ -33,10 +33,12 @@ the production chat composer. History uses the right sidebar and keeps its view
 when opening an exact existing main conversation. Draft creation and restored
 selection never dispatch prompts; portable metadata supplies saved titles.
 
-The explicit `server-rust` profile connects the retained hosted screen to
-Rust-generated commands through admitted HTTP client IDs. It omits PWA startup
-and browser storage. Its initial configured-vault workflow and later hosted
-feature parity retain separate evidence; Node remains the serving baseline.
+The public web production build does not compile the hosted Rust client.
+lapis-server owns that client and its generated protocol binding
+([LN-CORE-070](../architecture/rust-hosted-delivery.md#ln-core-070)).
+The explicit `server-rust` profile is not part of this package's production
+build. Its hosted screen, admitted HTTP client IDs, omitted PWA startup and
+browser storage retain separate lapis-server evidence.
 The retained chooser's managed-vault actions use the Rust host's advertised
 capability and opaque IDs. [Managed-vault intake](../architecture/rust-managed-vaults.md)
 qualifies Create/Rename/Archive/Restore separately from transfer and installation.

@@ -231,3 +231,5 @@ surface over the admitted native metadata owner. Stale-draft capture and
 explicit recovery stay in the App-owned `fileEditingSessions` registry;
 [hosted Properties acceptance](../../records/2026-10-27-hosted-properties-review.md)
 keeps that final-cohort proof separate from the original Tasks journeys.
+
+The public `@lapis-notes/web` build does not compile the hosted Rust client or the lapis-server protocol binding ([LN-CORE-070](../architecture/rust-hosted-delivery.md#ln-core-070)).
