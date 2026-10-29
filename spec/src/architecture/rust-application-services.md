@@ -87,8 +87,8 @@ Rejected file uploads and oversized JSON bodies close the HTTP/1 connection:
 unread bytes may still be in flight. Clients must not reuse an uncertain upload
 connection.
 
-Rust hosted browser authentication retains LN-SRV-004/005: idempotent owner
-bootstrap from a private password file, bounded scrypt, hashed opaque sessions,
+Rust hosted browser authentication retains idempotent owner bootstrap. The
+initial password source is owned by the lapis-server specification. Passwords use bounded scrypt. Sessions use hashed opaque tokens,
 seven-day idle/thirty-day absolute expiry, exact Origin/CSRF checks, login
 throttling and revocation. The initial host has one installation owner. A private
 control Turso database stays outside admitted vaults; raw credentials/tokens are

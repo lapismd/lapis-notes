@@ -66,6 +66,7 @@
   - [Web Host / Startup and plugins](./web-host/startup-and-plugins.md)
   - [Web Host / Browser storage and sync](./web-host/browser-storage-and-sync.md)
   - [Web Host / Browser integration](./web-host/core-contract.md)
+  - [Web Host / Hosted client](./web-host/hosted-client.md)
   - [Web Host / Context](./web-host/context.md)
 - [Hosted Server](./server-node-host.md)
   - [Hosted Server / Integration contracts](./server-node-host/core-contract.md)

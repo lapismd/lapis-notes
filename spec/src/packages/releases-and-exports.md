@@ -132,8 +132,9 @@ compatibility checks and accepted temporary QMD exception are recorded in the
 
 **Requirement.** `@tobilu/qmd` 2.5.3 MUST remain a pinned root development dependency. Its native build approvals and TypeScript peer MUST remain root tooling and MUST NOT enter workspace package manifests.
 
-The user approved a temporary exception for `GHSA-vfj7-8cjw-p6xm` in QMD's
-`braces` dependency on 14 October 2026. Review it by 13 November 2026 and remove
+Unchanged contract: `@tobilu/qmd` stays pinned at 2.5.3, and root `@lapismd/spec-validator` accepts the published Deno-free `^0.2.0` range.
+
+The user approved a temporary exception for `GHSA-vfj7-8cjw-p6xm` in QMD's `braces` dependency on 14 October 2026. Review it by 13 November 2026 and remove
 it once a patched upstream chain is available. The
 [audit record](../../records/2026-10-14-notes-dependency-audit.md) retains the
 unfiltered finding, dependency path, scope limitation, and removal procedure.
@@ -208,7 +209,7 @@ unfiltered finding, dependency path, scope limitation, and removal procedure.
 
 <a id="ln-pkg-130"></a>
 
-**Requirement.** The release workflow MUST keep Changesets version PR creation, build and retain a verified tarball manifest, stop with a manual-publish notice while an npm package is not registered, use npm trusted publishing with OIDC after bootstrap through the `npm-production` environment, and create package-scoped GitHub releases from the verified manifest. A partial manifest MAY omit published internal dependencies but MUST preserve dependency order among selected packages. All GitHub Actions jobs MUST use Node 24 and current Node 24-based action majors.
+**Requirement.** The release workflow MUST keep Changesets version PR creation, a verified tarball manifest, the unregistered-package manual-publish stop, npm OIDC provenance publishing through the `npm-production` environment, and package-scoped GitHub releases from that manifest. It MUST skip an existing npm version or GitHub release and MUST keep a published version selected until that release exists. A partial manifest MAY omit published internal dependencies but MUST preserve dependency order among selected packages. Jobs MUST use Node 24 and current Node 24-based action majors.
 
 ## LN-PKG-131 — Public package checks: reject missing README, changelog, license, repository, homepage
 
@@ -256,7 +257,7 @@ unfiltered finding, dependency path, scope limitation, and removal procedure.
 
 <a id="ln-pkg-141"></a>
 
-**Requirement.** Post-publication verification of a partial manifest MUST install each selected package at its manifest version and every unchanged public framework package at its repository version from npm before exercising documented UI, API, Workspace, and CSS entrypoints.
+**Requirement.** Post-publication verification of a partial manifest MUST install each selected package at its manifest version and every unchanged public framework package at its repository version from npm before exercising documented UI, API, Workspace, and CSS entrypoints. A just-published version that is not yet installable MUST be retried a few times with short backoff, MUST NOT wait for many minutes, and MUST fail if it stays unavailable.
 
 ## LN-PKG-142 — CI: populate package build outputs once, then run
 

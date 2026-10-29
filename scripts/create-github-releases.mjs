@@ -45,12 +45,47 @@ function parseArgs(argv) {
 function run(command, args, options) {
   const result = spawnSync(command, args, {
     encoding: "utf8",
-    stdio: "inherit",
     ...options,
+    stdio: ["ignore", "pipe", "pipe"],
   });
+  if (result.stdout) process.stdout.write(result.stdout);
+  if (result.stderr) process.stderr.write(result.stderr);
   if (result.status !== 0) {
-    throw new Error(`${command} ${args.join(" ")} failed`);
+    throw new Error(
+      `${command} ${args.join(" ")} failed\n${result.stdout ?? ""}\n${result.stderr ?? ""}`,
+    );
   }
+}
+
+export async function githubReleaseExists(
+  name,
+  version,
+  {
+    repository = REPOSITORY,
+    fetchImpl = globalThis.fetch,
+    token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN || "",
+  } = {},
+) {
+  const tag = packageReleaseTag(name, version);
+  const headers = {
+    Accept: "application/vnd.github+json",
+    "User-Agent": "lapis-notes-release",
+    "X-GitHub-Api-Version": "2022-11-28",
+  };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const response = await fetchImpl(
+    `https://api.github.com/repos/${repository}/releases/tags/${encodeURIComponent(tag)}`,
+    { headers },
+  );
+  if (response.status === 200) return true;
+  if (response.status === 404) return false;
+  throw new Error(
+    `GitHub release lookup for ${tag} returned HTTP ${response.status}`,
+  );
+}
+
+function releaseAlreadyExists(error) {
+  return /already exists/i.test(String(error?.message ?? error));
 }
 
 export function extractChangelogNotes(changelog, version) {
@@ -90,12 +125,14 @@ export function releaseBody(entry, manifest, changelogNotes = "") {
   ].join("\n");
 }
 
-export function createGithubReleases({
+export async function createGithubReleases({
   repoRoot = DEFAULT_REPO_ROOT,
   manifest,
   manifestPath,
   dryRun = false,
   runCommand = run,
+  fetchImpl = globalThis.fetch,
+  token,
 } = {}) {
   validateReleaseManifest(manifest, {
     repoRoot,
@@ -105,6 +142,15 @@ export function createGithubReleases({
 
   for (const entry of manifest.packages) {
     const tag = packageReleaseTag(entry.name, entry.version);
+    if (
+      await githubReleaseExists(entry.name, entry.version, {
+        fetchImpl,
+        token,
+      })
+    ) {
+      process.stdout.write(`Skipping existing GitHub release ${tag}\n`);
+      continue;
+    }
     const changelog = readFileSync(
       path.join(repoRoot, "packages", entry.directory, "CHANGELOG.md"),
       "utf8",
@@ -131,7 +177,12 @@ export function createGithubReleases({
       process.stdout.write(`[dry-run] gh ${args.join(" ")}\n`);
       continue;
     }
-    runCommand("gh", args, { cwd: repoRoot });
+    try {
+      runCommand("gh", args, { cwd: repoRoot });
+    } catch (error) {
+      if (!releaseAlreadyExists(error)) throw error;
+      process.stdout.write(`Skipping existing GitHub release ${tag}\n`);
+    }
   }
 }
 
@@ -140,7 +191,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const manifestPath =
     options.manifestPath ?? defaultReleaseManifestPath(options.repoRoot);
   const manifest = loadReleaseManifest(manifestPath);
-  createGithubReleases({
+  await createGithubReleases({
     repoRoot: options.repoRoot,
     manifest,
     manifestPath,

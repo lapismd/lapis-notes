@@ -55,10 +55,44 @@ function run(command, args, options) {
   return result.stdout.trim();
 }
 
-export function verifyPublishedPackages({
+export const REGISTRY_INSTALL_RETRY_DELAYS_MS = [5_000, 10_000, 20_000, 30_000];
+
+function wait(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+function registryVersionIsPending(error) {
+  return /ERR_PNPM_NO_MATCHING_VERSION|No matching version found/i.test(
+    String(error?.message ?? error),
+  );
+}
+
+async function installPublishedConsumer(consumerDir, sleep) {
+  const attempts = REGISTRY_INSTALL_RETRY_DELAYS_MS.length + 1;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      run("pnpm", ["install", "--strict-peer-dependencies=false"], {
+        cwd: consumerDir,
+      });
+      return;
+    } catch (error) {
+      const delayMs = REGISTRY_INSTALL_RETRY_DELAYS_MS[attempt - 1];
+      if (!registryVersionIsPending(error) || delayMs === undefined) throw error;
+      process.stdout.write(
+        `Published version is not installable yet; retrying in ${delayMs}ms (${attempt}/${attempts}).\n`,
+      );
+      await sleep(delayMs);
+    }
+  }
+}
+
+export async function verifyPublishedPackages({
   repoRoot = DEFAULT_REPO_ROOT,
   manifest,
   manifestPath,
+  sleep = wait,
 } = {}) {
   validateReleaseManifest(manifest, {
     repoRoot,
@@ -217,9 +251,7 @@ export function verifyPublishedPackages({
       ].join("\n"),
     );
 
-    run("pnpm", ["install", "--strict-peer-dependencies=false"], {
-      cwd: consumerDir,
-    });
+    await installPublishedConsumer(consumerDir, sleep);
     run("pnpm", ["check"], { cwd: consumerDir });
   } finally {
     rmSync(consumerDir, { recursive: true, force: true });
@@ -243,7 +275,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const manifestPath =
     options.manifestPath ?? defaultReleaseManifestPath(options.repoRoot);
   const manifest = loadReleaseManifest(manifestPath);
-  verifyPublishedPackages({
+  await verifyPublishedPackages({
     repoRoot: options.repoRoot,
     manifest,
     manifestPath,

@@ -133,6 +133,7 @@ const preview: Preview = {
               "Startup and plugins",
               "Browser storage and sync",
               "Browser integration",
+              "Hosted client",
               "Context",
             ],
             "Hosted Server",

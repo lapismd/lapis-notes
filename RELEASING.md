@@ -100,7 +100,11 @@ do not publish it. A manual Release workflow run with `publish` enabled may
 publish only after the reusable validators pass, the candidate reports work,
 no bootstrap publication is required, and the `npm-production` environment is
 approved. The publish, registry verification, and GitHub release jobs reuse the
-same candidate checksums and source commit.
+same candidate checksums and source commit. A repeated manual dispatch skips
+npm versions and GitHub releases that already exist. Verification retries a
+pending registry install for under two minutes, and a published version remains
+selected until its package release exists. Publication keeps provenance and the
+`next` dist-tag, and it does not move `latest`.
 
 ## Storybook Pages
 

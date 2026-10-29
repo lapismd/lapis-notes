@@ -9,6 +9,7 @@ import {
   loadReleaseManifest,
   validateReleaseManifest,
 } from "./release-manifest.mjs";
+import { fetchPackageVersionState } from "./release-plan.mjs";
 
 function parseArgs(argv) {
   const options = {
@@ -43,21 +44,32 @@ function parseArgs(argv) {
 function run(command, args, options) {
   const result = spawnSync(command, args, {
     encoding: "utf8",
-    stdio: "inherit",
     ...options,
+    stdio: ["ignore", "pipe", "pipe"],
   });
+  if (result.stdout) process.stdout.write(result.stdout);
+  if (result.stderr) process.stderr.write(result.stderr);
   if (result.status !== 0) {
-    throw new Error(`${command} ${args.join(" ")} failed`);
+    throw new Error(
+      `${command} ${args.join(" ")} failed\n${result.stdout ?? ""}\n${result.stderr ?? ""}`,
+    );
   }
 }
 
-export function publishVerifiedPackages({
+function alreadyPublished(error) {
+  return /E409|EPUBLISHCONFLICT|previously published|cannot publish over/i.test(
+    String(error?.message ?? error),
+  );
+}
+
+export async function publishVerifiedPackages({
   manifest,
   manifestPath,
   repoRoot = DEFAULT_REPO_ROOT,
   dryRun = false,
   env = process.env,
   runCommand = run,
+  fetchImpl = globalThis.fetch,
 } = {}) {
   validateReleaseManifest(manifest, { repoRoot, manifestPath });
 
@@ -73,6 +85,16 @@ export function publishVerifiedPackages({
   const manifestDir = path.dirname(manifestPath);
   for (const entry of manifest.packages) {
     if (!entry.shouldPublish) {
+      continue;
+    }
+    const state = await fetchPackageVersionState(entry.name, entry.version, {
+      registry: manifest.registry,
+      fetchImpl,
+    });
+    if (state.published) {
+      process.stdout.write(
+        `Skipping ${entry.name}@${entry.version}; npm already has this version.\n`,
+      );
       continue;
     }
     const tarballPath = path.resolve(manifestDir, entry.tarball);
@@ -94,7 +116,14 @@ export function publishVerifiedPackages({
         entry.version,
       )})\n`,
     );
-    runCommand("npm", args, { cwd: repoRoot });
+    try {
+      runCommand("npm", args, { cwd: repoRoot });
+    } catch (error) {
+      if (!alreadyPublished(error)) throw error;
+      process.stdout.write(
+        `Skipping ${entry.name}@${entry.version}; npm already has this version.\n`,
+      );
+    }
   }
 }
 
@@ -103,7 +132,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const manifestPath =
     options.manifestPath ?? defaultReleaseManifestPath(options.repoRoot);
   const manifest = loadReleaseManifest(manifestPath);
-  publishVerifiedPackages({
+  await publishVerifiedPackages({
     manifest,
     manifestPath,
     repoRoot: options.repoRoot,

@@ -27,7 +27,7 @@ projection; draft creation and view selection never submit prompts.
 Native backup settings use the same saved configuration and admitted owner under LN-CORE-022/LN-WEB-073; LN-PKG-186 permits read-only post-mutation baseline reconciliation without a second writer.
 
 The selected Rust Repository profile adapts the existing public RestoreService
-through its admitted client under LN-CORE-023/LN-SRV-027/LN-WEB-072. Core owns the
+through its admitted client under LN-CORE-023/LN-WEB-072. Core owns the
 existing backup engine and guarded writer; the retained controller owns pending
 intent and explicit recovery. No public npm export or replacement screen is added.
 
@@ -36,8 +36,9 @@ and the existing public App/Vault interfaces. Managed-vault mutation authority
 and catalogue persistence stay in the Rust host; no public npm export, browser
 path selector or alternate file writer is introduced.
 
-The Rust server implements LN-SRV-021–023 directly through shared application
-services, replacing the private Node supervisor and Unix companion. The host
+The Rust server reaches shared application services directly, replacing the
+private Node supervisor and Unix companion. Server acceptance lives in the
+lapis-server specification. The host
 supplies admitted caller scopes; history remains independent of AI and indexes.
 Public package ranges and the existing vault/AppDatabase APIs are unchanged.
 

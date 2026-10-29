@@ -91,11 +91,11 @@ registry install. Ignored local archive overlays do not enter that build.
 [Fresh server qualification](../../records/2026-10-16-m7-server-qualification.md)
 keeps image construction, source tests and full browser evidence distinct.
 
-## LN-ARCH-023 — Root specification discovery: invoke the repository-local QMD binary through @lapismd/spec-validator
+## LN-ARCH-023 — Root specification discovery: resolve qmd from PATH through @lapismd/spec-validator
 
 <a id="ln-arch-023"></a>
 
-**Requirement.** Root specification discovery MUST invoke the repository-local QMD binary through `@lapismd/spec-validator`. It MUST NOT depend on a global executable or run during normal checks.
+**Requirement.** Root specification discovery MUST resolve `qmd` from `PATH` through `@lapismd/spec-validator`, and the pinned root `@tobilu/qmd` MUST be that binary when pnpm runs `spec:search`. Discovery MUST NOT run during normal checks.
 
 ## LN-ARCH-045 — Generated search-document metadata: remain search-scoped while participating in API-owned property
 

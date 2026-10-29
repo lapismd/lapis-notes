@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
 import semver from "semver";
+import { githubReleaseExists } from "./create-github-releases.mjs";
 import {
   assertPublicPackageOrder,
   assertValidPublicVersion,
@@ -179,7 +180,7 @@ export function planReleaseCandidates(records, states, options = {}) {
       throw new Error(`Missing registry state for ${record.name}`);
     }
 
-    if (state.published) {
+    if (state.published && !state.releaseMissing) {
       published.push({
         name: record.name,
         version: record.version,
@@ -233,12 +234,18 @@ export async function createReleasePlan({
   const records = readPublicPackages(repoRoot);
   const states = [];
   for (const record of records) {
-    states.push(
-      await fetchPackageVersionState(record.name, record.version, {
-        registry,
-        fetchImpl,
-      }),
-    );
+    const state = await fetchPackageVersionState(record.name, record.version, {
+      registry,
+      fetchImpl,
+    });
+    states.push({
+      ...state,
+      releaseMissing: state.published
+        ? !(await githubReleaseExists(record.name, record.version, {
+            fetchImpl,
+          }))
+        : false,
+    });
   }
 
   const plan = planReleaseCandidates(records, states);
@@ -256,6 +263,7 @@ export async function createReleasePlan({
         version: record.version,
         private: Boolean(record.manifest.private),
         published: Boolean(state?.published),
+        releaseMissing: Boolean(state?.releaseMissing),
         registryEmpty: Boolean(state?.registryEmpty),
         dependencies: [...record.internalDependencies],
       };
@@ -275,7 +283,9 @@ export function renderReleasePlan(plan) {
 
   for (const record of plan.packages) {
     const status = record.published
-      ? "published"
+      ? record.releaseMissing
+        ? "published; GitHub release missing"
+        : "published"
       : record.registryEmpty
         ? "unpublished; package name not registered"
         : "unpublished";

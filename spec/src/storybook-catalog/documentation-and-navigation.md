@@ -116,7 +116,7 @@ detail's titled alert independently of the simultaneous notification toast.
 
 <a id="ln-cat-021"></a>
 
-**Requirement.** Storybook MUST expose each non-summary chapter indexed by `spec/src/SUMMARY.md` as a first-positioned `Specification/*` documentation page in summary order. Nested mdBook chapters MUST retain the same hierarchy in the Storybook sidebar, including Workspace Shell / Panels and each Markdown Plugin / Panels page. Each page MUST render its canonical `spec/src` Markdown through a metadata-only MDX adapter using a raw import and Storybook's `Markdown` block; normative prose MUST NOT be copied into Storybook-owned files.
+**Requirement.** Storybook MUST expose each non-summary chapter indexed by `spec/src/SUMMARY.md` as a first-positioned `Specification/*` documentation page in summary order. Nested mdBook chapters MUST retain the same hierarchy in the Storybook sidebar, including Workspace Shell / Panels, Web Host / Hosted client, and each Markdown Plugin / Panels page. Each page MUST render its canonical `spec/src` Markdown through a metadata-only MDX adapter using a raw import and Storybook's `Markdown` block; normative prose MUST NOT be copied into Storybook-owned files.
 
 ## LN-CAT-022 — Plugins/Markdown/Panels/All Properties: group six focused child stories for Middle
 

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-29 18:15:32 UTC",
+  "updated": "2026-10-29 20:34:12 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -966,7 +966,7 @@
       "area": "Hosted cutover",
       "work": "Static Web and health delivery",
       "status": "Working",
-      "spec": "spec/src/architecture/rust-hosted-delivery.md#ln-core-054",
+      "spec": "spec/src/architecture/rust-hosted-delivery.md#ln-core-070",
       "detail": "Static source9009bccf is integrated with native launcher in main. Focused native7 and directRust-only builtWeb1 pass. The prior combinedprofile hosted aggregate5pass/6fail is retained; final-main diagnosis and broad acceptance remain blockers. No Node/Vite server serves the directRust case; no ordinary defaultcompletion claimed."
     },
     {
@@ -982,7 +982,7 @@
       "area": "Hosted cutover",
       "work": "Native build and start entrypoints",
       "status": "Working",
-      "spec": "spec/src/architecture/rust-hosted-delivery.md#ln-core-064",
+      "spec": "spec/src/architecture/rust-hosted-delivery.md#ln-core-070",
       "detail": "Native launchercd520b71 is landed and its delivery5/routing1/installpolicy3 checks pass. Landed33846705/3e2e5a85 now passes complete release101 and validationtooling72 with zero tracked mutations, repairing prior98/3. Compiled release/container and final default acceptance remain pending."
     },
     {
@@ -1028,8 +1028,8 @@
   ],
   "activity": {
     "state": "Active",
-    "updated": "2026-10-29 18:15:32 UTC",
-    "reason": "Storybook interaction matches published search 0.1.3, bases 0.1.4, and Bits UI 2.20.2. Search file hits use Open auth.md. patches/bits-ui@2.20.2.patch cancels the Link Preview selection probe after teardown. patches/@lapis-notes__bases@0.1.4.patch restores Select accessible names. Axe rules are unchanged. Registry Docker storybook on 4 CPU / 12 GiB passed Search Tool Hits, both Editable Cells stories, Query Controls, and Middle Top Tabs, 5/5. This does not release Notes packages or republish markdown 0.1.7. Portable Docker validation is not native or release qualification.",
+    "updated": "2026-10-29 20:34:12 UTC",
+    "reason": "Root @lapismd/spec-validator is the published Deno-free 0.2.0. Doctor and spec:search passed, and specification commands stay on the validation router. Release verification still retries a pending install and skips npm versions that already exist. This does not publish Notes packages.",
     "handoff": "MIGRATION_HANDOFF.md",
     "workspaceRegister": "MIGRATION_WORKSPACES.md"
   }

@@ -50,10 +50,20 @@ async function manifestFixture(bootstrapRequired = false) {
   };
 }
 
+function registry(published) {
+  return async (url) => ({
+    status: String(url).endsWith("/0.1.0") ? (published ? 200 : 404) : 200,
+    json: async () =>
+      String(url).endsWith("/0.1.0")
+        ? { dist: { integrity: "sha512-aaaa" } }
+        : { "dist-tags": { latest: "0.1.0" } },
+  });
+}
+
 test("refuses to publish manual bootstrap packages in CI", async () => {
   const fixture = await manifestFixture(true);
   try {
-    assert.throws(
+    await assert.rejects(
       () =>
         publishVerifiedPackages({
           ...fixture,
@@ -69,10 +79,79 @@ test("refuses to publish manual bootstrap packages in CI", async () => {
 test("requires an explicit CI approval environment variable", async () => {
   const fixture = await manifestFixture(false);
   try {
-    assert.throws(
+    await assert.rejects(
       () => publishVerifiedPackages({ ...fixture, env: {} }),
       /LAPIS_RELEASE_APPROVED/,
     );
+  } finally {
+    await rm(fixture.repoRoot, { recursive: true, force: true });
+  }
+});
+
+test("skips an npm version that already exists", async () => {
+  const fixture = await manifestFixture(false);
+  try {
+    await publishVerifiedPackages({
+      ...fixture,
+      env: { LAPIS_RELEASE_APPROVED: "1" },
+      fetchImpl: registry(true),
+      runCommand() {
+        throw new Error("npm should not publish an existing version");
+      },
+    });
+  } finally {
+    await rm(fixture.repoRoot, { recursive: true, force: true });
+  }
+});
+
+test("publishes a new version with provenance and the next tag", async () => {
+  const fixture = await manifestFixture(false);
+  const calls = [];
+  try {
+    await publishVerifiedPackages({
+      ...fixture,
+      env: { LAPIS_RELEASE_APPROVED: "1" },
+      fetchImpl: registry(false),
+      runCommand(command, args) {
+        calls.push([command, ...args]);
+      },
+    });
+    assert.deepEqual(calls, [
+      [
+        "npm",
+        "publish",
+        path.resolve(
+          fixture.repoRoot,
+          ".release/tarballs/lapis-notes-ui-0.1.0.tgz",
+        ),
+        "--tag",
+        "next",
+        "--access",
+        "public",
+        "--provenance",
+      ],
+    ]);
+  } finally {
+    await rm(fixture.repoRoot, { recursive: true, force: true });
+  }
+});
+
+test("treats an E409 duplicate publish as already released", async () => {
+  const fixture = await manifestFixture(false);
+  let calls = 0;
+  try {
+    await publishVerifiedPackages({
+      ...fixture,
+      env: { LAPIS_RELEASE_APPROVED: "1" },
+      fetchImpl: registry(false),
+      runCommand() {
+        calls += 1;
+        throw new Error(
+          "npm publish failed\nnpm error code E409\npreviously published",
+        );
+      },
+    });
+    assert.equal(calls, 1);
   } finally {
     await rm(fixture.repoRoot, { recursive: true, force: true });
   }

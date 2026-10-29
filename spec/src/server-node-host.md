@@ -1,6 +1,11 @@
 # Hosted Server
 
-Requirements for the Rust hosted server; historical paths and requirement IDs are retained. Choose the topic that owns the behavior, then follow its requirement IDs and verification evidence.
+The hosted server requirements live in the lapis-server specification:
+<https://lapismd.github.io/lapis-server/>.
+
+Shared client behavior that Notes still owns is
+[the hosted client](web-host/hosted-client.md). This chapter does not restate
+the server book.
 
 ## Topics
 
