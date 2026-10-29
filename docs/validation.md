@@ -121,39 +121,7 @@ consumer qualification. This command creates no release candidate or publication
 
 ## Explicit native provider qualification
 
-Real-provider tests use operator-owned native installations and isolated test
-vaults/profiles. They never transfer credentials or user profiles to Docker.
-Run the opt-in HTTP transport target explicitly:
-
-```sh
-LAPIS_SERVER_PROVIDER_TEST=1 \
-LAPIS_SERVER_TEST_AGENTS_CONFIG="$PWD/.local/qualification/provider-agents.json" \
-node --test --test-concurrency=1 scripts/qualification/hosted-provider.test.mjs
-```
-
-The JSON file uses the server's operator `AgentConfig` contract. Each target
-declares `id`, `label`, `default_mode`, an absolute `executable`, and optional
-`environment`. Choose the provider's intended default explicitly, such as
-Codex `read-only` or OpenCode `plan`; the server never infers it from an opaque
-ID or display label. Missing or invalid modes reject startup. The optional
-`LAPIS_SERVER_TEST_BINARY`, `LAPIS_SERVER_TEST_TARGET` and
-`LAPIS_SERVER_TEST_MODEL` select the native executable, target and model. The
-test skips unless enabled; its direct transport proof does not replace retained
-application-screen, browser/catalog or Linux delivery gates.
-
-The separate retained-screen journey uses one configured Codex target with
-declared `read-only` mode and the provider's default model. Build the native
-server and Rust renderer, then run it on the host with an explicit installation:
-
-```sh
-LAPIS_SERVER_PROVIDER_SCREEN_TEST=1 \
-LAPIS_SERVER_TEST_AGENTS_CONFIG="$PWD/.local/qualification/provider-agents-modes.json" \
-pnpm --filter @lapis-notes/web exec node node_modules/@playwright/test/cli.js \
-  test -c ./playwright.rust-provider.config.ts
-```
-
-This opt-in target is excluded from the portable fixture-provider suite. It
-submits through the existing composer, signs out while the turn is accepted,
-closes its browser, and verifies completion and cold History recovery without
-replay. Test-owned receipts live under ignored `.local/rust-provider-screen-*`;
-the configuration, native credentials and profiles never enter Docker snapshots.
+Hosted provider transport and screen qualification live outside this
+repository. This checkout does not seed bootstrap credentials, build that
+image, or launch that binary. Portable Docker validation is not native
+qualification.

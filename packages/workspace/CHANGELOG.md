@@ -31,8 +31,7 @@
 
 - Require released Design Core 0.6 for the close-guard, plugin-flush and
   centered panel contracts used by current source. Retain portable registry
-  dependency ranges when integrating the Node server and its shared application
-  runtime.
+  dependency ranges for the shared application runtime.
 - Updated dependencies
   [[`bdd4923`](https://github.com/lapismd/lapis-notes/commit/bdd492357135de2cc0175fa42413709b2a38cd63),
   [`86e85f6`](https://github.com/lapismd/lapis-notes/commit/86e85f6e814430c1755147c913eb91090a439bf4),

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-29 13:48:53 UTC",
+  "updated": "2026-10-29 16:03:54 UTC",
   "tasks": [
     {
       "id": "R0",
@@ -1028,8 +1028,8 @@
   ],
   "activity": {
     "state": "Active",
-    "updated": "2026-10-29 13:48:53 UTC",
-    "reason": "The hosted server workspace and server acceptance moved to lapis-server. Notes CI no longer builds the server image. The desktop package job stays removed. The server still waits on jj-store pull request 22 before a Cargo git dependency. Portable Docker validation is not native or release qualification.",
+    "updated": "2026-10-29 16:03:54 UTC",
+    "reason": "Public package changelogs keep the shared runtime and Design Core 0.6 range. The opt-in hosted credential harness is not in this repository. @lapis-notes/web/session stays. Mira stays at published 0.1.2 and Design Core at published 0.7.0. Notes CI does not build, package, or publish the desktop app, and it does not select the retired deno-server package. Portable Docker validation is not native or release qualification.",
     "handoff": "MIGRATION_HANDOFF.md",
     "workspaceRegister": "MIGRATION_WORKSPACES.md"
   }

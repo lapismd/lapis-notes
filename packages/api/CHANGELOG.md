@@ -33,9 +33,9 @@
   snapshot-checked recovery for supporting vaults.
 
 - [`978b987`](https://github.com/lapismd/lapis-notes/commit/978b987ba4c95408a63e49fad11bc44bab020758)
-  Thanks [@stevejuma](https://github.com/stevejuma)! - Support the Node server
-  runtime through the explicit server-owned AppDatabase provider while retaining
-  the deprecated Deno server runtime value for existing consumers.
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Expose an explicit
+  AppDatabase provider runtime and retain the deprecated runtime value for
+  existing consumers.
 
 - [`ad4490c`](https://github.com/lapismd/lapis-notes/commit/ad4490ca1cd808002765582a17a5c81fa5335e0d)
   Thanks [@stevejuma](https://github.com/stevejuma)! - Expose optional rename
@@ -93,8 +93,7 @@
 
 - Require released Design Core 0.6 for the close-guard, plugin-flush and
   centered panel contracts used by current source. Retain portable registry
-  dependency ranges when integrating the Node server and its shared application
-  runtime.
+  dependency ranges for the shared application runtime.
 
 - [`63a5e7f`](https://github.com/lapismd/lapis-notes/commit/63a5e7fe40eea45762b5842b588c742076c7dd1d)
   Thanks [@stevejuma](https://github.com/stevejuma)! - Rebind clean file views

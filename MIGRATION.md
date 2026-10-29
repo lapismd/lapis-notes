@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-29 13:48:53 UTC**.
+Last updated **2026-10-29 16:03:54 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -42,6 +42,14 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**Public package notes no longer describe hosted integration — 2026-10-29 16:03:54 UTC.**
+The api 0.2.0, workspace 0.3.0, file-explorer 0.2.0, and ui 0.1.4 changelogs
+keep the shared runtime and Design Core 0.6 range without listing hosted
+integration. The opt-in hosted credential harness is not in this repository.
+`@lapis-notes/web/session` stays. Direct Mira ranges stay on published
+`@lapismd/mira@0.1.2`, and Design Core stays on published 0.7.0. Portable
+Docker validation is not native or release qualification.
 
 **The hosted server moved to lapis-server — 2026-10-29 13:48:53 UTC.**
 Notes CI no longer runs server acceptance or builds the server image. The
