@@ -95,7 +95,7 @@ keeps image construction, source tests and full browser evidence distinct.
 
 <a id="ln-arch-023"></a>
 
-**Requirement.** Root specification discovery MUST invoke the repository-local QMD binary through `@lapismd/spec-validator`. It MUST NOT depend on a global executable or run during normal checks.
+**Requirement.** Root specification discovery MUST resolve `qmd` from `PATH` through `@lapismd/spec-validator`, and the pinned root `@tobilu/qmd` MUST be that binary when pnpm runs `spec:search`. Discovery MUST NOT run during normal checks.
 
 ## LN-ARCH-045 — Generated search-document metadata: remain search-scoped while participating in API-owned property
 

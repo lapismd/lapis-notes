@@ -166,7 +166,7 @@
     "@lapismd/mira-editor": "~0.0.3",
     "@lapismd/mira-plugin-ai": "~0.0.3",
     "@lapismd/mira-plugin-mermaid": "~0.0.3",
-    "@lapismd/spec-validator": "^0.1.4",
+    "@lapismd/spec-validator": "^0.2.0",
     "@lapismd/storybook-addon-visual-delta": "0.0.7",
     "@lucide/svelte": "^0.523.0",
     "@myriaddreamin/typst.ts": "0.7.0",

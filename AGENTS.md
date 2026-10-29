@@ -78,10 +78,11 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 - Keep repository policy in `spec-validator.config.mjs`. Prefer configurable
   validators from `@lapismd/spec-validator`; add a local plugin or structured
   check lane only for genuinely Lapis-specific validation.
-- Prefer `pnpm spec:search "<topic or LN-ID>"` before broad manual scans of
-  the specification. Open and verify the returned `spec/src` files because the
-  QMD index is only a discovery cache. Use `--semantic` for conceptual queries;
-  fall back to `rg` when QMD or its embedding model is unavailable.
+- Read `~/.agents/skills/spec-validator/SKILL.md` before searching the
+  specification. Prefer `pnpm spec:search "<topic or LN-ID>"` before any manual
+  scan of `spec/src`. Use `--semantic` for conceptual queries, and use `rg` only
+  when QMD or its embedding model is unavailable. Open and verify the returned
+  `spec/src` files; the QMD index is only a discovery cache.
 - Authority order: `spec/src` → package interfaces / implementation → Storybook
   catalog → READMEs / this file (workflow only).
 - Supporting implementation records live under `spec/records/`. Completed

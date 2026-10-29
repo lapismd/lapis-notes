@@ -64,7 +64,7 @@
 
 <a id="ln-gov-022"></a>
 
-**Requirement.** Agent guidance MUST prefer the repository wrapper for requirement discovery, require returned canonical sources to be read, and retain `rg` as the fallback when QMD or semantic models are unavailable.
+**Requirement.** Agent guidance MUST direct agents to `~/.agents/skills/spec-validator/SKILL.md` and prefer `pnpm spec:search` before any manual scan of `spec/src`. It MUST use `--semantic` for conceptual queries, require returned canonical sources to be read, and retain `rg` as the fallback only when QMD or its embedding model is unavailable.
 
 ## LN-GOV-024 — Markdown feature Settings guidance
 

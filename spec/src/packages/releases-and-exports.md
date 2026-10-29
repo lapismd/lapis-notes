@@ -132,8 +132,9 @@ compatibility checks and accepted temporary QMD exception are recorded in the
 
 **Requirement.** `@tobilu/qmd` 2.5.3 MUST remain a pinned root development dependency. Its native build approvals and TypeScript peer MUST remain root tooling and MUST NOT enter workspace package manifests.
 
-The user approved a temporary exception for `GHSA-vfj7-8cjw-p6xm` in QMD's
-`braces` dependency on 14 October 2026. Review it by 13 November 2026 and remove
+Unchanged contract: `@tobilu/qmd` stays pinned at 2.5.3, and root `@lapismd/spec-validator` accepts the published Deno-free `^0.2.0` range.
+
+The user approved a temporary exception for `GHSA-vfj7-8cjw-p6xm` in QMD's `braces` dependency on 14 October 2026. Review it by 13 November 2026 and remove
 it once a patched upstream chain is available. The
 [audit record](../../records/2026-10-14-notes-dependency-audit.md) retains the
 unfiltered finding, dependency path, scope limitation, and removal procedure.

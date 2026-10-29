@@ -1,6 +1,6 @@
 # Migration Status
 
-Last updated **2026-10-29 20:18:49 UTC**.
+Last updated **2026-10-29 20:30:47 UTC**.
 
 **Phase 1 consolidation is complete; Phase 2 verification is active.** All four
 migration repositories (Notes, Desktop, Plugins, jj-store) have clean mains
@@ -42,6 +42,13 @@ History retain their separate existing dispositions. Signing, publication,
 deployment and installed-app replacement remain separate from runtime cutover.
 
 ## Current work and next handoff
+
+**Notes uses Deno-free spec-validator 0.2.0 — 2026-10-29 20:30:47 UTC.**
+`@lapismd/spec-validator` is `^0.2.0` (installed 0.2.0). `spec-validator doctor`
+passed, including the repository-local QMD binary and native modules.
+`pnpm spec:search LN-GOV-022` and one `--semantic` query both returned
+canonical `spec/src` hits. `AGENTS.md` points at
+`~/.agents/skills/spec-validator/SKILL.md`. This does not publish Notes.
 
 **Release verification retries and publication stays idempotent — 2026-10-29 20:18:49 UTC.**
 The 2026-10-29 publish run uploaded the npm tarballs, then verification failed
