@@ -1,5 +1,7 @@
 # Architecture / Editor integration
 
+Shared conflict review preserves the existing captured `use-external` decision. Explicit disk acceptance, including deletion, never creates another writer or substitutes an empty merged save.
+
 Inline title alignment under [LN-PKG-187](../packages/editor-apis.md#ln-pkg-187)
 is derived by the mounted API editor from its own CodeMirror geometry. The
 component owns observers and measurement cleanup; gutters, filenames and pane

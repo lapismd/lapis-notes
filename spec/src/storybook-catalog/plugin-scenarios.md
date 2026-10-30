@@ -146,9 +146,13 @@ LN-SRCH-051 adds one metadata-only specification mirror for the Search/Problems 
 
 **Requirement.** `Plugins/AI/Shell` MUST demonstrate two descendant conversations in a Command View; use the transcript scope control to select Vault root and assert Explorer follows; open a stored folder conversation and assert both chat and Explorer scope; then pin it and keep that transcript after the active file changes. The play MUST use public Show Code and MUST NOT require a live agent.
 
-Shared file-conflict presentation imports its four retained action/setting icons
+Shared file-conflict presentation imports its retained action/setting icons
 through the public icon package. The existing eager dependency inventory includes
 those entries so the first cold review cannot trigger Vite re-optimization and
 invalidate unrelated in-flight Editing Recovery stories (LN-CAT-033). No
 startup/reload guard is relaxed; its real-App family is declared application in
 the existing parity inventory and retains `visual-pending` metadata.
+
+The explicit disk-deletion regression refreshes the existing captured conflict,
+accepts its absent disk snapshot and proves that no empty file is recreated.
+The Undo action icon is eager so this first cold render cannot reload tests.

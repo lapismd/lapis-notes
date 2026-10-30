@@ -2,6 +2,7 @@
   import { MergeEditor } from "@lapismd/design-core/diff";
   import { Button } from "@lapismd/design-core/shadcn/button";
   import FileCheckIcon from "@lucide/svelte/icons/file-check";
+  import Undo2Icon from "@lucide/svelte/icons/undo-2";
   import ConflictReviewControls from "./ConflictReviewControls.svelte";
   import RefreshCwIcon from "@lucide/svelte/icons/refresh-cw";
   import type {
@@ -76,6 +77,13 @@
         {/if}
       </div>
       <div class="actions">
+        <Button
+          variant="ghost"
+          disabled={disabled || conflict.external === undefined}
+          onclick={() => model.recover(conflict.path, "use-external")}
+        >
+          <Undo2Icon aria-hidden="true" />Use disk version
+        </Button>
         <Button
           variant="outline"
           disabled={disabled ||
