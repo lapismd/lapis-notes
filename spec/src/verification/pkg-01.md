@@ -66,7 +66,7 @@
 | LN-PKG-063 | [packages](../packages/releases-and-exports.md#ln-pkg-063) | Implemented | `@lapis-notes/ai` checks cover runtime and model registries, settings, public exports, adapter isolation, and renderer-safe user-agents imports |
 | LN-PKG-054 | [packages](../packages/releases-and-exports.md#ln-pkg-054) | Implemented | Bases check and no-Tailwind audits, public source-entry import smoke, browser-linked Storybook import, build, publint, export, and dependency audits |
 | LN-PKG-055 | [packages](../packages/configuration-and-lifecycle.md#ln-pkg-055) | Implemented | API declarations and standalone Roles checks consume the public provider contract without Search imports |
-| LN-PKG-056 | [packages](../packages/releases-and-exports.md#ln-pkg-056) | Implemented | public Workspace metadata, package build, publint, tarball audit, and external Roles versioned local link |
+| LN-PKG-056 | [packages](../packages/releases-and-exports.md#ln-pkg-056) | Implemented | Public Workspace metadata, package build, publint, and tarball audit; [Workspace 0.3.1 publication](../../records/2026-10-30-framework-release.md) verifies registry bytes, provenance, and the clean published consumer. |
 | LN-PKG-057 | [packages](../packages/app-and-services.md#ln-pkg-057) | Implemented | API status registry and workspace-host tests cover visible item projection and compatibility ribbon actions |
 | LN-PKG-090 | [packages](../packages/workspace-apis.md#ln-pkg-090) | Implemented | API status-bar tests omit subscriber notify when visible fields and only `buildMenu` are unchanged |
 | LN-PKG-058 | [packages](../packages/vault-and-storage.md#ln-pkg-058) | Implemented | API database tests derive search-only property records from normalized document metadata |
