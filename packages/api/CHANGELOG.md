@@ -1,5 +1,18 @@
 # @lapis-notes/api
 
+## 0.2.1
+
+### Patch Changes
+
+- [#44](https://github.com/lapismd/lapis-notes/pull/44)
+  [`f2373ba`](https://github.com/lapismd/lapis-notes/commit/f2373baf79db19267f3422895ce321ef1fa3c78d)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Point package
+  documentation to the canonical specification and remove stale package-local
+  and pre-consolidation specification links.
+- Updated dependencies
+  [[`f2373ba`](https://github.com/lapismd/lapis-notes/commit/f2373baf79db19267f3422895ce321ef1fa3c78d)]:
+  - @lapis-notes/ui@0.1.5
+
 ## 0.2.0
 
 ### Minor Changes

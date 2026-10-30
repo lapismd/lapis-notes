@@ -315,7 +315,7 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0
       '@lapis-notes/ui':
-        specifier: ^0.1.4
+        specifier: ^0.1.5
         version: link:../ui
       '@lapismd/ai-host':
         specifier: ^0.1.0
@@ -824,10 +824,10 @@ importers:
   packages/workspace:
     dependencies:
       '@lapis-notes/api':
-        specifier: ^0.2.0
+        specifier: ^0.2.1
         version: link:../api
       '@lapis-notes/ui':
-        specifier: ^0.1.4
+        specifier: ^0.1.5
         version: link:../ui
       '@lapismd/design-core':
         specifier: ^0.7.0
