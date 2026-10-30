@@ -55,7 +55,7 @@ remains visual-pending; functional checks do not approve or generate a baseline.
 
 <a id="ln-cat-005"></a>
 
-**Requirement.** Shared shadcn families destined for design-core SHOULD NOT duplicate full design-core Storybook coverage; document status in `MIGRATION.md`.
+**Requirement.** Shared shadcn families destined for design-core SHOULD NOT duplicate full design-core Storybook coverage; document ownership and adoption evidence in canonical styling and verification, with remaining work in the backlog.
 
 ## LN-CAT-010 — Story / demo Svelte under stories/: use host Tailwind for layout; that usage
 

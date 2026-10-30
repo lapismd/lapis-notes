@@ -7,7 +7,7 @@
 | LN-CAT-002 | [storybook-catalog](../storybook-catalog/build-and-process.md#ln-cat-002) | Implemented | `stories/api/*` + plays; `pnpm test:storybook` |
 | LN-CAT-003 | [storybook-catalog](../storybook-catalog/core-contract.md#ln-cat-003) | Implemented | `stories/catalog/catalog.mjs` + `ApiUi.mdx` |
 | LN-CAT-004 | [storybook-catalog](../storybook-catalog/documentation-and-navigation.md#ln-cat-004) | Implemented | docs link to spec chapters |
-| LN-CAT-005 | [storybook-catalog](../storybook-catalog/core-contract.md#ln-cat-005) | Implemented | noted in `MIGRATION.md` |
+| LN-CAT-005 | [storybook-catalog](../storybook-catalog/core-contract.md#ln-cat-005) | Implemented | [Canonical backlog and evidence](../../records/2026-10-30-spec-consolidation.md) |
 | LN-CAT-006 | [storybook-catalog](../storybook-catalog/build-and-process.md#ln-cat-006) | Implemented | Visual Delta baselines under `tests/visual/…`; tags `visual-pending` |
 | LN-CAT-007 | [storybook-catalog](../storybook-catalog/interaction-and-accessibility.md#ln-cat-007) | Implemented | `api-ui-status` + portal body assertions in plays. Design Core 0.4.0 regression acceptance waits for menu visibility and final geometry, and checks the media dialog/image instead of its hidden title. |
 | LN-CAT-008 | [storybook-catalog](../storybook-catalog/interaction-and-accessibility.md#ln-cat-008) | Implemented | `.storybook/vitest.setup.ts` + `parameters.a11y.test: "error"` |

@@ -90,11 +90,11 @@
 
 **Requirement.** The repository MUST run a local view-command audit that parses first-party TypeScript and Svelte scripts, rejects unclassified view registrations, maps its diagnostics to the Plugin Model access and opener requirements, and routes first-party plugin and Explorer source changes to that chapter.
 
-## LN-GOV-039 — Records, archives, and living intake
+## LN-GOV-039 — Canonical status and supporting history
 
 <a id="ln-gov-039"></a>
 
-**Requirement.** Supporting implementation records MUST live under `spec/records/`, and completed one-time plans MUST live under `spec/archive/`. Neither location is normative or indexed by `SUMMARY.md` or the QMD collection. Living intake MUST remain in root `MIGRATION.md`.
+**Requirement.** Current behavior and requirement status MUST live in the owning `spec/src` chapters and verification tables. Outstanding work MUST live in canonical backlog topics. Supporting evidence MUST live under `spec/records/`; unique historical provenance MAY remain in `spec/archive/`. Neither history location is normative or indexed by `SUMMARY.md` or QMD; superseded plans and status trackers MUST be removed after their useful content is consolidated.
 
 ## LN-GOV-049 — Contract preservation during presentation changes
 
@@ -102,32 +102,8 @@
 
 **Requirement.** A specification presentation migration MUST preserve existing requirement IDs, normative constraints, acceptance details, verification statuses, and evidence. Intentional documentation-governance changes MUST be identified separately and validated against a captured baseline.
 
-## LN-GOV-051 — Migration tracker freshness
+## LN-GOV-051 — Specification and evidence freshness
 
 <a id="ln-gov-051"></a>
 
-**Requirement.** Every verified slice commit MUST refresh root `MIGRATION.md` with current statuses, evidence and an explicit UTC date/time. Related consumer commits MUST be followed by a master-tracker refresh that distinguishes source qualification from host adoption. `AGENTS.md` MUST document this workflow.
-
-While a slice is running, refresh its verified, running and waiting checkpoint
-when validation or remaining work changes. Keep the visible timestamp current;
-a generated milestone table alone does not describe active work.
-
-The active Rust task tables are generated from `spec/migration-progress.json`
-with `pnpm progress:generate`. Each nonempty gate status has its own table,
-active gates come first and Complete comes last. Task IDs sort naturally and
-link to their owning canonical spec. `pnpm check:progress` rejects stale tables,
-invalid task metadata and broken spec links; normal and specification checks
-run it. Update the ledger timestamp and the authored activity checkpoint before
-regenerating. Historical intake remains outside the generated block.
-The real-ledger regression checks only populated groups, in canonical order,
-and verifies each task's status membership. Independent fixtures cover all five
-populated statuses and a started/deferred plan with no Waiting tasks. Empty
-groups stay omitted; no synthetic task substitutes for an absent status.
-Routine ledger status, evidence and timestamp updates follow `MIGRATION.md`'s
-documentation-only spec-first treatment and remain validated by
-`check:progress`. Generator implementation changes still require this canonical
-chapter; application implementation keeps its owning protected mappings.
-
-The main Notes `default` workspace owns this master R0–R7 tracker. Desktop's
-separate tracker owns M-series gates and directs shared-core activity here;
-retained historical workspaces are not the active implementation checkout.
+**Requirement.** Verified slices MUST update affected contracts, verification and backlog entries when behavior, qualification or remaining work changes. Evidence MUST distinguish source qualification from consumer adoption and retain actual commands, results, failures and source identities. Agent guidance MUST route current status to the specification rather than require migration ledgers or per-commit activity timestamps.

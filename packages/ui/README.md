@@ -43,4 +43,4 @@ pnpm --filter @lapis-notes/ui check
 ## References
 
 - [Package spec](spec.md)
-- [Canonical spec](../../spec/src/20-packages/ui/index.md)
+- [Canonical spec](../../spec/src/ui-and-styling.md)

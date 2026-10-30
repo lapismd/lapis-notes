@@ -240,7 +240,7 @@ const preview: Preview = {
               "Context",
             ],
             "Backlog",
-            ["Legacy plugin ports"],
+            ["Runtime and package integration", "Legacy plugin ports"],
             "Verification",
             [
               "AI — Part 1",

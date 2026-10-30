@@ -19,10 +19,9 @@ profile through its real composer and History after explicit Sign out and cold
 service restart. Its dedicated Playwright configuration is type-checked with
 the hosted test sources; no acceptance helper enters package runtime exports.
 
-The private root package exposes `progress:generate` and `check:progress` for
-the master migration tracker. These development-only commands consume
-`spec/migration-progress.json` and do not enter published package exports or
-application runtime dependencies. Normal check includes the drift gate.
+The private root specification commands validate canonical contracts, verification,
+navigation and source mappings. They do not generate an application-status ledger
+or enter published package exports.
 
 The root development cohort selects released Mira `~0.1.2`. Its three
 `~0.0.3` companions stay at their published versions. API depends on and

@@ -159,6 +159,7 @@
   - [Specification Governance / Discovery](./spec-governance/discovery.md)
   - [Specification Governance / Context](./spec-governance/context.md)
 - [Backlog](./backlog.md)
+  - [Backlog / Runtime and package integration](./backlog/runtime-integration.md)
   - [Backlog / Legacy plugin ports](./backlog/legacy-plugin-ports.md)
 - [Verification](./verification.md)
   - [Verification / AI — Part 1](./verification/ai-01.md)

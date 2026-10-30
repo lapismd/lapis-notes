@@ -271,3 +271,7 @@ resources; the shell mount disposer handles detachment (LN-WS-054).
 The LN-WS-005 reveal repair preserves this lifecycle and disabled-view policy.
 It retains the existing leaf and does not activate plugins, recreate views or
 introduce a second layout authority.
+
+Package-facing API documentation routes plugin lifecycle and App/workspace model
+references to these canonical contracts. Package READMEs do not define another
+plugin model or own feature completion; outstanding intake belongs to the backlog.

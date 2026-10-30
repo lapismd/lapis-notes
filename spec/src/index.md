@@ -13,4 +13,4 @@ Start with Architecture and Packages, then follow the owning runtime, host, work
 3. Storybook examples and verification evidence
 4. Onboarding and workflow documentation
 
-Storybook and mdBook render the same canonical Markdown. Completed implementation context lives in `spec/records/`; living intake remains in `MIGRATION.md`.
+Storybook and mdBook render the same canonical Markdown. Completed implementation context lives in `spec/records/`; outstanding work lives in the canonical backlog.

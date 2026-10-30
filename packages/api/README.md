@@ -44,8 +44,8 @@ pnpm --filter @lapis-notes/api test
 ## References
 
 - [Package spec](spec.md)
-- [Canonical spec](../../spec/src/20-packages/api/index.md)
-- [App state model](../../spec/src/20-packages/api/app-state-and-workspace-model.md)
+- [Canonical spec](../../spec/src/packages.md)
+- [App state model](../../spec/src/packages/workspace-apis.md)
 
 ### Plugin file icons
 

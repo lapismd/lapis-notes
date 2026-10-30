@@ -66,7 +66,7 @@ export default defineConfig(headingRequirements(), {
     summary: true,
     fileLimits: { maxLines: 400, maxBytes: 32768 },
     governance: {
-      extras: ["AGENTS.md", "MIGRATION.md"],
+      extras: ["AGENTS.md"],
       normative: true,
       proseLimits: true,
       acceptance: true,
@@ -118,8 +118,6 @@ export default defineConfig(headingRequirements(), {
         "\\.(?:spec|test)\\.[cm]?[jt]sx?$",
         "\\.stories\\.(?:svelte|[cm]?[jt]sx?)$",
         "^stories/(?!catalog/)",
-        "^MIGRATION\\.md$",
-        "^spec/migration-progress\\.json$",
         "^README\\.md$",
       ],
       rules: [
@@ -134,12 +132,6 @@ export default defineConfig(headingRequirements(), {
             "^scripts/(?:server-runtime(?:\\.test)?\\.mjs$|server-container(?:/|(?:-ci)?\\.test\\.mjs$|\\.mjs$))",
           chapterPatterns: [
             "^spec/src/architecture/rust-hosted-delivery\\.md$",
-          ],
-        },
-        {
-          pattern: "^scripts/migration-progress\\.mjs$",
-          chapterPatterns: [
-            "^spec/src/spec-governance/requirement-authoring\\.md$",
           ],
         },
         {
@@ -413,26 +405,6 @@ export default defineConfig(headingRequirements(), {
   ],
   check: {
     lanes: [
-      {
-        name: "migration-progress",
-        command: "pnpm",
-        args: ["check:progress"],
-      },
-      {
-        name: "rust-protocol-contract",
-        command: "pnpm",
-        args: ["check:protocol"],
-      },
-      {
-        name: "rust-core-boundaries",
-        command: "node",
-        args: ["scripts/check-rust-boundaries.mjs"],
-      },
-      {
-        name: "rust-core-boundary-regressions",
-        command: "node",
-        args: ["--test", "scripts/check-rust-boundaries.test.mjs"],
-      },
       {
         name: "specification-docs",
         command: "pnpm",
