@@ -1,5 +1,7 @@
 # Plugin Model / Lifecycle and views
 
+Shared text-conflict recovery keeps its App-owned presentation lease and stable view registration. Restoring explicit disk acceptance changes no plugin admission or lifecycle authority.
+
 The selected native-chat profile retains the optional `ai` identity, commands
 and view types through the public Plugin lifecycle. One feature-owned session
 coordinates read-only views; closing a view detaches observation. Hosts prepare

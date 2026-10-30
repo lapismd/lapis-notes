@@ -304,6 +304,9 @@ Ordinary healthy attached writers do not become diagnostics.
 
 **Requirement.** Activating a text-conflict problem MUST reveal the retained three-way MergeEditor for its captured path. Its editable centre MUST save through the writer-owned captured merge action; refresh MUST use that conflict's existing refresh action. Presentation MUST NOT add a writer or conflate native claim recovery with text-conflict resolution.
 
+Explicit disk acceptance MUST use the captured writer decision and preserve
+absence when the reviewed file was deleted. It MUST be disabled while busy,
+host-inhibited or unable to read the disk snapshot.
 Review leaves retain the existing layout-only close contract under LN-WS-101;
 closing and reopening a review preserves staged results without resolving its
 writer. The Desktop view ID `desktop:file-conflict`, diagnostic owner

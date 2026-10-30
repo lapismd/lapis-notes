@@ -141,6 +141,9 @@ reference-counted per App; its final idempotent release removes only its own
 diagnostics, navigation and view registration and never resolves or drops the
 writer-captured conflicts.
 
+The shared review's explicit disk action retains the writer's `use-external`
+decision, including accepting deletion without recreating an empty file.
+
 LN-PLUG-122–124 expose optional editor-view `fileIcon`, extension-registration
 options, `Workspace.getFileIconForPath`/`onFileIconsChanged` and the App-owned
 icon registry. Plugin helpers register lifecycle-owned SVGs and icon packs;

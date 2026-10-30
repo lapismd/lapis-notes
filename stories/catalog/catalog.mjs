@@ -701,6 +701,13 @@ export const workspaceCatalog = [
     publicSurface: "@lapis-notes/workspace",
     storyId: "workspace-file-conflicts--close-and-reopen",
   },
+  {
+    id: "workspace-file-conflicts-accept-disk-deletion",
+    title: "File Conflicts: Accept Disk Deletion",
+    spec: "spec/src/workspace-shell/panels/problems/core-contract.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-file-conflicts--accept-disk-deletion",
+  },
   ...pluginPanelCatalog,
   {
     id: "workspace-plugins-app-link-release-selection",

@@ -53,6 +53,7 @@ export const storybookPackedDependencyIncludes = [
   "@lezer/highlight",
   "@lezer/lr",
   "@lucide/svelte/icons/file-check",
+  "@lucide/svelte/icons/undo-2",
   "@lucide/svelte/icons/space",
   "@lucide/svelte/icons/case-sensitive",
   "@lucide/svelte/icons/arrow-right-left",

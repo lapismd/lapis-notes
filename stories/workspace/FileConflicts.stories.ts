@@ -34,7 +34,10 @@ async function open(canvasElement: HTMLElement) {
     name: "File conflict: Note.md",
   });
   await expect(review).toBeVisible();
-  const editor = await within(review).findByRole("textbox", { name: "Edit Merged version", exact: true }) as HTMLTextAreaElement;
+  const editor = (await within(review).findByRole("textbox", {
+    name: "Edit Merged version",
+    exact: true,
+  })) as HTMLTextAreaElement;
   return { app, canvas, problem, review, editor };
 }
 
@@ -129,7 +132,10 @@ export const CloseAndReopen: Story = {
     const reopened = await canvas.findByRole("region", {
       name: "File conflict: Note.md",
     });
-    const staged = await within(reopened).findByRole("textbox", { name: "Edit Merged version", exact: true }) as HTMLTextAreaElement;
+    const staged = (await within(reopened).findByRole("textbox", {
+      name: "Edit Merged version",
+      exact: true,
+    })) as HTMLTextAreaElement;
     await waitFor(() => expect(staged.value).toContain("status: local"));
     await userEvent.click(
       within(reopened).getByRole("button", {
@@ -141,5 +147,52 @@ export const CloseAndReopen: Story = {
       expect(app.fileEditingSessions.textConflicts.entries).toHaveLength(0),
     );
     expect(await app.vault.adapter.read("Note.md")).toContain("status: local");
+  },
+};
+
+export const AcceptDiskDeletion: Story = {
+  render: () => ({ Component: FileConflictsDemo }),
+  parameters: {
+    ...workspaceCatalogParameters(
+      "workspace-file-conflicts-accept-disk-deletion",
+    ),
+    visualDelta: {
+      images: [
+        "stories/workspace/file-conflicts/accept-disk-deletion-chromium.png",
+      ],
+    },
+    docs: {
+      description: {
+        story:
+          "Explicit disk acceptance uses the captured writer decision and preserves an externally deleted file's absence while clearing the retained conflict and diagnostic.",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const { app, canvas, review } = await open(canvasElement);
+    await app.vault.adapter.remove("Note.md");
+    await userEvent.click(
+      within(review).getByRole("button", {
+        name: "Check disk again",
+        exact: true,
+      }),
+    );
+    await expect(
+      within(review).findByText("The file was deleted from disk."),
+    ).resolves.toBeVisible();
+    await userEvent.click(
+      within(review).getByRole("button", {
+        name: "Use disk version",
+        exact: true,
+      }),
+    );
+    await waitFor(() => {
+      expect(app.fileEditingSessions.textConflicts.entries).toHaveLength(0);
+      expect(app.workspace.diagnostics.size).toBe(0);
+      expect(
+        canvas.queryByRole("region", { name: "File conflict: Note.md" }),
+      ).toBeNull();
+    });
+    expect(await app.vault.adapter.exists("Note.md")).toBe(false);
   },
 };
