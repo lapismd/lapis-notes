@@ -322,7 +322,7 @@ lock/unlock. It does not qualify native filesystem apply or server routes.
 
 <a id="ln-arch-118"></a>
 
-**Requirement.** Plugin revocation MUST synchronously invalidate its scoped capabilities and await delegated cleanup before disable completes. Host disposal MUST invalidate all runtimes, stop file observation and drain admitted security cleanup, including concurrent revocations. Cleanup failure MUST remain observable after every cleanup attempt finishes. A disposed host MUST reject new runtimes and late asynchronous capability results.
+**Requirement.** Plugin revocation MUST synchronously invalidate scoped capabilities and await delegated cleanup before disable completes. Host disposal MUST invalidate runtimes, stop observation, settle initialization and file events, and drain admitted security cleanup, including concurrent revocations; failed initialization MUST remain observable through readiness without preventing cleanup. Cleanup failure MUST remain observable after every attempt finishes. Disposed hosts MUST reject new runtimes and late asynchronous capability results.
 
 ## LN-ARCH-119 — Scoped local Sync storage and file capabilities
 

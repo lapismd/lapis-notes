@@ -34,6 +34,15 @@ recorded revisions.
 
 ## Package and UI integration
 
+Desktop's revoked-vault close exposed a failed Sync initialization cached as a
+permanent disposal error after Terminal and plugin cleanup had completed.
+LN-ARCH-118 separates readiness failure from resource draining. The source
+regression, 2,050 shared tests and 268 cold catalog cases pass, as recorded in
+[source qualification](../../records/2026-10-31-sync-host-failed-startup-disposal.md).
+Publish API 0.2.2, then rebuild and cold-test Desktop through released public
+exports. Preserve native admission rejection and real cleanup failures; source
+tests alone do not close the consumer gate.
+
 Owner: each published package's source repository. Keep remaining retained UI
 families and public extension points documented in their owning feature chapters;
 consolidate overlapping primitives upstream in Design Core. Package releases and

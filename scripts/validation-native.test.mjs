@@ -10,15 +10,19 @@ import {
 } from "./validation/native-sources.mjs";
 import { laneImage } from "./validation/model.mjs";
 
-test("native aggregate and protocol lanes select the pinned Rust toolchain", () => {
+test("framework aggregates use the UI image after native service extraction", () => {
   for (const lane of [
     "check",
+    "check:all",
     "test",
     "build",
     "spec:check",
-    "check:protocol",
-    "test:rust-core",
+    "ci:release",
   ])
+    assert.equal(laneImage(lane), "ui", lane);
+});
+test("explicit native and UI lanes retain their selected toolchain", () => {
+  for (const lane of ["check:protocol", "test:rust-core"])
     assert.equal(laneImage(lane), "full");
   for (const lane of [
     "test:storybook",
