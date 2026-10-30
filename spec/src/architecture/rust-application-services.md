@@ -1,16 +1,16 @@
 # Architecture / Rust application services
 
-The [shared Rust plan](../../../RUST_CORE_MIGRATION_PLAN.md) and [hosted delivery and native defaults](rust-hosted-delivery.md) supersede future
-Node-specific hosted parity implementation. Existing hosts stay supported until
-their replacement gates pass. See [current status](../../../MIGRATION.md) and
-[hosted provider-screen evidence](../../records/2026-10-25-hosted-provider-screen.md).
+These chapters own shared public App/API behavior. The lapis-server repository
+owns `lapis-app-core`, `lapis-app-protocol`, hosted delivery and their acceptance;
+Desktop owns Tauri admission and host integration. See the
+[Notes backlog](../backlog.md) for local/public-package work and links to the
+owning Server and Desktop backlogs. There is no cross-repository status ledger.
 
-The main Notes `default` workspace owns that R0–R7 master tracker. Desktop's
-separate M-series tracker points here for shared-core activity. R3.1.18 native
-runtime/model installation has [independent source evidence](../../records/2026-10-24-rust-core-model-cache.md).
-Source database conformance and vault lifetime are qualified. HTTP and retained
-Web staging qualify R1.3.9: [managed vaults](rust-managed-vaults.md), bounded
-transfers and signed plugins. [Committed Tauri intake](../../records/2026-10-25-rust-desktop-intake.md) completes R1.3; [current-profile R3 is complete](../../records/2026-10-27-r3-completion.md), while R4–R7 remain.
+Historical source and consumer qualification retain distinct receipts, including
+[current-profile indexed-vault completion](../../records/2026-10-27-r3-completion.md)
+and [hosted cutover](../../records/2026-10-27-rust-hosted-default-cutover.md).
+The [consolidation record](../../records/2026-10-30-spec-consolidation.md) accounts
+for the retired migration stages without treating old checkpoints as current work.
 
 R1.1 extracts Desktop's existing vault file engine into `lapis-app-core` and
 updates native callers directly. The low-level engine retains the caller-owned

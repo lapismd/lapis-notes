@@ -36,5 +36,5 @@ pnpm --filter @lapis-notes/workspace test
 
 ## References
 
-- [Package spec](spec.md)
-- [Canonical spec](../../spec/src/20-packages/workspace/index.md)
+- [Workspace contract](../../spec/src/workspace-shell.md)
+- [Canonical spec](../../spec/src/workspace-shell.md)

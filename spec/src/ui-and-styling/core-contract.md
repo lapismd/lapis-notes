@@ -20,7 +20,7 @@ package boundary without adding utility classes to component markup.
 
 <a id="ln-ui-001"></a>
 
-**Requirement.** Overlapping shadcn primitives SHOULD migrate to `@lapismd/design-core/shadcn/*` over time; progress MUST be tracked in `MIGRATION.md`.
+**Requirement.** Overlapping shadcn primitives SHOULD migrate to `@lapismd/design-core/shadcn/*` over time; adoption evidence MUST live in canonical verification and outstanding work in the owning backlog topic.
 
 The retained Select story follows the public primitive's native `combobox`
 semantics, locates the labelled Workspace control by that role, selects Daily,
@@ -48,11 +48,11 @@ this Notes story update from the source-owned Bases naming repair.
 
 **Requirement.** Exported package CSS MUST NOT require consumers to expand Tailwind utility surfaces; do not grow new Tailwind-in-export APIs.
 
-## LN-UI-005 — Theme migration to design-core styles.css + themes/lapis.css: recorded in MIGRATION.md before hosts adopt it
+## LN-UI-005 — Theme adoption: canonical contract and evidence before host integration
 
 <a id="ln-ui-005"></a>
 
-**Requirement.** Theme migration to design-core `styles.css` + `themes/lapis.css` MUST be recorded in `MIGRATION.md` before hosts adopt it.
+**Requirement.** Theme migration to design-core `styles.css` + `themes/lapis.css` MUST update the owning canonical styling contract and verification before hosts adopt it.
 
 ## LN-UI-006 — Filled primary/destructive actions: meet WCAG AA contrast (≥ 4.5:1)
 

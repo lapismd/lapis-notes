@@ -7,15 +7,15 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 
 - This is a pnpm + Turbo monorepo for a focused Lapis Notes slice.
 - Current packages include the API/runtime kernel, retained UI, workspace shell,
-  frozen Deno desktop host, Node server host, web host, portable host services,
+  frozen Deno desktop host, web host, portable host services,
   internal language service, reusable File Explorer, and the private Lapis Notes
   application profile.
 - AI, Bases, Bookmarks, Graph, History, Markdown, Markdown Lint, Search, Source
   Editor, Spellcheck, and Word Count are owned by the sibling `lapis-plugins`
   repository and are consumed here through npm package boundaries.
 - Design Core F-Mode is optional default-disabled shell chrome.
-- Unlisted hosts and plugins are not in this repo yet. Track intake
-  in `MIGRATION.md` — do not invent them ahead of the spec.
+- Unlisted hosts and plugins are not in this repo yet. Track outstanding intake
+  in `spec/src/backlog.md` — do not invent them ahead of the spec.
 
 ## Package dependency policy
 
@@ -32,8 +32,8 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 
 ### Shared Rust application services
 
-- Follow `RUST_CORE_MIGRATION_PLAN.md` and the canonical Rust application-services
-  chapter. The lapis-server repository owns `lapis-app-core`,
+- Follow the canonical Rust application-services chapter and the owning
+  `spec/src/backlog.md`. The lapis-server repository owns `lapis-app-core`,
   `lapis-app-protocol`, and the HTTP server. Notes does not run server acceptance.
 - Group native code by feature. Keep new production Rust/scripts within 300
   counted lines and separate tests within 500. Core code cannot depend on Tauri,
@@ -85,9 +85,9 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   `spec/src` files; the QMD index is only a discovery cache.
 - Authority order: `spec/src` → package interfaces / implementation → Storybook
   catalog → READMEs / this file (workflow only).
-- Supporting implementation records live under `spec/records/`. Completed
-  one-time plans live under `spec/archive/`. Neither is normative or indexed
-  by `SUMMARY.md` or QMD. Living intake remains root `MIGRATION.md`.
+- Supporting implementation records live under `spec/records/`. Unique historical provenance may remain under `spec/archive/`. Neither
+  location owns current status or is indexed by `SUMMARY.md` or QMD. Outstanding
+  work lives in `spec/src/backlog.md` and its feature topics.
 
 ### Requirement authoring
 
@@ -108,7 +108,7 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   constraint, exception, and normative keyword; never reassign an existing ID
   to unrelated behavior.
 - In the same change, add one row per new ID to the owning `spec/src/verification/` table and
-  update cross-references, `MIGRATION.md`, and mapped guidance. Run
+  update cross-references, `spec/src/backlog.md`, and mapped guidance. Run
   `pnpm spec:check` and verify that requirement and verification IDs remain
   one-to-one.
 - Treat validator diagnostics as repository contracts: every finding includes
@@ -177,7 +177,7 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   theme-setting surface.
   CV production CSS may target public Design Core tokens and stable
   `data-ui-component` hosts, never Storybook roots or private `.cm-*` classes.
-- Track swap progress in root `MIGRATION.md`.
+- Track swap progress in root `spec/src/backlog.md`.
 
 ## Workspace Shell Stories
 
@@ -370,7 +370,7 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   unrelated Markdown view is mounted.
 - New placement stories carry a literal `visual-pending` tag and an independent
   nested-import baseline path. Keep the Storybook catalog, mapped `spec/src/`
-  requirements and verification entries, and `MIGRATION.md` progress in sync;
+  requirements and verification entries, and `spec/src/backlog.md` progress in sync;
   do not approve or refresh visual baselines without human review. When the
   user explicitly excludes visual testing from a slice, declare the future
   independent paths and record capture as pending without generating or
@@ -455,17 +455,12 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   message descriptive enough for review context rather than using a terse label.
   This is a standing request for every workspace package; do not wait for the
   user to ask. When `jj` is unavailable, use Git with the same message quality.
-- Refresh root `MIGRATION.md` in every slice commit, including evidence and
-  completed, active and waiting work. Its last-updated stamp includes the date,
-  time and explicit UTC timezone. Refresh the shared tracker after related
-  consumer commits too; keep source qualification and host adoption separate.
-  Refresh the current activity checkpoint when validation or remaining work
-  changes during a slice; do not wait for the next commit.
-- Keep active Rust task statuses/evidence and the UTC timestamp in
-  `spec/migration-progress.json`. Update the authored activity checkpoint in
-  `MIGRATION.md`, run `pnpm progress:generate`, then `pnpm check:progress`.
-  Do not hand-edit the generated gate-status tables. Keep task IDs stable and
-  link them to their owning canonical specification; preserve historical intake.
+- Update affected canonical contracts, verification and backlog entries when
+  behavior, qualification or remaining work changes. Keep source qualification
+  and consumer adoption distinct; retain exact receipts in `spec/records/`.
+  No generated migration ledger or per-commit activity timestamp is required.
+- Preserve unrelated work and never manually move the main bookmark. Commit
+  verified slices unsigned; upstream landing controls main.
 - Keep changes scoped to the package or surface needed for the request. Do not
   add broad refactors or metadata churn unless required to complete the task.
 

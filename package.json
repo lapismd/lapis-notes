@@ -45,8 +45,6 @@
     "spec:index": "spec-validator index",
     "spec:search": "spec-validator search",
     "spec:validate": "node scripts/validation.mjs run spec:validate",
-    "progress:generate": "node scripts/migration-progress.mjs --write",
-    "check:progress": "node scripts/validation.mjs run check:progress",
     "test:spec-validation": "node scripts/validation.mjs run test:spec-validation",
     "spec:serve": "spec-validator serve",
     "test": "node scripts/validation.mjs run test",

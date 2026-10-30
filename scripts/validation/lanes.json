@@ -1,7 +1,7 @@
 {
   "build": "node --env-file-if-exists=.env scripts/run-turbo.mjs build",
   "build:web": "node --env-file-if-exists=.env scripts/run-turbo.mjs build --filter=@lapis-notes/web...",
-  "check": "pnpm check:storybook-parity && pnpm spec:validate && pnpm check:progress && pnpm check:specification-docs && pnpm check:no-tailwind && pnpm check:app-ownership && pnpm check:metadata-queries && node --env-file-if-exists=.env scripts/run-turbo.mjs check",
+  "check": "pnpm check:storybook-parity && pnpm spec:validate && pnpm check:specification-docs && pnpm check:no-tailwind && pnpm check:app-ownership && pnpm check:metadata-queries && node --env-file-if-exists=.env scripts/run-turbo.mjs check",
   "check:all": "pnpm check && pnpm test && pnpm build",
   "check:app-ownership": "tsx scripts/check-ambient-app-ownership.ts",
   "check:metadata-queries": "tsx scripts/check-first-party-metadata-queries.ts",
@@ -17,7 +17,6 @@
   "spec:check": "spec-validator check && pnpm check:app-ownership && pnpm check:metadata-queries && pnpm test:spec-validation",
   "spec:first": "spec-validator first",
   "spec:validate": "spec-validator validate",
-  "check:progress": "node scripts/migration-progress.mjs",
   "test:spec-validation": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:spec-validation:run --task-args",
   "test": "node --env-file-if-exists=.env scripts/run-turbo.mjs test",
   "packages:policy": "node ./scripts/check-package-boundaries.mjs && pnpm test:package-boundaries",

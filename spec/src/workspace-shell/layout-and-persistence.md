@@ -204,3 +204,7 @@ Plugins own their controls, CSS, accessibility and asynchronous resource lifetim
 Status-bar hosts MUST keep custom content in the same item ordering and context
 visibility as standard descriptors. The mount callback is a rendering input;
 replacing it MUST notify the shell even when text/icon metadata is unchanged.
+
+The workspace package README links this canonical workspace contract instead of
+an absent package-local specification. Current behavior and verification stay in
+the book; outstanding work is recorded in the owning backlog topic.

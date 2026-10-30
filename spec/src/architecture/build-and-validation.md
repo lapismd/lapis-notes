@@ -55,11 +55,9 @@ ignores; cache-hit and invalidation assertions remain independent of Docker.
 Disposable snapshot fixtures explicitly select and verify their own real parent
 as the exported check base, then restore the outer qualification environment.
 
-The root migration tracker projects gate-status tables from its owned JSON
-ledger through `pnpm progress:generate`. `pnpm check:progress` runs in normal
-and specification validation to reject stale status groups and invalid task
-links. The authored activity checkpoint and historical intake remain separate
-from the generated task block; LN-GOV-051 governs their freshness.
+Current feature contracts, requirement verification and canonical backlog topics
+own status. Supporting receipts retain source and consumer qualification
+separately; LN-GOV-039/051 govern authority and evidence freshness.
 
 The hosted server workspace, its jj-store path dependencies, and server
 acceptance live in the lapis-server repository. Notes check, test, and build
