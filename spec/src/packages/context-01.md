@@ -34,11 +34,13 @@ resolves the checksum-bound npm artifact. No local Design Core archive is
 required by the release candidate.
 Workspace media presentation remains consumer-owned under LN-PLUG-092.
 
-The static registry prerequisite release starts from independently versioned
-0.1.1 framework candidates. Pending Changesets select API, UI and File Explorer
-0.1.2 plus Workspace 0.2.0; public framework peers keep compatible API/UI ranges.
-Local candidate verification may use ignored npm tarballs until those prerequisites
-are approved and available from npm.
+The current public framework releases are API `0.2.1`, UI `0.1.5`, File Explorer
+`0.2.0`, and Workspace `0.3.1`. API, UI, and Workspace completed the approved
+October 30 release through Changesets PR #45 and the protected npm workflow.
+Their `next` tags select the released versions; `latest` remains unchanged.
+[Release evidence](../../records/2026-10-30-framework-release.md) binds registry
+bytes, provenance, and consumer verification to the qualified source. Desktop
+adoption and its native acceptance remain separate consumer gates.
 
 Public packages that consume Design Core keep their portable semver ranges and
 the workspace lockfile on the repository's current supported npm release.
