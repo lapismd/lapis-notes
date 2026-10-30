@@ -1,6 +1,6 @@
 {
   "name": "@lapis-notes/api",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Lapis Notes API",
   "license": "Apache-2.0",
   "repository": {
@@ -124,7 +124,7 @@
     "@codemirror/search": "^6.5.11",
     "@codemirror/state": "^6.4.1",
     "@codemirror/view": "^6.35.0",
-    "@lapis-notes/ui": "^0.1.4",
+    "@lapis-notes/ui": "^0.1.5",
     "@lapismd/design-core": "^0.7.0",
     "@lapismd/mira": "~0.1.2",
     "@lezer/highlight": "^1.2.1",

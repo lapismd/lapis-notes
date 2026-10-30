@@ -1,5 +1,25 @@
 # @lapis-notes/workspace
 
+## 0.3.1
+
+### Patch Changes
+
+- [#44](https://github.com/lapismd/lapis-notes/pull/44)
+  [`f2373ba`](https://github.com/lapismd/lapis-notes/commit/f2373baf79db19267f3422895ce321ef1fa3c78d)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Point package
+  documentation to the canonical specification and remove stale package-local
+  and pre-consolidation specification links.
+
+- [#47](https://github.com/lapismd/lapis-notes/pull/47)
+  [`6f315ba`](https://github.com/lapismd/lapis-notes/commit/6f315baef2bd2f0bb4942927d4e19b9e0eb2a15d)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Restore explicit
+  disk-version acceptance in the shared retained conflict review, including
+  preserving deletion through the captured guarded writer decision.
+- Updated dependencies
+  [[`f2373ba`](https://github.com/lapismd/lapis-notes/commit/f2373baf79db19267f3422895ce321ef1fa3c78d)]:
+  - @lapis-notes/api@0.2.1
+  - @lapis-notes/ui@0.1.5
+
 ## 0.3.0
 
 ### Minor Changes
