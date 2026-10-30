@@ -13,6 +13,10 @@ While a hosted attachment opens, its retained workspace startup/recovery surface
 stays visible. The chooser can hide a retained ready session; it cannot hide a
 prepared session's progress or failure while waiting for that session's readiness.
 
+The private application profile consumes published Markdown `^0.2.0`, alongside
+its current API/Workspace cohort. Hosts retain profile selection and lifecycle;
+this dependency intake does not add plugin policy to the reusable shell.
+
 ## LN-WEB-002 — Web host: own its launcher, profile selection, session lifecycle
 
 <a id="ln-web-002"></a>

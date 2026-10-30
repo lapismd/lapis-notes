@@ -40,6 +40,10 @@ The API accepts the Mira 0.1 public-export line alongside its existing 0.0.5
 range for isolated Lapis Desktop shared-screen acceptance. Package source and
 installed applications retain their existing ownership.
 
+The private App Profile now requests published Markdown `^0.2.0` so its public
+rendering dependency matches the current API/Workspace cohort without a host
+override or a second legacy renderer dependency line.
+
 ## LN-ARCH-001 — Repository: a pnpm workspace orchestrated by Turbo. Targeted
 
 <a id="ln-arch-001"></a>
