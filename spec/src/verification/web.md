@@ -4,7 +4,7 @@
 | ID | Chapter | Status | Evidence |
 | --- | --- | --- | --- |
 | LN-WEB-001 | [web-host](../web-host/application-presentation.md#ln-web-001) | Implemented | package `2026.6.3`, manifest, generated legacy icons, update prompt, WCO, and `web+lapis` handler |
-| LN-WEB-002 | [web-host](../web-host/startup-and-plugins.md#ln-web-002) | Implemented | web-owned launcher, profile restoration, plugin boot, and orderly session replacement |
+| LN-WEB-002 | [web-host](../web-host/startup-and-plugins.md#ln-web-002) | Implemented | web-owned launcher, profile restoration, plugin boot, and orderly session replacement  [Markdown 0.2 profile intake](../../records/2026-10-30-profile-markdown-intake.md). |
 | LN-WEB-003 | [web-host](../web-host/browser-storage-and-sync.md#ln-web-003) | Implemented | OPFS creation/restoration, File System Access opening, and cancellation recovery acceptance |
 | LN-WEB-004 | [web-host](../web-host/browser-storage-and-sync.md#ln-web-004) | In progress | App-profile tests and Web build pass with the four-plugin profile. Community is parked; full browser acceptance remains a host release gate. |
 | LN-WEB-005 | [web-host](../web-host/browser-storage-and-sync.md#ln-web-005) | Implemented | package contains no LightningFS, demo, notebook, or legacy bootstrap path and uses the verified configured-plugin loader |

@@ -14,6 +14,9 @@ behind the selected native HTTP origin. Static delivery changes no App ownership
 conversation writer or renderer callback authority under
 [CORE054–057](../architecture/rust-hosted-delivery.md).
 
+The private profile consumes published Markdown `^0.2.0`, matching its current
+API/Workspace cohort without a host override or legacy renderer dependency.
+
 The private application profile owns the native-turn observer and optional AI
 plugin under LN-CORE-004/006/007/008. It uses the existing public Agent screens
 and built public exports. Temporary verified local archives admit unpublished

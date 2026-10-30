@@ -1,5 +1,8 @@
 # Plugin Model / Application services
 
+The private application profile consumes published Markdown `^0.2.0`; it keeps
+the same plugin IDs, App ownership and host-owned static selection.
+
 The ordinary hosted profile selects native metadata, History and Tasks together
 under LN-CORE-069. Plugin observers keep their existing owning App and native
 admission; standalone local Web keeps its separate browser implementations.

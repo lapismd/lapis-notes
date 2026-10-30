@@ -5,6 +5,9 @@ The frozen Deno host retains its existing application profile. The staged
 [native index owner](../architecture/rust-indexing-lifetime.md) are Tauri/hosted
 migration work; neither changes Deno startup or selects a new Deno writer.
 
+The shared private profile now uses published Markdown `^0.2.0`. This dependency
+intake changes no frozen Deno startup, service or writer contract.
+
 ## LN-DENO-008 — Language, plugin, AI, and terminal host services: use public package boundaries and Deno-owned process
 
 <a id="ln-deno-008"></a>
