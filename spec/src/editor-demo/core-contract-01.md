@@ -1,9 +1,6 @@
 # Lapis Editor Demo / Editor scenarios / Part 1
 
-Notebook cohort acceptance MUST exercise the existing Explorer registration with
-the released Core 0.9 host graph. Explorer's compatibility patch preserves demo
-boot, file actions and App ownership; the demo MUST NOT install an older private
-Design Core copy to satisfy Explorer's previous dependency range.
+Notebook cohort acceptance exercises the existing Explorer registration with the released Core 0.9 host graph. The dependency refresh admits Design Core 0.8/0.9 and Mira 0.1.4 through public exports. The application profile registers Source Editor, Markdown, File Explorer and Search in that order. Notes-session catalog scenarios exercise production startup and Retry without replacing the editor demo's focused panel and authoring acceptance. Hosts MUST NOT install an older private Core copy to satisfy Explorer.
 
 LN-EXP-014 covers custom file artwork through the actual App and Explorer,
 including plugin enable/disable, opening and rename. Editor-demo cold acceptance

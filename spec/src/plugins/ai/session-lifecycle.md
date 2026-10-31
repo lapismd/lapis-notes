@@ -1,5 +1,12 @@
 # AI Plugin / Session lifecycle
 
+The shared Notes session accepts host-supplied native Chat and Repository
+factories before App startup. Browser transport, credentials and permissions
+remain in host adapters; the profile does not invent a provider or duplicate
+conversation authority. Catalog Search tool acceptance follows the published
+Search button's complete accessible name, including its vault-relative path,
+and retains navigation and content assertions.
+
 ## LN-AI-021 — Shared message metadata
 
 <a id="ln-ai-021"></a>

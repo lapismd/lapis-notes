@@ -41,6 +41,7 @@ test("selects unpublished public packages in graph order", () => {
       "@lapis-notes/language-service",
       "@lapis-notes/file-explorer",
       "@lapis-notes/workspace",
+      "@lapis-notes/app-profile",
     ],
   );
   assert.equal(plan.bootstrapRequired, true);
@@ -109,7 +110,10 @@ test("createReleasePlan selects only published packages missing GitHub releases"
         return {
           status: 200,
           json: async () => ({
-            dist: { integrity: "sha512-example", tarball: "https://example.test/package.tgz" },
+            dist: {
+              integrity: "sha512-example",
+              tarball: "https://example.test/package.tgz",
+            },
             "dist-tags": { latest: "0.1.0" },
           }),
         };

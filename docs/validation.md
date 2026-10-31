@@ -119,10 +119,14 @@ placement keeps synthetic actions outside production shell geometry; focused
 component and manual attachment fixtures may use inline placement. Functional,
 axe and visual approval remain separate. This change does not update PNGs.
 
-`pnpm validation:consumer-pack` builds and packs the five public Notes host
+`pnpm validation:consumer-pack` builds and packs the six public Notes host
 packages into ignored `.release/validation-packages`, with a SHA-256 archive
 inventory and exact source provenance. Docker reports collect these for temporary
-consumer qualification. This command creates no release candidate or publication.
+consumer qualification. This command creates no release candidate or publication. The cohort includes the
+publishable application profile and its built workspace-session exports.
+For registry-only qualification when a saved local configuration selects archives,
+pass `LAPIS_NOTES_VALIDATION_ARCHIVES` pointing to an ignored JSON file containing
+`[]`; receipts must show an empty archive list.
 
 ## Explicit native provider qualification
 
@@ -130,3 +134,7 @@ Hosted provider transport and screen qualification live outside this
 repository. This checkout does not seed bootstrap credentials, build that
 image, or launch that binary. Portable Docker validation is not native
 qualification.
+
+`pnpm test:web:e2e` routes the complete PWA browser lane through the same
+bounded Docker worker. Its uncached Turbo task preserves selectors and normal
+registry acceptance; supplied fixture qualification remains distinct.

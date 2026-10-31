@@ -1,5 +1,13 @@
 # App Database / Sessions and ownership
 
+The shared Notes session (LN-PKG-188) accepts an already-admitted VaultSession
+and observes its database status. It drains Sync and App-owned services before
+closing that session, retaining the disposable compatibility lease through all
+cleanup, including an optional awaited host attachment hook after database
+closure. A failed attachment cleanup retains the lease and its failed result.
+Failed persistence preserves the live owner for explicit recovery;
+browser storage and hosted database admission remain adapter-owned.
+
 Hosted database sessions now invoke the shared Rust service directly. Retiring
 the Node supervisor/Unix companion does not change admitted session ownership,
 raw-SQL restrictions, committed revision delivery or explicit close/drain.

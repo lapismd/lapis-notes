@@ -45,6 +45,7 @@ test("requirement links, outline, and history survive reload", async ({
   await expect(firstRequirement).toBeVisible();
   await docs.locator(`.toc-wrapper a[href$='#${id}']`).click();
   await expect(page).toHaveURL(new RegExp(`#${id}$`));
+  const requirementUrl = page.url();
   await page.reload();
   await expect(firstRequirement).toBeInViewport();
   await docs
@@ -52,12 +53,15 @@ test("requirement links, outline, and history survive reload", async ({
     .getByRole("link", { name: "Workspace Shell", exact: true })
     .click();
   await expect(page).toHaveURL(/specification-workspace-shell--docs$/);
+  const parentUrl = page.url();
   await page.goBack();
-  await expect(page).toHaveURL(
-    /specification-workspace-shell-layout-and-persistence--docs/,
-  );
+  await expect(page).toHaveURL(requirementUrl);
+  await expect(firstRequirement).toBeInViewport();
   await page.goForward();
-  await expect(page).toHaveURL(/specification-workspace-shell--docs$/);
+  await expect(page).toHaveURL(parentUrl);
+  await expect(
+    docs.locator('[data-specification-chapter="workspace-shell.md"]'),
+  ).toBeVisible();
 });
 
 test("reading order is keyboard accessible and fits a narrow page", async ({

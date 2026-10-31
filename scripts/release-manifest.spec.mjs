@@ -1,10 +1,13 @@
 import assert from "node:assert/strict";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { cleanConsumerDependencyEntries } from "./prepare-release.mjs";
+import {
+  cleanConsumerDependencyEntries,
+  assertNoLocalDependencyProtocols,
+} from "./prepare-release.mjs";
 import { validateReleaseManifest } from "./release-manifest.mjs";
 import { PUBLIC_PACKAGE_GRAPH } from "./public-packages.mjs";
 import { publishedConsumerDependencyEntries } from "./verify-release.mjs";
@@ -154,4 +157,32 @@ test("verifies a partial publication with unchanged public packages from npm", a
   } finally {
     await rm(repoRoot, { recursive: true, force: true });
   }
+});
+
+test("packed application profile admits published plugins and rejects private or local dependencies", () => {
+  const profile = JSON.parse(
+    readFileSync(
+      new URL("../packages/app-profile/package.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  assert.doesNotThrow(() =>
+    assertNoLocalDependencyProtocols(profile, profile.name),
+  );
+  assert.throws(
+    () =>
+      assertNoLocalDependencyProtocols(
+        { dependencies: { "@lapis-notes/unpublished-private": "^0.1.0" } },
+        profile.name,
+      ),
+    /private package/u,
+  );
+  assert.throws(
+    () =>
+      assertNoLocalDependencyProtocols(
+        { dependencies: { "@lapis-notes/markdown": "file:../plugin" } },
+        profile.name,
+      ),
+    /local protocol/u,
+  );
 });

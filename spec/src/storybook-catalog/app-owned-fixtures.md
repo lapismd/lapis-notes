@@ -1,8 +1,10 @@
 # Storybook Catalog / App-owned fixtures
 
-The Editor Demo's Inline Source Editor Spacing story mounts an API-owned inline
-CodeMirror editor inside a full document. Its `visual-pending` acceptance proves
-that document trailing space remains on the outer editor only.
+Autocomplete plays resolve the current named option at the action boundary after asynchronous readiness, preserving mouse selection and the resulting query assertions across completion-list publication.
+
+The Editor Demo's Inline Source Editor Spacing story mounts an API-owned inline CodeMirror editor inside a full document. Its `visual-pending` acceptance proves that document trailing space remains on the outer editor only.
+
+Workspace/Notes Session mounts the public NotesWorkspaceSession with an explicit disposable backend, a real App and its owned compatibility lease. Published Search group acceptance asserts the complete accessible name, including basename, count and vault path; placement, navigation and geometry checks remain intact. Ready and Startup Retry measure the actual WorkspaceShell against the viewport and production Explorer. The shell MUST remain mounted after its play finishes. Fixture cleanup runs on story unmount and is awaited before the next fixture boots. Visual review stays pending without baseline updates.
 
 ## LN-CAT-118 — Declared story composition parity
 

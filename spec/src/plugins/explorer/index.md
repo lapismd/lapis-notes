@@ -1,9 +1,6 @@
 # Explorer Plugin
 
-Notebook's shared-table release cohort MUST admit Design Core 0.9 in File
-Explorer's portable dependency range, preserving supported 0.7 and 0.8 hosts.
-The compatibility patch changes no Explorer behavior. Final registry acceptance
-MUST resolve Explorer and the host to one Design Core installation.
+The shared-session and Notebook cohorts admit Design Core 0.9 through File Explorer's portable range, preserving supported 0.7/0.8 hosts. The production session uses this same public registration and App-owned file operations. Packaging adds no Explorer-specific chrome, storage policy or alternate file tree. Final registry acceptance MUST resolve Explorer and the host to one Core installation.
 
 File Explorer accepts Design Core 0.5.1 alongside 0.4 without changing file
 actions or persistence. The temporary desktop review archive remains separate

@@ -2,6 +2,7 @@ import {
   rendererPluginHostInputs,
   resolvePluginHostModule,
   loadPluginHostModule,
+  pluginHostImportMapPlugin,
 } from "@lapis-notes/app-profile/plugin-host-build";
 import { tursoBundleBuildPlugin } from "@lapis-notes/api/build/vite";
 import tailwindcss from "@tailwindcss/vite";
@@ -88,35 +89,6 @@ function wasmHeadersPlugin(): Plugin {
   };
 }
 
-function pluginHostImportMapPlugin(): Plugin {
-  return {
-    name: "lapis-plugin-host-import-map",
-    resolveId(id) {
-      return resolvePluginHostModule(id);
-    },
-    load(id) {
-      return loadPluginHostModule(id);
-    },
-    configureServer(server) {
-      server.middlewares.use((request, _response, next) => {
-        const pathname = request.url?.split("?", 1)[0];
-        const id = pathname && resolvePluginHostModule(pathname);
-        if (id) request.url = "/@id/__x00__" + id.slice(1);
-        next();
-      });
-    },
-    transformIndexHtml() {
-      return [
-        {
-          tag: "script",
-          attrs: { type: "importmap" },
-          children: JSON.stringify(rendererPluginImportMap),
-          injectTo: "head-prepend",
-        },
-      ];
-    },
-  };
-}
 const rendererSingletonPackages = [
   "@lapis-notes/api",
   "@codemirror/state",

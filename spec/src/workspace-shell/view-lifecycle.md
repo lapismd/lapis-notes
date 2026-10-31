@@ -1,5 +1,14 @@
 # Workspace Shell / View lifecycle
 
+Popup persistence acceptance injects failed conditional writes at the current public `modifyIfUnchanged` boundary, verifies that the hook was exercised, preserves the popup/draft after refusal and checks saved vault bytes after explicit recovery.
+
+NotesWorkspaceSession (LN-PKG-188) mounts the public WorkspaceShell after
+staged startup, registers Settings and configured plugins, and keeps the
+existing navigation callbacks. Its imperative persistLayout, canRecoverLeave
+and dispose boundary guards persistence before teardown. A rejected leave
+retains App, editors, recovery actions and watch ownership for an explicit retry;
+the Desktop native adapter continues to own its platform lifecycle.
+
 The shared conflict review retains its layout-only close scope. Explicit disk acceptance resolves through the captured writer, preserving external deletion and clearing only the resolved review and diagnostic.
 
 File artwork registration follows the owning Plugin and App under LN-PLUG-123.

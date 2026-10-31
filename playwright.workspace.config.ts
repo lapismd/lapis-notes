@@ -10,6 +10,8 @@ const baseURL = `http://127.0.0.1:${port}`;
 export default defineConfig({
   testDir: "./tests/workspace",
   fullyParallel: false,
+  // Cold source compilation and pointer gestures share one bounded worker.
+  workers: 1,
   timeout: 120_000,
   expect: {
     timeout: 15_000,
@@ -33,7 +35,7 @@ export default defineConfig({
       `STORYBOOK_PORT=${port}`,
       `VISUAL_SERVER_PORT=${visualPort}`,
       `STORYBOOK_EXTRA_PORTS='${visualPort} ${port + 90}'`,
-      "pnpm storybook",
+      "pnpm storybook:installed",
     ].join(" "),
     url: `${baseURL}/index.json`,
     reuseExistingServer: !process.env.CI,

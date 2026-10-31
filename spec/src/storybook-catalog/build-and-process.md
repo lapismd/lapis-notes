@@ -1,5 +1,11 @@
 # Storybook Catalog / Build and process
 
+The browser test cohort uses Storybook 10.6.5, Vitest/browser 5.0.5 and Vite 7.3.7, with the same interaction, axe and fatal-runtime gates. The former 4.1 runner’s final-file RPC disconnect remains recorded; current-tool acceptance must complete without debug hooks, traces or timing changes.
+
+Normal interaction tests use addon-vitest’s automatic preview/addon annotation initialization exactly once. The setup retains its fatal Svelte diagnostic guard after story teardown; a temporary unnamed-button probe verifies that automatic axe checks reject violations.
+
+Workspace pointer acceptance starts the already-installed Storybook graph through `storybook:installed`, preserving the exact registry/archive inputs. The normal catalog interaction CI lane includes this browser suite, including the shared Notes session remaining mounted after play completion. A single browser worker serializes cold source compilation and pointer gestures within the bounded validation container.
+
 ## LN-CAT-002 — @lapis-notes/ui family consumed by @lapis-notes/api (direct imports: have an API/&lt;Name&gt; Storybook story under stories/api/
 
 <a id="ln-cat-002"></a>

@@ -115,7 +115,8 @@ export class Vault extends EventDispatcher<{
     this.listingFilter = createVaultListingFilter(
       options.listingExclusions ?? (() => DEFAULT_VAULT_EXCLUDES),
     );
-    this.load();
+    // Keep eager discovery observable through load(), without an orphan rejection.
+    void this.load().catch(() => {});
   }
 
   private getPath(path: string) {
@@ -147,15 +148,28 @@ export class Vault extends EventDispatcher<{
     }));
   }
 
-  #loaded: Promise<any> | null = null;
-  load(): Promise<void> {
+  #loaded: Promise<void> | null = null;
+  #loadFailed = false;
+  /** Retry only failed discovery; concurrent and completed loads remain shared. */
+  load(options: { retry?: boolean } = {}): Promise<void> {
+    if (options.retry && this.#loadFailed) {
+      this.#loaded = null;
+      this.#loadFailed = false;
+      this.files = {};
+      this.filesByName.clear();
+    }
     if (this.#loaded) {
       return this.#loaded;
     }
-    this.#loaded = this.loadPath().then(() => {
-      this.rebuildFileNameIndex();
-      this.trigger("load");
-    });
+    this.#loaded = this.loadPath()
+      .then(() => {
+        this.rebuildFileNameIndex();
+        this.trigger("load");
+      })
+      .catch((error: unknown) => {
+        this.#loadFailed = true;
+        throw error;
+      });
     return this.#loaded;
   }
 

@@ -219,5 +219,10 @@
   },
   "stories/workspace/popouts/WorkspacePopout.stories.ts": {
     "kind": "application"
+  },
+  "stories/workspace/NotesWorkspaceSession.stories.ts": {
+    "kind": "integration",
+    "requirement": "LN-PKG-188",
+    "reason": "Memory-backed production Notes session startup, document opening and Retry acceptance through the shared application-profile export."
   }
 }

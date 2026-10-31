@@ -47,16 +47,20 @@ it("removes only obsolete connection secrets and remains idempotent", async () =
 });
 
 it("web startup applies restrictions and secret cleanup without service bridge registration", () => {
-  const source = readFileSync("src/WebWorkspaceSession.svelte", "utf8");
+  const source = readFileSync("src/web-session-host.ts", "utf8");
+  const session = readFileSync(
+    "../app-profile/src/workspace-session/NotesWorkspaceSession.svelte",
+    "utf8",
+  );
   expect(source).toContain(
-    "unavailablePlugins: webPluginRestrictionsFor(!!nativeChat)",
+    "unavailablePlugins: webPluginRestrictionsFor(nativeChat)",
   );
   expect(
-    source.indexOf("await removeObsoleteServiceSecrets(app)"),
-  ).toBeGreaterThan(source.indexOf("await app.configuration.load()"));
-  expect(
-    source.indexOf("await removeObsoleteServiceSecrets(app)"),
-  ).toBeLessThan(source.indexOf("await app.plugins.loadPlugins"));
+    session.indexOf("await options.host?.configure?.(app)"),
+  ).toBeGreaterThan(session.indexOf("await app.configuration.load()"));
+  expect(session.indexOf("await options.host?.configure?.(app)")).toBeLessThan(
+    session.indexOf("await app.plugins.loadPlugins"),
+  );
   expect(source).not.toMatch(/(?:register|sync)Web(?:Agent|Terminal)Runtime/);
 });
 

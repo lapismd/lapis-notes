@@ -8,10 +8,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "strict": true,
-    "types": ["vite/client"],
-    "paths": {
-      "@lapis-notes/workspace": ["../workspace/src/lib/index.ts"]
-    }
+    "types": ["vite/client"]
   },
   "include": ["src/**/*.ts", "src/**/*.svelte"],
   "exclude": ["src/**/*.test.ts"]

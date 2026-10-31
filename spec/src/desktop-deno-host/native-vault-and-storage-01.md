@@ -1,5 +1,11 @@
 # Deno Desktop Host / Native vault and storage / Part 1
 
+The packaged application profile now exports the shared browser/server Notes
+session under LN-PKG-188. The superseded Deno Desktop lifecycle adapter remains
+frozen: its native storage, permissions and bridge registration do not move into
+that composition. Current Desktop packaged-profile acceptance belongs to the
+lapis-desktop owner and must qualify the public built imports independently.
+
 The neutral native adapter gains an optional system-trash port under LN-PKG-184.
 Tauri implements the new capability; the superseded Deno host remains frozen
 and does not advertise it. This annotation changes no Deno host source.

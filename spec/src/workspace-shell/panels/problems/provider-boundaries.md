@@ -1,5 +1,11 @@
 # Search result and Problems provider boundaries
 
+Shared Notes-session extraction preserves the App-owned Problems registry and
+recovery actions. Startup Retry is a host startup state, not a diagnostic or a
+replacement Problems view. Failed leave retains the existing App and its
+editing recovery ownership; admitted native Chat/Repository factories do not
+change diagnostic payloads, navigation or persistence authority.
+
 Generic plugin SVG and pack registrations follow LN-PLUG-123 independently of
 diagnostic collections. File-view artwork is presentation metadata, never a
 Problems diagnostic payload, permission or recovery action. Existing diagnostic

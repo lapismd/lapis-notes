@@ -1,7 +1,14 @@
 # UI and Styling / Retained UI contracts
 
+The shared-session dependency cohort admits Design Core 0.8 and 0.9 alongside 0.7 in
+the public framework manifests. Browser and server hosts initialize the Lapis
+brand, color mode, UI aliases and editor styles before mounting. Server-owned
+login/chooser styles now live in lapis-server; Web retains only its browser-host
+presentation. Hosts supply definite full-height wrappers while the public
+WorkspaceShell retains ownership of its internal geometry.
+
 Active API, retained UI, Workspace, Explorer and Web consumers require published
-Design Core `^0.6.0`, including prepared
+Design Core through the supported `0.7`, `0.8` and `0.9` ranges, including prepared
 browser CSS and bundled font assets, through the existing public style exports.
 The minimum includes the close guard, asynchronous plugin flush and centered
 bottom-panel contracts already used by current source. Earlier supported ranges

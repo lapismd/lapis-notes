@@ -1,3 +1,4 @@
+import type { Plugin } from "vite";
 import { pluginHostModuleRegistry } from "@lapis-notes/api/plugin-host-modules";
 
 interface HostModule {
@@ -81,4 +82,34 @@ export function loadPluginHostModule(id: string): string | undefined {
     );
   }
   return undefined;
+}
+
+export function pluginHostImportMapPlugin(): Plugin {
+  return {
+    name: "lapis-plugin-host-import-map",
+    resolveId(id) {
+      return resolvePluginHostModule(id);
+    },
+    load(id) {
+      return loadPluginHostModule(id);
+    },
+    configureServer(server) {
+      server.middlewares.use((request, _response, next) => {
+        const pathname = request.url?.split("?", 1)[0];
+        const id = pathname && resolvePluginHostModule(pathname);
+        if (id) request.url = "/@id/__x00__" + id.slice(1);
+        next();
+      });
+    },
+    transformIndexHtml() {
+      return [
+        {
+          tag: "script",
+          attrs: { type: "importmap" },
+          children: JSON.stringify(rendererPluginImportMap),
+          injectTo: "head-prepend",
+        },
+      ];
+    },
+  };
 }

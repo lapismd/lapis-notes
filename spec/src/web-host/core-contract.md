@@ -1,5 +1,7 @@
 # Web Host / Browser integration
 
+Host adapters retain their imperative session handles through Svelte binding teardown until owned asynchronous disposal completes. A cleared presentation binding MUST NOT cause a parent to close the database/session ahead of the child application lifecycle.
+
 The staged Rust-only delivery journey serves the unchanged built Web application
 through [CORE054–057](../architecture/rust-hosted-delivery.md), with the native
 process owning the public origin and no Vite preview process. Existing login,
@@ -34,8 +36,8 @@ when opening an exact existing main conversation. Draft creation and restored
 selection never dispatch prompts; portable metadata supplies saved titles.
 
 The public web package does not contain the hosted Rust client or server screen.
-It exports `WebWorkspaceSession` at `@lapis-notes/web/session`. lapis-server mounts
-that entry, and the session source stays in this package.
+The application profile exports `NotesWorkspaceSession` at `@lapis-notes/app-profile/workspace-session`. lapis-server mounts
+that entry, and the reusable session source stays in application-profile.
 lapis-server owns that client and its generated protocol binding
 ([LN-CORE-070](../architecture/rust-hosted-delivery.md#ln-core-070)).
 The explicit `server-rust` profile is not part of this package's production
