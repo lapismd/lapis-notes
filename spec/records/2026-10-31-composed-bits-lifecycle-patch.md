@@ -229,3 +229,18 @@ Remove the patch only after a released upstream runtime includes every remaining
 component fix and passes that same complete qualification. A FocusScope-only
 release cannot close the Link Preview or Slider removal gates. Visual baselines
 remain unchanged and pending human review.
+
+## Clean-candidate package preflight
+
+After committing verified source `7df3e59c9505c49ace9330cb9081b354b4bef473`,
+normal `pnpm packages:pack` passes from its clean empty JJ child. It restores all
+nine previously qualified build tasks and retains the unchanged release guard.
+Run `lapis-notes-validation-bc3a032d-a1b5-4ea4-a3a4-24a28bf18c42` records that
+source identity and successful release-manifest preparation.
+
+The registry and GitHub already contain UI 0.1.5, API 0.2.2, Language Service
+0.1.2, File Explorer 0.2.0 and Workspace 0.3.1, so this pre-versioning plan selects
+no unpublished artifacts. It does not publish the changed source as API 0.2.2.
+The generated Changesets PR must first version API 0.2.3, whose actual tarball,
+registry verification and GitHub release remain required before publication can
+be claimed complete. Required hosted checks and Desktop adoption remain distinct.
