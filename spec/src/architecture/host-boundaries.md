@@ -215,7 +215,7 @@ workspace-root module lookup. Their source file lists exclude deployment secrets
 
 <a id="ln-arch-098"></a>
 
-**Requirement.** Verified renderer ESM plugins MUST share public API modules with the host through build-owned import-map entries. The API plugin loader owns constructor resolution: it MUST prefer a default export and otherwise select a named subclass of the shared `Plugin` base without treating helper exports as the runtime constructor. Notebook’s public CanvasTable/FilterBuilder, ToggleGroup and required Design Core/UI modules MUST retain shared Svelte and fail-closed imports, with registry owner updates and isolated archive UI review before broad qualification.
+**Requirement.** Verified renderer ESM plugins MUST share public API modules with the host through build-owned import-map entries. The API plugin loader owns constructor resolution: it MUST prefer a default export and otherwise select a named subclass of the shared `Plugin` base without treating helper exports as the runtime constructor. Notebook’s public CanvasTable/FilterBuilder, ToggleGroup and required Design Core/UI and Markdown modules MUST retain shared Svelte and fail-closed imports, with registry owner updates and isolated archive UI review before broad qualification.
 
 ## LN-ARCH-099 — Host-owned Nostr credentials
 
@@ -397,4 +397,4 @@ metadata. Plugin declaration, refresh/rebuild and explicit disable retain that
 authority; external settings recovery uses App configuration observation. A
 browser detach never transfers native writer ownership to its replacement view.
 
-Notebook canvas intake qualification MUST prove the generated host modules against the aligned Design Core range in each affected Web and desktop host. A successful source archive build does not replace cold plugin-loading or final released-registry acceptance.
+Notebook qualification MUST prove generated host modules against the aligned Design Core range in each affected Web and desktop host, including cold loading and released-registry acceptance. Admission MUST use the public versioned Svelte renderer namespace. Producer builds MUST externalize compiler imports to that namespace; npm hosts MUST resolve admitted entries to their shared runtime through both development optimization and production builds. Both MUST reject unknown renderer modules and version mismatches.

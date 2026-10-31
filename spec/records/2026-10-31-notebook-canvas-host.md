@@ -143,3 +143,96 @@ This verifies the source host compatibility slice. Final Core minor registry
 refresh and packed Notebook admission remain separate release-cohort gates.
 The subsequent read-only row-selection feedback belongs to Design Core/Notebook
 and adds no host module or runtime dependency to this slice.
+
+## Packed-plugin renderer admission follow-up
+
+Real packed Notebook loading exposed missing CodeMirror Markdown admission and
+unversioned Svelte producer imports. The owning API now exports
+`rendererHostModulePlugin` through `@lapis-notes/api/build/vite` for producer and
+host resolution. It derives providers from the public generated renderer catalog,
+requires the exact compiler version and rejects unlisted modules. No private
+sibling build helper, bare private alias or separate Svelte runtime was added.
+
+- Exact renderer/Vite unit targets: 16 passed, 0 failed.
+- `LAPIS_NOTES_VALIDATION_RUNTIME=native pnpm --filter @lapis-notes/app-profile
+exec vitest run src/plugin-host-build.test.ts`: Markdown root regression
+  1 failed/6 passed before correction; exact rerun 7 passed/0 failed.
+- `pnpm check`: 1 canonical page-size failure (402 lines). Consolidated the
+  adjacent Notebook qualification contract without dropping constraints; the
+  chapter is now 400 physical lines. Exact full rerun remains required.
+- `pnpm validation:consumer-pack`: five archives passed with renderer declarations
+  at receipt lapis-notes-validation-5399ce1c-7ab0-4e01-886d-1dff4c692bd3.
+- `pnpm test`: 16/16 tasks passed; `pnpm build`: 9/9 tasks passed before the
+  final Markdown-root import-map correction. Final affected host checks remain
+  in progress. Source archives do not prove released-registry qualification.
+
+Latest Deno-free spec-validator remains 0.2.0. Doctor and QMD search ran under
+Node 24; doctor reports the intentional Docker script-wrapper warning. No push,
+merge, publication or visual-baseline changes.
+
+## Final renderer qualification receipts
+
+The renderer adapter also excludes admitted ABI identifiers from Vite's package
+optimizer so development resolves them through the same host provider as
+production. Exact optimizer regression: 1 failed/13 passed before, 16 passed
+across renderer/Vite targets after the fix. Root strict checking then exposed
+1 test-helper type error from an obsolete union hook; the helper now invokes
+the adapter's precise function contract. Exact root check rerun passed 16/16
+tasks, and full tests passed 16/16 tasks (including 1,743 API tests). Full build
+passed 9/9 tasks. Native changed-source formatting passed through the owning
+formatter. No runtime App interface or plugin permission was widened.
+
+The first final archive run built all five candidates successfully but report
+collection used the wrong default Docker context. Collection was recovered from
+the verified completed worker with explicit omarchy/SSH transport; the ignored
+workspace config now fixes that context. The owning lease helper released only
+this completed workspace lease. No sibling container/cache cleanup was applied.
+Archive receipt: lapis-notes-validation-31d23ef2-c3a0-43e0-8c6d-524c1b084119.
+
+Final Storybook qualification remains open: two complete attempts and the exact
+fourth-shard run each passed 55 assertions in that shard but lost the browser
+connection while admitting LinkPreviewAcceptance (1 infrastructure error per
+run). The exact family passed 2/0. The same full fourth shard with browser tracing
+passed all 57/0; this is diagnostic evidence, not a waiver of the normal lane.
+A fresh normal full run is in progress. The guard, assertions, tests and catalog
+configuration were not weakened or changed. Exact commands/receipts:
+
+- `pnpm test:storybook`: `storybook-renderer.log`, `storybook-final.log`.
+- `pnpm test:storybook -- stories/plugins/markdown/panels/LinkPreviewAcceptance.stories.ts`:
+  `link-preview-exact-final.log`, 2 passed/0 failed.
+- `pnpm test:storybook -- --shard=4/4`: `storybook-shard4-exact.log`, 55 passed,
+  1 infrastructure error.
+- `pnpm test:storybook -- --shard=4/4 --browser.trace=on`:
+  `storybook-shard4-trace.log`, 57 passed/0 failed; receipt
+  lapis-notes-validation-36fcf019-dec1-49e4-97b4-98b61cd31bf9.
+
+The first final spec run found 2 missing mapped Web/desktop chapters; their
+shared renderer admission contracts now explicitly document both development
+optimization and production. Final exact spec and static host checks remain
+required. State: specified/implemented/focused-tested yes; migration UI-approved;
+complete qualification pending normal host Storybook and released cohort gates.
+No push, merge, publication or baseline update.
+
+## Verified host checkpoint
+
+The normal full `pnpm test:storybook` retry passed all four shards (99 + 67 +
+46 + 57 = 269 interaction/accessibility cases), with no infrastructure errors.
+Passing unchanged shards used their normal Turbo cache; the previously failing
+fourth shard ran successfully without tracing. Receipt:
+lapis-notes-validation-0f7fd3cf-6edb-46e9-b838-11f030028e92. Earlier disconnect
+receipts remain retained; no source/test exclusion or threshold change was used.
+
+- `pnpm build-storybook`: passed, receipt
+  lapis-notes-validation-eb3c591a-e3d0-48dd-ac21-01c746762b1c.
+- Exact final `pnpm spec:check`: passed validation, mdBook, mapped spec-first and
+  governance checks, receipt
+  lapis-notes-validation-2ff80e8e-9394-47d3-9894-4c97483eff85.
+- `pnpm check` 16/16, `pnpm test` 16/16, `pnpm build` 9/9 and public candidate
+  archives passed as recorded above. Notebook's strict cold development and
+  production public consumers also passed against the refreshed API archive.
+
+This checkpoint is source-qualified. Specified, implemented and focused-tested
+states are complete; the integrated migration UI is user-approved. Final
+released-registry dependency refresh and supported-host acceptance still require
+the separately authorized release cohort. Preserve the known intermittent
+browser-startup receipts when resuming. No push, merge or publication.

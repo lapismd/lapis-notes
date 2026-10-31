@@ -13,6 +13,8 @@ import {
 
 describe("Notebook public renderer host modules", () => {
   it.each([
+    "@codemirror/lang-markdown",
+    "@lapis-notes/markdown",
     "@lapismd/design-core/shadcn/canvas-table",
     "@lapismd/design-core/shadcn/filter-builder",
     "@lapis-notes/ui/search",

@@ -15,6 +15,7 @@ const editorRuntimeSpecifiers = new Set([
   "@codemirror/autocomplete",
   "@codemirror/commands",
   "@codemirror/language",
+  "@codemirror/lang-markdown",
   "@codemirror/lint",
   "@codemirror/search",
   "@codemirror/state",
@@ -30,6 +31,7 @@ const modules = Object.entries(registry).filter(
     (entry.packageName === "@lapis-notes/api" ||
       entry.packageName === "@lapismd/design-core" ||
       entry.packageName === "@lapis-notes/ui" ||
+      specifier === "@lapis-notes/markdown" ||
       specifier === "@lapis-notes/markdown/embed" ||
       editorRuntimeSpecifiers.has(specifier) ||
       entry.source === "renderer-abi"),

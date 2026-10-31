@@ -196,3 +196,5 @@ The Notebook segmented density picker consumes the public Design Core ToggleGrou
 Notebook canvas qualification aligns Web and the frozen Deno desktop package dependency range to Design Core ^0.8.0, matching API, UI and Workspace. Generated catalog imports MUST resolve from that range without private aliases. Source-archive and registry receipts remain separate.
 
 Notebook host intake changes generated module admission and dependency ranges only; API runtime interfaces remain unchanged. Its compatibility release MUST remain in the existing API 0.2 peer cohort so unchanged plugins remain admissible. Design Core's new public table contracts use its own minor release.
+
+The public API build/vite entry MUST expose rendererHostModulePlugin for plugin/host build modes, bound to an exact svelteVersion and the generated renderer catalog. This build-only compatibility addition preserves API runtime interfaces and the existing 0.2 plugin peer cohort. CodeMirror Markdown MUST have an explicit public host entry.

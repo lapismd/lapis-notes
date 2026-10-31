@@ -358,3 +358,5 @@ mean the prepared entrance animation has painted the viewer.
 Notebook declares the public Design Core ToggleGroup density control in its shared dependency manifest. The host catalog and generated import map expose that exact public module; undeclared and private imports remain rejected.
 
 Notebook canvas qualification preserves fail-closed declared module auditing, the shared renderer, and the existing verification/signature boundary. UI approval permits full local qualification, not publication or registry dispatch.
+
+Notebook producer manifests MUST declare versioned renderer dependencies matching their locked compiler. The host MUST NOT admit new unversioned private Svelte aliases to make a plugin load. The API-owned public build adapter supplies producer/host resolution; consumer code MUST NOT copy private sibling build helpers.

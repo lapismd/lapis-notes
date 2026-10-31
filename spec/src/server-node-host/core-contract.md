@@ -9,3 +9,5 @@ remain in
 [Rust hosted runtime delivery](../architecture/rust-hosted-delivery.md).
 
 The public generated plugin host module catalog includes CanvasTable, FilterBuilder and ToggleGroup for Notebook. The Node host consumes the same audited catalog and shared Svelte renderer; this intake does not change server routing or application services.
+
+The renderer build adapter is a browser build facility shared by Web and electron-renderer admission. It does not change Node service routing or the frozen Deno host implementation.

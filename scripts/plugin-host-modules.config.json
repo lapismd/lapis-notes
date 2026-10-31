@@ -25,6 +25,19 @@
     "specifier": "@codemirror/commands",
     "version": "6.8.1"
   },
+  "@codemirror/lang-markdown": {
+    "entry": "@codemirror/lang-markdown",
+    "moduleId": "codemirror-lang-markdown",
+    "packageName": "@codemirror/lang-markdown",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@codemirror/lang-markdown",
+    "version": "6.3.4"
+  },
   "@codemirror/language": {
     "entry": "@codemirror/language",
     "moduleId": "codemirror-language",
