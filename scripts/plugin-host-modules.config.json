@@ -1,14 +1,4 @@
 {
-  "@lapis-notes/api/build/vite": {
-    "entry": "@lapis-notes/api/build/vite",
-    "moduleId": "lapis-notes-api-build-vite",
-    "packageName": "@lapis-notes/api",
-    "platforms": [],
-    "public": true,
-    "source": "config",
-    "specifier": "@lapis-notes/api/build/vite",
-    "version": "0.1.1"
-  },
   "@codemirror/autocomplete": {
     "entry": "@codemirror/autocomplete",
     "moduleId": "codemirror-autocomplete",
@@ -192,6 +182,16 @@
     "specifier": "@lapis-notes/api",
     "version": "0.0.1"
   },
+  "@lapis-notes/api/build/vite": {
+    "entry": "@lapis-notes/api/build/vite",
+    "moduleId": "lapis-notes-api-build-vite",
+    "packageName": "@lapis-notes/api",
+    "platforms": [],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapis-notes/api/build/vite",
+    "version": "0.1.1"
+  },
   "@lapis-notes/api/cache": {
     "entry": "@lapis-notes/api/cache",
     "moduleId": "lapis-notes-api-cache",
@@ -272,6 +272,16 @@
     "specifier": "@lapis-notes/api/menu",
     "version": "0.0.1"
   },
+  "@lapis-notes/api/metadata-store": {
+    "entry": "@lapis-notes/api/metadata-store",
+    "moduleId": "lapis-notes-api-metadata-store",
+    "packageName": "@lapis-notes/api",
+    "platforms": [],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/metadata-store",
+    "version": "0.1.2"
+  },
   "@lapis-notes/api/metadata-value": {
     "entry": "@lapis-notes/api/metadata-value",
     "moduleId": "lapis-notes-api-metadata-value",
@@ -285,6 +295,16 @@
     "specifier": "@lapis-notes/api/metadata-value",
     "version": "0.0.1"
   },
+  "@lapis-notes/api/sync-security-host": {
+    "entry": "@lapis-notes/api/sync-security-host",
+    "moduleId": "lapis-notes-api-sync-security-host",
+    "packageName": "@lapis-notes/api",
+    "platforms": [],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/sync-security-host",
+    "version": "0.1.2"
+  },
   "@lapis-notes/api/workspace-host": {
     "entry": "@lapis-notes/api/workspace-host",
     "moduleId": "lapis-notes-api-workspace-host",
@@ -297,26 +317,6 @@
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/workspace-host",
     "version": "0.0.1"
-  },
-  "@lapis-notes/api/sync-security-host": {
-    "entry": "@lapis-notes/api/sync-security-host",
-    "moduleId": "lapis-notes-api-sync-security-host",
-    "packageName": "@lapis-notes/api",
-    "platforms": [],
-    "public": true,
-    "source": "package-json-export",
-    "specifier": "@lapis-notes/api/sync-security-host",
-    "version": "0.1.2"
-  },
-  "@lapis-notes/api/metadata-store": {
-    "entry": "@lapis-notes/api/metadata-store",
-    "moduleId": "lapis-notes-api-metadata-store",
-    "packageName": "@lapis-notes/api",
-    "platforms": [],
-    "public": true,
-    "source": "package-json-export",
-    "specifier": "@lapis-notes/api/metadata-store",
-    "version": "0.1.2"
   },
   "@lapis-notes/markdown": {
     "entry": "@lapis-notes/markdown",
@@ -355,7 +355,397 @@
     "public": true,
     "source": "config",
     "specifier": "@lapis-notes/ui",
-    "version": "0.0.1"
+    "version": "0.1.5"
+  },
+  "@lapis-notes/ui/search": {
+    "entry": "@lapis-notes/ui/search",
+    "moduleId": "lapis-notes-ui-search",
+    "packageName": "@lapis-notes/ui",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapis-notes/ui/search",
+    "version": "0.1.5"
+  },
+  "@lapismd/design-core/chat": {
+    "entry": "@lapismd/design-core/chat",
+    "moduleId": "lapismd-design-core-chat",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/chat",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/alert": {
+    "entry": "@lapismd/design-core/shadcn/alert",
+    "moduleId": "lapismd-design-core-shadcn-alert",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/alert",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/badge": {
+    "entry": "@lapismd/design-core/shadcn/badge",
+    "moduleId": "lapismd-design-core-shadcn-badge",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/badge",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/button": {
+    "entry": "@lapismd/design-core/shadcn/button",
+    "moduleId": "lapismd-design-core-shadcn-button",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/button",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/button-group": {
+    "entry": "@lapismd/design-core/shadcn/button-group",
+    "moduleId": "lapismd-design-core-shadcn-button-group",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/button-group",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/canvas-table": {
+    "entry": "@lapismd/design-core/shadcn/canvas-table",
+    "moduleId": "lapismd-design-core-shadcn-canvas-table",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/canvas-table",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/card": {
+    "entry": "@lapismd/design-core/shadcn/card",
+    "moduleId": "lapismd-design-core-shadcn-card",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/card",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/checkbox": {
+    "entry": "@lapismd/design-core/shadcn/checkbox",
+    "moduleId": "lapismd-design-core-shadcn-checkbox",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/checkbox",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/code-block": {
+    "entry": "@lapismd/design-core/shadcn/code-block",
+    "moduleId": "lapismd-design-core-shadcn-code-block",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/code-block",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/command": {
+    "entry": "@lapismd/design-core/shadcn/command",
+    "moduleId": "lapismd-design-core-shadcn-command",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/command",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/dialog": {
+    "entry": "@lapismd/design-core/shadcn/dialog",
+    "moduleId": "lapismd-design-core-shadcn-dialog",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/dialog",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/dropdown-menu": {
+    "entry": "@lapismd/design-core/shadcn/dropdown-menu",
+    "moduleId": "lapismd-design-core-shadcn-dropdown-menu",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/dropdown-menu",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/field": {
+    "entry": "@lapismd/design-core/shadcn/field",
+    "moduleId": "lapismd-design-core-shadcn-field",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/field",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/file-type-icon": {
+    "entry": "@lapismd/design-core/shadcn/file-type-icon",
+    "moduleId": "lapismd-design-core-shadcn-file-type-icon",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/file-type-icon",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/filter-builder": {
+    "entry": "@lapismd/design-core/shadcn/filter-builder",
+    "moduleId": "lapismd-design-core-shadcn-filter-builder",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/filter-builder",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/input": {
+    "entry": "@lapismd/design-core/shadcn/input",
+    "moduleId": "lapismd-design-core-shadcn-input",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/input",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/input-group": {
+    "entry": "@lapismd/design-core/shadcn/input-group",
+    "moduleId": "lapismd-design-core-shadcn-input-group",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/input-group",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/popover": {
+    "entry": "@lapismd/design-core/shadcn/popover",
+    "moduleId": "lapismd-design-core-shadcn-popover",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/popover",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/progress": {
+    "entry": "@lapismd/design-core/shadcn/progress",
+    "moduleId": "lapismd-design-core-shadcn-progress",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/progress",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/radio-group": {
+    "entry": "@lapismd/design-core/shadcn/radio-group",
+    "moduleId": "lapismd-design-core-shadcn-radio-group",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/radio-group",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/scroll-area": {
+    "entry": "@lapismd/design-core/shadcn/scroll-area",
+    "moduleId": "lapismd-design-core-shadcn-scroll-area",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/scroll-area",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/select": {
+    "entry": "@lapismd/design-core/shadcn/select",
+    "moduleId": "lapismd-design-core-shadcn-select",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/select",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/separator": {
+    "entry": "@lapismd/design-core/shadcn/separator",
+    "moduleId": "lapismd-design-core-shadcn-separator",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/separator",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/sheet": {
+    "entry": "@lapismd/design-core/shadcn/sheet",
+    "moduleId": "lapismd-design-core-shadcn-sheet",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/sheet",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/slider": {
+    "entry": "@lapismd/design-core/shadcn/slider",
+    "moduleId": "lapismd-design-core-shadcn-slider",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/slider",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/switch": {
+    "entry": "@lapismd/design-core/shadcn/switch",
+    "moduleId": "lapismd-design-core-shadcn-switch",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/switch",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/textarea": {
+    "entry": "@lapismd/design-core/shadcn/textarea",
+    "moduleId": "lapismd-design-core-shadcn-textarea",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/textarea",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/shadcn/tooltip": {
+    "entry": "@lapismd/design-core/shadcn/tooltip",
+    "moduleId": "lapismd-design-core-shadcn-tooltip",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/tooltip",
+    "version": "0.8.0"
+  },
+  "@lapismd/design-core/workspace/icon": {
+    "entry": "@lapismd/design-core/workspace/icon",
+    "moduleId": "lapismd-design-core-workspace-icon",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/workspace/icon",
+    "version": "0.8.0"
   },
   "@lezer/common": {
     "entry": "@lezer/common",
