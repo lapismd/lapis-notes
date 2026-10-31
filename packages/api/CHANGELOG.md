@@ -1,5 +1,15 @@
 # @lapis-notes/api
 
+## 0.2.3
+
+### Patch Changes
+
+- [#51](https://github.com/lapismd/lapis-notes/pull/51)
+  [`6ea1803`](https://github.com/lapismd/lapis-notes/commit/6ea1803209ebfa336abf8eb0f3903fc62f5b7cb8)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Allow Sync host resource
+  cleanup to finish after initialization fails, while preserving readiness
+  errors and blocking delegated cleanup failures.
+
 ## 0.2.2
 
 ### Patch Changes
