@@ -1,5 +1,26 @@
 # @lapis-notes/api
 
+## 0.2.2
+
+### Patch Changes
+
+- [#52](https://github.com/lapismd/lapis-notes/pull/52)
+  [`7960c2b`](https://github.com/lapismd/lapis-notes/commit/7960c2b8def265b9af5592693aba4185010fdd21)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Keep embedded inline
+  source editors compact by restricting full-document trailing space to document
+  editors. Regenerate the public host-module catalogue during versioning so
+  later builds preserve committed version metadata.
+
+  Adopt released Design Core 0.7.2 and Mira 0.1.3 for stable Notebook status
+  controls, secure editor matching, nested code syntax highlighting and bounded
+  recursive embeds.
+
+- [#52](https://github.com/lapismd/lapis-notes/pull/52)
+  [`7960c2b`](https://github.com/lapismd/lapis-notes/commit/7960c2b8def265b9af5592693aba4185010fdd21)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Upgrade Minimatch to the
+  patched 11.x range and adapt private glob compilation to its parsed matcher
+  API while preserving editor associations and vault discovery exclusions.
+
 ## 0.2.1
 
 ### Patch Changes
