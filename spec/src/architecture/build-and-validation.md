@@ -1,10 +1,10 @@
 # Architecture / Build and validation
 
-JavaScript root check/build/test and specification lanes select the UI image;
-the removed root Cargo workspace is not an input to those commands. Explicit
-native Rust lanes select the full image and export pinned sibling Rust inputs.
-The server container uses an exact tracked context and
-private archive projection, with no local vault/profile material in its build.
+Framework check, test, build, specification and release aggregates select the UI
+image after native services moved to lapis-server. They do not require a root
+Cargo lock or native sibling inputs. Explicit native lanes retain their pinned
+toolchain. The server container uses an exact tracked context and private
+archive projection, with no local vault/profile material in its build.
 GNU tar context transfer preserves long pinned-sibling paths. An explicit local
 `LAPIS_NOTES_VALIDATION_SSH_IDENTITY` may select a file identity for remote Docker
 without an ambient interactive agent; the default SSH configuration is retained
@@ -74,14 +74,12 @@ proof. Docs is
 exported from its committed source revision; unrelated dirty npm manifests are
 excluded, as recorded in the [Docs intake](../../records/2026-10-25-native-docs-projection-intake.md).
 
-The private hosted native companion is grouped by history and IPC functionality
-under `packages/server-native`. It pins Rust 1.99 and consumes sibling JJ Store
-source at qualified extraction `f58b9363`. `pnpm server:native` uses a separate
-checkout-owned target, requires 30 GiB free and never cleans caches implicitly.
-This development slice does not package or enable a public native endpoint.
+Shared native-service commands and qualification belong to the lapis-server
+specification. Its owning source and historical receipts retain the original
+native companion's extraction evidence.
 
-Hosted parity reconciliation consumes released Design Core `^0.6.0` through
-registry ranges and a frozen lockfile. This aligns the current API's close guard,
+The frozen registry lock consumes Design Core `0.7.1` through the portable
+`^0.7.0` range. This aligns the current API's close guard,
 plugin flush and centered panel calls with their owning shared implementation;
 no local shim, source alias or package patch substitutes for those capabilities.
 

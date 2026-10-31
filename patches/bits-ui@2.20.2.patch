@@ -47,3 +47,99 @@ index 784fcc162d9f92c0fdb5f898f6b4cf6e6f0b1474..1ab543c5310bbe1bcce1b9dbb3aaa2dd
      }
      clearTimeout() {
          if (this.timeout) {
+diff --git a/dist/bits/slider/slider.svelte.js b/dist/bits/slider/slider.svelte.js
+index eb30e0b45a03d014d58d9d30f63aed4630c26dd1..76a550a0f8fe3cc14e7236ac35b2acfccd6484e3 100644
+--- a/dist/bits/slider/slider.svelte.js
++++ b/dist/bits/slider/slider.svelte.js
+@@ -3,7 +3,7 @@
+  * Abdelrahman (https://github.com/abdel-17)
+  */
+ import { untrack } from "svelte";
+-import { executeCallbacks, onMountEffect, attachRef, DOMContext, } from "svelte-toolbelt";
++import { executeCallbacks, onMountEffect, onDestroyEffect, attachRef, DOMContext, } from "svelte-toolbelt";
+ import { on } from "svelte/events";
+ import { Context, watch } from "runed";
+ import { getRangeStyles, getThumbStyles, getTickStyles, normalizeSteps, snapValueToCustomSteps, getAdjacentStepValue, getTickLabelStyles, getThumbLabelStyles, } from "./helpers.js";
+@@ -36,11 +36,15 @@ class SliderBaseRootState {
+         return normalizeSteps(this.opts.step.current, this.opts.min.current, this.opts.max.current);
+     });
+     domContext;
++    destroyed = false;
+     constructor(opts) {
+         this.opts = opts;
+         this.attachment = attachRef(opts.ref);
+         this.domContext = new DOMContext(this.opts.ref);
+         new SvelteResizeObserver(() => this.opts.ref.current, this.#handleLayoutChange);
++        onDestroyEffect(() => {
++            this.destroyed = true;
++        });
+     }
+     #handleLayoutChange = () => {
+         this.#layoutVersion += 1;
+@@ -157,7 +161,7 @@ class SliderSingleRootState extends SliderBaseRootState {
+         this.opts.value.current = snapValueToCustomSteps(newValue, this.normalizedSteps);
+     };
+     handlePointerMove = (e) => {
+-        if (!this.isActive || this.opts.disabled.current)
++        if (this.destroyed || !this.isActive || this.opts.disabled.current)
+             return;
+         e.preventDefault();
+         e.stopPropagation();
+@@ -197,7 +201,7 @@ class SliderSingleRootState extends SliderBaseRootState {
+         }
+     };
+     handlePointerDown = (e) => {
+-        if (e.button !== 0 || this.opts.disabled.current)
++        if (this.destroyed || e.button !== 0 || this.opts.disabled.current)
+             return;
+         const sliderNode = this.opts.ref.current;
+         const closestThumb = this.getAllThumbs()[0];
+@@ -212,7 +216,7 @@ class SliderSingleRootState extends SliderBaseRootState {
+         this.handlePointerMove(e);
+     };
+     handlePointerUp = () => {
+-        if (this.opts.disabled.current)
++        if (this.destroyed || this.opts.disabled.current)
+             return;
+         if (this.isActive) {
+             this.opts.onValueCommit.current(untrack(() => this.opts.value.current));
+@@ -366,7 +370,7 @@ class SliderMultiRootState extends SliderBaseRootState {
+         };
+     };
+     handlePointerMove = (e) => {
+-        if (!this.isActive || this.opts.disabled.current)
++        if (this.destroyed || !this.isActive || this.opts.disabled.current)
+             return;
+         e.preventDefault();
+         e.stopPropagation();
+@@ -411,7 +415,7 @@ class SliderMultiRootState extends SliderBaseRootState {
+         }
+     };
+     handlePointerDown = (e) => {
+-        if (e.button !== 0 || this.opts.disabled.current)
++        if (this.destroyed || e.button !== 0 || this.opts.disabled.current)
+             return;
+         const sliderNode = this.opts.ref.current;
+         const closestThumb = this.#getClosestThumb(e);
+@@ -427,7 +431,7 @@ class SliderMultiRootState extends SliderBaseRootState {
+         this.handlePointerMove(e);
+     };
+     handlePointerUp = () => {
+-        if (this.opts.disabled.current)
++        if (this.destroyed || this.opts.disabled.current)
+             return;
+         if (this.isActive) {
+             this.opts.onValueCommit.current(untrack(() => this.opts.value.current));
+diff --git a/dist/bits/utilities/focus-scope/focus-scope.svelte.js b/dist/bits/utilities/focus-scope/focus-scope.svelte.js
+index 938a4e0a9fab6a8042f5c88cb9cd5959b487200c..5d0c80f27382408a8599e9c4132c47d47c4b27fa 100644
+--- a/dist/bits/utilities/focus-scope/focus-scope.svelte.js
++++ b/dist/bits/utilities/focus-scope/focus-scope.svelte.js
+@@ -43,6 +43,8 @@ export class FocusScope {
+         this.#cleanupFns = [];
+     }
+     mount(container) {
++        if (this.#container === container)
++            return;
+         if (this.#container) {
+             this.unmount();
+         }

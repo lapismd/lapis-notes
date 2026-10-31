@@ -34,6 +34,19 @@ recorded revisions.
 
 ## Package and UI integration
 
+Desktop's revoked-vault close exposed a failed Sync initialization cached as a
+permanent disposal error after Terminal and plugin cleanup had completed.
+LN-ARCH-118 separates readiness failure from resource draining. The original
+[source proof](../../records/2026-10-31-sync-host-failed-startup-disposal.md)
+retains its revision and counts. The integrated published-baseline candidate
+passes 2,054 package tests and 269 cold catalog cases; its
+[current receipt](../../records/2026-10-31-composed-bits-lifecycle-patch.md)
+retains the initial browser disconnect and unchanged complete passing retry.
+API 0.2.2 is published without this separate cleanup repair. The integrated
+Changeset now targets the next API patch, 0.2.3; publish it through the governed
+version PR, then rebuild and cold-test Desktop through released public exports. Preserve native admission rejection and real cleanup failures; source
+tests alone do not close the consumer gate.
+
 Owner: each published package's source repository. Keep remaining retained UI
 families and public extension points documented in their owning feature chapters;
 consolidate overlapping primitives upstream in Design Core. Package releases and
@@ -44,6 +57,23 @@ qualify a consumer or authorize publication.
 The historical release-wave register predates newer registry releases. Future
 release preparation must inspect live package versions and required public
 contracts rather than treating its old wave positions as pending work.
+
+## Temporary Bits UI lifecycle patch removal
+
+Owner: Bits UI for the fixes; Notes owns its explicitly approved pnpm intake.
+The tracked 2.20.2 patch composes Link Preview timer cancellation, all six
+Slider post-destroy pointer guards and the upstream FocusScope idempotent mount
+(PR #2264, owner commit `692fbdf5095941464561189fd81ffc2cb4b81c6c`). Its
+[receipt](../../records/2026-10-31-composed-bits-lifecycle-patch.md) separates
+source provenance, exact installed bytes and current consumer qualification.
+
+Acceptance: select a published upstream version containing every remaining
+component fix, remove the patch through pnpm, and rerun exact lifecycle/preview
+regressions, affected families, complete check/test/build and cold
+Storybook interaction/accessibility, static and host/package acceptance. A
+FocusScope-only release cannot close the other components' removal gates.
+Published framework consumers do not inherit this root patch; preserve
+LN-PKG-158's independent minimal registry consumer.
 
 ## Runtime dependency security
 
@@ -70,6 +100,22 @@ Acceptance: reproduce each current finding at its owning boundary, qualify
 available fixes through the affected tool and consumer lanes, and report any
 remaining unsupported or unpatched route explicitly. Keep this maintenance
 separate from the focused API matcher compatibility change.
+
+## Browser-runner disconnect investigation
+
+Owner: Notes validation tooling. A complete cold catalog run on the composed
+Bits cohort passes 88 cases before the browser connection closes while starting
+Chat. The exact cold Chat family passes all six cases unchanged. A prior PR #51
+hosted attempt had the same signature and its unchanged retry passed all ten
+required jobs; that does not establish the cause or qualify this new candidate.
+The [current receipt](../../records/2026-10-31-composed-bits-lifecycle-patch.md)
+retains both the failed run and subsequent qualification.
+
+Acceptance: retain browser stderr, child exit and live cgroup memory/peak
+observations to distinguish a browser crash, resource event and transport loss.
+Keep unhandled errors fatal and require the complete current-source catalog and
+required hosted checks to pass; a focused family pass cannot replace those
+gates. Do not add an assertion, deadline, warning or resource-limit waiver.
 
 ## Source-test exceptions owned by siblings
 
