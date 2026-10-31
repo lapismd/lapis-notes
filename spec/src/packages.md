@@ -15,3 +15,5 @@ Defines the Lapis-owned package APIs and release boundaries. Follow the topic th
 - [Context — Part 1](packages/context-01.md)
 - [Context — Part 2](packages/context-02.md)
 - [Context — Part 3](packages/context-03.md)
+
+Notebook CanvasTable intake preserves registry portability and requires a compatible Design Core/API/UI/workspace/Markdown cohort. Temporary checksum-pinned archives are limited to isolated review workers; final registry dependency floors are refreshed after the upstream release. No peer override may conceal an unsupported owner contract.
