@@ -1,5 +1,9 @@
 # Storybook Catalog / App-owned fixtures
 
+The Editor Demo's Inline Source Editor Spacing story mounts an API-owned inline
+CodeMirror editor inside a full document. Its `visual-pending` acceptance proves
+that document trailing space remains on the outer editor only.
+
 ## LN-CAT-118 — Declared story composition parity
 
 <a id="ln-cat-118"></a>

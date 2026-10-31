@@ -52,7 +52,7 @@ export function compileEditorAssociationGlob(
       normalizedPattern,
       editorAssociationGlobOptions(normalizedPattern, options),
     );
-    return matcher.makeRe() ? matcher : null;
+    return matcher.set.length > 0 ? matcher : null;
   } catch {
     return null;
   }

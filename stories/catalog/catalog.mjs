@@ -534,6 +534,13 @@ export const workspaceCatalog = [
     storyId: "workspace-lapis-editor-demo--sync-document-loading-and-rename",
   },
   {
+    id: "workspace-lapis-editor-demo-inline-source-editor-spacing",
+    title: "Lapis Editor Demo Inline Source Editor Spacing",
+    spec: "spec/src/packages/editor-apis.md",
+    publicSurface: "@lapis-notes/api/editor/core",
+    storyId: "workspace-lapis-editor-demo--inline-source-editor-spacing",
+  },
+  {
     id: "workspace-lapis-editor-demo-yaml-source",
     title: "Lapis Editor Demo YAML Source",
     spec: "spec/src/editor-demo.md",

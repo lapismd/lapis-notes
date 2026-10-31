@@ -1,5 +1,11 @@
 # Packages / Editor APIs
 
+The API uses patched Minimatch through `^11.0.1` (locked `11.0.3`). Its private
+compiler checks parsed alternatives while preserving public glob helpers,
+editor associations and case-sensitive vault discovery exclusions. The
+[security qualification](../../records/2026-10-31-api-minimatch-security.md)
+separates this owner fix from pre-existing runtime and development findings.
+
 Hosted model acceptance consumes the existing public AppDatabase embedding
 methods through the production Rust HTTP provider. Optional vector diagnostics
 are checked for a numeric score before the retained tolerance comparison.
@@ -132,7 +138,7 @@ on unload.
 
 <a id="ln-pkg-024"></a>
 
-**Requirement.** The API-owned editor ScrollArea MUST fill without exceeding its workspace view and own long-document scrolling. Its nested CodeMirror scroller MUST expand without a vertical scrollbar. The editor scrollbar MUST retain its complete pointer target above adjacent workspace resize rails.
+**Requirement.** The API-owned editor ScrollArea MUST fill without exceeding its workspace view and own long-document scrolling. Its nested CodeMirror scroller MUST expand without a vertical scrollbar. The editor scrollbar MUST retain its complete pointer target above adjacent workspace resize rails. Full-document trailing space MUST NOT apply to inline source editors nested inside the document.
 
 ## LN-PKG-027 — Specialist panel width containment
 

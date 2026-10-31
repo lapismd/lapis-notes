@@ -17,6 +17,16 @@ records `clsx`, `tailwind-merge`, `bits-ui` and `@lucide/svelte` as UI runtime
 dependencies, so a clean production consumer does not rely on workspace
 development dependencies.
 
+API's Design Core dependency and peer require released `^0.7.2`; Mira
+depends on and peers released `~0.1.3`. The root development cohort matches.
+This admits stable status mounts and directive highlighting through public exports.
+
+API's direct Minimatch dependency resolves the patched `^11.0.1` registry
+range. Its private glob adapter uses parsed matcher alternatives; it adds no
+package export, copied matcher, package patch or checkout-specific resolution.
+Separate inherited dependency findings remain in the
+[runtime integration backlog](../backlog/runtime-integration.md#runtime-dependency-security).
+
 Dependency-image refreshes follow LN-GOV-050 when proposing the new digest:
 merged and closed reviews produce a fresh PR rather than absorb a later pin.
 

@@ -6,7 +6,9 @@ import {
   startCompletion,
 } from "@codemirror/autocomplete";
 import { insertImageFiles } from "@lapismd/mira/core";
-import { EditorState } from "@codemirror/state";
+import { EditorState, StateEffect } from "@codemirror/state";
+import { Decoration, EditorView, WidgetType } from "@codemirror/view";
+import { markupEditor } from "@lapis-notes/api/editor/core";
 import {
   leafFilePath,
   takeHostSyncService,
@@ -34,6 +36,78 @@ const meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+class InlineSourceEditorWidget extends WidgetType {
+  private view?: EditorView;
+  constructor(private readonly app: App) {
+    super();
+  }
+  toDOM() {
+    const host = document.createElement("div");
+    host.dataset.testid = "inline-source-editor";
+    this.view = new EditorView({
+      parent: host,
+      state: EditorState.create({
+        doc: "const value = 1;\nconsole.log(value);",
+        extensions: [
+          markupEditor(
+            { app: this.app, language: "javascript" },
+            EditorView.editorAttributes.of({ class: "mod-inline" }),
+          ),
+        ],
+      }),
+    });
+    return host;
+  }
+  destroy() {
+    this.view?.destroy();
+  }
+}
+
+export const InlineSourceEditorSpacing: Story = {
+  ...workspaceStoryMeta(
+    "workspace-lapis-editor-demo-inline-source-editor-spacing",
+    "A source widget uses the public markupEditor factory inside a real document without inheriting full-document trailing space.",
+    "/visual-baselines/stories/workspace/lapis-editor-demo/inline-source-editor-spacing-chromium.png",
+  ),
+  args: { scenario: "ready" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    const app = activeStoryApp(canvasElement);
+    const file = await app.vault.create(
+      "inline-source-host.txt",
+      "Parent document.\n",
+    );
+    const leaf = app.workspace.getLeaf("tab");
+    await leaf.openFile(file);
+    const view = (leaf.view as TextFileView).editor.view;
+    view.dispatch({
+      effects: StateEffect.appendConfig.of(
+        EditorView.decorations.of(
+          Decoration.set([
+            Decoration.widget({
+              widget: new InlineSourceEditorWidget(app),
+              block: true,
+            }).range(view.state.doc.length),
+          ]),
+        ),
+      ),
+    });
+    const inline = await canvas.findByTestId("inline-source-editor");
+    await waitFor(() => {
+      expect(
+        parseFloat(
+          getComputedStyle(inline.querySelector(".cm-editor")!).paddingBlockEnd,
+        ) || 0,
+      ).toBe(0);
+      expect(inline.getBoundingClientRect().height).toBeLessThan(120);
+    });
+    expect(
+      parseFloat(getComputedStyle(view.dom).paddingBlockEnd),
+    ).toBeGreaterThan(100);
+  },
+};
 
 export const SyncDocumentLoadingAndRename: Story = {
   ...workspaceStoryMeta(

@@ -208,7 +208,8 @@
   padding-inline: 0;
 }
 
-[data-ui-component="editor"] .cm-editor-source {
+/* Full-document trailing space must not expand embedded inline editors. */
+[data-ui-component="editor"] .cm-editor-source:not(.mod-inline) {
   padding-block-end: 50svh;
 }
 
@@ -459,10 +460,7 @@
   padding: 0.25rem;
   color: var(--ui-workspace-popover-foreground, var(--foreground));
   background: var(--ui-workspace-popover, var(--popover, var(--secondary)));
-  box-shadow: var(
-    --ui-workspace-shadow,
-    0 10px 24px rgb(0 0 0 / 0.18)
-  );
+  box-shadow: var(--ui-workspace-shadow, 0 10px 24px rgb(0 0 0 / 0.18));
 }
 
 .ui-editor-lint-quick-fix-menu__item {

@@ -10,12 +10,22 @@ import {
 } from "./validation/native-sources.mjs";
 import { laneImage } from "./validation/model.mjs";
 
-test("native aggregate and protocol lanes select the pinned Rust toolchain", () => {
+test("JavaScript aggregate lanes do not require a removed root Cargo lockfile", () => {
   for (const lane of [
     "check",
+    "check:all",
     "test",
     "build",
     "spec:check",
+    "ci:release",
+  ])
+    assert.equal(laneImage(lane), "ui");
+});
+
+test("explicit native and protocol lanes select the pinned Rust toolchain", () => {
+  for (const lane of [
+    "validation:rust",
+    "build:server:rust",
     "check:protocol",
     "test:rust-core",
   ])
