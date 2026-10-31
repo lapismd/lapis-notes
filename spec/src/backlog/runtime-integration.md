@@ -34,18 +34,14 @@ recorded revisions.
 
 ## Package and UI integration
 
-Desktop's revoked-vault close exposed a failed Sync initialization cached as a
-permanent disposal error after Terminal and plugin cleanup had completed.
-LN-ARCH-118 separates readiness failure from resource draining. The original
-[source proof](../../records/2026-10-31-sync-host-failed-startup-disposal.md)
-retains its revision and counts. The integrated published-baseline candidate
-passes 2,054 package tests and 269 cold catalog cases; its
-[current receipt](../../records/2026-10-31-composed-bits-lifecycle-patch.md)
-retains the initial browser disconnect and unchanged complete passing retry.
-API 0.2.2 is published without this separate cleanup repair. The integrated
-Changeset now targets the next API patch, 0.2.3; publish it through the governed
-version PR, then rebuild and cold-test Desktop through released public exports. Preserve native admission rejection and real cleanup failures; source
-tests alone do not close the consumer gate.
+The revoked-vault Sync cleanup repair is released in API `0.2.3` on npm's
+`next` channel. [Publication and signed provenance](../../records/2026-10-31-api-023-publication.md)
+verify its exact bytes and source `0d9d4d92`; the released-source private App
+Profile archive depends on API `0.2.3` rather than retaining an older exact copy.
+Desktop owns intake of those released exports and the original cold native-close
+acceptance in its [backlog](https://github.com/lapismd/lapis-desktop/blob/main/spec/src/backlog.md).
+Preserve admission rejection and real cleanup failures; Notes publication does
+not substitute for that consumer acceptance.
 
 Owner: each published package's source repository. Keep remaining retained UI
 families and public extension points documented in their owning feature chapters;
@@ -103,13 +99,15 @@ separate from the focused API matcher compatibility change.
 
 ## Browser-runner disconnect investigation
 
-Owner: Notes validation tooling. A complete cold catalog run on the composed
-Bits cohort passes 88 cases before the browser connection closes while starting
-Chat. The exact cold Chat family passes all six cases unchanged. A prior PR #51
-hosted attempt had the same signature and its unchanged retry passed all ten
-required jobs; that does not establish the cause or qualify this new candidate.
-The [current receipt](../../records/2026-10-31-composed-bits-lifecycle-patch.md)
-retains both the failed run and subsequent qualification.
+Owner: Notes validation tooling. The initial cold composed-Bits run passes 88
+cases before a browser disconnect while starting Chat; the unchanged exact Chat
+family passes six cases and the unchanged complete retry passes all 269 cases.
+The [source receipt](../../records/2026-10-31-composed-bits-lifecycle-patch.md)
+retains the failed run and diagnostics. The source PR, API `0.2.3` version PR and
+[actual publication workflow](../../records/2026-10-31-api-023-publication.md)
+subsequently pass their required hosted gates. The disconnect's cause remains
+unproven; this entry tracks diagnostic follow-up rather than an unpassed release
+lane.
 
 Acceptance: retain browser stderr, child exit and live cgroup memory/peak
 observations to distinguish a browser crash, resource event and transport loss.
