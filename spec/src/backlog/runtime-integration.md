@@ -45,6 +45,32 @@ The historical release-wave register predates newer registry releases. Future
 release preparation must inspect live package versions and required public
 contracts rather than treating its old wave positions as pending work.
 
+## Runtime dependency security
+
+Owner: Mira's dependency chain. A fresh registry-only API `0.2.1` consumer
+resolves `rehype-katex` `7.0.1` to vulnerable KaTeX `0.16.47`, despite Mira's
+patched direct KaTeX dependency. Desktop's existing bounded `0.18.10` override
+mitigates its current intake; the plain published API closure remains affected.
+
+Acceptance: qualify and release the owner dependency repair, consume its normal
+registry range, and verify a fresh published API production graph without that
+consumer override. Preserve public Markdown math behavior and distinct source,
+publication and consumer evidence. The separate API Minimatch owner fix and
+patched fresh AI Host routes do not close this pre-existing finding.
+
+## Development dependency maintenance
+
+Owner: Notes development/build tooling. The October 31 configured root audit
+retains separate Storybook, Vite, Vitest, QMD, Undici, web-build and unpatched
+`deepmerge` findings in the [security receipt](../../records/2026-10-31-api-minimatch-security.md).
+The tracked release workflow has no full-root vulnerability-audit gate; this
+scope statement grants no new exception and does not claim a clean audit.
+
+Acceptance: reproduce each current finding at its owning boundary, qualify
+available fixes through the affected tool and consumer lanes, and report any
+remaining unsupported or unpatched route explicitly. Keep this maintenance
+separate from the focused API matcher compatibility change.
+
 ## Source-test exceptions owned by siblings
 
 The final migration handoff retained plugin portable-lock/Bits UI guards and

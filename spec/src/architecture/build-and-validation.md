@@ -1,7 +1,9 @@
 # Architecture / Build and validation
 
-Hosted default build/test lanes select the full native image and export pinned
-sibling Rust inputs. The server container uses an exact tracked context and
+JavaScript root check/build/test and specification lanes select the UI image;
+the removed root Cargo workspace is not an input to those commands. Explicit
+native Rust lanes select the full image and export pinned sibling Rust inputs.
+The server container uses an exact tracked context and
 private archive projection, with no local vault/profile material in its build.
 GNU tar context transfer preserves long pinned-sibling paths. An explicit local
 `LAPIS_NOTES_VALIDATION_SSH_IDENTITY` may select a file identity for remote Docker
@@ -18,6 +20,9 @@ Temporary source-archive qualification installs its declared, checksum-verified
 prerequisites before validation. It does not require unpublished identities to
 resolve from the registry first; tracked manifests and lockfiles remain portable.
 Registry-only release qualification stays a separate gate.
+Release versioning regenerates the API host-module catalogue after metadata
+bumps, so a later package build leaves tracked source unchanged. Local clean
+release preparation retains its empty-working-copy guard.
 An archive projection preserves pnpm's effective dependency override policy
 before adding selected archives. A package-level projection must not shadow
 workspace security overrides; invalid policy stops before installation. Tracked

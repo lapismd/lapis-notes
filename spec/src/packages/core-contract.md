@@ -23,9 +23,10 @@ The private root specification commands validate canonical contracts, verificati
 navigation and source mappings. They do not generate an application-status ledger
 or enter published package exports.
 
-The root development cohort selects released Mira `~0.1.2`. Its three
+The root development cohort selects released Mira `~0.1.3` and Design Core
+`^0.7.2`. Its three
 `~0.0.3` companions stay at their published versions. API depends on and
-peers `@lapismd/mira` at `~0.1.2`. The
+peers `@lapismd/mira` at `~0.1.3` and Design Core at `^0.7.2`. The
 [dependency intake receipt](../../records/2026-10-25-released-mira-dependency-intake.md)
 records the temporary committed Design Core archive, separate consumer checks
 and unresolved private-package frozen-registry gate under LN-PKG-012/064.

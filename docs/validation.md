@@ -23,7 +23,12 @@ Images are fingerprinted by the pinned Docker recipe, tool installer, target
 and daemon architecture. Application manifests and locks belong to dependency
 caches, so ordinary dependency changes cannot rebuild the tool image. Use
 `pnpm validation:images -- --rebuild` to rebuild explicitly.
-Native Rust aggregate lanes select the full image automatically. Prepare it with `pnpm validation:images -- --target full`. Its recorded sibling revisions are in `scripts/validation/native-sources.json`; the runner transfers those committed sources, never another workspace’s dirty tree.
+Explicit native Rust lanes select the full image automatically. JavaScript root
+checks, tests, builds and specification lanes use the UI image and do not require
+the removed root Cargo workspace. Prepare the full image with
+`pnpm validation:images -- --target full`. Its recorded sibling revisions are in
+`scripts/validation/native-sources.json`; the runner transfers those committed
+sources, never another workspace’s dirty tree.
 
 Each run transfers the exact tracked Jujutsu working-copy revision and ancestry,
 including from an isolated workspace. Secrets, ignored local configuration and

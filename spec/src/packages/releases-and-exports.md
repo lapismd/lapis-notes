@@ -282,7 +282,7 @@ The lapis-server repository owns server acceptance. Interaction and accessibilit
 
 <a id="ln-pkg-146"></a>
 
-**Requirement.** The generated host-module catalogue MUST derive API modules from actual public package exports and retain canonical compatibility configuration. Web and desktop renderer builds MUST provide host-owned import-map entries for the public API modules used by signed first-party bundles and the bundled Markdown embed contract and approved singleton CodeMirror/Lezer modules. Every proxy MUST preserve its public exports and share the host module graph.
+**Requirement.** The generated host-module catalogue MUST derive API modules and versions from public package metadata, retain compatibility configuration, and regenerate before version commits. Web and desktop renderer builds MUST provide host-owned import-map entries for the public API modules used by signed first-party bundles and the bundled Markdown embed contract and approved singleton CodeMirror/Lezer modules. Every proxy MUST preserve its public exports and share the host module graph.
 
 ## LN-PKG-147 — @lapis-notes/api: own the transport-neutral multi-source plugin registry adapter
 
