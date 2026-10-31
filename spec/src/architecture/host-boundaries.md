@@ -397,3 +397,4 @@ metadata. Plugin declaration, refresh/rebuild and explicit disable retain that
 authority; external settings recovery uses App configuration observation. A
 browser detach never transfers native writer ownership to its replacement view.
 
+Notebook canvas intake qualification MUST prove the generated host modules against the aligned Design Core range in each affected Web and desktop host. A successful source archive build does not replace cold plugin-loading or final released-registry acceptance.

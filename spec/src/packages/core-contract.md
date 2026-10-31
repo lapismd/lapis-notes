@@ -192,3 +192,7 @@ or resubmitting accepted work. The pre-mount regression reproduces0/1 and passes
 after the view-owned repair; final combined hosted acceptance remains R7.
 
 The Notebook segmented density picker consumes the public Design Core ToggleGroup module through the generated renderer module registry. This adds no private module or application ownership exception.
+
+Notebook canvas qualification aligns Web and the frozen Deno desktop package dependency range to Design Core ^0.8.0, matching API, UI and Workspace. Generated catalog imports MUST resolve from that range without private aliases. Source-archive and registry receipts remain separate.
+
+Notebook host intake changes generated module admission and dependency ranges only; API runtime interfaces remain unchanged. Its compatibility release MUST remain in the existing API 0.2 peer cohort so unchanged plugins remain admissible. Design Core's new public table contracts use its own minor release.

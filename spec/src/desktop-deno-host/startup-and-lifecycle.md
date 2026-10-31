@@ -195,3 +195,5 @@ adds a host runtime identity without changing the Deno command transport. The
 Tauri database admission boundary follows LN-DB-055.
 
 The renderer module registry includes Notebook’s declared public Design Core ToggleGroup density control. This does not change frozen Deno startup or native service contracts; shared renderer imports remain fail closed.
+
+The renderer host resolves Design Core through `^0.8.0` so its build-owned plugin import map can resolve the public CanvasTable and FilterBuilder modules. Native service ownership and startup ordering remain unchanged.

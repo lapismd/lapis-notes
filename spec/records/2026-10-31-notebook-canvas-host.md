@@ -5,8 +5,8 @@
 - Specified: complete contract written before runtime changes.
 - Implemented: pending.
 - Focused-tested: pending; no passing runtime evidence claimed.
-- UI-approved: pending.
-- Fully-qualified: deferred until UI approval.
+- UI-approved: approved by the user on 31 October 2026.
+- Fully-qualified: in progress; full lanes authorized after UI approval.
 
 ## Source and ownership
 
@@ -78,3 +78,68 @@ change `tmnvzxno`; this follow-up contains only the additional module intake.
 
 These are focused preparation checks; full host build/plugin loading and cohort
 qualification remain deferred. No push, merge or publication.
+
+## UI approved — full qualification resumed (31 October 2026)
+
+The user approved the integrated UI and requested the remaining plan work. Full
+qualification, remaining migration cleanup and release preparation are authorized.
+Keep stories visual-pending; no screenshot comparisons or baseline updates.
+Publication, pushing and merging still require separate authorization. Historical
+UI-pending statements above describe their original checkpoints. The current
+fully-qualified state remains incomplete until all required evidence passes.
+
+## Post-approval host qualification
+
+- `pnpm build`: first failed Web's CanvasTable import because Web's Core range
+  was still ^0.7.0. Web and frozen Deno package ranges now match ^0.8.0.
+  Exact rerun: 9/9 Turbo tasks passed. Receipt:
+  lapis-notes-validation-f31d75c8-275d-4b44-b337-3c6d678ee600.
+- `pnpm validation:consumer-pack`: passed, producing five checksummed public
+  archives (API/UI/Workspace/File Explorer/Language Service) with provenance.
+  Receipt: lapis-notes-validation-5ca43635-1d00-411a-9a6e-a34b225297d9.
+- First concurrent `pnpm check` and `pnpm test` stopped before execution on the
+  workspace's exclusive Docker lease. They were rerun sequentially.
+- `pnpm spec:check`: first 1 stale topic-index finding; `pnpm spec:mirrors`
+  regenerated the index. Next run reported 4 mapped-chapter findings; owning
+  qualification contracts were added. Final exact rerun passed, including
+  67 governance tests. Receipt: lapis-notes-validation-e2a3c79f-a08e-40e5-b615-4f5b7c4ca5d4.
+- `pnpm check`: 16/16 tasks passed; receipt
+  lapis-notes-validation-e5f1ab94-989f-4781-8028-329fa2f18237.
+- `pnpm test`: 16/16 tasks passed, 2,159 unit assertions across the packages
+  (including 1,729 API tests), 0 failures; receipt
+  lapis-notes-validation-fc479b11-d6ce-4ff0-b754-7c1fb30695cc.
+- Full Storybook, static build and package policy lanes are in progress.
+
+No runtime behavior was added to Deno; its source stays frozen. The root Web
+import-map generation consumes public modules and preserves fail-closed imports
+and one Svelte runtime. Final cold plugin and registry cohort acceptance remain
+open. Changesets status cannot inspect Git HEAD in this JJ workspace; no refs
+were moved to work around that tooling limitation.
+
+The proposed API release intent is patch (0.2.4), not minor (0.3.0): the diff
+from fetched main changes only generated host admission metadata and dependency
+ranges in API. Its public runtime interface is unchanged. Keeping the 0.2 peer
+cohort avoids requiring unrelated plugin migrations. Core retains its minor
+Changeset for the actual new public table/filter contracts.
+
+Full Storybook first attempt: shards 1–3 passed 99+67+46 stories; shard 4
+passed 55 assertions but lost its browser connection before
+`stories/plugins/markdown/panels/LinkPreviewAcceptance.stories.ts` completed.
+This is 1 infrastructure error, not a pass. Exact fresh target and full retry
+remain required. Full static Storybook passed.
+
+The exact cold LinkPreviewAcceptance family passed 2/0; the complete
+`pnpm test:storybook` retry passed all four shards, 99+67+46+57 = 269
+interaction/accessibility stories, 0 failures or infrastructure errors. Receipt:
+lapis-notes-validation-cc774d72-4613-4c33-b8d6-0a1db8ddf380.
+
+After the patch release intent update, `pnpm spec:check` passed again (including
+67 governance tests); `pnpm packages:check` passed public boundaries, local
+consumer routing and all release/workflow contracts. Receipts:
+lapis-notes-validation-23532d23-401b-4ace-92d5-4992bd9c21b7 and
+lapis-notes-validation-221ef9e2-037a-4496-ad2c-3250d5207e45.
+
+This verifies the source host compatibility slice. Final Core minor registry
+refresh and packed Notebook admission remain separate release-cohort gates.
+The subsequent read-only row-selection feedback belongs to Design Core/Notebook
+and adds no host module or runtime dependency to this slice.

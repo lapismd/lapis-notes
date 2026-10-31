@@ -770,8 +770,8 @@ importers:
         specifier: workspace:*
         version: link:../workspace
       '@lapismd/design-core':
-        specifier: ^0.7.0
-        version: 0.7.2(svelte@5.56.10)(tailwindcss@4.3.3)
+        specifier: ^0.8.0
+        version: 0.8.0(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapismd/jj-history':
         specifier: ~0.1.0
         version: 0.1.0
