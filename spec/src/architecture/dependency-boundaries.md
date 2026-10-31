@@ -54,6 +54,10 @@ The private App Profile now requests published Markdown `^0.2.0` so its public
 rendering dependency matches the current API/Workspace cohort without a host
 override or a second legacy renderer dependency line.
 
+The private App Profile now requests published Agent UI `^0.2.0`, History
+`^0.2.0`, and Design Core `^0.7.4`. The profile stays private at `0.0.0` and
+the API package stays `0.2.3`.
+
 ## LN-ARCH-001 — Repository: a pnpm workspace orchestrated by Turbo. Targeted
 
 <a id="ln-arch-001"></a>
