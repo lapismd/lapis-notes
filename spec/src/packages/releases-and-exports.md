@@ -393,8 +393,8 @@ test-signed archive fixtures remain separate acceptance inputs. Local consumer q
 
 ## Current CI dependency image
 
-- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:3708a73127c3c6a182e1dec7040aff68610af40000c7e78ab4e7c4f9c6960c58`
-- Lockfile tag: `lock-48560587d5b5bc13`
-- pnpm-lock.yaml SHA-256: `48560587d5b5bc13978259fb3b174c32e7d686c503071e449efb57321c98d74a`
+- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:dcd3ede6c72f95a2959016f8e330394a15f6d7ada2de96c6bd5fad3256917932`
+- Lockfile tag: `lock-51f4c55689070afc`
+- pnpm-lock.yaml SHA-256: `51f4c55689070afc1249039b0ae660a830d507a76be96ee7ebf8ddab73430d5d`
 
 <!-- ci-dependency-image:end -->
