@@ -59,3 +59,22 @@ broad suites, static catalog or publication until the user approves both UIs.
 After approval run Design Core spec:first/spec:check/checks and packed acceptance;
 complete affected host/package lanes; obtain release authorization; consume
 published registry versions; run Notebook validation:all and real plugin loading.
+
+## Segmented density shared-module intake
+
+Specified and implemented; focused host-map test passed. UI approval and full
+qualification remain pending. Added public `shadcn/toggle-group` to the canonical
+host catalog and regenerated 118 public records, preserving fail-closed imports
+and the shared renderer. Existing uncommitted cohort work is preserved in parent
+change `tmnvzxno`; this follow-up contains only the additional module intake.
+
+- `pnpm exec vitest run packages/app-profile/src/plugin-host-build.test.ts`: 1 startup/config failure, no tests collected (root Storybook config requires unbuilt API dist).
+- Correct owning target: `pnpm --filter @lapis-notes/app-profile exec vitest run src/plugin-host-build.test.ts`: 5 passed/0 failed; repeated after formatting, 5 passed/0 failed.
+- `node scripts/generate-plugin-host-modules.mjs`: generated 118 records.
+- `pnpm exec spec-validator doctor`: 10 passed/1 alias warning/0 failures under Node 24; QMD `pnpm spec:search "Notebook shared module"` succeeded. Latest Deno-free validator remains 0.2.0.
+- `pnpm spec:first`: 1 invocation error (`--head requires --base`, Docker projection). Explicit `pnpm spec:first -- --base f75dfb07`: initially 4 mapped-chapter findings, then 0 after canonical owner notes; final rerun passed 2 protected files/6 canonical chapters.
+- `pnpm spec:validate`: initially 1 chapter line-limit finding; moved the new package note into its shorter core-contract chapter; exact rerun passed 11 validators/194 chapters/1567 requirements.
+- Focused Prettier on the changed host-map test passed.
+
+These are focused preparation checks; full host build/plugin loading and cohort
+qualification remain deferred. No push, merge or publication.

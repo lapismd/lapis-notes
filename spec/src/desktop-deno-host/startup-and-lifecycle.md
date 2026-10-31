@@ -193,3 +193,5 @@ First-party prompt and leftover ACP embed acceptance verifies:
 The shared native bridge also accepts `tauri-desktop` under LN-ARCH-141. This
 adds a host runtime identity without changing the Deno command transport. The
 Tauri database admission boundary follows LN-DB-055.
+
+The renderer module registry includes Notebook’s declared public Design Core ToggleGroup density control. This does not change frozen Deno startup or native service contracts; shared renderer imports remain fail closed.

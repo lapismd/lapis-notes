@@ -1113,6 +1113,19 @@ export const pluginHostModuleRegistry = {
     "specifier": "@lapismd/design-core/shadcn/textarea",
     "version": "0.8.0"
   },
+  "@lapismd/design-core/shadcn/toggle-group": {
+    "entry": "@lapismd/design-core/shadcn/toggle-group",
+    "moduleId": "lapismd-design-core-shadcn-toggle-group",
+    "packageName": "@lapismd/design-core",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapismd/design-core/shadcn/toggle-group",
+    "version": "0.8.0"
+  },
   "@lapismd/design-core/shadcn/tooltip": {
     "entry": "@lapismd/design-core/shadcn/tooltip",
     "moduleId": "lapismd-design-core-shadcn-tooltip",

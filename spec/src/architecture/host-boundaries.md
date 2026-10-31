@@ -215,7 +215,7 @@ workspace-root module lookup. Their source file lists exclude deployment secrets
 
 <a id="ln-arch-098"></a>
 
-**Requirement.** Verified renderer ESM plugins MUST share public API modules with the host through build-owned import-map entries. The API plugin loader owns constructor resolution: it MUST prefer a default export and otherwise select a named subclass of the shared `Plugin` base without treating helper exports as the runtime constructor. Notebook’s explicit public CanvasTable/FilterBuilder and other required Design Core/UI modules MUST retain shared Svelte and fail-closed imports, with registry owner updates and isolated archive UI review before broad qualification.
+**Requirement.** Verified renderer ESM plugins MUST share public API modules with the host through build-owned import-map entries. The API plugin loader owns constructor resolution: it MUST prefer a default export and otherwise select a named subclass of the shared `Plugin` base without treating helper exports as the runtime constructor. Notebook’s public CanvasTable/FilterBuilder, ToggleGroup and required Design Core/UI modules MUST retain shared Svelte and fail-closed imports, with registry owner updates and isolated archive UI review before broad qualification.
 
 ## LN-ARCH-099 — Host-owned Nostr credentials
 

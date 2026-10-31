@@ -222,3 +222,5 @@ and restart steps are not replayed.
 <a id="ln-web-065"></a>
 
 **Requirement.** Verified plugin assets served from Cache Storage MUST carry `Cross-Origin-Embedder-Policy: require-corp` and `Cross-Origin-Resource-Policy: same-origin`. Installed module workers MUST start under the host isolation policy and retain verified relative worker chunks.
+
+The Web renderer import map includes Notebook’s declared public Design Core ToggleGroup density control under the shared Svelte runtime. This changes no storage, sync or plugin lifecycle ownership.

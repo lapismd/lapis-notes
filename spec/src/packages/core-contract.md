@@ -190,3 +190,5 @@ only an observed new draft clears the saved conversation. This retains existing
 view state through native metadata/History/Tasks boot without creating a writer
 or resubmitting accepted work. The pre-mount regression reproduces0/1 and passes
 after the view-owned repair; final combined hosted acceptance remains R7.
+
+The Notebook segmented density picker consumes the public Design Core ToggleGroup module through the generated renderer module registry. This adds no private module or application ownership exception.
