@@ -271,24 +271,20 @@ vault adapters remain governed by their existing contracts.
 Its dedicated browser worker starts after network preparation, so preceding
 PWA cases cannot carry delayed Docker interface events into initial navigation.
 
-## Released Mira dependency intake
+## Released runtime dependency intake
 
-The root development range selects released Mira `~0.1.2`. Editor, AI and
-Mermaid companions stay at their published `~0.0.3` ranges. API's direct
-dependency and peer are `~0.1.2`, so the resolved package is npm `0.1.2`
-(integrity `sha512-7QQsCm8q1T6XnbszhK+g9u5VMlLLu60ECT3iru8oTAncT8z2orLd5PLxUcZnFfCKVp/ivSjD691YkLhtGKYagw==`). Temporary consumer validation retains the qualified
-committed Design Core `944cd448` archive and explicitly records all unpublished
-prerequisites; it does not consume another task's dirty source inputs.
-The tracked lock predates private App Profile's Agent UI dependency and is not
-claimed as a complete frozen registry install. Its final regeneration follows
-publication of the private prerequisites. The
-[dependency receipt](../../records/2026-10-25-released-mira-dependency-intake.md)
-separates source admission, consumer qualification and remaining release gates.
+Root and API select released Mira `~0.1.3` and Design Core `^0.7.2` through
+portable registry ranges and the frozen lockfile. Mira Editor, AI and Mermaid
+companions retain their released `~0.0.3` ranges. The
+[historical intake](../../records/2026-10-25-released-mira-dependency-intake.md)
+retains its original source-archive prerequisites and qualification limits;
+those archives are not inputs to the current registry-only install.
 
-The final shared migration cohort selects published Bits UI `2.20.2` in root,
-API and UI to preserve shared Bits component context with Design Core's
-current declaration. The previous approved 2.19.5 patch is removed; the remaining
-timer-lifetime repair is qualified upstream and admitted through a documented
-temporary archive, with exact cold families before consumer admission.
-[Runtime intake evidence](../../records/2026-10-25-bits-runtime-intake.md)
-separates candidate source, source qualification and each consumer's acceptance.
+Root, API and UI select published Bits UI `2.20.2` with the approved, tracked
+pnpm patch composing Link Preview timer cancellation, Slider destroyed guards
+and the upstream FocusScope mount repair. Published 2.20.2 already includes the
+listener-safe Link Preview cleanup; the patch does not duplicate that hunk.
+The [current receipt](../../records/2026-10-31-composed-bits-lifecycle-patch.md)
+records provenance, installed graph verification and acceptance separately from
+publication. Root patches do not transfer through published packages. Removal
+requires every component's upstream fix and the complete affected qualification.

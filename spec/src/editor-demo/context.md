@@ -1,15 +1,14 @@
 # Lapis Editor Demo / Context
 
-Notes pins its direct Bits UI runtime to published `2.19.5`, including the
-upstream document text-selection listener teardown fix. Dependency-originated
-Svelte diagnostics remain fatal, and retained diagnostics fail after story
-teardown even when component cleanup catches the immediate exception.
+Notes selects published Bits UI `2.20.2` with the approved composed lifecycle
+patch documented in [package integration](../packages/core-contract.md).
+Dependency-originated Svelte diagnostics remain fatal, including diagnostics
+retained after story teardown when component cleanup catches the exception.
 
-The editor demo consumes published Design Core `0.3.2` through the root npm range and portable lockfile, including corrected settings typography and selected-tab indicators.
-
-The static registry framework candidates use API and Workspace 0.1.1. Editor
-acceptance continues to exercise the same public App and workspace contracts
-when validating those release versions.
+The editor demo consumes released Design Core and Mira through portable npm
+ranges and the committed lockfile. API and Workspace acceptance exercises their
+public App and workspace contracts; package integration owns the current cohort
+and its separate source, registry and consumer evidence.
 
 The demo shares the qualified Svelte renderer graph under LN-PKG-149. Provider
 readiness refreshes already-open editor diagnostics through LN-WS-094 without

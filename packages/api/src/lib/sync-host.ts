@@ -815,10 +815,14 @@ export class SyncHostService {
     const revocations = [...this.#runtimeIds.keys()].map((pluginId) =>
       this.revokePlugin(pluginId),
     );
+    // Readiness retains startup errors; resource cleanup must still finish.
+    const settled = Promise.allSettled([this.#ready, this.#eventQueue]).then(
+      () => undefined,
+    );
     this.#disposal = this.#drainSecurity([
       ...revocations,
       ...this.#securityCleanup,
-      this.ready(),
+      settled,
     ]);
     return this.#disposal;
   }

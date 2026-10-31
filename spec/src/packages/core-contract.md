@@ -23,21 +23,21 @@ The private root specification commands validate canonical contracts, verificati
 navigation and source mappings. They do not generate an application-status ledger
 or enter published package exports.
 
-The root development cohort selects released Mira `~0.1.3` and Design Core
-`^0.7.2`. Its three
-`~0.0.3` companions stay at their published versions. API depends on and
-peers `@lapismd/mira` at `~0.1.3` and Design Core at `^0.7.2`. The
-[dependency intake receipt](../../records/2026-10-25-released-mira-dependency-intake.md)
-records the temporary committed Design Core archive, separate consumer checks
-and unresolved private-package frozen-registry gate under LN-PKG-012/064.
+The root development cohort selects released Mira `~0.1.3`, Design Core
+`^0.7.2` and the published `~0.0.3` Mira companions. API's direct dependencies
+and peers use those same Mira and Design Core ranges. Tracked manifests and the
+frozen lockfile use registry packages; historical temporary archive admission
+remains in the [dependency intake receipt](../../records/2026-10-25-released-mira-dependency-intake.md).
 
-Root, API and UI select the same published Bits UI `2.20.2` runtime. The
-[unified-runtime intake](../../records/2026-10-25-bits-runtime-intake.md) retains
-exact hover-preview regressions, final source/packing and separate consumer gates
-before admission. Published 2.20.2 still queues a Link Preview selection probe
-after teardown. `patches/bits-ui@2.20.2.patch` applies the timer cancel already
-qualified in that owning source, with no checkout-specific installation path.
-Remove the patch when the published Bits release contains the same teardown.
+Root, API and UI select published Bits UI `2.20.2`. The user-approved,
+reproducible `patches/bits-ui@2.20.2.patch` composes Link Preview selection-timer
+cleanup, Slider post-destroy pointer guards and the upstream FocusScope
+idempotent-mount repair. The [composed patch receipt](../../records/2026-10-31-composed-bits-lifecycle-patch.md)
+records official registry input, exact patch bytes and separate qualification.
+This root pnpm patch does not propagate through published framework packages;
+LN-PKG-158's minimal published consumer remains independent of root patches.
+Remove it only after an upstream release contains every remaining repair and
+passes the exact regressions, complete affected lanes and consumer acceptance.
 
 Published `@lapis-notes/bases@0.1.4` omits accessible names on its Select
 triggers. `patches/@lapis-notes__bases@0.1.4.patch` applies the names already

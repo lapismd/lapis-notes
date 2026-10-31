@@ -5,13 +5,15 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@modelcontextprotocol/sdk@>=1.12.0 <1.31.0': '>=1.31.0 <2'
-  '@napi-rs/wasm-runtime@1.0.7>@emnapi/core': 1.8.1
-  '@napi-rs/wasm-runtime@1.0.7>@emnapi/runtime': 1.8.1
-  '@simple-git/argv-parser@<2.0.1': 2.0.1
-  '@vitest/mocker@>=4.0.0 <4.1.11': 4.1.11
+  bits-ui: 2.20.2
   adm-zip: '>=0.6.1 <0.7'
   aria-query: 5.3.2
+  '@napi-rs/wasm-runtime@1.0.7>@emnapi/core': 1.8.1
+  '@napi-rs/wasm-runtime@1.0.7>@emnapi/runtime': 1.8.1
+  sharp: '>=0.35.5 <0.36'
+  '@modelcontextprotocol/sdk@>=1.12.0 <1.31.0': '>=1.31.0 <2'
+  '@simple-git/argv-parser@<2.0.1': 2.0.1
+  '@vitest/mocker@>=4.0.0 <4.1.11': 4.1.11
   brace-expansion@>=2.0.0 <2.1.7: '>=2.1.7 <3'
   brace-expansion@>=5.0.0 <5.0.12: '>=5.0.12 <6'
   devalue@>=5.0.0 <5.9.3: '>=5.9.3 <6'
@@ -26,7 +28,6 @@ overrides:
   nanoid@>=3.0.0 <3.3.18: '>=3.3.18 <4'
   proxy-addr@>=2.0.0 <2.0.8: '>=2.0.8 <3'
   qs@>=6.0.0 <6.16.0: '>=6.16.0 <7'
-  sharp: '>=0.35.5 <0.36'
   simple-git@<4.0.1: 4.0.1
   source-map-js@>=1.0.0 <1.2.2: '>=1.2.2 <2'
   undici@>=7.0.0 <7.29.1: '>=7.29.1 <8'
@@ -37,7 +38,7 @@ patchedDependencies:
     hash: 19424b49bbdc502a92e4678b6f128e20fe0427ab0a3483acc48db00cb932e572
     path: patches/@lapis-notes__bases@0.1.4.patch
   bits-ui@2.20.2:
-    hash: d9b49a52c343dfbd392e235b5d748e5922f3e16e727cf92064437a95c90530f9
+    hash: debd3bc7d43917f0967f0cc1e212fc5c7721c751d3b92bf8f31030d1c96289ad
     path: patches/bits-ui@2.20.2.patch
 
 importers:
@@ -238,7 +239,7 @@ importers:
         version: 5.3.2
       bits-ui:
         specifier: 2.20.2
-        version: 2.20.2(patch_hash=d9b49a52c343dfbd392e235b5d748e5922f3e16e727cf92064437a95c90530f9)(@internationalized/date@3.12.3)(svelte@5.56.10)
+        version: 2.20.2(patch_hash=debd3bc7d43917f0967f0cc1e212fc5c7721c751d3b92bf8f31030d1c96289ad)(@internationalized/date@3.12.3)(svelte@5.56.10)
       character-entities:
         specifier: 2.0.2
         version: 2.0.2
@@ -358,7 +359,7 @@ importers:
         version: 4.17.12
       bits-ui:
         specifier: 2.20.2
-        version: 2.20.2(patch_hash=d9b49a52c343dfbd392e235b5d748e5922f3e16e727cf92064437a95c90530f9)(@internationalized/date@3.12.3)(svelte@5.56.10)
+        version: 2.20.2(patch_hash=debd3bc7d43917f0967f0cc1e212fc5c7721c751d3b92bf8f31030d1c96289ad)(@internationalized/date@3.12.3)(svelte@5.56.10)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -685,7 +686,7 @@ importers:
         version: 0.515.0(svelte@5.56.10)
       bits-ui:
         specifier: 2.20.2
-        version: 2.20.2(patch_hash=d9b49a52c343dfbd392e235b5d748e5922f3e16e727cf92064437a95c90530f9)(@internationalized/date@3.12.3)(svelte@5.56.10)
+        version: 2.20.2(patch_hash=debd3bc7d43917f0967f0cc1e212fc5c7721c751d3b92bf8f31030d1c96289ad)(@internationalized/date@3.12.3)(svelte@5.56.10)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -4696,13 +4697,6 @@ packages:
 
   bindings@1.5.0:
     resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
-
-  bits-ui@2.19.5:
-    resolution: {integrity: sha512-TEwkLSYElE5SE0fIdcItiFPfyg9vrR67N1Mt6VvZCqZo24dwTA1MpGVV3WeyIg7rfVAaZ0So8a0/dcnPngCoew==}
-    engines: {node: '>=20'}
-    peerDependencies:
-      '@internationalized/date': ^3.8.1
-      svelte: ^5.33.0
 
   bits-ui@2.20.2:
     resolution: {integrity: sha512-cb1eQD1wZEhJWb1dTLiAdYWqeUI5v7f+7EAHmetxBuELI9lo4cpAIfGEjald/PR4wTR80Fu5DFH+IaY1OKn+tg==}
@@ -10359,7 +10353,7 @@ snapshots:
       '@lucide/svelte': 1.64.0(svelte@5.56.10)
       '@tanstack/svelte-virtual': 3.13.41(svelte@5.56.10)
       '@types/luxon': 3.7.3
-      bits-ui: 2.19.5(@internationalized/date@3.12.3)(svelte@5.56.10)
+      bits-ui: 2.20.2(patch_hash=debd3bc7d43917f0967f0cc1e212fc5c7721c751d3b92bf8f31030d1c96289ad)(@internationalized/date@3.12.3)(svelte@5.56.10)
       chrono-node: 2.10.1
       clsx: 2.1.1
       codemirror-lang-mermaid: 0.5.0
@@ -10410,7 +10404,7 @@ snapshots:
       '@lucide/svelte': 1.64.0(svelte@5.56.10)
       '@tanstack/svelte-virtual': 3.13.41(svelte@5.56.10)
       '@types/luxon': 3.7.3
-      bits-ui: 2.20.2(patch_hash=d9b49a52c343dfbd392e235b5d748e5922f3e16e727cf92064437a95c90530f9)(@internationalized/date@3.12.3)(svelte@5.56.10)
+      bits-ui: 2.20.2(patch_hash=debd3bc7d43917f0967f0cc1e212fc5c7721c751d3b92bf8f31030d1c96289ad)(@internationalized/date@3.12.3)(svelte@5.56.10)
       chrono-node: 2.10.1
       clsx: 2.1.1
       codemirror-lang-mermaid: 0.5.0
@@ -10623,7 +10617,7 @@ snapshots:
       '@lezer/highlight': 1.2.3
       '@lezer/markdown': 1.7.2
       '@lucide/svelte': 0.525.0(svelte@5.56.10)
-      bits-ui: 2.19.5(@internationalized/date@3.12.3)(svelte@5.56.10)
+      bits-ui: 2.20.2(patch_hash=debd3bc7d43917f0967f0cc1e212fc5c7721c751d3b92bf8f31030d1c96289ad)(@internationalized/date@3.12.3)(svelte@5.56.10)
       clsx: 2.1.1
       hast-util-to-text: 4.0.2
       katex: 0.18.10
@@ -10685,7 +10679,7 @@ snapshots:
       '@lezer/highlight': 1.2.3
       '@lezer/markdown': 1.7.2
       '@lucide/svelte': 0.525.0(svelte@5.56.10)
-      bits-ui: 2.19.5(@internationalized/date@3.12.3)(svelte@5.56.10)
+      bits-ui: 2.20.2(patch_hash=debd3bc7d43917f0967f0cc1e212fc5c7721c751d3b92bf8f31030d1c96289ad)(@internationalized/date@3.12.3)(svelte@5.56.10)
       clsx: 2.1.1
       hast-util-to-text: 4.0.2
       katex: 0.18.10
@@ -10747,7 +10741,7 @@ snapshots:
       '@lezer/highlight': 1.2.3
       '@lezer/markdown': 1.7.2
       '@lucide/svelte': 0.525.0(svelte@5.56.10)
-      bits-ui: 2.20.2(patch_hash=d9b49a52c343dfbd392e235b5d748e5922f3e16e727cf92064437a95c90530f9)(@internationalized/date@3.12.3)(svelte@5.56.10)
+      bits-ui: 2.20.2(patch_hash=debd3bc7d43917f0967f0cc1e212fc5c7721c751d3b92bf8f31030d1c96289ad)(@internationalized/date@3.12.3)(svelte@5.56.10)
       clsx: 2.1.1
       hast-util-to-text: 4.0.2
       katex: 0.18.10
@@ -10809,7 +10803,7 @@ snapshots:
       '@lezer/highlight': 1.2.3
       '@lezer/markdown': 1.7.2
       '@lucide/svelte': 0.525.0(svelte@5.56.10)
-      bits-ui: 2.20.2(patch_hash=d9b49a52c343dfbd392e235b5d748e5922f3e16e727cf92064437a95c90530f9)(@internationalized/date@3.12.3)(svelte@5.56.10)
+      bits-ui: 2.20.2(patch_hash=debd3bc7d43917f0967f0cc1e212fc5c7721c751d3b92bf8f31030d1c96289ad)(@internationalized/date@3.12.3)(svelte@5.56.10)
       clsx: 2.1.1
       hast-util-to-text: 4.0.2
       katex: 0.18.10
@@ -10871,7 +10865,7 @@ snapshots:
       '@lezer/highlight': 1.2.3
       '@lezer/markdown': 1.7.2
       '@lucide/svelte': 0.525.0(svelte@5.56.10)
-      bits-ui: 2.20.2(patch_hash=d9b49a52c343dfbd392e235b5d748e5922f3e16e727cf92064437a95c90530f9)(@internationalized/date@3.12.3)(svelte@5.56.10)
+      bits-ui: 2.20.2(patch_hash=debd3bc7d43917f0967f0cc1e212fc5c7721c751d3b92bf8f31030d1c96289ad)(@internationalized/date@3.12.3)(svelte@5.56.10)
       clsx: 2.1.1
       hast-util-to-text: 4.0.2
       katex: 0.18.10
@@ -12990,20 +12984,7 @@ snapshots:
     dependencies:
       file-uri-to-path: 1.0.0
 
-  bits-ui@2.19.5(@internationalized/date@3.12.3)(svelte@5.56.10):
-    dependencies:
-      '@floating-ui/core': 1.8.0
-      '@floating-ui/dom': 1.8.0
-      '@internationalized/date': 3.12.3
-      esm-env: 1.2.2
-      runed: 0.35.1(svelte@5.56.10)
-      svelte: 5.56.10
-      svelte-toolbelt: 0.10.6(svelte@5.56.10)
-      tabbable: 6.5.0
-    transitivePeerDependencies:
-      - '@sveltejs/kit'
-
-  bits-ui@2.20.2(patch_hash=d9b49a52c343dfbd392e235b5d748e5922f3e16e727cf92064437a95c90530f9)(@internationalized/date@3.12.3)(svelte@5.56.10):
+  bits-ui@2.20.2(patch_hash=debd3bc7d43917f0967f0cc1e212fc5c7721c751d3b92bf8f31030d1c96289ad)(@internationalized/date@3.12.3)(svelte@5.56.10):
     dependencies:
       '@floating-ui/core': 1.8.0
       '@floating-ui/dom': 1.8.0
