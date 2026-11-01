@@ -53,9 +53,25 @@ test("requirement links, outline, and history survive reload", async ({
     .getByRole("link", { name: "Workspace Shell", exact: true })
     .click();
   await expect(page).toHaveURL(/specification-workspace-shell--docs$/);
+  await expect
+    .poll(() =>
+      page
+        .frames()
+        .find((frame) => frame.url().includes("iframe.html"))
+        ?.url(),
+    )
+    .toContain("id=specification-workspace-shell--docs");
   const parentUrl = page.url();
   await page.goBack();
   await expect(page).toHaveURL(requirementUrl);
+  await expect
+    .poll(() =>
+      page
+        .frames()
+        .find((frame) => frame.url().includes("iframe.html"))
+        ?.url(),
+    )
+    .toContain("id=specification-workspace-shell-layout-and-persistence--docs");
   await expect(firstRequirement).toBeInViewport();
   await page.goForward();
   await expect(page).toHaveURL(parentUrl);
