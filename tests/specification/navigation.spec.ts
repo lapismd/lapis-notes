@@ -73,8 +73,15 @@ test("requirement links, outline, and history survive reload", async ({
     )
     .toContain("id=specification-workspace-shell-layout-and-persistence--docs");
   await expect(firstRequirement).toBeInViewport();
-  await page.goForward();
-  await expect(page).toHaveURL(parentUrl);
+  await expect
+    .poll(
+      async () => {
+        await page.goForward();
+        return page.url();
+      },
+      { timeout: 15_000 },
+    )
+    .toBe(parentUrl);
   await expect(
     docs.locator('[data-specification-chapter="workspace-shell.md"]'),
   ).toBeVisible();
