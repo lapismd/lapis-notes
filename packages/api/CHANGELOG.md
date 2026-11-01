@@ -1,5 +1,26 @@
 # @lapis-notes/api
 
+## 0.2.4
+
+### Patch Changes
+
+- [#60](https://github.com/lapismd/lapis-notes/pull/60)
+  [`fb2eff2`](https://github.com/lapismd/lapis-notes/commit/fb2eff2b11b4a623ea2780f5e3e0f92a0530844b)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Expose the explicit
+  Notebook Design Core/UI host modules and admit Design Core 0.9 compatibility,
+  including File Explorer so the host resolves one shared Core installation.
+  This changes generated host admission metadata and dependency compatibility,
+  not the API runtime interface; retain the 0.2 API peer cohort. Full host
+  qualification remains required before release.
+
+  Add a public Vite renderer adapter that binds plugin compiler imports to the
+  admitted versioned Svelte namespace and resolves those entries through the
+  shared host runtime. Expose the required Markdown and CodeMirror host modules
+  while keeping private imports and renderer version mismatches rejected.
+- Updated dependencies
+  [[`fb2eff2`](https://github.com/lapismd/lapis-notes/commit/fb2eff2b11b4a623ea2780f5e3e0f92a0530844b)]:
+  - @lapis-notes/ui@0.1.6
+
 ## 0.2.3
 
 ### Patch Changes
