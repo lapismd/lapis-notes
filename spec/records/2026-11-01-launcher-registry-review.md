@@ -69,3 +69,12 @@ checked in the browser, and refreshed Docs reported zero runtime errors.
 Initial simultaneous broad lanes collided on generated package output. They
 were stopped and rerun sequentially. Incidental Deno lockfile pruning from
 validation was discarded; application manifests and lockfiles remain unchanged.
+
+## Review approval and release intake
+
+On 2026-11-01 the user approved the Storybook slice and instructed release.
+The two reviewed source changes were rebased without conflicts onto production
+main `5013c0707997e3cb38908c312a652634109ca0b4`, which contains the intervening
+package-version publication. Protected CI must qualify the exact rebased head
+before automatic production deployment. Screenshot comparisons and baseline
+updates remain excluded; visual tags stay pending their separate baseline lane.
