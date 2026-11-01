@@ -128,3 +128,19 @@ and deferred/refused/accepted update persistence. Root checks and units pass all
 Final dependency adoption, fresh protected CI and production qualification
 remain required. Local behaviour-validation metadata using the parent SHA is
 provisional and must not be deployed as a production artifact.
+
+The final cache regression found that root-level content-hashed Workbox used
+the default revalidation policy (one failing HTTP case). Its dedicated header
+rule now passes all three packaging/HTTP cases. Stable plugin entries continue
+to revalidate. Saved-appearance acceptance now waits for the persisted bootstrap
+choice before reloading.
+
+Revision qualification found the Vite build SHA was defined but unused by the
+web entrypoint. A source-only or documentation revision could reuse the same
+service-worker identity. The running document now records the compiled SHA,
+which changes the hashed entrypoint and its precache identity on every source
+revision. The old remote artifact fails the active-document SHA assertion;
+the corrected prepared artifact passes it and the complete appearance, offline,
+plugin, WASM and update-persistence acceptance. Root check and unit lanes each
+pass 16 tasks, build passes nine, and the specification gate passes. Live
+qualification between two main revisions remains required.

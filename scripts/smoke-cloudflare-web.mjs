@@ -63,6 +63,12 @@ try {
     .getByRole("heading", { name: "Create a vault" })
     .waitFor({ timeout: 90_000 });
   assert.equal(await page.evaluate(() => crossOriginIsolated), true);
+  assert.equal(
+    await page.evaluate(
+      () => document.documentElement.dataset.lapisBuildCommit,
+    ),
+    version.commit,
+  );
   await page.getByRole("button", { name: /Create New Vault/ }).click();
   const dialog = page.getByRole("dialog", { name: "New Browser Vault" });
   await dialog.getByLabel("Name").fill("Cloudflare acceptance");

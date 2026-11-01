@@ -11,6 +11,9 @@ import { observeHostThemeColor } from "./host-theme-color";
 import { applyWebHostAppearance } from "./host-appearance";
 import "./web-host.css";
 
+document.documentElement.dataset.lapisBuildCommit =
+  import.meta.env.VITE_APP_COMMIT_HASH;
+
 let disposeWindowControls = () => {};
 let disposePwa = () => {};
 if (!__LAPIS_SERVER_MODE__) {

@@ -4,7 +4,7 @@ Production PWA publication runs the reusable exact-revision CI workflow even
 when package versioning is pending. Its Cloudflare lane prepares and tests the
 ordinary browser build, uploads one SHA-labelled artifact and keeps deployment
 credentials in the main-only `web-production` environment. Deployment identity,
-asset delivery, update and browser appearance requirements are LN-WEB-083–087.
+asset delivery, update, appearance and caching requirements are LN-WEB-083–089.
 The prepared-artifact browser lane qualifies saved startup appearance and system
 transitions before its plugin/offline checks.
 

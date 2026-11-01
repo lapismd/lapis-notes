@@ -45,6 +45,7 @@ test(
         JSON.stringify({ id: "/", display: "standalone" }),
       );
       await writeFile(path.join(source, "sw.js"), "// PWA");
+      await writeFile(path.join(source, "workbox-a1b2c3d4.js"), "export {};");
       await writeFile(
         path.join(source, "_headers"),
         await readFile(path.join(root, "packages/web/public/_headers")),
@@ -162,6 +163,12 @@ test(
       assert.match(
         (await fetch(`${base}/version.json`)).headers.get("cache-control"),
         /no-store/,
+      );
+      assert.match(
+        (await fetch(`${base}/workbox-a1b2c3d4.js`)).headers.get(
+          "cache-control",
+        ),
+        /max-age=31536000.*immutable/,
       );
       for (const missing of ["/assets/missing.wasm", "/missing.js"]) {
         const result = await fetch(`${base}${missing}`, {

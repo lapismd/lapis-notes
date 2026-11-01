@@ -33,6 +33,10 @@ export async function qualifyPwaAppearance(page) {
   await page.emulateMedia({ colorScheme: "light" });
   await mode("dark");
   const dark = await paint(true);
+  await page.waitForFunction(async () => {
+    const { getBootstrapAppearanceMode } = await import("@lapis-notes/api");
+    return (await getBootstrapAppearanceMode()) === "dark";
+  });
   await page.reload();
   await page
     .locator('[data-app-shell-ready="true"]')

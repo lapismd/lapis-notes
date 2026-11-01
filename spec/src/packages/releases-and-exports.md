@@ -2,7 +2,7 @@
 
 The verified publication job may notify the dependency coordinator. This adds no merge, publication, signing or deployment authority.
 
-The private web deployment toolchain pins Wrangler and JSONC parsing in the root lockfile. Cloudflare publication consumes the tested browser artifact without publishing application packages or copying local dependency sources (LN-WEB-083–084). Artifact acceptance includes runtime and saved-startup appearance (LN-WEB-087). Dependency-image reviews retain LN-GOV-050/LN-PKG-142; API Mira uses public ranges.
+The private web deployment toolchain pins Wrangler and JSONC parsing in the root lockfile. Cloudflare publication consumes the tested browser artifact without publishing application packages or copying local dependency sources (LN-WEB-083–084). Artifact acceptance includes runtime and saved-startup appearance (LN-WEB-087), plus immutable hashed runtime and revalidated stable entrypoints (LN-WEB-088) and revision-specific installation identity (LN-WEB-089). Dependency-image reviews retain LN-GOV-050/LN-PKG-142; API Mira uses public ranges.
 The [native service exports](./native-service-exports.md) define generated admitted ports separately from release and registry policy.
 
 Release and validation containers consume shared image `2026.10.14.1` by digest. GitHub CLI 2.102.0 is supplied upstream so approved npm publication can create its GitHub release records without a consumer tool-install workaround.

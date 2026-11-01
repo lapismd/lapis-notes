@@ -91,3 +91,15 @@ Rust profiles keep the port absent until their separate cutover gates.
 <a id="ln-web-087"></a>
 
 **Requirement.** The browser host MUST apply the workspace's light, dark or system appearance to its document, persist the selected startup mode and follow system changes while system mode is selected. Browser-frame theme metadata MUST follow resolved shell paint in the launcher, running workspace and subsequent startup.
+
+## LN-WEB-088 — Static asset cache identity
+
+<a id="ln-web-088"></a>
+
+**Requirement.** HTML, service-worker entrypoints, manifests and stable plugin entrypoints MUST revalidate; deployment metadata MUST bypass storage. Content-hashed assets, including the imported Workbox runtime, MUST use immutable caching.
+
+## LN-WEB-089 — Revision-specific PWA installation
+
+<a id="ln-web-089"></a>
+
+**Requirement.** Every published source revision MUST produce a distinct service-worker installation identity, including revisions with no application-source changes. The running document MUST expose its build SHA so update acceptance can verify the active revision independently of uncached deployment metadata.
