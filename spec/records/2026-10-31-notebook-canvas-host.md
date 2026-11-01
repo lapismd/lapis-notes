@@ -1,5 +1,29 @@
 # Notebook canvas-table migration progress
 
+## Core 0.9 registry intake — 1 November 2026
+
+Core 0.9.0 is verified at release workflow `41258271966` and tag
+`design-core@0.9.0`, source `a31e02a7eb8a96f9d1df6b4caf6fd39352780b44`.
+Notes' eight direct manifests now admit that registry version; retained UI and
+Explorer preserve existing supported ranges. Root, application profile, Web
+and frozen desktop metadata target ^0.9.0. The registry lock resolves each
+colocated API/UI/Workspace/Explorer provider to 0.9.0 and removes unused 0.7.2.
+Unchanged older external plugin peers still emit their pre-existing API 0.1
+warnings; no peer suppression or package patch was introduced.
+
+- `pnpm install --lockfile-only --ignore-pnpmfile`: passed registry resolution.
+- `LAPIS_NOTES_VALIDATION_RUNTIME=native pnpm spec:first --base main@codex-https --head @`:
+  passed 17 protected files/11 canonical chapters, 0 findings.
+- `LAPIS_NOTES_VALIDATION_RUNTIME=native pnpm spec:validate`: 11 validators,
+  194 chapters, 1567 requirements, 0 findings. Changed-manifest Prettier passed.
+- `pnpm packages:check`: passed package/release policies and 100 release tests,
+  0 failures; Docker receipt `lapis-notes-validation-c7d51252-62f1-418f-8e40-67ffb45afff8`.
+
+Latest Deno-free validator remains 0.2.0. Final full checks are delegated to the
+new exact-head hosted CI as requested; no source/runtime behavior changed in
+this registry intake. Expected patches: API 0.2.4, UI 0.1.6, Workspace 0.3.2,
+File Explorer 0.2.1. Verify actual generated versions and registry presence.
+
 ## Release watch — 1 November 2026
 
 The user authorized watching, merging and releasing the four migration PRs.
