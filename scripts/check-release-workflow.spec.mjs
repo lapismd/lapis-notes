@@ -17,13 +17,16 @@ const ci = [
   "unit:",
   "storybook-static:",
   "storybook-interaction:",
+  "storybook-specification:",
   "release-artifacts:",
   "validate:",
   "pnpm spec:first",
   "pnpm packages:policy",
   "pnpm packages:pack -- --already-built",
   "node scripts/run-turbo.mjs ci:storybook-static --summarize",
-  "node scripts/run-turbo.mjs ci:storybook-interaction --summarize",
+  "pnpm test:storybook:run",
+  "pnpm test:specification:dev",
+  "github.event_name == 'workflow_dispatch' && inputs.run_quarantined_storybook == true",
   "pnpm release:intent",
   "include-hidden-files: true",
   "TURBO_REMOTE_CACHE_SIGNATURE_KEY",
@@ -204,7 +207,7 @@ test("generated Changesets PR retains remaining validation lanes", () => {
     "quality",
     "unit",
     "storybook-static",
-    "storybook-interaction",
+    "storybook-specification",
     "release-artifacts",
   ]) {
     assert.equal(workflow.jobs[lane].if, undefined, lane);
@@ -265,6 +268,49 @@ test("rejects workflow self-cancellation", () => {
       }),
     /must not.*cancel/,
   );
+});
+
+test("quarantined Storybook browsers require explicit diagnostics", () => {
+  const input = workflow.on.workflow_dispatch.inputs.run_quarantined_storybook;
+  assert.equal(input.type, "boolean");
+  assert.equal(input.default, false);
+  const browser = workflow.jobs["storybook-interaction"];
+  assert.equal(
+    browser.if,
+    "github.event_name == 'workflow_dispatch' && inputs.run_quarantined_storybook == true",
+  );
+  assert.equal(
+    workflow.jobs.validate.needs.includes("storybook-interaction"),
+    false,
+  );
+  assert.ok(
+    browser.steps.some((step) => step.run === "pnpm test:storybook:run"),
+  );
+  assert.equal(browser["continue-on-error"], undefined);
+  const specification = workflow.jobs["storybook-specification"];
+  assert.equal(specification.if, undefined);
+  assert.ok(workflow.jobs.validate.needs.includes("storybook-specification"));
+  assert.ok(
+    specification.steps.some(
+      (step) => step.run === "pnpm test:specification:dev",
+    ),
+  );
+  assert.ok(
+    specification.steps.some((step) =>
+      /quarantined|quarantine/.test(step.run ?? ""),
+    ),
+  );
+});
+
+test("release CI excludes quarantined browser coverage", () => {
+  const lanes = JSON.parse(
+    readFileSync(new URL("./validation/lanes.json", import.meta.url), "utf8"),
+  );
+  assert.doesNotMatch(
+    lanes["ci:release"],
+    /ci:storybook-interaction|test:storybook/,
+  );
+  assert.match(lanes["ci:release"], /pnpm test:specification:dev/);
 });
 
 test("Web fixtures come from an immutable Plugins candidate", () => {

@@ -264,13 +264,13 @@ unfiltered finding, dependency path, scope limitation, and removal procedure.
 The exact final Plugins version candidate is
 `da7d8bb73541eb3421ca8fdfaf1eaaf2baecc850`. The fixture lane builds all active
 archives from that commit for the complete Web installer lane; full application
-interactions remain blocking. Notes CI does not build or package the desktop app.
+Web interactions remain blocking. Notes CI does not build or package the desktop app.
 
 <a id="ln-pkg-142"></a>
 
-**Requirement.** CI MUST populate package build outputs once, then run governance, quality, unit, Storybook, web acceptance, and release-artifact jobs before one validate job. Every required job MUST succeed; CI MUST NOT automatically cancel active validation runs or sibling jobs after a failure, so failed jobs remain retryable. Visual comparison MUST remain non-blocking. Notes CI MUST NOT build the desktop application or the server image.
+**Requirement.** CI MUST populate package build outputs once, then run governance, quality, unit, Storybook static/specification acceptance, web acceptance, and release-artifact jobs before one validate job. Every enabled required job MUST succeed; CI MUST NOT automatically cancel active validation runs or sibling jobs after a failure, so failed jobs remain retryable. Visual comparison MUST remain non-blocking. Notes CI MUST NOT build the desktop application or the server image.
 
-The lapis-server repository owns server acceptance. Interaction and accessibility failures stay blocking. The aggregate MUST report failed, skipped or cancelled required lanes as failure.
+The lapis-server repository owns server acceptance. Enabled interaction and accessibility failures stay blocking. The aggregate MUST reject failed, skipped or cancelled required lanes; LN-CAT-121 explicitly disables only quarantined Vitest browser coverage, which MUST NOT be reported as passing.
 
 ## LN-PKG-143 — Release candidates: reuse the validated Turbo build graph
 

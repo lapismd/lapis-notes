@@ -36,11 +36,12 @@ test("CI Storybook tasks cache their results after package builds", () => {
     const task = config.tasks[`//#${name}`];
     assert.ok(task, name);
     assert.notEqual(task.cache, false);
-    assert.ok(
-      lanes["ci:release"].includes(
-        `node scripts/run-turbo.mjs ${name} --summarize`,
-      ),
-    );
+    if (name === "ci:storybook-static")
+      assert.ok(
+        lanes["ci:release"].includes(
+          `node scripts/run-turbo.mjs ${name} --summarize`,
+        ),
+      );
     assert.ok(task.dependsOn.includes("^build"));
     assert.ok(task.env.includes("LAPIS_TURBO_TOOLCHAIN"));
     assert.ok(task.env.includes("CI"));
@@ -104,14 +105,18 @@ test("CI and Pages run Storybook through the signed Turbo cache", async () => {
           "node scripts/run-turbo.mjs ci:storybook-static --summarize",
       ),
     );
-    if (file === "lapis-ci.yml")
+    if (file === "lapis-ci.yml") {
       assert.ok(
-        workflow.jobs["storybook-interaction"].steps.some(
-          (step) =>
-            step.run ===
-            "node scripts/run-turbo.mjs ci:storybook-interaction --summarize",
+        workflow.jobs["storybook-interaction"].if.includes(
+          "run_quarantined_storybook",
         ),
       );
+      assert.ok(
+        workflow.jobs["storybook-specification"].steps.some(
+          (step) => step.run === "pnpm test:specification:dev",
+        ),
+      );
+    }
   }
 });
 

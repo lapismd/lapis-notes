@@ -99,6 +99,14 @@ separate from the focused API matcher compatibility change.
 
 ## Browser-runner disconnect investigation
 
+**CI quarantine active, November 1:** the user authorized disabling flaky tests.
+LN-CAT-121 disables automatic Vitest browser interactions/axe and local release
+execution, with explicit fatal manual diagnostics retained. Notes validation
+tooling owns this coverage gap and restoration; see the
+[quarantine record](../../records/2026-11-01-storybook-browser-quarantine.md).
+Static Storybook, development specification acceptance, package tests and Web
+acceptance remain blocking. Disabled coverage is not a passing result.
+
 Owner: Notes validation tooling. The initial cold composed-Bits run passes 88
 cases before a browser disconnect while starting Chat; the unchanged exact Chat
 family passes six cases and the unchanged complete retry passes all 269 cases.
