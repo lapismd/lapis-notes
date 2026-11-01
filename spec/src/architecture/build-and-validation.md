@@ -6,6 +6,7 @@ ordinary browser build, uploads one SHA-labelled artifact and keeps deployment
 credentials in the main-only `web-production` environment. Deployment identity,
 asset delivery, update, appearance and caching requirements are LN-WEB-083–089.
 Published Core 0.10.1 supplies the continuous native-control divider.
+LN-WEB-090 qualifies the desktop-aligned browser chooser in Storybook before publication.
 The prepared-artifact browser lane qualifies saved startup appearance and system
 transitions before its plugin/offline checks.
 

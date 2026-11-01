@@ -26,6 +26,7 @@
   import PluginBrowserLanding from "./PluginBrowserLanding.svelte";
   import PluginBrowserDirectory from "./PluginBrowserDirectory.svelte";
   import PluginRegistryContentState from "./PluginRegistryContentState.svelte";
+  import PluginRegistrySkeleton from "./PluginRegistrySkeleton.svelte";
   import PluginBrowserDetail from "./PluginBrowserDetail.svelte";
   import "./community-presentation/community-typography.css";
   export interface PluginBrowserNavigation {
@@ -409,10 +410,9 @@
               label="Registry content"
             >
               <div class="registry-browser">
-                {#if registry.initialLoading}<PluginRegistryContentState
-                    kind="loading"
-                    heading="Loading plugins"
-                    description="Reading your verified registry…"
+                {#if registry.initialLoading}<PluginRegistrySkeleton
+                    layout={navigation.route.page === "plugin" ? "detail" : navigation.route.page}
+                    label="Loading plugins"
                   />
                 {:else if registry.lastError && !registry.catalogEntries.length}<PluginRegistryContentState
                     kind="warning"
@@ -495,10 +495,9 @@
                         persist();
                       }}
                     />
-                  {:else if selected && session.loading}<PluginRegistryContentState
-                      kind="loading"
-                      heading="Loading plugin details"
-                      description="Reading verified plugin metadata…"
+                  {:else if selected && session.loading}<PluginRegistrySkeleton
+                      layout="detail"
+                      label="Loading plugin details"
                     />
                   {:else}<PluginRegistryContentState
                       kind="empty"

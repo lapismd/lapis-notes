@@ -105,7 +105,12 @@ describe("web plugin profile registration", () => {
     expect(launcher.indexOf("Import Vault")).toBeGreaterThan(
       launcher.indexOf("Open Folder"),
     );
-    expect(launcher).toContain("pickFileSystemAccessDirectoryHandle");
+    expect(launcher).toContain("services.pickDirectory()");
+    const services = readFileSync(
+      path.resolve(process.cwd(), "src/web-vault-launcher-services.ts"),
+      "utf8",
+    );
+    expect(services).toContain("pickFileSystemAccessDirectoryHandle");
   });
 
   it("does not re-declare native app-region CSS", () => {

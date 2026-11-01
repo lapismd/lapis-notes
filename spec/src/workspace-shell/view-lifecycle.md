@@ -1,5 +1,7 @@
 # Workspace Shell / View lifecycle
 
+Registry loading review holds the metadata transport while starting the real workspace controller, so LN-PLUG-125 skeletons render within the production Plugins view.
+
 The shared conflict review retains its layout-only close scope. Explicit disk acceptance resolves through the captured writer, preserving external deletion and clearing only the resolved review and diagnostic.
 
 File artwork registration follows the owning Plugin and App under LN-PLUG-123.

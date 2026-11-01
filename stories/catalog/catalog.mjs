@@ -787,6 +787,27 @@ export const workspaceCatalog = [
     storyId: "workspace-plugins-registry-snapshot--ai-details",
   },
   {
+    id: "workspace-plugins-snapshot-loading-landing",
+    title: "Plugins Snapshot Loading Landing",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins-registry-snapshot--loading-landing",
+  },
+  {
+    id: "workspace-plugins-snapshot-loading-directory",
+    title: "Plugins Snapshot Loading Directory",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins-registry-snapshot--loading-directory",
+  },
+  {
+    id: "workspace-plugins-snapshot-loading-plugin",
+    title: "Plugins Snapshot Loading Details",
+    spec: "spec/src/plugin-model.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins-registry-snapshot--loading-details",
+  },
+  {
     id: "workspace-plugins-responsive-landing",
     title: "Plugins Responsive Landing",
     spec: "spec/src/plugin-model.md",
