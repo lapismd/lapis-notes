@@ -1,7 +1,7 @@
 # UI and Styling / Retained UI contracts
 
 The active API, retained UI, Workspace, Explorer and Web graph resolves published
-Design Core `0.10.0`, including prepared
+Design Core `0.10.1`, including prepared
 browser CSS and bundled font assets, through the existing public style exports.
 The graph retains the close guard, asynchronous plugin flush and centered
 bottom-panel contracts. Portable compatibility ranges retain older supported

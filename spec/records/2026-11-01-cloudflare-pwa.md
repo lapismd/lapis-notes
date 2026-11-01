@@ -144,3 +144,23 @@ the corrected prepared artifact passes it and the complete appearance, offline,
 plugin, WASM and update-persistence acceptance. Root check and unit lanes each
 pass 16 tasks, build passes nine, and the specification gate passes. Live
 qualification between two main revisions remains required.
+
+The divider patch was released as Design Core 0.10.1 from
+`1ccf278cd68903156872f2371fa961111b58ddff`. Source PR #59 and version PR #60
+each passed all eleven protected checks. Trusted release 41323584507 passed
+archive checks, publication, clean installation and provenance verification;
+the published SHA-512 integrity matches the reviewed archive. The packed
+production audit has zero findings. Notes adopts its portable registry version
+through the active graph, preserving existing peer compatibility and the frozen
+Deno host. Final consumer CI and installed-app checks remain required.
+
+With Core 0.10.1, the cold shell family passes six stories; root check and unit
+lanes pass 16 tasks each, and build passes nine. Specification and package gates
+pass. The first unit run hit the previously identified five-second native
+journal receipt timeout; its exact unchanged case passes in 1.35 seconds and
+the serialized complete root lane passes. No assertion or timeout changed.
+Prepared-artifact acceptance passes appearance persistence, document revision,
+offline vault/plugin/WASM operation and deferred/refused/accepted updates.
+Workspace and Explorer retain their existing supported ranges alongside Core
+0.10; private browser hosts require 0.10.1, and the frozen graph selects one
+published 0.10.1 installation. Fresh protected consumer CI remains required.

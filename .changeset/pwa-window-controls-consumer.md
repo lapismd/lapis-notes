@@ -5,4 +5,4 @@
 "@lapis-notes/file-explorer": patch
 ---
 
-Admit Design Core 0.10 alongside existing supported ranges so browser hosts can reserve leading and trailing native controls and title-bar height through the shared shell contract.
+Consume published Design Core 0.10.1 so browser hosts can reserve leading and trailing native controls and title-bar height, with a continuous divider when sidebars collapse. Keep portable registry ranges and existing compatibility.

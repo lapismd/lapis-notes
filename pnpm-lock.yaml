@@ -145,8 +145,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0(node-llama-cpp@3.18.1(typescript@5.9.3))(zod@4.6.6)
       '@lapismd/design-core':
-        specifier: ^0.10.0
-        version: 0.10.0(svelte@5.56.10)(tailwindcss@4.3.3)
+        specifier: ^0.10.1
+        version: 0.10.1(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapismd/mira':
         specifier: ~0.1.3
         version: 0.1.3(@codemirror/autocomplete@6.20.3)(@codemirror/commands@6.10.4)(@codemirror/lang-markdown@6.5.2)(@codemirror/lang-yaml@6.1.3)(@codemirror/language-data@6.5.2)(@codemirror/language@6.12.4)(@codemirror/legacy-modes@6.5.3)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/state@6.7.1)(@codemirror/view@6.43.8)(@internationalized/date@3.12.4)(@lezer/common@1.5.2)(@lezer/highlight@1.2.3)(@lezer/markdown@1.7.2)(svelte@5.56.10)(tailwindcss@4.3.3)
@@ -328,8 +328,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0(zod@4.6.6)
       '@lapismd/design-core':
-        specifier: ^0.10.0
-        version: 0.10.0(svelte@5.56.10)(tailwindcss@4.3.3)
+        specifier: ^0.10.1
+        version: 0.10.1(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapismd/mira':
         specifier: ~0.1.3
         version: 0.1.3(@codemirror/autocomplete@6.20.3)(@codemirror/commands@6.10.4)(@codemirror/lang-markdown@6.5.2)(@codemirror/lang-yaml@6.1.3)(@codemirror/language-data@6.5.2)(@codemirror/language@6.12.4)(@codemirror/legacy-modes@6.5.3)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/state@6.7.1)(@codemirror/view@6.43.8)(@internationalized/date@3.12.4)(@lezer/common@1.5.2)(@lezer/highlight@1.2.3)(@lezer/markdown@1.7.2)(svelte@5.56.10)(tailwindcss@4.3.3)
@@ -530,8 +530,8 @@ importers:
         specifier: ^0.2.0
         version: 0.2.0(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapismd/design-core':
-        specifier: ^0.10.0
-        version: 0.10.0(svelte@5.56.10)(tailwindcss@4.3.3)
+        specifier: ^0.10.1
+        version: 0.10.1(svelte@5.56.10)(tailwindcss@4.3.3)
     devDependencies:
       '@sveltejs/package':
         specifier: ^2.5.8
@@ -589,8 +589,8 @@ importers:
         specifier: ^0.2.4
         version: link:../api
       '@lapismd/design-core':
-        specifier: ^0.10.0
-        version: 0.10.0(svelte@5.56.10)(tailwindcss@4.3.3)
+        specifier: ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0
+        version: 0.10.1(svelte@5.56.10)(tailwindcss@4.3.3)
     devDependencies:
       '@sveltejs/package':
         specifier: ^2.5.0
@@ -685,8 +685,8 @@ importers:
         specifier: ^0.4.0
         version: 0.4.0(svelte@5.56.10)
       '@lapismd/design-core':
-        specifier: ^0.10.0
-        version: 0.10.0(svelte@5.56.10)(tailwindcss@4.3.3)
+        specifier: ^0.10.1
+        version: 0.10.1(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lucide/svelte':
         specifier: ^0.515.0
         version: 0.515.0(svelte@5.56.10)
@@ -776,8 +776,8 @@ importers:
         specifier: workspace:*
         version: link:../workspace
       '@lapismd/design-core':
-        specifier: ^0.10.0
-        version: 0.10.0(svelte@5.56.10)(tailwindcss@4.3.3)
+        specifier: ^0.10.1
+        version: 0.10.1(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapismd/jj-history':
         specifier: ~0.1.0
         version: 0.1.0
@@ -837,8 +837,8 @@ importers:
         specifier: ^0.1.6
         version: link:../ui
       '@lapismd/design-core':
-        specifier: ^0.10.0
-        version: 0.10.0(svelte@5.56.10)(tailwindcss@4.3.3)
+        specifier: ^0.8.0 || ^0.9.0 || ^0.10.0
+        version: 0.10.1(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lucide/svelte':
         specifier: ^0.523.0
         version: 0.523.0(svelte@5.56.10)
@@ -2587,8 +2587,8 @@ packages:
     resolution: {integrity: sha512-KQ5BQZD4e7Lq0Q4LiE9XW5xf4MJJ1eBTPKE/qCAdBRjtY17Qpy37RM8B5IBmTjI9L0I4g3uWCqXWK4AjvUyVXw==}
     engines: {deno: '>=2.9.5', node: '>=22'}
 
-  '@lapismd/design-core@0.10.0':
-    resolution: {integrity: sha512-PuJwlNJ/UvZ6A2MWEOMHHlZRs9EFCwVO5WPHpRQkhDts06Sw4RlBdJrY2RjoFnqPbAGtWjFYTXC3qu679S9Jxw==}
+  '@lapismd/design-core@0.10.1':
+    resolution: {integrity: sha512-YHxpv34jolWIKRyHT9wzaf+SGn6sG3Emxl6w1YgrkRbpw/kiF7jHrFlfliws6ywoqCpTgPD9sR6fZh2HeMcv2g==}
     engines: {node: ^22.11 || ^24 || >=26}
     peerDependencies:
       svelte: ^5.0.0
@@ -9478,10 +9478,10 @@ snapshots:
 
   '@codemirror/autocomplete@6.20.4':
     dependencies:
-      '@codemirror/language': 6.12.4
-      '@codemirror/state': 6.7.1
-      '@codemirror/view': 6.43.8
-      '@lezer/common': 1.5.2
+      '@codemirror/language': 6.13.1
+      '@codemirror/state': 6.7.6
+      '@codemirror/view': 6.43.15
+      '@lezer/common': 1.5.5
 
   '@codemirror/commands@6.10.4':
     dependencies:
@@ -9492,10 +9492,10 @@ snapshots:
 
   '@codemirror/commands@6.11.1':
     dependencies:
-      '@codemirror/language': 6.12.4
-      '@codemirror/state': 6.7.1
-      '@codemirror/view': 6.43.8
-      '@lezer/common': 1.5.2
+      '@codemirror/language': 6.13.1
+      '@codemirror/state': 6.7.6
+      '@codemirror/view': 6.43.15
+      '@lezer/common': 1.5.5
 
   '@codemirror/lang-angular@0.1.4':
     dependencies:
@@ -9709,12 +9709,12 @@ snapshots:
 
   '@codemirror/language@6.13.1':
     dependencies:
-      '@codemirror/state': 6.7.1
+      '@codemirror/state': 6.7.6
       '@codemirror/streamparser': 6.0.0
-      '@codemirror/view': 6.43.8
-      '@lezer/common': 1.5.2
-      '@lezer/highlight': 1.2.3
-      '@lezer/lr': 1.4.10
+      '@codemirror/view': 6.43.15
+      '@lezer/common': 1.5.5
+      '@lezer/highlight': 1.2.5
+      '@lezer/lr': 1.4.12
       style-mod: 4.1.4
 
   '@codemirror/legacy-modes@6.5.3':
@@ -9739,8 +9739,8 @@ snapshots:
 
   '@codemirror/search@6.7.2':
     dependencies:
-      '@codemirror/state': 6.7.1
-      '@codemirror/view': 6.43.8
+      '@codemirror/state': 6.7.6
+      '@codemirror/view': 6.43.15
       crelt: 1.0.7
 
   '@codemirror/state@6.7.1':
@@ -9762,7 +9762,7 @@ snapshots:
 
   '@codemirror/view@6.43.15':
     dependencies:
-      '@codemirror/state': 6.7.1
+      '@codemirror/state': 6.7.6
       crelt: 1.0.7
       style-mod: 4.1.4
       w3c-keyname: 2.2.8
@@ -10692,7 +10692,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@lapismd/design-core@0.10.0(svelte@5.56.10)(tailwindcss@4.3.3)':
+  '@lapismd/design-core@0.10.1(svelte@5.56.10)(tailwindcss@4.3.3)':
     dependencies:
       '@codemirror/autocomplete': 6.20.4
       '@codemirror/commands': 6.11.1
@@ -11504,7 +11504,7 @@ snapshots:
 
   '@lezer/highlight@1.2.5':
     dependencies:
-      '@lezer/common': 1.5.2
+      '@lezer/common': 1.5.5
 
   '@lezer/html@1.3.13':
     dependencies:
@@ -11536,7 +11536,7 @@ snapshots:
 
   '@lezer/lr@1.4.12':
     dependencies:
-      '@lezer/common': 1.5.2
+      '@lezer/common': 1.5.5
 
   '@lezer/markdown@1.7.2':
     dependencies:
@@ -11545,8 +11545,8 @@ snapshots:
 
   '@lezer/markdown@1.8.1':
     dependencies:
-      '@lezer/common': 1.5.2
-      '@lezer/highlight': 1.2.3
+      '@lezer/common': 1.5.5
+      '@lezer/highlight': 1.2.5
 
   '@lezer/php@1.0.5':
     dependencies:

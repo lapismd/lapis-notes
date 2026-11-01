@@ -3,6 +3,8 @@
 The optional `native-repository` application profile is selected only by
 Rust-hosted Web. It adds no import, activation or state change to this frozen host.
 
+The browser graph adopts Core 0.10.1 for the native-control divider; the frozen Deno dependency remains unchanged.
+
 The Deno host is frozen. Its existing application-profile entry and four-plugin
 static registration remain unchanged. The new private `native-chat` entry is
 selected only by Tauri or Rust-hosted Web; Deno does not import or construct it.

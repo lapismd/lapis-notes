@@ -5,7 +5,7 @@
 | --- | --- | --- | --- |
 | LN-WEB-083 | [web-host](../web-host/application-presentation.md#ln-web-083) | In progress | Cloudflare PWA implementation and focused acceptance pending; production cutover is not yet qualified. |
 | LN-WEB-084 | [web-host](../web-host/application-presentation.md#ln-web-084) | In progress | Cloudflare PWA implementation and focused acceptance pending; production cutover is not yet qualified. |
-| LN-WEB-085 | [web-host](../web-host/application-presentation.md#ln-web-085) | In progress | Cloudflare PWA implementation and focused acceptance pending; production cutover is not yet qualified. |
+| LN-WEB-085 | [web-host](../web-host/application-presentation.md#ln-web-085) | In progress | Published Core 0.10.1 supplies native-control clearance and the continuous divider; final consumer and installed-app qualification remain pending. |
 | LN-WEB-086 | [web-host](../web-host/application-presentation.md#ln-web-086) | In progress | Cloudflare PWA implementation and focused acceptance pending; production cutover is not yet qualified. |
 | LN-WEB-087 | [web-host](../web-host/application-presentation.md#ln-web-087) | In progress | The old artifact fails the dark-mode browser regression; the repaired host passes explicit light/dark, dark startup after reload, system media transitions and metadata/shell paint equality. Production adoption remains pending. |
 | LN-WEB-088 | [web-host](../web-host/application-presentation.md#ln-web-088) | In progress | Static HTTP regression distinguishes stable entrypoints from content-hashed runtime assets, including root-level Workbox. |

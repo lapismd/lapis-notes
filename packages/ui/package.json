@@ -100,7 +100,7 @@
   "dependencies": {
     "@dnd-kit/dom": "^0.4.0",
     "@dnd-kit/svelte": "^0.4.0",
-    "@lapismd/design-core": "^0.10.0",
+    "@lapismd/design-core": "^0.10.1",
     "@lucide/svelte": "^0.515.0",
     "bits-ui": "2.20.2",
     "clsx": "^2.1.1",

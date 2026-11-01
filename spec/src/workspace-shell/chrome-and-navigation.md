@@ -1,6 +1,6 @@
 # Workspace Shell / Chrome and navigation
 
-The active browser/catalog shell consumes published Design Core 0.10.0 through
+The active browser/catalog shell consumes published Design Core 0.10.1 through
 the shared package graph. LN-WEB-085 owns browser geometry detection; the host
 supplies public leading, trailing and title-bar-height tokens to shared chrome.
 
