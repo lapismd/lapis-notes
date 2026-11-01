@@ -31,7 +31,7 @@ env:
 
 jobs:
   publish:
-    if: github.repository == 'lapismd/lapis-notes'
+    if: github.repository == 'lapismd/lapis-notes' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -93,21 +93,39 @@ jobs:
             spec/src/packages/releases-and-exports.md
             spec/src/spec-governance/protected-change-mapping.md
           )
+          branch="automation/lapis-notes-ci"
+          open_pr_number="$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number // empty')"
+          close_legacy_prs() {
+            legacy_pr_numbers="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/pulls?state=open&base=main&per_page=100" --jq '
+              .[]
+              | select(.user.login == "github-actions[bot]" and .head.repo.full_name == .base.repo.full_name)
+              | select(.head.ref | test("^automation/lapis-notes-ci-lock-[a-f0-9]{16}$"))
+              | .number
+            ')"
+            while IFS= read -r number; do
+              if [[ -n "$number" ]]; then
+                gh pr close "$number"
+              fi
+            done <<< "$legacy_pr_numbers"
+          }
           if git diff --quiet -- "${pin_paths[@]}"; then
+            if [[ -n "$open_pr_number" ]]; then
+              gh pr close "$open_pr_number"
+            fi
+            close_legacy_prs
             echo "The checked-in dependency image digest is current." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
-          branch="automation/lapis-notes-ci-${IMAGE_TAG}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "$branch"
           git add -- "${pin_paths[@]}"
           git commit -m "chore(ci): pin ${IMAGE_TAG} dependency image"
           git push --force origin "HEAD:refs/heads/$branch"
-          open_pr_number="$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number // empty')"
           if [[ -n "$open_pr_number" ]]; then
             gh pr edit "$open_pr_number" --title "chore(ci): pin ${IMAGE_TAG} dependency image" --body "Pins the verified multi-architecture dependency image built from the current lockfile and records its digest, tag, and lockfile hash in every mapped canonical chapter."
           else
             gh pr create --head "$branch" --base main --title "chore(ci): pin ${IMAGE_TAG} dependency image" --body "Pins the verified multi-architecture dependency image built from the current lockfile and records its digest, tag, and lockfile hash in every mapped canonical chapter."
           fi
+          close_legacy_prs
           echo "Published ${IMAGE_TAG} at ${IMAGE_DIGEST}." >> "$GITHUB_STEP_SUMMARY"
