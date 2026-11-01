@@ -23,7 +23,7 @@
   "packages:check": "pnpm packages:policy && pnpm test:local-plugin-consumer && pnpm release:check && pnpm release:test",
   "packages:pack": "node --env-file-if-exists=.env scripts/pack-packages.mjs",
   "ci:packages": "node --env-file-if-exists=.env scripts/run-turbo.mjs build check test",
-  "ci:release": "pnpm packages:check && pnpm spec:check && pnpm check:no-tailwind && pnpm ci:packages && pnpm packages:pack -- --already-built && node scripts/run-turbo.mjs ci:storybook-static --summarize && node scripts/run-turbo.mjs ci:storybook-interaction --summarize",
+  "ci:release": "pnpm packages:check && pnpm spec:check && pnpm check:no-tailwind && pnpm ci:packages && pnpm packages:pack -- --already-built && node scripts/run-turbo.mjs ci:storybook-static --summarize && pnpm test:specification:dev",
   "release:test": "node --env-file-if-exists=.env scripts/run-turbo.mjs release:test:run --task-args",
   "test:local-plugin-consumer": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:local-plugin-consumer:run --task-args",
   "ci:storybook-static": "pnpm build-storybook && pnpm test:specification:static",

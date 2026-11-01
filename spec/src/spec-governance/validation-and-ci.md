@@ -4,7 +4,7 @@ The reusable CI aggregate includes Cloudflare PWA packaging, HTTP semantics and 
 
 <!-- dependency-automation-policy -->
 
-Dependency update PRs from the trusted LapisMD App, Dependabot or Renovate MAY skip specification checks using the PR author rather than the rerun actor. Functional checks remain required. The shared `lapismd/dependency-automation` coordinator proposes published first-party npm updates with Changeset release intent where required; it does not merge, publish, sign or deploy. This CI policy changes no runtime or public contract in this chapter.
+Dependency update PRs from the trusted LapisMD App, Dependabot or Renovate MAY skip specification checks using the PR author rather than the rerun actor. Enabled functional checks remain required; LN-CAT-121 explicitly quarantines Vitest browser interactions and axe with visible disabled coverage. The shared `lapismd/dependency-automation` coordinator proposes published first-party npm updates with Changeset release intent where required; it does not merge, publish, sign or deploy. This CI policy changes no runtime or public contract in this chapter.
 
 Local validation selects the isolated Docker runtime under LN-ARCH-146. Hosted
 CI explicitly selects its provisioned native runtime. The source composition

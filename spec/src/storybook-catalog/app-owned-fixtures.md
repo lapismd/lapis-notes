@@ -108,6 +108,17 @@ that document trailing space remains on the outer editor only.
 
 Browser file serialization MUST be configured on the browser pool itself.
 
+## LN-CAT-121 — Explicit Storybook browser quarantine
+
+<a id="ln-cat-121"></a>
+
+**Requirement.** Pull-request, reusable and local release CI MUST disable the quarantined Storybook Vitest browser lane and identify omitted interaction/accessibility coverage. Explicit diagnostics and local commands MAY run it with errors remaining fatal. Notes validation tooling owns restoration after the documented transport cause is fixed and three consecutive complete cold Linux runs pass without retries. Specification browser acceptance and other enabled gates MUST remain blocking.
+
+The [quarantine record](../../records/2026-11-01-storybook-browser-quarantine.md)
+owns evidence, disabled coverage, diagnostic commands and restoration steps.
+LN-CAT-070 continues to govern explicit full-catalog runs; local passes do not
+replace the temporarily disabled CI coverage.
+
 ## LN-CAT-109 — Standalone first-party plugin Storybook: render Plugins/&lt;Plugin&gt;/Shell through a static @lapis-notes/workspace WorkspaceShell
 
 <a id="ln-cat-109"></a>

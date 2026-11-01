@@ -12,7 +12,7 @@ transitions before its plugin/offline checks.
 
 <!-- dependency-automation-policy -->
 
-Dependency update PRs from the trusted LapisMD App, Dependabot or Renovate MAY skip specification checks using the PR author rather than the rerun actor. Functional checks remain required. The shared `lapismd/dependency-automation` coordinator proposes published first-party npm updates with Changeset release intent where required; it does not merge, publish, sign or deploy. This CI policy changes no runtime or public contract in this chapter.
+Dependency update PRs from the trusted LapisMD App, Dependabot or Renovate MAY skip specification checks using the PR author rather than the rerun actor. Enabled functional checks remain required; LN-CAT-121 explicitly quarantines Vitest browser interactions and axe with visible disabled coverage. The shared `lapismd/dependency-automation` coordinator proposes published first-party npm updates with Changeset release intent where required; it does not merge, publish, sign or deploy. This CI policy changes no runtime or public contract in this chapter.
 
 Framework check, test, build, specification and release aggregates select the UI
 image after native services moved to lapis-server. They do not require a root
@@ -141,7 +141,10 @@ Final plugin acceptance pins `da7d8bb73541eb3421ca8fdfaf1eaaf2baecc850`,
 the version candidate containing AI 0.1.5, History 0.1.4, Markdown 0.1.6 and
 released Mira 0.0.4. Ephemeral fixture signatures establish acceptance evidence;
 production signing and publication retain their separate approval gate.
-Complete Web acceptance retains Storybook and the public web end-to-end lane.
+Web acceptance retains static Storybook, separate development specification
+acceptance and the public Web end-to-end lane. LN-CAT-121 disables automatic
+Vitest browser interactions/axe until the documented transport cause is fixed
+and cold Linux restoration evidence is complete; skipped coverage is not a pass.
 Notes CI does not select `@lapis-notes/desktop-deno` or `@lapis-notes/server-deno`,
 and it does not build a server image or seed bootstrap credentials.
 Web diagnostic artifacts upload after successful recovery as well as failures,

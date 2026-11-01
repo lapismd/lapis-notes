@@ -3,6 +3,11 @@ name: Lapis CI
 on:
   pull_request:
   workflow_dispatch:
+    inputs:
+      run_quarantined_storybook:
+        description: Run the quarantined Vitest browser lane for diagnostics
+        type: boolean
+        default: false
   workflow_call:
     outputs:
       bootstrap_required:
@@ -145,6 +150,8 @@ jobs:
         run: node scripts/report-turbo-cache.mjs --github-summary
 
   storybook-interaction:
+    # LN-CAT-121: skipped coverage is quarantined, never a passing test result.
+    if: github.event_name == 'workflow_dispatch' && inputs.run_quarantined_storybook == true
     needs: build-cache
     runs-on: ubuntu-latest
     timeout-minutes: 40
@@ -160,8 +167,42 @@ jobs:
         run: node scripts/run-turbo.mjs build --summarize
       - name: Report cache restoration
         run: node scripts/report-turbo-cache.mjs --github-summary
-      - run: node scripts/run-turbo.mjs ci:storybook-interaction --summarize
-      - name: Report Storybook cache result
+      - name: Run quarantined browser diagnostics without cached results
+        run: pnpm test:storybook:run
+        env:
+          DEBUG: pw:browser
+      - name: Record runner resource diagnostics
+        if: always()
+        run: |
+          df -h /tmp /dev/shm
+          for statistic in memory.current memory.peak memory.max memory.events; do
+            filename="/sys/fs/cgroup/$statistic"
+            if [ -r "$filename" ]; then
+              echo "$statistic"
+              cat "$filename"
+            fi
+          done
+
+  storybook-specification:
+    needs: build-cache
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: ghcr.io/lapismd/lapis-ci@sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ci-setup
+      - name: Restore package builds
+        run: node scripts/run-turbo.mjs build --summarize
+      - name: Report disabled browser coverage
+        run: |
+          echo "::warning::Storybook Vitest interactions and axe coverage are quarantined (LN-CAT-121); skipped coverage is not a pass."
+          echo "Storybook Vitest browser interactions and axe are quarantined. Owner: Notes validation tooling. Evidence and restoration: spec/records/2026-11-01-storybook-browser-quarantine.md. Manual diagnostics: workflow_dispatch with run_quarantined_storybook=true." >> "$GITHUB_STEP_SUMMARY"
+      - run: pnpm test:specification:dev
+      - name: Report Storybook specification cache result
         run: node scripts/report-turbo-cache.mjs --github-summary
 
   registry-fixture:
@@ -303,7 +344,7 @@ jobs:
       - quality
       - unit
       - storybook-static
-      - storybook-interaction
+      - storybook-specification
       - web-acceptance
       - web-cloudflare
       - registry-fixture
@@ -317,7 +358,7 @@ jobs:
           QUALITY: ${{ needs.quality.result }}
           UNIT: ${{ needs.unit.result }}
           STORYBOOK_STATIC: ${{ needs.storybook-static.result }}
-          STORYBOOK_INTERACTION: ${{ needs.storybook-interaction.result }}
+          STORYBOOK_SPECIFICATION: ${{ needs.storybook-specification.result }}
           WEB_ACCEPTANCE: ${{ needs.web-acceptance.result }}
           WEB_CLOUDFLARE: ${{ needs.web-cloudflare.result }}
           REGISTRY_FIXTURE: ${{ needs.registry-fixture.result }}
@@ -330,7 +371,7 @@ jobs:
             "$QUALITY"
             "$UNIT"
             "$STORYBOOK_STATIC"
-            "$STORYBOOK_INTERACTION"
+            "$STORYBOOK_SPECIFICATION"
             "$WEB_ACCEPTANCE"
             "$WEB_CLOUDFLARE"
             "$REGISTRY_FIXTURE"
