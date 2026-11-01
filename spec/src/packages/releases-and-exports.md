@@ -1,11 +1,10 @@
 # Packages / Releases and exports
 
-Dependency-image reviews retain LN-GOV-050/LN-PKG-142; API Mira uses public ranges.
-The [native service exports](./native-service-exports.md) define generated admitted ports separately from release and registry policy.
+The verified publication job may notify the dependency coordinator. This adds no merge, publication, signing or deployment authority.
 
-Release and validation containers consume shared image `2026.10.14.1` by
-digest. GitHub CLI 2.102.0 is supplied upstream so approved npm publication can
-create its GitHub release records without a consumer tool-install workaround.
+Dependency-image reviews retain LN-GOV-050/LN-PKG-142; API Mira uses public ranges. The [native service exports](./native-service-exports.md) define generated admitted ports separately from release and registry policy.
+
+Release and validation containers consume shared image `2026.10.14.1` by digest. GitHub CLI 2.102.0 is supplied upstream so approved npm publication can create its GitHub release records without a consumer tool-install workaround.
 
 Registry-consumer toolchain and build-policy acceptance is recorded in
 [the release verification record](../../records/2026-10-13-registry-consumer-toolchain.md).

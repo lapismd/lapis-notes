@@ -1,3 +1,4 @@
+import { specificationDockerArguments } from "../dependency-automation/spec-policy.mjs";
 import { execFileSync, spawn } from "node:child_process";
 import { createWriteStream } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
@@ -65,6 +66,7 @@ export function sshDockerCommand(
   ];
 }
 export function dockerCommand(config, args) {
+  args = specificationDockerArguments(args);
   if (config.transport !== "ssh-cli")
     return ["docker", contextArguments(config, args)];
   const endpoint = execFileSync(

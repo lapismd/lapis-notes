@@ -127,12 +127,30 @@ const workflow = parse(
   ),
 );
 for (const name of ["Spec-first gate", "Release intent gate"]) {
-  test(`${name} skips only the generated Changesets PR`, () => {
+  test(`${name} preserves generated-PR exemptions and only spec checks exempt dependency bots`, () => {
     const step = workflow.jobs.governance.steps.find(
       (step) => step.name === name,
     );
     assert.ok(step, `${name} remains present`);
-    const condition = new Function("github", `return (${step.if});`);
+    const expression = new Function(
+      "github",
+      "contains",
+      "fromJSON",
+      "vars",
+      `return (${step.if});`,
+    );
+    const condition = (github) =>
+      expression(
+        {
+          event: {
+            pull_request: { user: { login: "maintainer", type: "User" } },
+          },
+          ...github,
+        },
+        (list, item) => list.includes(item),
+        JSON.parse,
+        { LAPIS_DEPENDENCY_BOT_LOGIN: "" },
+      );
     assert.equal(
       condition({
         event_name: "pull_request",
@@ -154,6 +172,21 @@ for (const name of ["Spec-first gate", "Release intent gate"]) {
     }
     for (const event_name of ["push", "workflow_call", "workflow_dispatch"]) {
       assert.equal(condition({ event_name, head_ref: "" }), false, event_name);
+    }
+    for (const login of [
+      "dependabot[bot]",
+      "renovate[bot]",
+      "lapismd-dependency-bot[bot]",
+    ]) {
+      assert.equal(
+        condition({
+          event_name: "pull_request",
+          head_ref: "lapis-dependencies/lapis-first-party",
+          event: { pull_request: { user: { login, type: "Bot" } } },
+        }),
+        name === "Release intent gate",
+        login,
+      );
     }
   });
 }
@@ -195,8 +228,14 @@ test("CI runs complete web acceptance and does not package the desktop app", () 
   );
   assert.doesNotMatch(workflowText, /package:desktop|test:desktop:packaged/);
   assert.ok(workflow.jobs.validate.needs.includes("web-acceptance"));
-  assert.equal(workflow.jobs.validate.needs.includes("server-acceptance"), false);
-  assert.equal(workflow.jobs.validate.needs.includes("desktop-packaged"), false);
+  assert.equal(
+    workflow.jobs.validate.needs.includes("server-acceptance"),
+    false,
+  );
+  assert.equal(
+    workflow.jobs.validate.needs.includes("desktop-packaged"),
+    false,
+  );
 });
 
 test("a failed required job cancels only that workflow run", () => {
@@ -245,7 +284,10 @@ test("Web fixtures come from an immutable Plugins candidate", () => {
 
 test("Notes CI does not run server acceptance", () => {
   assert.equal(workflow.jobs["server-acceptance"], undefined);
-  assert.equal(workflow.jobs.validate.needs.includes("server-acceptance"), false);
+  assert.equal(
+    workflow.jobs.validate.needs.includes("server-acceptance"),
+    false,
+  );
   const workflowText = readFileSync(
     new URL("../.github/workflows/lapis-ci.yml", import.meta.url),
     "utf8",

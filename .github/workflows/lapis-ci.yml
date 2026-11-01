@@ -32,6 +32,11 @@ env:
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_REMOTE_CACHE_SIGNATURE_KEY: ${{ secrets.TURBO_REMOTE_CACHE_SIGNATURE_KEY }}
+  LAPIS_CI_EVENT: ${{ github.event_name }}
+  LAPIS_CI_PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+  LAPIS_CI_PR_AUTHOR_TYPE: ${{ github.event.pull_request.user.type }}
+  LAPIS_CI_PR_HEAD: ${{ github.event.pull_request.head.ref }}
+  LAPIS_DEPENDENCY_BOT_LOGIN: ${{ vars.LAPIS_DEPENDENCY_BOT_LOGIN }}
 
 jobs:
   build-cache:
@@ -54,11 +59,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
-          curl --fail-with-body --silent --show-error --request POST
-          --header "Authorization: Bearer $GH_TOKEN"
-          --header "Accept: application/vnd.github+json"
-          --header "X-GitHub-Api-Version: 2022-11-28"
-          "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
+          curl --fail-with-body --silent --show-error --request POST --header "Authorization: Bearer $GH_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
 
   governance:
     needs: build-cache
@@ -79,24 +80,18 @@ jobs:
       - run: pnpm spec:build
       - name: Spec-first gate
         if: >-
-          github.event_name == 'pull_request' &&
-          github.head_ref != 'changeset-release/main'
+          (github.event_name == 'pull_request' && github.head_ref != 'changeset-release/main') && !(github.event.pull_request.user.type == 'Bot' && (contains(fromJSON('["dependabot[bot]","renovate[bot]","lapismd-dependency-bot[bot]"]'), github.event.pull_request.user.login) || (vars.LAPIS_DEPENDENCY_BOT_LOGIN != '' && github.event.pull_request.user.login == vars.LAPIS_DEPENDENCY_BOT_LOGIN)))
         run: pnpm spec:first --base "origin/${{ github.base_ref }}" --head "${{ github.sha }}"
       - name: Release intent gate
         if: >-
-          github.event_name == 'pull_request' &&
-          github.head_ref != 'changeset-release/main'
+          github.event_name == 'pull_request' && github.head_ref != 'changeset-release/main'
         run: pnpm release:intent --base "origin/${{ github.base_ref }}" --head "${{ github.sha }}"
       - name: Cancel this run after a required failure
         if: "${{ failure() && !cancelled() }}"
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
-          curl --fail-with-body --silent --show-error --request POST
-          --header "Authorization: Bearer $GH_TOKEN"
-          --header "Accept: application/vnd.github+json"
-          --header "X-GitHub-Api-Version: 2022-11-28"
-          "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
+          curl --fail-with-body --silent --show-error --request POST --header "Authorization: Bearer $GH_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
 
   quality:
     needs: build-cache
@@ -124,11 +119,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
-          curl --fail-with-body --silent --show-error --request POST
-          --header "Authorization: Bearer $GH_TOKEN"
-          --header "Accept: application/vnd.github+json"
-          --header "X-GitHub-Api-Version: 2022-11-28"
-          "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
+          curl --fail-with-body --silent --show-error --request POST --header "Authorization: Bearer $GH_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
 
   unit:
     needs: build-cache
@@ -155,11 +146,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
-          curl --fail-with-body --silent --show-error --request POST
-          --header "Authorization: Bearer $GH_TOKEN"
-          --header "Accept: application/vnd.github+json"
-          --header "X-GitHub-Api-Version: 2022-11-28"
-          "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
+          curl --fail-with-body --silent --show-error --request POST --header "Authorization: Bearer $GH_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
 
   storybook-static:
     needs: build-cache
@@ -185,11 +172,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
-          curl --fail-with-body --silent --show-error --request POST
-          --header "Authorization: Bearer $GH_TOKEN"
-          --header "Accept: application/vnd.github+json"
-          --header "X-GitHub-Api-Version: 2022-11-28"
-          "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
+          curl --fail-with-body --silent --show-error --request POST --header "Authorization: Bearer $GH_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
 
   storybook-interaction:
     needs: build-cache
@@ -215,11 +198,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
-          curl --fail-with-body --silent --show-error --request POST
-          --header "Authorization: Bearer $GH_TOKEN"
-          --header "Accept: application/vnd.github+json"
-          --header "X-GitHub-Api-Version: 2022-11-28"
-          "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
+          curl --fail-with-body --silent --show-error --request POST --header "Authorization: Bearer $GH_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
 
   registry-fixture:
     runs-on: ubuntu-latest
@@ -259,11 +238,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
-          curl --fail-with-body --silent --show-error --request POST
-          --header "Authorization: Bearer $GH_TOKEN"
-          --header "Accept: application/vnd.github+json"
-          --header "X-GitHub-Api-Version: 2022-11-28"
-          "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
+          curl --fail-with-body --silent --show-error --request POST --header "Authorization: Bearer $GH_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
 
   web-acceptance:
     needs: [build-cache, registry-fixture]
@@ -302,11 +277,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
-          curl --fail-with-body --silent --show-error --request POST
-          --header "Authorization: Bearer $GH_TOKEN"
-          --header "Accept: application/vnd.github+json"
-          --header "X-GitHub-Api-Version: 2022-11-28"
-          "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
+          curl --fail-with-body --silent --show-error --request POST --header "Authorization: Bearer $GH_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
 
   release-artifacts:
     needs: build-cache
@@ -348,11 +319,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
-          curl --fail-with-body --silent --show-error --request POST
-          --header "Authorization: Bearer $GH_TOKEN"
-          --header "Accept: application/vnd.github+json"
-          --header "X-GitHub-Api-Version: 2022-11-28"
-          "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
+          curl --fail-with-body --silent --show-error --request POST --header "Authorization: Bearer $GH_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
 
   validate:
     if: always()
