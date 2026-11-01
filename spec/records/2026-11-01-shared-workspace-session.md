@@ -218,3 +218,28 @@ The final source-built Storybook cohort also passes normal check
 (`71e5c9eb-0aa2-4cdc-923e-3a7bca2a3aed`) and package/release checks
 (`4333f4d9-0c16-40c1-ae1d-a37d8f11e3e9`). Changed-source formatting passes
 for all 86 supported authored/generated paths selected from the final diff.
+
+## Committed public exports
+
+Implementation commit: `3d7bce209f11fe58933df05f14c3888c8cd34ba5`. Docker
+consumer packing passes in `770d44d9-7dee-4635-b30b-5a997fc1e89e`; its producer
+snapshot is `2d6896e1f548bd0a3b1da35f2c28379c86242372`, the empty child with
+an identical tracked tree. The six immutable archives and provenance are retained
+in `.local/ui-parity/notes-3d7bce20-archives/`. Publint passes against the freshly
+extracted App Profile archive. The direct member comparison covers 884 files:
+all runtime, styles, declarations, exports and package documentation match the
+previous qualified candidate. Only API’s AI Host minimum and App Profile’s
+Markdown minimum differ in their package manifests. The separate AI Host leaf
+comparison proves unchanged JavaScript and declaration-only module extensions.
+
+| Public archive                      | SHA-256                                                            |
+| ----------------------------------- | ------------------------------------------------------------------ |
+| @lapis-notes/api 0.2.4              | `ef76bdbe08d9dea47dd3f8ff71890ad8922c6d4f2fa4f90f49a9a935506486b4` |
+| @lapis-notes/ui 0.1.6               | `9f17cb8444f08f2a17ed13ff872bf81830467e55d70a0c9021fd96f606cac7fb` |
+| @lapis-notes/workspace 0.3.2        | `f40e08c3ede4c47a369313ae9f2f906d293e92caa0ffa372271c407f0c199ff0` |
+| @lapis-notes/file-explorer 0.2.1    | `53c8be115101e2c5323863d5125cc199b363d1bb6eaac6aac34688fa7f842b54` |
+| @lapis-notes/language-service 0.1.2 | `202c8e2935cfc16e46dfa4b0acb5ecb5d5ffd7b0b5cbb73a4e5780615bdf9e2b` |
+| @lapis-notes/app-profile 0.1.0      | `e7aeea336e3ceb0a70a49a690e9293f84445175e06225a60eab2ef9c636d0ef9` |
+
+Server and Desktop own their final archive intake and consumer receipts. Source
+packing creates no registry release, signed plugin publication or deployment.
