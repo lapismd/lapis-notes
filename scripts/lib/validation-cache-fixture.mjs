@@ -13,4 +13,9 @@ export async function installValidationCacheController(root) {
     join(root, "scripts/validation"),
     { recursive: true },
   );
+  await cp(
+    new URL("../dependency-automation/", import.meta.url),
+    join(root, "scripts/dependency-automation"),
+    { recursive: true },
+  );
 }
