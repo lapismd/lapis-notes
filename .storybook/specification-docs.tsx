@@ -67,11 +67,30 @@ function CanonicalLink(props: ComponentProps<"a">) {
       )
         return;
       event.preventDefault();
-      // NAVIGATE_URL uses a native URL by default. Ask the manager to navigate
-      // its logical Docs route so history and the current toolbar state survive.
-      context.channel.emit(NAVIGATE_URL, `${route}${url!.hash}`, {
-        plain: false,
-      });
+      // Keep the top-level Storybook history authoritative. A preview-channel
+      // navigation can replace the current entry in static Chromium builds,
+      // which makes browser Back work but leaves no Forward entry. Push the
+      // manager route directly, preserving its history index, then notify its
+      // router so the preview reloads the selected Docs story.
+      const parent = window.parent;
+      if (
+        parent !== window &&
+        parent.location.origin === window.location.origin
+      ) {
+        const state = parent.history.state;
+        const index =
+          typeof state?.idx === "number" ? state.idx + 1 : undefined;
+        parent.history.pushState(
+          index === undefined ? state : { ...state, idx: index },
+          "",
+          `${url!.pathname}${url!.search}${url!.hash}`,
+        );
+        parent.dispatchEvent(new PopStateEvent("popstate"));
+      } else {
+        context.channel.emit(NAVIGATE_URL, `${route}${url!.hash}`, {
+          plain: false,
+        });
+      }
     },
   };
   return <AnchorMdx {...linkProps} />;
