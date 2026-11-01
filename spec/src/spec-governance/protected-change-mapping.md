@@ -27,6 +27,10 @@ the dependency-only Docker base and its regenerated immutable digest to
 Architecture, Packages and this chapter. All existing CI and release gates
 remain required.
 
+The LN-PKG-142 retry policy removes failure-triggered cancellation and preserves
+active validation runs. Required lane failures remain blocking at the aggregate;
+the release-workflow checker rejects reintroduced run-cancellation endpoints.
+
 Release version preparation validates formatter availability and current-version
 changelog notes under [LN-PKG-164](../packages/releases-and-exports.md#ln-pkg-164).
 Its cached regression inputs include package changelogs and formatter configs.

@@ -51,6 +51,9 @@ export function validateReleaseWorkflows({ ci, release, pages } = {}) {
   }
   requireDigestPinnedCiImage("CI workflow", ci);
   requireNotContains("CI workflow", ci, "actions/cache");
+  if (/actions\/runs\/[^\s"']*\/(?:force-)?cancel/u.test(ci)) {
+    fail("CI workflow must not cancel workflow runs");
+  }
 
   for (const fragment of [
     "changesets/action@v1.8.0",

@@ -32,6 +32,12 @@ LN-SRCH-051 adds one metadata-only specification mirror for the Search/Problems 
 
 **Requirement.** Direct Lucide entry points used by governed panel and plugin-management stories, including empty-state illustrations and the uninstall dialog Power action, MUST be included in Storybook dependency optimization so clean browser tests do not reload during rendering.
 
+## LN-CAT-120 — Version-specific UI dependency prebundling
+
+<a id="ln-cat-120"></a>
+
+**Requirement.** Storybook and its browser tests MUST prebundle the `tailwind-merge` instance owned by source-aliased Notes UI independently of the instances owned by API, Design Core and Mira. A frozen registry dependency update MUST NOT trigger a late helper optimization that reloads an active browser test.
+
 ## LN-CAT-034 — Retirement of flat comparison stories
 
 <a id="ln-cat-034"></a>

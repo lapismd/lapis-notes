@@ -238,29 +238,32 @@ test("CI runs complete web acceptance and does not package the desktop app", () 
   );
 });
 
-test("a failed required job cancels only that workflow run", () => {
-  assert.equal(workflow.permissions.actions, "write");
+test("required CI jobs remain retryable after a failure", () => {
+  assert.notEqual(workflow.permissions.actions, "write");
+  assert.equal(workflow.concurrency["cancel-in-progress"], false);
   assert.equal(workflow.jobs.validate.if, "always()");
-  const lanes = Object.entries(workflow.jobs).filter(
-    ([name]) => name !== "validate",
-  );
-  for (const [name, job] of lanes) {
-    const cancel = job.steps?.find(
-      (step) => step.name === "Cancel this run after a required failure",
-    );
-    assert.ok(cancel, name);
-    assert.equal(cancel.if, "${{ failure() && !cancelled() }}");
-    assert.match(
-      cancel.run,
-      /\$GITHUB_API_URL\/repos\/\$GITHUB_REPOSITORY\/actions\/runs\/\$GITHUB_RUN_ID\/cancel/u,
-    );
+  for (const [name, job] of Object.entries(workflow.jobs)) {
+    for (const step of job.steps ?? []) {
+      assert.doesNotMatch(step.run ?? "", /actions\/runs\/.*\/cancel/u, name);
+      assert.notEqual(
+        step.name,
+        "Cancel this run after a required failure",
+        name,
+      );
+    }
     assert.equal(job.strategy, undefined, name);
   }
-  assert.equal(
-    workflow.jobs.validate.steps.some(
-      (step) => step.name === "Cancel this run after a required failure",
-    ),
-    false,
+});
+
+test("rejects workflow self-cancellation", () => {
+  assert.throws(
+    () =>
+      validateReleaseWorkflows({
+        ci: `${ci}\n$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel`,
+        release,
+        pages,
+      }),
+    /must not.*cancel/,
   );
 });
 

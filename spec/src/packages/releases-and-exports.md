@@ -251,7 +251,7 @@ unfiltered finding, dependency path, scope limitation, and removal procedure.
 
 <a id="ln-pkg-140"></a>
 
-**Requirement.** Push-triggered release runs MUST stop after preparing the verified candidate artifact. Package publication MUST require an explicit manual workflow dispatch with its `publish` input enabled, in addition to the protected `npm-production` environment and release-script approval guard. The release caller MUST grant every token permission the called CI workflow requests, including `actions: write`.
+**Requirement.** Push-triggered release runs MUST stop after preparing the verified candidate artifact. Package publication MUST require an explicit manual workflow dispatch with its `publish` input enabled, in addition to the protected `npm-production` environment and release-script approval guard. The release caller MUST grant every token permission the called CI workflow requests.
 
 ## LN-PKG-141 — Post-publication verification of a partial manifest: install each selected package at its manifest
 
@@ -268,9 +268,9 @@ interactions remain blocking. Notes CI does not build or package the desktop app
 
 <a id="ln-pkg-142"></a>
 
-**Requirement.** CI MUST populate package build outputs once, then run governance, quality, unit, Storybook, web acceptance, and release-artifact jobs before one validate job. Every required job MUST succeed, and a failure MUST cancel only that workflow run. Visual comparison MUST remain non-blocking. Notes CI MUST NOT build the desktop application or the server image.
+**Requirement.** CI MUST populate package build outputs once, then run governance, quality, unit, Storybook, web acceptance, and release-artifact jobs before one validate job. Every required job MUST succeed; CI MUST NOT automatically cancel active validation runs or sibling jobs after a failure, so failed jobs remain retryable. Visual comparison MUST remain non-blocking. Notes CI MUST NOT build the desktop application or the server image.
 
-The lapis-server repository owns server acceptance. Interaction and accessibility failures stay blocking. A failed job MUST NOT cancel another workflow or report the failed lane as success.
+The lapis-server repository owns server acceptance. Interaction and accessibility failures stay blocking. The aggregate MUST report failed, skipped or cancelled required lanes as failure.
 
 ## LN-PKG-143 — Release candidates: reuse the validated Turbo build graph
 
