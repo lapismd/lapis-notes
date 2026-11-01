@@ -28,7 +28,8 @@ Separate inherited dependency findings remain in the
 [runtime integration backlog](../backlog/runtime-integration.md#runtime-dependency-security).
 
 Dependency-image refreshes follow LN-GOV-050 when proposing the new digest:
-merged and closed reviews produce a fresh PR rather than absorb a later pin.
+one rolling automation branch retains its open review across lockfile changes.
+Merged and closed reviews produce a fresh PR; LN-GOV-052–053 close obsolete reviews.
 
 The shared base is the approved multi-architecture `lapis-ci:2026.10.14.1`,
 pinned by digest. It provides checksum-verified GitHub CLI 2.102.0 for release

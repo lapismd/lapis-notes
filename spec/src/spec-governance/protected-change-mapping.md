@@ -149,7 +149,19 @@ overlay teardown fix; test-signed fixtures never authorize public assets.
 
 <a id="ln-gov-050"></a>
 
-**Requirement.** Dependency-image publication MUST reuse only an open pull request for its exact automation head and main base. A previously closed or merged pull request MUST result in a new review PR for the fresh digest.
+**Requirement.** Dependency-image publication MUST run only from `main` and reuse only an open pull request for the fixed `automation/lapis-notes-ci` head and `main` base across lockfile changes. A previously closed or merged pull request MUST result in a new review PR for the fresh digest.
+
+## LN-GOV-052 — Superseded dependency-image reviews
+
+<a id="ln-gov-052"></a>
+
+**Requirement.** After successfully proposing a rolling image pin, or finding the pin already current on `main`, automation MUST close open superseded image reviews. Cleanup MUST select only `github-actions[bot]` reviews targeting `main` from this repository with heads matching `automation/lapis-notes-ci-lock-<16 lowercase hexadecimal characters>`; unrelated reviews MUST remain untouched.
+
+## LN-GOV-053 — Already-current dependency-image review
+
+<a id="ln-gov-053"></a>
+
+**Requirement.** When the generated image pin already matches `main`, automation MUST close any open review for the fixed rolling head without pushing or creating a replacement review.
 
 <!-- ci-dependency-image:start -->
 
