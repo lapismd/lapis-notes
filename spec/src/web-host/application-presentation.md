@@ -105,3 +105,9 @@ Rust profiles keep the port absent until their separate cutover gates.
 <a id="ln-web-089"></a>
 
 **Requirement.** Every published source revision MUST produce a distinct service-worker installation identity, including revisions with no application-source changes. The running document MUST expose its build SHA so update acceptance can verify the active revision independently of uncached deployment metadata.
+
+## LN-WEB-090 — Desktop-aligned vault chooser
+
+<a id="ln-web-090"></a>
+
+**Requirement.** The browser vault chooser MUST match the desktop launcher's bounded logo, branded header, responsive cards, action buttons and compact recent-vault rows using native CSS and public Design Core tokens. Browser storage and transfer actions MUST retain their existing host ownership. Empty, recent-vault and manage-vault states MUST be reviewable in Storybook before publishing presentation changes.

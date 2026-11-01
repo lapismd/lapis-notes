@@ -211,6 +211,10 @@
   "stories/workspace/PluginsSnapshot.stories.ts": {
     "kind": "application"
   },
+  "stories/workspace/WebVaultLauncher.stories.ts": {
+    "kind": "component",
+    "subject": "packages/web/src/WebVaultLauncher.svelte#default"
+  },
   "stories/workspace/WorkspaceShell.stories.ts": {
     "kind": "application"
   },

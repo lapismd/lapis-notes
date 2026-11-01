@@ -8,6 +8,7 @@
     type PluginHostRestrictions,
   } from "@lapis-notes/api";
   import { WorkspaceShell } from "@lapis-notes/workspace";
+  import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
   import { registerNotesPluginBrowser } from "../../packages/app-profile/src/plugin-browser";
   import { pluginsBrowserLayout } from "./plugins-browser-layout";
   import {
@@ -20,11 +21,25 @@
   let {
     browserState = {},
     unavailablePlugins,
+    holdLoading = false,
   }: {
     browserState?: Record<string, unknown>;
     unavailablePlugins?: PluginHostRestrictions;
+    holdLoading?: boolean;
   } = $props();
   const originalFetch = window.fetch.bind(window);
+  const boot = new AbortController();
+  const transport = snapshotFetch(originalFetch);
+  const metadataFetch: typeof fetch = async (input, init) => {
+    if (untrack(() => holdLoading)) {
+      await new Promise<void>((_, reject) => {
+        const cancel = () => reject(new DOMException("Story disposed", "AbortError"));
+        if (boot.signal.aborted) cancel();
+        else boot.signal.addEventListener("abort", cancel, { once: true });
+      });
+    }
+    return transport(input, init);
+  };
   const app = new App({
     version: "0.1.0",
     unavailablePlugins: untrack(() => unavailablePlugins),
@@ -42,7 +57,7 @@
     // Structured registry content renders itself; this story has no document leaves.
     markdownRenderer: async () => {},
     pluginDistributionOptions: snapshotDistributionOptions(
-      snapshotFetch(originalFetch),
+      metadataFetch,
     ),
   });
   let ready = $state(false);
@@ -60,22 +75,24 @@
     void (async () => {
       await app.vault.load();
       await app.configuration.load();
-      const catalog = await app.pluginDistribution.refreshCatalog();
-      // Every detail goes through signature verification and the public schema.
-      const details: Record<string, PluginCatalogDetail | null> = {};
-      for (const entry of catalog.plugins)
-        details[entry.id] = await app.pluginDistribution.getPluginDetail(
-          entry.id,
-        );
-      Object.assign(root, { __snapshotDetails: details });
+      if (!untrack(() => holdLoading)) {
+        const catalog = await app.pluginDistribution.refreshCatalog();
+        // Every detail goes through signature verification and the public schema.
+        const details: Record<string, PluginCatalogDetail | null> = {};
+        for (const entry of catalog.plugins)
+          details[entry.id] = await app.pluginDistribution.getPluginDetail(entry.id);
+        Object.assign(root, { __snapshotDetails: details });
+      }
       if (disposed) return;
       await app.workspace.loadLayout();
+      await getWorkspaceHostBinding(app.workspace).controller.start();
       if (!disposed) ready = true;
     })().catch((cause) => {
       if (!disposed) error = String(cause);
     });
     return () => {
       disposed = true;
+      boot.abort();
       disposeBrowser();
       if (window.fetch === mediaFetch) window.fetch = previousFetch;
       delete (root as HTMLDivElement & { __lapisApp?: App }).__lapisApp;

@@ -3,6 +3,7 @@
 <!-- prettier-ignore -->
 | ID | Chapter | Status | Evidence |
 | --- | --- | --- | --- |
+| LN-PLUG-125 | [plugin-model](../plugin-model/distribution-and-registry-01.md#ln-plug-125) | Implemented | Loading regression: one failure to one pass; seven snapshot stories pass. The user approved landing, directory and detail skeletons and release; [receipts](../../records/2026-11-01-launcher-registry-review.md). |
 | LN-PLUG-121 | [plugin-model](../plugin-model/lifecycle-and-views.md#ln-plug-121) | Implemented | Complete source qualification and packaged signed lifecycle pass: 113 cold native cases, 84 desktop catalog cases and an ordinary ARM64 bundle audit. See [native evidence](../../records/2026-10-17-native-plugin-lifecycle.md). |
 | LN-PLUG-119 | [plugin-model](../plugin-model/lifecycle-and-views.md#ln-plug-119) | Implemented | Complete source qualification and packaged signed lifecycle pass: 113 cold native cases, 84 desktop catalog cases and an ordinary ARM64 bundle audit. See [native evidence](../../records/2026-10-17-native-plugin-lifecycle.md). |
 | LN-PLUG-120 | [plugin-model](../plugin-model/lifecycle-and-views.md#ln-plug-120) | Implemented | Complete source qualification and packaged signed lifecycle pass: 113 cold native cases, 84 desktop catalog cases and an ordinary ARM64 bundle audit. See [native evidence](../../records/2026-10-17-native-plugin-lifecycle.md). |

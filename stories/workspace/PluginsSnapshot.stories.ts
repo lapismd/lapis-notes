@@ -14,6 +14,7 @@ const source = (state: Record<string, unknown>) => `<script lang="ts">
 import { onMount } from "svelte";
 import { App, MemoryVaultAdapter, MemoryAppDatabase } from "@lapis-notes/api";
 import { PluginsView, WorkspaceShell } from "@lapis-notes/workspace";
+import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
 // Serve the unchanged snapshot v2 directory at /registry-review/v2.
 const originalFetch = window.fetch.bind(window);
 const transport: typeof fetch = (input, init) => {
@@ -46,9 +47,9 @@ onMount(() => {
   void (async () => {
     await app.vault.load();
     await app.configuration.load();
-    await app.pluginDistribution.refreshCatalog();
     if (disposed) return;
     await app.workspace.loadLayout();
+    await getWorkspaceHostBinding(app.workspace).controller.start();
     if (!disposed) ready = true;
   })();
   return () => {
@@ -98,10 +99,10 @@ const parameters = (
   },
 });
 const render =
-  (browserState: Record<string, unknown> = {}) =>
+  (browserState: Record<string, unknown> = {}, holdLoading = false) =>
   () => ({
     Component: PluginRegistrySnapshotSurface,
-    props: { browserState },
+    props: { browserState, holdLoading },
   });
 async function ready(element: HTMLElement) {
   await waitFor(() =>
@@ -116,7 +117,7 @@ async function ready(element: HTMLElement) {
     __snapshotDetails: Record<string, PluginCatalogDetail>;
   };
   const app = root.__lapisApp;
-  expect(app.pluginDistribution.search()).toHaveLength(12);
+  await waitFor(() => expect(app.pluginDistribution.search()).toHaveLength(12));
   expect(Object.keys(root.__snapshotDetails)).toHaveLength(12);
   expect(app.pluginDistribution.getCatalogEntry("community")).toBeUndefined();
   expect(app.pluginDistribution.listSources()).toHaveLength(1);
@@ -269,3 +270,45 @@ export const AiDetails: Story = {
     );
   },
 };
+
+function loadingStory(page: "landing" | "directory" | "plugin"): Story {
+  const state = {
+    route: { page, ...(page === "plugin" ? { pluginId: "ai" } : {}) },
+  };
+  return {
+    render: render(state, true),
+    tags: ["visual-pending"],
+    parameters: {
+      ...parameters(
+        `loading-${page}`,
+        `Held metadata transport shows the ${page} skeleton without touching real vaults or network services.`,
+        state,
+      ),
+      a11y: { test: "error" },
+    },
+    play: async ({ canvasElement }) => {
+      const canvas = within(canvasElement);
+      await expect(await canvas.findByRole("status")).toHaveTextContent(
+        "Loading plugins",
+      );
+      const root = canvasElement.querySelector(
+        '[data-ui-component="plugin-registry-skeleton"]',
+      )!;
+      expect(root.getAttribute("data-layout")).toBe(
+        page === "plugin" ? "detail" : page,
+      );
+      expect(
+        root.querySelectorAll('[data-ui-component="skeleton"]').length,
+      ).toBeGreaterThan(8);
+      expect(root.querySelector("svg, img, button, a")).toBeNull();
+      if (page === "plugin") {
+        expect(root.querySelector('[data-ui-part="banner"]')).not.toBeNull();
+        expect(root.querySelector('[data-ui-part="metadata"]')).not.toBeNull();
+      }
+    },
+  };
+}
+
+export const LoadingLanding: Story = loadingStory("landing");
+export const LoadingDirectory: Story = loadingStory("directory");
+export const LoadingDetails: Story = loadingStory("plugin");

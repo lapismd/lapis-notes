@@ -1,5 +1,9 @@
 # Storybook Catalog / Catalog policy
 
+Plugin Registry Snapshot includes held-transport Loading Landing, Loading Directory and Loading Details stories for LN-PLUG-125. Their production skeletons remain `visual-pending` for human review.
+
+Workspace / Web Vault Launcher renders the production browser chooser with isolated host services for empty, recent and manage-vault review states under LN-WEB-090. Human review precedes merge or deployment; visual baselines remain pending.
+
 Search panel acceptance follows the shared command picker's accessible name,
 including its current selection: `Filter by file type: All` before selection
 and `Filter by file type: Markdown` afterward. All six placement stories retain

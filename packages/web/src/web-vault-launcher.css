@@ -1,0 +1,182 @@
+/* Adapted from the existing DesktopVaultLauncher presentation. */
+.web-vault-launcher {
+  display: flex;
+  height: 100%;
+  min-height: 100%;
+  overflow: auto;
+  padding: max(2.5rem, var(--workspace-safe-area-top, 0px)) 1rem 2.5rem;
+  color: var(--ui-workspace-foreground);
+  background: var(--ui-workspace-background);
+}
+.web-vault-launcher__content {
+  display: grid;
+  width: 100%;
+  max-width: 64rem;
+  min-width: 0;
+  gap: 1.5rem;
+  margin: auto;
+}
+.web-vault-launcher__header {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+.web-vault-launcher__brand {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 1rem;
+}
+.web-vault-launcher__logo {
+  width: 3.5rem;
+  height: 3.5rem;
+  flex-shrink: 0;
+  border: 1px solid
+    color-mix(in srgb, var(--ui-workspace-border) 70%, transparent);
+  border-radius: 1rem;
+  background: var(--ui-workspace-panel-background);
+  object-fit: cover;
+  box-shadow: 0 1px 2px #0000000d;
+}
+.web-vault-launcher__copy {
+  min-width: 0;
+}
+.web-vault-launcher__eyebrow {
+  color: var(--ui-workspace-muted-foreground);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+.web-vault-launcher__heading {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+.web-vault-launcher__description {
+  margin: 0.25rem 0 0;
+  color: var(--ui-workspace-muted-foreground);
+  font-size: 0.875rem;
+}
+.web-vault-launcher__header-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.25rem;
+}
+.web-vault-launcher__columns {
+  display: grid;
+  min-width: 0;
+  gap: 1.25rem;
+}
+.web-vault-launcher__card[data-ui-component="card"] {
+  min-width: 0;
+  gap: 0;
+  --ui-card-border-color: color-mix(
+    in srgb,
+    var(--ui-workspace-border) 70%,
+    transparent
+  );
+  --ui-card-background: color-mix(
+    in srgb,
+    var(--ui-workspace-panel-background) 90%,
+    transparent
+  );
+  backdrop-filter: blur(8px);
+}
+.web-vault-launcher__card-header {
+  padding-inline: 1.5rem;
+  padding-block-end: 0;
+}
+.web-vault-launcher__card-title {
+  font-size: 1.25rem;
+}
+.web-vault-launcher__action-list {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0 1.5rem 1.5rem;
+}
+.web-vault-launcher__recents-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.web-vault-launcher__recent-list {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0 1rem 1rem;
+}
+.web-vault-launcher__recent {
+  display: flex;
+  width: 100%;
+  align-items: stretch;
+  gap: 0.25rem;
+  border: 1px solid
+    color-mix(in srgb, var(--ui-workspace-border) 60%, transparent);
+  border-radius: 0.75rem;
+  padding: 0.25rem;
+}
+.web-vault-launcher__recent-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.web-vault-launcher__recent-name,
+.web-vault-launcher__location {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.web-vault-launcher__recent-name,
+.web-vault-launcher__label {
+  font-weight: 500;
+}
+.web-vault-launcher__location {
+  color: var(--ui-workspace-muted-foreground);
+  font-size: 0.75rem;
+}
+.web-vault-launcher__empty {
+  padding: 1.25rem 1rem;
+  border: 1px dashed
+    color-mix(in srgb, var(--ui-workspace-border) 70%, transparent);
+  border-radius: 0.75rem;
+  color: var(--ui-workspace-muted-foreground);
+  font-size: 0.875rem;
+}
+.web-vault-launcher__error,
+.web-vault-launcher__message {
+  border: 1px solid
+    color-mix(in srgb, var(--ui-workspace-border) 70%, transparent);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  background: var(--ui-workspace-panel-background);
+}
+.web-vault-launcher__error {
+  border-color: color-mix(in srgb, var(--destructive) 40%, transparent);
+  color: var(--destructive);
+  background: color-mix(in srgb, var(--destructive) 10%, transparent);
+}
+@media (min-width: 40rem) {
+  .web-vault-launcher {
+    padding-inline: 1.5rem;
+  }
+  .web-vault-launcher__header {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .web-vault-launcher__heading {
+    font-size: 1.875rem;
+  }
+}
+@media (min-width: 64rem) {
+  .web-vault-launcher__columns {
+    grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+  }
+}

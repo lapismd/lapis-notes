@@ -1,5 +1,7 @@
 # Plugin Model / Distribution and registry / Part 1
 
+LN-WEB-090 changes chooser presentation and isolated Storybook fixtures; browser vault and plugin ownership remain with their existing hosts.
+
 Core 0.10.1 supplies shared window chrome without changing plugin ownership. Cloudflare PWA packaging preserves verified plugin asset URLs and the cache-only service-worker route. Production artifacts MUST use the ordinary registry configuration rather than the ephemeral signed acceptance-fixture trust (LN-WEB-084). Stable plugin host entrypoints revalidate under LN-WEB-088. Appearance acceptance (LN-WEB-087) shares the ordinary artifact and disposable browser context used for verified plugin/offline qualification.
 
 Interaction acceptance waits for media and confirmation dialogs to become
@@ -180,6 +182,12 @@ cannot disappear when the host registers the public plugin Settings pages.
 <a id="ln-plug-057"></a>
 
 **Requirement.** Plugin registry presentation MUST distinguish initial load, background refresh, empty registry, filtered no-results, no updates, source problems, and registry failure. Refresh, filters, selection, list scroll, manual-install progress, update, enablement, uninstall, trust, restart, revocation, and confirmation behavior MUST retain existing App-owned handlers.
+
+## LN-PLUG-125 — Representative registry loading skeletons
+
+<a id="ln-plug-125"></a>
+
+**Requirement.** Initial catalog and detail loading MUST use representative Design Core skeletons matching the destination layout, with one accessible loading announcement and no decorative package illustration. Snapshot loading stories MUST exercise the production Plugins view and permit stable human review.
 
 ## LN-PLUG-058 — Registry rows, provenance badges, expandable search, tabs: use public Design Core controls and --ui-\*
 

@@ -5,6 +5,7 @@
   import SearchX from "@lucide/svelte/icons/search-x";
   import Sparkles from "@lucide/svelte/icons/sparkles";
   import * as Button from "@lapismd/design-core/shadcn/button";
+  import PluginRegistrySkeleton from "./PluginRegistrySkeleton.svelte";
 
   let {
     kind,
@@ -29,6 +30,9 @@
   } = $props();
 </script>
 
+{#if kind === "loading"}
+  <PluginRegistrySkeleton label={heading} />
+{:else}
 <div
   class="lapis-plugin-registry-state"
   data-ui-component="plugin-registry-content-state"
@@ -56,7 +60,7 @@
       <AlertTriangle />
     {:else}
       <PackageIcon />
-      {#if kind !== "loading"}<Sparkles />{/if}
+      <Sparkles />
     {/if}
   </div>
   <div class="lapis-plugin-registry-state__body">
@@ -78,3 +82,4 @@
     {/if}
   </div>
 </div>
+{/if}
