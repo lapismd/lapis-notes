@@ -1,5 +1,20 @@
 # @lapis-notes/workspace
 
+## 0.3.3
+
+### Patch Changes
+
+- [#66](https://github.com/lapismd/lapis-notes/pull/66)
+  [`6086980`](https://github.com/lapismd/lapis-notes/commit/6086980be8a0d9cf6e697a689b0c17f409afdc3f)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Consume published Design
+  Core 0.10.1 so browser hosts can reserve leading and trailing native controls
+  and title-bar height, with a continuous divider when sidebars collapse. Keep
+  portable registry ranges and existing compatibility.
+- Updated dependencies
+  [[`6086980`](https://github.com/lapismd/lapis-notes/commit/6086980be8a0d9cf6e697a689b0c17f409afdc3f)]:
+  - @lapis-notes/api@0.2.5
+  - @lapis-notes/ui@0.1.7
+
 ## 0.3.2
 
 ### Patch Changes
