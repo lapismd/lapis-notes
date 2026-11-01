@@ -78,3 +78,14 @@ Node 24.15.0. The full dirty-update/refusal/retry/offline scenario passed withou
 changing a persistence assertion, timeout or production PWA implementation. The
 original timeout remains retained above; this successful fresh run does not
 establish a permanent fix for an intermittent event timeout.
+
+## Main integration
+
+The shared repair was moved onto main `9747a374` without importing a dependency
+bump. Final main-integration specification checks and formatting passed. The
+main release-tooling suite includes the six additional rolling-image PR cases:
+one initial run passed 106 of 107 tests, with the unchanged local cache-routing
+fixture hitting a child-process timeout. Its exact isolated regression then
+passed without changing the 30-second limit; the complete rerun passed all 107
+cases. The shared fix remains the common base for the individual dependency
+candidates rather than combining their registry upgrades into one change.
