@@ -27,7 +27,7 @@
   "release:test": "node --env-file-if-exists=.env scripts/run-turbo.mjs release:test:run --task-args",
   "test:local-plugin-consumer": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:local-plugin-consumer:run --task-args",
   "ci:storybook-static": "pnpm build-storybook && pnpm test:specification:static",
-  "ci:storybook-interaction": "pnpm test:storybook && pnpm test:specification:dev",
+  "ci:storybook-interaction": "pnpm test:storybook && pnpm test:workspace:pointer && pnpm test:specification:dev",
   "check:specification-docs": "node scripts/dependency-automation/spec-policy.mjs --command check:specification-docs 'tsc -p tsconfig.specification-docs.json && node scripts/spec-validation/sync-specification.mjs'",
   "test:specification:dev": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:specification:dev:run --task-args",
   "test:specification:static": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:specification:static:run --task-args",

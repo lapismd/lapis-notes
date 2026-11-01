@@ -4,6 +4,20 @@
 
 Dependency update PRs from the trusted LapisMD App, Dependabot or Renovate MAY skip specification checks using the PR author rather than the rerun actor. Functional checks remain required. The shared `lapismd/dependency-automation` coordinator proposes published first-party npm updates with Changeset release intent where required; it does not merge, publish, sign or deploy. This CI policy changes no runtime or public contract in this chapter.
 
+Cold Storybook qualification prepares the complete shared-session dependency
+graph, including the public native Repository entry, before test collection;
+late optimization reloads cannot qualify startup acceptance.
+
+The publishable application profile includes built workspace-session, native
+Chat/Repository and plugin-host build exports. Public packing verifies all six
+Notes artifacts and their portable dependency graph. The shared-session cohort
+admits released Design Core 0.8 and 0.9 and Mira 0.1.4; registry-only
+qualification and checksum-verified unreleased archive qualification retain
+separate receipts. The PWA end-to-end command also enters the bounded Docker
+router while retaining its uncached Turbo task and literal selectors. Browser
+startup checks include cold dependency optimization and real shell geometry,
+without replacing functional or accessibility gates with visual review.
+
 Framework check, test, build, specification and release aggregates select the UI
 image after native services moved to lapis-server. They do not require a root
 Cargo lock or native sibling inputs. Explicit native lanes retain their pinned
