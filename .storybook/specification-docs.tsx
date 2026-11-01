@@ -78,10 +78,12 @@ function CanonicalLink(props: ComponentProps<"a">) {
         parent.location.origin === window.location.origin
       ) {
         const state = parent.history.state;
-        const index =
-          typeof state?.idx === "number" ? state.idx + 1 : undefined;
+        // Storybook's router uses `history.state.idx` to calculate Back and
+        // Forward deltas. Static builds can start without that state, so
+        // always seed a numeric index for the entry we add here.
+        const index = typeof state?.idx === "number" ? state.idx + 1 : 1;
         parent.history.pushState(
-          index === undefined ? state : { ...state, idx: index },
+          { ...(state ?? {}), idx: index },
           "",
           `${url!.pathname}${url!.search}${url!.hash}`,
         );
