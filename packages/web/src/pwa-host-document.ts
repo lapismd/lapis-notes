@@ -43,7 +43,8 @@ export function isInstalledPwaHost(): boolean {
 }
 
 export function initializeWebHostDocument(): void {
-  if (typeof document === "undefined" || typeof navigator === "undefined") return;
+  if (typeof document === "undefined" || typeof navigator === "undefined")
+    return;
   const root = document.documentElement;
   root.dataset.pwaHost = "true";
   root.dataset.runtime = "web-pwa";

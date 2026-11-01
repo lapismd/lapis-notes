@@ -2,7 +2,8 @@
 
 The verified publication job may notify the dependency coordinator. This adds no merge, publication, signing or deployment authority.
 
-Dependency-image reviews retain LN-GOV-050/LN-PKG-142; API Mira uses public ranges. The [native service exports](./native-service-exports.md) define generated admitted ports separately from release and registry policy.
+The active browser graph requires published Core 0.10.1 for the native-control divider. The private web deployment toolchain pins Wrangler and JSONC parsing in the root lockfile. Cloudflare publication consumes the tested browser artifact without publishing application packages or copying local dependency sources (LN-WEB-083–084). Artifact acceptance includes runtime and saved-startup appearance (LN-WEB-087), plus immutable hashed runtime and revalidated stable entrypoints (LN-WEB-088) and revision-specific installation identity (LN-WEB-089). Dependency-image reviews retain LN-GOV-050/LN-PKG-142; API Mira uses public ranges.
+The [native service exports](./native-service-exports.md) define generated admitted ports separately from release and registry policy.
 
 Release and validation containers consume shared image `2026.10.14.1` by digest. GitHub CLI 2.102.0 is supplied upstream so approved npm publication can create its GitHub release records without a consumer tool-install workaround.
 
@@ -386,7 +387,7 @@ batch through npm ranges: AI 0.1.5; Bases, Bookmarks, Graph, Search and Spellche
 0.1.3; History 0.1.4; Markdown 0.1.6; Markdown Lint, Source Editor and Word Count
 0.1.2. Slides 0.1.0 remains available through installed-plugin management rather
 than the static profile. The tracked lockfile resolves public npm packages;
-test-signed archive fixtures remain separate acceptance inputs. Local consumer qualification builds the five public host packages from exact source and records archive hashes under LN-ARCH-146. It does not create a release candidate or change registry dependency ranges.
+test-signed archive fixtures remain separate acceptance inputs. Local consumer qualification builds the five public host packages from exact source and records archive hashes under LN-ARCH-146. It does not create a release candidate or change registry dependency ranges. The static PWA consumes published Design Core 0.10.0 through normal registry ranges, with active public package ranges admitting the new native-control contract.
 
 <!-- ci-dependency-image:start -->
 

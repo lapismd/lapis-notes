@@ -1,5 +1,10 @@
 # Deno Desktop Host / Window and shell
 
+The frozen Deno host retains its existing Design Core dependency and native
+traffic-light bridge. Shared package ranges now admit published Core 0.10.0 for
+the browser host's LN-WEB-085 geometry contract; Deno qualification remains
+separate from that PWA adoption.
+
 Delivered plugin URL navigation reveals the selected page above owning Settings
 under [LN-PLUG-109](../plugin-model/app-ownership.md#ln-plug-109).
 

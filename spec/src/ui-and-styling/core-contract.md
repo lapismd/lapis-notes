@@ -1,11 +1,13 @@
 # UI and Styling / Retained UI contracts
 
-Active API, retained UI, Workspace, Explorer and Web consumers require published
-Design Core `^0.6.0`, including prepared
+The active API, retained UI, Workspace, Explorer and Web graph resolves published
+Design Core `0.10.1`, including prepared
 browser CSS and bundled font assets, through the existing public style exports.
-The minimum includes the close guard, asynchronous plugin flush and centered
-bottom-panel contracts already used by current source. Earlier supported ranges
-cannot advertise those required capabilities. The frozen Deno host is unchanged.
+The graph retains the close guard, asynchronous plugin flush and centered
+bottom-panel contracts. Portable compatibility ranges retain older supported
+hosts; the PWA's native-control geometry requires the 0.10 contract. Older hosts
+cannot advertise capabilities absent from their selected release. The frozen
+Deno host is unchanged.
 
 UI 0.1.3 is the prepared packaging patch for the retained runtime dependency
 declarations. Its CSS, tokens, component markup and public exports are unchanged.

@@ -1,7 +1,7 @@
 # Explorer Plugin
 
-Notebook's shared-table release cohort MUST admit Design Core 0.9 in File
-Explorer's portable dependency range, preserving supported 0.7 and 0.8 hosts.
+File Explorer's portable dependency range MUST admit Design Core 0.10.1 for the
+PWA shell, preserving supported 0.7, 0.8 and 0.9 hosts.
 The compatibility patch changes no Explorer behavior. Final registry acceptance
 MUST resolve Explorer and the host to one Design Core installation.
 

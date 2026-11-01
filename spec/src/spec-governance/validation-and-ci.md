@@ -1,5 +1,7 @@
 # Specification Governance / Validation and CI
 
+The reusable CI aggregate includes Cloudflare PWA packaging, HTTP semantics and fresh-browser artifact acceptance. Production publication runs that aggregate for every main revision independently of npm versioning; only its main-restricted deployment job receives the Cloudflare token (LN-WEB-083–086).
+
 <!-- dependency-automation-policy -->
 
 Dependency update PRs from the trusted LapisMD App, Dependabot or Renovate MAY skip specification checks using the PR author rather than the rerun actor. Functional checks remain required. The shared `lapismd/dependency-automation` coordinator proposes published first-party npm updates with Changeset release intent where required; it does not merge, publish, sign or deploy. This CI policy changes no runtime or public contract in this chapter.

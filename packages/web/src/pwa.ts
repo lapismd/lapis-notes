@@ -1,13 +1,13 @@
 /// <reference types="vite-plugin-pwa/client" />
 
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 import { get } from "svelte/store";
 import { registerSW } from "virtual:pwa-register";
 import PwaUpdatePrompt from "./PwaUpdatePrompt.svelte";
 import { createPwaHostStateController } from "./pwa-host-state";
-import { getApplicationCompatibility } from "@lapis-notes/api";
 import {
   getPwaRuntimeApplication,
+  preparePwaUpdate,
   onPwaRuntimeApplicationChanged,
   type PwaRuntimeApp as RuntimeApp,
 } from "./pwa-runtime-application";
@@ -30,9 +30,7 @@ let applyServiceWorkerUpdate: ((reloadPage?: boolean) => Promise<void>) | null =
   null;
 let cleanup: (() => void) | null = null;
 function runtimeApp(): RuntimeApp | null {
-  const candidate =
-    getPwaRuntimeApplication() ??
-    (getApplicationCompatibility() as Partial<RuntimeApp> | undefined);
+  const candidate = getPwaRuntimeApplication();
   return candidate?.commands && candidate.statusBar
     ? (candidate as RuntimeApp)
     : null;
@@ -123,10 +121,7 @@ function registerCommands(app: RuntimeApp): void {
       checkCallback(checking) {
         if (!applyServiceWorkerUpdate) return false;
         if (!checking) {
-          hostState.startApplyingUpdate();
-          void applyServiceWorkerUpdate(true).catch(() =>
-            hostState.announceUpdateAvailable(),
-          );
+          void applyAvailableUpdate();
         }
         return true;
       },
@@ -134,34 +129,49 @@ function registerCommands(app: RuntimeApp): void {
   }
 }
 
+let applying: Promise<void> | null = null;
+async function applyAvailableUpdate(): Promise<void> {
+  if (!applyServiceWorkerUpdate || applying) return;
+  const update = applyServiceWorkerUpdate;
+  hostState.startApplyingUpdate();
+  applying = preparePwaUpdate().then(() => update(true));
+  try {
+    await applying;
+  } catch {
+    hostState.announceUpdateAvailable();
+  } finally {
+    applying = null;
+  }
+}
+
+async function requestUpdateCheck(): Promise<void> {
+  if (!("serviceWorker" in navigator)) return;
+  try {
+    await (await navigator.serviceWorker.getRegistration())?.update();
+  } catch {
+    /* Network failure leaves the installed app and pending update intact. */
+  }
+}
+
 function integrateWhenReady(): void {
-  const deadline = Date.now() + 120_000;
-  const poll = () => {
-    const app = runtimeApp();
-    if (app) {
-      registerCommands(app);
-      syncDocumentAndStatus();
-    } else if (Date.now() < deadline) {
-      setTimeout(poll, 50);
-    }
-  };
-  poll();
+  const app = runtimeApp();
+  if (app) registerCommands(app);
+  syncDocumentAndStatus();
 }
 
 export function registerWebPwa(): () => void {
   if (import.meta.env.DEV) return () => {};
   if (cleanup) return cleanup;
-  mount(PwaUpdatePrompt, {
+  const prompt = mount(PwaUpdatePrompt, {
     target: document.body,
     props: {
       stateStore: hostState,
       onLater: () => hostState.dismissUpdatePrompt(),
-      onInstallNow: () =>
-        void runtimeApp()?.commands.executeCommand(APPLY_UPDATE_COMMAND_ID),
+      onInstallNow: () => void applyAvailableUpdate(),
     },
   });
   const unsubscribe = hostState.subscribe(syncDocumentAndStatus);
-  const unsubscribeRuntime = onPwaRuntimeApplicationChanged(syncDocumentAndStatus);
+  const unsubscribeRuntime = onPwaRuntimeApplicationChanged(integrateWhenReady);
   hostState.setOnline(navigator.onLine !== false);
   const updateServiceWorker = registerSW({
     immediate: true,
@@ -182,14 +192,23 @@ export function registerWebPwa(): () => void {
     deferredPrompt = null;
     hostState.setInstallPromptVisible(false);
   };
-  const onOnline = () => hostState.setOnline(true);
+  const onOnline = () => {
+    hostState.setOnline(true);
+    void requestUpdateCheck();
+  };
+  const onVisible = () => {
+    if (document.visibilityState === "visible") void requestUpdateCheck();
+  };
   const onOffline = () => hostState.setOnline(false);
   window.addEventListener("beforeinstallprompt", onInstall);
   window.addEventListener("appinstalled", onInstalled);
   window.addEventListener("online", onOnline);
   window.addEventListener("offline", onOffline);
+  document.addEventListener("visibilitychange", onVisible);
   integrateWhenReady();
   cleanup = () => {
+    void unmount(prompt);
+    document.removeEventListener("visibilitychange", onVisible);
     unsubscribe();
     unsubscribeRuntime();
     window.removeEventListener("beforeinstallprompt", onInstall);

@@ -26,9 +26,15 @@ describe("pwa host state controller", () => {
 
     controller.setOnline(false);
     controller.markOfflineReady();
-    expect(get(controller)).toMatchObject({ offline: true, offlineReady: true });
+    expect(get(controller)).toMatchObject({
+      offline: true,
+      offlineReady: true,
+    });
 
     controller.setOnline(true);
-    expect(get(controller)).toMatchObject({ offline: false, offlineReady: true });
+    expect(get(controller)).toMatchObject({
+      offline: false,
+      offlineReady: true,
+    });
   });
 });

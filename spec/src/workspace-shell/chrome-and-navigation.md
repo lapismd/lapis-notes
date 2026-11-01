@@ -1,5 +1,9 @@
 # Workspace Shell / Chrome and navigation
 
+The active browser/catalog shell consumes published Design Core 0.10.1 through
+the shared package graph. LN-WEB-085 owns browser geometry detection; the host
+supplies public leading, trailing and title-bar-height tokens to shared chrome.
+
 LN-PKG-185 supplies common file/folder discovery exclusions to Explorer and
 pickers through Vault. The workspace keeps its existing App, chrome and settings
 presentation, adding the shared editable list under Workspace / File discovery

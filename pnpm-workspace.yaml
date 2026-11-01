@@ -42,6 +42,7 @@ overrides:
   "vitest@>=4.0.0 <4.1.11": "4.1.11"
 
 onlyBuiltDependencies:
+  - workerd
   - better-sqlite3
   - esbuild
   - node-llama-cpp

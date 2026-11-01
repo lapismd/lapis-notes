@@ -50,9 +50,7 @@ export function createPwaHostStateController(): PwaHostStateController {
       store.update((state) => ({ ...state, updatePromptVisible: false })),
     reopenUpdatePrompt: () =>
       store.update((state) =>
-        state.updateAvailable
-          ? { ...state, updatePromptVisible: true }
-          : state,
+        state.updateAvailable ? { ...state, updatePromptVisible: true } : state,
       ),
     startApplyingUpdate: () =>
       store.update((state) => ({
