@@ -7,6 +7,7 @@
 | LN-WEB-084 | [web-host](../web-host/application-presentation.md#ln-web-084) | In progress | Cloudflare PWA implementation and focused acceptance pending; production cutover is not yet qualified. |
 | LN-WEB-085 | [web-host](../web-host/application-presentation.md#ln-web-085) | In progress | Cloudflare PWA implementation and focused acceptance pending; production cutover is not yet qualified. |
 | LN-WEB-086 | [web-host](../web-host/application-presentation.md#ln-web-086) | In progress | Cloudflare PWA implementation and focused acceptance pending; production cutover is not yet qualified. |
+| LN-WEB-087 | [web-host](../web-host/application-presentation.md#ln-web-087) | In progress | The old artifact fails the dark-mode browser regression; the repaired host passes explicit light/dark, dark startup after reload, system media transitions and metadata/shell paint equality. Production adoption remains pending. |
 | LN-WEB-001 | [web-host](../web-host/application-presentation.md#ln-web-001) | Implemented | package `2026.6.3`, manifest, generated legacy icons, update prompt, WCO, and `web+lapis` handler |
 | LN-WEB-002 | [web-host](../web-host/startup-and-plugins.md#ln-web-002) | Implemented | web-owned launcher, profile restoration, plugin boot, and orderly session replacement  [Markdown 0.2 profile intake](../../records/2026-10-30-profile-markdown-intake.md). |
 | LN-WEB-003 | [web-host](../web-host/browser-storage-and-sync.md#ln-web-003) | Implemented | OPFS creation/restoration, File System Access opening, and cancellation recovery acceptance |

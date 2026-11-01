@@ -78,10 +78,16 @@ Rust profiles keep the port absent until their separate cutover gates.
 
 <a id="ln-web-085"></a>
 
-**Requirement.** The PWA host MUST map live native control geometry to Design Core's public leading, trailing and title-bar-height tokens. Theme metadata MUST follow resolved shell paint. Native-control exclusions MUST follow resize and layout changes without blocking interactive tabs or controls, and ordinary browser mode MUST clear the overlay geometry.
+**Requirement.** The PWA host MUST map live native control geometry to Design Core's public leading, trailing and title-bar-height tokens. Native-control exclusions MUST follow resize and layout changes without blocking interactive tabs or controls, and ordinary browser mode MUST clear the overlay geometry.
 
 ## LN-WEB-086 — Persistence-safe PWA updates
 
 <a id="ln-web-086"></a>
 
 **Requirement.** Foreground and online transitions MUST request service-worker update checks. Updates MUST remain prompt-based. Acceptance MUST await the owning workspace persistence and leave boundary before activation; a refused save MUST preserve the live session and available update.
+
+## LN-WEB-087 — Browser appearance ownership
+
+<a id="ln-web-087"></a>
+
+**Requirement.** The browser host MUST apply the workspace's light, dark or system appearance to its document, persist the selected startup mode and follow system changes while system mode is selected. Browser-frame theme metadata MUST follow resolved shell paint in the launcher, running workspace and subsequent startup.

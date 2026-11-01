@@ -12,10 +12,12 @@
     listVaultProfiles,
     provideApplicationState,
     requestBrowserStoragePersistence,
+    saveBootstrapAppearanceMode,
     takeHostSyncService,
     type SyncHostService,
     registerDefaultDailyDocumentProvider,
     type BrowserCoordinatedAppDatabase,
+    type BootstrapAppearanceMode,
     type PluginAssetServer,
     type VaultAdapter,
     type VaultProfile,
@@ -53,6 +55,7 @@
   import { registerWebVaultTransferSettings } from "./vault-transfer-settings";
   import { createWebPluginAssetServer } from "./plugin-asset-server";
   import { setPwaRuntimeApplication } from "./pwa-runtime-application";
+  import { observeWebHostAppearance } from "./host-appearance";
 
   let {
     adapter,
@@ -191,6 +194,16 @@
   let tasks = $state<WorkspaceStartupTask[]>(structuredClone(STARTUP_TASKS));
   let failure = $state<WorkspaceStartupFailure | null>(null);
   let disposed = false;
+  $effect(() => {
+    if (runtime !== "web-pwa" || !ready) return;
+    const mode = app.configuration
+      .getConfiguration()
+      .get<BootstrapAppearanceMode>("appearence.baseColorSchema", "system");
+    void saveBootstrapAppearanceMode(mode).catch((error) =>
+      console.error("Could not persist the browser startup appearance", error),
+    );
+    return observeWebHostAppearance(mode);
+  });
   // Match Desktop's stop/drain/guard order; session closure stays outside the guard.
   const leaveWorkspace = createWorkspaceLeave({
     preflight: async () => {

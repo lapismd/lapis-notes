@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { appendFile, readFile } from "node:fs/promises";
 import { setTimeout as delay } from "node:timers/promises";
 import { chromium } from "@playwright/test";
+import { qualifyPwaAppearance } from "./lib/qualify-pwa-appearance.mjs";
 
 const base = process.argv[2];
 if (!base) throw new Error("Usage: pnpm web:cloudflare:smoke <origin>");
@@ -85,6 +86,7 @@ try {
   await page
     .locator('[data-app-shell-ready="true"]')
     .waitFor({ timeout: 90_000 });
+  await qualifyPwaAppearance(page);
   const plugin = await page.evaluate(async () => {
     const app = globalThis.app;
     await app.pluginDistribution.refreshCatalog({ force: true });
@@ -219,6 +221,7 @@ console.log(
     search: true,
     verifiedPluginOffline: true,
     offlineReopen: true,
+    appearance: true,
     oversizedWasm: wasmPaths.length,
     promptUpdate: !!process.env.LAPIS_PWA_UPDATE_TEST_SW,
   }),

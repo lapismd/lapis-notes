@@ -1,7 +1,6 @@
 import {
   getBootstrapAppearanceMode,
   setBrowserSearchEmbeddingWorkerFactory,
-  type BootstrapAppearanceMode,
 } from "@lapis-notes/api";
 import "@lapismd/design-core/styles.css";
 import "@lapismd/design-core/themes/lapis.css";
@@ -9,19 +8,8 @@ import "@lapis-notes/ui/theme.css";
 import "@lapis-notes/ui/codemirror-autocomplete.css";
 import { mount } from "svelte";
 import { observeHostThemeColor } from "./host-theme-color";
+import { applyWebHostAppearance } from "./host-appearance";
 import "./web-host.css";
-
-function applyAppearance(mode: BootstrapAppearanceMode): void {
-  const dark =
-    mode === "dark" ||
-    (mode === "system" &&
-      globalThis.matchMedia?.("(prefers-color-scheme: dark)").matches);
-  document.documentElement.classList.toggle("dark", dark);
-  document.documentElement.classList.toggle("light", !dark);
-  document.documentElement.classList.toggle("theme-dark", dark);
-  document.documentElement.classList.toggle("theme-light", !dark);
-  document.documentElement.dataset.uiTheme = "lapis";
-}
 
 let disposeWindowControls = () => {};
 let disposePwa = () => {};
@@ -39,7 +27,7 @@ if (!__LAPIS_SERVER_MODE__) {
   disposeWindowControls = controls.registerPwaWindowControlsOverlay();
   disposePwa = pwa.registerWebPwa();
 }
-applyAppearance(await getBootstrapAppearanceMode());
+applyWebHostAppearance(await getBootstrapAppearanceMode());
 const disposeThemeColor = observeHostThemeColor();
 const target = document.getElementById("app");
 if (!target) throw new Error("Web renderer root is missing");

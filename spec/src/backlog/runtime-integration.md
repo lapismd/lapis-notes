@@ -134,5 +134,5 @@ commands, failures and qualification limits.
 
 ## Cloudflare PWA publication
 
-- Restore installed window chrome and persistence-safe updates (LN-WEB-085–086).
+- Restore installed window chrome and persistence-safe updates and browser appearance (LN-WEB-085–087).
 - Qualify the prepared static artifact, automatic main publication and app.lapis.md cutover (LN-WEB-083–084).

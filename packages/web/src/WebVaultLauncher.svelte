@@ -30,6 +30,10 @@
   import * as Input from "@lapismd/design-core/shadcn/input";
   import { onMount } from "svelte";
   import {
+    applyWebHostAppearance as applyAppearance,
+    observeWebHostAppearance,
+  } from "./host-appearance";
+  import {
     IMPORT_NEW_PICKER_ID,
     isAbortError,
   } from "./vault-transfer";
@@ -74,6 +78,7 @@
   let recentVaultDialogOpen = $state(false);
   let settingsOpen = $state(false);
   let appearanceMode = $state<BootstrapAppearanceMode>("system");
+  let appearanceReady = $state(false);
   let localError = $state("");
   let actionMessage = $state("");
   let activeActionId = $state<string | null>(null);
@@ -106,16 +111,9 @@
     void refresh();
   });
 
-  function applyAppearance(mode: BootstrapAppearanceMode): void {
-    const dark =
-      mode === "dark" ||
-      (mode === "system" &&
-        globalThis.matchMedia?.("(prefers-color-scheme: dark)").matches);
-    document.documentElement.classList.toggle("dark", dark);
-    document.documentElement.classList.toggle("light", !dark);
-    document.documentElement.classList.toggle("theme-dark", dark);
-    document.documentElement.classList.toggle("theme-light", !dark);
-  }
+  $effect(() => {
+    if (appearanceReady) return observeWebHostAppearance(appearanceMode);
+  });
 
   async function refresh(): Promise<void> {
     try {
@@ -124,6 +122,7 @@
         getBootstrapAppearanceMode(),
       ]);
       applyAppearance(appearanceMode);
+      appearanceReady = true;
     } catch (error) {
       localError = error instanceof Error ? error.message : String(error);
     }

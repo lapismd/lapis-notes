@@ -1,6 +1,6 @@
 # Hosted Server / Integration contracts
 
-The app.lapis.md Cloudflare deployment uses the standalone browser/PWA build. It does not deploy the retained hosted server profile, server credentials or API routes; those remain governed by this host chapter and the owning lapis-server specification.
+The app.lapis.md Cloudflare deployment uses the standalone browser/PWA build. It does not deploy the retained hosted server profile, server credentials or API routes; those remain governed by this host chapter and the owning lapis-server specification. LN-WEB-087’s document-appearance bridge is selected only by the web-pwa runtime.
 
 Server integration requirements moved to the lapis-server specification:
 <https://lapismd.github.io/lapis-server/>.

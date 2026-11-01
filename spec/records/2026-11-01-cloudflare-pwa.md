@@ -98,3 +98,33 @@ qualification, installed macOS Chrome, main landing, custom-domain cutover,
 production smoke and a subsequent automatic main deployment. Deployment workflow
 artifacts retain before/after deployment lists, source SHA, version/deployment
 IDs and an exact previous-version rollback command for 90 days.
+
+## Installed-app qualification follow-ups
+
+Notes PR #66 passed all eleven gates in CI 41315755628. Its exact tested merge
+artifact bdc3ca962ed20a4d9075211bd29bf4641fc2ea5b was deployed on workers.dev
+without rebuilding; all 598 non-configuration files match the downloaded
+artifact. Remote browser/offline/plugin/search/WASM and edge HEAD/304/range,
+deep-link and missing-asset checks passed. Native Chrome geometry and public
+tokens agreed at 1200x954 and 1728x1000; the user confirmed draggable empty
+chrome and clickable controls.
+
+The user identified a missing divider when the left sidebar closes. Design Core
+owns its repair under DC-WS-084; Notes must consume the published patch before
+cutover. Appearance qualification also reproduced a separate host defect:
+updating the workspace setting to Dark left the inherited document light.
+The focused old-artifact regression failed after ten seconds waiting for Dark.
+
+The web host now applies the ready workspace's canonical appearance, observes
+system changes and saves the startup choice. Startup and launcher reuse the same
+class application; observers stop when their owning surface leaves. Hosted
+runtimes retain host ownership. Prepared-artifact acceptance passes explicit
+light/dark, dark startup after reload, explicit choice overriding system, system
+media transitions and metadata matching actual header paint. The same run
+passes offline reopening, verified plugin activation, oversized WASM compilation
+and deferred/refused/accepted update persistence. Root checks and units pass all
+16 tasks each (2,079 tests); the complete build passes all nine tasks.
+
+Final dependency adoption, fresh protected CI and production qualification
+remain required. Local behaviour-validation metadata using the parent SHA is
+provisional and must not be deployed as a production artifact.
