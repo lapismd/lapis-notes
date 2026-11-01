@@ -275,3 +275,8 @@ Unchanged contract: File Explorer passes the selected file-view icon through pub
 **Requirement.** Workspace-owned plugin management MAY compose public Design Core SearchFilterBar, FilterCommandPicker, Resizable, and settings navigation primitives. Registry state, verified Markdown, filtering, installation actions, and application policy MUST remain in Lapis; reusable search, command-option, resizing, and responsive settings-shell behavior MUST remain in Design Core.
 
 Attachment dropping keeps Design Core presentation and the existing Explorer callback. File Explorer owns admission, input bounds and FileManager new-file integration under LN-EXP-010/011/012. The API retains exclusive publication and tree projection; hosts do not add a replacement importer or bypass existing save ownership.
+
+Public API examples are exported under LN-PKG-191. The `Vault.process` example
+uses the existing atomic read/modify/write contract and a valid inline Markdown
+example, so later methods retain their headings and anchors in the reference.
+This documentation correction changes no editor or vault writer ownership.

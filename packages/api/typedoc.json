@@ -1,0 +1,24 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/lib/docs-api.ts"],
+  "tsconfig": "tsconfig.json",
+  "plugin": ["typedoc-plugin-markdown"],
+  "name": "Lapis Notes TypeScript API",
+  "router": "member",
+  "entryFileName": "index",
+  "readme": "none",
+  "sourceLinkExternal": true,
+  "sourceLinkTemplate": "https://github.com/lapismd/lapis-notes/blob/{gitRevision}/{path}#L{line}",
+  "cleanOutputDir": true,
+  "excludeExternals": true,
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "validation": {
+    "invalidLink": true,
+    "notDocumented": false,
+    "notExported": false,
+    "rewrittenLink": true,
+    "unusedMergeModuleWith": true
+  }
+}

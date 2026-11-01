@@ -3,6 +3,7 @@
 <!-- prettier-ignore -->
 | ID | Chapter | Status | Evidence |
 | --- | --- | --- | --- |
+| LN-PKG-191 | [API docs](../packages/editor-apis.md#ln-pkg-191) | Implemented | `pnpm --filter @lapis-notes/api docs:test`; Docker check/test/spec and API build passed. [Receipt](../../records/2026-11-01-website-api-export.md). |
 | LN-PKG-001 | [packages](../packages/app-and-services.md#ln-pkg-001) | Implemented | `packages/api` kernel copy |
 | LN-PKG-002 | [packages](../packages/core-contract.md#ln-pkg-002) | Implemented | API 0.1.1 candidate requires UI 0.1.1; framework packages pass 30 build/check/test tasks and 18 root checks, with verified tarball checksums |
 | LN-PKG-003 | [packages](../packages/core-contract.md#ln-pkg-003) | Implemented | Pruned `packages/ui`; `utils.test.ts` checks the class helper and every retained UI source import against the published runtime/peer dependencies for clean package consumers. |

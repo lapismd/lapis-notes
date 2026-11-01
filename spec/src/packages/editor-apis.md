@@ -241,3 +241,16 @@ on unload.
 <a id="ln-pkg-102"></a>
 
 **Requirement.** `@lapis-notes/lapis-plugin-docs` MUST live in the sibling `lapis-plugin-docs` repository, version independently, and expose `build`, `check`, and `test`. It owns Core Docs notes, books, cards, and FSRS review while delegating reusable leaf controls to Design Core and Markdown reading to Mira. Desktop and web hosts MUST NOT register it statically; when installed it MUST register its own views.
+
+## LN-PKG-191 — Source-owned API documentation export
+
+<a id="ln-pkg-191"></a>
+
+**Requirement.** The API package MUST export its curated plugin-author surface as raw Markdown with package version, committed source revision and content checksums. Failed exports MUST preserve existing artifacts. The standalone website MUST own Starlight formatting and public reference routing.
+
+The API package owns `pnpm --filter @lapis-notes/api docs:export --output <new-directory>`.
+It exports the curated `docs-api.ts` surface as raw TypeDoc Markdown plus a
+manifest containing package identity, source revision and sorted SHA-256 hashes.
+The standalone lapis-website owns Starlight frontmatter and public reference
+routing. Export failure preserves existing artifacts; symlinks and missing
+indexes are rejected. Source documentation tests run with `docs:test`.

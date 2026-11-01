@@ -214,7 +214,7 @@ export class NotificationProgressHandle implements NotificationProgressToken {
   }
 
   /**
-   * Alias for {@link report}.
+   * Alias for {@link NotificationProgressHandle.report}.
    *
    * @param report - Partial progress information to merge into the live state.
    * @public

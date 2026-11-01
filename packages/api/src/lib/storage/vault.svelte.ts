@@ -847,13 +847,14 @@ export class Vault extends EventDispatcher<{
   /**
    * Atomically read, modify, and save the contents of a note.
    *
-   * @example
+   * @remarks
+   *   Example:
+   *
    *   ```ts
    *   app.vault.process(file, (data) => {
-   *    return data.replace('Hello', 'World');
+   *     return data.replace("Hello", "World");
    *   });
-   *   ```;
-   *
+   *   ```
    * @param file - The file to be read and modified.
    * @param fn - A callback function which returns the new content of the note
    *   synchronously.

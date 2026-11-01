@@ -397,14 +397,15 @@ export class FileManager {
    *
    * Remember to handle errors thrown by this method.
    *
-   * @example
+   * @remarks
+   *   Example:
+   *
    *   ```ts
    *   app.fileManager.processFrontMatter(file, (frontmatter) => {
-   *       frontmatter['key1'] = value;
-   *       delete frontmatter['key2'];
+   *     frontmatter["key1"] = value;
+   *     delete frontmatter["key2"];
    *   });
-   *   ```;
-   *
+   *   ```
    * @param file - The file to be modified. Must be a Markdown file.
    * @param fn - A callback function which mutates the frontmatter object
    *   synchronously.

@@ -56,13 +56,15 @@
     "check:pack-types": "tsc -p tsconfig.contracts.json",
     "dev": "pnpm --dir ../.. storybook",
     "storybook": "pnpm --dir ../.. storybook",
-    "test": "vitest run",
+    "test": "pnpm docs:test && vitest run",
     "test:run": "vitest run",
     "generate:search-query-parser": "lezer-generator ./src/lib/search-query/search-query.grammar -o ./src/lib/search-query/parser.js",
     "prepack": "pnpm generate:plugin-host-modules && svelte-package --tsconfig ./tsconfig.pack.json && publint && pnpm check:pack-types",
     "parity:generate": "node ./scripts/generate-obsidian-parity.mjs",
     "performance:metadata:native": "tsx ./scripts/metadata-performance-native.ts",
-    "generate:plugin-host-modules": "node ../../scripts/generate-plugin-host-modules.mjs"
+    "generate:plugin-host-modules": "node ../../scripts/generate-plugin-host-modules.mjs",
+    "docs:export": "node scripts/export-docs.mjs",
+    "docs:test": "node --test scripts/docs-artifact.node-test.mjs"
   },
   "files": [
     "CHANGELOG.md",
@@ -327,6 +329,8 @@
     "tslib": "^2.8.1",
     "typescript": "~5.8.3",
     "vite": "^6.4.2",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.8",
+    "typedoc": "^0.28.19",
+    "typedoc-plugin-markdown": "^4.11.0"
   }
 }

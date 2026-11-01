@@ -38,3 +38,8 @@ The optional App/session native History index port is separate from
 AppDatabase file-history persistence. It changes neither the 68-method database
 allowlist nor file-revision capture, retention or restore semantics. Its
 immutable queries reuse host admission without adding a database writer.
+
+The source-owned API reference export (LN-PKG-191) describes public declarations
+and comments without selecting a database provider or exposing SQL internals.
+The website consumes a reviewed Markdown artifact; runtime database admission
+and its verification remain independent from documentation generation.

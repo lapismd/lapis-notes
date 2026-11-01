@@ -95,17 +95,18 @@ export interface Command {
   /**
    * Simple callback, triggered globally.
    *
-   * @example
+   * @remarks
+   *   Example:
+   *
    *   ```ts
    *   this.addCommand({
-   *     id: 'print-greeting-to-console',
-   *     name: 'Print greeting to console',
+   *     id: "print-greeting-to-console",
+   *     name: "Print greeting to console",
    *     callback: () => {
-   *       console.log('Hey, you!');
+   *       console.log("Hey, you!");
    *     },
    *   });
-   *   ```;
-   *
+   *   ```
    * @public
    */
   callback?: (...args: any[]) => any;
@@ -117,11 +118,13 @@ export interface Command {
    * you should only return true if the condition is satisfied. Returning false
    * or undefined causes the command to be hidden from the command palette.
    *
-   * @example
+   * @remarks
+   *   Example:
+   *
    *   ```ts
    *   this.addCommand({
-   *     id: 'example-command',
-   *     name: 'Example command',
+   *     id: "example-command",
+   *     name: "Example command",
    *     checkCallback: (checking: boolean) => {
    *       const value = getRequiredValue();
    *
@@ -133,10 +136,9 @@ export interface Command {
    *       }
    *
    *       return false;
-   *     }
+   *     },
    *   });
-   *   ```;
-   *
+   *   ```
    * @param checking - Whether the command palette is just 'checking' if your
    *   command should show right now. If checking is true, then this function
    *   should not perform any action. If checking is false, then this function
@@ -150,19 +152,20 @@ export interface Command {
    * A command callback that is only triggered when the user is in an editor.
    * Overrides `callback` and `checkCallback`
    *
-   * @example
+   * @remarks
+   *   Example:
+   *
    *   ```ts
    *   this.addCommand({
-   *   id: 'example-command',
-   *   name: 'Example command',
-   *   editorCallback: (editor: Editor, view: MarkdownView) => {
-   *   const sel = editor.getSelection();
+   *     id: "example-command",
+   *     name: "Example command",
+   *     editorCallback: (editor: Editor, view: MarkdownView) => {
+   *       const sel = editor.getSelection();
    *
-   *   console.log(`You have selected: ${sel}`);
-   *   }
+   *       console.log(`You have selected: ${sel}`);
+   *     },
    *   });
    *   ```
-   *
    * @public
    */
   editorCallback?: (editor: Editor, ctx: any) => any;
@@ -171,12 +174,18 @@ export interface Command {
    * A command callback that is only triggered when the user is in an editor.
    * Overrides `editorCallback`, `callback` and `checkCallback`
    *
-   * @example
+   * @remarks
+   *   Example:
+   *
    *   ```ts
    *   this.addCommand({
-   *     id: 'example-command',
-   *     name: 'Example command',
-   *     editorCheckCallback: (checking: boolean, editor: Editor, view: MarkdownView) => {
+   *     id: "example-command",
+   *     name: "Example command",
+   *     editorCheckCallback: (
+   *       checking: boolean,
+   *       editor: Editor,
+   *       view: MarkdownView,
+   *     ) => {
    *       const value = getRequiredValue();
    *
    *       if (value) {
@@ -188,10 +197,9 @@ export interface Command {
    *       }
    *
    *       return false;
-   *     }
+   *     },
    *   });
-   *   ```;
-   *
+   *   ```
    * @public
    */
   editorCheckCallback?: (
