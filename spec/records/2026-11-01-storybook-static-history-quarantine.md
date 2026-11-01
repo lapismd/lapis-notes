@@ -17,3 +17,7 @@ same suite.
 Restore the test when a hosted static run proves that the breadcrumb route
 creates a durable forward entry and the complete static specification lane
 passes without the conditional `test.fixme`.
+
+Runs `41324013796` attempts 2 and 3 were canceled by the workflow before the
+registry fixture completed; those cancellations are CI orchestration receipts,
+not additional test failures.
