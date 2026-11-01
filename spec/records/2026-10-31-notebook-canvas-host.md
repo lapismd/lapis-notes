@@ -1,5 +1,23 @@
 # Notebook canvas-table migration progress
 
+## Release watch — 1 November 2026
+
+The user authorized watching, merging and releasing the four migration PRs.
+Notes PR #60 head b12c89c0 passed registry-fixture and build-cache; governance
+then failed spec-first with two missing canonical mappings (UI and Workspace).
+The workflow cancelled remaining jobs after that failure. The exact local
+`LAPIS_NOTES_VALIDATION_RUNTIME=native pnpm spec:first --base main@origin --head @`
+reproduced both findings. Owning UI and Workspace chapters now document the
+existing compatibility changes; no gate, test or runtime behavior was weakened.
+Released Core 0.9 dependency refresh and complete exact-head CI remain required
+before merge/release. Existing main-workspace edits and Storybooks are preserved.
+
+Exact rerun: spec-first passed 25 protected files/23 canonical chapters (0
+findings); `LAPIS_NOTES_VALIDATION_RUNTIME=native pnpm spec:validate` passed
+11 validators/194 chapters/1567 requirements; changed-document Prettier passed.
+Latest validator is 0.2.0; doctor passed with the documented wrapper warning and
+QMD specification searches succeeded under Node 24.
+
 ## Delivery state
 
 - Specified: complete contract written before runtime changes.
