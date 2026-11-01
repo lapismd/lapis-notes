@@ -164,3 +164,21 @@ offline vault/plugin/WASM operation and deferred/refused/accepted updates.
 Workspace and Explorer retain their existing supported ranges alongside Core
 0.10; private browser hosts require 0.10.1, and the frozen graph selects one
 published 0.10.1 installation. Fresh protected consumer CI remains required.
+
+## Final protected consumer and native acceptance
+
+Notes PR #66 passed all eleven protected checks in CI 41325479617 and merged
+at `6086980be8a0d9cf6e697a689b0c17f409afdc3f`. Its tested merge artifact
+`5528f9f6b10659714c025dd46278ad152f3fdd4d` was deployed temporarily without
+rebuilding: all 599 non-configuration files match the downloaded artifact.
+The temporary deployment is `4e7e4b17-b98b-48f8-88be-b67e29b42689`, version
+`0f6577d9-e9bc-4524-b854-acfe85bfc252`.
+
+Live browser vault/search, verified plugin/offline operation, streaming WASM,
+appearance and edge HTTP/cache semantics pass. Installed macOS Chrome accepted
+the actual update prompt with its existing profile and storage. Saved Dark
+renders correctly and survives reload; theme metadata and header paint both
+resolve to `rgb(38, 38, 38)`. The lower divider is visible with the left sidebar
+collapsed, both with and without the ribbon. Live overlay geometry remains
+38px high with 86px leading and 78px trailing public exclusions. No screenshot
+comparison or baseline update was performed.
