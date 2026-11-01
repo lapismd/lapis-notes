@@ -1,5 +1,10 @@
 # Lapis Editor Demo / Editor scenarios / Part 1
 
+Notebook cohort acceptance MUST exercise the existing Explorer registration with
+the released Core 0.9 host graph. Explorer's compatibility patch preserves demo
+boot, file actions and App ownership; the demo MUST NOT install an older private
+Design Core copy to satisfy Explorer's previous dependency range.
+
 LN-EXP-014 covers custom file artwork through the actual App and Explorer,
 including plugin enable/disable, opening and rename. Editor-demo cold acceptance
 retains its existing scenarios. The shared dependency optimizer includes API's

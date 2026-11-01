@@ -29,7 +29,7 @@
     "@lapis-notes/app-profile": "workspace:*",
     "@lapis-notes/ui": "workspace:*",
     "@lapis-notes/workspace": "workspace:*",
-    "@lapismd/design-core": "^0.7.0",
+    "@lapismd/design-core": "^0.9.0",
     "@lucide/svelte": "^0.523.0",
     "fflate": "^0.8.3",
     "workbox-window": "^7.4.1",

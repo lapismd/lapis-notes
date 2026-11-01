@@ -222,3 +222,9 @@ and restart steps are not replayed.
 <a id="ln-web-065"></a>
 
 **Requirement.** Verified plugin assets served from Cache Storage MUST carry `Cross-Origin-Embedder-Policy: require-corp` and `Cross-Origin-Resource-Policy: same-origin`. Installed module workers MUST start under the host isolation policy and retain verified relative worker chunks.
+
+The Web renderer import map includes Notebook’s declared public Design Core ToggleGroup density control under the shared Svelte runtime. This changes no storage, sync or plugin lifecycle ownership.
+
+The renderer host resolves Design Core through `^0.8.0` so its build-owned plugin import map can resolve the public CanvasTable and FilterBuilder modules. Native service ownership and startup ordering remain unchanged.
+
+Notebook module admission MUST include its declared Markdown and CodeMirror Markdown entries. Producer bundles use the admitted versioned Svelte renderer namespace; host resolution MUST retain one shared runtime during development optimization and production builds. Unknown modules and renderer-version mismatches MUST fail closed. This changes no native Deno service capability.

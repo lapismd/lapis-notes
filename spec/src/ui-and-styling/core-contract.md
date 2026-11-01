@@ -126,6 +126,12 @@ this Notes story update from the source-owned Bases naming repair.
 
 **Requirement.** `@lapis-notes/ui` MUST remain a versioned, pack-tested public artifact for API and external-plugin consumers. Its published manifest MUST use portable semver ranges for shared host dependencies while colocated development MAY link matching sibling versions.
 
+Notebook's shared-table intake updates retained UI's Design Core compatibility
+range without changing component paint or exports. The release cohort MUST
+resolve public CanvasTable and FilterBuilder exports through the host's shared
+renderer; candidate archive checks and released-registry qualification remain
+separate evidence.
+
 ## LN-UI-018 — Public CodeMirror autocomplete stylesheet: use native CSS and shared Design Core
 
 <a id="ln-ui-018"></a>

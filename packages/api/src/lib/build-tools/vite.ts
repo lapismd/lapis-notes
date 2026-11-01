@@ -42,3 +42,8 @@ export function tursoBundleBuildPlugin() {
     },
   } satisfies Plugin;
 }
+
+export {
+  rendererHostModulePlugin,
+  type RendererHostModuleOptions,
+} from "./renderer.js";

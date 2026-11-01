@@ -174,6 +174,12 @@ projection does not enqueue a second save.
 
 **Requirement.** The `@lapis-notes/workspace` public `0.1.0` package MUST remain a shell adapter around a host-supplied API `App`. Its release manifest, README, and package metadata MUST keep vault discovery, plugin boot, persistence, profile management, and backend setup outside the package.
 
+Notebook's table migration changes Workspace's public Design Core dependency
+compatibility only. Plugin filtering, typed table data and execution remain
+Notebook-owned. The host catalog MUST admit its declared public modules through
+the shared renderer without moving plugin boot or application ownership into
+WorkspaceShell.
+
 ## LN-WS-098 — Live popup projection
 
 <a id="ln-ws-098"></a>

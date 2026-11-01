@@ -190,3 +190,11 @@ only an observed new draft clears the saved conversation. This retains existing
 view state through native metadata/History/Tasks boot without creating a writer
 or resubmitting accepted work. The pre-mount regression reproduces0/1 and passes
 after the view-owned repair; final combined hosted acceptance remains R7.
+
+The Notebook segmented density picker consumes the public Design Core ToggleGroup module through the generated renderer module registry. This adds no private module or application ownership exception.
+
+Notebook's final registry cohort uses Design Core ^0.9.0 in development hosts and admits it in API, UI, Workspace and Explorer's public ranges. Existing supported ranges remain compatible. Generated catalog imports MUST resolve without private aliases or a second older Core installation. Source-archive and registry receipts remain separate.
+
+Notebook host intake changes generated module admission and dependency ranges only; API runtime interfaces remain unchanged. Its compatibility release MUST remain in the existing API 0.2 peer cohort so unchanged plugins remain admissible. Design Core's new public table contracts use its own minor release.
+
+The public API build/vite entry MUST expose rendererHostModulePlugin for plugin/host build modes, bound to an exact svelteVersion and the generated renderer catalog. This build-only compatibility addition preserves API runtime interfaces and the existing 0.2 plugin peer cohort. CodeMirror Markdown MUST have an explicit public host entry.

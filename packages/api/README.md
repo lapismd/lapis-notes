@@ -65,3 +65,27 @@ Explorer uses editor associations and pattern priority to choose the
 contribution, then resolves artwork through `app.icons`. Pending, missing or
 failed artwork retains the filename icon. Changes repaint existing rows;
 rendering an icon never activates a plugin or constructs its file view.
+
+### Versioned renderer builds
+
+Use the public build adapter when producing renderer plugins or embedding their
+npm exports in a Vite host. Pass the exact installed Svelte version; the generated
+host catalog rejects unknown modules and incompatible compiler/runtime versions.
+
+```ts
+import { defineConfig } from "vite";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { rendererHostModulePlugin } from "@lapis-notes/api/build/vite";
+
+export default defineConfig({
+  plugins: [
+    rendererHostModulePlugin({ mode: "host", svelteVersion: "5.56.10" }),
+    svelte(),
+  ],
+});
+```
+
+Plugin producers choose `mode: "plugin"` and let the adapter externalize Svelte
+imports; do not pre-externalize them or copy private host build helpers. The
+versioned providers retain the host's single Svelte runtime. Other imports still
+need explicit host admission and the plugin's normal manifest audit.

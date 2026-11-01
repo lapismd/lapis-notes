@@ -193,3 +193,9 @@ First-party prompt and leftover ACP embed acceptance verifies:
 The shared native bridge also accepts `tauri-desktop` under LN-ARCH-141. This
 adds a host runtime identity without changing the Deno command transport. The
 Tauri database admission boundary follows LN-DB-055.
+
+The renderer module registry includes Notebook’s declared public Design Core ToggleGroup density control. This does not change frozen Deno startup or native service contracts; shared renderer imports remain fail closed.
+
+The renderer host resolves Design Core through `^0.8.0` so its build-owned plugin import map can resolve the public CanvasTable and FilterBuilder modules. Native service ownership and startup ordering remain unchanged.
+
+Notebook module admission MUST include its declared Markdown and CodeMirror Markdown entries. Producer bundles use the admitted versioned Svelte renderer namespace; host resolution MUST retain one shared runtime during development optimization and production builds. Unknown modules and renderer-version mismatches MUST fail closed. This changes no native Deno service capability.

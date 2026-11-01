@@ -16,11 +16,16 @@ it("emits a portable build helper declaration without a Vite peer graph", () => 
   };
   const host = ts.createCompilerHost(options);
   let declaration = "";
+  const publicDeclarations: string[] = [];
   host.writeFile = (file, text) => {
     if (file.endsWith("vite.d.ts")) declaration = text;
+    if (/\/(?:vite|renderer)\.d\.ts$/.test(file)) publicDeclarations.push(text);
   };
   const program = ts.createProgram([source], options, host);
   expect(program.emit().emitSkipped).toBe(false);
   expect(declaration).toContain("tursoBundleBuildPlugin");
+  expect(declaration).toContain("rendererHostModulePlugin");
+  for (const text of publicDeclarations)
+    expect(text).not.toMatch(/from ["'](?:vite|rollup)["']/);
   expect(declaration).not.toMatch(/from ["']vite["']/);
 });
