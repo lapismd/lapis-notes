@@ -1,6 +1,6 @@
 {
   "name": "@lapis-notes/ui",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Public UI primitives required by Lapis Notes API consumers",
   "license": "Apache-2.0",
   "repository": {
