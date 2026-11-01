@@ -163,8 +163,8 @@ importers:
         specifier: ^0.2.0
         version: 0.2.0
       '@lapismd/storybook-addon-visual-delta':
-        specifier: 0.0.7
-        version: 0.0.7(playwright@1.61.1)(react@19.2.8)(storybook@10.5.7(@types/react@19.2.18)(prettier@3.3.3)(react@19.2.8))(svelte@5.56.10)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(tsx@4.23.9)(yaml@2.9.0))
+        specifier: 0.1.0
+        version: 0.1.0(playwright@1.61.1)(react@19.2.8)(storybook@10.5.7(@types/react@19.2.18)(prettier@3.3.3)(react@19.2.8))(svelte@5.56.10)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(tsx@4.23.9)(yaml@2.9.0))
       '@lapismd/terminal-host':
         specifier: ^0.1.0
         version: 0.1.0
@@ -2695,8 +2695,8 @@ packages:
     engines: {node: '>=22'}
     hasBin: true
 
-  '@lapismd/storybook-addon-visual-delta@0.0.7':
-    resolution: {integrity: sha512-Ll0AAqye2kr7FhGKAlrm3l2/HkCTLqR3DbHQQvNQy262kbs0j7MvFXlewsWb1T0v5Tq1zOs3S0gWFdhtrYfcdQ==}
+  '@lapismd/storybook-addon-visual-delta@0.1.0':
+    resolution: {integrity: sha512-DK1a3u3+0/yGSNGunJotDp7mSTzx5O4DF33NVSyaD+A56jnw5zN+PQlITdJOPF/7xuXFrncEDBs0GFiPVfoeGg==}
     hasBin: true
     peerDependencies:
       playwright: '*'
@@ -11401,7 +11401,7 @@ snapshots:
       jiti: 2.7.0
       typescript: 5.9.3
 
-  '@lapismd/storybook-addon-visual-delta@0.0.7(playwright@1.61.1)(react@19.2.8)(storybook@10.5.7(@types/react@19.2.18)(prettier@3.3.3)(react@19.2.8))(svelte@5.56.10)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(tsx@4.23.9)(yaml@2.9.0))':
+  '@lapismd/storybook-addon-visual-delta@0.1.0(playwright@1.61.1)(react@19.2.8)(storybook@10.5.7(@types/react@19.2.18)(prettier@3.3.3)(react@19.2.8))(svelte@5.56.10)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(tsx@4.23.9)(yaml@2.9.0))':
     dependencies:
       '@storybook/icons': 2.1.0(react@19.2.8)
       html-to-image: 1.11.13
