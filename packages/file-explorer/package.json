@@ -1,6 +1,6 @@
 {
   "name": "@lapis-notes/file-explorer",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Reusable Lapis Notes file explorer plugin",
   "license": "Apache-2.0",
   "repository": {
@@ -46,7 +46,7 @@
     }
   },
   "dependencies": {
-    "@lapis-notes/api": "^0.2.4",
+    "@lapis-notes/api": "^0.2.5",
     "@lapismd/design-core": "^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0"
   },
   "peerDependencies": {
