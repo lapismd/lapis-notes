@@ -1,5 +1,19 @@
 # @lapis-notes/workspace
 
+## 0.3.4
+
+### Patch Changes
+
+- [#70](https://github.com/lapismd/lapis-notes/pull/70)
+  [`df60318`](https://github.com/lapismd/lapis-notes/commit/df603187df2680d46720ee2af0a226c6fbb25a22)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Show representative
+  skeletons while the plugin registry catalog and details load, preserving
+  existing empty/error states, verified metadata, and App-owned actions.
+- Updated dependencies
+  [[`5bd58d8`](https://github.com/lapismd/lapis-notes/commit/5bd58d8033062923f09549fa341d84f22b143452),
+  [`8a7ec3c`](https://github.com/lapismd/lapis-notes/commit/8a7ec3c3d1d1610e8be0e3b29aab4b2f4188a0c5)]:
+  - @lapis-notes/api@0.2.6
+
 ## 0.3.3
 
 ### Patch Changes
