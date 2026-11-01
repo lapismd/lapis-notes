@@ -31,6 +31,11 @@ Dependency-image refreshes follow LN-GOV-050 when proposing the new digest:
 one rolling automation branch retains its open review across lockfile changes.
 Merged and closed reviews produce a fresh PR; LN-GOV-052–053 close obsolete reviews.
 
+CI retains independent job results and retryable failures under LN-PKG-142;
+neither a failed lane nor a newer queued validation cancels an active run.
+Storybook prebundles Notes UI's own helper version under LN-CAT-120 rather than
+assuming it shares Design Core or Mira's registry-resolved helper instance.
+
 The shared base is the approved multi-architecture `lapis-ci:2026.10.14.1`,
 pinned by digest. It provides checksum-verified GitHub CLI 2.102.0 for release
 records. Direct workflow pins and the dependency-only Docker base must agree;

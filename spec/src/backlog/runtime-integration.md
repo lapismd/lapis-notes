@@ -109,6 +109,13 @@ subsequently pass their required hosted gates. The disconnect's cause remains
 unproven; this entry tracks diagnostic follow-up rather than an unpassed release
 lane.
 
+The November 1 dependency cohort adds PR #74's History-file disconnect and
+PR #75's Link Preview disconnect to the retained observations. A distinct,
+reproduced late Notes UI `tailwind-merge` optimization on Mira PR #72 is repaired
+under LN-CAT-120, with 19 focused and 275 complete interaction/a11y passes. That
+repair does not prove the cause of every historical transport disconnect; see
+[the dependency CI investigation](../../records/2026-11-01-dependency-update-ci.md).
+
 Acceptance: retain browser stderr, child exit and live cgroup memory/peak
 observations to distinguish a browser crash, resource event and transport loss.
 Keep unhandled errors fatal and require the complete current-source catalog and
