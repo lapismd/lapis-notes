@@ -9,6 +9,9 @@ original acceptance boundary. Historical receipts do not schedule current work.
 
 - [Runtime and package integration](backlog/runtime-integration.md)
 - [Legacy plugin ports](backlog/legacy-plugin-ports.md)
+- Restore the hosted static-Chromium Storybook Docs history assertion after the
+  [quarantine receipt](../records/2026-11-01-storybook-static-history-quarantine.md)
+  is cleared.
 
 Shared native-core and hosted work belongs to the
 [Server backlog](https://github.com/lapismd/lapis-server/blob/main/spec/src/backlog.md).

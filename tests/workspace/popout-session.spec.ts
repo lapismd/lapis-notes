@@ -102,13 +102,21 @@ test("failed opening preserves the source and failed saving preserves the popup"
   const result = await page.evaluate(async () => {
     const root = document.querySelector("[data-popup-ready]") as any;
     const app = root.__lapisApp;
-    const modify = app.vault.modify.bind(app.vault);
-    app.vault.modify = async (file: any, data: string) => {
-      if (file.path === "one.txt") throw new Error("fixture save failed");
-      return modify(file, data);
+    const modify = app.vault.modifyIfUnchanged.bind(app.vault);
+    root.__failedWrites = 0;
+    app.vault.modifyIfUnchanged = async (
+      file: any,
+      data: string,
+      baseline: string | null,
+    ) => {
+      if (file.path === "one.txt") {
+        root.__failedWrites++;
+        throw new Error("fixture save failed");
+      }
+      return modify(file, data, baseline);
     };
     root.__allowSave = () => {
-      app.vault.modify = modify;
+      app.vault.modifyIfUnchanged = modify;
     };
     const leaf = app.workspace
       .getLeavesOfType("text")
@@ -126,6 +134,12 @@ test("failed opening preserves the source and failed saving preserves the popup"
     }
   });
   expect(result).toContain("fixture save failed");
+  expect(
+    await page.evaluate(
+      () =>
+        (document.querySelector("[data-popup-ready]") as any).__failedWrites,
+    ),
+  ).toBeGreaterThan(0);
   expect(popup.isClosed()).toBe(false);
   await expect(popup.locator(".cm-content")).toContainText(
     "First note unsaved draft",
@@ -136,6 +150,13 @@ test("failed opening preserves the source and failed saving preserves the popup"
     await root.__popupController.renderer.requestCloseWindow(root.__windowId);
   });
   await expect.poll(() => popup.isClosed()).toBe(true);
+  expect(
+    await page.evaluate(async () => {
+      const app = (document.querySelector("[data-popup-ready]") as any)
+        .__lapisApp;
+      return app.vault.read(app.vault.getFileByPath("one.txt"));
+    }),
+  ).toBe("First note unsaved draft");
 });
 
 test("multiple popups keep palettes local and receive live themes", async ({

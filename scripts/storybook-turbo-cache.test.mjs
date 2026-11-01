@@ -73,7 +73,7 @@ test("CI Storybook tasks cache their results after package builds", () => {
   );
   assert.equal(
     lanes["ci:storybook-interaction"],
-    "pnpm test:storybook && pnpm test:specification:dev",
+    "pnpm test:storybook && pnpm test:workspace:pointer && pnpm test:specification:dev",
   );
 });
 

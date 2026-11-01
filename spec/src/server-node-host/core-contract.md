@@ -1,5 +1,11 @@
 # Hosted Server / Integration contracts
 
+The Rust server consumes the built Notes-owned workspace-session export under
+LN-PKG-188. Server authentication, managed vaults, transport and native service
+admission remain in lapis-server. Notes owns reusable startup, settings, plugin
+management and guarded session teardown; the standalone login/chooser and their
+branding remain server-owned.
+
 Server integration requirements moved to the lapis-server specification:
 <https://lapismd.github.io/lapis-server/>.
 

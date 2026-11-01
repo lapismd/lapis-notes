@@ -5,8 +5,8 @@ provider and the source-qualified CPU/model reference. Vector/ranking, admitted
 client lifetime and offline-cache evidence stay separate from engine source
 qualification and the retained Search selection journey.
 
-Framework packages and application hosts require published Design Core
-`^0.5.0`, including its prepared browser CSS and bundled font assets. The
+Framework packages admit their declared compatible Core ranges; the current
+application hosts select published Design Core `^0.9.0`, including its prepared browser CSS and bundled font assets. The
 registry dependency refresh retains public export resolution and existing
 application-owned state; it does not activate Sync or publish local host work.
 Notes declares its own Prettier and JSDoc formatter development dependencies;
@@ -17,8 +17,9 @@ records `clsx`, `tailwind-merge`, `bits-ui` and `@lucide/svelte` as UI runtime
 dependencies, so a clean production consumer does not rely on workspace
 development dependencies.
 
-API's Design Core dependency and peer require released `^0.7.2`; Mira
-depends on and peers released `~0.1.3`. The root development cohort matches.
+API's Design Core dependency and peer admit released 0.8/0.9; its direct Mira
+minimum is `~0.1.4` and its peer admits the compatible 0.1 line. The root
+development cohort selects Core 0.9 and Mira 0.1.4.
 This admits stable status mounts and directive highlighting through public exports.
 
 API's direct Minimatch dependency resolves the patched `^11.0.1` registry
@@ -50,13 +51,14 @@ The API accepts the Mira 0.1 public-export line alongside its existing 0.0.5
 range for isolated Lapis Desktop shared-screen acceptance. Package source and
 installed applications retain their existing ownership.
 
-The private App Profile now requests published Markdown `^0.2.0` so its public
+The application profile requests published Markdown `^0.2.0` so its public
 rendering dependency matches the current API/Workspace cohort without a host
 override or a second legacy renderer dependency line.
 
-The private App Profile now requests published Agent UI `^0.2.0`, History
-`^0.2.0`, and Design Core `^0.7.4`. The profile stays private at `0.0.0` and
-the API package stays `0.2.3`.
+The publishable application profile requests Agent UI `^0.2.0`, History
+`^0.2.0`, Core `^0.9.0`, API `^0.2.4` and the current public workspace
+packages. Its session exports use built `dist`; hosts retain storage and native
+policy. Publication and independent frozen-registry acceptance remain separate.
 
 ## LN-ARCH-001 — Repository: a pnpm workspace orchestrated by Turbo. Targeted
 
@@ -64,11 +66,11 @@ the API package stays `0.2.3`.
 
 **Requirement.** The repository MUST be a pnpm workspace orchestrated by Turbo. Targeted host builds and distribution or acceptance preflights MUST select the host and dependency closure through the root Turbo graph so unchanged work can use the shared cache.
 
-## LN-ARCH-002 — Framework and private application packages: live under packages/\* and expose appropriate build
+## LN-ARCH-002 — Framework and application packages: live under packages/\* and expose appropriate build
 
 <a id="ln-arch-002"></a>
 
-**Requirement.** Framework and private application packages MUST live under `packages/*` and expose appropriate build, check, and test scripts. The eleven extracted first-party plugin packages MUST be owned by the sibling `lapis-plugins` workspace rather than duplicated as long-term Lapis Notes sources.
+**Requirement.** Framework and application packages MUST live under `packages/*` and expose appropriate build, check, and test scripts. The eleven extracted first-party plugin packages MUST be owned by the sibling `lapis-plugins` workspace rather than duplicated as long-term Lapis Notes sources.
 
 ## LN-ARCH-017 — @lapismd/mira-editor, @lapismd/mira-plugin-mermaid, and @lapismd/mira-plugin-ai: consumed through published npm semver ranges
 

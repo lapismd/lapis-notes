@@ -50,7 +50,7 @@
 | LN-PKG-016 | [packages](../packages/releases-and-exports.md#ln-pkg-016) | Implemented | Visual Delta remains an npm-resolved private root tool and absent from runtime package manifests |
 | LN-PKG-044 | [packages](../packages/vault-and-storage.md#ln-pkg-044) | Implemented | sibling `lapis-plugins/packages/search` owns the reusable package, checks, tests, and build |
 | LN-PKG-045 | [packages](../packages/app-and-services.md#ln-pkg-045) | Implemented | provider-neutral descriptors, capabilities, providers, session integration, and explicit test injection |
-| LN-PKG-046 | [packages](../packages/core-contract.md#ln-pkg-046) | Implemented | private web package `2026.6.3` exposes `@lapis-notes/web/session` plus the standard root development, build, preview, and E2E scripts |
+| LN-PKG-046 | [packages](../packages/core-contract.md#ln-pkg-046) | Implemented | private web package `2026.6.3` adapts the shared Notes session and retains standard development, build, preview, and E2E scripts |
 | LN-PKG-047 | [packages](../packages/app-and-services.md#ln-pkg-047) | Implemented | pinned Turso native/WASM production dependencies; desktop build proves the Vite-aware WASM entry; source and package audits contain no SQLite app-database fallback |
 | LN-PKG-048 | [packages](../packages/editor-apis.md#ln-pkg-048) | Implemented | API markup editor retains a 700px readable body when workspace sidebars close |
 | LN-PKG-187 | [packages](../packages/editor-apis.md#ln-pkg-187) | Implemented | `inline-title-alignment.test.ts`; Plugins Reading surface editing/source alignment stories exercise real gutter changes and title rename/protection. Full suites deferred by request. |

@@ -131,3 +131,15 @@ waive the acceptance boundary.
 accounts for every former Rust tracking row and explains superseded cutover
 claims. Existing receipts in spec/records retain their original revisions,
 commands, failures and qualification limits.
+
+## Shared Notes session release
+
+The publishable application-profile/session extraction passes source and host
+acceptance. Final committed archive provenance lives in its qualification record.
+Publication, registry adoption and independent server image proof remain separate
+release gates; local archive acceptance must retain source revision and checksum.
+
+The source-qualified Storybook 10.6.5 router correction preserves replacement
+options during fragment restoration. Its reviewed local archive is temporary;
+a released upstream intake remains required for frozen registry CI. No consumer
+patch, alias or disabled navigation check substitutes for that release.

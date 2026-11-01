@@ -7,7 +7,7 @@ and view types through the public Plugin lifecycle. One feature-owned session
 coordinates read-only views; closing a view detaches observation. Hosts prepare
 detach versus explicit disable/close before unload, and the native owner retains
 accepted work and its writer. The shared default profile remains unchanged.
-The hosted server mounts that workspace through `@lapis-notes/web/session`, which
+The hosted server mounts that workspace through `@lapis-notes/app-profile/workspace-session`, which
 keeps the shared application profile inside Notes.
 The History opener defaults to an ungrouped right sidebar and reveals moved
 instances. Its selections preserve the History view and reuse only a matching

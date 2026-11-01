@@ -212,7 +212,7 @@ function placementStory(
       expect(resultLabel).not.toBeNull();
       expect(countBadge).not.toBeNull();
       await expect(resultRow).toHaveAccessibleName(
-        `${resultPath}, ${countBadge!.textContent?.trim()} matches`,
+        `${resultFilename} ${countBadge!.textContent?.trim()} · ${resultPath}, ${countBadge!.textContent?.trim()} matches`,
       );
       expect(modeBadge).not.toBeNull();
       expect(resultRow.querySelector(".search-panel__mode-badge")).toBeNull();
@@ -437,9 +437,12 @@ function placementStory(
       searchPanel.style.removeProperty("--ui-search-highlight-foreground");
 
       const resultCopyButton = panel.getByRole("button", {
-        name: "Copy search results",
+        name: /^Copy search results: /,
       });
       expect(resultCopyButton.textContent?.trim()).toMatch(/^\d+ results?$/);
+      await expect(resultCopyButton).toHaveAccessibleName(
+        `Copy search results: ${resultCopyButton.textContent?.trim()}`,
+      );
       const sortButton = panel.getByRole("button", {
         name: /Filename \(A to Z\)/,
       });
@@ -566,7 +569,7 @@ function placementStory(
         ).toBeVisible();
 
         await userEvent.click(
-          panel.getByRole("button", { name: "Copy search results" }),
+          panel.getByRole("button", { name: /^Copy search results: / }),
         );
         await expect(writeText).toHaveBeenCalledWith(
           expect.stringContaining("Notes/Welcome.md"),
@@ -598,7 +601,7 @@ function placementStory(
           expect(panel.queryByRole("alert")).not.toBeInTheDocument();
         });
         await userEvent.click(
-          panel.getByRole("button", { name: "Copy search results" }),
+          panel.getByRole("button", { name: /^Copy search results: / }),
         );
         await waitFor(() => {
           const chip = searchbox.querySelector<HTMLElement>(
@@ -615,7 +618,7 @@ function placementStory(
           panel.getByRole("button", { name: "Clear search" }),
         );
         await userEvent.type(searchbox, "tag:#project");
-        const spacedTagOption = await waitFor(() => {
+        await waitFor(() => {
           const options = [
             ...canvasElement.ownerDocument.body.querySelectorAll<HTMLElement>(
               ".cm-tooltip-autocomplete li",
@@ -624,11 +627,14 @@ function placementStory(
           expect(options.map((option) => option.textContent)).toContain(
             "#project alpha",
           );
-          return options.find(
-            (candidate) => candidate.textContent === "#project alpha",
-          )!;
         });
-        await userEvent.click(spacedTagOption);
+        // Completion publication can replace list nodes after the readiness wait.
+        await userEvent.click(
+          within(canvasElement.ownerDocument.body).getByRole("option", {
+            name: "#project alpha",
+            exact: true,
+          }),
+        );
         await waitFor(() => {
           expect(searchbox).toHaveTextContent('tag:"#project alpha"');
           expect(searchbox).toHaveAttribute("aria-invalid", "false");

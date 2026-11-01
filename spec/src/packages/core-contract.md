@@ -1,15 +1,15 @@
 # Packages / Host and plugin integration
 
-The private application profile owns optional Repository registration and its
+The public application profile owns optional Repository registration and its
 App-scoped binding before configured plugin loading. The generic Web session
-selects that public private-profile entry; it does not import plugin classes.
+selects that public profile entry; it does not import plugin classes.
 
 The private Rust-hosted History profile consumes the retained public Repository
 plugin and lossless History SDK through the same App/session and admitted client.
 It adds no published API export or alternate plugin engine. The unpublished SDK
 uses the documented private-app sibling exception and exact public validation archive.
 
-The private native-chat application profile consumes host-authored target
+The native-chat application profile consumes host-authored target
 `default_mode` metadata under LN-CORE-009/010. It resolves the exact target again
 before Send, refuses missing or invalid metadata and preserves explicit native
 input modes. It never infers provider permissions from target IDs or labels.
@@ -23,9 +23,9 @@ The private root specification commands validate canonical contracts, verificati
 navigation and source mappings. They do not generate an application-status ledger
 or enter published package exports.
 
-The root development cohort selects released Mira `~0.1.3`, Design Core
-`^0.7.2` and the published `~0.0.3` Mira companions. API's direct dependencies
-and peers use those same Mira and Design Core ranges. Tracked manifests and the
+The root development cohort selects released Mira `~0.1.4`, Design Core
+`^0.9.0` and the published `~0.0.3` Mira companions. API's direct Mira minimum
+is `~0.1.4`; its peers admit the compatible 0.1 line and Core 0.8/0.9. Tracked manifests and the
 frozen lockfile use registry packages; historical temporary archive admission
 remains in the [dependency intake receipt](../../records/2026-10-25-released-mira-dependency-intake.md).
 
@@ -39,10 +39,8 @@ LN-PKG-158's minimal published consumer remains independent of root patches.
 Remove it only after an upstream release contains every remaining repair and
 passes the exact regressions, complete affected lanes and consumer acceptance.
 
-Published `@lapis-notes/bases@0.1.4` omits accessible names on its Select
-triggers. `patches/@lapis-notes__bases@0.1.4.patch` applies the names already
-present in plugins source. Axe rules stay unchanged. Remove the patch when a
-published bases release includes those names.
+Published `@lapis-notes/bases@0.2.0` supplies the accessible Select names.
+The former 0.1.4 consumer patch is retired; axe rules remain unchanged.
 
 The private native core exposes bounded archive extraction and immutable ZIP
 snapshots under LN-CORE-004/007. Hosts own publication and transport; the engine
@@ -104,7 +102,7 @@ install the UI package's development dependencies.
 
 <a id="ln-pkg-046"></a>
 
-**Requirement.** Private `@lapis-notes/web` version `2026.6.3` MUST live at `packages/web` and expose `dev`, `build`, `check`, and `test` scripts. It MUST export `WebWorkspaceSession` from `@lapis-notes/web/session` so a hosted server can mount the Notes workspace.
+**Requirement.** Private `@lapis-notes/web` version `2026.6.3` MUST live at `packages/web` and expose `dev`, `build`, `check`, and `test` scripts. Its `WebWorkspaceSession` MUST adapt the shared `@lapis-notes/app-profile/workspace-session` entry with browser storage, PWA registration and permission policy. Hosted clients MUST consume the shared profile entry directly.
 
 ## LN-PKG-065 — @lapis-notes/bases filter groups: preserve the initial predicate when adding another
 

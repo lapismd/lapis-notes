@@ -4,10 +4,22 @@ import { registerNativeRepository } from "./native-repository";
 
 it("binds the owned App and returns a lease that allows another bind", () => {
   const factory = vi.fn();
-  const app = {} as App;
+  const app = { plugins: { registerStaticPlugins: vi.fn() } } as unknown as App;
   const release = registerNativeRepository(app, factory);
   expect(factory).not.toHaveBeenCalled();
   expect(() => registerNativeRepository(app, vi.fn())).toThrow(/already bound/);
   release();
   expect(() => registerNativeRepository(app, factory)).not.toThrow();
+});
+
+it("registers Repository History without eagerly selecting native services", () => {
+  const registerStaticPlugins = vi.fn();
+  const factory = vi.fn();
+  const app = { plugins: { registerStaticPlugins } } as unknown as App;
+  const release = registerNativeRepository(app, factory);
+  expect(registerStaticPlugins).toHaveBeenCalledWith([
+    expect.objectContaining({ required: false, enabledByDefault: true }),
+  ]);
+  expect(factory).not.toHaveBeenCalled();
+  release();
 });

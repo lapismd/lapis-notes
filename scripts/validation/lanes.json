@@ -27,7 +27,7 @@
   "release:test": "node --env-file-if-exists=.env scripts/run-turbo.mjs release:test:run --task-args",
   "test:local-plugin-consumer": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:local-plugin-consumer:run --task-args",
   "ci:storybook-static": "pnpm build-storybook && pnpm test:specification:static",
-  "ci:storybook-interaction": "pnpm test:storybook && pnpm test:specification:dev",
+  "ci:storybook-interaction": "pnpm test:storybook && pnpm test:workspace:pointer && pnpm test:specification:dev",
   "check:specification-docs": "node scripts/dependency-automation/spec-policy.mjs --command check:specification-docs 'tsc -p tsconfig.specification-docs.json && node scripts/spec-validation/sync-specification.mjs'",
   "test:specification:dev": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:specification:dev:run --task-args",
   "test:specification:static": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:specification:static:run --task-args",
@@ -46,5 +46,6 @@
   "test:api:native-tasks": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:api:native-tasks:run --task-args",
   "capture:native-daily-locales-reference": "LAPIS_NOTES_CAPTURE_DAILY_LOCALES_REFERENCE=1 pnpm --filter @lapis-notes/api exec vitest run src/lib/native-daily-reference.test.ts src/lib/native-daily-en-gb-reference.test.ts src/lib/native-daily-en-us-week-reference.test.ts",
   "test:native-daily-locales-reference": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:native-daily-locales-reference:run --task-args",
-  "test:web:workspace-leave": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:web:workspace-leave:run --task-args"
+  "test:web:workspace-leave": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:web:workspace-leave:run --task-args",
+  "test:web:e2e": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:web:e2e:run --task-args"
 }

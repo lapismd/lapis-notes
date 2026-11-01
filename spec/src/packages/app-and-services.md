@@ -14,17 +14,13 @@ behind the selected native HTTP origin. Static delivery changes no App ownership
 conversation writer or renderer callback authority under
 [CORE054–057](../architecture/rust-hosted-delivery.md).
 
-The private profile consumes published Markdown `^0.2.0`, matching its current
+The application profile consumes published Markdown `^0.2.0`, matching its current
 API/Workspace cohort without a host override or legacy renderer dependency.
 
-The private profile accepts published Agent UI `^0.2.0`, History `^0.2.0`, and
-Design Core `^0.7.4`, while remaining private at `0.0.0` and leaving the API
-package at `0.2.3`.
-
-The private application profile owns the native-turn observer and optional AI
+The application profile owns the native-turn observer and optional AI
 plugin under LN-CORE-004/006/007/008. It uses the existing public Agent screens
-and built public exports. Temporary verified local archives admit unpublished
-Agent UI during migration; tracked dependency declarations keep normal ranges
+and built public exports. Temporary verified local archives admit unreleased
+shared-UI fixes during qualification; tracked dependency declarations keep normal ranges
 and publication remains separate. Its built native-chat entry is shared by
 Desktop and Rust-hosted Web, without another transcript writer or engine.
 The profile also owns retained workspace routing: History stays visible while
@@ -63,7 +59,7 @@ The API-owned SyncHostService queues observed file changes behind initial
 identity reconciliation (LN-DB-047), retaining durable sequence checks while
 preventing its own startup and event writers from competing.
 
-The Design Core dependency refresh consumes released `0.4.0` CSS, fonts and
+The Design Core dependency refresh consumes released `0.9.0` CSS, fonts and
 components through public exports. Existing application ownership, host
 behavior and plugin activation remain unchanged.
 
@@ -173,11 +169,11 @@ security RPC and dedicated wrapped-key storage (LN-DENO-079 through LN-DENO-081)
 
 **Requirement.** `App` MUST register palette command `app:rebuild-generated-state`. That command MUST await `metadataCache.rebuild()`, then execute `search:rebuild-search-index` when that command is registered, otherwise `appDatabase.rebuildSearchIndex()`.
 
-## LN-PKG-132 — Private @lapis-notes/app-profile: own the shared Web and Deno static
+## LN-PKG-132 — Shared application profile
 
 <a id="ln-pkg-132"></a>
 
-**Requirement.** Private `@lapis-notes/app-profile` MUST own the shared Web and Deno static plugin profile and app-owned plugin-management registration. Host packages MUST consume that one profile instead of duplicating registration arrays or importing extracted plugins directly.
+**Requirement.** Publishable `@lapis-notes/app-profile` MUST own the shared Notes static plugin profile and app-owned plugin-management registration. Its public entries MUST resolve built exports with portable npm dependency ranges. Host packages MUST consume that one profile instead of duplicating registration arrays or importing extracted plugins directly.
 
 ## LN-PKG-148 — @lapis-notes/api: advertise a transport-neutral nostr-signer native capability but
 
@@ -241,3 +237,37 @@ explicit recovery stay in the App-owned `fileEditingSessions` registry;
 keeps that final-cohort proof separate from the original Tasks journeys.
 
 The public `@lapis-notes/web` build and typecheck do not compile the hosted Rust client or the lapis-server protocol binding ([LN-CORE-070](../architecture/rust-hosted-delivery.md#ln-core-070)).
+
+## LN-PKG-188 — Shared Notes workspace session
+
+<a id="ln-pkg-188"></a>
+
+**Requirement.** `@lapis-notes/app-profile/workspace-session` MUST export the complete `NotesWorkspaceSession` and its props/imperative handle. It MUST own application startup, Retry, configured plugin/settings registration, native observer bindings, metadata and guarded teardown. Hosts MUST inject browser/platform policy; its full-height surface MUST mount the public WorkspaceShell only after startup. Failed persistence MUST retain the session for explicit recovery.
+
+The shared profile qualification admits released Design Core 0.8 and 0.9 and Mira 0.1.4.
+Public API/UI/workspace/explorer ranges retain 0.7 compatibility while admitting
+0.8 and 0.9; local workspace preference keeps one source API identity during development.
+Registry consumers retain portable semver ranges and independent packed proof.
+
+The shared-session cohort starts from the published `api@0.2.3` source
+(`0d9d4d9253579541b1e796d7f2c68ef3b19a8df6`), retaining its glob security
+regression, editor paint and generated host-module versions. Public package
+adoption and new source peer-range qualification remain distinct.
+
+## LN-PKG-190 — Failed Sync initialization recovery
+
+<a id="ln-pkg-190"></a>
+
+**Requirement.** Sync host initialization MUST retain readiness failures without an orphan rejection. An explicit host `ready({ retry: true })` MUST retry failed initialization after vault discovery recovers.
+
+The shared session drains the owned Sync service before database closure and
+awaits the optional host-owned attachment disposal after session closure; its
+compatibility lease remains installed through service and session cleanup
+(LN-PKG-188). Browser adapters receive that owned service through `attach`.
+
+When a host supplies a native Repository factory, the profile binds the public
+History repository services and registers the optional Repository History
+plugin before configured loading. Registration does not select services;
+the enabled plugin owns its settings, commands and native observation.
+Repository preflight pauses observation before guarded teardown and resumes it
+when leaving is refused; host detach retains native ownership.

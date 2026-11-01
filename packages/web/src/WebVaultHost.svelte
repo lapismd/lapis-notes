@@ -91,7 +91,9 @@
       });
     }
     if (profile.kind === "file-system-access") {
-      const handle = profile.handle as BrowserFileSystemDirectoryHandle | undefined;
+      const handle = profile.handle as
+        | BrowserFileSystemDirectoryHandle
+        | undefined;
       if (!handle || handle.kind !== "directory") {
         throw new Error("The saved folder handle is unavailable");
       }
@@ -326,9 +328,19 @@
 
 <main class="web-host" data-web-host-state={status}>
   {#if prepared}
-    <div class="web-host__session" hidden={launcherOpen || importing} inert={launcherOpen || importing}>
+    <div
+      class="web-host__session"
+      hidden={launcherOpen || importing}
+      inert={launcherOpen || importing}
+    >
       <WebWorkspaceSession
-        bind:this={sessionComponent}
+        bind:this={
+          () => sessionComponent,
+          (component) => {
+            // Keep the owning handle until its asynchronous teardown finishes.
+            if (component) sessionComponent = component;
+          }
+        }
         {...prepared}
         onReady={() => {
           status = "ready";
