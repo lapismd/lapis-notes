@@ -610,6 +610,12 @@
       "cache": false,
       "envMode": "loose",
       "outputs": []
+    },
+    "@lapis-notes/web#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"],
+      "outputLogs": "new-only",
+      "env": ["LAPIS_BUILD_COMMIT"]
     }
   },
   "globalEnv": [

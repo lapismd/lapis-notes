@@ -1,0 +1,110 @@
+name: Publish PWA to Cloudflare
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+  packages: read
+
+concurrency:
+  group: lapis-pwa-production
+  cancel-in-progress: false
+
+jobs:
+  validation:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/lapis-ci.yml
+    secrets: inherit
+
+  deploy:
+    needs: validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: web-production
+      url: https://app.lapis.md
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24.15.0"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v8
+        with:
+          name: lapis-pwa-${{ github.sha }}
+          path: .cloudflare
+      - name: Verify tested artifact identity
+        env:
+          LAPIS_BUILD_COMMIT: ${{ github.sha }}
+        run: |
+          node --input-type=module -e 'import fs from "node:fs"; if (JSON.parse(fs.readFileSync(".cloudflare/assets/version.json")).commit !== process.env.LAPIS_BUILD_COMMIT) throw new Error("Artifact source mismatch");'
+          test -s .cloudflare/bundle/worker.js
+      - name: Save the current deployment for rollback
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          mkdir -p .deployment
+          pnpm exec wrangler deployments list --config .cloudflare/wrangler.json --json > .deployment/before.json
+      - name: Refuse superseded main revisions
+        id: current
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          latest="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)"
+          if [ "$latest" = "$GITHUB_SHA" ]; then
+            echo 'deploy=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'deploy=false' >> "$GITHUB_OUTPUT"
+            echo '::notice::A newer main revision superseded this deployment.'
+          fi
+      - name: Deploy tested PWA artifact
+        if: steps.current.outputs.deploy == 'true'
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          pnpm exec wrangler deploy --config .cloudflare/wrangler.json --no-bundle --message "$GITHUB_SHA" | tee .deployment/deploy.log
+          pnpm exec wrangler deployments list --config .cloudflare/wrangler.json --json > .deployment/after.json
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const latest = (file) => JSON.parse(fs.readFileSync(file)).sort((a, b) => a.created_on.localeCompare(b.created_on)).at(-1);
+          const previous = latest(".deployment/before.json");
+          const current = latest(".deployment/after.json");
+          if (!current?.id || current.versions.length !== 1) throw new Error("Missing exact deployment receipt");
+          const rollbackVersion = previous?.versions.find((version) => version.percentage === 100)?.version_id;
+          const receipt = {
+            source: process.env.GITHUB_SHA,
+            deployment: current.id,
+            version: current.versions[0].version_id,
+            previousDeployment: previous?.id,
+            rollback: rollbackVersion ? `pnpm exec wrangler rollback ${rollbackVersion} --name lapis-notes-pwa --yes --message "Restore previous qualified PWA"` : null,
+          };
+          fs.writeFileSync(".deployment/receipt.json", JSON.stringify(receipt, null, 2) + "\n");
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `Published https://app.lapis.md from ${receipt.source}\n\nDeployment: ${receipt.deployment}\n\nVersion: ${receipt.version}\n\nRollback: \`${receipt.rollback ?? "Initial deployment: use the saved domain cutover record"}\`\n`);
+          NODE
+      - name: Verify production PWA
+        if: steps.current.outputs.deploy == 'true'
+        env:
+          LAPIS_BUILD_COMMIT: ${{ github.sha }}
+        run: |
+          pnpm exec playwright install --with-deps chromium
+          pnpm web:cloudflare:smoke https://app.lapis.md
+      - name: Retain deployment and rollback receipts
+        if: always() && steps.current.outputs.deploy == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: lapis-pwa-deployment-${{ github.sha }}
+          path: .deployment
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 90

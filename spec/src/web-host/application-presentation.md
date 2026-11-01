@@ -61,3 +61,27 @@ construction. The port uses the generated start/status/query/context commands;
 its lifetime is the existing client lease. It does not enable a Repository
 screen without an admitted history reader. Node, standalone Web and ordinary
 Rust profiles keep the port absent until their separate cutover gates.
+
+## LN-WEB-083 — Production PWA deployment
+
+<a id="ln-web-083"></a>
+
+**Requirement.** Every validated main revision MUST publish the browser-only PWA to `https://app.lapis.md` through GitHub Actions and Cloudflare Workers Static Assets. The deployment MUST consume the exact tested artifact, reject stale main revisions and retain source and deployment identifiers for rollback. Production credentials MUST remain in the main-only GitHub environment.
+
+## LN-WEB-084 — Oversized static WASM delivery
+
+<a id="ln-web-084"></a>
+
+**Requirement.** Deployment preparation MUST preserve application and precache URLs while replacing oversized WASM uploads with deterministic gzip assets. A streaming asset-only Worker MUST serve only generated mappings with correct WASM MIME, isolation, encoding, conditional and HEAD semantics. Missing scripts and WASM MUST NOT receive the SPA document.
+
+## LN-WEB-085 — Installed window chrome
+
+<a id="ln-web-085"></a>
+
+**Requirement.** The PWA host MUST map live native control geometry to Design Core's public leading, trailing and title-bar-height tokens. Theme metadata MUST follow resolved shell paint. Native-control exclusions MUST follow resize and layout changes without blocking interactive tabs or controls, and ordinary browser mode MUST clear the overlay geometry.
+
+## LN-WEB-086 — Persistence-safe PWA updates
+
+<a id="ln-web-086"></a>
+
+**Requirement.** Foreground and online transitions MUST request service-worker update checks. Updates MUST remain prompt-based. Acceptance MUST await the owning workspace persistence and leave boundary before activation; a refused save MUST preserve the live session and available update.

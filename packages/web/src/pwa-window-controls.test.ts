@@ -49,6 +49,26 @@ describe("PWA window controls", () => {
     ).toEqual({ top: 32, left: 0, right: 138 });
   });
 
+  it("uses platform clearances while overlay geometry is unavailable", () => {
+    expect(
+      resolveControlInsets({
+        os: "windows",
+        rect: { height: 0, width: 0, x: 0, y: 0 },
+        viewportWidth: 1200,
+      }),
+    ).toEqual({ top: 32, left: 0, right: 138 });
+  });
+
+  it("preserves both leading and trailing live clearances", () => {
+    expect(
+      resolveControlInsets({
+        os: "macos",
+        rect: { height: 38, width: 1062, x: 78, y: 0 },
+        viewportWidth: 1200,
+      }),
+    ).toEqual({ top: 38, left: 78, right: 60 });
+  });
+
   it("sets and clears the hidden-titlebar marker explicitly", () => {
     const root = document.createElement("html");
     root.dataset.pwaHost = "true";
@@ -90,5 +110,26 @@ describe("PWA window controls", () => {
       left: 78,
       right: 0,
     });
+    for (const [name, value] of Object.entries({
+      height: "38px",
+      "inline-start": "78px",
+      "inline-end": "0px",
+    })) {
+      expect(
+        detached.style.getPropertyValue(
+          `--ui-workspace-window-controls-overlay-${name}`,
+        ),
+      ).toBe(value);
+    }
+    vi.stubGlobal("matchMedia", () => ({ matches: false }));
+    syncTitlebarAreaGeometry(undefined);
+    expect(document.documentElement.dataset.pwaTitlebarHidden).toBe("false");
+    for (const name of ["height", "inline-start", "inline-end"]) {
+      expect(
+        document.documentElement.style.getPropertyValue(
+          `--ui-workspace-window-controls-overlay-${name}`,
+        ),
+      ).toBe("");
+    }
   });
 });

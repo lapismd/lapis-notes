@@ -45,3 +45,7 @@ packages/server-node/secrets/
 packages/server-native/target/
 
 .local/
+
+# Tested Cloudflare deployment staging and generated Worker types.
+.cloudflare/
+.wrangler/

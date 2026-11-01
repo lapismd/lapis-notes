@@ -1,5 +1,11 @@
 # Architecture / Build and validation
 
+Production PWA publication runs the reusable exact-revision CI workflow even
+when package versioning is pending. Its Cloudflare lane prepares and tests the
+ordinary browser build, uploads one SHA-labelled artifact and keeps deployment
+credentials in the main-only `web-production` environment. Deployment identity,
+asset delivery and update requirements are LN-WEB-083–086.
+
 <!-- dependency-automation-policy -->
 
 Dependency update PRs from the trusted LapisMD App, Dependabot or Renovate MAY skip specification checks using the PR author rather than the rerun actor. Functional checks remain required. The shared `lapismd/dependency-automation` coordinator proposes published first-party npm updates with Changeset release intent where required; it does not merge, publish, sign or deploy. This CI policy changes no runtime or public contract in this chapter.

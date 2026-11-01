@@ -1,5 +1,7 @@
 # Plugin Model / Distribution and registry / Part 1
 
+Cloudflare PWA packaging preserves verified plugin asset URLs and the cache-only service-worker route. Production artifacts MUST use the ordinary registry configuration rather than the ephemeral signed acceptance-fixture trust (LN-WEB-084).
+
 Interaction acceptance waits for media and confirmation dialogs to become
 visible before checking their content. DOM discovery alone does not establish
 visibility during the existing opening animation; dismissal retains the pointer

@@ -29,8 +29,10 @@ function isWindowControlsOverlayDisplayMode(): boolean {
 function resolvePwaDisplayMode(): string | undefined {
   if (typeof globalThis.matchMedia !== "function") return undefined;
   if (isWindowControlsOverlayDisplayMode()) return "window-controls-overlay";
-  if (globalThis.matchMedia(DISPLAY_MODE_QUERIES[1]).matches) return "standalone";
-  if (globalThis.matchMedia(DISPLAY_MODE_QUERIES[2]).matches) return "minimal-ui";
+  if (globalThis.matchMedia(DISPLAY_MODE_QUERIES[1]).matches)
+    return "standalone";
+  if (globalThis.matchMedia(DISPLAY_MODE_QUERIES[2]).matches)
+    return "minimal-ui";
   return undefined;
 }
 

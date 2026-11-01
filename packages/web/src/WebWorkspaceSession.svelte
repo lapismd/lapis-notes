@@ -183,7 +183,9 @@
   const disposePluginBrowser = registerNotesPluginBrowser(app);
   const dailyDocumentProvider = registerDefaultDailyDocumentProvider(app);
   const disposePwaRuntimeApplication = untrack(() =>
-    runtime === "web-pwa" ? setPwaRuntimeApplication(app) : () => {},
+    runtime === "web-pwa"
+      ? setPwaRuntimeApplication(app, () => dispose(true))
+      : () => {},
   );
   let ready = $state(false);
   let tasks = $state<WorkspaceStartupTask[]>(structuredClone(STARTUP_TASKS));

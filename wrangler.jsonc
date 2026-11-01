@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "lapis-notes-pwa",
+  "main": "packages/web/cloudflare/worker.ts",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [{ "pattern": "app.lapis.md", "custom_domain": true }],
+  "assets": {
+    "directory": ".cloudflare/assets",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": [
+      "/assets/*",
+      "/*.js",
+      "/*.css",
+      "/*.wasm",
+      "/*.webmanifest",
+      "/version.json",
+      "/__lapis/plugins/*",
+    ],
+  },
+  "observability": { "enabled": true, "head_sampling_rate": 0.1 },
+}

@@ -131,3 +131,8 @@ waive the acceptance boundary.
 accounts for every former Rust tracking row and explains superseded cutover
 claims. Existing receipts in spec/records retain their original revisions,
 commands, failures and qualification limits.
+
+## Cloudflare PWA publication
+
+- Restore installed window chrome and persistence-safe updates (LN-WEB-085–086).
+- Qualify the prepared static artifact, automatic main publication and app.lapis.md cutover (LN-WEB-083–084).

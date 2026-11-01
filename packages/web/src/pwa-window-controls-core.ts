@@ -32,11 +32,14 @@ export function resolveControlInsets(options: {
 }): { top: number; left: number; right: number } {
   const { os, rect, viewportWidth } = options;
   const defaults = resolveDefaultInsets(os);
+  if (rect.height === 0 && rect.width === 0 && rect.x === 0 && rect.y === 0)
+    return { ...defaults };
   const top = resolveTitlebarTop(rect, os);
   const rightGap = Math.max(0, Math.round(viewportWidth - rect.x - rect.width));
-  const left = rect.x > 0 ? Math.round(rect.x) : os === "macos" ? defaults.left : 0;
+  const left =
+    rect.x > 0 ? Math.round(rect.x) : os === "macos" ? defaults.left : 0;
   const right =
-    rect.x === 0 && rightGap > 0
+    rightGap > 0
       ? rightGap
       : (os === "windows" || os === "linux") && rect.x === 0
         ? defaults.right
@@ -45,6 +48,9 @@ export function resolveControlInsets(options: {
 }
 
 export const PWA_TITLEBAR_GEOMETRY_CSS_PROPERTIES = [
+  "--ui-workspace-window-controls-overlay-height",
+  "--ui-workspace-window-controls-overlay-inline-start",
+  "--ui-workspace-window-controls-overlay-inline-end",
   "--pwa-titlebar-area-height",
   "--pwa-titlebar-area-width",
   "--pwa-titlebar-area-x",
@@ -62,8 +68,14 @@ export function applyTitlebarAreaGeometry(
   rect: DOMRectReadOnly,
   viewportWidth: number,
 ): { top: number; left: number; right: number } {
-  root.style.setProperty("--pwa-titlebar-area-height", `${Math.round(rect.height)}px`);
-  root.style.setProperty("--pwa-titlebar-area-width", `${Math.round(rect.width)}px`);
+  root.style.setProperty(
+    "--pwa-titlebar-area-height",
+    `${Math.round(rect.height)}px`,
+  );
+  root.style.setProperty(
+    "--pwa-titlebar-area-width",
+    `${Math.round(rect.width)}px`,
+  );
   root.style.setProperty("--pwa-titlebar-area-x", `${Math.round(rect.x)}px`);
   root.style.setProperty("--pwa-titlebar-area-y", `${Math.round(rect.y)}px`);
   const insets = resolveControlInsets({
@@ -77,6 +89,18 @@ export function applyTitlebarAreaGeometry(
   root.style.setProperty("--workspace-safe-area-top", `${insets.top}px`);
   root.style.setProperty("--workspace-safe-area-left", `${insets.left}px`);
   root.style.setProperty("--workspace-safe-area-right", `${insets.right}px`);
+  root.style.setProperty(
+    "--ui-workspace-window-controls-overlay-height",
+    `${insets.top}px`,
+  );
+  root.style.setProperty(
+    "--ui-workspace-window-controls-overlay-inline-start",
+    `${insets.left}px`,
+  );
+  root.style.setProperty(
+    "--ui-workspace-window-controls-overlay-inline-end",
+    `${insets.right}px`,
+  );
   return insets;
 }
 

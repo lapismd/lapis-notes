@@ -1,6 +1,8 @@
 const HOST_THEME_COLOR_ATTRIBUTE = "data-lapis-host-theme-color";
 const BOOTSTRAP_THEME_COLOR_ATTRIBUTE = "data-lapis-bootstrap-theme-color";
 const THEME_COLOR_VARIABLES = [
+  "--ui-workspace-tab-container-background",
+  "--ui-workspace-panel",
   "--workspace-chrome-background",
   "--tab-container-background",
   "--sidebar",
@@ -29,9 +31,7 @@ export function resolveDocumentThemeColor(source: Document = document): string {
   const bodyColor = source.body
     ? source.defaultView?.getComputedStyle(source.body).backgroundColor.trim()
     : "";
-  return bodyColor && bodyColor !== "rgba(0, 0, 0, 0)"
-    ? bodyColor
-    : "#ffffff";
+  return bodyColor && bodyColor !== "rgba(0, 0, 0, 0)" ? bodyColor : "#ffffff";
 }
 
 export function syncHostThemeColor(source: Document = document): void {

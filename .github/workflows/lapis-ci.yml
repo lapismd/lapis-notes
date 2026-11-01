@@ -27,6 +27,7 @@ defaults:
 
 env:
   LAPIS_NOTES_VALIDATION_RUNTIME: native
+  LAPIS_BUILD_COMMIT: ${{ github.sha }}
   LAPIS_PLUGIN_CANDIDATE_COMMIT: "da7d8bb73541eb3421ca8fdfaf1eaaf2baecc850"
   TURBO_API: ${{ vars.TURBO_API }}
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
@@ -321,6 +322,44 @@ jobs:
         run: >-
           curl --fail-with-body --silent --show-error --request POST --header "Authorization: Bearer $GH_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
 
+  web-cloudflare:
+    needs: build-cache
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: ghcr.io/lapismd/lapis-ci@sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ci-setup
+      - name: Build the ordinary production PWA
+        run: pnpm build:web
+      - name: Test static asset packaging and HTTP semantics
+        run: pnpm web:cloudflare:test
+      - name: Prepare the deployment artifact
+        run: pnpm web:cloudflare:prepare
+      - name: Qualify the exact artifact in Wrangler
+        run: pnpm web:cloudflare:acceptance
+      - uses: actions/upload-artifact@v7
+        with:
+          name: lapis-pwa-${{ github.sha }}
+          path: .cloudflare
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+      - name: Cancel this run after a required failure
+        if: "${{ failure() && !cancelled() }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          curl --fail-with-body --silent --show-error --request POST
+          --header "Authorization: Bearer $GH_TOKEN"
+          --header "Accept: application/vnd.github+json"
+          --header "X-GitHub-Api-Version: 2022-11-28"
+          "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
+
   validate:
     if: always()
     needs:
@@ -331,6 +370,7 @@ jobs:
       - storybook-static
       - storybook-interaction
       - web-acceptance
+      - web-cloudflare
       - registry-fixture
       - release-artifacts
     runs-on: ubuntu-latest
@@ -344,6 +384,7 @@ jobs:
           STORYBOOK_STATIC: ${{ needs.storybook-static.result }}
           STORYBOOK_INTERACTION: ${{ needs.storybook-interaction.result }}
           WEB_ACCEPTANCE: ${{ needs.web-acceptance.result }}
+          WEB_CLOUDFLARE: ${{ needs.web-cloudflare.result }}
           REGISTRY_FIXTURE: ${{ needs.registry-fixture.result }}
           RELEASE_ARTIFACTS: ${{ needs.release-artifacts.result }}
         run: |
@@ -356,6 +397,7 @@ jobs:
             "$STORYBOOK_STATIC"
             "$STORYBOOK_INTERACTION"
             "$WEB_ACCEPTANCE"
+            "$WEB_CLOUDFLARE"
             "$REGISTRY_FIXTURE"
             "$RELEASE_ARTIFACTS"
           )

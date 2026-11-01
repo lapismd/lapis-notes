@@ -24,13 +24,22 @@ export type PwaRuntimeApp = {
 };
 
 let providedRuntimeApp: PwaRuntimeApp | null = null;
+let prepareUpdate: (() => Promise<void>) | null = null;
 let changed: (() => void) | null = null;
 
-export function setPwaRuntimeApplication(app: PwaRuntimeApp): () => void {
+export function setPwaRuntimeApplication(
+  app: PwaRuntimeApp,
+  prepare: () => Promise<void>,
+): () => void {
   providedRuntimeApp = app;
+  prepareUpdate = prepare;
   changed?.();
   return () => {
-    if (providedRuntimeApp === app) providedRuntimeApp = null;
+    if (providedRuntimeApp === app) {
+      providedRuntimeApp = null;
+      prepareUpdate = null;
+      changed?.();
+    }
   };
 }
 
@@ -38,9 +47,15 @@ export function getPwaRuntimeApplication(): PwaRuntimeApp | null {
   return providedRuntimeApp;
 }
 
-export function onPwaRuntimeApplicationChanged(listener: () => void): () => void {
+export function onPwaRuntimeApplicationChanged(
+  listener: () => void,
+): () => void {
   changed = listener;
   return () => {
     if (changed === listener) changed = null;
   };
+}
+
+export async function preparePwaUpdate(): Promise<void> {
+  await prepareUpdate?.();
 }
