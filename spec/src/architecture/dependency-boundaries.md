@@ -266,9 +266,9 @@ The release caller grants every token permission requested by reusable CI, inclu
 
 ## Current CI dependency image
 
-- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:3708a73127c3c6a182e1dec7040aff68610af40000c7e78ab4e7c4f9c6960c58`
-- Lockfile tag: `lock-48560587d5b5bc13`
-- pnpm-lock.yaml SHA-256: `48560587d5b5bc13978259fb3b174c32e7d686c503071e449efb57321c98d74a`
+- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:0f503a8f16d39fb8cf145e42ed0c2337473c4e391b2da2e1b829d7933b3dbd0c`
+- Lockfile tag: `lock-6267fa55e73443b1`
+- pnpm-lock.yaml SHA-256: `6267fa55e73443b1987ba9197a16bc7cef2f437caed94ddb074dfbda32730589`
 
 <!-- ci-dependency-image:end -->
 
