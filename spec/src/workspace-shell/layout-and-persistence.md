@@ -28,7 +28,7 @@ activation when a later explicit same-type query/scope transition completes.
 
 <a id="ln-ws-070"></a>
 
-**Requirement.** `WorkspaceLeaf.openFile` MUST trigger `file-open` with the opened file after `onLoadFile` succeeds. It MUST fire even when layout persistence is suppressed.
+**Requirement.** `WorkspaceLeaf.openFile` MUST trigger `file-open` with the opened file after `onLoadFile` succeeds. Before subscribers run, Workspace MUST retain that file as the `getActiveFile()` fallback when another view became active during the open. The event MUST fire even when layout persistence is suppressed.
 
 ## LN-WS-071 — Restoration of non-file views
 

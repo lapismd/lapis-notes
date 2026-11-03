@@ -7,6 +7,9 @@ protection. The host rechecks identity and policy after asynchronous admission.
 
 LN-WS-005/063 foreground file routing awaits the existing reveal contract.
 Public package exports, signatures and generic workspace ownership are unchanged.
+The API package's existing `file-open` event commits the opened file as
+`Workspace.getActiveFile()` fallback before subscribers run, so a concurrently
+activated panel follows the completed open without changing leaf selection.
 
 The optional WorkspaceShell popup host in LN-WS-008 uses the public Design Core
 host contract. API host binding remains on the host-only subpath; LN-WS-098
