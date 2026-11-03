@@ -7,6 +7,23 @@ import { qualifyPwaAppearance } from "./lib/qualify-pwa-appearance.mjs";
 const base = process.argv[2];
 if (!base) throw new Error("Usage: pnpm web:cloudflare:smoke <origin>");
 const origin = new URL(base).origin;
+const diagnosticLimit = 16;
+const diagnosticText = (value) => String(value ?? "").slice(0, 400);
+const diagnosticPath = (value) => {
+  try {
+    return new URL(value).pathname.slice(0, 240);
+  } catch {
+    return "unparseable-url";
+  }
+};
+const retainDiagnostic = (entries, entry) => {
+  if (entries.length < diagnosticLimit) entries.push(entry);
+};
+const browserDiagnostics = {
+  consoleErrors: [],
+  failedRequests: [],
+  failedResponses: [],
+};
 const deadline = Date.now() + 90_000;
 let response;
 let version;
@@ -58,6 +75,25 @@ try {
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error")
+      retainDiagnostic(browserDiagnostics.consoleErrors, {
+        text: diagnosticText(message.text()),
+      });
+  });
+  page.on("requestfailed", (request) => {
+    retainDiagnostic(browserDiagnostics.failedRequests, {
+      path: diagnosticPath(request.url()),
+      error: diagnosticText(request.failure()?.errorText),
+    });
+  });
+  page.on("response", (response) => {
+    if (response.status() >= 400)
+      retainDiagnostic(browserDiagnostics.failedResponses, {
+        path: diagnosticPath(response.url()),
+        status: response.status(),
+      });
+  });
   await page.goto(origin);
   await page
     .getByRole("heading", { name: "Create a vault" })
@@ -121,9 +157,98 @@ try {
     .waitFor({ timeout: 90_000 });
   await context.setOffline(true);
   await page.reload();
-  await page
-    .locator('[data-app-shell-ready="true"]')
-    .waitFor({ timeout: 90_000 });
+  try {
+    await page
+      .locator('[data-app-shell-ready="true"]')
+      .waitFor({ timeout: 90_000 });
+  } catch (error) {
+    let state;
+    try {
+      state = await page.evaluate(async () => {
+        const text = (selector) =>
+          document.querySelector(selector)?.textContent?.trim().slice(0, 400) ??
+          null;
+        const startup = document.querySelector(
+          '[data-ui-component="workspace-startup"]',
+        );
+        const cacheNames = globalThis.caches ? await caches.keys() : [];
+        const cacheEntries = [];
+        for (const name of cacheNames.slice(0, 16)) {
+          const requests = await (await caches.open(name)).keys();
+          cacheEntries.push({
+            name: name.slice(0, 120),
+            entries: requests.length,
+          });
+        }
+        const registrations = navigator.serviceWorker
+          ? await navigator.serviceWorker.getRegistrations()
+          : [];
+        return {
+          document: {
+            readyState: document.readyState,
+            online: navigator.onLine,
+            buildCommit:
+              document.documentElement.dataset.lapisBuildCommit ?? null,
+          },
+          host: {
+            state:
+              document
+                .querySelector("[data-web-host-state]")
+                ?.getAttribute("data-web-host-state") ?? null,
+            shellReady: Boolean(
+              document.querySelector('[data-app-shell-ready="true"]'),
+            ),
+          },
+          startup: startup
+            ? {
+                state: startup.getAttribute("data-state"),
+                title: text(
+                  '[data-ui-component="workspace-startup"] [data-ui-part="title"]',
+                ),
+                message: text(
+                  '[data-ui-component="workspace-startup"] [data-ui-part="message"]',
+                ),
+                failure: text(
+                  '[data-ui-component="workspace-startup"] [data-ui-part="failure-detail"]',
+                ),
+                tasks: [...startup.querySelectorAll('[data-ui-part="task"]')]
+                  .slice(0, 8)
+                  .map((task) => ({
+                    status: task.getAttribute("data-status"),
+                    label:
+                      task
+                        .querySelector(".ui-workspace-startup__task-label")
+                        ?.textContent?.trim()
+                        .slice(0, 120) ?? null,
+                  })),
+              }
+            : null,
+          serviceWorker: {
+            controlled: Boolean(navigator.serviceWorker?.controller),
+            controller: navigator.serviceWorker?.controller?.scriptURL
+              ? new URL(navigator.serviceWorker.controller.scriptURL).pathname
+              : null,
+            registrations: registrations.slice(0, 8).map((registration) => ({
+              active: registration.active?.state ?? null,
+              installing: registration.installing?.state ?? null,
+              waiting: registration.waiting?.state ?? null,
+            })),
+          },
+          caches: cacheEntries,
+        };
+      });
+    } catch (diagnosticError) {
+      state = { collectionError: diagnosticText(diagnosticError) };
+    }
+    throw new Error(
+      `Offline reload did not reach the ready shell: ${JSON.stringify({
+        ...browserDiagnostics,
+        pageErrors: errors.slice(0, diagnosticLimit).map(diagnosticText),
+        state,
+      })}`,
+      { cause: error },
+    );
+  }
   assert.equal(
     await page.evaluate(() =>
       globalThis.app.plugins.isPluginEnabled("wordcount"),

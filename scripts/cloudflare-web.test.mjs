@@ -190,3 +190,18 @@ test(
     }
   },
 );
+
+test("offline reload failure retains bounded browser and startup diagnostics", async () => {
+  const source = await readFile(
+    path.join(root, "scripts/smoke-cloudflare-web.mjs"),
+    "utf8",
+  );
+  assert.match(source, /const diagnosticLimit = 16;/);
+  assert.match(source, /page\.on\("requestfailed"/);
+  assert.match(source, /page\.on\("response"/);
+  assert.match(source, /Offline reload did not reach the ready shell/);
+  assert.match(source, /\.waitFor\(\{ timeout: 90_000 \}\);/);
+  assert.match(source, /data-ui-component="workspace-startup"/);
+  assert.match(source, /navigator\.serviceWorker\.getRegistrations\(\)/);
+  assert.match(source, /cacheEntries/);
+});
