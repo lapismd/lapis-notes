@@ -3120,7 +3120,10 @@ export class Workspace extends EventDispatcher<{
     this.installCommandBridge(this.#workspaceHostController);
     this.installWorkspaceLayoutCommands();
     this.on("file-open", (file) => {
-      if (file) this.recordRecentFile(file);
+      if (file) {
+        this.lastActiveFile = file;
+        this.recordRecentFile(file);
+      }
     });
     this.installStatusBarBridge(this.#workspaceHostController);
     this.installNotificationProgressBridge(this.#workspaceHostController);

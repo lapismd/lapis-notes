@@ -1339,6 +1339,36 @@ describe("Workspace compatibility", () => {
     expect(opened).toHaveBeenCalledWith(file);
   });
 
+  it("retains a same-leaf file open when a panel activates before it completes", async () => {
+    const { workspace } = createWorkspaceHarness();
+    workspace.registerView("markdown", (leaf) => new MockTextFileView(leaf));
+    workspace.registerExtensions(["md"], "markdown");
+    workspace.registerView(
+      "history-fixture",
+      (leaf) => new MockItemView(leaf, "history-fixture", "History"),
+    );
+    const first = new TFile(
+      "Notes/First.md",
+      { ctime: 0, mtime: 0, size: 0 },
+      null,
+    );
+    const second = new TFile(
+      "Notes/Second.md",
+      { ctime: 0, mtime: 0, size: 0 },
+      null,
+    );
+    const document = workspace.getLeaf();
+    await document.openFile(first);
+    const panel = workspace.getLeaf("tab");
+    await panel.setViewState({ type: "history-fixture" });
+    const opening = document.openFile(second);
+    workspace.activateLeaf(panel);
+    await opening;
+
+    expect(workspace.activeLeaf).toBe(panel);
+    expect(workspace.getActiveFile()).toBe(second);
+  });
+
   it("records recent files on file-open and resolves surviving vault files", async () => {
     const { app, workspace } = createWorkspaceHarness();
     workspace.registerView("markdown", (leaf) => new MockTextFileView(leaf));

@@ -14,6 +14,11 @@ instances. Its selections preserve the History view and reuse only a matching
 main-area conversation and scope. A new scoped draft does not replace another
 open chat. Restored leaves retain scope and saved conversation identity.
 
+File-scoped plugin panels may become active while an existing document leaf
+finishes opening another file. The successful `file-open` retains that file as
+the active-file fallback before plugin subscribers refresh; the panel remains
+active and no plugin-owned view is recreated or focused.
+
 Hosted archive of the displayed vault awaits the existing workspace/plugin
 disposal and final file writes before retiring the native owner. The retained
 chooser supplies this host lifecycle policy; plugins keep their owned App and

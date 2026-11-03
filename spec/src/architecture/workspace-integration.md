@@ -13,6 +13,9 @@ Same-type state transitions retain LN-WS-005/062 authority through in-flight
 projection, including Search query/scope state.
 Foreground file routing joins LN-WS-005's projection-aware reveal. LN-ARCH-048
 history capture and the original App, leaf, view and writer owners are unchanged.
+Successful same-leaf file opening commits its active-file fallback before
+`file-open` subscribers run. Activating a metadata panel during that open keeps
+the panel selected without leaving file-scoped consumers on the previous note.
 
 Diagnostic navigation may register disposable App-owned resource openers before
 the existing vault-file fallback. The desktop routes conflict resources while
