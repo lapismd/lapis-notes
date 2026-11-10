@@ -1,5 +1,30 @@
 # @lapis-notes/api
 
+## 0.2.7
+
+### Patch Changes
+
+- [#85](https://github.com/lapismd/lapis-notes/pull/85)
+  [`8325b5e`](https://github.com/lapismd/lapis-notes/commit/8325b5eb7adef358ac577b457278a19637c13571)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Reuse scanned identities
+  during unchanged startup, exclude installed plugin assets from content
+  polling, avoid eagerly reading lazy ESM chunks, queue plugin operations with
+  independent progress and cancellation, and enable bundled AI by default on the
+  Rust server.
+
+  Renew the native AI feature session after disable/re-enable so startup
+  recovery cannot reuse a fenced session.
+
+- [#82](https://github.com/lapismd/lapis-notes/pull/82)
+  [`e7b96fb`](https://github.com/lapismd/lapis-notes/commit/e7b96fb7f901c6ffff7e92815b29a82bea5c5264)
+  Thanks
+  [@lapismd-dependency-bot](https://github.com/apps/lapismd-dependency-bot)! -
+  Refresh first-party Lapis dependencies to the published versions recorded in
+  this pull request.
+- Updated dependencies
+  [[`e7b96fb`](https://github.com/lapismd/lapis-notes/commit/e7b96fb7f901c6ffff7e92815b29a82bea5c5264)]:
+  - @lapis-notes/ui@0.1.8
+
 ## 0.2.6
 
 ### Patch Changes
