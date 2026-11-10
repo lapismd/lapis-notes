@@ -241,3 +241,7 @@ explicit recovery stay in the App-owned `fileEditingSessions` registry;
 keeps that final-cohort proof separate from the original Tasks journeys.
 
 The public `@lapis-notes/web` build and typecheck do not compile the hosted Rust client or the lapis-server protocol binding ([LN-CORE-070](../architecture/rust-hosted-delivery.md#ln-core-070)).
+
+Native Chat sessions belong to one plugin activation. Successful disable fences
+that feature session; re-enable creates a fresh session while accepted native
+work remains owned by the host.

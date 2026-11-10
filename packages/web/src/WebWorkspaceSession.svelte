@@ -31,7 +31,6 @@
     registerNotesPluginBrowser,
   } from "@lapis-notes/app-profile";
   import {
-    createNativeChatPlugin,
     prepareNativeChatLeave,
     type NativeChatHost,
   } from "@lapis-notes/app-profile/native-chat";
@@ -56,6 +55,8 @@
   import { createWebPluginAssetServer } from "./plugin-asset-server";
   import { setPwaRuntimeApplication } from "./pwa-runtime-application";
   import { observeWebHostAppearance } from "./host-appearance";
+  import { registerSessionNativeChat } from "./native-chat-registration";
+  import { retirePluginsForRetry } from "./startup-plugin-retirement";
 
   let {
     adapter,
@@ -354,10 +355,8 @@
     disposeDatabaseStatus = null;
     disposeVaultTransferSettings = null;
     await app.vaultChanges.stop().catch(() => undefined);
-    // Retry reuses this App. Its controller/cache observers retire on final dispose.
-    for (const plugin of [...app.plugins.plugins.values()].reverse()) {
-      await plugin.disable().catch(() => undefined);
-    }
+    // Retry reuses this App and detaches observations from accepted native work.
+    await retirePluginsForRetry(app);
   }
 
   async function initialize(): Promise<void> {
@@ -378,13 +377,7 @@
         if (repositoryFactory)
           disposeRepositoryBinding = registerNativeRepository(app, repositoryFactory);
         if (nativeChat)
-          app.plugins.registerStaticPlugins([
-            {
-              plugin: createNativeChatPlugin(nativeChat),
-              required: false,
-              enabledByDefault: false,
-            },
-          ]);
+          registerSessionNativeChat(app, nativeChat, runtime);
         corePluginsRegistered = true;
       }
       await app.vault.load();

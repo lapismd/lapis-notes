@@ -2401,6 +2401,51 @@ describe("PluginManager", () => {
     });
   });
 
+  it("does not read lazy ESM chunks during startup diagnostics", async () => {
+    class LazyPlugin extends Plugin {}
+    const pluginAssetServer = createTestPluginAssetServer({
+      "lazy-diagnostics/main.mjs":
+        "export default globalThis.__lapisLazyDiagnosticsPlugin;",
+    });
+    (globalThis as any).__lapisLazyDiagnosticsPlugin = LazyPlugin;
+    const { app, adapter } = createTestApp({ pluginAssetServer });
+    await app.vault.load();
+    await seedCommunityPluginFiles(
+      app,
+      "lazy-diagnostics",
+      {
+        "main.mjs":
+          "export default globalThis.__lapisLazyDiagnosticsPlugin; import('./lazy.js');",
+        "lazy.js": "export const diagram = 'lazy';",
+      },
+      {
+        lapis: {
+          manifestVersion: 1,
+          runtime: {
+            entries: {
+              workspace: {
+                path: "main.mjs",
+                format: "esm",
+                sharedDependencies: ["obsidian"],
+              },
+            },
+          },
+        },
+      },
+    );
+    await app.vault.create(
+      "/.lapis/community-plugins.json",
+      JSON.stringify(["lazy-diagnostics"]),
+    );
+    const read = vi.spyOn(adapter, "read");
+    await app.plugins.loadPlugins();
+    expect(
+      read.mock.calls.filter(([path]) => path.endsWith("/lazy.js")),
+    ).toHaveLength(0);
+    expect(app.plugins.plugins.has("lazy-diagnostics")).toBe(true);
+    delete (globalThis as any).__lapisLazyDiagnosticsPlugin;
+  });
+
   it("loads structured ESM runtime entries through plugin asset URLs", async () => {
     class EsmRuntimePlugin extends Plugin {
       async onload() {

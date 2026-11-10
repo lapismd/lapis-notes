@@ -771,8 +771,9 @@
                             size="icon"
                             variant="outline"
                             aria-label={`Update ${installedName(record)}`}
-                            disabled={registry.runningAction ===
-                              `update:${record.pluginId}`}
+                            disabled={registry.isPluginActionPending(
+                              record.pluginId,
+                            )}
                             onclick={() => void updatePlugin(update)}
                             ><ArrowUpCircle /></Button.Root
                           >
@@ -922,8 +923,7 @@
                     ><Check data-icon="inline-start" />Bundled</Button.Root
                   >
                 {:else}
-                  {@const installing =
-                    registry.runningAction === `install:${entry.id}`}
+                  {@const installing = registry.isPluginActionPending(entry.id)}
                   <Button.Root
                     size="sm"
                     aria-label={installing
@@ -1041,7 +1041,7 @@
                           variant="outline"
                           aria-label={`Update ${update.name}`}
                           disabled={!update.canUpdate ||
-                            registry.runningAction === `update:${update.id}`}
+                            registry.isPluginActionPending(update.id)}
                           onclick={() => void updatePlugin(update)}
                           ><ArrowUpCircle /></Button.Root
                         >

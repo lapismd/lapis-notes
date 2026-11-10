@@ -269,7 +269,7 @@ animation remains enabled.
 
 <a id="ln-plug-075"></a>
 
-**Requirement.** Plugin registry install actions MUST expose a per-plugin busy state in the owning row and detail action, then show an Installed state after refresh or an Install failed state with the actionable error reason. The row action MUST NOT rely on the application status bar or a transient compatibility notification to communicate progress or completion.
+**Requirement.** Plugin registry installs and updates MUST queue per App independently of navigation. Each queued or active plugin MUST retain its own cancellable progress item and busy row/detail state; enqueueing another plugin MUST NOT cancel or discard existing work. Cancelling one queued request MUST NOT cancel another. Completion MUST refresh its Installed state or expose an actionable failure.
 
 ## LN-PLUG-076 — Public workspace-host import validation
 
@@ -370,3 +370,5 @@ Notebook declares the public Design Core ToggleGroup density control in its shar
 Notebook canvas qualification preserves fail-closed declared module auditing, the shared renderer, and the existing verification/signature boundary. UI approval permits full local qualification, not publication or registry dispatch.
 
 Notebook producer manifests MUST declare versioned renderer dependencies matching their locked compiler. The host MUST NOT admit new unversioned private Svelte aliases to make a plugin load. The API-owned public build adapter supplies producer/host resolution; consumer code MUST NOT copy private sibling build helpers.
+
+ESM startup dependency diagnostics traverse the selected entry and eager relative imports/re-exports only. Lazy chunks are not read solely for diagnostics; declared shared dependencies still contribute missing/private/deprecated diagnostics. CommonJS evaluation retains its local module inventory.

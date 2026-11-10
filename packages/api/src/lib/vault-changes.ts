@@ -1,3 +1,7 @@
+import {
+  isVaultContent,
+  vaultContentAdapter,
+} from "./storage/vault-content-adapter";
 import type { App } from "./context.svelte";
 import {
   DirectoryWatcher,
@@ -36,7 +40,12 @@ export class VaultChangeService {
       const generation = ++this.generation;
       this.active = true;
       this.dirty = true;
-      const watcher = new DirectoryWatcher(this.app.vault.adapter);
+      const watcher = new DirectoryWatcher(
+        vaultContentAdapter(
+          this.app.vault.adapter,
+          () => this.app.vault.configDir,
+        ),
+      );
       this.watcher = watcher;
       const projection = this.app.vault.on("all", (event, file, context) => {
         if (!this.live(generation) || !(file instanceof TFile)) return;
@@ -167,6 +176,13 @@ export class VaultChangeService {
     event: ChangeEvent | WatchErrorEvent,
     generation: number,
   ): void {
+    if (
+      event.type !== "error" &&
+      isVaultContent(event.path, this.app.vault.configDir) === false &&
+      (!event.previousPath ||
+        !isVaultContent(event.previousPath, this.app.vault.configDir))
+    )
+      return;
     this.dirty = true;
     if (event.type === "error") {
       this.uncertain = true;

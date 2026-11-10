@@ -20,7 +20,8 @@ export function createNativeChatPlugin(
   factory: (app: App) => NativeChatHost,
 ): PluginConstructor {
   return class NativeChatPlugin extends Plugin {
-    readonly session: NativeChatSession;
+    session: NativeChatSession;
+    #retired = false;
     readonly views = new Set<NativeChatView>();
     readonly navigation: NativeChatNavigation;
     constructor(app: App) {
@@ -36,6 +37,10 @@ export function createNativeChatPlugin(
       this.navigation = new NativeChatNavigation(app);
     }
     async onload(): Promise<void> {
+      if (this.#retired) {
+        this.session = new NativeChatSession(factory(this.app));
+        this.#retired = false;
+      }
       for (const [type, title, icon] of [
         ["ai", "AI", "sparkles"],
         ["ai-conversation-history", "AI conversations", "history"],
@@ -75,6 +80,7 @@ export function createNativeChatPlugin(
     async onunload(): Promise<void> {
       await Promise.all([...this.views].map((view) => view.close()));
       await this.session.close(modes.get(this.app) ?? "disable");
+      this.#retired = true;
       modes.delete(this.app);
     }
   };

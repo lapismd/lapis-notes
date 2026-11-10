@@ -131,10 +131,7 @@
       registry.actionFeedback?.pluginId === selected.id
         ? registry.actionFeedback
         : null;
-    if (
-      registry.runningAction === `install:${selected.id}` ||
-      registry.runningAction === `update:${selected.id}`
-    )
+    if (registry.isPluginActionPending(selected.id))
       return { state: "installing" };
     if (feedback?.state === "error")
       return { state: "rejected", reason: feedback.message };

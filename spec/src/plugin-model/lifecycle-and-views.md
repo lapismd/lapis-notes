@@ -282,3 +282,7 @@ introduce a second layout authority.
 Package-facing API documentation routes plugin lifecycle and App/workspace model
 references to these canonical contracts. Package READMEs do not define another
 plugin model or own feature completion; outstanding intake belongs to the backlog.
+
+Re-enabling the host-supplied native Chat plugin creates a new feature session
+after successful disable. The previous activation remains fenced, including
+late work that was waiting for native admission.

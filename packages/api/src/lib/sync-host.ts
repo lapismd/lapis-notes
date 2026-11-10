@@ -973,6 +973,7 @@ export class SyncHostService {
     }
     // Tombstone missing paths first so a later unmatched file can recover one
     // unique strong-fingerprint identity after an out-of-process rename.
+    const presentIdentities = new Map<string, HostFileIdentity>();
     let after: string | undefined;
     do {
       const page = await this.database.scanMeta<HostFileIdentity>({
@@ -981,6 +982,8 @@ export class SyncHostService {
         limit: MAX_PAGE_SIZE,
       });
       for (const { value } of page.entries) {
+        if (value.state === "present")
+          presentIdentities.set(value.currentPath, value);
         if (
           value.state === "present" &&
           !this.vault.getFileByPath(value.currentPath)
@@ -1001,7 +1004,7 @@ export class SyncHostService {
       after = page.nextCursor;
     } while (after);
     for (const file of this.vault.iterateFiles()) {
-      const identity = await this.#getIdentityByPath(file.path);
+      const identity = presentIdentities.get(file.path);
       if (!identity) {
         await this.#recordFileChange(
           "create",

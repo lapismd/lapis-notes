@@ -40,6 +40,10 @@ export class PluginRegistryController {
   initialLoading = $state(true);
   refreshing = $state(false);
   runningAction = $state<string | null>(null);
+  pendingPluginActions = $state<Record<string, true>>({});
+  isPluginActionPending(pluginId: string): boolean {
+    return this.pendingPluginActions[pluginId] === true;
+  }
   actionFeedback = $state<PluginRegistryActionFeedback | null>(null);
   pluginLifecycleRevision = $state(0);
   private references = 0;
@@ -123,19 +127,33 @@ export class PluginRegistryController {
     title: string,
     action: (signal: AbortSignal) => Promise<unknown>,
   ): Promise<void> {
-    if (this.runningAction) return;
-    this.runningAction = actionId;
-    this.actionFeedback = { pluginId, state: "running", message: title };
+    if (this.isPluginActionPending(pluginId)) return;
+    this.pendingPluginActions = {
+      ...this.pendingPluginActions,
+      [pluginId]: true,
+    };
     try {
-      await withPluginInstallProgress(this.app, { pluginId, title }, action);
-      await this.refresh(false);
-      this.actionFeedback = {
-        pluginId,
-        state: "success",
-        message: actionId.startsWith("update:")
-          ? "Update installed"
-          : "Installed",
-      };
+      await withPluginInstallProgress(
+        this.app,
+        { pluginId, title },
+        async (signal) => {
+          this.runningAction = actionId;
+          this.actionFeedback = { pluginId, state: "running", message: title };
+          try {
+            await action(signal);
+            await this.refresh(false);
+            this.actionFeedback = {
+              pluginId,
+              state: "success",
+              message: actionId.startsWith("update:")
+                ? "Update installed"
+                : "Installed",
+            };
+          } finally {
+            if (this.runningAction === actionId) this.runningAction = null;
+          }
+        },
+      );
     } catch (error) {
       if (isAbortError(error)) {
         this.actionFeedback = null;
@@ -153,7 +171,8 @@ export class PluginRegistryController {
         this.app,
       );
     } finally {
-      this.runningAction = null;
+      const { [pluginId]: _finished, ...pending } = this.pendingPluginActions;
+      this.pendingPluginActions = pending;
     }
   }
   install(entry: PluginCatalogEntry, version?: string) {

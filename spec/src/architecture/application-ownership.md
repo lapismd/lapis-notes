@@ -125,3 +125,9 @@ the global writer guard and releasing views, plugins or the vault session.
 Plugin registration preserves unadopted compatibility data under LN-PLUG-112.
 Its later adoption and explicit canonical removal retain existing App-owned
 writers, configuration serialization and host teardown responsibilities.
+
+The App-owned install progress queue under LN-PLUG-075 serializes overlapping
+UI install work without sharing cancellation tokens across requests or Apps.
+The unchanged SyncHost startup reuses scanned identities under LN-DB-047.
+
+The App-owned content watch and Vault discovery exclude the installed-plugin directory from recursive content scans. Plugin assets remain accessible through their owning adapters.
