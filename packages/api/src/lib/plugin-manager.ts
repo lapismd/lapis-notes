@@ -1,3 +1,4 @@
+import { readPluginEntrySources } from "./plugin-entry-sources";
 import type { App } from "./context.svelte";
 import type { DataAdapter } from "./storage/fs";
 import { Platform } from "./platform";
@@ -3088,7 +3089,13 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       hasMainJs,
     });
     const moduleSources =
-      await this.readCommunityPluginModuleSources(pluginPath);
+      selectedRuntime?.format === "esm"
+        ? await readPluginEntrySources(
+            this.adapter,
+            pluginPath,
+            selectedRuntime.path,
+          )
+        : await this.readCommunityPluginModuleSources(pluginPath);
     const usedSharedDependencies =
       getBareDependencySpecifiersFromSources(moduleSources);
     const declaredSharedDependencies =

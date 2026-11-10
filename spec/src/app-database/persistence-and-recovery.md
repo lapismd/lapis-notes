@@ -46,3 +46,10 @@ installation and frontend compilation alone do not prove persistence.
 <a id="ln-db-052"></a>
 
 **Requirement.** Generated-state transactions MUST atomically commit outbox state and reconciliation cursors, publish changes only after commit, and remain disposable without losing vault content. An interrupted or rejected transaction MUST expose none of its writes.
+
+Unchanged startup under LN-DB-047 reuses the identity records already obtained
+through the bounded scan. Per-file point reads remain available for public
+identity requests and mutation reconciliation; startup does not relax durable
+transaction, tombstone or generation checks.
+
+Vault discovery and fallback polling exclude the installed-plugin directory before listing its descendants or statting installed plugin chunks. Direct adapter reads and plugin asset serving remain available. Native hints wholly within installed-plugin assets do not trigger a content reconciliation.

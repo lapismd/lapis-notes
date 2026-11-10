@@ -93,34 +93,52 @@ export interface WithPluginInstallProgressOptions {
   persistOnError?: boolean;
 }
 
+const installQueues = new WeakMap<App, Promise<void>>();
+
 export async function withPluginInstallProgress<T>(
   app: App,
   options: WithPluginInstallProgressOptions,
   action: (signal: AbortSignal) => Promise<T>,
 ): Promise<T> {
-  return app.notifications.withProgress(
-    {
-      title: options.title,
-      source: options.source ?? "Plugin registry",
-      location: options.location ?? "status",
-      cancellable: true,
-      persistOnError: options.persistOnError ?? true,
-    },
-    async (progressHandle, token) => {
-      const removeProgressListener = app.pluginDistribution.addProgressListener(
-        (event) => {
-          if (event.pluginId !== options.pluginId) {
-            return;
-          }
-          reportPluginInstallProgress(progressHandle, event);
-        },
-      );
-      try {
-        progressHandle.report({ message: "Starting", indeterminate: true });
-        return await action(token.signal);
-      } finally {
-        removeProgressListener();
-      }
-    },
-  );
+  const predecessor = installQueues.get(app);
+  let release!: () => void;
+  const turn = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const tail = (predecessor ?? Promise.resolve()).then(() => turn);
+  installQueues.set(app, tail);
+  void tail.then(() => {
+    if (installQueues.get(app) === tail) installQueues.delete(app);
+  });
+  try {
+    return await app.notifications.withProgress(
+      {
+        title: options.title,
+        source: options.source ?? "Plugin registry",
+        location: options.location ?? "status",
+        cancellable: true,
+        persistOnError: options.persistOnError ?? true,
+      },
+      async (progressHandle, token) => {
+        if (predecessor) {
+          progressHandle.report({ message: "Queued", indeterminate: true });
+          await predecessor;
+        }
+        token.signal.throwIfAborted();
+        const removeProgressListener =
+          app.pluginDistribution.addProgressListener((event) => {
+            if (event.pluginId === options.pluginId)
+              reportPluginInstallProgress(progressHandle, event);
+          });
+        try {
+          progressHandle.report({ message: "Starting", indeterminate: true });
+          return await action(token.signal);
+        } finally {
+          removeProgressListener();
+        }
+      },
+    );
+  } finally {
+    release();
+  }
 }

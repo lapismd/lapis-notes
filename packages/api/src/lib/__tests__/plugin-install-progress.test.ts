@@ -169,3 +169,92 @@ describe("isAbortError", () => {
     expect(isAbortError(new Error("failed"))).toBe(false);
   });
 });
+
+function queueFixture() {
+  const handles: {
+    report: ReturnType<typeof vi.fn>;
+    abort: AbortController;
+  }[] = [];
+  const app = {
+    notifications: {
+      withProgress: async (
+        _: unknown,
+        action: (handle: unknown, token: unknown) => Promise<unknown>,
+      ) => {
+        const h = { report: vi.fn(), abort: new AbortController() };
+        handles.push(h);
+        return action(h, { signal: h.abort.signal });
+      },
+    },
+    pluginDistribution: { addProgressListener: vi.fn(() => () => {}) },
+  } as unknown as App;
+  return { app, handles };
+}
+
+describe("App-owned install progress queue", () => {
+  it("keeps separate progress items and serializes overlapping installs", async () => {
+    const { app, handles } = queueFixture();
+    let finish!: () => void;
+    const first = withPluginInstallProgress(
+      app,
+      { pluginId: "a", title: "A" },
+      () =>
+        new Promise<void>((resolve) => {
+          finish = resolve;
+        }),
+    );
+    await vi.waitFor(() => expect(finish).toBeTypeOf("function"));
+    const runSecond = vi.fn(async () => "installed-b");
+    const second = withPluginInstallProgress(
+      app,
+      { pluginId: "b", title: "B" },
+      runSecond,
+    );
+    expect(handles).toHaveLength(2);
+    expect(runSecond).not.toHaveBeenCalled();
+    expect(handles[1].report).toHaveBeenCalledWith({
+      message: "Queued",
+      indeterminate: true,
+    });
+    finish();
+    await first;
+    await expect(second).resolves.toBe("installed-b");
+    expect(handles[0].abort.signal.aborted).toBe(false);
+  });
+
+  it("cancels a queued install without cancelling its predecessor or blocking its successor", async () => {
+    const { app, handles } = queueFixture();
+    let finish!: () => void;
+    const first = withPluginInstallProgress(
+      app,
+      { pluginId: "a", title: "A" },
+      () =>
+        new Promise<void>((resolve) => {
+          finish = resolve;
+        }),
+    );
+    await vi.waitFor(() => expect(finish).toBeTypeOf("function"));
+    const runSecond = vi.fn(async () => {});
+    const second = withPluginInstallProgress(
+      app,
+      { pluginId: "b", title: "B" },
+      runSecond,
+    );
+    const rejected = expect(second).rejects.toMatchObject({
+      name: "AbortError",
+    });
+    handles[1].abort.abort();
+    const runThird = vi.fn(async () => "c");
+    const third = withPluginInstallProgress(
+      app,
+      { pluginId: "c", title: "C" },
+      runThird,
+    );
+    expect(handles[0].abort.signal.aborted).toBe(false);
+    finish();
+    await first;
+    await rejected;
+    await expect(third).resolves.toBe("c");
+    expect(runSecond).not.toHaveBeenCalled();
+  });
+});

@@ -338,3 +338,11 @@ reconciliation. Array adapters preserve it; the frozen Deno host is unchanged.
 LN-PKG-178 and LN-PKG-179 add opt-in exclusive creation and source-owned new-file
 intent. Existing low-level overwrite behavior and unsupported legacy hosts stay
 explicit; Deno host source remains frozen. Admission spans creation projection.
+
+The shared install progress queue under LN-PLUG-075 and paged SyncHost startup
+under LN-DB-047 retain Desktop ownership and guarded teardown. The shared
+session native-AI default remains opt-in for this host.
+
+Host-supplied native Chat reactivation follows the shared profile lifecycle:
+successful disable retires the feature session and re-enable constructs a fresh
+session. Native accepted work retains its host-owned drain and writer rules.

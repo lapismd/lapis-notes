@@ -478,3 +478,26 @@ it("orders view rebinding before a follow-on mutation admitted by a rename event
     await editor.dispose();
   }
 });
+
+it("does not scan or reconcile plugin assets as vault content", async () => {
+  const { adapter, vault, changes } = await fixture();
+  await adapter.mkdir(".lapis");
+  await adapter.mkdir(".lapis/plugins");
+  for (let i = 0; i < 24; i++)
+    await adapter.write(`.lapis/plugins/chunk-${i}.js`, "export {}");
+  const stat = vi.spyOn(adapter, "stat");
+  await vault.reload();
+  await changes.start();
+  expect(
+    stat.mock.calls.filter(([path]) => path.startsWith(".lapis/")),
+  ).toHaveLength(0);
+  expect(vault.getFiles().some((file) => file.path.startsWith(".lapis/"))).toBe(
+    false,
+  );
+  const reconcile = vi.spyOn(vault, "reconcile");
+  adapter.emit({ type: "modify", path: ".lapis/plugins/chunk-1.js" });
+  await changes.settle();
+  expect(reconcile).not.toHaveBeenCalled();
+  expect(await adapter.read(".lapis/plugins/chunk-1.js")).toBe("export {}");
+  await changes.stop();
+});

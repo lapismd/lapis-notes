@@ -297,3 +297,18 @@ keeps that final-cohort proof separate from the original 15 Tasks journeys.
 <a id="ln-web-075"></a>
 
 **Requirement.** Hosted Repository surfaces MUST retain each selected source, exact operation pin and independent tab/read lifetime. Opening, refreshing or closing a view MUST NOT initialize, capture or mutate either repository. Both source clients MUST use the existing preparation queue and drain their own handles before release. An unavailable or fenced original scope MUST refuse without falling back to managed backup.
+
+The shared install progress queue under LN-PLUG-075 and paged SyncHost startup
+under LN-DB-047 retain Web ownership and permissions. Rust hosted sessions
+enable their supplied, user-disableable native AI plugin by default; Web PWA
+sessions retain their existing native-AI default and no provider is activated
+merely by registration.
+
+Partial-boot Retry may disable and re-enable the native Chat plugin. Each new
+activation receives a fresh feature session; retired sessions retain their
+fence. The Server adapter owns recognition of an unselected native engine
+during cleanup and preserves uncertain cleanup failures.
+
+Passive startup Retry prepares native Chat detach before retiring plugins. Its
+accepted native work stays host-owned; a later explicit plugin disable retains
+the native feature-disable policy.

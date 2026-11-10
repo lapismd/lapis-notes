@@ -79,3 +79,7 @@ Successful app-link navigation dismisses owning Settings under
 ## Native Task startup observation
 
 [CORE015](../architecture/rust-task-host-port.md#ln-core-015) binds Task declaration reconciliation to completed plugin loading. The App waits for that observer before reporting `plugins-loaded`. Existing plugin views and settings stay registered by their owning plugin; window teardown detaches the App observer before explicit plugin cleanup can change native policy.
+
+The shared registry controller retains every requested plugin action under
+LN-PLUG-075. Queued installs remain busy in their own rows and detail views;
+opening another plugin or closing the requesting surface does not cancel them.

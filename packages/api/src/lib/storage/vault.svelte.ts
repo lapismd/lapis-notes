@@ -1,3 +1,4 @@
+import { vaultContentAdapter } from "./vault-content-adapter";
 import { projectVaultTree, scanVaultTree } from "./vault-reconciliation";
 import type { FileEditingSessionRegistry } from "../file-editing-sessions";
 import { DEFAULT_APP_STATE_DIRECTORY } from "./path";
@@ -182,7 +183,10 @@ export class Vault extends EventDispatcher<{
     context: Record<string, unknown> = {},
   ): Promise<void> {
     await this.load();
-    const snapshot = await scanVaultTree(this.adapter, current);
+    const snapshot = await scanVaultTree(
+      vaultContentAdapter(this.adapter, () => this.configDir),
+      current,
+    );
     if (!snapshot || !current()) return;
     const projected = projectVaultTree(this, this.files, snapshot, hints);
     this.files = projected.files;
@@ -247,40 +251,42 @@ export class Vault extends EventDispatcher<{
         delete sourceFiles[k];
       });
 
-    return this.adapter.list(basePath).then(({ files, folders }) => {
-      sourceFiles[basePath] ||= new TFolder(basePath, [], null, this);
-      const folder = sourceFiles[basePath]! as TFolder;
-      folder.parent =
-        basePath === "/" ? null : (sourceFiles[dirname(basePath)] as TFolder);
-      folder.vault = this;
-      const promises: Promise<any>[] = [];
+    return vaultContentAdapter(this.adapter, () => this.configDir)
+      .list(basePath)
+      .then(({ files, folders }) => {
+        sourceFiles[basePath] ||= new TFolder(basePath, [], null, this);
+        const folder = sourceFiles[basePath]! as TFolder;
+        folder.parent =
+          basePath === "/" ? null : (sourceFiles[dirname(basePath)] as TFolder);
+        folder.vault = this;
+        const promises: Promise<any>[] = [];
 
-      folders.forEach((path) => {
-        path = this.getPath(joinPath(basePath, path));
-        sourceFiles[path] = new TFolder(
-          path,
-          [],
-          sourceFiles[dirname(path)] as TFolder,
-          this,
-        );
-        folder.children.push(sourceFiles[path]);
-        promises.push(this.loadPath(path, sourceFiles));
+        folders.forEach((path) => {
+          path = this.getPath(joinPath(basePath, path));
+          sourceFiles[path] = new TFolder(
+            path,
+            [],
+            sourceFiles[dirname(path)] as TFolder,
+            this,
+          );
+          folder.children.push(sourceFiles[path]);
+          promises.push(this.loadPath(path, sourceFiles));
+        });
+
+        files.forEach((file) => {
+          file = this.getPath(joinPath(basePath, file));
+          promises.push(
+            this.adapter.stat(file).then((stat) => {
+              if (stat) {
+                sourceFiles[file] = new TFile(file, stat, folder, this);
+                folder.children.push(sourceFiles[file]);
+              }
+            }),
+          );
+        });
+
+        return Promise.all(promises).then(() => sourceFiles);
       });
-
-      files.forEach((file) => {
-        file = this.getPath(joinPath(basePath, file));
-        promises.push(
-          this.adapter.stat(file).then((stat) => {
-            if (stat) {
-              sourceFiles[file] = new TFile(file, stat, folder, this);
-              folder.children.push(sourceFiles[file]);
-            }
-          }),
-        );
-      });
-
-      return Promise.all(promises).then(() => sourceFiles);
-    });
   }
 
   /**

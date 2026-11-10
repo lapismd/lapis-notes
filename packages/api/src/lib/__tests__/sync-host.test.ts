@@ -54,6 +54,30 @@ async function createPairingOwnerFixture() {
 }
 
 describe("SyncHostService", () => {
+  it("reuses the paged identity scan on an unchanged plugin-heavy startup", async () => {
+    const seed = Object.fromEntries(
+      Array.from({ length: 24 }, (_, i) => [
+        `assets/chunk-${i}.mjs`,
+        "export {};",
+      ]),
+    );
+    const { database, vault, service } = await createHarness(seed);
+    await service.dispose();
+    const read = vi.spyOn(database, "getMeta");
+    const restarted = new SyncHostService(database, vault);
+    try {
+      await restarted.ready();
+      expect(
+        read.mock.calls.filter(([key]) =>
+          /^sync-host:v1:(?:path|file):/.test(key),
+        ),
+      ).toHaveLength(0);
+    } finally {
+      await restarted.dispose();
+      read.mockRestore();
+    }
+  });
+
   it.each([
     {
       name: "host with relay addresses",

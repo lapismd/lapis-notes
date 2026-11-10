@@ -156,3 +156,25 @@ describe("shared App registry state", () => {
     expect(session.loading).toBe(false);
   });
 });
+
+it("accepts a second plugin install while the first is finishing", async () => {
+  const { app, distribution, catalog } = fixture();
+  const controller = getPluginRegistryController(app);
+  let finish!: () => void;
+  vi.mocked(distribution.install).mockImplementationOnce(
+    () =>
+      new Promise((resolve) => {
+        finish = () => resolve({ pluginId: "a" } as never);
+      }),
+  );
+  const first = controller.install(catalog[0]);
+  await vi.waitFor(() => expect(finish).toBeTypeOf("function"));
+  const second = controller.install({ ...catalog[0], id: "b", name: "B" });
+  finish();
+  await Promise.all([first, second]);
+  expect(distribution.install).toHaveBeenCalledTimes(2);
+  expect(vi.mocked(distribution.install).mock.calls.map(([id]) => id)).toEqual([
+    "a",
+    "b",
+  ]);
+});
