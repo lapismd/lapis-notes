@@ -44,6 +44,9 @@ the dependency image is rebuilt before its immutable digest is consumed.
 Release version preparation validates formatter availability and current-version
 changelog notes under [LN-PKG-164](../packages/releases-and-exports.md#ln-pkg-164).
 Its cached regression inputs include package changelogs and formatter configs.
+PR release checks also assemble all pending Changesets plans through the registry
+`@changesets/get-release-plan` development dependency, rejecting mixed private
+and public versioning entries without branch-name assumptions or publication.
 
 Local package tests already use Turbo. Repository-level test commands follow
 [the local test task contract](../packages/vault-and-storage.md#ln-pkg-159),

@@ -54,7 +54,7 @@
     "ci:packages": "node scripts/validation.mjs run ci:packages",
     "ci:release": "node scripts/validation.mjs run ci:release",
     "ci:container": "node --env-file-if-exists=.env scripts/run-ci-container.mjs",
-    "release:check": "node ./scripts/check-release-config.mjs && node ./scripts/check-release-workflow.mjs && pnpm desktop:release:check",
+    "release:check": "node ./scripts/check-release-config.mjs && node ./scripts/check-release-workflow.mjs && pnpm desktop:release:check && node scripts/check-release-plan.mjs",
     "release:intent": "node ./scripts/check-release-intent.mjs",
     "release:notes": "node ./scripts/create-github-releases.mjs",
     "release:plan": "node ./scripts/release-plan.mjs",
@@ -130,6 +130,7 @@
   "devDependencies": {
     "@changesets/changelog-github": "^0.7.0",
     "@changesets/cli": "^3.0.3",
+    "@changesets/get-release-plan": "^5.0.2",
     "@codemirror/autocomplete": "^6.18.6",
     "@codemirror/commands": "^6.8.1",
     "@codemirror/lang-json": "^6.0.2",
