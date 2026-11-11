@@ -2,8 +2,9 @@
 
 Consumer placement acceptance identifies results through the full-path caption
 and its real vault file. The released Search package exposes the accessible
-name as the vault path and match count. Its result-copy control uses the
-accessible name `Copy search results` and shows the visible result count.
+name as filename, count, vault path and match count. Its result-copy control uses
+`Copy search results: <count> results` and shows the visible result count.
+AI tool-result acceptance uses the released `Open <filename> <path>` label.
 Geometry, match text, counts and open behavior retain their existing assertions.
 
 ## LN-SRCH-001 — Search: owned by the sibling lapis-plugins repository, retain
@@ -313,3 +314,8 @@ Geometry, match text, counts and open behavior retain their existing assertions.
 **Requirement.** The API MUST expose an App-owned, plugin-lifecycle search-result provider registry. Providers MUST declare query capabilities, return cancellable paginated results with stable identities and opaque navigation targets, and own activation and optional context expansion. Invalidations MUST be disposable and late callbacks MUST NOT revive removed providers. Existing search-document providers and current-file query contracts remain independent.
 
 Saved-version results may expose an immutable content identity and explicit checkpoint navigation references. Search groups identical contents only within the same source and file; author/date filtering remains provider-owned before grouping (LN-SRCH-051).
+
+The retained consumer panel story asserts the published Search result's complete
+accessible filename, count and path. Exact accessible-name, query, placement,
+geometry, navigation and accessibility checks remain intact; watcher work does
+not alter Search rendering or its owning package.

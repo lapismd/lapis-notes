@@ -19,9 +19,9 @@ LN-PKG-184 keeps OS-trash authority in the native host. The shared adapter
 advertises the optional port and distinguishes unsupported fallback from
 provider failure; the existing Vault projection never deletes handled items twice.
 
-LN-PKG-183 places watch ingestion and retirement on the explicitly owned App;
-hosts opt in and must stop/drain the service before destructive teardown,
-then resume/reconcile if leaving fails.
+LN-PKG-183 places watch ingestion and retirement on the explicitly owned App; hosts opt in and must stop/drain the service before destructive teardown, then resume/reconcile if leaving fails.
+User-file watching excludes app state; the configuration owner retains a targeted leaf subscription and its existing writer guard, while native adapters keep admission and cleanup authority.
+Registry caches and plugin payloads are not user discovery content.
 
 LN-PKG-180 and LN-PKG-181 keep complete tree reconciliation in the shared Vault
 owner. Native transports supply hints; hosts do not replace canonical resource

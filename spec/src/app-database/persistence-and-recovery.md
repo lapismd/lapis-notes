@@ -53,3 +53,8 @@ identity requests and mutation reconciliation; startup does not relax durable
 transaction, tombstone or generation checks.
 
 Vault discovery and fallback polling exclude the installed-plugin directory before listing its descendants or statting installed plugin chunks. Direct adapter reads and plugin asset serving remain available. Native hints wholly within installed-plugin assets do not trigger a content reconciliation.
+
+Watcher-scope refinement under LN-PKG-183 preserves LN-DB-028/046/047: no
+database schema, cursor, transaction, identity or native ownership changes.
+Registry caches are excluded from content discovery; app configuration remains
+explicitly readable and its own reload path retains the existing state writer.

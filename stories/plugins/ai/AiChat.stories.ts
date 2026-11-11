@@ -221,7 +221,7 @@ export const SearchToolHits: Story = {
     });
     await userEvent.click(trigger);
     const hit = await canvas.findByRole("button", {
-      name: "Open auth.md",
+      name: "Open auth.md Projects/auth.md",
     });
     await expect(hit).toBeVisible();
     await expect(hit).toHaveTextContent("Projects/auth.md");

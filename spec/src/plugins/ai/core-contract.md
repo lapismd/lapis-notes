@@ -1,5 +1,8 @@
 # AI Plugin / Application integration
 
+Consumer Search tool-result acceptance uses the released accessible name
+`Open <filename> <path>` and retains its file-opening and visible-chat checks.
+
 ## LN-AI-045 — Storybook controller-process ownership
 
 <a id="ln-ai-045"></a>

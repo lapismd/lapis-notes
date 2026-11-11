@@ -44,6 +44,7 @@ export class VaultChangeService {
         vaultContentAdapter(
           this.app.vault.adapter,
           () => this.app.vault.configDir,
+          "watch",
         ),
       );
       this.watcher = watcher;
@@ -68,7 +69,13 @@ export class VaultChangeService {
         if (this.live(generation)) this.changed(event, generation);
       });
       const subscription = watcher.watch("/", { recursive: true });
-      await subscription.ready;
+      // App configuration is an explicit leaf observer, never a recursive
+      // traversal of caches, workspaces, plugin payloads or generated state.
+      const configPath = this.app.configuration?.basePath;
+      const configuration = configPath
+        ? watcher.watch(configPath, { recursive: false })
+        : undefined;
+      await Promise.all([subscription.ready, configuration?.ready]);
       if (!this.live(generation)) return;
       this.registered = true;
       await this.drain(generation);
@@ -178,9 +185,32 @@ export class VaultChangeService {
   ): void {
     if (
       event.type !== "error" &&
-      isVaultContent(event.path, this.app.vault.configDir) === false &&
+      event.path === this.app.configuration?.basePath
+    ) {
+      if (event.type !== "delete") {
+        const pending = this.app.fileEditingSessions.track(() =>
+          this.app.fileEditingSessions.afterMutations(() =>
+            this.live(generation)
+              ? this.app.configuration.reloadFromDisk({
+                  emitPluginDataEvents: true,
+                  materializeDefaults: false,
+                  origin: "external-reload",
+                })
+              : Promise.resolve(),
+          ),
+        );
+        this.projections.add(pending);
+        void pending
+          .catch((error) => this.report(error))
+          .finally(() => this.projections.delete(pending));
+      }
+      return;
+    }
+    if (
+      event.type !== "error" &&
+      isVaultContent(event.path, this.app.vault.configDir, "watch") === false &&
       (!event.previousPath ||
-        !isVaultContent(event.previousPath, this.app.vault.configDir))
+        !isVaultContent(event.previousPath, this.app.vault.configDir, "watch"))
     )
       return;
     this.dirty = true;
