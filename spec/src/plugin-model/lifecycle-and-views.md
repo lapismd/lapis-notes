@@ -271,6 +271,11 @@ activation and reveal contracts without timers or consumer retry wrappers.
 
 **Requirement.** Registering a plugin MUST preserve an existing compatibility data file until `loadData()` adopts it into canonical configuration. An explicit canonical data removal MUST still remove the compatibility mirror.
 
+Local canonical updates and removals own compatibility-mirror writes. Observing
+an external canonical reload MUST NOT write or delete that mirror: another App
+may still own its native writer. Read-side observation must not create competing
+editing claims or a write-feedback loop.
+
 `addStatusBarItem()` returns a plugin-owned element in the shared status registry.
 Plugin teardown removes its contribution. Custom controls own their styles and
 resources; the shell mount disposer handles detachment (LN-WS-054).

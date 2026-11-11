@@ -1,5 +1,9 @@
 # Workspace Shell / Plugin management
 
+Settings observed from another App remain read-side configuration updates under
+LN-PLUG-112. They do not create competing compatibility-file writers or dirty
+native claims; existing Problems review and guarded leave retain their owners.
+
 External uninstall emits an App-owned `plugin-unloaded` event after runtime and
 registration cleanup (LN-PLUG-119). Managed Settings and shared registry surfaces
 observe that event so retired official plugins disappear from Core inventory.

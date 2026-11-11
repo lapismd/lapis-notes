@@ -64,3 +64,29 @@ Native stream transport, admission, replay, reset and lifecycle are Server-owned
 Editing-intent polling is a separate authorized-scope question and is unchanged.
 API npm publication, released-semver consumer intake, exact-commit CI and actual
 public-image acceptance remain separate gates. No npm publication occurred.
+
+## Concurrent configuration observation follow-up
+
+The complete Server hosted lane exposed a real two-App race in the original
+Tasks recovery journey. The second App saved canonical settings successfully,
+but immediate external reload in the first App asked PluginManager to rewrite
+the same compatibility data file. Both native writers became dirty and the
+mirror save was refused; the original data.json assertion and shutdown failed.
+This is a runtime defect, not a stale persistence assertion.
+
+Two source regressions fail before the fix (external canonical update/removal
+must not modify/delete a compatibility mirror). PluginManager now leaves
+external-reload events observational. Local configuration updates/removals and
+Plugin.saveData still own their original compatibility writes. Exact source,
+complete owner/consumer lanes and the original concurrent journey must pass
+again before this follow-up is qualified. No assertion or deadline is changed.
+
+The follow-up's exact two source regressions now pass, all 108 affected cases
+pass, and the complete API suite passes 1758 cases. Root check/test/build pass
+16/16/9 tasks. A fresh source archive and Server frontend rebuild then pass the
+original two-App Tasks recovery journey unchanged (28.9 seconds), including its
+legacy settings-file assertion, one submit, zero retries and clean shutdown.
+The follow-up full Chromium interaction/axe lane passes all 275 cases again
+across all four serial shards. The full Server hosted rerun remains a separate
+consumer gate until its final receipt is recorded.
+Changesets plans only the public API 0.2.8 patch; other public packages stay held.
