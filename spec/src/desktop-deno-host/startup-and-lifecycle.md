@@ -1,5 +1,9 @@
 # Deno Desktop Host / Startup and lifecycle
 
+The shared private profile refreshes Search to registry `^0.1.6`. Its startup
+order and enablement policy are unchanged; this consumer dependency intake
+does not publish or replace an installed Desktop application.
+
 The frozen Deno host retains its existing application profile. The staged
 [Rust-owned chat navigator](../architecture/rust-turn-admission.md) and
 [native index owner](../architecture/rust-indexing-lifetime.md) are Tauri/hosted

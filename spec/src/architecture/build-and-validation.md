@@ -6,6 +6,11 @@ complete API and cold App catalog gates. The normal registry dependency graph
 is retained in the source receipt; package publication and actual host intake
 remain separate evidence.
 
+Retained Search acceptance consumes released Search 0.1.6 through registry
+ranges. An unchanged-main reproduction identifies the older locked package's
+accessible-name mismatch before refreshing the dependency; current geometry,
+navigation, match-count and accessibility assertions remain unchanged.
+
 Production PWA publication runs the reusable exact-revision CI workflow even
 when package versioning is pending. Its Cloudflare lane prepares and tests the
 ordinary browser build, uploads one SHA-labelled artifact and keeps deployment

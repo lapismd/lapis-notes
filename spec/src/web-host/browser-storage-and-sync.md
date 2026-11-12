@@ -17,6 +17,10 @@ updates the shared profile's published packages. Web acceptance builds their
 public export graph and retains the same API singleton, profile ordering, and
 configured-plugin restoration; a signed fixture does not replace npm resolution.
 
+Retained Search acceptance now consumes released `^0.1.6` from the registry.
+The source and Web private profile require that floor for their existing
+accessible result labels while preserving profile order and default enablement.
+
 ## LN-WEB-005 — Retirement of legacy web fixtures
 
 <a id="ln-web-005"></a>
