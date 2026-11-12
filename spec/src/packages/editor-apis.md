@@ -1,5 +1,10 @@
 # Packages / Editor APIs
 
+The development catalog consumes released Search `^0.1.6` through the normal
+registry lock. This refresh retains the existing filename/count accessible-name
+and structured tool-result assertions; it introduces no package source alias.
+The application profile's independent Search intake is unchanged.
+
 The API uses patched Minimatch through `^11.0.1` (locked `11.0.3`). Its private
 compiler checks parsed alternatives while preserving public glob helpers,
 editor associations and case-sensitive vault discovery exclusions. The

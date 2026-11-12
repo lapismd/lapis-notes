@@ -1,5 +1,11 @@
 # Architecture / Build and validation
 
+Shared deferred-activation qualification covers overlapping demand, shared
+failure followed by explicit retry, and independent plugin IDs before the
+complete API and cold App catalog gates. The normal registry dependency graph
+is retained in the source receipt; package publication and actual host intake
+remain separate evidence.
+
 Production PWA publication runs the reusable exact-revision CI workflow even
 when package versioning is pending. Its Cloudflare lane prepares and tests the
 ordinary browser build, uploads one SHA-labelled artifact and keeps deployment

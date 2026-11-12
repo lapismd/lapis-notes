@@ -62,6 +62,12 @@ The deferred host attachment in LN-WS-006/064 preserves plugin-owned view
 creation, load and unload. Closing a host cancels its pending attachment; it
 does not construct a replacement view, reactivate a plugin or admit a service.
 
+## LN-PLUG-126 — Shared deferred activation
+
+<a id="ln-plug-126"></a>
+
+**Requirement.** Concurrent demand-activation requests for one deferred extension MUST join one runtime-evaluation and enablement flight. Callers MUST observe the same terminal result. Completed or failed flights MUST release their coalescing state so later explicit activation can retry.
+
 ## LN-PLUG-121 — Required native service admission
 
 <a id="ln-plug-121"></a>
