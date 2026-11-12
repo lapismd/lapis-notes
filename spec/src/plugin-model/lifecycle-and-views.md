@@ -1,5 +1,9 @@
 # Plugin Model / Lifecycle and views
 
+The private application profile consumes registry Search `^0.1.6` to exercise
+its retained accessible result labels. Plugin identity, activation, view
+registration, user disablement and teardown retain their existing contracts.
+
 Shared text-conflict recovery keeps its App-owned presentation lease and stable view registration. Restoring explicit disk acceptance changes no plugin admission or lifecycle authority.
 
 The selected native-chat profile retains the optional `ai` identity, commands
