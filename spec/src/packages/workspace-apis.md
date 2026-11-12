@@ -137,6 +137,13 @@ reference-counts that disposable collection binding per App; the source model
 is passive until mounted or explicitly refreshed. Hosts call the registry
 preflight before destructive teardown, preserving failed-leave recovery.
 
+LN-CORE-054 adds optional `NativeEditingIntents.observe(invalidate, error)` to
+the same public port. It returns a disposer and lets the existing App recovery
+controller refresh authoritative claims without idle polling on supporting
+hosts. Registration, reconnect and missed notifications invalidate metadata;
+the port carries no claim or file bytes. Older hosts retain compatible polling.
+Observation does not alter the existing captured Problems recovery actions.
+
 LN-WS-102 through LN-WS-104 expose `bindFileConflictReviews(app)` from
 `@lapis-notes/workspace`: one App-owned retained text-conflict presentation
 shared by WorkspaceShell mounts and early host leases. The binding is

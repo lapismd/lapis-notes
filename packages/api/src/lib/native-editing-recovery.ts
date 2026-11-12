@@ -34,6 +34,9 @@ export class NativeEditingRecovery {
   #mutation = 0;
   #timer: ReturnType<typeof setTimeout> | undefined;
   #pending: { epoch: number; promise: Promise<void> } | undefined;
+  #stopObservation: (() => void) | undefined;
+  #observationError: unknown;
+  #invalidation = 0;
 
   constructor(
     private readonly port: NativeEditingIntents,
@@ -52,9 +55,31 @@ export class NativeEditingRecovery {
     };
   }
 
-  /** Shell-owned read-only observation; multiple shells share one poll. */
+  /** Shell-owned passive observation; old hosts retain one shared poll. */
   observe(): () => void {
-    if (this.#observers++ === 0) void this.#poll(++this.#epoch);
+    if (this.#observers++ === 0) {
+      const epoch = ++this.#epoch;
+      this.#observationError = undefined;
+      if (this.port.observe) {
+        const current = () => this.#observers > 0 && epoch === this.#epoch;
+        const failed = (error: unknown) => {
+          if (!current()) return;
+          this.#observationError = error;
+          this.#publish(this.#snapshot.claims, error);
+        };
+        try {
+          this.#stopObservation = this.port.observe(() => {
+            if (!current()) return;
+            this.#invalidation++;
+            this.#observationError = undefined;
+            void this.#load(epoch).catch(() => {});
+          }, failed);
+        } catch (error) {
+          failed(error);
+        }
+        void this.#load(epoch).catch(() => {});
+      } else void this.#poll(epoch);
+    }
     let held = true;
     return () => {
       if (!held) return;
@@ -63,6 +88,9 @@ export class NativeEditingRecovery {
         this.#epoch++;
         clearTimeout(this.#timer);
         this.#timer = undefined;
+        const stop = this.#stopObservation;
+        this.#stopObservation = undefined;
+        stop?.();
       }
     };
   }
@@ -84,6 +112,7 @@ export class NativeEditingRecovery {
   #load(epoch: number): Promise<void> {
     if (this.#pending?.epoch === epoch) return this.#pending.promise;
     const mutation = this.#mutation;
+    const invalidation = this.#invalidation;
     const promise = (async () => {
       try {
         const value = await this.port.call({ kind: "list" });
@@ -97,6 +126,7 @@ export class NativeEditingRecovery {
           value.states.filter(
             (state) => state.detached || this.#adopted.has(state.editor_id),
           ),
+          this.#observationError,
         );
       } catch (error) {
         if (epoch === this.#epoch && mutation === this.#mutation)
@@ -109,6 +139,13 @@ export class NativeEditingRecovery {
     void promise
       .finally(() => {
         if (this.#pending === pending) this.#pending = undefined;
+        if (
+          this.port.observe &&
+          this.#observers &&
+          epoch === this.#epoch &&
+          (invalidation !== this.#invalidation || mutation !== this.#mutation)
+        )
+          void this.#load(epoch).catch(() => {});
       })
       .catch(() => {});
     return promise;
@@ -191,6 +228,7 @@ export class NativeEditingRecovery {
         this.#publish(this.#snapshot.claims, error);
         throw error;
       } finally {
+        this.#mutation++;
         this.#acting.delete(current.editor_id);
       }
     });

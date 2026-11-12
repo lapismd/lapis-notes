@@ -213,3 +213,26 @@ the original saved-baseline comparison; unacknowledgeable producers and
 failed/dirty detached writers remain fenced. Host recovery preflight drains
 already admitted registry transitions before deciding whether a local issue
 remains unresolved.
+
+## LN-CORE-054 — Passive editing-intent invalidation
+
+<a id="ln-core-054"></a>
+
+**Requirement.** The native editing-intent port MAY provide a disposable
+invalidation observer. The App recovery controller MUST share one observation
+between shells and refresh authoritative claims on invalidation without idle
+polling when that port is present. Notifications MUST NOT recover, discard or
+carry document bytes. Missing observation support MUST retain compatible polling;
+observation failures MUST retain visible claims and uncertainty.
+
+### Acceptance details
+
+Observation retains these boundaries:
+
+- Hosts invalidate on initial registration, reconnect and missed notifications;
+  a notification during an in-flight read requires a subsequent refresh.
+- Final unmount disposes observation and fences pending reads and late callbacks.
+  A later mount starts a fresh observation lifetime.
+- The existing captured-state recovery, read-only lost-reply reconciliation and
+  destructive-close preflight remain authoritative. A successful list alone
+  cannot hide an unresolved observation failure.

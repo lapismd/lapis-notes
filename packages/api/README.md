@@ -89,3 +89,16 @@ Plugin producers choose `mode: "plugin"` and let the adapter externalize Svelte
 imports; do not pre-externalize them or copy private host build helpers. The
 versioned providers retain the host's single Svelte runtime. Other imports still
 need explicit host admission and the plugin's normal manifest audit.
+
+### Native editing-intent observation
+
+Native hosts may implement `NativeEditingIntents.observe(invalidate, error)`.
+Return an idempotent disposer, notify after registration and every reconnect or
+missed notification, and report observation failures through `error`. The port
+carries invalidations only; the existing App recovery controller lists current
+claims and owns Problems recovery actions.
+
+Shells share one observation per App. Supporting hosts avoid idle claim polling;
+hosts without the optional method retain the existing polling behavior. Disposal
+stops notifications and reconnection. Observing never recovers claims, discards
+buffers or writes files.

@@ -10,4 +10,12 @@ export interface NativeEditingIntents {
   call(command: EditingIntentCommand): Promise<EditingIntentValue>;
   /** Expected absence is null; unavailable or unreadable files reject. */
   read(path: string): Promise<TextSnapshot | null>;
+  /**
+   * Subscribe to metadata invalidation, returning an idempotent disposer.
+   * Notify after registration and every reconnect or missed notification so the
+   * caller can list authoritative claims. Report observation failures without
+   * mutating or recovering claims. Disposing must stop delivery and reconnects.
+   * Older hosts may omit this port and retain compatible recovery polling.
+   */
+  observe?(invalidate: () => void, error: (error: unknown) => void): () => void;
 }
