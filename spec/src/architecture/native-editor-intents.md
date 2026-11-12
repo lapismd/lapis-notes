@@ -167,6 +167,8 @@ Recovery presentation retains these boundaries:
   registration and issue through existing protected registry paths.
 - Shared shells reference-count passive observation for one App. Construction
   performs no native calls; final unmount fences pending publication.
+- Destructive preflight refuses a list already superseded by a known native
+  invalidation or local recovery transition while reconciliation is pending.
 - Lost acknowledgements reconcile by read-only inspection. Failures remain
   visible and stale actions cannot release newer protection.
 - A failed handoff cannot disappear through successful no-op cleanup. Retrying

@@ -210,3 +210,35 @@ it.each(["recover", "discard"] as const)(
     }
   },
 );
+
+it("refuses destructive preflight while an invalidated list awaits reconciliation", async () => {
+  const f = fixture();
+  let finishInitial!: (value: EditingIntentValue) => void;
+  let finishFollowup: ((value: EditingIntentValue) => void) | undefined;
+  f.call.mockImplementationOnce(
+    () =>
+      new Promise((resolve) => {
+        finishInitial = resolve;
+      }),
+  );
+  f.call.mockImplementationOnce(
+    () =>
+      new Promise((resolve) => {
+        finishFollowup = resolve;
+      }),
+  );
+  const stop = f.model.observe();
+  const outcome = f.model.assertClear().then(
+    () => "cleared",
+    (error: Error) => error.message,
+  );
+  try {
+    f.invalidate();
+    finishInitial({ kind: "states", states: [] });
+    await expect(outcome).resolves.toMatch(/Problems/);
+    expect(f.call).toHaveBeenCalledTimes(2);
+  } finally {
+    stop();
+    finishFollowup?.({ kind: "states", states: [claim] });
+  }
+});

@@ -37,6 +37,9 @@ export class NativeEditingRecovery {
   #stopObservation: (() => void) | undefined;
   #observationError: unknown;
   #invalidation = 0;
+  #loaded:
+    | { epoch: number; mutation: number; invalidation: number }
+    | undefined;
 
   constructor(
     private readonly port: NativeEditingIntents,
@@ -128,6 +131,7 @@ export class NativeEditingRecovery {
           ),
           this.#observationError,
         );
+        this.#loaded = { epoch, mutation, invalidation };
       } catch (error) {
         if (epoch === this.#epoch && mutation === this.#mutation)
           this.#publish(this.#snapshot.claims, error);
@@ -154,6 +158,12 @@ export class NativeEditingRecovery {
   /** Hosts call this before destructive App/registry teardown. */
   async assertClear(): Promise<void> {
     await this.refresh();
+    if (
+      this.#loaded?.epoch !== this.#epoch ||
+      this.#loaded.mutation !== this.#mutation ||
+      this.#loaded.invalidation !== this.#invalidation
+    )
+      throw new Error("Editing claims changed; refresh Problems");
     if (this.#snapshot.claims.length)
       throw new Error("Unresolved editing claims require review in Problems");
   }

@@ -144,6 +144,8 @@ hosts. Registration, reconnect and missed notifications invalidate metadata;
 the port carries no claim or file bytes. Older hosts retain compatible polling.
 Observation does not alter the existing captured Problems recovery actions.
 Their successful native replies do not clear a disconnected observer's warning.
+Destructive preflight rejects an in-flight list already superseded by a known
+invalidation or local action until authoritative reconciliation completes.
 
 LN-WS-102 through LN-WS-104 expose `bindFileConflictReviews(app)` from
 `@lapis-notes/workspace`: one App-owned retained text-conflict presentation

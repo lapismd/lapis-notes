@@ -108,3 +108,35 @@ first checkpoint were built in run
 modified development evidence and must not be published over the existing
 registry version. Final committed-source consumer archive and canonical closure
 follow the health repair.
+
+## Invalidated close preflight
+
+An additional exact race demonstrated that destructive preflight could accept an
+empty in-flight List after a native invalidation had already made it stale.
+`native-editing-observation.test.ts -t 'refuses destructive preflight'` fails
+before the repair. The controller now records the epoch, local mutation and
+invalidation represented by an accepted read; preflight rejects a superseded
+read while the existing queued reconciliation completes. It performs no implicit
+recovery, discard or content mutation.
+
+Final source qualification for this repair:
+
+- The exact preflight regression changes from one failure to one pass. All ten
+  observation cases and all 70 directly affected cases pass.
+- Clean registry-only `pnpm check:all` passes all 16 check, 16 test and nine build
+  tasks: 1,771 API and 2,113 total package cases. Public package builds, publint
+  and declaration guards pass. Run:
+  `lapis-notes-validation-f128b12f-f5ff-4d31-9588-e1b26eb73b23`.
+- All three focused cold recovery stories pass. Run:
+  `lapis-notes-validation-0f078257-f4cd-4e95-bb80-ad430b27c174`.
+- The complete cold catalog passes all 275 interaction/accessibility cases in
+  four sequential shards (102/70/46/57), without retries or assertion changes.
+  Run: `lapis-notes-validation-1c99f50d-e0a8-4ca5-962f-55152b11c157`.
+- Canonical validation, mdBook, spec-first and App ownership pass. Final
+  committed-source development archives and documentation closure follow below.
+
+These runs validate source snapshot `7b66417c60d8f01d5b144ef300cc9b888d6fc627`.
+They retain the original idle model sample and existing Problems recovery
+assertions. The earlier interrupted health-slice run remains a failed aggregate;
+this clean final-source diagnostic does not restore the LN-CAT-121 hosted lane.
+Normal CI still reports its skipped interaction/axe coverage as quarantined.
