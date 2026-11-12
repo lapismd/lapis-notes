@@ -2,7 +2,7 @@
 
 Private `lapis-app-core` owns native files under the
 [shared service contract](../architecture/rust-application-services.md).
-Vault/AppDatabase interfaces remain. Root native lanes are independent of browser storage and hosted adoption. Explicit `rust-server` sessions require an injected AppDatabaseProvider and cannot select browser storage.
+Vault/AppDatabase interfaces remain. Root native lanes are independent of browser storage and hosted adoption. Explicit `rust-server` sessions require an injected AppDatabaseProvider and cannot select browser storage. Browser vault resource URLs retain complete bytes, media MIME types and explicit disposal under LN-WEB-091.
 
 Private `lapis-app-protocol` owns portable commands, replies and editor claims.
 `pnpm protocol:generate` emits schemas and TypeScript, including public

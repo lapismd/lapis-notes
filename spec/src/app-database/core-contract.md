@@ -1,5 +1,9 @@
 # App Database / Database integration
 
+Browser vault media URLs carry MIME types under LN-WEB-091. Their bytes and
+disposable URLs remain adapter-owned presentation resources; they introduce no
+database state, schema, transaction or writer authority.
+
 Remote AppDatabase schemas use the patched Zod package through its public
 `zod/v3` entry, retaining the existing method DTOs and validation semantics.
 Plugin icon artwork and resolver caches remain App presentation resources;
