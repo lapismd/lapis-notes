@@ -1,5 +1,23 @@
 # @lapis-notes/api
 
+## 0.2.8
+
+### Patch Changes
+
+- [#88](https://github.com/lapismd/lapis-notes/pull/88)
+  [`abe9a50`](https://github.com/lapismd/lapis-notes/commit/abe9a507050ef2bf39efcbdbc83c47162910bb45)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Keep external
+  plugin-configuration reloads observational so another App cannot race the
+  originating compatibility-data writer or create dirty native claims during
+  settings recovery.
+
+- [#88](https://github.com/lapismd/lapis-notes/pull/88)
+  [`f47ca51`](https://github.com/lapismd/lapis-notes/commit/f47ca51d606cb91fc6f942d4ffcbd4429b30c093)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Keep app-state
+  directories out of recursive user-file watching and observe app configuration
+  through a dedicated leaf subscription, preserving direct configuration access
+  and lifecycle drain.
+
 ## 0.2.7
 
 ### Patch Changes
