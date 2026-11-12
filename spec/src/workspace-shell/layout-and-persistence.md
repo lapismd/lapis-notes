@@ -5,6 +5,10 @@ explicit view navigation. LN-WS-005 retains its original revision fence;
 opening a note preserves a non-file tab and selects its intended main tab.
 The same LN-WS-005/062 fence covers a projection already awaiting plugin/view
 activation when a later explicit same-type query/scope transition completes.
+Overlapping view and command demand shares the App's plugin activation flight
+under LN-PLUG-126. That flight does not merge navigation candidates: each leaf
+retains its own saved-state, revision and retirement fences while waiting for
+the shared runtime.
 
 ## LN-WS-001 — Design Core layout engine
 

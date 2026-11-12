@@ -783,6 +783,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
   #indexedActivationRegistry: Map<string, Set<string>> = new Map();
   #deferredIndexedExtensions: Map<string, DeferredIndexedExtensionState> =
     new Map();
+  #indexedActivationFlights = new Map<string, Promise<boolean>>();
   #communityPluginHost: CommunityPluginExecutionHost;
   #pluginAssetServer?: PluginAssetServer;
   #unavailablePlugins: PluginHostRestrictions;
@@ -3760,7 +3761,26 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     }
   }
 
-  private async activateDeferredIndexedExtension(
+  private activateDeferredIndexedExtension(
+    pluginId: string,
+    trigger: string | null,
+  ): Promise<boolean> {
+    const pending = this.#indexedActivationFlights.get(pluginId);
+    if (pending) return pending;
+    // Publish the flight before evaluating code, including reentrant triggers.
+    const flight = Promise.resolve().then(() =>
+      this.performDeferredIndexedExtensionActivation(pluginId, trigger),
+    );
+    this.#indexedActivationFlights.set(pluginId, flight);
+    const release = () => {
+      if (this.#indexedActivationFlights.get(pluginId) === flight)
+        this.#indexedActivationFlights.delete(pluginId);
+    };
+    void flight.then(release, release);
+    return flight;
+  }
+
+  private async performDeferredIndexedExtensionActivation(
     pluginId: string,
     trigger: string | null,
   ): Promise<boolean> {

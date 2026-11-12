@@ -4599,6 +4599,188 @@ describe("PluginManager", () => {
     expect(app.plugins.plugins.get("required-core")?.enabled).toBe(true);
   });
 
+  it("coalesces concurrent deferred activation before evaluating the runtime", async () => {
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const loaded = vi.fn();
+    class Deferred extends Plugin {
+      onload() {
+        loaded();
+      }
+    }
+    const evaluate = vi.fn(async () => {
+      await gate;
+      return Deferred;
+    });
+    const { app } = createTestApp({
+      communityPluginHost: { id: "web", evaluate },
+    });
+    await app.vault.load();
+    await seedCommunityPluginFiles(
+      app,
+      "lazy-concurrent",
+      {
+        "plugin.js": "module.exports = null;",
+      },
+      {
+        lapis: {
+          manifestVersion: 1,
+          runtime: { workspace: "plugin.js" },
+          contributes: {
+            views: [{ id: "lazy-concurrent-view", name: "Deferred view" }],
+            commands: [{ command: "open", title: "Open deferred view" }],
+          },
+        },
+      },
+    );
+    await app.vault.create(
+      "/.lapis/community-plugins.json",
+      JSON.stringify(["lazy-concurrent"]),
+    );
+    await app.plugins.loadPlugins();
+    expect(evaluate).not.toHaveBeenCalled();
+    const first = app.plugins.activateForViewType("lazy-concurrent-view");
+    const second = app.plugins.activateByEvent("onCommand:open");
+    try {
+      await vi.waitFor(() => expect(evaluate).toHaveBeenCalled());
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(evaluate).toHaveBeenCalledTimes(1);
+      release();
+      await expect(Promise.all([first, second])).resolves.toEqual([true, true]);
+      expect(loaded).toHaveBeenCalledTimes(1);
+      expect(app.plugins.plugins.get("lazy-concurrent")?.enabled).toBe(true);
+    } finally {
+      release();
+      await Promise.allSettled([first, second]);
+    }
+  });
+
+  it("shares failed deferred activation and permits a later retry", async () => {
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const loaded = vi.fn();
+    class Deferred extends Plugin {
+      onload() {
+        loaded();
+      }
+    }
+    const evaluate = vi
+      .fn()
+      .mockImplementationOnce(async () => {
+        await gate;
+        throw new Error("temporary runtime failure");
+      })
+      .mockResolvedValue(Deferred);
+    const { app } = createTestApp({
+      communityPluginHost: { id: "web", evaluate },
+    });
+    await app.vault.load();
+    await seedCommunityPluginFiles(
+      app,
+      "lazy-retry",
+      {
+        "plugin.js": "module.exports = null;",
+      },
+      {
+        lapis: {
+          manifestVersion: 1,
+          runtime: { workspace: "plugin.js" },
+          contributes: {
+            views: [{ id: "lazy-retry-view", name: "Deferred view" }],
+          },
+        },
+      },
+    );
+    await app.vault.create(
+      "/.lapis/community-plugins.json",
+      JSON.stringify(["lazy-retry"]),
+    );
+    await app.plugins.loadPlugins();
+    const first = app.plugins.activateForViewType("lazy-retry-view");
+    const second = app.plugins.activateForViewType("lazy-retry-view");
+    try {
+      await vi.waitFor(() => expect(evaluate).toHaveBeenCalledTimes(1));
+      release();
+      await expect(Promise.all([first, second])).resolves.toEqual([
+        false,
+        false,
+      ]);
+      expect(evaluate).toHaveBeenCalledTimes(1);
+      expect(loaded).not.toHaveBeenCalled();
+      await expect(
+        app.plugins.activateForViewType("lazy-retry-view"),
+      ).resolves.toBe(true);
+      expect(evaluate).toHaveBeenCalledTimes(2);
+      expect(loaded).toHaveBeenCalledTimes(1);
+    } finally {
+      release();
+      await Promise.allSettled([first, second]);
+    }
+  });
+
+  it("activates different deferred plugins independently", async () => {
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const loaded = vi.fn();
+    class Deferred extends Plugin {
+      onload() {
+        loaded(this.manifest.id);
+      }
+    }
+    const evaluate = vi.fn(
+      async ({ pluginId }: CommunityPluginEvaluationRequest) => {
+        if (pluginId === "lazy-slow") await gate;
+        return Deferred;
+      },
+    );
+    const { app } = createTestApp({
+      communityPluginHost: { id: "web", evaluate },
+    });
+    await app.vault.load();
+    for (const id of ["lazy-slow", "lazy-fast"]) {
+      await seedCommunityPluginFiles(
+        app,
+        id,
+        {
+          "plugin.js": "module.exports = null;",
+        },
+        {
+          lapis: {
+            manifestVersion: 1,
+            runtime: { workspace: "plugin.js" },
+            contributes: {
+              views: [{ id: `${id}-view`, name: "Deferred view" }],
+            },
+          },
+        },
+      );
+    }
+    await app.vault.create(
+      "/.lapis/community-plugins.json",
+      JSON.stringify(["lazy-slow", "lazy-fast"]),
+    );
+    await app.plugins.loadPlugins();
+    const slow = app.plugins.activateForViewType("lazy-slow-view");
+    const fast = app.plugins.activateForViewType("lazy-fast-view");
+    try {
+      await expect(fast).resolves.toBe(true);
+      expect(evaluate).toHaveBeenCalledTimes(2);
+      expect(loaded.mock.calls).toEqual([["lazy-fast"]]);
+      release();
+      await expect(slow).resolves.toBe(true);
+      expect(loaded.mock.calls).toEqual([["lazy-fast"], ["lazy-slow"]]);
+    } finally {
+      release();
+      await Promise.allSettled([slow, fast]);
+    }
+  });
+
   it("activates a deferred Lapis command contribution on first execution", async () => {
     const { app } = createTestApp();
     await app.vault.load();

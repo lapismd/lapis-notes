@@ -19,6 +19,13 @@ hosted receipts cannot qualify this profile.
 
 ## Optional plugin service adoption
 
+Notebook demand activation is authorized in its owning standalone repository.
+The shared API's concurrent deferred-activation repair is qualified separately
+from Notebook manifest adoption, Markdown directive/embed activation and the
+portable renderer's asynchronous embed contract. Those owner releases and
+normal-registry Server/Desktop cold-start acceptance remain required before
+claiming the startup issue delivered.
+
 Owner: Notes public service contracts; plugin algorithms remain in lapis-plugins
 and native implementations in lapis-server. Optional Docs host/UI adoption and
 legacy AppDatabase History capture ownership remain separately deferred.
