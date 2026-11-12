@@ -1,5 +1,15 @@
 # @lapis-notes/language-service
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies
+  [[`0b7ac5a`](https://github.com/lapismd/lapis-notes/commit/0b7ac5a9d6f07dd8a35d7d9fd7de8d9cb076e07b),
+  [`84551f9`](https://github.com/lapismd/lapis-notes/commit/84551f9f10ec73ea02fcb71d53131758a9d2d419),
+  [`1d9f1d1`](https://github.com/lapismd/lapis-notes/commit/1d9f1d180b38e8248f49abaf8f523fe0cddc28fd)]:
+  - @lapis-notes/api@0.3.0
+
 ## 0.1.2
 
 ### Patch Changes
