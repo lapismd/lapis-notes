@@ -19,6 +19,25 @@ declare const call: (
 ) => Promise<EditingIntentValue>;
 declare const read: (path: string) => Promise<TextSnapshot | null>;
 const port: NativeEditingIntents = { call, read };
+const observingPort: NativeEditingIntents = {
+  ...port,
+  observe(invalidate, reportError) {
+    invalidate();
+    reportError(new Error("Observation unavailable"));
+    return () => {};
+  },
+};
+const stopObservation: (() => void) | undefined = observingPort.observe?.(
+  () => {},
+  (_error: unknown) => {},
+);
+stopObservation?.();
+const invalidObserver: NativeEditingIntents = {
+  ...port,
+  // @ts-expect-error Observations must return a disposer.
+  observe: () => undefined,
+};
+void invalidObserver;
 const properties: Pick<AppStateProperties, "nativeEditingIntents"> = {
   nativeEditingIntents: port,
 };

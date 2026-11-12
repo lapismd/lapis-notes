@@ -19,6 +19,14 @@ hosted receipts cannot qualify this profile.
 
 ## Optional plugin service adoption
 
+The approved optional editing-intent observation port (LN-CORE-054) replaces
+idle recovery polling only for hosts that provide invalidations. Server owns
+authenticated vault-scoped delivery, reconnect recovery and actual idle-browser
+acceptance. API source and development archives are qualified in the
+[owner record](../../records/2026-11-12-editing-intent-observation.md); new-version
+publication and host registry intake remain outstanding. Plugin activation work
+is independent.
+
 Notebook demand activation is authorized in its owning standalone repository.
 The shared API's concurrent deferred-activation repair is qualified separately
 from Notebook manifest adoption, Markdown directive/embed activation and the
