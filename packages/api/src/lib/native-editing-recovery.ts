@@ -234,7 +234,10 @@ export class NativeEditingRecovery {
     });
   }
 
-  #publish(claims: readonly EditingIntentState[], error?: unknown): void {
+  #publish(
+    claims: readonly EditingIntentState[],
+    error: unknown = this.#observationError,
+  ): void {
     const message = error
       ? error instanceof Error
         ? error.message

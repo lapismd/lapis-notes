@@ -186,3 +186,27 @@ it("refreshes authoritative claims after a failed list when the stream reconnect
     stop();
   }
 });
+
+it.each(["recover", "discard"] as const)(
+  "keeps a disconnected observer visible after confirmed %s",
+  async (action) => {
+    const f = fixture();
+    const stop = f.model.observe();
+    try {
+      await f.model.refresh();
+      f.fail(new Error("Stream disconnected"));
+      f.call.mockResolvedValueOnce(
+        action === "discard"
+          ? { kind: "retired" }
+          : {
+              kind: "state",
+              state: { ...claim, generation: 2, detached: false },
+            },
+      );
+      await f.model[action](claim);
+      expect(f.model.snapshot().error).toBe("Stream disconnected");
+    } finally {
+      stop();
+    }
+  },
+);

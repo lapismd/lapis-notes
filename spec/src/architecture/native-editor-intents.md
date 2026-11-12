@@ -235,4 +235,5 @@ Observation retains these boundaries:
   A later mount starts a fresh observation lifetime.
 - The existing captured-state recovery, read-only lost-reply reconciliation and
   destructive-close preflight remain authoritative. A successful list alone
-  cannot hide an unresolved observation failure.
+  cannot hide an unresolved observation failure; confirmed recovery or discard
+  also does not establish observation health.
