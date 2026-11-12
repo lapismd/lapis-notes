@@ -1,5 +1,9 @@
 # Architecture / Editor integration
 
+Vault-backed media surfaces acquire and dispose URLs through their captured
+App under LN-WEB-091. MIME typing belongs to the resource adapter; Canvas,
+Markdown and other consumers do not retag or recreate upstream blobs.
+
 Shared conflict review preserves the existing captured `use-external` decision. Explicit disk acceptance, including deletion, never creates another writer or substitutes an empty merged save.
 
 Inline title alignment under [LN-PKG-187](../packages/editor-apis.md#ln-pkg-187)

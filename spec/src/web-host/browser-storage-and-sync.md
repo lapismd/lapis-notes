@@ -1,5 +1,11 @@
 # Web Host / Browser storage and sync
 
+## LN-WEB-091 — Decodable vault media resources
+
+<a id="ln-web-091"></a>
+
+**Requirement.** Browser vault resource URLs MUST retain the file's complete binary bytes and identify supported image, audio, video and PDF MIME types from its case-insensitive extension. Unknown extensions MUST use `application/octet-stream`. Resource URL disposal MUST remain explicit and owned by the requesting surface.
+
 ## LN-WEB-003 — Launcher: create OPFS vaults, open File System Access
 
 <a id="ln-web-003"></a>

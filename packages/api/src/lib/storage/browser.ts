@@ -1,4 +1,5 @@
 import { basename, dirname, joinPath, normalizePath } from "./path";
+import { vaultResourceContentType } from "./vault-resource-type";
 import type {
   DataAdapter,
   DataWriteOptions,
@@ -984,7 +985,9 @@ export class BrowserHandleVaultAdapter
 
   async getResourceUrl(normalizedPath: string): Promise<string> {
     const data = await this.readBinary(normalizedPath);
-    return URL.createObjectURL(new Blob([data]));
+    return URL.createObjectURL(
+      new Blob([data], { type: vaultResourceContentType(normalizedPath) }),
+    );
   }
 
   revokeResourceUrl(url: string): void {

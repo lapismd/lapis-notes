@@ -298,6 +298,47 @@ runDataAdapterConformance("BrowserHandleVaultAdapter conformance", () => {
 });
 
 describe("BrowserHandleVaultAdapter", () => {
+  it.each([
+    ["Art.SVG", "image/svg+xml"],
+    ["Photo.png", "image/png"],
+    ["Clip.mp4", "video/mp4"],
+    ["Sound.mp3", "audio/mpeg"],
+    ["Document.pdf", "application/pdf"],
+    ["Unknown.data", "application/octet-stream"],
+  ])(
+    "gives %s resource URLs a decodable MIME type and preserves bytes",
+    async (path, type) => {
+      const adapter = createBrowserAdapter();
+      const bytes = new Uint8Array([0, 60, 255, 100, 62]);
+      await adapter.writeBinary(path, bytes.buffer);
+      let resource: Blob | undefined;
+      const create = vi
+        .spyOn(URL, "createObjectURL")
+        .mockImplementation((blob) => {
+          resource = blob as Blob;
+          return "blob:owned-resource";
+        });
+      const revoke = vi
+        .spyOn(URL, "revokeObjectURL")
+        .mockImplementation(() => {});
+      try {
+        const url = await adapter.getResourceUrl(path);
+        expect(resource?.type).toBe(type);
+        const data = await new Promise<ArrayBuffer>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as ArrayBuffer);
+          reader.onerror = () => reject(reader.error);
+          reader.readAsArrayBuffer(resource!);
+        });
+        expect(new Uint8Array(data)).toEqual(bytes);
+        adapter.revokeResourceUrl(url);
+        expect(revoke).toHaveBeenCalledExactlyOnceWith(url);
+      } finally {
+        create.mockRestore();
+        revoke.mockRestore();
+      }
+    },
+  );
   it("streams bounded ranges and commits streamed replacement data", async () => {
     const adapter = createBrowserAdapter();
     await adapter.write("large.bin", "abcdefghij");
