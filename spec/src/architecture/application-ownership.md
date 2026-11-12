@@ -1,5 +1,9 @@
 # Architecture / Application ownership
 
+Under LN-PLUG-112, the App that changes canonical plugin data owns its
+compatibility-mirror writes. An App observing external configuration reloads
+does not acquire another native writer for the same mirrored data.
+
 The App owns its file-artwork registry under LN-PLUG-123. Plugin-owned SVGs and
 packs use explicit App identity and unload cleanup; legacy global icons remain
 an explicit compatibility fallback. Explorer receives that App's resolver,

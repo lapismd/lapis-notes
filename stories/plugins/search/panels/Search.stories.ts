@@ -212,7 +212,7 @@ function placementStory(
       expect(resultLabel).not.toBeNull();
       expect(countBadge).not.toBeNull();
       await expect(resultRow).toHaveAccessibleName(
-        `${resultPath}, ${countBadge!.textContent?.trim()} matches`,
+        `${resultFilename} ${countBadge!.textContent?.trim()} · ${resultPath}, ${countBadge!.textContent?.trim()} matches`,
       );
       expect(modeBadge).not.toBeNull();
       expect(resultRow.querySelector(".search-panel__mode-badge")).toBeNull();
@@ -437,7 +437,7 @@ function placementStory(
       searchPanel.style.removeProperty("--ui-search-highlight-foreground");
 
       const resultCopyButton = panel.getByRole("button", {
-        name: "Copy search results",
+        name: /^Copy search results: \d+ results?$/,
       });
       expect(resultCopyButton.textContent?.trim()).toMatch(/^\d+ results?$/);
       const sortButton = panel.getByRole("button", {
@@ -566,7 +566,9 @@ function placementStory(
         ).toBeVisible();
 
         await userEvent.click(
-          panel.getByRole("button", { name: "Copy search results" }),
+          panel.getByRole("button", {
+            name: /^Copy search results: \d+ results?$/,
+          }),
         );
         await expect(writeText).toHaveBeenCalledWith(
           expect.stringContaining("Notes/Welcome.md"),
@@ -598,7 +600,9 @@ function placementStory(
           expect(panel.queryByRole("alert")).not.toBeInTheDocument();
         });
         await userEvent.click(
-          panel.getByRole("button", { name: "Copy search results" }),
+          panel.getByRole("button", {
+            name: /^Copy search results: \d+ results?$/,
+          }),
         );
         await waitFor(() => {
           const chip = searchbox.querySelector<HTMLElement>(

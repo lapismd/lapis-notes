@@ -1,5 +1,9 @@
 # Packages / Configuration and lifecycle
 
+Read-only external configuration reconciliation under LN-PKG-186 also preserves
+the LN-PLUG-112 writer boundary: PluginManager must not turn an observed reload
+into compatibility-data persistence. Local saves and removals retain mirroring.
+
 API Sync host disposal follows LN-ARCH-118: initialization and admitted events
 settle before resource teardown completes, while readiness retains startup
 errors and delegated cleanup failures remain blocking. The repair is published

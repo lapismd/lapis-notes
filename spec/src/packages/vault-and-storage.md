@@ -2,9 +2,7 @@
 
 Private `lapis-app-core` owns native files under the
 [shared service contract](../architecture/rust-application-services.md).
-Vault/AppDatabase interfaces remain. Root native lanes are independent of
-browser storage and hosted adoption. Explicit `rust-server` sessions require
-an injected AppDatabaseProvider and cannot select browser storage.
+Vault/AppDatabase interfaces remain. Root native lanes are independent of browser storage and hosted adoption. Explicit `rust-server` sessions require an injected AppDatabaseProvider and cannot select browser storage.
 
 Private `lapis-app-protocol` owns portable commands, replies and editor claims.
 `pnpm protocol:generate` emits schemas and TypeScript, including public
@@ -71,6 +69,8 @@ Discovery follows these rules:
 <a id="ln-pkg-183"></a>
 
 **Requirement.** App MUST own an explicitly started watch/reconciliation service that awaits registration before its initial complete scan. It MUST bound/coalesce hints, reconcile after uncertainty, report failures through existing notifications and limit automatic retries. Stop MUST retire callbacks synchronously and drain registration, cleanup and scans; failed cleanup MUST remain retryable. Restart after a failed leave MUST register afresh and reconcile missed changes.
+
+User-file watching MUST exclude the entire configured app-state directory, including plugin payloads, caches and workspace state. An explicit observation of the configuration owner's exact file MUST preserve external settings reload without recursively scanning app state. Initial discovery and direct config reads/writes retain their existing authority and content.
 
 ## LN-PKG-182 — Serialized vault mutation projection
 

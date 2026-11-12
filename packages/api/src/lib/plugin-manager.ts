@@ -826,7 +826,10 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         )
       : commonJsHost;
     this.app.configuration.on("plugin-data-updated", (event) => {
-      if (event.origin === "plugin-save") {
+      if (
+        event.origin === "plugin-save" ||
+        event.origin === "external-reload"
+      ) {
         return;
       }
       void this.syncLegacyPluginData(

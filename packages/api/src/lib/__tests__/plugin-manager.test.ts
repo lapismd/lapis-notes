@@ -4530,6 +4530,45 @@ describe("PluginManager", () => {
     ).toBe(false);
   });
 
+  it.each(["update", "remove"])(
+    "does not mirror an external canonical plugin data %s back to disk",
+    async (operation) => {
+      const { app, adapter } = createTestApp();
+      await app.vault.load();
+      await seedCommunityPlugin(
+        app,
+        "observed-community",
+        "module.exports = class ObservedCommunity extends require('obsidian').Plugin { onload() {} }",
+      );
+      await app.plugins.loadPlugin("/.lapis/plugins/observed-community");
+      await app.configuration.updatePluginData("observed-community", {
+        saved: true,
+      });
+      await waitForAsyncPluginDataSync();
+      const path = "/.lapis/plugins/observed-community/data.json";
+      const original = await adapter.read(path);
+      const modify = vi.spyOn(app.vault, "modify");
+      const remove = vi.spyOn(app.vault, "delete");
+      if (operation === "update")
+        await app.configuration.updatePluginData(
+          "observed-community",
+          { external: true },
+          { origin: "external-reload" },
+        );
+      else
+        await app.configuration.removePluginData("observed-community", {
+          origin: "external-reload",
+        });
+      await waitForAsyncPluginDataSync();
+      expect(modify).not.toHaveBeenCalled();
+      expect(remove).not.toHaveBeenCalled();
+      expect(await adapter.read(path)).toBe(original);
+      expect(app.configuration.getPluginData("observed-community")).toEqual(
+        operation === "update" ? { external: true } : null,
+      );
+    },
+  );
+
   it("does not allow disabling required plugins", async () => {
     const { app } = createTestApp();
     await app.vault.load();
