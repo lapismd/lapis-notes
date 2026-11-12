@@ -140,3 +140,30 @@ They retain the original idle model sample and existing Problems recovery
 assertions. The earlier interrupted health-slice run remains a failed aggregate;
 this clean final-source diagnostic does not restore the LN-CAT-121 hosted lane.
 Normal CI still reports its skipped interaction/axe coverage as quarantined.
+
+## Committed-source development archives
+
+The preflight repair is committed as `dfd3fa39c910bf6e9948b18189faf82cc5acb958`.
+Its API source is identical to the final tested snapshot; intervening changes
+only record evidence. `pnpm validation:consumer-pack` passes from clean empty
+child `9c2e31f11f409863c0dfb8614114d51d3d9a6274`, producing five development
+archives in run `lapis-notes-validation-5cded632-3c93-4556-bfd0-12766fcf54e4`.
+
+All five archive SHA-256 digests match their generated provenance manifest. The
+API archive has SHA-256
+`1bf6a7fa97e5079579f368ead41652acb3ef7c21fa12dde0b4dc0a0a3a5748cd`.
+Inspection confirms the public optional observer declaration and disposer, the
+compiled preflight stamp/guard, and observation-error retention across actions.
+Receipt: `.local/editing-intent-observation/final-consumer-archives.json`.
+
+The final source canonical run is
+`lapis-notes-validation-38c90ac0-e638-4075-a951-0a2117cf4752`; updated source
+evidence passes canonical/App ownership and all 67 governance cases in run
+`lapis-notes-validation-093c7eac-07c6-46ac-8503-af7e5a151ae9`.
+
+These same-version development archives must never be published over existing
+API0.2.8 or other public versions. A new API release remains gated by merged
+source, exact-main qualification and publication/provenance verification. Server
+adapter, registry intake, browser acceptance and actual public-image delivery
+remain outstanding. The separate Mira/Markdown/Notebook release order remains
+unchanged; no production or user data was modified.
