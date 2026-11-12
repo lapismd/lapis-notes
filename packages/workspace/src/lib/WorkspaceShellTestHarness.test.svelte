@@ -7,7 +7,10 @@
     MemoryVaultAdapter,
     provideApplicationState,
   } from "../../test/api-app";
-  import type { WorkspacePopoutHost } from "@lapismd/design-core/workspace/core";
+  import type {
+    WorkspacePopoutHost,
+    WorkspaceRequestedDisplayMode,
+  } from "@lapismd/design-core/workspace/core";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
   import WorkspaceShell from "./WorkspaceShell.svelte";
 
@@ -16,11 +19,13 @@
     onAppReady,
     workspaceNavigation,
     popoutHost,
+    displayMode = "desktop",
   }: {
     layout: Record<string, unknown>;
     onAppReady?: (app: App) => void;
     workspaceNavigation?: WorkspaceNavigation;
     popoutHost?: WorkspacePopoutHost | null;
+    displayMode?: WorkspaceRequestedDisplayMode;
   } = $props();
 
   const adapter = new MemoryVaultAdapter({
@@ -49,10 +54,5 @@
 </script>
 
 {#if ready}
-  <WorkspaceShell
-    {app}
-    displayMode="desktop"
-    {workspaceNavigation}
-    {popoutHost}
-  />
+  <WorkspaceShell {app} {displayMode} {workspaceNavigation} {popoutHost} />
 {/if}

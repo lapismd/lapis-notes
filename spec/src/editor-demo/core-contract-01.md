@@ -1,7 +1,11 @@
 # Lapis Editor Demo / Editor scenarios / Part 1
 
+Editor-demo acceptance uses the released Design Core 0.13.0 identity shared by
+File Explorer, API, UI and Workspace. Mobile mode changes retain the selected
+editor while App-owned actions preserve vault and command ownership.
+
 Editor-demo acceptance MUST exercise the existing Explorer registration with
-the released Core 0.10.1 host graph. Explorer's compatibility patch preserves demo
+the released Core 0.13.0 host graph. Explorer's compatibility patch preserves demo
 boot, file actions and App ownership; the demo MUST NOT install an older private
 Design Core copy to satisfy Explorer's previous dependency range.
 

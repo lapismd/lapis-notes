@@ -1,5 +1,7 @@
 # Plugin Model / Application services
 
+Under LN-WS-106, the mobile shell invokes Search through its registered `search:open-search` plugin command. It does not import Search internals. Disabling Search makes that action unavailable, and shell disposal removes only commands registered by that shell.
+
 The private application profile consumes published Markdown `^0.2.0`; it keeps
 the same plugin IDs, App ownership and host-owned static selection.
 

@@ -61,3 +61,15 @@ here without changing this migration's dependency target.
 <a id="ln-ws-096"></a>
 
 **Requirement.** A workspace host MUST project its owning App's notice events through the existing Design Core notification manager, preserving identity, message, title, severity and source. Disposing the host MUST unsubscribe notice delivery so a retired App cannot publish into that host. First-party callers with an App MUST pass that owner explicitly to Notice.
+
+## LN-WS-105 — Live mobile layout preferences
+
+<a id="ln-ws-105"></a>
+
+**Requirement.** Application hosts MUST leave WorkspaceShell display mode controlled by persisted mobile settings. Always and Never MUST switch immediately, and Auto MUST follow bounded app width and breakpoint changes. Explicit mode overrides MAY remain in deterministic stories and independently controlled embedded surfaces. Switching presentation MUST preserve the selected editor and desktop layout.
+
+## LN-WS-106 — Lapis mobile actions and commands
+
+<a id="ln-ws-106"></a>
+
+**Requirement.** WorkspaceShell MUST supply Design Core with App-owned Search and new-note actions and register disposable legacy mobile layout/navigation commands. Search MUST execute its registered plugin command and reveal Search. New-note creation MUST use FileManager's available-path and tracked creation boundaries, serialize repeated requests, open the created file, and preserve existing files. Shell teardown MUST remove only its owned commands; mobile presentation MUST remain Design Core-owned.

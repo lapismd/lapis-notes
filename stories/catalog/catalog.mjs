@@ -646,6 +646,13 @@ export const workspaceCatalog = [
     storyId: "workspace-shell--mobile",
   },
   {
+    id: "workspace-shell-responsive-mode",
+    title: "Responsive Mode",
+    spec: "spec/src/workspace-shell.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-shell--responsive-mode",
+  },
+  {
     id: "workspace-shell-notification-center",
     title: "Notification Center",
     spec: "spec/src/workspace-shell.md",

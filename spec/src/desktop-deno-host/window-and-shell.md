@@ -1,5 +1,7 @@
 # Deno Desktop Host / Window and shell
 
+The frozen host no longer forces WorkspaceShell into desktop presentation. It follows the owning App preferences under LN-WS-105; native Deno qualification and distribution remain separate from shared source and browser acceptance.
+
 The frozen Deno host retains its existing Design Core dependency and native
 traffic-light bridge. Shared package ranges now admit published Core 0.10.0 for
 the browser host's LN-WEB-085 geometry contract; Deno qualification remains

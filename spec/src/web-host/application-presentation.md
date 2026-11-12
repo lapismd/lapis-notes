@@ -1,5 +1,7 @@
 # Web Host / Application presentation
 
+The production Web workspace follows persisted mobile preferences under LN-WS-105 without a display-mode override. Built-app browser acceptance covers immediate Always/Never switching, Auto in both resize directions and compact Settings dismissal; production deployment remains a separate action.
+
 Delivered plugin URL navigation reveals the selected page above owning Settings
 under [LN-PLUG-109](../plugin-model/app-ownership.md#ln-plug-109).
 

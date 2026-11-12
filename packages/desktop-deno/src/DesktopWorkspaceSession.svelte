@@ -695,12 +695,7 @@
   data-vault-id={profile.id}
 >
   {#if ready}
-    <WorkspaceShell
-      {app}
-      displayMode="desktop"
-      workspaceLabel={profile.name}
-      {workspaceNavigation}
-    />
+    <WorkspaceShell {app} workspaceLabel={profile.name} {workspaceNavigation} />
     {#if app.safeMode.active}
       <aside
         class="desktop-host__safe-mode-banner"

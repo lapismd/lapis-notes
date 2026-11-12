@@ -1,5 +1,7 @@
 # Packages / Workspace APIs
 
+WorkspaceShell honors LN-WS-105/106 through the public Design Core mobile action and navigation contracts. Its App-owned command registrations are disposable and preserve existing registrations; layout serialization remains unchanged.
+
 LN-WS-101 adds `View.getClosePersistenceScope()`, defaulting to `application`.
 Only views with no file writers and externally retained staged state may return
 `layout`; old plugins, mixed targets and application shutdown retain full

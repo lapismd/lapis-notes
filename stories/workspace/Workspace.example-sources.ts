@@ -24,6 +24,11 @@ const lapisEditorSource = `<script lang="ts">
 <WorkspaceShell {app} displayMode="desktop" workspaceLabel="Lapis Notes" />`;
 
 export function workspaceExampleSource(catalogId: string): string {
+  if (catalogId === "workspace-shell-responsive-mode")
+    return workspaceShellSource
+      .replace('    displayMode = "desktop",', "")
+      .replace('    displayMode?: "desktop" | "mobile";', "")
+      .replace("{app} {displayMode}", "{app}");
   if (
     catalogId === "workspace-lapis-editor-demo-sync-document-loading-and-rename"
   ) {
