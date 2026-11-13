@@ -1,5 +1,9 @@
 # Packages / App and services
 
+Workspace and File Explorer keep their portable Design Core union ranges and
+resolve registry 0.12.4 with API, UI, Web and the private profile. Distinct
+0.12.1/0.12.4 controller identities are rejected.
+
 The hosted renderer now selects the Rust backend through its private host
 composition. Ordinary server build/start no longer requires the Node host
 package; retained API compatibility runtime labels are separate public contracts.
