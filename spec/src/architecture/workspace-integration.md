@@ -1,5 +1,7 @@
 # Architecture / Workspace integration
 
+Mobile presentation follows LN-WS-105/106: Design Core owns responsive rendering and transient navigation; the Lapis shell adapts its explicit App configuration, plugin commands and FileManager operations. Hosts leave display mode unset unless they own an independently controlled embedded surface.
+
 LN-WS-101 keeps close policy generic and safe by default. A declared layout-only
 view still joins operation settlement and layout persistence; its App-owned
 staged state and unrelated failed writers survive removal. Retained

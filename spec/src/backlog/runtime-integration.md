@@ -166,3 +166,14 @@ commands, failures and qualification limits.
 
 - Restore installed window chrome and persistence-safe updates and browser appearance (LN-WEB-085–087).
 - Qualify the prepared static artifact, automatic main publication and app.lapis.md cutover (LN-WEB-083–084), static caching (LN-WEB-088) and revision-specific installation (LN-WEB-089).
+
+## Mobile layout registry and host adoption
+
+LN-WS-105/106 source and built-Web qualification pass through the explicit
+prepared Core archive in [the mobile receipt](../../records/2026-11-12-mobile-layout.md).
+Core 0.13.0 is published and registry/provenance verified; Notes now declares
+that registry line. Complete released-graph integration and hosted checks before
+merging the consumer. Production deployment and the frozen
+Deno native gate remain separate. Desktop owns its pending compatible archive
+intake and production-root responsiveness acceptance; preserve its concurrent
+dependency work. Visual review remains pending without baseline changes.

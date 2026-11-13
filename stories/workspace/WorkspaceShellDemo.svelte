@@ -35,12 +35,14 @@
     scenario = "standard",
     seedNotifications = false,
     loadBundledPlugins = false,
+    followMobileSettings = false,
   }: {
     displayMode?: WorkspaceRequestedDisplayMode;
     workspaceLabel?: string;
     scenario?: "standard" | "mobile" | "stacked" | "bottom-settings";
     seedNotifications?: boolean;
     loadBundledPlugins?: boolean;
+    followMobileSettings?: boolean;
   } = $props();
   let workspaceNavigationStatus = $state("No workspace action selected");
   let workspaceNavigation = $derived.by<WorkspaceNavigation>(() => ({
@@ -431,7 +433,7 @@
   {#if ready}
     <WorkspaceShell
       {app}
-      {displayMode}
+      displayMode={followMobileSettings ? undefined : displayMode}
       {workspaceLabel}
       {workspaceNavigation}
     />

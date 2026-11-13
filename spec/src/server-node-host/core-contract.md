@@ -1,5 +1,7 @@
 # Hosted Server / Integration contracts
 
+The shared Web client follows App-owned mobile preferences under LN-WS-105/106. Responsive presentation and mobile actions remain in the shared renderer and workspace adapter; this change adds no hosted server operation or native authority.
+
 LN-WEB-090 adapts the desktop chooser's native paint for browser-local vaults; it does not add hosted-server operations.
 
 The browser graph consumes published Core 0.10.1 for the native-control divider. The app.lapis.md Cloudflare deployment uses the standalone browser/PWA build. It does not deploy the retained hosted server profile, server credentials or API routes; those remain governed by this host chapter and the owning lapis-server specification. LN-WEB-087’s document-appearance bridge is selected only by the web-pwa runtime; LN-WEB-088 governs Cloudflare static caching separately from hosted responses.

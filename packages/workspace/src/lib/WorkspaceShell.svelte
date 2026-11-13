@@ -26,6 +26,10 @@
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
   import { AppShell } from "@lapismd/design-core/workspace/app-shell";
   import { bindFileConflictReviews } from "./file-conflicts/register-conflict-reviews";
+  import {
+    bindMobileWorkspaceCommands,
+    mobileWorkspaceActions,
+  } from "./mobile-workspace";
   import "./workspace-shell.css";
 
   let {
@@ -44,6 +48,7 @@
       .getConfiguration()
       .get("editor.alwaysFocusNewTabs", false),
   );
+  let mobileActions = $derived(mobileWorkspaceActions(app));
 
   onMount(() => {
     // AppShell.Root does not own startup. By the time this shell is mounted,
@@ -51,7 +56,9 @@
     void controller.start();
     const stopNative = bindNativeEditingProblems(app);
     const stopConflicts = bindFileConflictReviews(app);
+    const stopMobile = bindMobileWorkspaceCommands(app, controller);
     return () => {
+      stopMobile();
       stopConflicts();
       stopNative();
     };
@@ -71,6 +78,12 @@
     disposeOnDestroy={false}
     theme="inherit"
   >
-    <AppShell.Surface {displayMode} {workspaceLabel} {workspaceNavigation} />
+    <AppShell.Surface
+      {displayMode}
+      {workspaceLabel}
+      {workspaceNavigation}
+      mobileSearchAction={mobileActions.search}
+      mobileCreateAction={mobileActions.create}
+    />
   </AppShell.Root>
 </div>

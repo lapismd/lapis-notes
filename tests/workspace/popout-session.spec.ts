@@ -102,13 +102,18 @@ test("failed opening preserves the source and failed saving preserves the popup"
   const result = await page.evaluate(async () => {
     const root = document.querySelector("[data-popup-ready]") as any;
     const app = root.__lapisApp;
-    const modify = app.vault.modify.bind(app.vault);
-    app.vault.modify = async (file: any, data: string) => {
+    const modify = app.vault.modifyIfUnchanged.bind(app.vault);
+    // Text saves use the conditional-write contract to protect external changes.
+    app.vault.modifyIfUnchanged = async (
+      file: any,
+      data: string,
+      expected: string,
+    ) => {
       if (file.path === "one.txt") throw new Error("fixture save failed");
-      return modify(file, data);
+      return modify(file, data, expected);
     };
     root.__allowSave = () => {
-      app.vault.modify = modify;
+      app.vault.modifyIfUnchanged = modify;
     };
     const leaf = app.workspace
       .getLeavesOfType("text")

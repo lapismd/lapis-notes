@@ -375,9 +375,11 @@
       if (!corePluginsRegistered) {
         app.plugins.registerStaticPlugins(notesPluginProfile);
         if (repositoryFactory)
-          disposeRepositoryBinding = registerNativeRepository(app, repositoryFactory);
-        if (nativeChat)
-          registerSessionNativeChat(app, nativeChat, runtime);
+          disposeRepositoryBinding = registerNativeRepository(
+            app,
+            repositoryFactory,
+          );
+        if (nativeChat) registerSessionNativeChat(app, nativeChat, runtime);
         corePluginsRegistered = true;
       }
       await app.vault.load();
@@ -513,7 +515,6 @@
       }
     }
   }
-
 </script>
 
 <section
@@ -522,12 +523,7 @@
   data-vault-id={profile.id}
 >
   {#if ready}
-    <WorkspaceShell
-      {app}
-      displayMode="desktop"
-      workspaceLabel={profile.name}
-      {workspaceNavigation}
-    />
+    <WorkspaceShell {app} workspaceLabel={profile.name} {workspaceNavigation} />
   {:else}
     <WorkspaceStartup title="Opening Lapis Notes" {tasks} {failure} />
   {/if}

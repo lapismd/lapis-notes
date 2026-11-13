@@ -1,11 +1,15 @@
 # UI and Styling / Retained UI contracts
 
+The retained UI runtime and compatible peer range admit released Design Core
+0.13.0 for the mobile shell cohort. Public package composition and the alias-only
+Lapis theme boundary remain unchanged; shared paint stays Core-owned.
+
 The active API, retained UI, Workspace, Explorer and Web graph resolves published
-Design Core `0.10.1`, including prepared
+Design Core `0.13.0`, including prepared
 browser CSS and bundled font assets, through the existing public style exports.
 The graph retains the close guard, asynchronous plugin flush and centered
 bottom-panel contracts. Portable compatibility ranges retain older supported
-hosts; the PWA's native-control geometry requires the 0.10 contract. Older hosts
+hosts; the PWA's mobile shell requires the 0.13 contract. Older hosts
 cannot advertise capabilities absent from their selected release. The frozen
 Deno host is unchanged.
 

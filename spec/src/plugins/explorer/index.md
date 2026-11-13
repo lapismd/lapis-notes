@@ -1,5 +1,9 @@
 # Explorer Plugin
 
+File Explorer admits released Design Core 0.13.0 through its portable range.
+The registry lock resolves the same Core identity as Workspace and the host;
+file actions and persistence remain owned by Explorer and the App.
+
 File Explorer's portable dependency range MUST admit Design Core 0.10.1 for the
 PWA shell, preserving supported 0.7, 0.8 and 0.9 hosts.
 The compatibility patch changes no Explorer behavior. Final registry acceptance

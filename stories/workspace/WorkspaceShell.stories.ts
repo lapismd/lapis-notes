@@ -166,7 +166,7 @@ async function expectWordCountForWelcome(
   expect(
     canvas.queryByText("5 words", { selector: ".status-bar-item-segment" }),
   ).toBeNull();
-  if (canvas.queryByRole("button", { name: "Create new tab" })) {
+  if (canvasElement.querySelector('[data-ui-component="workspace-mobile"]')) {
     return;
   }
   let item: HTMLElement | null = null;
@@ -793,6 +793,22 @@ export const BottomPanelSettings: Story = {
   },
 };
 
+export const ResponsiveMode: Story = {
+  ...workspaceStoryMeta(
+    "workspace-shell-responsive-mode",
+    "A real App leaves display mode under persisted Settings control so Always/Never switch live and Auto follows the available app width.",
+    "/visual-baselines/stories/workspace/responsive-mode-chromium.png",
+  ),
+  args: {
+    followMobileSettings: true,
+    loadBundledPlugins: true,
+    scenario: "standard",
+  },
+  play: async ({ canvasElement }) => {
+    await waitForShell(within(canvasElement));
+  },
+};
+
 export const Mobile: Story = {
   ...workspaceStoryMeta(
     "workspace-shell-mobile",
@@ -819,8 +835,14 @@ export const Mobile: Story = {
       initialOpenTabs.getAttribute("aria-label")?.match(/\d+/)?.[0] ?? "0",
       10,
     );
+    await userEvent.click(initialOpenTabs);
     await userEvent.click(
-      canvas.getByRole("button", { name: "Create new tab" }),
+      canvas.getByRole("button", {
+        name: `Open tab actions: ${initialTabCount}`,
+      }),
+    );
+    await userEvent.click(
+      canvas.getByRole("button", { name: "New Tab", exact: true }),
     );
     const openTabsLabel = `Open ${initialTabCount + 1} tabs`;
     await userEvent.click(
@@ -880,5 +902,22 @@ export const Mobile: Story = {
       },
       { timeout: 3_000 },
     );
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Done", exact: true }),
+    );
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Create new note", exact: true }),
+    );
+    const app = (
+      canvasElement.querySelector(
+        '[data-testid="workspace-shell-frame"]',
+      ) as HTMLElement & { __lapisApp: import("@lapis-notes/api").App }
+    ).__lapisApp;
+    await waitFor(() => {
+      expect(app.vault.getFileByPath("Untitled.md")).not.toBeNull();
+      expect(app.workspace.activeLeaf?.view.getState()).toMatchObject({
+        file: "Untitled.md",
+      });
+    });
   },
 };

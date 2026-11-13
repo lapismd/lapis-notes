@@ -6,12 +6,12 @@ client lifetime and offline-cache evidence stay separate from engine source
 qualification and the retained Search selection journey.
 
 Framework packages and application hosts require published Design Core
-`^0.5.0`, including its prepared browser CSS and bundled font assets. The
+`^0.13.0`, including its prepared browser CSS and bundled font assets. The
 registry dependency refresh retains public export resolution and existing
 application-owned state; it does not activate Sync or publish local host work.
-Workspace and File Explorer union ranges now resolve the same released 0.12.4
-identity as API, UI, Web and the private profile. Mixed 0.12.1/0.12.4
-AppShellController types fail closed.
+Workspace and File Explorer resolve the same released 0.13.0 identity as
+API, UI, Web and the private profile. Mixed AppShellController package
+identities fail closed.
 Notes declares its own Prettier and JSDoc formatter development dependencies;
 Design Core's authoring tools are no longer supplied as runtime dependencies.
 
@@ -20,8 +20,9 @@ records `clsx`, `tailwind-merge`, `bits-ui` and `@lucide/svelte` as UI runtime
 dependencies, so a clean production consumer does not rely on workspace
 development dependencies.
 
-API's Design Core dependency and peer require released `^0.7.2`; Mira
-depends on and peers released `~0.1.3`. The root development cohort matches.
+API requires released Design Core `^0.13.0` and admits it in its peer range; Mira
+depends on released `~0.1.5` and peers the compatible `~0.1.3` range.
+The root development cohort matches.
 This admits stable status mounts and directive highlighting through public exports.
 
 API's direct Minimatch dependency resolves the patched `^11.0.1` registry
@@ -66,9 +67,10 @@ The private App Profile now requests published Markdown `^0.2.0` so its public
 rendering dependency matches the current API/Workspace cohort without a host
 override or a second legacy renderer dependency line.
 
-The private App Profile now requests published Agent UI `^0.2.0`, History
-`^0.2.0`, and Design Core `^0.7.4`. The profile stays private at `0.0.0` and
-the API package stays `0.2.3`.
+The private App Profile requests published Agent UI `^0.2.0`, History
+`^0.2.0`, and Design Core `^0.13.0`. The profile stays private at `0.0.0`.
+Workspace requires Core `^0.13.0` for its public mobile navigation contract;
+API, UI and File Explorer admit that released line through portable ranges.
 
 ## LN-ARCH-001 — Repository: a pnpm workspace orchestrated by Turbo. Targeted
 
@@ -289,7 +291,7 @@ PWA cases cannot carry delayed Docker interface events into initial navigation.
 
 ## Released runtime dependency intake
 
-Root and API select released Mira `~0.1.3` and Design Core `^0.7.2` through
+Root and API select released Mira `~0.1.5` and Design Core `^0.13.0` through
 portable registry ranges and the frozen lockfile. Mira Editor, AI and Mermaid
 companions retain their released `~0.0.3` ranges. The
 [historical intake](../../records/2026-10-25-released-mira-dependency-intake.md)

@@ -74,7 +74,7 @@ the shared runtime.
 
 <a id="ln-ws-009"></a>
 
-**Requirement.** Storybook MUST provide persisted desktop and mobile shell stories backed by an actual api `App` and a story-only in-memory data adapter seeded at `/.lapis/workspace.json`. Navigation acceptance MUST wait for menu close completion, the host callback outcome and restored pointer ownership before continuing.
+**Requirement.** Storybook MUST provide persisted desktop and mobile shell stories backed by an actual api `App` and a story-only in-memory data adapter seeded at `/.lapis/workspace.json`. A separate responsive story MUST leave display mode controlled by live Settings and app width while fixed stories retain their explicit modes. Navigation acceptance MUST wait for menu close completion, the host callback outcome and restored pointer ownership before continuing.
 
 ## LN-WS-011 — Application metadata in shell chrome
 
@@ -195,6 +195,8 @@ WorkspaceShell.
 <a id="ln-ws-099"></a>
 
 **Requirement.** Shared tab and popup removal MUST await focused-control blur, pending file writers and layout persistence through the owning App before destroying views, except when every closing view qualifies for the explicit layout-only policy in LN-WS-101. Rejected saving MUST preserve reachable content.
+
+Popup rejection acceptance injects its failure at the public conditional text-write contract used by the editor, and proves the draft and popup remain reachable before retrying.
 
 ## LN-WS-100 — Focused popup command ownership
 
