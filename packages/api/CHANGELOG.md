@@ -1,5 +1,26 @@
 # @lapis-notes/api
 
+## 0.3.1
+
+### Patch Changes
+
+- [#84](https://github.com/lapismd/lapis-notes/pull/84)
+  [`0ce7e30`](https://github.com/lapismd/lapis-notes/commit/0ce7e3078af8b3f9b132e2b06655a0229e72e346)
+  Thanks
+  [@lapismd-dependency-bot](https://github.com/apps/lapismd-dependency-bot)! -
+  Refresh first-party Lapis dependencies to the published versions recorded in
+  this pull request.
+
+- [#95](https://github.com/lapismd/lapis-notes/pull/95)
+  [`8a4d0e0`](https://github.com/lapismd/lapis-notes/commit/8a4d0e02d0642a65ec7441f4fea032739550a6ae)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Admit released Design
+  Core 0.13.0 through portable runtime and peer ranges for the mobile workspace
+  cohort.
+- Updated dependencies
+  [[`0ce7e30`](https://github.com/lapismd/lapis-notes/commit/0ce7e3078af8b3f9b132e2b06655a0229e72e346),
+  [`8a4d0e0`](https://github.com/lapismd/lapis-notes/commit/8a4d0e02d0642a65ec7441f4fea032739550a6ae)]:
+  - @lapis-notes/ui@0.1.9
+
 ## 0.3.0
 
 ### Minor Changes

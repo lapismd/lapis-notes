@@ -1,5 +1,25 @@
 # @lapis-notes/workspace
 
+## 0.4.0
+
+### Minor Changes
+
+- [#95](https://github.com/lapismd/lapis-notes/pull/95)
+  [`8a4d0e0`](https://github.com/lapismd/lapis-notes/commit/8a4d0e02d0642a65ec7441f4fea032739550a6ae)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Honor mobile layout
+  settings in application hosts and restore App-owned mobile Search, new-note
+  creation and disposable legacy navigation commands through Design Core's
+  public mobile actions. Require released Design Core 0.13.0 for the mobile
+  navigation contract.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`0ce7e30`](https://github.com/lapismd/lapis-notes/commit/0ce7e3078af8b3f9b132e2b06655a0229e72e346),
+  [`8a4d0e0`](https://github.com/lapismd/lapis-notes/commit/8a4d0e02d0642a65ec7441f4fea032739550a6ae)]:
+  - @lapis-notes/api@0.3.1
+  - @lapis-notes/ui@0.1.9
+
 ## 0.3.6
 
 ### Patch Changes
