@@ -1,5 +1,11 @@
 # Workspace Shell / Chrome and navigation
 
+Deferred plugins retain declared ribbon and Markdown pane actions under
+LN-PLUG-127/128. Invoking a declaration activates its owner before executing
+the existing runtime command; activation replaces placeholders without
+duplicate controls. Markdown actions retain and revalidate their originating
+leaf/file, and disabled owners remove their declarations and fence old menus.
+
 The active browser/catalog shell consumes published Design Core 0.10.1 through
 the shared package graph. LN-WEB-085 owns browser geometry detection; the host
 supplies public leading, trailing and title-bar-height tokens to shared chrome.

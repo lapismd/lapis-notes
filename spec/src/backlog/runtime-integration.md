@@ -28,6 +28,11 @@ publication and host registry intake remain outstanding. Plugin activation work
 is independent.
 
 Notebook demand activation is authorized in its owning standalone repository.
+The generic discovery source slice (LN-PLUG-127/128) preserves ribbon and
+Markdown pane actions without eager runtime loading. Its owner release and
+Graph/Canvas/Slides/Transcripts manifest adoption remain required. Binary file
+embeds likewise need demand dispatch before renderer lookup. Background service
+activation must preserve configured indexing, capture and ingestion work.
 The shared API's concurrent deferred-activation repair is qualified separately
 from Notebook manifest adoption, Markdown directive/embed activation and the
 portable renderer's asynchronous embed contract. Those owner releases and

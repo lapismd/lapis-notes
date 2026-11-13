@@ -66,6 +66,26 @@ The deferred host attachment in LN-WS-006/064 preserves plugin-owned view
 creation, load and unload. Closing a host cancels its pending attachment; it
 does not construct a replacement view, reactivate a plugin or admit a service.
 
+## LN-PLUG-127 — Deferred ribbon discovery
+
+<a id="ln-plug-127"></a>
+
+**Requirement.** An extension MAY declare command-backed ribbon items without
+loading its runtime. The host MUST preserve their labels and icons, activate
+the owning extension on invocation, and execute the runtime command once.
+Targets MUST reference that extension's declared commands. Disablement MUST
+remove placeholders; runtime activation MUST replace them without duplicates.
+
+## LN-PLUG-128 — Deferred Markdown menu discovery
+
+<a id="ln-plug-128"></a>
+
+**Requirement.** An extension MAY declare command-backed Markdown pane-menu
+items without loading its runtime. Invocation MUST await owning activation and
+bind the command to the captured, still-current leaf and file. Retired or
+changed targets MUST NOT execute. Targets MUST reference owned declared
+commands; disablement and runtime replacement MUST dispose placeholders.
+
 ## LN-PLUG-126 — Shared deferred activation
 
 <a id="ln-plug-126"></a>
