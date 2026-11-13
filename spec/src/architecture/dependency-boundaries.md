@@ -9,6 +9,9 @@ Framework packages and application hosts require published Design Core
 `^0.5.0`, including its prepared browser CSS and bundled font assets. The
 registry dependency refresh retains public export resolution and existing
 application-owned state; it does not activate Sync or publish local host work.
+Workspace and File Explorer union ranges now resolve the same released 0.12.4
+identity as API, UI, Web and the private profile. Mixed 0.12.1/0.12.4
+AppShellController types fail closed.
 Notes declares its own Prettier and JSDoc formatter development dependencies;
 Design Core's authoring tools are no longer supplied as runtime dependencies.
 
