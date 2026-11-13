@@ -270,7 +270,7 @@ Web interactions remain blocking. Notes CI does not build or package the desktop
 
 **Requirement.** CI MUST populate package build outputs once, then run governance, quality, unit, Storybook static/specification acceptance, web acceptance, and release-artifact jobs before one validate job. Every enabled required job MUST succeed; CI MUST NOT automatically cancel active validation runs or sibling jobs after a failure, so failed jobs remain retryable. Visual comparison MUST remain non-blocking. Notes CI MUST NOT build the desktop application or the server image.
 
-The lapis-server repository owns server acceptance. Enabled interaction and accessibility failures stay blocking. The aggregate MUST reject failed, skipped or cancelled required lanes; LN-CAT-121 explicitly disables only quarantined Vitest browser coverage, which MUST NOT be reported as passing.
+The lapis-server repository owns server acceptance. Package qualification supplies the read-only GitHub job token to existing release lookups; 403 responses remain fatal and this token does not authorize publication. Enabled interaction and accessibility failures stay blocking. The aggregate MUST reject failed, skipped or cancelled required lanes; LN-CAT-121 explicitly disables only quarantined Vitest browser coverage, which MUST NOT be reported as passing.
 
 ## LN-PKG-143 — Release candidates: reuse the validated Turbo build graph
 

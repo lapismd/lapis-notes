@@ -294,6 +294,8 @@ jobs:
       - name: Report cache restoration
         run: node scripts/report-turbo-cache.mjs --github-summary
       - run: pnpm packages:pack -- --already-built
+        env:
+          GH_TOKEN: ${{ github.token }}
       - run: pnpm release:plan -- --registry https://registry.npmjs.org --json > .release/release-plan.json
         env:
           GH_TOKEN: ${{ github.token }}

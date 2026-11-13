@@ -73,3 +73,7 @@ harness fails closed without Docker and has no host fallback.
 Workflow regressions verify job ordering, that exact Docker override and that
 removing either Web job's success still fails the aggregate; splitting
 execution cannot remove coverage.
+
+Release-artifact qualification passes the read-only GitHub job token to package
+release lookups. It preserves fail-closed lookup errors and immutable candidate
+checks; publication still requires its independent dispatch and environment gates.
