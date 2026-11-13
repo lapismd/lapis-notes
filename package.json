@@ -162,7 +162,7 @@
     "@lapis-notes/wordcount": "^0.1.2",
     "@lapis-notes/workspace": "workspace:*",
     "@lapismd/ai-controller": "^0.1.0",
-    "@lapismd/design-core": "^0.12.4",
+    "@lapismd/design-core": "^0.13.0",
     "@lapismd/mira": "~0.1.5",
     "@lapismd/mira-editor": "~0.0.3",
     "@lapismd/mira-plugin-ai": "~0.0.3",
