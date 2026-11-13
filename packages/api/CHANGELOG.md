@@ -1,5 +1,29 @@
 # @lapis-notes/api
 
+## 0.3.0
+
+### Minor Changes
+
+- [#94](https://github.com/lapismd/lapis-notes/pull/94)
+  [`1d9f1d1`](https://github.com/lapismd/lapis-notes/commit/1d9f1d180b38e8248f49abaf8f523fe0cddc28fd)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Add optional
+  editing-intent invalidation observation so supporting native hosts can refresh
+  existing Problems recovery without idle claim polling.
+
+### Patch Changes
+
+- [#93](https://github.com/lapismd/lapis-notes/pull/93)
+  [`0b7ac5a`](https://github.com/lapismd/lapis-notes/commit/0b7ac5a9d6f07dd8a35d7d9fd7de8d9cb076e07b)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Give browser vault media
+  resource blobs the correct MIME type so SVG images and other media decode
+  through the public resource URL contract.
+
+- [#90](https://github.com/lapismd/lapis-notes/pull/90)
+  [`84551f9`](https://github.com/lapismd/lapis-notes/commit/84551f9f10ec73ea02fcb71d53131758a9d2d419)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Coalesce concurrent
+  deferred-plugin activation so view and command requests share one runtime
+  evaluation and enablement, while failed activation remains retryable.
+
 ## 0.2.8
 
 ### Patch Changes
