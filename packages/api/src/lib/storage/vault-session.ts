@@ -54,6 +54,7 @@ export interface VaultSession {
   nativeEditingIntents?: NativeEditingIntents;
   nativeTasks?: NativeTasks;
   operations?: import("../operations").OperationHost;
+  skillManagement?: import("../skill-management").SkillManagementHost;
   appDatabaseState: VaultSessionAppDatabaseState;
   awaitAppDatabase?: (options?: {
     signal?: AbortSignal;

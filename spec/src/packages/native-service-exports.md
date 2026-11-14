@@ -31,3 +31,5 @@ These ports grant no executable, physical-path, replay or renderer scheduling
 authority. Source and actual host qualification remain separately recorded;
 exports do not imply final publication, default cutover or installed-provider
 acceptance.
+
+The API exports `SkillManagementHost` and packaged skill types for native adapters, plus a portable installer for standalone browser stores. Native consumers inject the owning service through the vault session.

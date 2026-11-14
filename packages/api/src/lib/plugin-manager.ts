@@ -3319,6 +3319,9 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       }
       try {
         switch (entry.kind) {
+          case "agentSkills":
+            // Data is read on explicit installation, without activating code.
+            break;
           case "commands":
             disposers.push({
               kind: entry.kind,
@@ -3417,6 +3420,9 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       }
       try {
         switch (entry.kind) {
+          case "agentSkills":
+            // Data is read on explicit installation, without activating code.
+            break;
           case "commands":
             disposers.push({
               kind: entry.kind,

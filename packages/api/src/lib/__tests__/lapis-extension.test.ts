@@ -75,9 +75,32 @@ describe("lapis contribution registry", () => {
     }
   });
 
+  it("validates skill contribution names and confined directories", () => {
+    for (const directory of [
+      "../skills",
+      "/skills",
+      "skills/../other",
+      "skills//other",
+    ]) {
+      const index = buildLapisContributionIndex({
+        pluginId: "example",
+        manifestPath: "plugins/example/manifest.json",
+        classification: "lapis-extension",
+        source: "official",
+        lapis: {
+          manifestVersion: 1,
+          contributes: { agentSkills: [{ name: "example", directory }] },
+        },
+        grantedCapabilities: [],
+      });
+      expect(index.contributions[0].state).toBe("invalid");
+    }
+  });
+
   it("exposes built-in contribution point descriptors", () => {
     expect(getLapisContributionPointDescriptors().map((it) => it.kind)).toEqual(
       [
+        "agentSkills",
         "operations",
         "ribbonItems",
         "markdownViewMenuItems",

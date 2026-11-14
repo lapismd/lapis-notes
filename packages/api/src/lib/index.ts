@@ -109,3 +109,6 @@ export * from "./popover";
 export * from "./prompt-confirm";
 export * from "./compat";
 export * from "./tasks";
+
+export { manageSkills } from "./skill-management";
+export type { AgentSkillContribution, PackagedSkill, SkillAction, SkillManagementHost, SkillManagementResult } from "./skill-management";

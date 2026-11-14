@@ -92,3 +92,5 @@ Successful app-link navigation dismisses owning Settings under
 The shared registry controller retains every requested plugin action under
 LN-PLUG-075. Queued installs remain busy in their own rows and detail views;
 opening another plugin or closing the requesting surface does not cancel them.
+
+App-owned Install plugin skills and Update plugin skills commands remain available without AI. They select enabled packaged contributions and report skipped local changes through notifications.

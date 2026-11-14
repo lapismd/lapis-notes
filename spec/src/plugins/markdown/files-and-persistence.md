@@ -119,3 +119,5 @@ Mira's public registration hook; API must not import Mira session internals.
 LN-CORE-027 reports native admission/rearm through the existing Problems
 collection without replacing Markdown persistence. Saved-file review opens a
 separate retained Reading tab; diagnostics never claim to contain draft bytes.
+
+The packaged Markdown workflow is installed explicitly under vault `.agents/skills`. Updating it preserves locally edited skill directories and does not change note persistence or frontmatter ownership.

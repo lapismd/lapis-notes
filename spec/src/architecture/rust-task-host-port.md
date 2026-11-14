@@ -68,3 +68,5 @@ observation operations. It continues reading through the public database/vault
 contracts, but never publishes a competing native Task projection. The existing
 planner/editor surfaces remain unchanged; installed-bundle and actual native
 application acceptance remain separate from this source prerequisite.
+
+The optional skill-management host follows the same native ownership boundary: application commands observe native results, while the native service owns installation and durable receipts. See [plugin skills](../plugin-model/application-services.md#ln-plug-130).

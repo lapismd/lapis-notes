@@ -50,6 +50,7 @@ export interface BrowserFileSystemWritableFileStream {
 
 export interface BrowserFileSystemCreateWritableOptions {
   keepExistingData?: boolean;
+  mode?: "exclusive" | "siloed";
 }
 
 export interface BrowserFileSystemFileHandle extends BrowserFileSystemHandle {
@@ -762,6 +763,61 @@ export class BrowserHandleVaultAdapter
     options?: DataWriteOptions,
   ): Promise<void> {
     await this.writeFile(normalizedPath, data, options);
+  }
+
+  /** Stage bytes under an exclusive writer, rechecking before publication. */
+  async writeTextIfUnchanged(
+    normalizedPath: string,
+    data: string,
+    expected: string | null,
+    options?: DataWriteOptions,
+  ): Promise<void> {
+    const path = normalizeVaultPath(normalizedPath);
+    if (expected !== null && typeof expected !== "string")
+      throw createFsError("EINVAL", path);
+    await this.withPathLock(path, async () => {
+      const [parent, name] = await this.getParentDirectory(path, {
+        create: true,
+      });
+      const read = async () => {
+        try {
+          return await (
+            await (await parent.getFileHandle(name)).getFile()
+          ).text();
+        } catch (error) {
+          if (isNotFound(error)) return null;
+          throw error;
+        }
+      };
+      if ((await read()) !== expected) throw createFsError("ECONFLICT", path);
+      const stored = await this.readStoredStat(path);
+      const handle = await parent.getFileHandle(name, { create: true });
+      const writer = await handle.createWritable({
+        keepExistingData: false,
+        mode: "exclusive",
+      });
+      try {
+        // Creating a missing handle exposes an empty file before its first commit.
+        const check = async () => {
+          if ((await read()) !== (expected ?? ""))
+            throw createFsError("ECONFLICT", path);
+        };
+        await check();
+        await writer.write(data);
+        await check();
+        await writer.close();
+      } catch (error) {
+        await writer.abort?.(error).catch(() => undefined);
+        throw error;
+      }
+      const now = Date.now();
+      await this.writeStoredStat(path, {
+        type: "file",
+        ctime: options?.ctime ?? stored?.ctime ?? now,
+        mtime: options?.mtime ?? now,
+        size: byteSize(data),
+      });
+    });
   }
 
   private async writeFile(

@@ -1,5 +1,10 @@
 # Web Host / Browser integration
 
+LN-PLUG-131 uses the real OPFS and file-system-access adapter's conditional
+text writes. Exclusive staged writers compare exact bytes before publication,
+abort conflicts and never replay an uncertain write. Public-build Chromium
+acceptance covers clean updates, obsolete resources, local edits, cross-client serialization and cold browser restart.
+
 The staged Rust-only delivery journey serves the unchanged built Web application
 through [CORE054–057](../architecture/rust-hosted-delivery.md), with the native
 process owning the public origin and no Vite preview process. Existing login,

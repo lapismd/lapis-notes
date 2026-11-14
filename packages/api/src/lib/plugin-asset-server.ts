@@ -165,7 +165,7 @@ export async function getInstalledPluginAssetFingerprintSha256(
 }
 
 export function isSupportedPluginAssetPath(path: string): boolean {
-  return /\.(?:mjs|js|cjs|css|json|wasm|svg|png|jpg|jpeg|gif)$/iu.test(path);
+  return /\.(?:mjs|js|cjs|css|json|md|txt|wasm|svg|png|jpg|jpeg|gif)$/iu.test(path);
 }
 
 export function assertSupportedPluginAssetPath(path: string): void {
@@ -187,6 +187,8 @@ export function getPluginAssetContentType(path: string): string {
   if (lowerPath.endsWith(".css")) {
     return "text/css; charset=utf-8";
   }
+  if (lowerPath.endsWith(".md")) return "text/markdown; charset=utf-8";
+  if (lowerPath.endsWith(".txt")) return "text/plain; charset=utf-8";
   if (lowerPath.endsWith(".json")) {
     return "application/json; charset=utf-8";
   }
