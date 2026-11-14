@@ -1,5 +1,11 @@
 # Plugin Model / Application services
 
+## LN-PLUG-129 — Native plugin operations
+
+<a id="ln-plug-129"></a>
+
+**Requirement.** Plugin manifests MAY declare versioned native operation contributions. Notes MUST expose generated schemas and an App-owned admitted operations port through its public API. Declarations MUST NOT grant native authority or register renderer callbacks as hosted handlers. Detaching an App MUST drain its observation without cancelling accepted native operations.
+
 Under LN-WS-106, the mobile shell invokes Search through its registered `search:open-search` plugin command. It does not import Search internals. Disabling Search makes that action unavailable, and shell disposal removes only commands registered by that shell.
 
 The private application profile consumes published Markdown `^0.2.0`; it keeps

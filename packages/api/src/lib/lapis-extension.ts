@@ -1,4 +1,5 @@
 import type { Command, Hotkey } from "./command.svelte";
+import type { OperationContribution } from "./operations";
 import type { HostedPluginCapability } from "./plugin-capability-facade";
 import type { LanguageServiceProviderMetadata } from "./language-service";
 
@@ -149,6 +150,7 @@ export interface LapisStatusBarItemContribution {
 }
 
 export interface LapisExtensionContributions {
+  operations?: OperationContribution[];
   commands?: LapisCommandContribution[];
   ribbonItems?: LapisRibbonItemContribution[];
   markdownViewMenuItems?: LapisMarkdownViewMenuItemContribution[];
@@ -545,6 +547,25 @@ export function normalizeManifestCommandId(
 
 const BUILT_IN_CONTRIBUTION_POINT_DESCRIPTORS: readonly LapisContributionPointDescriptor[] =
   [
+    createContributionPointDescriptor<OperationContribution>({
+      kind: "operations",
+      manifestInstallable: true,
+      validationMessage:
+        "expected a native operation id and positive contract version",
+      isContribution: (value): value is OperationContribution =>
+        isRecord(value) &&
+        typeof value.id === "string" &&
+        /^[a-z0-9][a-z0-9-]{0,63}$/.test(value.id) &&
+        typeof value.version === "number" &&
+        Number.isSafeInteger(value.version) &&
+        value.version > 0,
+      buildEntry: ({ contribution }) => ({
+        id: contribution.id,
+        contribution,
+        runtimeHost: "native",
+        requiredPermissions: [],
+      }),
+    }),
     ...(["ribbonItems", "markdownViewMenuItems"] as const).map((kind) =>
       createContributionPointDescriptor<
         LapisRibbonItemContribution | LapisMarkdownViewMenuItemContribution

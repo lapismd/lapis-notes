@@ -30,6 +30,7 @@ import {
   type UserEvent,
 } from "./command.svelte";
 import { NativeTasksSession, type NativeTasks } from "./native-tasks";
+import { OperationSession, type OperationHost } from "./operations";
 import { MetadataCache } from "./cache.svelte";
 import type {
   MarkdownDirectiveRenderer,
@@ -151,6 +152,7 @@ export type AppStateProperties = {
   nativeHistoryIndex?: NativeHistoryIndex;
   nativeEditingIntents?: NativeEditingIntents;
   nativeTasks?: NativeTasks;
+  operations?: OperationHost;
   appDatabase?: AppDatabase;
   safeMode?: AppSafeModeState;
   createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
@@ -304,6 +306,7 @@ export class App {
   readonly session?: VaultSession;
   readonly nativeHistoryIndex?: NativeHistoryIndex;
   readonly nativeTasks?: NativeTasksSession;
+  readonly operations?: OperationSession;
   readonly safeMode: AppSafeModeState;
   plugins: PluginManager = $state()!;
   scope: Scope = $state(new Scope(undefined, this));
@@ -456,6 +459,8 @@ export class App {
     this.workspaceTrust = new WorkspaceTrustService(adapter);
     this.metadataCache = new MetadataCache(this);
     const nativeTasks = props.session?.nativeTasks ?? props.nativeTasks;
+    const operations = props.session?.operations ?? props.operations;
+    this.operations = operations ? new OperationSession(operations) : undefined;
     this.nativeTasks = nativeTasks
       ? new NativeTasksSession(nativeTasks, () => {
           const state = this.plugins?.plugins.get("tasks")?.state;

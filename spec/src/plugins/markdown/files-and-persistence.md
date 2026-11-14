@@ -1,5 +1,10 @@
 # Markdown Plugin / Files and persistence
 
+Native operation observers follow
+[LN-PLUG-129](../../plugin-model/application-services.md#ln-plug-129).
+Their teardown does not alter Markdown byte authority, native writer fences or
+the explicit App/vault lifetime.
+
 API-backed Markdown editors inherit the native editing-intent admission in
 [LN-CORE-019–021](../../architecture/native-editor-intents.md) when their App
 selects it. Raw editing stays protected until readiness, and protected mutations
