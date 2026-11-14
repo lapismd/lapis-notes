@@ -5,8 +5,8 @@ Under LN-WS-106, the mobile shell invokes Search through its registered `search:
 The private application profile consumes published Markdown `^0.2.0`; it keeps
 the same plugin IDs, App ownership and host-owned static selection.
 
-The private application profile accepts published Agent UI `^0.2.0`, History
-`^0.2.0`, and Design Core `^0.7.4`; it keeps the same plugin IDs, App
+The private application profile accepts published Agent UI `^0.2.6`, History
+`^0.2.0`, and Design Core `^0.13.2`; it keeps the same plugin IDs, App
 ownership and host-owned static selection.
 
 The ordinary hosted profile selects native metadata, History and Tasks together

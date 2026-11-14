@@ -17,8 +17,8 @@ The private application profile consumes published Markdown `^0.2.0`, alongside
 its current API/Workspace cohort. Hosts retain profile selection and lifecycle;
 this dependency intake does not add plugin policy to the reusable shell.
 
-The private application profile accepts published Agent UI `^0.2.0`, History
-`^0.2.0`, and Design Core `^0.7.4`, alongside its current API/Workspace cohort.
+The private application profile accepts published Agent UI `^0.2.6`, History
+`^0.2.0`, and Design Core `^0.13.2`, alongside its current API/Workspace cohort.
 Hosts retain profile selection and lifecycle; this dependency intake does not
 add plugin policy to the reusable shell.
 

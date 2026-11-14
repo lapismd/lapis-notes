@@ -21,9 +21,9 @@ conversation writer or renderer callback authority under
 The private profile consumes published Markdown `^0.2.0`, matching its current
 API/Workspace cohort without a host override or legacy renderer dependency.
 
-The private profile accepts published Agent UI `^0.2.0`, History `^0.2.0`, and
-Design Core `^0.7.4`, while remaining private at `0.0.0` and leaving the API
-package at `0.2.3`.
+The private profile accepts published Agent UI `^0.2.6`, History `^0.2.0`, and
+Design Core `^0.13.2`, while remaining private at `0.0.0`. The separately
+qualified API release is `0.4.0`.
 
 The private application profile owns the native-turn observer and optional AI
 plugin under LN-CORE-004/006/007/008. It uses the existing public Agent screens
