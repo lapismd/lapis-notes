@@ -7,8 +7,8 @@
   },
   "dependencies": {
     "image": "ghcr.io/lapismd/lapis-notes-ci",
-    "tag": "lock-b16d524366588da6",
-    "lockfileSha256": "b16d524366588da614638e3924df8db8eb1cbf5f34303f53502952b96476ff6f",
-    "digest": "sha256:24bc2cd762291732175241e71fd3b28bc2776a9359958e515ff7ef36bb77fee8"
+    "tag": "lock-6e3e77159ff85943",
+    "lockfileSha256": "6e3e77159ff859437a0f9dece967dff5597690a3967bd319691f1e8d1fced27a",
+    "digest": "sha256:09b2223c17354ca2dee7a159cbf7614cba87cda3b6fab93986a63a083fba0513"
   }
 }
