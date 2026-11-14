@@ -35,7 +35,7 @@ Full package qualification passes 1,785 API tests and 2,131 package tests, all
 checks. The focused two-family cold catalog passes 53 cases; the complete
 four-shard cold interaction/accessibility lane passes 276 (102/70/47/57).
 The existing hosted LN-CAT-121 quarantine remains unchanged and is not a pass.
-Canonical validation now passes; packed-consumer qualification remains pending.
+Canonical validation and development archive qualification now pass.
 The first canonical run
 identified missing architecture/workspace cross-references; those mapped
 chapters now describe the discovery lifecycle and captured-target ownership.
@@ -50,6 +50,16 @@ Receipts under `.local/deferred-discovery/`:
 - Focused cold catalog: `lapis-notes-validation-256b34b0-6fdf-43ce-a6bf-eaec9a6f972f`.
 - Complete cold catalog: `lapis-notes-validation-a1476802-8722-407f-bc7f-cf11f2f46407`.
 - Final canonical check: `lapis-notes-validation-cbeb3cc3-c4d7-4924-aeb5-3c08b78efb93`.
+- Development archive build/pack: `lapis-notes-validation-aadffc2d-9c61-45fa-8db7-b5ff185f3445`.
+
+The five development archives originate from clean empty source `cbb2e92b`,
+whose package tree matches committed `948e198d`. All inventory SHA-256 hashes
+were independently verified. API archive SHA-256 is
+`7529b0666fef61c01adb41f38ebba7c9e5713f33fdd0055ed493bdd13b9b9bac`;
+its public declarations expose both discovery contributions and its runtime
+contains the installer and PluginManager integration. This modified API 0.3.1
+is a development candidate only and MUST NOT overwrite the published version.
+Full archive evidence is `.local/deferred-discovery/consumer-pack-verification.json`.
 
 ## Owner and delivery boundaries
 
