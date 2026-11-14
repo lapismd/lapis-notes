@@ -168,3 +168,8 @@ Linux native qualification retains atomic cache durability by reopening the
 capability-relative parent directory for reading before synchronizing it. A
 search-only directory capability cannot serve as an fsync handle. The exact
 model-cache regression passes ten cases after four initial failures.
+
+The release-artifact worker receives the read-only GitHub job token for package
+release lookups as well as release-plan generation. Registry package bytes and
+lookup failures retain their existing validation rules; this read credential
+does not broaden publication authority.

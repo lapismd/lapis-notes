@@ -5,6 +5,7 @@ import { spawnSync } from "node:child_process";
 import { parse } from "yaml";
 import { validateReleaseWorkflows } from "./check-release-workflow.mjs";
 import "./ci-setup.test.mjs";
+import "./check-release-lookup-auth.spec.mjs";
 
 const pinnedImage =
   "ghcr.io/lapismd/lapis-notes-ci@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
