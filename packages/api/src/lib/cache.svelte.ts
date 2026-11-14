@@ -725,6 +725,7 @@ export class MetadataCache extends EventDispatcher<{
   async dispose(options: { persist?: boolean } = {}): Promise<void> {
     if (this.disposePromise) return this.disposePromise;
     const nativeTasksDetached = this.app.nativeTasks?.detach();
+    const operationsDetached = this.app.operations?.detach();
     this.disposed = true;
     this.nativeIndexing?.dispose();
     this.app.vault.off("all", this.handleVaultChange);
@@ -737,6 +738,7 @@ export class MetadataCache extends EventDispatcher<{
     this.saveSnapshotDebounced.cancel();
     this.disposePromise = (async () => {
       if (nativeTasksDetached) await nativeTasksDetached;
+      if (operationsDetached) await operationsDetached;
       if (this.nativeIndexing) return;
       await Promise.allSettled([...this.pendingOperations]);
       if (!this.nativeIndexing)

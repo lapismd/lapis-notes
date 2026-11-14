@@ -1,5 +1,10 @@
 # Search result and Problems provider boundaries
 
+The native operations port under
+[LN-PLUG-129](../../../plugin-model/application-services.md#ln-plug-129)
+returns service outcomes. It does not create diagnostic collections, recovery
+callbacks or Problems presentation.
+
 Generic plugin SVG and pack registrations follow LN-PLUG-123 independently of
 diagnostic collections. File-view artwork is presentation metadata, never a
 Problems diagnostic payload, permission or recovery action. Existing diagnostic

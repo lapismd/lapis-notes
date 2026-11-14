@@ -1,5 +1,9 @@
 # Packages / Native service exports
 
+`@lapis-notes/api/operations` exports generated operation descriptors, CLI/help
+metadata and the App-owned admitted port under
+[LN-PLUG-129](../plugin-model/application-services.md#ln-plug-129).
+
 `@lapis-notes/api/native-turns` and
 `@lapis-notes/api/native-history-index` export generated DTOs and admitted ports.
 Their package export maps follow [LN-PKG-005](./releases-and-exports.md#ln-pkg-005);

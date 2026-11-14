@@ -544,6 +544,19 @@ export const pluginHostModuleRegistry = {
     "specifier": "@lapis-notes/api/native-turns",
     "version": "0.4.0"
   },
+  "@lapis-notes/api/operations": {
+    "entry": "@lapis-notes/api/operations",
+    "moduleId": "lapis-notes-api-operations",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/operations",
+    "version": "0.4.0"
+  },
   "@lapis-notes/api/path": {
     "entry": "@lapis-notes/api/path",
     "moduleId": "lapis-notes-api-path",

@@ -1,5 +1,10 @@
 # Architecture / Admitted native Tasks port
 
+The additive [plugin operations port](../plugin-model/application-services.md#ln-plug-129)
+observes host-owned native providers. Hosted Task declaration persistence and
+external credentials remain Server-owned; a renderer callback is never an
+external operation handler.
+
 This is the R3 shared-port intake after source-qualified recovery `8e09a5de`
 and tracked-today scheduling `ad968536`. Notes keeps application authority;
 Tasks keeps transformations and its existing planner presentation. Host adapters

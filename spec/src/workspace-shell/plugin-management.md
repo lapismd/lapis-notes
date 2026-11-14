@@ -1,5 +1,10 @@
 # Workspace Shell / Plugin management
 
+Versioned native operation declarations follow
+[LN-PLUG-129](../plugin-model/application-services.md#ln-plug-129).
+The host supplies operation availability and authority; registering manifest
+metadata does not create a renderer command handler or enable a provider.
+
 Settings observed from another App remain read-side configuration updates under
 LN-PLUG-112. They do not create competing compatibility-file writers or dirty
 native claims; existing Problems review and guarded leave retain their owners.

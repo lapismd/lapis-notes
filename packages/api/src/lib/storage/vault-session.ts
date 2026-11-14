@@ -53,6 +53,7 @@ export interface VaultSession {
   nativeHistoryIndex?: NativeHistoryIndex;
   nativeEditingIntents?: NativeEditingIntents;
   nativeTasks?: NativeTasks;
+  operations?: import("../operations").OperationHost;
   appDatabaseState: VaultSessionAppDatabaseState;
   awaitAppDatabase?: (options?: {
     signal?: AbortSignal;

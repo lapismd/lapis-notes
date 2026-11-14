@@ -1,5 +1,9 @@
 # App Database / Metadata and indexing
 
+Metadata teardown also drains the owning App's native operation observer under
+[LN-PLUG-129](../plugin-model/application-services.md#ln-plug-129), including
+selected-native teardown. Accepted native work remains owned by its host.
+
 LN-PKG-185 filters the core Vault enumeration used by discovery consumers.
 The retained resource map, explicit metadata reads and database persistence
 formats remain unchanged; discovery exclusions are not backup or access policy.

@@ -1,5 +1,6 @@
 import type { IconRegistry } from "./icons/registry";
 import type { NativeTasks, NativeTasksSession } from "./native-tasks";
+import type { OperationHost, OperationSession } from "./operations";
 import { Workspace } from "./workspace.svelte";
 import { TFile, Vault, type AppDatabase, type DataAdapter, type VaultSession } from "./storage";
 import { AppSettings } from "./settings.svelte";
@@ -68,6 +69,7 @@ export type AppStateProperties = {
     nativeHistoryIndex?: NativeHistoryIndex;
     nativeEditingIntents?: NativeEditingIntents;
     nativeTasks?: NativeTasks;
+    operations?: OperationHost;
     appDatabase?: AppDatabase;
     safeMode?: AppSafeModeState;
     createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
@@ -175,6 +177,7 @@ export declare class App {
     readonly session?: VaultSession;
     readonly nativeHistoryIndex?: NativeHistoryIndex;
     readonly nativeTasks?: NativeTasksSession;
+    readonly operations?: OperationSession;
     readonly safeMode: AppSafeModeState;
     plugins: PluginManager;
     scope: Scope;
