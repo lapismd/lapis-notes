@@ -1,5 +1,15 @@
 # @lapis-notes/api
 
+## 0.5.0
+
+### Minor Changes
+
+- [#110](https://github.com/lapismd/lapis-notes/pull/110)
+  [`8b764e6`](https://github.com/lapismd/lapis-notes/commit/8b764e6c150aab1fa55fd365d4874b3b1b4383bd)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Add versioned native
+  plugin operation contributions and an App-owned operations port for shared
+  HTTP, MCP and CLI integration.
+
 ## 0.4.0
 
 ### Minor Changes

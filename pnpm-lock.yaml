@@ -589,7 +589,7 @@ importers:
   packages/file-explorer:
     dependencies:
       '@lapis-notes/api':
-        specifier: ^0.4.0
+        specifier: ^0.5.0
         version: link:../api
       '@lapismd/design-core':
         specifier: ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.12.0 || ^0.13.0
@@ -654,7 +654,7 @@ importers:
   packages/language-service:
     dependencies:
       '@lapis-notes/api':
-        specifier: ^0.4.0
+        specifier: ^0.5.0
         version: link:../api
       character-entities:
         specifier: ^2.0.2
@@ -834,7 +834,7 @@ importers:
   packages/workspace:
     dependencies:
       '@lapis-notes/api':
-        specifier: ^0.4.0
+        specifier: ^0.5.0
         version: link:../api
       '@lapis-notes/ui':
         specifier: ^0.1.10
