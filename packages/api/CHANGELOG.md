@@ -1,5 +1,13 @@
 # @lapis-notes/api
 
+## 0.6.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c7af79f`](https://github.com/lapismd/lapis-notes/commit/c7af79fc40d261e18e92c985bf817f1054471560)]:
+  - @lapis-notes/ui@0.2.0
+
 ## 0.6.0
 
 ### Minor Changes

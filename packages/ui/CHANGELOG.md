@@ -1,5 +1,14 @@
 # @lapis-notes/ui
 
+## 0.2.0
+
+### Minor Changes
+
+- [#116](https://github.com/lapismd/lapis-notes/pull/116)
+  [`c7af79f`](https://github.com/lapismd/lapis-notes/commit/c7af79fc40d261e18e92c985bf817f1054471560)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Expose host-owned CLI
+  installation, download and desktop-access settings under General → Advanced.
+
 ## 0.1.10
 
 ### Patch Changes
