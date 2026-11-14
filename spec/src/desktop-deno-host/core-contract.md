@@ -101,3 +101,6 @@ permission, command execution authority or installed-runtime change.
 
 The Mira 0.2 API/browser dependency intake preserves this frozen Deno host;
 it does not change its startup, native permissions or installed runtime.
+
+The released Core 0.13.2/Mira 0.2 browser cohort retains this frozen Deno
+host contract and grants no new native permission or startup authority.

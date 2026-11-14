@@ -307,7 +307,7 @@ records provenance, installed graph verification and acceptance separately from
 publication. Root patches do not transfer through published packages. Removal
 requires every component's upstream fix and the complete affected qualification.
 
-The Mira 0.2 intake retains the merged Design Core 0.13.1 registry cohort and
+The Mira 0.2 intake retains the merged Design Core 0.13.2 registry cohort and
 public export ownership. Resolving its lockfile conflict MUST preserve the
 current main dependency versions and the API Mira peer range above; it does not
 restore the older Design Core lock graph or introduce sibling sources.

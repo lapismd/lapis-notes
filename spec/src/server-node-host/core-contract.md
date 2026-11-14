@@ -27,5 +27,5 @@ loading a dormant runtime at startup. Invocation follows existing plugin
 admission; this API change adds no hosted operation or server authority.
 
 The shared API/browser graph consumes released Mira 0.2 with Design Core
-0.13.1. This dependency intake adds no hosted operation, credentials or native
+0.13.2. This dependency intake adds no hosted operation, credentials or native
 authority and retains public package boundaries.

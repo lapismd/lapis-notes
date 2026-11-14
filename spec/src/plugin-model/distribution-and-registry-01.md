@@ -376,3 +376,7 @@ ESM startup dependency diagnostics traverse the selected entry and eager relativ
 The API Mira 0.2 intake admits the released renderer through a portable peer
 range. Plugin trust, installation, runtime ownership and signed distribution
 remain governed by the existing contracts.
+
+The released Core 0.13.2/Mira 0.2 renderer cohort preserves plugin admission,
+registry trust and source ownership. Dependency qualification does not activate
+a dormant plugin or alter signed package acceptance.

@@ -16,7 +16,7 @@
 | LN-ARCH-011 | [architecture](../architecture/dependency-boundaries.md#ln-arch-011) | Implemented | root CodeMirror language deps + host-authoritative CodeMirror/Lezer singleton peers |
 | LN-ARCH-012 | [architecture](../architecture/dependency-boundaries.md#ln-arch-012) | Implemented | Storybook resolves registry-installed Design Core, Mira, and extracted plugin exports without external source aliases; only owned framework packages resolve from workspace source |
 | LN-ARCH-013 | [architecture](../architecture/dependency-boundaries.md#ln-arch-013) | Implemented | Storybook API editor, core, and language-service subpath aliases share the root API source and CodeMirror state-field identity |
-| LN-ARCH-014 | [architecture](../architecture/dependency-boundaries.md#ln-arch-014) | Implemented | Root manifest and lockfile consume `@lapismd/mira` through a published semver range and built package exports; API Mira 0.2 dependency and compatible 0.1/0.2 peers retain the frozen registry graph with Core 0.13.1 |
+| LN-ARCH-014 | [architecture](../architecture/dependency-boundaries.md#ln-arch-014) | Implemented | Root manifest and lockfile consume `@lapismd/mira` through a published semver range and built package exports; API Mira 0.2 dependency and compatible 0.1/0.2 peers retain the frozen registry graph with Core 0.13.2 |
 | LN-ARCH-015 | [architecture](../architecture/host-boundaries.md#ln-arch-015) | Implemented | api `getChrome` breadcrumbs/history/title rename plus View breadcrumb hooks; editor inline title remains in-document |
 | LN-ARCH-016 | [architecture](../architecture/host-boundaries.md#ln-arch-016) | Implemented | source-editor data-language plus monospace default and Markdown/text sans overrides |
 | LN-ARCH-017 | [architecture](../architecture/dependency-boundaries.md#ln-arch-017) | Implemented | Root manifest and lockfile consume Mira Editor and Mira plugin packages through published semver ranges and built package exports |
@@ -94,3 +94,7 @@
 | LN-ARCH-102 | [architecture, plugin-model](../architecture/application-ownership.md#ln-arch-102) | Implemented | Portable-container tests preserve the exact two-entry offline envelope, proof termination at a pinned curator, inner-payload integrity metadata, and warning clearance only after exact live-proof revalidation. |
 | LN-ARCH-103 | [architecture, packages](../architecture/application-ownership.md#ln-arch-103) | Implemented | Concrete Community binding and tests remain retained under app-profile/deferred/nostr; static host startup and cleanup use the API distribution boundary without loading Community. |
 | LN-ARCH-090 | [architecture, plugin-model](../architecture/workspace-integration.md#ln-arch-090) | Implemented | Statistics remain a separately validated optional aggregate and never participate in signed catalog or install decisions. |
+
+The released Core 0.13.2/Mira 0.2 qualification is retained in
+`spec/records/2026-11-14-released-renderer-cohort.md`; source correctness and
+published-package consumer admission remain distinct.

@@ -27,7 +27,7 @@
     "@lapis-notes/source-editor": "^0.1.2",
     "@lapis-notes/workspace": "workspace:*",
     "@lapismd/agent-ui": "^0.2.4",
-    "@lapismd/design-core": "^0.13.1",
+    "@lapismd/design-core": "^0.13.2",
     "@lapis-notes/history": "^0.2.0"
   },
   "devDependencies": {
