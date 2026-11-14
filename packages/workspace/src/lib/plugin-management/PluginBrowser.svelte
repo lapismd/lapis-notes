@@ -166,6 +166,7 @@
         state: "available",
         label: "Update",
         installedVersion: installed?.installedVersion,
+        targetVersion: update.targetVersion,
       };
     if (installed && requestedVersion === selected.latestVersion)
       return {
@@ -213,7 +214,8 @@
       registry.actionFeedback?.pluginId === entry.id
         ? registry.actionFeedback
         : null;
-    if (registry.isPluginActionPending(entry.id)) return { state: "installing" };
+    if (registry.isPluginActionPending(entry.id))
+      return { state: "installing" };
     if (feedback?.state === "error")
       return { state: "rejected", reason: feedback.message };
     if (bundledIds.has(entry.id))
@@ -229,6 +231,7 @@
         state: "available",
         label: "Update",
         installedVersion: installed?.installedVersion,
+        targetVersion: availableUpdate.targetVersion,
       };
     if (installed)
       return {
@@ -488,7 +491,9 @@
             >
               <div class="registry-browser">
                 {#if registry.initialLoading}<PluginRegistrySkeleton
-                    layout={navigation.route.page === "plugin" ? "detail" : navigation.route.page}
+                    layout={navigation.route.page === "plugin"
+                      ? "detail"
+                      : navigation.route.page}
                     label="Loading plugins"
                   />
                 {:else if registry.lastError && !registry.catalogEntries.length}<PluginRegistryContentState
@@ -620,6 +625,7 @@
     name: entry.name,
     description: entry.description,
     version: entry.latestVersion,
+    plugin: entry,
   }))}
   onconfirm={installSelectedPlugins}
 />

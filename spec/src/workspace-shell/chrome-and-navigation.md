@@ -54,7 +54,7 @@ here without changing this migration's dependency target.
 
 <a id="ln-ws-068"></a>
 
-**Requirement.** The workspace host MUST project each Lapis `notifications.activeProgress` entry whose location is not `silent` into the Design Core notification manager. The notifications status item MUST show busy plus that entry's title while it runs. Silent progress MUST NOT appear. Projected handles MUST be removed when they leave `activeProgress`.
+**Requirement.** The workspace host MUST project each Lapis `notifications.activeProgress` entry whose location is not `silent` into the Design Core notification manager. The notifications status item MUST show busy plus that entry's title while it runs. Projection MUST preserve App-owned ordering so the currently advancing task remains first. Silent progress MUST NOT appear, and projected handles MUST be removed when they leave `activeProgress`.
 
 ## LN-WS-058 — Built-in desktop Settings action
 

@@ -40,6 +40,7 @@ export type RegistryInstallAction = {
   label?: string;
   reason?: string;
   installedVersion?: string;
+  targetVersion?: string;
 };
 export type RegistryInstallRequest = {
   pluginId: string;

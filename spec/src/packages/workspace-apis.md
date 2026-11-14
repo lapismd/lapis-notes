@@ -93,6 +93,11 @@ button's existing accessible name and callback.
 
 **Requirement.** `@lapis-notes/workspace` MUST keep installed-versus-bundled registry actions, enablement action labels, and uninstall-or-disable confirmation policy private to plugin management while composing public Design Core Button, Field, Switch, Tooltip, and Alert Dialog primitives.
 
+LN-PLUG-132–136 extend that package-owned presentation with public Design Core
+Command View bulk selection, verified registry artwork, installed/update
+discovery and compact icon actions. The existing App-owned per-plugin methods
+remain the only mutation boundary.
+
 ## LN-PKG-138 — @lapis-notes/api: expose typed download-summary parsing and an optional
 
 <a id="ln-pkg-138"></a>

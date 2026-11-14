@@ -3,12 +3,16 @@
   import * as CommandView from "@lapismd/design-core/shadcn/command-view";
   import * as Dialog from "@lapismd/design-core/shadcn/dialog";
   import Check from "@lucide/svelte/icons/check";
+  import Package from "@lucide/svelte/icons/package";
+  import type { PluginCatalogEntry } from "@lapis-notes/api";
+  import RegistryPluginIcon from "./RegistryPluginIcon.svelte";
 
   export type PluginBulkActionItem = {
     id: string;
     name: string;
     description: string;
     version?: string;
+    plugin?: PluginCatalogEntry;
   };
 
   let {
@@ -79,16 +83,29 @@
               onSelect={() => toggle(item.id)}
             >
               <CommandView.ItemIcon>
-                <span
-                  class="plugin-bulk-action-dialog__selection-mark"
-                  data-selected={selected || undefined}
-                  aria-hidden="true"
-                >{#if selected}<Check />{/if}</span>
+                {#if item.plugin}
+                  <RegistryPluginIcon plugin={item.plugin} loading="eager" />
+                {:else}
+                  <span
+                    class="plugin-bulk-action-dialog__fallback-icon"
+                    data-ui-part="registry-plugin-icon"
+                    data-plugin-id={item.id}
+                    aria-hidden="true"><Package /></span
+                  >
+                {/if}
               </CommandView.ItemIcon>
               <CommandView.ItemLabel>{item.name}</CommandView.ItemLabel>
               <CommandView.ItemDescription>
                 {item.description}{item.version ? ` · ${item.version}` : ""}
               </CommandView.ItemDescription>
+              <CommandView.Shortcut>
+                <span
+                  class="plugin-bulk-action-dialog__selection-mark"
+                  data-selected={selected || undefined}
+                  aria-hidden="true"
+                  >{#if selected}<Check />{/if}</span
+                >
+              </CommandView.Shortcut>
             </CommandView.Item>
           {/each}
         </CommandView.Group>
@@ -103,14 +120,15 @@
             size="sm"
             variant="ghost"
             onclick={() => (selectedIds = items.map((item) => item.id))}
-          >Select all</Button>
+            >Select all</Button
+          >
           <Button
             type="button"
             size="sm"
             variant="ghost"
             disabled={!selectedCount}
-            onclick={() => (selectedIds = [])}
-          >Clear</Button>
+            onclick={() => (selectedIds = [])}>Clear</Button
+          >
         </span>
       </CommandView.Footer>
     </CommandView.Root>
@@ -141,9 +159,41 @@
     overflow: hidden;
   }
 
-  :global(.plugin-bulk-action-dialog [data-ui-component="command-view"][data-ui-part="root"]) {
+  :global(
+      .plugin-bulk-action-dialog
+        [data-ui-component="command-view"][data-ui-part="root"]
+    ) {
     --ui-command-view-list-max-height: min(20rem, 42vh);
     border: 1px solid var(--border);
+  }
+
+  :global(.plugin-bulk-action-dialog [data-ui-part="item-icon"]) {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  :global(.plugin-bulk-action-dialog [data-ui-part="registry-plugin-icon"]) {
+    width: 2rem;
+    height: 2rem;
+    border-radius: calc(var(--radius) * 0.8);
+  }
+
+  :global(
+      .plugin-bulk-action-dialog [data-ui-part="registry-plugin-icon"] svg
+    ) {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .plugin-bulk-action-dialog__fallback-icon {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) * 0.8);
+    color: var(--muted-foreground);
+    background: var(--muted);
   }
 
   .plugin-bulk-action-dialog__selection-actions {
@@ -158,14 +208,13 @@
     width: 1rem;
     height: 1rem;
     place-items: center;
-    border: 1px solid var(--border);
+    border: 0;
     border-radius: calc(var(--radius) * 0.45);
     color: var(--primary-foreground);
     background: var(--background);
   }
 
   .plugin-bulk-action-dialog__selection-mark[data-selected] {
-    border-color: var(--primary);
     background: var(--primary);
   }
 

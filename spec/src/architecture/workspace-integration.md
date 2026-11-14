@@ -13,6 +13,10 @@ while App, file, leaf and persistence ownership stay with their existing owners.
 
 Mobile presentation follows LN-WS-105/106: Design Core owns responsive rendering and transient navigation; the Lapis shell adapts its explicit App configuration, plugin commands and FileManager operations. Hosts leave display mode unset unless they own an independently controlled embedded surface.
 
+Registry presentation follows LN-PLUG-132–136: Workspace composes public Design
+Core Command View, icon and card controls while the explicit App remains the
+sole owner of eligibility, installation, update, removal and progress policy.
+
 LN-WS-101 keeps close policy generic and safe by default. A declared layout-only
 view still joins operation settlement and layout persistence; its App-owned
 staged state and unrelated failed writers survive removal. Retained

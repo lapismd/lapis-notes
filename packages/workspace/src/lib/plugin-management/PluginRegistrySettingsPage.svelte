@@ -1198,6 +1198,7 @@
       name: update.name,
       description: `${update.currentVersion} → ${update.targetVersion}`,
       version: update.targetVersion,
+      plugin: registry.catalogEntries.find((entry) => entry.id === update.id),
     }))}
     onconfirm={updateSelectedPlugins}
   />

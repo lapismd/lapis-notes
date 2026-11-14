@@ -1023,9 +1023,11 @@ export const UpdatesLanding: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = await ready(canvasElement);
-    const updates = within(
-      await canvas.findByRole("region", { name: "Updates", exact: true }),
-    );
+    const updatesRegion = await canvas.findByRole("region", {
+      name: "Updates",
+      exact: true,
+    });
+    const updates = within(updatesRegion);
     await expect(
       updates.getByRole("link", { name: "Open AI Assistant", exact: true }),
     ).toBeVisible();
@@ -1035,6 +1037,24 @@ export const UpdatesLanding: Story = {
     await expect(
       updates.queryByRole("link", { name: "Open Slides", exact: true }),
     ).toBeNull();
+    const statusLanes = updatesRegion.closest(
+      '[data-ui-part="registry-status-lanes"]',
+    ) as HTMLElement | null;
+    expect(statusLanes).not.toBeNull();
+    await waitFor(() => {
+      expect(
+        getComputedStyle(statusLanes!).gridTemplateColumns.split(" "),
+      ).toHaveLength(2);
+    });
+    await userEvent.click(
+      updates.getByRole("link", { name: "Updates", exact: true }),
+    );
+    await expect(
+      await canvas.findByRole("button", {
+        name: "Remove Updates filter",
+        exact: true,
+      }),
+    ).toBeVisible();
   },
 };
 
@@ -1053,23 +1073,51 @@ export const InstalledLandingManagement: Story = {
       await canvas.findByRole("region", { name: "Installed", exact: true }),
     );
     await expect(
+      installed.queryByText("Installed", {
+        selector: '[data-ui-part="community-chip"]',
+      }),
+    ).toBeNull();
+    await expect(
       installed.getByRole("link", {
         name: "Open AI Assistant",
         exact: true,
       }),
     ).toBeVisible();
-    await expect(
-      installed.getByRole("button", {
-        name: "Update AI Assistant",
-        exact: true,
-      }),
-    ).toBeEnabled();
-    await expect(
-      installed.getByRole("button", {
-        name: "Uninstall AI Assistant",
-        exact: true,
-      }),
-    ).toBeEnabled();
+    const updateButton = installed.getByRole("button", {
+      name: "Update AI Assistant",
+      exact: true,
+    });
+    await expect(updateButton).toBeEnabled();
+    await expect(updateButton).toHaveAttribute("data-tooltip-trigger");
+    await expect(updateButton).toHaveAttribute("data-plugin-action", "update");
+    await expect(updateButton).toHaveTextContent(/^$/);
+    const title = installed.getByText("AI Assistant", {
+      selector: ".registry-plugin-card__title",
+    });
+    expect(updateButton.getBoundingClientRect().right).toBeGreaterThan(
+      title.getBoundingClientRect().right,
+    );
+    expect(
+      Math.abs(
+        updateButton.getBoundingClientRect().top -
+          title.getBoundingClientRect().top,
+      ),
+    ).toBeLessThan(12);
+    const uninstallButton = installed.getByRole("button", {
+      name: "Uninstall AI Assistant",
+      exact: true,
+    });
+    await expect(uninstallButton).toBeEnabled();
+    await expect(uninstallButton).toHaveAttribute("data-tooltip-trigger");
+    await expect(uninstallButton).toHaveAttribute(
+      "data-plugin-action",
+      "uninstall",
+    );
+    await expect(uninstallButton).toHaveTextContent(/^$/);
+    expect(uninstallButton.getBoundingClientRect().width).toBe(
+      uninstallButton.getBoundingClientRect().height,
+    );
+    expect(uninstallButton.getBoundingClientRect().width).toBeLessThan(32);
   },
 };
 
@@ -1099,6 +1147,20 @@ export const BulkInstallSelection: Story = {
     await expect(within(dialog).getAllByRole("option").length).toBeGreaterThan(
       0,
     );
+    for (const option of within(dialog).getAllByRole("option")) {
+      expect(
+        option.querySelector('[data-ui-part="registry-plugin-icon"]'),
+      ).not.toBeNull();
+    }
+    const searchIcon = dialog.querySelector(
+      '[data-ui-part="search-icon"]',
+    ) as SVGElement;
+    expect(searchIcon.getBoundingClientRect().width).toBeLessThanOrEqual(16);
+    for (const mark of dialog.querySelectorAll(
+      ".plugin-bulk-action-dialog__selection-mark",
+    )) {
+      expect(getComputedStyle(mark).borderTopWidth).toBe("0px");
+    }
     await expect(
       within(dialog).getByRole("button", { name: /Install \d+ plugins?/ }),
     ).toBeEnabled();
@@ -1115,7 +1177,7 @@ export const UpdatesDirectory: Story = {
   render: render("middle-top-tabs", "updates", updatesReview),
   parameters: reviewParameters(
     "updates-directory",
-    "The removable Updates chip and Other filter row restrict the real directory to eligible installed upgrades, combine with search and restore from layout state.",
+    "The removable Updates chip and Type filter row directly below Installed restrict the real directory to eligible installed upgrades, combine with search and restore from layout state.",
     updatesReview,
   ),
   play: async ({ canvasElement }) => {
@@ -1136,6 +1198,14 @@ export const UpdatesDirectory: Story = {
     await userEvent.click(remove);
     await expect(filter).toHaveAttribute("aria-pressed", "false");
     await expect(canvas.getByText("8 results", { exact: true })).toBeVisible();
+    const installedFilter = canvas.getByRole("button", {
+      name: /^Installed\s+3$/,
+    });
+    expect(installedFilter.nextElementSibling).toBe(filter);
+    expect(
+      installedFilter.querySelector('[data-filter-icon="installed"]'),
+    ).not.toBeNull();
+    expect(filter.querySelector('[data-filter-icon="updates"]')).not.toBeNull();
     await userEvent.click(filter);
     await expect(canvas.getByText("2 results", { exact: true })).toBeVisible();
   },
@@ -1178,6 +1248,28 @@ export const InstalledDirectoryManagement: Story = {
         exact: true,
       }),
     ).toBeEnabled();
+    const aiCard = canvas
+      .getByRole("link", { name: "Open AI Assistant", exact: true })
+      .closest("article")!;
+    const updateBadge = within(aiCard).getByText("Update 0.0.1 → 1.4.0", {
+      selector: '[data-ui-part="community-chip"]',
+    });
+    expect(updateBadge).toHaveAttribute("data-chip-tone", "warning");
+    expect(
+      updateBadge.closest(".registry-plugin-card__categories"),
+    ).not.toBeNull();
+    expect(updateBadge.closest(".registry-plugin-card__actions")).toBeNull();
+    const slidesCard = canvas
+      .getByRole("link", { name: "Open Slides", exact: true })
+      .closest("article")!;
+    const installedBadge = within(slidesCard).getByText("Installed", {
+      selector: '[data-ui-part="community-chip"]',
+    });
+    expect(installedBadge).toHaveAttribute("data-chip-tone", "accent");
+    expect(
+      installedBadge.closest(".registry-plugin-card__categories"),
+    ).not.toBeNull();
+    expect(installedBadge.closest(".registry-plugin-card__actions")).toBeNull();
   },
 };
 const updateDetailReview = { route: { page: "plugin", pluginId: "graph" } };

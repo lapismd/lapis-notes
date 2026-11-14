@@ -268,6 +268,21 @@
         <button
           type="button"
           class="registry-directory__filter"
+          class:selected={directoryState.updatesOnly}
+          aria-pressed={directoryState.updatesOnly}
+          onclick={() =>
+            replaceState({ updatesOnly: !directoryState.updatesOnly })}
+        >
+          <span>
+            {@render filterMark("updates", directoryState.updatesOnly)}
+            Updates
+          </span>
+          <span>{countFor((plugin) => updateIds.has(plugin.id))}</span>
+        </button>
+
+        <button
+          type="button"
+          class="registry-directory__filter"
           class:selected={directoryState.installation === "available"}
           aria-pressed={directoryState.installation === "available"}
           onclick={() =>
@@ -430,23 +445,6 @@
         </Collapsible.Trigger>
       </h2>
       <Collapsible.Content class="registry-directory__group-content">
-        <button
-          type="button"
-          class="registry-directory__filter"
-          class:selected={directoryState.updatesOnly}
-          aria-pressed={directoryState.updatesOnly}
-          onclick={() =>
-            replaceState({ updatesOnly: !directoryState.updatesOnly })}
-        >
-          <span
-            >{@render filterMark(
-              "updates",
-              directoryState.updatesOnly,
-            )}Updates</span
-          >
-          <span>{countFor((plugin) => updateIds.has(plugin.id))}</span>
-        </button>
-
         <button
           type="button"
           class="registry-directory__filter"

@@ -524,7 +524,29 @@ class HarnessNotifications extends EventDispatcher<{
     try {
       return await task(
         {
-          report: vi.fn(),
+          report: vi.fn(
+            (report: {
+              message?: string;
+              current?: number;
+              total?: number;
+              indeterminate?: boolean;
+            }) => {
+              const current = this.activeProgress.find(
+                (entry) => entry.id === id,
+              );
+              if (!current) return;
+              this.activeProgress = [
+                {
+                  ...current,
+                  ...report,
+                  indeterminate: report.indeterminate ?? current.indeterminate,
+                  updatedAt: Date.now(),
+                },
+                ...this.activeProgress.filter((entry) => entry.id !== id),
+              ];
+              this.trigger("changed");
+            },
+          ),
         },
         { signal: new AbortController().signal },
       );
@@ -5472,6 +5494,44 @@ describe("Workspace compatibility", () => {
     release();
     await pending;
     expect(controller.notifications.activeProgress).toEqual([]);
+  });
+
+  it("keeps the currently advancing notification progress first in the shared panel", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const controller = getWorkspaceHostBinding(workspace).controller;
+    let reportCurrent!: (report: {
+      message?: string;
+      indeterminate?: boolean;
+    }) => void;
+    const releases: Array<() => void> = [];
+    const start = (id: string, title: string, current = false) =>
+      app.notifications.withProgress(
+        { id, title, location: "status" },
+        (progress) =>
+          new Promise<void>((resolve) => {
+            releases.push(resolve);
+            if (current) reportCurrent = progress.report;
+          }),
+      );
+    const pending = [
+      start("plugin-current", "Installing AI Assistant", true),
+      start("plugin-graph", "Installing Graph View"),
+      start("plugin-slides", "Installing Slides"),
+    ];
+
+    reportCurrent({ message: "Installing", indeterminate: true });
+
+    expect(app.notifications.activeProgress.map((entry) => entry.id)).toEqual([
+      "plugin-current",
+      "plugin-slides",
+      "plugin-graph",
+    ]);
+    expect(
+      controller.notifications.activeProgress.map((entry) => entry.id),
+    ).toEqual(["plugin-current", "plugin-slides", "plugin-graph"]);
+
+    for (const release of releases) release();
+    await Promise.all(pending);
   });
 
   it("does not project silent Lapis notification progress", async () => {

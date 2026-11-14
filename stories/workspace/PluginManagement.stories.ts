@@ -781,6 +781,11 @@ export const BulkUpdateSelection: Story = {
       }),
     ).toHaveAttribute("data-bulk-selected", "true");
     await expect(
+      within(dialog)
+        .getByRole("option", { name: /AI Assistant, selected/ })
+        .querySelector('[data-ui-part="registry-plugin-icon"]'),
+    ).not.toBeNull();
+    await expect(
       within(dialog).getByRole("option", { name: /Graph View, selected/ }),
     ).toHaveAttribute("data-bulk-selected", "true");
     await expect(
