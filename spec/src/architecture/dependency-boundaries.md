@@ -67,8 +67,8 @@ The private App Profile now requests published Markdown `^0.2.0` so its public
 rendering dependency matches the current API/Workspace cohort without a host
 override or a second legacy renderer dependency line.
 
-The private App Profile requests published Agent UI `^0.2.0`, History
-`^0.2.0`, and Design Core `^0.13.0`. The profile stays private at `0.0.0`.
+The private App Profile requests published Agent UI `^0.2.6`, History
+`^0.2.0`, and Design Core `^0.13.2`. The profile stays private at `0.0.0`.
 Workspace requires Core `^0.13.0` for its public mobile navigation contract;
 API, UI and File Explorer admit that released line through portable ranges.
 
