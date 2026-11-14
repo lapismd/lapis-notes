@@ -312,3 +312,8 @@ during cleanup and preserves uncertain cleanup failures.
 Passive startup Retry prepares native Chat detach before retiring plugins. Its
 accepted native work stays host-owned; a later explicit plugin disable retains
 the native feature-disable policy.
+
+Deferred plugin controls remain discoverable from admitted manifest
+contributions while their runtimes stay dormant. Invocation activates only the
+declaring owner and revalidates captured Markdown context; web startup and
+host trust boundaries remain unchanged.

@@ -21,3 +21,7 @@ The renderer build adapter is a browser build facility shared by Web and electro
 The Web workspace keeps native AI opt-in for `node-server`; supplied native
 Chat hosts default enabled only for `rust-server`. Registration remains
 user-disableable and does not select an agent or start provider work.
+
+Deferred plugin ribbon and Markdown-pane controls preserve discovery without
+loading a dormant runtime at startup. Invocation follows existing plugin
+admission; this API change adds no hosted operation or server authority.
