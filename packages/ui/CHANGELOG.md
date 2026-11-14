@@ -1,5 +1,16 @@
 # @lapis-notes/ui
 
+## 0.1.10
+
+### Patch Changes
+
+- [#98](https://github.com/lapismd/lapis-notes/pull/98)
+  [`43ff308`](https://github.com/lapismd/lapis-notes/commit/43ff308f4ab66de59c2f896aa7df193452ad59db)
+  Thanks
+  [@lapismd-dependency-bot](https://github.com/apps/lapismd-dependency-bot)! -
+  Refresh first-party Lapis dependencies to the published versions recorded in
+  this pull request.
+
 ## 0.1.9
 
 ### Patch Changes
