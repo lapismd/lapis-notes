@@ -317,3 +317,7 @@ Deferred plugin controls remain discoverable from admitted manifest
 contributions while their runtimes stay dormant. Invocation activates only the
 declaring owner and revalidates captured Markdown context; web startup and
 host trust boundaries remain unchanged.
+
+The Mira 0.2 intake preserves the merged Design Core 0.13.1 browser graph.
+Web startup and plugin admission retain the public API and registry package
+boundaries; no sibling source alias or host policy is introduced.

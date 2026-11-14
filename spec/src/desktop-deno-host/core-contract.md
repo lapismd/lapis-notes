@@ -98,3 +98,6 @@ after the view-owned repair; final combined hosted acceptance remains R7.
 Deferred plugin discovery controls remain renderer-owned manifest
 contributions. The frozen Deno host gains no startup activation, native
 permission, command execution authority or installed-runtime change.
+
+The Mira 0.2 API/browser dependency intake preserves this frozen Deno host;
+it does not change its startup, native permissions or installed runtime.
