@@ -166,8 +166,8 @@ importers:
         specifier: ^0.2.0
         version: 0.2.0
       '@lapismd/storybook-addon-visual-delta':
-        specifier: 0.1.0
-        version: 0.1.0(playwright@1.61.1)(react@19.2.8)(storybook@10.5.7(@types/react@19.2.18)(prettier@3.3.3)(react@19.2.8))(svelte@5.56.10)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(tsx@4.23.9)(yaml@2.9.0))
+        specifier: 0.1.5
+        version: 0.1.5(playwright@1.61.1)(react@19.2.8)(storybook@10.5.7(@types/react@19.2.18)(prettier@3.3.3)(react@19.2.8))(svelte@5.56.10)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(tsx@4.23.9)(yaml@2.9.0))
       '@lapismd/terminal-host':
         specifier: ^0.1.0
         version: 0.1.0
@@ -2704,8 +2704,8 @@ packages:
     engines: {node: '>=22'}
     hasBin: true
 
-  '@lapismd/storybook-addon-visual-delta@0.1.0':
-    resolution: {integrity: sha512-DK1a3u3+0/yGSNGunJotDp7mSTzx5O4DF33NVSyaD+A56jnw5zN+PQlITdJOPF/7xuXFrncEDBs0GFiPVfoeGg==}
+  '@lapismd/storybook-addon-visual-delta@0.1.5':
+    resolution: {integrity: sha512-psAM/V+C8BsrLpINIyioHM1j2uWe/nMBG3lbPlD97AeUsoddsClVmMuoYZn/UbVcBV9ce39Ka1UqLMkMXCo1xg==}
     hasBin: true
     peerDependencies:
       playwright: '*'
@@ -4105,6 +4105,11 @@ packages:
 
   '@storybook/icons@2.1.0':
     resolution: {integrity: sha512-Fxh9vYpX9bQqFeHRiY8h2ApeRGDzRSMLwJwNZ/AIRqnyOKHxRKL+yFe+ctEkVJmuptRE9u1Hrn8ZZNHyfDKKNg==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  '@storybook/icons@2.2.0':
+    resolution: {integrity: sha512-FpUB/xizIrV1ILhCIYFo+TtQNN9YEoLjfcnAW0JtOXL+BcM2aisSysI0B54JMWDnljriXySBHgN6ps4s9lb75A==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -6935,8 +6940,8 @@ packages:
     resolution: {integrity: sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==}
     engines: {node: '>=12'}
 
-  pixelmatch@7.2.0:
-    resolution: {integrity: sha512-xhcb4yHu9sM/G7foGzoLtXYcC0zHEaOXXjRKhGup0fw78Nf2Tkiapv4EQyMzrbcmQPsllAI7DbFY2UT7PlI9Pg==}
+  pixelmatch@8.0.0:
+    resolution: {integrity: sha512-cIqOLfh5k52us715qf3B3+kTOxZv+WDv77HN7xokLScYQGYQHi4m/ynoDIPpvF2LvCyUJGyvzY64i0QCXtzu1g==}
     hasBin: true
 
   pkce-challenge@5.0.1:
@@ -11409,11 +11414,11 @@ snapshots:
       jiti: 2.7.0
       typescript: 5.9.3
 
-  '@lapismd/storybook-addon-visual-delta@0.1.0(playwright@1.61.1)(react@19.2.8)(storybook@10.5.7(@types/react@19.2.18)(prettier@3.3.3)(react@19.2.8))(svelte@5.56.10)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(tsx@4.23.9)(yaml@2.9.0))':
+  '@lapismd/storybook-addon-visual-delta@0.1.5(playwright@1.61.1)(react@19.2.8)(storybook@10.5.7(@types/react@19.2.18)(prettier@3.3.3)(react@19.2.8))(svelte@5.56.10)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(tsx@4.23.9)(yaml@2.9.0))':
     dependencies:
-      '@storybook/icons': 2.1.0(react@19.2.8)
+      '@storybook/icons': 2.2.0(react@19.2.8)
       html-to-image: 1.11.13
-      pixelmatch: 7.2.0
+      pixelmatch: 8.0.0
       pngjs: 7.0.0
       react: 19.2.8
       storybook: 10.5.7(@types/react@19.2.18)(prettier@3.3.3)(react@19.2.8)
@@ -12513,6 +12518,10 @@ snapshots:
   '@storybook/global@5.0.0': {}
 
   '@storybook/icons@2.1.0(react@19.2.8)':
+    dependencies:
+      react: 19.2.8
+
+  '@storybook/icons@2.2.0(react@19.2.8)':
     dependencies:
       react: 19.2.8
 
@@ -16086,7 +16095,7 @@ snapshots:
 
   picomatch@4.0.7: {}
 
-  pixelmatch@7.2.0:
+  pixelmatch@8.0.0:
     dependencies:
       pngjs: 7.0.0
 
