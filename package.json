@@ -168,7 +168,7 @@
     "@lapismd/mira-plugin-ai": "~0.0.4",
     "@lapismd/mira-plugin-mermaid": "~0.0.4",
     "@lapismd/spec-validator": "^0.2.0",
-    "@lapismd/storybook-addon-visual-delta": "0.1.0",
+    "@lapismd/storybook-addon-visual-delta": "0.1.5",
     "@lapismd/terminal-host": "^0.1.0",
     "@lezer/common": "^1.5.2",
     "@lezer/highlight": "^1.2.3",
