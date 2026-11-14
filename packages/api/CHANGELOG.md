@@ -1,5 +1,15 @@
 # @lapis-notes/api
 
+## 0.6.0
+
+### Minor Changes
+
+- [#113](https://github.com/lapismd/lapis-notes/pull/113)
+  [`1d49473`](https://github.com/lapismd/lapis-notes/commit/1d494734b1e7cc391df2813d7dbc36c50cb7a0b3)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Add plugin-contributed
+  skill assets and explicit install/update commands. Preserve locally edited or
+  unmanaged skills using versioned installation receipts and conditional writes.
+
 ## 0.5.0
 
 ### Minor Changes

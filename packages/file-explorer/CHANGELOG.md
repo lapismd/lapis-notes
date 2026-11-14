@@ -1,5 +1,13 @@
 # @lapis-notes/file-explorer
 
+## 0.2.8
+
+### Patch Changes
+
+- Updated dependencies
+  [[`1d49473`](https://github.com/lapismd/lapis-notes/commit/1d494734b1e7cc391df2813d7dbc36c50cb7a0b3)]:
+  - @lapis-notes/api@0.6.0
+
 ## 0.2.7
 
 ### Patch Changes
