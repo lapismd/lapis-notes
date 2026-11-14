@@ -1,5 +1,33 @@
 # @lapis-notes/api
 
+## 0.4.0
+
+### Minor Changes
+
+- [#100](https://github.com/lapismd/lapis-notes/pull/100)
+  [`948e198`](https://github.com/lapismd/lapis-notes/commit/948e198dd31cdce777b20e6c7103e3254dfaf8d7)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Keep command-backed
+  ribbon and Markdown pane-menu actions discoverable while an installed plugin
+  remains dormant, with owned activation, target validation and disposable
+  replacement.
+
+### Patch Changes
+
+- [#103](https://github.com/lapismd/lapis-notes/pull/103)
+  [`1a10547`](https://github.com/lapismd/lapis-notes/commit/1a105471657bfe2943d0a0d8d650ffca46bd3feb)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Refresh first-party Lapis
+  dependencies to the published versions recorded in this pull request.
+
+- [#98](https://github.com/lapismd/lapis-notes/pull/98)
+  [`43ff308`](https://github.com/lapismd/lapis-notes/commit/43ff308f4ab66de59c2f896aa7df193452ad59db)
+  Thanks
+  [@lapismd-dependency-bot](https://github.com/apps/lapismd-dependency-bot)! -
+  Refresh first-party Lapis dependencies to the published versions recorded in
+  this pull request.
+- Updated dependencies
+  [[`43ff308`](https://github.com/lapismd/lapis-notes/commit/43ff308f4ab66de59c2f896aa7df193452ad59db)]:
+  - @lapis-notes/ui@0.1.10
+
 ## 0.3.1
 
 ### Patch Changes

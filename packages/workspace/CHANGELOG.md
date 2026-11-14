@@ -1,5 +1,27 @@
 # @lapis-notes/workspace
 
+## 0.4.1
+
+### Patch Changes
+
+- [#98](https://github.com/lapismd/lapis-notes/pull/98)
+  [`43ff308`](https://github.com/lapismd/lapis-notes/commit/43ff308f4ab66de59c2f896aa7df193452ad59db)
+  Thanks
+  [@lapismd-dependency-bot](https://github.com/apps/lapismd-dependency-bot)! -
+  Refresh first-party Lapis dependencies to the published versions recorded in
+  this pull request.
+
+- [#103](https://github.com/lapismd/lapis-notes/pull/103)
+  [`1a10547`](https://github.com/lapismd/lapis-notes/commit/1a105471657bfe2943d0a0d8d650ffca46bd3feb)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Consume released Design
+  Core 0.13.2 so the workspace uses the qualified Mira 0.2 renderer cohort.
+- Updated dependencies
+  [[`948e198`](https://github.com/lapismd/lapis-notes/commit/948e198dd31cdce777b20e6c7103e3254dfaf8d7),
+  [`1a10547`](https://github.com/lapismd/lapis-notes/commit/1a105471657bfe2943d0a0d8d650ffca46bd3feb),
+  [`43ff308`](https://github.com/lapismd/lapis-notes/commit/43ff308f4ab66de59c2f896aa7df193452ad59db)]:
+  - @lapis-notes/api@0.4.0
+  - @lapis-notes/ui@0.1.10
+
 ## 0.4.0
 
 ### Minor Changes
