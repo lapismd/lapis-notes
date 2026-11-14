@@ -1,5 +1,11 @@
 # Architecture / Workspace integration
 
+LN-PLUG-127/128 retain enabled plugins' ribbon and Markdown menu discovery
+without evaluating dormant runtime code. API owns disposable declarations and
+owner-qualified command activation; the existing workspace projects the same
+controls. Plugin runtime registration replaces discovery before activation,
+while App, file, leaf and persistence ownership stay with their existing owners.
+
 Mobile presentation follows LN-WS-105/106: Design Core owns responsive rendering and transient navigation; the Lapis shell adapts its explicit App configuration, plugin commands and FileManager operations. Hosts leave display mode unset unless they own an independently controlled embedded surface.
 
 LN-WS-101 keeps close policy generic and safe by default. A declared layout-only

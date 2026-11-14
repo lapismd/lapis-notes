@@ -94,3 +94,7 @@ only an observed new draft clears the saved conversation. This retains existing
 view state through native metadata/History/Tasks boot without creating a writer
 or resubmitting accepted work. The pre-mount regression reproduces0/1 and passes
 after the view-owned repair; final combined hosted acceptance remains R7.
+
+Deferred plugin discovery controls remain renderer-owned manifest
+contributions. The frozen Deno host gains no startup activation, native
+permission, command execution authority or installed-runtime change.

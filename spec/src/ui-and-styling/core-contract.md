@@ -158,3 +158,7 @@ separate evidence.
 
 - Light and dark matches retain at least 4.5:1 text contrast on workspace and sidebar surfaces, including hover and active rows.
 - Dark yellow highlights preserve readable text without changing light-mode defaults or requiring consumer color overrides.
+
+Deferred plugin discovery uses existing ribbon and Markdown-pane menu
+presentation with command-backed manifest contributions. Shared styling and
+public tokens remain unchanged; owner disablement disposes those controls.

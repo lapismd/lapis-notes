@@ -26,6 +26,15 @@ and consumers. It imports only Zod and does not boot the application.
 
 ## Usage
 
+Installed extensions may declare command-backed `ribbonItems` and
+`markdownViewMenuItems` in `lapis.contributes`. Each entry supplies an `id`,
+`title`, and owned manifest `command`; ribbon items also require an `icon`.
+Markdown items accept optional `icon` and `section` fields. These controls remain
+discoverable before runtime loading. Invoking one awaits owned activation,
+then executes the registered command. Markdown actions retain their source
+leaf and file while activation is pending. Disabled extensions remove their
+discovery controls.
+
 ```ts
 import "@lapis-notes/api";
 import { App } from "@lapis-notes/api";

@@ -7,6 +7,36 @@ import {
 } from "../lapis-extension";
 
 describe("lapis contribution registry", () => {
+  it.each(["ribbonItems", "markdownViewMenuItems"] as const)(
+    "requires an owned command for %s discovery",
+    (kind) => {
+      const index = (command: string) =>
+        buildLapisContributionIndex({
+          pluginId: "demand",
+          manifestPath: "manifest.json",
+          classification: "lapis-extension",
+          source: "official",
+          grantedCapabilities: [],
+          lapis: {
+            manifestVersion: 1,
+            contributes: {
+              commands: [{ command: "open", title: "Open" }],
+              [kind]: [{ id: "open", title: "Open", icon: "file", command }],
+            },
+          },
+        }).contributions.find((entry) => entry.kind === kind)!;
+      expect(index("other-command")).toMatchObject({
+        state: "invalid",
+        diagnostics: [expect.stringContaining("owned manifest command")],
+      });
+      const entry = index("demand:open");
+      expect(entry.state).toBe("valid");
+      expect(activationEventForContribution("demand", entry)).toBe(
+        "onCommand:demand:open",
+      );
+    },
+  );
+
   it("validates query-native metadata database declarations", () => {
     expect(
       validateLapisManifest("query-native", {
@@ -48,6 +78,8 @@ describe("lapis contribution registry", () => {
   it("exposes built-in contribution point descriptors", () => {
     expect(getLapisContributionPointDescriptors().map((it) => it.kind)).toEqual(
       [
+        "ribbonItems",
+        "markdownViewMenuItems",
         "commands",
         "configuration",
         "languages",

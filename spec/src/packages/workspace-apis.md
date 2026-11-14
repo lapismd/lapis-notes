@@ -1,5 +1,12 @@
 # Packages / Workspace APIs
 
+LN-PLUG-127/128 add optional `ribbonItems` and `markdownViewMenuItems` to
+`LapisExtensionContributions`. Their public contribution records reference an
+owned manifest command; the shared PluginManager installs disposable discovery
+controls before loading code. Existing imperative plugin registrations remain
+the runtime authority. Hosts keep routing and vault policy; these declarations
+neither activate background services nor grant permissions.
+
 WorkspaceShell honors LN-WS-105/106 through the public Design Core mobile action and navigation contracts. Its App-owned command registrations are disposable and preserve existing registrations; layout serialization remains unchanged.
 
 LN-WS-101 adds `View.getClosePersistenceScope()`, defaulting to `application`.

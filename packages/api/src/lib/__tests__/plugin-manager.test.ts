@@ -4599,6 +4599,136 @@ describe("PluginManager", () => {
     expect(app.plugins.plugins.get("required-core")?.enabled).toBe(true);
   });
 
+  it.each(["ribbon", "markdown-menu"] as const)(
+    "keeps deferred plugin discovery visible without startup evaluation (%s)",
+    async (surface) => {
+      const action = vi.fn();
+      class DeferredEntry extends Plugin {
+        onload() {
+          this.addCommand({ id: "open", name: "Open", callback: action });
+          if (surface === "ribbon")
+            this.addRibbonIcon("file", "Open", () => {});
+          else this.registerMarkdownViewMenuItem(() => {});
+        }
+      }
+      const evaluate = vi.fn(async () => DeferredEntry);
+      const { app } = createTestApp({
+        communityPluginHost: { id: "web", evaluate },
+      });
+      const ribbons = new Map<
+        string,
+        { callback: (event: MouseEvent) => unknown }
+      >();
+      const providers = new Set<
+        Parameters<App["registerMarkdownViewMenuItem"]>[0]
+      >();
+      Object.assign(app.workspace.leftRibbon, {
+        addItem(item: {
+          id: string;
+          callback: (event: MouseEvent) => unknown;
+        }) {
+          ribbons.set(item.id, item);
+          return () => {
+            ribbons.delete(item.id);
+          };
+        },
+      });
+      Object.assign(app, {
+        registerMarkdownViewMenuItem: (
+          provider: Parameters<App["registerMarkdownViewMenuItem"]>[0],
+        ) => {
+          providers.add(provider);
+        },
+        unregisterMarkdownViewMenuItem: (
+          provider: Parameters<App["registerMarkdownViewMenuItem"]>[0],
+        ) => {
+          providers.delete(provider);
+        },
+      });
+      await app.vault.load();
+      await seedCommunityPluginFiles(
+        app,
+        "lazy-discovery",
+        { "plugin.js": "module.exports = null;" },
+        {
+          lapis: {
+            manifestVersion: 1,
+            runtime: { workspace: "plugin.js" },
+            contributes: {
+              commands: [{ command: "open", title: "Open" }],
+              ...(surface === "ribbon"
+                ? {
+                    ribbonItems: [
+                      {
+                        id: "open",
+                        title: "Open",
+                        icon: "file",
+                        command: "open",
+                      },
+                    ],
+                  }
+                : {
+                    markdownViewMenuItems: [
+                      {
+                        id: "open",
+                        title: "Open",
+                        icon: "file",
+                        command: "open",
+                      },
+                    ],
+                  }),
+            },
+          },
+        },
+      );
+      await app.vault.create(
+        "/.lapis/community-plugins.json",
+        JSON.stringify(["lazy-discovery"]),
+      );
+      await app.plugins.loadPlugins();
+      expect(evaluate).not.toHaveBeenCalled();
+      let invoke!: () => unknown;
+      if (surface === "ribbon") {
+        expect(ribbons.size).toBe(1);
+        invoke = () =>
+          ribbons.get("lazy-discovery:Open")!.callback({} as MouseEvent);
+      } else {
+        expect(providers.size).toBe(1);
+        const leaf = { id: "note", view: { file: { path: "Note.md" } } };
+        Object.assign(app.workspace, {
+          getLeafById: () => leaf,
+          activateLeaf: vi.fn(),
+        });
+        const item = {
+          setTitle: () => item,
+          setIcon: () => item,
+          setSection: () => item,
+          onClick: (callback: () => unknown) => {
+            invoke = callback;
+            return item;
+          },
+        };
+        [...providers][0]!({
+          menu: {
+            addItem: (callback: (item: unknown) => void) => {
+              callback(item);
+            },
+          },
+          leaf,
+          file: leaf.view.file,
+          source: "more-options",
+        } as any);
+      }
+      await invoke();
+      expect(evaluate).toHaveBeenCalledTimes(1);
+      expect(action).toHaveBeenCalledTimes(1);
+      expect(surface === "ribbon" ? ribbons.size : providers.size).toBe(1);
+      await app.plugins.disablePlugin("lazy-discovery");
+      expect(ribbons.size).toBe(0);
+      expect(providers.size).toBe(0);
+    },
+  );
+
   it("coalesces concurrent deferred activation before evaluating the runtime", async () => {
     let release!: () => void;
     const gate = new Promise<void>((resolve) => {

@@ -66,6 +66,23 @@ export interface LapisConfigurationContribution {
   properties?: Record<string, unknown>;
 }
 
+/** A discoverable control backed by an owned manifest command. */
+export interface LapisRibbonItemContribution {
+  id: string;
+  title: string;
+  icon: string;
+  command: string;
+}
+
+/** A Markdown pane action whose source leaf is retained during activation. */
+export interface LapisMarkdownViewMenuItemContribution {
+  id: string;
+  title: string;
+  icon?: string;
+  section?: string;
+  command: string;
+}
+
 export interface LapisLanguageContribution {
   id: string;
   aliases?: string[];
@@ -133,6 +150,8 @@ export interface LapisStatusBarItemContribution {
 
 export interface LapisExtensionContributions {
   commands?: LapisCommandContribution[];
+  ribbonItems?: LapisRibbonItemContribution[];
+  markdownViewMenuItems?: LapisMarkdownViewMenuItemContribution[];
   configuration?: LapisConfigurationContribution[];
   languages?: LapisLanguageContribution[];
   views?: LapisViewContribution[];
@@ -398,6 +417,27 @@ export function buildLapisContributionIndex(options: {
       contributions,
     ),
   ]);
+  const commandIds = new Set(
+    indexedContributions
+      .filter((entry) => entry.kind === "commands" && entry.state === "valid")
+      .map((entry) => normalizeManifestCommandId(options.pluginId, entry.id)),
+  );
+  for (const entry of indexedContributions) {
+    if (
+      entry.state !== "valid" ||
+      !["ribbonItems", "markdownViewMenuItems"].includes(entry.kind)
+    )
+      continue;
+    const { command } = entry.contribution as LapisRibbonItemContribution;
+    if (
+      !commandIds.has(normalizeManifestCommandId(options.pluginId, command))
+    ) {
+      entry.state = "invalid";
+      entry.diagnostics.push(
+        `Contribution ${entry.kind}:${entry.id} must reference an owned manifest command`,
+      );
+    }
+  }
 
   return {
     pluginId: options.pluginId,
@@ -505,6 +545,38 @@ export function normalizeManifestCommandId(
 
 const BUILT_IN_CONTRIBUTION_POINT_DESCRIPTORS: readonly LapisContributionPointDescriptor[] =
   [
+    ...(["ribbonItems", "markdownViewMenuItems"] as const).map((kind) =>
+      createContributionPointDescriptor<
+        LapisRibbonItemContribution | LapisMarkdownViewMenuItemContribution
+      >({
+        kind,
+        manifestInstallable: true,
+        validationMessage:
+          "expected nonempty id, title and command, with a ribbon icon or optional menu icon and section",
+        isContribution: (
+          value,
+        ): value is
+          | LapisRibbonItemContribution
+          | LapisMarkdownViewMenuItemContribution =>
+          isRecord(value) &&
+          ["id", "title", "command"].every(
+            (key) =>
+              typeof value[key] === "string" && value[key].trim().length > 0,
+          ) &&
+          (kind === "ribbonItems"
+            ? typeof value.icon === "string" && value.icon.trim().length > 0
+            : (value.icon === undefined || typeof value.icon === "string") &&
+              (value.section === undefined ||
+                typeof value.section === "string")),
+        activationEvent: (entry) =>
+          `onCommand:${normalizeManifestCommandId(entry.pluginId, (entry.contribution as LapisRibbonItemContribution).command)}`,
+        buildEntry: ({ contribution }) => ({
+          id: contribution.id,
+          contribution,
+          requiredPermissions: ["commands"],
+        }),
+      }),
+    ),
     createContributionPointDescriptor<LapisCommandContribution>({
       kind: "commands",
       manifestInstallable: true,

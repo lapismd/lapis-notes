@@ -1,4 +1,5 @@
 import { readPluginEntrySources } from "./plugin-entry-sources";
+import { installManifestDiscovery } from "./plugin-manifest-discovery";
 import type { App } from "./context.svelte";
 import type { DataAdapter } from "./storage/fs";
 import { Platform } from "./platform";
@@ -3325,6 +3326,14 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
               dispose: this.installManifestCommand(entry),
             });
             break;
+          case "ribbonItems":
+          case "markdownViewMenuItems":
+            disposers.push({
+              kind: entry.kind,
+              id: entry.id,
+              dispose: this.installManifestDiscovery(entry),
+            });
+            break;
           case "configuration":
             disposers.push({
               kind: entry.kind,
@@ -3417,6 +3426,14 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
                   activationEventForContribution(pluginId, entry) ??
                   `onCommand:${entry.id}`,
               }),
+            });
+            break;
+          case "ribbonItems":
+          case "markdownViewMenuItems":
+            disposers.push({
+              kind: entry.kind,
+              id: entry.id,
+              dispose: this.installManifestDiscovery(entry),
             });
             break;
           case "configuration":
@@ -3536,6 +3553,40 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     return () => {
       this.app.commands.unregisterCommand(command.id);
     };
+  }
+
+  private installManifestDiscovery(
+    entry: LapisContributionIndexEntry,
+  ): () => void {
+    return installManifestDiscovery(
+      this.app,
+      entry,
+      async (command, prepare) => {
+        const commandId = normalizeManifestCommandId(entry.pluginId, command);
+        try {
+          const activated = await this.activateByEvent(
+            activationEventForContribution(entry.pluginId, entry)!,
+            `discovery:${commandId}`,
+          );
+          if (!activated || !this.plugins.get(entry.pluginId)?.enabled) return;
+          if (prepare && !prepare()) return;
+          if (!this.app.commands.getCommand(commandId)) {
+            this.reportPluginError(
+              entry.pluginId,
+              `Deferred discovery command ${commandId} was not registered`,
+            );
+            return;
+          }
+          await this.app.commands.executeCommand(commandId);
+        } catch (error) {
+          this.reportPluginError(
+            entry.pluginId,
+            `Deferred discovery command ${commandId} failed: ${formatPluginError(error)}`,
+            error,
+          );
+        }
+      },
+    );
   }
 
   private installManifestConfiguration(
@@ -3802,10 +3853,15 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     }
 
     const indexedExtension = this.#lapisExtensionIndex.get(pluginId);
+    const discoveryKinds = new Set([
+      "commands",
+      "ribbonItems",
+      "markdownViewMenuItems",
+    ]);
     const commandShims =
       this.#manifestContributionDisposers
         .get(pluginId)
-        ?.filter((entry) => entry.kind === "commands") ?? [];
+        ?.filter((entry) => discoveryKinds.has(entry.kind)) ?? [];
     for (const entry of commandShims) {
       entry.dispose();
     }
@@ -3813,7 +3869,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       const remaining =
         this.#manifestContributionDisposers
           .get(pluginId)
-          ?.filter((entry) => entry.kind !== "commands") ?? [];
+          ?.filter((entry) => !discoveryKinds.has(entry.kind)) ?? [];
       this.#manifestContributionDisposers.set(pluginId, remaining);
     }
 
