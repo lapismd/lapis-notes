@@ -311,3 +311,8 @@ The Mira 0.2 intake retains the merged Design Core 0.13.2 registry cohort and
 public export ownership. Resolving its lockfile conflict MUST preserve the
 current main dependency versions and the API Mira peer range above; it does not
 restore the older Design Core lock graph or introduce sibling sources.
+
+CLI settings expose a controller-owned presentation port through Workspace's
+`/cli` entry point. Host-specific installation, download and credential authority
+stay in their hosts; the presentation does not import an App implementation or
+require consumers to migrate unrelated App API versions.

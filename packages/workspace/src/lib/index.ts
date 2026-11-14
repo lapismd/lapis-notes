@@ -22,3 +22,13 @@ export { default as DesktopRecoveryBanner } from "./desktop/DesktopRecoveryBanne
 
 export { bindFileConflictReviews } from "./file-conflicts/register-conflict-reviews";
 export type { FileConflictReviewOptions } from "./file-conflicts/register-conflict-reviews";
+
+export { registerCliSettings } from "./cli/cli-settings";
+export type {
+  CliSettingsHost,
+  CliInstallationStatus,
+  CliDownload,
+  CliAccessHost,
+  CliAccessStatus,
+} from "./cli/cli-settings";
+export { default as CliSettings } from "./cli/CliSettings.svelte";

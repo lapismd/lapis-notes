@@ -79,3 +79,9 @@ here without changing this migration's dependency target.
 <a id="ln-ws-106"></a>
 
 **Requirement.** WorkspaceShell MUST supply Design Core with App-owned Search and new-note actions and register disposable legacy mobile layout/navigation commands. Search MUST execute its registered plugin command and reveal Search. New-note creation MUST use FileManager's available-path and tracked creation boundaries, serialize repeated requests, open the created file, and preserve existing files. Shell teardown MUST remove only its owned commands; mobile presentation MUST remain Design Core-owned.
+
+## LN-WS-107 — Host-owned command line settings
+
+<a id="ln-ws-107"></a>
+
+**Requirement.** Workspace MUST expose a disposable, App-owned General → Advanced CLI settings registration. Host ports MUST own installation status, setup, removal, downloads and optional scoped desktop access. The shared presentation MUST show busy/error/recovery states, require explicit shell PATH consent and never infer browser-local installation. Secrets MUST NOT enter settings persistence.
