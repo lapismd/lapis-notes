@@ -843,11 +843,32 @@ export const workspaceCatalog = [
     storyId: "workspace-plugins--updates-landing",
   },
   {
+    id: "workspace-plugins-installed-landing-management",
+    title: "Plugins Installed Landing Management",
+    spec: "spec/src/plugin-model/distribution-and-registry-01.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins--installed-landing-management",
+  },
+  {
+    id: "workspace-plugins-bulk-install-selection",
+    title: "Plugins Bulk Install Selection",
+    spec: "spec/src/plugin-model/distribution-and-registry-01.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins--bulk-install-selection",
+  },
+  {
     id: "workspace-plugins-updates-directory",
     title: "Plugins Updates Directory",
     spec: "spec/src/plugin-model.md",
     publicSurface: "@lapis-notes/workspace",
     storyId: "workspace-plugins--updates-directory",
+  },
+  {
+    id: "workspace-plugins-installed-directory-management",
+    title: "Plugins Installed Directory Management",
+    spec: "spec/src/plugin-model/distribution-and-registry-01.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-plugins--installed-directory-management",
   },
   {
     id: "workspace-plugins-update-details",

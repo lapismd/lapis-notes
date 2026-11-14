@@ -756,6 +756,42 @@ export const PopulatedUpdatesRows: Story = {
   },
 };
 
+export const BulkUpdateSelection: Story = {
+  args: { scenario: "updates", section: "plugin-registry" },
+  tags: ["visual-pending"],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await selectRegistryTab(canvas, "Updates");
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Update all", exact: true }),
+    );
+    const body = within(canvasElement.ownerDocument.body);
+    const dialog = await body.findByRole("dialog", {
+      name: "Choose plugin updates",
+    });
+    await expect(
+      dialog.querySelector(
+        '[data-ui-component="command-view"][data-ui-part="root"]',
+      ),
+    ).not.toBeNull();
+    await expect(
+      within(dialog).getByRole("option", {
+        name: /AI Assistant, selected/,
+      }),
+    ).toHaveAttribute("data-bulk-selected", "true");
+    await expect(
+      within(dialog).getByRole("option", { name: /Graph View, selected/ }),
+    ).toHaveAttribute("data-bulk-selected", "true");
+    await expect(
+      within(dialog).getByRole("button", {
+        name: "Update 2 plugins",
+        exact: true,
+      }),
+    ).toBeEnabled();
+  },
+};
+
 export const DisableInsteadKeepsInstalledArtifact: Story = {
   args: { scenario: "installed", section: "plugin-registry" },
   play: async ({ canvasElement }) => {

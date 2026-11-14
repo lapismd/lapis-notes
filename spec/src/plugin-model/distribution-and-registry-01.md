@@ -169,7 +169,7 @@ cannot disappear when the host registers the public plugin Settings pages.
 
 <a id="ln-plug-055"></a>
 
-**Requirement.** Installed, Browse, Updates, and Sources MUST use one compact responsive registry-row system with tab-specific Design Core search that expands to reveal supported filters and sorting, plus active-filter count, matching-result count, and Reset. Actions and status reasons MUST stay inside their owning row without adding ratings, source editing, or Update All.
+**Requirement.** Installed, Browse, Updates, and Sources MUST use one compact responsive registry-row system with tab-specific Design Core search that expands to reveal supported filters and sorting, plus active-filter count, matching-result count, and Reset. Actions and status reasons MUST stay inside their owning row without adding ratings or source editing.
 
 ## LN-PLUG-056 — Registry details: expose verified Overview, Changelog, and Releases inside
 
@@ -346,6 +346,18 @@ mean the prepared entrance animation has painted the viewer.
 <a id="ln-plug-102"></a>
 
 **Requirement.** Plugins and registry settings MUST share App-scoped catalog, installed/update state, and verified action handlers. Details MUST expose install/update progress, success, and actionable retry errors while preserving bundled, incompatible, revoked, and unavailable-source states. Existing settings management MUST remain available.
+
+## LN-PLUG-129 — Bulk plugin actions: use a selectable Command View
+
+<a id="ln-plug-129"></a>
+
+**Requirement.** Plugin registry Settings MUST offer `Update all` for eligible updates, and the Plugins homepage MUST offer `Install all` for eligible catalog entries. Each action MUST open a searchable Design Core Command View with explicit multi-selection before invoking the existing App-owned per-plugin action flow. Bundled, installed, incompatible, revoked, busy, and unavailable entries MUST NOT become eligible.
+
+## LN-PLUG-130 — Plugins browser: expose installed discovery and management
+
+<a id="ln-plug-130"></a>
+
+**Requirement.** The Plugins homepage MUST include an Installed section, and the directory MUST expose removable Installed and Available filters. Homepage and directory cards MUST distinguish available, installed, bundled, and update-ready entries and expose the applicable Install, Update, or confirmed Uninstall action without changing App-owned policy.
 
 ## LN-PLUG-105 — Verified plugin images: reserve their declared dimensions and show
 

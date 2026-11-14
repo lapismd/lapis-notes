@@ -159,6 +159,11 @@
   gap: 0.625rem;
 }
 
+.lapis-plugin-registry__bulk-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .lapis-plugin-management__empty {
   padding: 1rem 0.5rem;
   color: var(--ui-lapis-plugin-muted-foreground);

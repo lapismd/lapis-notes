@@ -2,6 +2,11 @@
 
 LN-SRCH-051 adds one metadata-only specification mirror for the Search/Problems provider boundary. Catalog runtime, harnesses, interaction setup and visual approval contracts are unchanged.
 
+Plugin Management and Workspace/Plugins include `visual-pending` review stories
+for LN-PLUG-129/130. Their plays cover selectable bulk-update/install Command
+Views, the Installed homepage section, the removable Installed directory filter
+and card-level update/uninstall actions before broader host acceptance resumes.
+
 ## LN-CAT-011 — Workspace/Shell: document the @lapis-notes/workspace integration with persisted desktop
 
 <a id="ln-cat-011"></a>

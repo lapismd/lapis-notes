@@ -1,29 +1,49 @@
 <script lang="ts">
   import ChevronRightIcon from "@lucide/svelte/icons/chevron-right";
+  import DownloadIcon from "@lucide/svelte/icons/download";
   import PackageIcon from "@lucide/svelte/icons/package";
+  import { Button } from "@lapismd/design-core/shadcn/button";
 
   import { landingSections as registryLandingSections } from "./plugin-browser-model";
   import type { PluginCatalogEntry as RegistryCatalogEntry } from "@lapis-notes/api";
   import RegistryPluginCard from "./PluginBrowserCard.svelte";
   import { registryFilterIcon } from "./community-presentation/registry-filter-icons";
+  import type { RegistryInstallAction } from "./community-presentation/model-adapter";
 
   let {
     plugins,
     updateIds,
+    installedIds,
+    installableCount,
     onOpenUpdates,
+    onOpenInstalled,
     onOpenDirectory,
+    onInstallAll,
     onOpenPlugin,
     onOpenCategory,
+    actionFor,
+    onInstall,
+    onUninstall,
   }: {
     plugins: readonly RegistryCatalogEntry[];
     updateIds: ReadonlySet<string>;
+    installedIds: ReadonlySet<string>;
+    installableCount: number;
     onOpenUpdates: () => void;
+    onOpenInstalled: () => void;
     onOpenDirectory: () => void;
+    onInstallAll: () => void;
     onOpenPlugin: (plugin: RegistryCatalogEntry) => void;
     onOpenCategory: (category: string) => void;
+    actionFor: (plugin: RegistryCatalogEntry) => RegistryInstallAction;
+    onInstall: (plugin: RegistryCatalogEntry) => void | Promise<void>;
+    onUninstall: (plugin: RegistryCatalogEntry) => void | Promise<void>;
   } = $props();
 
   const sections = $derived(registryLandingSections(plugins, updateIds));
+  const installedPlugins = $derived(
+    plugins.filter((plugin) => installedIds.has(plugin.id)),
+  );
 
   function interceptNavigation(event: MouseEvent, action: () => void): void {
     if (
@@ -48,7 +68,41 @@
     <p>
       Browse {plugins.length} plugins built for Lapis Notes by the community.
     </p>
+    {#if installableCount}
+      <Button type="button" variant="outline" onclick={onInstallAll}>
+        <DownloadIcon data-icon="inline-start" aria-hidden="true" />
+        Install all
+      </Button>
+    {/if}
   </header>
+
+  {#if installedPlugins.length}
+    <section
+      class="registry-landing__section"
+      aria-labelledby="registry-landing-installed"
+    >
+      <a
+        class="registry-landing__section-link"
+        href="#/registry/plugins?installed"
+        onclick={(event) => interceptNavigation(event, onOpenInstalled)}
+      >
+        <h2 id="registry-landing-installed">Installed</h2>
+        <ChevronRightIcon aria-hidden="true" />
+      </a>
+      <div class="registry-landing__updates">
+        {#each installedPlugins as plugin (plugin.id)}
+          <RegistryPluginCard
+            {plugin}
+            variant="compact"
+            action={actionFor(plugin)}
+            onOpen={onOpenPlugin}
+            {onInstall}
+            onUninstall={(entry) => void onUninstall(entry)}
+          />
+        {/each}
+      </div>
+    </section>
+  {/if}
 
   {#if sections.updates.length}
     <section
@@ -68,7 +122,10 @@
           <RegistryPluginCard
             {plugin}
             variant="compact"
+            action={actionFor(plugin)}
             onOpen={onOpenPlugin}
+            {onInstall}
+            onUninstall={(entry) => void onUninstall(entry)}
           />
         {/each}
       </div>

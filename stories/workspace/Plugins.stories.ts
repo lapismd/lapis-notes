@@ -1037,6 +1037,74 @@ export const UpdatesLanding: Story = {
     ).toBeNull();
   },
 };
+
+export const InstalledLandingManagement: Story = {
+  name: "Installed Landing Management",
+  tags: ["visual-pending"],
+  render: render("middle-top-tabs", "updates"),
+  parameters: reviewParameters(
+    "installed-landing-management",
+    "The registry homepage identifies installed plugins and keeps eligible update and uninstall actions with their cards.",
+    {},
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = await ready(canvasElement);
+    const installed = within(
+      await canvas.findByRole("region", { name: "Installed", exact: true }),
+    );
+    await expect(
+      installed.getByRole("link", {
+        name: "Open AI Assistant",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      installed.getByRole("button", {
+        name: "Update AI Assistant",
+        exact: true,
+      }),
+    ).toBeEnabled();
+    await expect(
+      installed.getByRole("button", {
+        name: "Uninstall AI Assistant",
+        exact: true,
+      }),
+    ).toBeEnabled();
+  },
+};
+
+export const BulkInstallSelection: Story = {
+  name: "Bulk Install Selection",
+  tags: ["visual-pending"],
+  render: render("middle-top-tabs", "updates"),
+  parameters: reviewParameters(
+    "bulk-install-selection",
+    "Install all opens a searchable Design Core Command View with only eligible catalog entries selected for review.",
+    {},
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = await ready(canvasElement);
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Install all", exact: true }),
+    );
+    const body = within(canvasElement.ownerDocument.body);
+    const dialog = await body.findByRole("dialog", {
+      name: "Choose plugins to install",
+    });
+    await expect(
+      dialog.querySelector(
+        '[data-ui-component="command-view"][data-ui-part="root"]',
+      ),
+    ).not.toBeNull();
+    await expect(within(dialog).getAllByRole("option").length).toBeGreaterThan(
+      0,
+    );
+    await expect(
+      within(dialog).getByRole("button", { name: /Install \d+ plugins?/ }),
+    ).toBeEnabled();
+  },
+};
+
 const updatesReview = {
   route: { page: "directory" },
   directory: { updatesOnly: true },
@@ -1070,6 +1138,46 @@ export const UpdatesDirectory: Story = {
     await expect(canvas.getByText("8 results", { exact: true })).toBeVisible();
     await userEvent.click(filter);
     await expect(canvas.getByText("2 results", { exact: true })).toBeVisible();
+  },
+};
+
+const installedDirectoryReview = {
+  route: { page: "directory" },
+  directory: { installation: "installed" },
+};
+export const InstalledDirectoryManagement: Story = {
+  name: "Installed Directory Management",
+  tags: ["visual-pending"],
+  render: render("middle-top-tabs", "updates", installedDirectoryReview),
+  parameters: reviewParameters(
+    "installed-directory-management",
+    "The removable Installed filter limits the directory to managed plugins whose cards expose update or uninstall actions.",
+    installedDirectoryReview,
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = await ready(canvasElement);
+    await expect(
+      await canvas.findByRole("button", { name: "Remove Installed filter" }),
+    ).toBeVisible();
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Show plugin filters" }),
+    );
+    const body = within(canvasElement.ownerDocument.body);
+    const filter = await body.findByRole("button", { name: /^Installed\s+3$/ });
+    await expect(filter).toHaveAttribute("aria-pressed", "true");
+    await expect(canvas.getByText("3 results", { exact: true })).toBeVisible();
+    await expect(
+      canvas.getByRole("button", {
+        name: "Update AI Assistant",
+        exact: true,
+      }),
+    ).toBeEnabled();
+    await expect(
+      canvas.getByRole("button", {
+        name: "Uninstall AI Assistant",
+        exact: true,
+      }),
+    ).toBeEnabled();
   },
 };
 const updateDetailReview = { route: { page: "plugin", pluginId: "graph" } };

@@ -7,8 +7,10 @@
   } from "@lapis-notes/api";
   import { AppShell, AppShellController } from "@lapismd/design-core/shell";
   import { Button } from "@lapismd/design-core/shadcn/button";
+  import * as AlertDialog from "@lapismd/design-core/shadcn/alert-dialog";
   import * as Tooltip from "@lapismd/design-core/shadcn/tooltip";
   import ArrowLeft from "@lucide/svelte/icons/arrow-left";
+  import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import * as Breadcrumb from "@lapismd/design-core/shadcn/breadcrumb";
   import {
     communityDetail,
@@ -28,6 +30,7 @@
   import PluginRegistryContentState from "./PluginRegistryContentState.svelte";
   import PluginRegistrySkeleton from "./PluginRegistrySkeleton.svelte";
   import PluginBrowserDetail from "./PluginBrowserDetail.svelte";
+  import PluginBulkActionDialog from "./PluginBulkActionDialog.svelte";
   import "./community-presentation/community-typography.css";
   export interface PluginBrowserNavigation {
     route: PluginBrowserRoute;
@@ -78,6 +81,18 @@
     ),
   );
   const availableIds = $derived(new Set([...installedIds, ...bundledIds]));
+  const installableEntries = $derived(
+    registry.catalogEntries.filter(
+      (entry) =>
+        !availableIds.has(entry.id) &&
+        !registry.isPluginActionPending(entry.id) &&
+        reason(entry) === undefined,
+    ),
+  );
+  let bulkInstallOpen = $state(false);
+  let selectedInstallIds = $state<string[]>([]);
+  let uninstallTarget = $state<PluginCatalogEntry | null>(null);
+  let uninstallConfirmOpen = $state(false);
   const selectedId = $derived(
     navigation.route.page === "plugin" ? navigation.route.pluginId : null,
   );
@@ -192,6 +207,67 @@
     if (bundle && "pending" in bundle && bundle.pending === true)
       return "The verified bundle is not ready.";
     return undefined;
+  }
+  function actionForEntry(entry: PluginCatalogEntry): RegistryInstallAction {
+    const feedback =
+      registry.actionFeedback?.pluginId === entry.id
+        ? registry.actionFeedback
+        : null;
+    if (registry.isPluginActionPending(entry.id)) return { state: "installing" };
+    if (feedback?.state === "error")
+      return { state: "rejected", reason: feedback.message };
+    if (bundledIds.has(entry.id))
+      return { state: "installed", label: "Bundled" };
+    const installed = registry.installed.find(
+      (record) => record.pluginId === entry.id,
+    );
+    const availableUpdate = registry.updates.find(
+      (candidate) => candidate.id === entry.id && candidate.canUpdate,
+    );
+    if (availableUpdate)
+      return {
+        state: "available",
+        label: "Update",
+        installedVersion: installed?.installedVersion,
+      };
+    if (installed)
+      return {
+        state: "installed",
+        installedVersion: installed.installedVersion,
+      };
+    const disabled = reason(entry);
+    return disabled
+      ? { state: "disabled", reason: disabled }
+      : { state: "available" };
+  }
+  async function runCardAction(entry: PluginCatalogEntry): Promise<void> {
+    const update = registry.updates.find(
+      (candidate) => candidate.id === entry.id && candidate.canUpdate,
+    );
+    if (update) await registry.update(update);
+    else await registry.install(entry);
+  }
+  function requestUninstall(entry: PluginCatalogEntry): void {
+    uninstallTarget = entry;
+    uninstallConfirmOpen = true;
+  }
+  async function confirmUninstall(): Promise<void> {
+    const target = uninstallTarget;
+    if (!target) return;
+    uninstallConfirmOpen = false;
+    uninstallTarget = null;
+    await ownedApp.pluginDistribution.uninstall(target.id);
+    await registry.refresh(false);
+  }
+  function openBulkInstall(): void {
+    selectedInstallIds = installableEntries.map((entry) => entry.id);
+    bulkInstallOpen = true;
+  }
+  async function installSelectedPlugins(ids: readonly string[]): Promise<void> {
+    for (const id of ids) {
+      const entry = installableEntries.find((candidate) => candidate.id === id);
+      if (entry) await registry.install(entry);
+    }
   }
   onMount(() => {
     const release = registry.retain();
@@ -325,6 +401,10 @@
           installedIds={availableIds}
           {updateIds}
           {downloads}
+          actionFor={actionForEntry}
+          canUninstall={(entry) => installedIds.has(entry.id)}
+          oninstall={runCardAction}
+          onuninstall={requestUninstall}
           onopen={open}
           onchange={(state) => {
             navigation.directory = state;
@@ -432,6 +512,8 @@
                   {:else if navigation.route.page === "landing"}<PluginBrowserLanding
                       plugins={registry.catalogEntries}
                       {updateIds}
+                      {installedIds}
+                      installableCount={installableEntries.length}
                       onOpenUpdates={() => {
                         navigation.directory = {
                           ...defaultDirectoryState(),
@@ -439,9 +521,20 @@
                         };
                         go("directory");
                       }}
+                      onOpenInstalled={() => {
+                        navigation.directory = {
+                          ...defaultDirectoryState(),
+                          installation: "installed",
+                        };
+                        go("directory");
+                      }}
                       onOpenDirectory={() => go("directory")}
+                      onInstallAll={openBulkInstall}
                       onOpenPlugin={open}
                       onOpenCategory={(category) => go("directory", category)}
+                      actionFor={actionForEntry}
+                      onInstall={runCardAction}
+                      onUninstall={requestUninstall}
                     />
                   {:else if selected && resolved && selectedVersion !== undefined && !Object.hasOwn(resolved.detail.versions, selectedVersion)}<PluginRegistryContentState
                       kind="empty"
@@ -479,6 +572,9 @@
                         request.version === selected.latestVersion
                           ? registry.update(update)
                           : registry.install(selected, request.version)}
+                      onUninstall={installedIds.has(selected.id)
+                        ? () => requestUninstall(selected)
+                        : undefined}
                       onOpenPlugin={open}
                       onOpenCategory={(category) => go("directory", category)}
                       onOpenPlatform={(platform) =>
@@ -512,6 +608,46 @@
     </AppShell.Main>
   </AppShell.Root>
 </div>
+
+<PluginBulkActionDialog
+  bind:open={bulkInstallOpen}
+  bind:selectedIds={selectedInstallIds}
+  title="Choose plugins to install"
+  description="Select the compatible available plugins to install. Installed, bundled, and unavailable entries are excluded."
+  verb="Install"
+  items={installableEntries.map((entry) => ({
+    id: entry.id,
+    name: entry.name,
+    description: entry.description,
+    version: entry.latestVersion,
+  }))}
+  onconfirm={installSelectedPlugins}
+/>
+
+<AlertDialog.Root bind:open={uninstallConfirmOpen}>
+  <AlertDialog.Content>
+    <AlertDialog.Header>
+      <AlertDialog.Title>
+        Uninstall {uninstallTarget?.name ?? "plugin"}?
+      </AlertDialog.Title>
+      <AlertDialog.Description>
+        This removes the installed plugin from this vault. You can install it
+        again from the registry later.
+      </AlertDialog.Description>
+    </AlertDialog.Header>
+    <AlertDialog.Footer>
+      <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+      <AlertDialog.Action
+        variant="destructive"
+        aria-label={`Uninstall ${uninstallTarget?.name ?? "plugin"}`}
+        onclick={() => void confirmUninstall()}
+      >
+        <Trash2Icon data-icon="inline-start" aria-hidden="true" />
+        Uninstall plugin
+      </AlertDialog.Action>
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>
 
 <style>
   .plugin-browser {

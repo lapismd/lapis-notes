@@ -8,11 +8,17 @@
   import SearchIcon from "@lucide/svelte/icons/search";
   import SparklesIcon from "@lucide/svelte/icons/sparkles";
   import Table2Icon from "@lucide/svelte/icons/table-2";
+  import ArrowUpCircleIcon from "@lucide/svelte/icons/arrow-up-circle";
+  import CheckCircleIcon from "@lucide/svelte/icons/circle-check";
+  import DownloadIcon from "@lucide/svelte/icons/download";
+  import Trash2Icon from "@lucide/svelte/icons/trash-2";
+  import { Button } from "@lapismd/design-core/shadcn/button";
 
   import {
     formatRegistryBytes,
     registryStatusLabel,
     titleCaseRegistryValue,
+    type RegistryInstallAction,
   } from "./community-presentation/model-adapter";
   import type { PluginCatalogEntry as RegistryCatalogEntry } from "@lapis-notes/api";
   import CommunityChip from "./community-presentation/CommunityChip.svelte";
@@ -22,11 +28,17 @@
   let {
     plugin,
     variant = "card",
+    action,
     onOpen,
+    onInstall,
+    onUninstall,
   }: {
     plugin: RegistryCatalogEntry;
     variant?: "card" | "list" | "compact";
+    action?: RegistryInstallAction;
     onOpen: (plugin: RegistryCatalogEntry) => void;
+    onInstall?: (plugin: RegistryCatalogEntry) => void | Promise<void>;
+    onUninstall?: (plugin: RegistryCatalogEntry) => void | Promise<void>;
   } = $props();
 
   import { imageReference } from "./community-presentation/model-adapter";
@@ -65,77 +77,147 @@
     event.preventDefault();
     onOpen(plugin);
   }
+
+  const actionLabel = $derived(
+    action?.label ??
+      (action?.state === "installing"
+        ? "Installing…"
+        : action?.state === "installed"
+          ? "Installed"
+          : action?.state === "rejected"
+            ? "Retry install"
+            : action?.state === "disabled"
+              ? "Install unavailable"
+              : "Install"),
+  );
 </script>
 
 {#snippet pluginIcon()}
   <PluginIcon aria-hidden="true" />
 {/snippet}
 
-<a
-  href={`#/registry/plugins/${encodeURIComponent(plugin.id)}`}
+<article
   class="registry-plugin-card"
   data-variant={variant}
-  aria-label={`Open ${plugin.name}`}
-  onclick={openPlugin}
+  data-installed={action?.state === "installed" ||
+    Boolean(action?.installedVersion) ||
+    undefined}
 >
-  <span
-    class="registry-plugin-card__identity"
-    style:--registry-plugin-accent={plugin.appearance?.accent ??
-      "var(--primary)"}
+  <a
+    href={`#/registry/plugins/${encodeURIComponent(plugin.id)}`}
+    class="registry-plugin-card__open"
+    aria-label={`Open ${plugin.name}`}
+    onclick={openPlugin}
   >
-    {#if plugin.appearance?.logo}
-      <RegistryVerifiedImage
-        reference={imageReference(plugin.appearance.logo)}
-        alt={plugin.appearance.logo.alt}
-        fallback={pluginIcon}
-        loading="lazy"
-      />
-    {:else}
-      <PluginIcon aria-hidden="true" />
-    {/if}
-  </span>
-  <span class="registry-plugin-card__content">
-    <span class="registry-plugin-card__title">{plugin.name}</span>
-    <span class="registry-plugin-card__description">{plugin.description}</span>
-    {#if variant !== "compact"}
-      <span class="registry-plugin-card__metadata">
-        <span>{plugin.latestVersion}</span>
-        {#if plugin.latestRelease}
-          <span>{formatRegistryBytes(plugin.latestRelease.bundleSize)}</span>
-        {/if}
-        <span>{plugin.platforms.map(titleCaseRegistryValue).join(", ")}</span>
-      </span>
-      <span class="registry-plugin-card__categories" aria-label="Plugin tags">
-        <CommunityChip
-          tone={communityChipToneForState(plugin.status ?? "active")}
-          >{registryStatusLabel(plugin.status)}</CommunityChip
+    <span
+      class="registry-plugin-card__identity"
+      style:--registry-plugin-accent={plugin.appearance?.accent ??
+        "var(--primary)"}
+    >
+      {#if plugin.appearance?.logo}
+        <RegistryVerifiedImage
+          reference={imageReference(plugin.appearance.logo)}
+          alt={plugin.appearance.logo.alt}
+          fallback={pluginIcon}
+          loading="lazy"
+        />
+      {:else}
+        <PluginIcon aria-hidden="true" />
+      {/if}
+    </span>
+    <span class="registry-plugin-card__content">
+      <span class="registry-plugin-card__title">{plugin.name}</span>
+      <span class="registry-plugin-card__description">{plugin.description}</span>
+      {#if variant !== "compact"}
+        <span class="registry-plugin-card__metadata">
+          <span>{plugin.latestVersion}</span>
+          {#if plugin.latestRelease}
+            <span>{formatRegistryBytes(plugin.latestRelease.bundleSize)}</span>
+          {/if}
+          <span>{plugin.platforms.map(titleCaseRegistryValue).join(", ")}</span>
+        </span>
+        <span class="registry-plugin-card__categories" aria-label="Plugin tags">
+          <CommunityChip
+            tone={communityChipToneForState(plugin.status ?? "active")}
+            >{registryStatusLabel(plugin.status)}</CommunityChip
+          >
+          {#each plugin.categories.slice(0, 3) as category}
+            <CommunityChip>{titleCaseRegistryValue(category)}</CommunityChip>
+          {/each}
+        </span>
+      {/if}
+    </span>
+  </a>
+  {#if action}
+    <div class="registry-plugin-card__actions">
+      {#if action.state === "installed" || action.installedVersion}
+        <CommunityChip tone="success" size="compact">
+          {action.state === "installed" ? actionLabel : "Installed"}
+        </CommunityChip>
+      {/if}
+      {#if action.state === "available" || action.state === "rejected"}
+        <Button
+          type="button"
+          size="sm"
+          aria-label={`${actionLabel} ${plugin.name}`}
+          onclick={() => void onInstall?.(plugin)}
         >
-        {#each plugin.categories.slice(0, 3) as category}
-          <CommunityChip>{titleCaseRegistryValue(category)}</CommunityChip>
-        {/each}
-      </span>
-    {/if}
-  </span>
-</a>
+          {#if action.label === "Update"}<ArrowUpCircleIcon
+              data-icon="inline-start"
+              aria-hidden="true"
+            />{:else}<DownloadIcon
+              data-icon="inline-start"
+              aria-hidden="true"
+            />{/if}
+          {actionLabel}
+        </Button>
+      {:else if action.state === "installing"}
+        <Button type="button" size="sm" disabled aria-busy="true">
+          <DownloadIcon data-icon="inline-start" aria-hidden="true" />
+          Installing…
+        </Button>
+      {:else if action.state === "installed" && !onUninstall}
+        <CheckCircleIcon aria-hidden="true" />
+      {/if}
+      {#if onUninstall}
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          aria-label={`Uninstall ${plugin.name}`}
+          onclick={() => void onUninstall(plugin)}
+        >
+          <Trash2Icon data-icon="inline-start" aria-hidden="true" />
+          Uninstall
+        </Button>
+      {/if}
+    </div>
+  {/if}
+</article>
 
 <style>
   .registry-plugin-card {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
     width: 100%;
-    gap: 0.85rem;
+    gap: 0.65rem;
     border: 1px solid var(--border);
     border-radius: calc(var(--radius) * 1.35);
     padding: 1rem;
     color: var(--foreground);
     background: color-mix(in srgb, var(--card) 94%, transparent);
     text-align: start;
-    text-decoration: none;
-    cursor: pointer;
     transition:
       border-color 150ms ease,
       background 150ms ease,
       transform 150ms ease;
+  }
+
+  .registry-plugin-card__open {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.85rem;
+    color: inherit;
+    text-decoration: none;
   }
 
   .registry-plugin-card[data-variant="compact"] {
@@ -151,15 +233,34 @@
     background: color-mix(in srgb, var(--secondary) 64%, transparent);
   }
 
-  .registry-plugin-card:hover,
-  .registry-plugin-card:focus-visible {
+  .registry-plugin-card:has(.registry-plugin-card__open:hover),
+  .registry-plugin-card:has(.registry-plugin-card__open:focus-visible) {
     border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
     background: var(--accent);
     outline: none;
   }
 
-  .registry-plugin-card[data-variant="card"]:hover {
+  .registry-plugin-card[data-variant="card"]:has(
+      .registry-plugin-card__open:hover
+    ) {
     transform: translateY(-1px);
+  }
+
+  .registry-plugin-card__open:focus-visible {
+    outline: none;
+  }
+
+  .registry-plugin-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.4rem;
+  }
+
+  .registry-plugin-card__actions > :global(svg) {
+    width: 1rem;
+    color: var(--muted-foreground);
   }
 
   .registry-plugin-card__identity {
