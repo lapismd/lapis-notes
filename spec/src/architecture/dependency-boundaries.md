@@ -21,7 +21,7 @@ dependencies, so a clean production consumer does not rely on workspace
 development dependencies.
 
 API requires released Design Core `^0.13.0` and admits it in its peer range; Mira
-depends on released `~0.1.5` and peers the compatible `~0.1.3` range.
+depends on released `~0.2.0` and peers the compatible `~0.1.3 || ~0.2.0` range.
 The root development cohort matches.
 This admits stable status mounts and directive highlighting through public exports.
 
@@ -306,3 +306,8 @@ The [current receipt](../../records/2026-10-31-composed-bits-lifecycle-patch.md)
 records provenance, installed graph verification and acceptance separately from
 publication. Root patches do not transfer through published packages. Removal
 requires every component's upstream fix and the complete affected qualification.
+
+The Mira 0.2 intake retains the merged Design Core 0.13.1 registry cohort and
+public export ownership. Resolving its lockfile conflict MUST preserve the
+current main dependency versions and the API Mira peer range above; it does not
+restore the older Design Core lock graph or introduce sibling sources.

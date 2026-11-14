@@ -158,3 +158,7 @@ separate evidence.
 
 - Light and dark matches retain at least 4.5:1 text contrast on workspace and sidebar surfaces, including hover and active rows.
 - Dark yellow highlights preserve readable text without changing light-mode defaults or requiring consumer color overrides.
+
+The Mira 0.2 API dependency intake retains the released Design Core 0.13.1
+cohort, public styling tokens and the alias-only Lapis theme. No consumer
+override or private renderer styling is introduced.

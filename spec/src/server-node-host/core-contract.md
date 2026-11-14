@@ -21,3 +21,7 @@ The renderer build adapter is a browser build facility shared by Web and electro
 The Web workspace keeps native AI opt-in for `node-server`; supplied native
 Chat hosts default enabled only for `rust-server`. Registration remains
 user-disableable and does not select an agent or start provider work.
+
+The shared API/browser graph consumes released Mira 0.2 with Design Core
+0.13.1. This dependency intake adds no hosted operation, credentials or native
+authority and retains public package boundaries.

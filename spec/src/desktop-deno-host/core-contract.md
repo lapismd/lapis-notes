@@ -94,3 +94,6 @@ only an observed new draft clears the saved conversation. This retains existing
 view state through native metadata/History/Tasks boot without creating a writer
 or resubmitting accepted work. The pre-mount regression reproduces0/1 and passes
 after the view-owned repair; final combined hosted acceptance remains R7.
+
+The Mira 0.2 API/browser dependency intake preserves this frozen Deno host;
+it does not change its startup, native permissions or installed runtime.

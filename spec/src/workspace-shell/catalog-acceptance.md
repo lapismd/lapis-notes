@@ -20,3 +20,7 @@ LN-CORE-027 editing recovery stories boot a real App and persisted shell, then
 exercise the existing Problems collection/menu. Claim counts and local issue
 changes remain ephemeral diagnostics; they do not become layout state or a
 second file persistence owner.
+
+The Mira 0.2 dependency intake preserves the released Design Core 0.13.1
+workspace composition. Catalog qualification retains its existing functional,
+interaction, accessibility and cold-start gates.

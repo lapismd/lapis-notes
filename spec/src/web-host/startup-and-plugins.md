@@ -312,3 +312,7 @@ during cleanup and preserves uncertain cleanup failures.
 Passive startup Retry prepares native Chat detach before retiring plugins. Its
 accepted native work stays host-owned; a later explicit plugin disable retains
 the native feature-disable policy.
+
+The Mira 0.2 intake preserves the merged Design Core 0.13.1 browser graph.
+Web startup and plugin admission retain the public API and registry package
+boundaries; no sibling source alias or host policy is introduced.
