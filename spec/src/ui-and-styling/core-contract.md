@@ -162,3 +162,7 @@ separate evidence.
 Deferred plugin discovery uses existing ribbon and Markdown-pane menu
 presentation with command-backed manifest contributions. Shared styling and
 public tokens remain unchanged; owner disablement disposes those controls.
+
+The Mira 0.2 API dependency intake retains the released Design Core 0.13.2
+cohort, public styling tokens and the alias-only Lapis theme. No consumer
+override or private renderer styling is introduced.

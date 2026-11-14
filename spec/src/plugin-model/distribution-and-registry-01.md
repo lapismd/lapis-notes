@@ -372,3 +372,11 @@ Notebook canvas qualification preserves fail-closed declared module auditing, th
 Notebook producer manifests MUST declare versioned renderer dependencies matching their locked compiler. The host MUST NOT admit new unversioned private Svelte aliases to make a plugin load. The API-owned public build adapter supplies producer/host resolution; consumer code MUST NOT copy private sibling build helpers.
 
 ESM startup dependency diagnostics traverse the selected entry and eager relative imports/re-exports only. Lazy chunks are not read solely for diagnostics; declared shared dependencies still contribute missing/private/deprecated diagnostics. CommonJS evaluation retains its local module inventory.
+
+The API Mira 0.2 intake admits the released renderer through a portable peer
+range. Plugin trust, installation, runtime ownership and signed distribution
+remain governed by the existing contracts.
+
+The released Core 0.13.2/Mira 0.2 renderer cohort preserves plugin admission,
+registry trust and source ownership. Dependency qualification does not activate
+a dormant plugin or alter signed package acceptance.
