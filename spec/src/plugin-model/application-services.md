@@ -165,3 +165,6 @@ configuration or vault-persisted values.
 ## LN-PLUG-131 — Protected skill installation
 
 **Requirement.** Updates MUST preserve an entire skill directory when its files differ from the recorded installation, and unmanaged directories MUST remain untouched. Durable receipts MUST distinguish interrupted writes. Native hosts MUST own native writes; browser stores MUST serialize portable writes.
+
+CLI presentation is exported by UI, independent of App API version. Each host
+registers it against its explicitly owned workspace settings controller.

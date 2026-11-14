@@ -84,4 +84,4 @@ here without changing this migration's dependency target.
 
 <a id="ln-ws-107"></a>
 
-**Requirement.** Workspace MUST expose a disposable, App-owned General → Advanced CLI settings registration. Host ports MUST own installation status, setup, removal, downloads and optional scoped desktop access. The shared presentation MUST show busy/error/recovery states, require explicit shell PATH consent and never infer browser-local installation. Secrets MUST NOT enter settings persistence.
+**Requirement.** Hosts MUST register General → Advanced through the disposable `@lapis-notes/ui/cli` settings port on their owned workspace settings controller. Host ports MUST own installation status, setup, removal, downloads and optional scoped desktop access. The shared presentation MUST show busy/error/recovery states, require explicit shell PATH consent and never infer browser-local installation. Secrets MUST NOT enter settings persistence.

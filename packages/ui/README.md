@@ -44,3 +44,10 @@ pnpm --filter @lapis-notes/ui check
 
 - [Package spec](spec.md)
 - [Canonical spec](../../spec/src/ui-and-styling.md)
+
+### CLI settings
+
+`@lapis-notes/ui/cli` exports `CliSettings`, `registerCliSettings` and typed host ports. Register against the owning
+workspace settings controller and dispose with that workspace. Hosts implement
+installation, downloads and optional scoped desktop access; this UI package
+does not install executables, issue credentials or persist secrets.

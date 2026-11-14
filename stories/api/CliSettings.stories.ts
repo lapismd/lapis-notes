@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, userEvent, within, waitFor } from "storybook/test";
-import { CliSettings, type CliSettingsHost } from "@lapis-notes/workspace";
+import { CliSettings, type CliSettingsHost } from "@lapis-notes/ui/cli";
 
 function desktop(
   state:
@@ -29,7 +29,7 @@ function desktop(
   };
 }
 const meta = {
-  title: "Workspace/CLI Settings",
+  title: "API/CLI Settings",
   component: CliSettings,
   tags: ["autodocs", "visual-pending"],
   parameters: {
@@ -37,7 +37,7 @@ const meta = {
       source: {
         language: "svelte",
         type: "code",
-        code: '<script>\n  import { CliSettings } from "@lapis-notes/workspace";\n  // Supply the host-owned installation port.\n  export let host;\n</script>\n<CliSettings {host} />',
+        code: '<script>\n  import { CliSettings } from "@lapis-notes/ui/cli";\n  // Supply the host-owned installation port.\n  export let host;\n</script>\n<CliSettings {host} />',
       },
     },
   },
