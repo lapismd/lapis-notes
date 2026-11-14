@@ -277,6 +277,10 @@ export async function viteFinal(
           ),
         },
         {
+          find: "@lapis-notes/ui/cli",
+          replacement: path.join(uiLib, "cli/index.ts"),
+        },
+        {
           find: /^@lapis-notes\/ui\/(.+)$/,
           replacement: uiComponents + "/$1",
         },

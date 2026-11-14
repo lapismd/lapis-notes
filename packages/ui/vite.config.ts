@@ -32,6 +32,10 @@ export default defineConfig({
         replacement: path.join(uiComponents, "table-dnd/table-dnd-sensors.ts"),
       },
       {
+        find: "@lapis-notes/ui/cli",
+        replacement: path.join(uiLib, "cli/index.ts"),
+      },
+      {
         find: /^@lapis-notes\/ui\/(.+)$/,
         replacement: `${uiComponents}/$1`,
       },

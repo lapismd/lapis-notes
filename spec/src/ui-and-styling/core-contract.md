@@ -166,3 +166,9 @@ public tokens remain unchanged; owner disablement disposes those controls.
 The Mira 0.2 API dependency intake retains the released Design Core 0.13.2
 cohort, public styling tokens and the alias-only Lapis theme. No consumer
 override or private renderer styling is introduced.
+
+The public `@lapis-notes/ui/cli` compound supplies General → Advanced CLI
+setup, removal, repair, downloads and optional scoped desktop access. It composes
+Design Core controls and settings contracts without importing the App API.
+Host ports own installation and credentials; no authority enters UI persistence.
+Node tests compile its Svelte registration page through the package test pipeline.

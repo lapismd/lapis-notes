@@ -223,5 +223,9 @@
   },
   "stories/workspace/popouts/WorkspacePopout.stories.ts": {
     "kind": "application"
+  },
+  "stories/api/CliSettings.stories.ts": {
+    "kind": "component",
+    "subject": "@lapis-notes/ui/cli#CliSettings"
   }
 }

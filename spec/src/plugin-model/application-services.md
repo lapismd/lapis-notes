@@ -153,6 +153,11 @@ view state through native metadata/History/Tasks boot without creating a writer
 or resubmitting accepted work. The pre-mount regression reproduces0/1 and passes
 after the view-owned repair; final combined hosted acceptance remains R7.
 
+Host-owned CLI settings register against the owning App's settings controller.
+Their disposable host ports retain operating-system and credential authority;
+installation status, bearer credentials and host methods never become plugin
+configuration or vault-persisted values.
+
 ## LN-PLUG-130 — Plugin skill contributions
 
 **Requirement.** Plugins MAY contribute named package-relative directories through `agentSkills`. Explicit app installation MUST write vault-root `.agents/skills` from enabled packaged contributions without depending on AI being enabled.
@@ -160,3 +165,6 @@ after the view-owned repair; final combined hosted acceptance remains R7.
 ## LN-PLUG-131 — Protected skill installation
 
 **Requirement.** Updates MUST preserve an entire skill directory when its files differ from the recorded installation, and unmanaged directories MUST remain untouched. Durable receipts MUST distinguish interrupted writes. Native hosts MUST own native writes; browser stores MUST serialize portable writes.
+
+CLI presentation is exported by UI, independent of App API version. Each host
+registers it against its explicitly owned workspace settings controller.

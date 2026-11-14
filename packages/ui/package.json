@@ -71,6 +71,12 @@
       "svelte": "./dist/components/ui/*/index.js",
       "import": "./dist/components/ui/*/index.js",
       "default": "./dist/components/ui/*/index.js"
+    },
+    "./cli": {
+      "types": "./dist/cli/index.d.ts",
+      "svelte": "./dist/cli/index.js",
+      "import": "./dist/cli/index.js",
+      "default": "./dist/cli/index.js"
     }
   },
   "peerDependencies": {

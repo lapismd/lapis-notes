@@ -72,3 +72,11 @@ remains visual-pending; functional checks do not approve or generate a baseline.
 App-backed catalog fixtures use the shared `.lapis` state default under
 LN-ARCH-140 for settings, plugin enablement, hotkeys, and persisted layouts.
 Functional, keyboard, and axe gates retain their existing assertions.
+
+API / CLI Settings covers per-user setup/removal, installed and repair
+states, foreign-command conflicts, actionable failure and browser download
+instructions through the production component. It remains `visual-pending`;
+future captures use independent `api/cli-settings/<story>.png` paths.
+
+CLI catalog cases resolve the public UI subpath to its owning source compound
+using the catalog’s existing first-party source resolution policy.
