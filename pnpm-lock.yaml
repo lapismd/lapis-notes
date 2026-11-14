@@ -530,8 +530,8 @@ importers:
         specifier: workspace:*
         version: link:../workspace
       '@lapismd/agent-ui':
-        specifier: ^0.2.4
-        version: 0.2.4(svelte@5.56.10)(tailwindcss@4.3.3)
+        specifier: ^0.2.6
+        version: 0.2.6(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapismd/design-core':
         specifier: ^0.13.2
         version: 0.13.2(svelte@5.56.10)(tailwindcss@4.3.3)
@@ -2554,8 +2554,8 @@ packages:
     engines: {node: '>=22.13.0'}
     hasBin: true
 
-  '@lapismd/agent-ui@0.2.4':
-    resolution: {integrity: sha512-mASl+P5JhHUeIxMJ+sNvJDB1ysB48fEN6fKJ4pkJQ2iiS3BJB9ffSyZTHQfYk9JFy9MLXTT1dVtPolpAcxpSJg==}
+  '@lapismd/agent-ui@0.2.6':
+    resolution: {integrity: sha512-2GpGkXcTbd0dvH9W1UQ1+KXXNFv0kt6bo7lonZwmM3XUYK8Jc3NbYx5rLlOUAnOuhW2zcCJrO0HHLmV6HsZ7EQ==}
     peerDependencies:
       svelte: ^5.0.0
 
@@ -10585,7 +10585,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@lapismd/agent-ui@0.2.4(svelte@5.56.10)(tailwindcss@4.3.3)':
+  '@lapismd/agent-ui@0.2.6(svelte@5.56.10)(tailwindcss@4.3.3)':
     dependencies:
       '@lapismd/design-core': 0.13.2(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lucide/svelte': 1.66.0(svelte@5.56.10)
