@@ -70,6 +70,7 @@ export type AppStateProperties = {
     nativeEditingIntents?: NativeEditingIntents;
     nativeTasks?: NativeTasks;
     operations?: OperationHost;
+    skillManagement?: import("./skill-management").SkillManagementHost;
     appDatabase?: AppDatabase;
     safeMode?: AppSafeModeState;
     createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
@@ -178,6 +179,7 @@ export declare class App {
     readonly nativeHistoryIndex?: NativeHistoryIndex;
     readonly nativeTasks?: NativeTasksSession;
     readonly operations?: OperationSession;
+    readonly skillManagement: import("./skill-management").SkillManagementHost;
     readonly safeMode: AppSafeModeState;
     plugins: PluginManager;
     scope: Scope;

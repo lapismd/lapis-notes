@@ -289,6 +289,84 @@ function createBrowserAdapter(root = new MockDirectoryHandle("mock")) {
   });
 }
 
+describe("browser conditional text writes", () => {
+  function stagedAdapter() {
+    const root = new MockDirectoryHandle("conditional");
+    const get = root.getFileHandle.bind(root);
+    const wrapped = new WeakSet();
+    const hooks = { afterStage: async () => {}, aborted: 0 };
+    root.getFileHandle = async (...args) => {
+      const handle = await get(...args);
+      if (!wrapped.has(handle)) {
+        wrapped.add(handle);
+        const create = handle.createWritable.bind(handle);
+        handle.createWritable = async (options) => {
+          let staged: Parameters<
+            BrowserFileSystemWritableFileStream["write"]
+          >[0];
+          return {
+            seek: async () => {},
+            write: async (data) => {
+              staged = data;
+              await hooks.afterStage();
+            },
+            close: async () => {
+              const writer = await create(options);
+              await writer.write(staged);
+              await writer.close();
+            },
+            abort: async () => {
+              hooks.aborted += 1;
+            },
+          };
+        };
+        Object.assign(handle, {
+          externalWrite: async (data: string) => {
+            const writer = await create({ keepExistingData: false });
+            await writer.write(data);
+            await writer.close();
+          },
+        });
+      }
+      return handle;
+    };
+    return { adapter: createBrowserAdapter(root), root, hooks };
+  }
+  it("publishes complete bytes, rejects stale snapshots and serializes writers", async () => {
+    const { adapter } = stagedAdapter();
+    await adapter.writeTextIfUnchanged("note.md", "original contents", null);
+    await adapter.writeTextIfUnchanged("note.md", "short", "original contents");
+    expect(await adapter.read("note.md")).toBe("short");
+    await expect(
+      adapter.writeTextIfUnchanged("note.md", "bad", null),
+    ).rejects.toMatchObject({ code: "ECONFLICT" });
+    const results = await Promise.allSettled([
+      adapter.writeTextIfUnchanged("note.md", "first", "short"),
+      adapter.writeTextIfUnchanged("note.md", "second", "short"),
+    ]);
+    expect(results.map((result) => result.status)).toEqual([
+      "fulfilled",
+      "rejected",
+    ]);
+    expect(await adapter.read("note.md")).toBe("first");
+  });
+  it("aborts staged bytes after an intervening edit without replay", async () => {
+    const { adapter, root, hooks } = stagedAdapter();
+    await adapter.writeTextIfUnchanged("note.md", "original", null);
+    const file = (await root.getFileHandle("note.md")) as MockFileHandle & {
+      externalWrite(data: string): Promise<void>;
+    };
+    const external = vi.fn(async () => file.externalWrite("local edit"));
+    hooks.afterStage = external;
+    await expect(
+      adapter.writeTextIfUnchanged("note.md", "replacement", "original"),
+    ).rejects.toMatchObject({ code: "ECONFLICT" });
+    expect(external).toHaveBeenCalledTimes(1);
+    expect(hooks.aborted).toBe(1);
+    expect(await adapter.read("note.md")).toBe("local edit");
+  });
+});
+
 runDataAdapterConformance("InMemoryDataAdapter conformance", () => {
   return new InMemoryDataAdapter();
 });

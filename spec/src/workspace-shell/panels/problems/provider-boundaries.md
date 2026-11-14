@@ -34,3 +34,5 @@ Shared native Search selection failures remain indexing status/notification
 data. Observer sharing does not add a Problems collection or competing panel.
 
 The [admitted native Task observer](../../../architecture/rust-task-host-port.md#ln-core-014) retains typed failures, partial outcomes and request identity for host adapters. Diagnostic collection ownership and presentation continue through the existing Problems integration contract. A raw Task outcome is service data; an explicit host-owned contribution supplies any navigation or recovery action.
+
+Skill installation failures use existing application notifications. Adding these App commands gives no new writer or diagnostic ownership to the Problems presentation.

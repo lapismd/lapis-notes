@@ -674,6 +674,19 @@ export const pluginHostModuleRegistry = {
     "specifier": "@lapis-notes/api/server-host",
     "version": "0.5.0"
   },
+  "@lapis-notes/api/skill-management": {
+    "entry": "@lapis-notes/api/skill-management",
+    "moduleId": "lapis-notes-api-skill-management",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/skill-management",
+    "version": "0.4.0"
+  },
   "@lapis-notes/api/sync-repository": {
     "entry": "@lapis-notes/api/sync-repository",
     "moduleId": "lapis-notes-api-sync-repository",

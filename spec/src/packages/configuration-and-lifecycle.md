@@ -1,5 +1,9 @@
 # Packages / Configuration and lifecycle
 
+Browser storage implements the same conditional text-write port used by native
+configuration writers and protected skill installation. Staged commits reject
+changed or unexpectedly present contents, preserving the original file on abort.
+
 Read-only external configuration reconciliation under LN-PKG-186 also preserves
 the LN-PLUG-112 writer boundary: PluginManager must not turn an observed reload
 into compatibility-data persistence. Local saves and removals retain mirroring.

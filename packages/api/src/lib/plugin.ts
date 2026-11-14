@@ -287,6 +287,7 @@ function formatPluginError(error: unknown): string {
  * @public
  */
 export abstract class Plugin extends Component {
+  readonly packagedAgentSkills?: readonly import("./skill-management").PackagedSkill[];
   basePath: string = "";
   #runtimeState: PluginRuntimeState = "disabled";
   #failureMessage: string | null = null;

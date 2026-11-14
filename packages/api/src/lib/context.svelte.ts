@@ -1,3 +1,5 @@
+import { createAppSkillManagement, registerSkillManagementCommands } from "./skill-management-app";
+import type { SkillManagementHost } from "./skill-management";
 import { IconRegistry } from "./icons/registry";
 import { FILES_CONFIGURATION_SCHEMA } from "./files-configuration";
 import { DEFAULT_VAULT_EXCLUDES } from "./storage/vault-listing";
@@ -153,6 +155,7 @@ export type AppStateProperties = {
   nativeEditingIntents?: NativeEditingIntents;
   nativeTasks?: NativeTasks;
   operations?: OperationHost;
+  skillManagement?: SkillManagementHost;
   appDatabase?: AppDatabase;
   safeMode?: AppSafeModeState;
   createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
@@ -307,6 +310,7 @@ export class App {
   readonly nativeHistoryIndex?: NativeHistoryIndex;
   readonly nativeTasks?: NativeTasksSession;
   readonly operations?: OperationSession;
+  readonly skillManagement: SkillManagementHost;
   readonly safeMode: AppSafeModeState;
   plugins: PluginManager = $state()!;
   scope: Scope = $state(new Scope(undefined, this));
@@ -461,6 +465,8 @@ export class App {
     const nativeTasks = props.session?.nativeTasks ?? props.nativeTasks;
     const operations = props.session?.operations ?? props.operations;
     this.operations = operations ? new OperationSession(operations) : undefined;
+    this.skillManagement = createAppSkillManagement(this, props.session?.skillManagement ?? props.skillManagement);
+    registerSkillManagementCommands(this);
     this.nativeTasks = nativeTasks
       ? new NativeTasksSession(nativeTasks, () => {
           const state = this.plugins?.plugins.get("tasks")?.state;

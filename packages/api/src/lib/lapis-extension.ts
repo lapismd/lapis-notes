@@ -1,3 +1,4 @@
+import { isAgentSkillContribution, type AgentSkillContribution } from "./skill-management";
 import type { Command, Hotkey } from "./command.svelte";
 import type { OperationContribution } from "./operations";
 import type { HostedPluginCapability } from "./plugin-capability-facade";
@@ -150,6 +151,7 @@ export interface LapisStatusBarItemContribution {
 }
 
 export interface LapisExtensionContributions {
+  agentSkills?: AgentSkillContribution[];
   operations?: OperationContribution[];
   commands?: LapisCommandContribution[];
   ribbonItems?: LapisRibbonItemContribution[];
@@ -547,6 +549,12 @@ export function normalizeManifestCommandId(
 
 const BUILT_IN_CONTRIBUTION_POINT_DESCRIPTORS: readonly LapisContributionPointDescriptor[] =
   [
+    createContributionPointDescriptor<AgentSkillContribution>({
+      kind: "agentSkills", manifestInstallable: true,
+      validationMessage: "expected a skill name and confined package-relative directory",
+      isContribution: isAgentSkillContribution,
+      buildEntry: ({ contribution }) => ({ id: contribution.name, contribution, requiredPermissions: [] }),
+    }),
     createContributionPointDescriptor<OperationContribution>({
       kind: "operations",
       manifestInstallable: true,
