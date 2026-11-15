@@ -2754,6 +2754,36 @@ describe("Workspace compatibility", () => {
     });
   });
 
+  it("preserves a view when projection omits undefined optional state", async () => {
+    const { workspace } = createWorkspaceHarness();
+    workspace.registerView(
+      "fixture-a",
+      (leaf) => new MockItemView(leaf, "fixture-a", "Fixture A"),
+    );
+    const leaf = workspace.getLeaf(true);
+    await leaf.setViewState({
+      type: "fixture-a",
+      state: { source: "backup", operation: undefined, revision: undefined },
+    });
+    const view = leaf.view;
+    await leaf.loadJson({
+      id: leaf.id,
+      type: "leaf",
+      state: {
+        type: "fixture-a",
+        state: { source: "backup" },
+        icon: "",
+        title: "Fixture A",
+      },
+    });
+    expect(leaf.view).toBe(view);
+    expect(leaf.view.getState()).toEqual({
+      source: "backup",
+      operation: undefined,
+      revision: undefined,
+    });
+  });
+
   it("controls the bottom panel through the compatibility API", () => {
     const { workspace } = createWorkspaceHarness();
     const controller = getWorkspaceHostBinding(workspace).controller;

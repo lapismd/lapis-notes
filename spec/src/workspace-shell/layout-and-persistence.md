@@ -188,7 +188,7 @@ WorkspaceShell.
 
 <a id="ln-ws-098"></a>
 
-**Requirement.** Live controller projection MUST preserve session-only popup records and claimed leaf, view, editor and history identity. Compatibility windows MUST bind existing controller handles without opening another host. Cold restoration MUST omit popups. The API workspace MUST remain the sole layout writer.
+**Requirement.** Live controller projection MUST preserve session-only popup records and claimed leaf, view, editor and history identity. Compatibility windows MUST bind existing controller handles without opening another host. Cold restoration MUST omit popups. The API workspace MUST remain the sole layout writer, treating absent and undefined optional view-state keys as equivalent during projection.
 
 ## LN-WS-099 — Popup close admission
 

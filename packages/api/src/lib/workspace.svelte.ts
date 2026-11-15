@@ -5711,9 +5711,14 @@ function loadWorkspaceLeafJson(
   if (!isCurrent()) return Promise.resolve();
   leaf.id = layout.id;
   const liveState = leaf.view.getState();
+  // Layout JSON omits undefined optional keys returned by a live view.
+  const definedState = (state: Record<string, unknown> = {}) =>
+    Object.fromEntries(
+      Object.entries(state).filter(([, value]) => value !== undefined),
+    );
   if (
     leaf.view.getViewType() === layout.state.type &&
-    (isEqual(liveState, layout.state.state) ||
+    (isEqual(definedState(liveState), definedState(layout.state.state)) ||
       isPoorerViewState(layout.state.state, liveState))
   ) {
     leaf.state = { type: layout.state.type, state: { ...liveState } };
