@@ -148,10 +148,13 @@ that branch but remains below the patched boundary for
 The old version is not restored. The approved deepmerge exception covers none
 of this behavior. No navigation test is skipped, weakened or marked passing.
 
-A separate explicit release decision is required: retain the secure dependency
-and accept this catalog-only Forward-navigation limitation temporarily, or
-hold publication for an upstream corrected release. Product package gates and
-the 289-case application interaction/accessibility aggregate remain passing.
+The user explicitly accepted this catalog-only Forward-navigation limitation
+on 2026-11-15 and authorized continuing Lapis releases with the secure Storybook
+version. This acceptance covers only the documented history regression. The
+unchanged test remains failing and visible; no skip, timeout or assertion
+change is authorized. Product package gates and the 289-case application
+interaction/accessibility aggregate remain passing. Recheck the exact case
+when adopting an upstream Storybook fix.
 
 Direct App Profile packing passes its build, check and publint prepack gates.
 All five public export maps resolve files in the actual tarball; no test or
@@ -161,3 +164,26 @@ original pack log at `.local/profile-public-direct-pack-20261115.log`. This is
 a local source artifact, not a publication or a replacement for the required
 clean-revision release aggregate. Final specification checking also passes
 its configured gates and 67 governance cases after recording the exception.
+
+## Combined-main reconciliation after acceptance
+
+Main advances to `ccca08e9` with the separately merged public profile, portable
+session/native Repository intake and startup-readiness fence (PRs 127/128),
+then versions App Profile 0.2.0, API 0.6.4 and Workspace 0.4.6 (PR 125). The
+reconciliation preserves those newer implementations and their History 0.4
+contract, removing duplicate restored sources. This slice now requests a Profile
+patch alongside the byte/retry API patch. The final versioned Profile API floor
+must identify the actual API release carrying these guards.
+
+Initial clean packaging before reconciliation rejects an external Markdown
+dependency under the old tarball validator. Main already contains the source
+validator correction; it is adopted rather than duplicated. Initial spec
+reconciliation puts two verification rows outside their table (two unmapped
+findings); moving them into the existing table restores the specification gate.
+All 62 exact storage/retry cases pass after main integration. Complete combined
+package, catalog and clean-revision packaging qualification is repeated.
+
+Main's release workflow 43745647019 reaches publication but fails npm
+authentication for App Profile 0.2.0. The package remains absent from npm at the
+check. This is a publisher configuration gate, not a reason to bypass signing
+or substitute a local package in consumer manifests.

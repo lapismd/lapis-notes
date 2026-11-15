@@ -350,6 +350,44 @@ describe("browser conditional text writes", () => {
     ]);
     expect(await adapter.read("note.md")).toBe("first");
   });
+  it("compares binary snapshots without lossy text decoding and serializes byte writers", async () => {
+    const { adapter } = stagedAdapter();
+    const replacement = new Uint8Array([0xff]).buffer;
+    const decoded = new TextEncoder().encode("\uFFFD").buffer;
+    await adapter.writeBinaryIfUnchanged("raw.bin", replacement, null);
+    await expect(
+      adapter.writeBinaryIfUnchanged("raw.bin", decoded, decoded),
+    ).rejects.toMatchObject({ code: "ECONFLICT" });
+    const results = await Promise.allSettled([
+      adapter.writeBinaryIfUnchanged("raw.bin", decoded, replacement),
+      adapter.writeBinaryIfUnchanged(
+        "raw.bin",
+        new ArrayBuffer(0),
+        replacement,
+      ),
+    ]);
+    expect(results.map((result) => result.status)).toEqual([
+      "fulfilled",
+      "rejected",
+    ]);
+    expect(new Uint8Array(await adapter.readBinary("raw.bin"))).toEqual(
+      new Uint8Array(decoded),
+    );
+  });
+  it("aborts a staged binary write after an intervening edit", async () => {
+    const { adapter, root, hooks } = stagedAdapter();
+    const baseline = new TextEncoder().encode("original").buffer;
+    await adapter.writeBinaryIfUnchanged("raw.bin", baseline, null);
+    const file = (await root.getFileHandle("raw.bin")) as MockFileHandle & {
+      externalWrite(data: string): Promise<void>;
+    };
+    hooks.afterStage = async () => file.externalWrite("concurrent");
+    await expect(
+      adapter.writeBinaryIfUnchanged("raw.bin", new ArrayBuffer(0), baseline),
+    ).rejects.toMatchObject({ code: "ECONFLICT" });
+    expect(hooks.aborted).toBe(1);
+    expect(await adapter.read("raw.bin")).toBe("concurrent");
+  });
   it("aborts staged bytes after an intervening edit without replay", async () => {
     const { adapter, root, hooks } = stagedAdapter();
     await adapter.writeTextIfUnchanged("note.md", "original", null);

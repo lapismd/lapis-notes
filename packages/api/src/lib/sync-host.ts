@@ -333,7 +333,8 @@ function boundedLimit(limit = 100): number {
 }
 
 export class SyncHostService {
-  readonly #ready: Promise<void>;
+  #ready: Promise<void>;
+  #initializationFailed = false;
   #eventQueue: Promise<void> = Promise.resolve();
   readonly #runtimeIds = new Map<string, Set<string>>();
   readonly #origins = new Map<
@@ -403,10 +404,24 @@ export class SyncHostService {
         .catch(() => undefined);
     });
     this.#stopObserving = () => this.vault.offref(eventRef);
-    this.#ready = this.#initialize();
+    this.#ready = this.#startInitialization();
   }
 
-  async ready(): Promise<void> {
+  #startInitialization(): Promise<void> {
+    const pending = this.#initialize().catch((error: unknown) => {
+      this.#initializationFailed = true;
+      throw error;
+    });
+    // Readiness remains rejectable by callers; eager startup owns its rejection.
+    void pending.catch(() => {});
+    return pending;
+  }
+
+  async ready(options: { retry?: boolean } = {}): Promise<void> {
+    if (options.retry && this.#initializationFailed && !this.#disposed) {
+      this.#initializationFailed = false;
+      this.#ready = this.#startInitialization();
+    }
     await this.#ready;
     await this.#eventQueue;
   }

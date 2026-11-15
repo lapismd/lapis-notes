@@ -40,7 +40,7 @@ For LN-PLUG-095, App Profile owns local acceptance configuration through public
 App distribution options. Ephemeral public trust keys and loopback transport
 remain development inputs rather than published package pins.
 
-The Workspace package exports `PluginsView` and `PluginBrowser` for the app-owned Plugins browser (LN-PLUG-098–103). The private App Profile registers its view, ribbon, command, and disposable lifecycle; the four optional static plugin defaults remain unchanged.
+The Workspace package exports `PluginsView` and `PluginBrowser` for the app-owned Plugins browser (LN-PLUG-098–103). The published App Profile registers its view, ribbon, command, and disposable lifecycle; the four optional static plugin defaults remain unchanged.
 
 Dependency-image pin updates record the exact immutable image and lockfile
 inputs used for package validation in

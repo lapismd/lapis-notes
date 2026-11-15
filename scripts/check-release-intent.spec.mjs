@@ -39,3 +39,10 @@ test("skips generated Changesets release branches", () => {
     },
   );
 });
+
+test("requires a changeset for the published application profile", () => {
+  assert.throws(
+    () => checkReleaseIntent(["packages/app-profile/src/index.ts"], {}),
+    /Public package changes require a Changeset/,
+  );
+});

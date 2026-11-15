@@ -834,8 +834,17 @@ export const UnknownView: Story = {
     const canvas = await waitForView(canvasElement, "unknown", "timeline");
     await waitFor(() =>
       expect(
-        canvas.getByText("Base configured with an unknown view type: timeline"),
+        canvas.getByText("Unsupported view"),
       ).toBeVisible(),
     );
+    expect(canvas.getByText("timeline", { exact: true })).toBeVisible();
+    expect(
+      canvasElement.querySelector('[data-ui-part="empty-media"] svg'),
+    ).toBeVisible();
+    expect(
+      demoDocument(canvasElement).views.find(
+        (view) => view.name === "Timeline experiment",
+      )?.type,
+    ).toBe("timeline");
   },
 };

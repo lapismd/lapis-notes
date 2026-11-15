@@ -12,6 +12,10 @@ This repository publishes the reusable Lapis Notes packages from the
 
 The first public version for each package is `0.1.0`.
 
+App Profile publishes built session and native-integration exports after its
+framework dependencies. Its release and clean-consumer checks use a coherent API
+cohort; hosts retain storage admission and platform lifecycle policy.
+
 ## Release model
 
 Changesets owns future version PR creation. The release workflow builds and

@@ -190,3 +190,27 @@ it("serializes competing memory snapshot writes without losing the winning value
   expect(await adapter.read("note.md")).toBe("first");
   expect(adapter.writeCount).toBe(1);
 });
+
+it("compares memory byte snapshots without replacement-character collisions", async () => {
+  const raw = new Uint8Array([0xff]).buffer;
+  const decoded = new TextEncoder().encode("\uFFFD").buffer;
+  const adapter = new MemoryVaultAdapter({
+    "raw.bin": raw,
+    "text.md": "\uFFFD",
+  });
+  await expect(
+    adapter.writeBinaryIfUnchanged("raw.bin", decoded, decoded),
+  ).rejects.toMatchObject({ code: "ECONFLICT" });
+  expect(new Uint8Array(await adapter.readBinary("raw.bin"))).toEqual(
+    new Uint8Array(raw),
+  );
+  await adapter.writeBinaryIfUnchanged("text.md", raw, decoded);
+  const results = await Promise.allSettled([
+    adapter.writeBinaryIfUnchanged("raw.bin", decoded, raw),
+    adapter.writeBinaryIfUnchanged("raw.bin", new ArrayBuffer(0), raw),
+  ]);
+  expect(results.map((result) => result.status)).toEqual([
+    "fulfilled",
+    "rejected",
+  ]);
+});

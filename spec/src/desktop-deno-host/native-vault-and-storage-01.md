@@ -1,5 +1,10 @@
 # Deno Desktop Host / Native vault and storage / Part 1
 
+LN-PKG-132 publishes the shared profile and portable session through built exports.
+The frozen Deno host retains its native lifecycle and bridge policy. Current
+Tauri Desktop adoption and distribution are qualified in lapis-desktop against
+the released package cohort; browser source checks cannot qualify that host.
+
 The neutral native adapter gains an optional system-trash port under LN-PKG-184.
 Tauri implements the new capability; the superseded Deno host remains frozen
 and does not advertise it. This annotation changes no Deno host source.

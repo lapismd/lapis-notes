@@ -19,11 +19,11 @@ controller or changing host authority.
 
 Under LN-WS-106, the mobile shell invokes Search through its registered `search:open-search` plugin command. It does not import Search internals. Disabling Search makes that action unavailable, and shell disposal removes only commands registered by that shell.
 
-The private application profile consumes published Markdown `^0.2.0`; it keeps
+The shared application profile consumes published Markdown `^0.3.0`; it keeps
 the same plugin IDs, App ownership and host-owned static selection.
 
-The private application profile accepts published Agent UI `^0.2.6`, History
-`^0.2.0`, and Design Core `^0.13.2`; it keeps the same plugin IDs, App
+The shared application profile accepts published Agent UI `^0.2.6`, History
+`^0.3.1`, and Design Core `^0.13.2`; it keeps the same plugin IDs, App
 ownership and host-owned static selection.
 
 The ordinary hosted profile selects native metadata, History and Tasks together
@@ -180,7 +180,7 @@ configuration or vault-persisted values.
 
 ## LN-PLUG-131 — Protected skill installation
 
-**Requirement.** Updates MUST preserve an entire skill directory when its files differ from the recorded installation, and unmanaged directories MUST remain untouched. Durable receipts MUST distinguish interrupted writes. Native hosts MUST own native writes; browser stores MUST serialize portable writes.
+**Requirement.** Updates MUST preserve an entire skill directory when its files differ from the recorded installation, and unmanaged directories MUST remain untouched. Durable receipts MUST distinguish interrupted writes. Native hosts MUST own native writes; browser stores MUST serialize portable writes and compare raw file bytes, including binary additions and invalid UTF-8 edits.
 
 CLI presentation is exported by UI, independent of App API version. Each host
 registers it against its explicitly owned workspace settings controller.

@@ -156,21 +156,21 @@ original local draft, including when the next decision keeps that draft.
 
 **Requirement.** `VaultAdapter` MAY expose `writeTextIfUnchanged` with exact expected text or explicit expected absence. A supporting adapter MUST reject an observed mismatch without an unconditional-write fallback. The public package MUST expose the method's types. `MemoryVaultAdapter` MUST advertise and implement this existing capability with an atomic in-memory comparison, including expected absence and competing writes.
 
+## LN-PKG-192 — Optional conditional byte writes
+
+<a id="ln-pkg-192"></a>
+
+**Requirement.** `VaultAdapter` MAY expose `writeBinaryIfUnchanged` with exact expected bytes or explicit absence. Memory and browser skill writers MUST implement atomic or staged conditional publication, serialize competing writers and reject observed intervening edits without fallback. Byte comparisons MUST distinguish invalid UTF-8 from replacement-character text. The built public API MUST expose this optional port.
+
 ## LN-PKG-168 — Native conditional text transport
 
 <a id="ln-pkg-168"></a>
 
 **Requirement.** Native adapters MUST require an advertised `conditional-text-write` capability before conditional text IO. Missing or unavailable capability MUST reject before invocation. The adapter MUST transmit the explicit expected snapshot and preserve portable conflict errors without automatic retries or fallback writes.
 
-The native codec regression verifies the complete 256 KiB payload with exact
-byte comparison rather than generic deep property traversal. Prototype, length,
-canonical frames, invalid input and portable-fallback checks remain enforced
-under the existing five-second test budget.
+The native codec regression verifies the complete 256 KiB payload with exact byte comparison rather than generic deep property traversal. Prototype, length, canonical frames, invalid input and portable-fallback checks remain enforced under the existing five-second test budget.
 
-The desktop's native RPC codec remains host-owned and preserves the same
-bounded JSON frames across Node and portable hosts under LN-DENO-088. The
-[Sync release record](../../records/2026-10-14-sync-host-release.md) retains
-cross-runtime codec and payload-isolation evidence; public exports are unchanged.
+The desktop's native RPC codec remains host-owned and preserves the same bounded JSON frames across Node and portable hosts under LN-DENO-088. The [Sync release record](../../records/2026-10-14-sync-host-release.md) retains cross-runtime codec and payload-isolation evidence; public exports are unchanged.
 
 Development Docs acceptance uses installed package exports after its Turbo
 build prerequisites; the [portable startup contract](../storybook-catalog/build-and-process.md#ln-cat-117)

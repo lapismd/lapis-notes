@@ -1,5 +1,10 @@
 # Specification Governance / Protected change mapping
 
+App Profile publication maps its built exports, workspace-session lifecycle and
+startup retry to the package, architecture, database and host chapters under
+LN-PKG-132 and LN-PKG-191. The public release graph admits the four known
+separately published profile plugins; unknown private dependencies still fail.
+
 Validation install projections and their regressions map to the architecture
 build/validation chapter, retaining effective security overrides during private
 archive installs. Native build/start tooling and its private regressions map to

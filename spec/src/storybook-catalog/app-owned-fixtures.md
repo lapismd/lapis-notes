@@ -1,5 +1,12 @@
 # Storybook Catalog / App-owned fixtures
 
+The Notes Session integration family mounts the production App Profile session
+under LN-PKG-132, covering ready document opening, optional native Repository
+registration and explicit startup Retry. Its fixture owns admitted memory
+storage and awaits session cleanup; all variants remain visual-pending.
+The catalog pre-optimizes the profile's public Repository and Agent UI entries
+before a cold test starts, preventing dependency discovery from reloading it.
+
 The Editor Demo's Inline Source Editor Spacing story mounts an API-owned inline
 CodeMirror editor inside a full document. Its `visual-pending` acceptance proves
 that document trailing space remains on the outer editor only.

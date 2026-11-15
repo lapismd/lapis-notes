@@ -236,6 +236,35 @@ export class MemoryVaultAdapter implements VaultAdapter, VaultIdentityAdapter {
     return this.#writeValue(normalized, data, options);
   }
 
+  /**
+   * Compare raw bytes synchronously, including values originally written as
+   * text.
+   */
+  async writeBinaryIfUnchanged(
+    path: string,
+    data: ArrayBuffer,
+    expected: ArrayBuffer | null,
+    options?: DataWriteOptions,
+  ): Promise<void> {
+    const normalized = this.#path(path);
+    const stored = this.#files.get(normalized);
+    const actual = stored
+      ? typeof stored.data === "string"
+        ? new TextEncoder().encode(stored.data)
+        : new Uint8Array(stored.data)
+      : null;
+    const baseline = expected === null ? null : new Uint8Array(expected);
+    if (
+      actual === null
+        ? baseline !== null
+        : baseline === null ||
+          actual.length !== baseline.length ||
+          actual.some((byte, index) => byte !== baseline[index])
+    )
+      throw fsError("ECONFLICT", normalized);
+    return this.#writeValue(normalized, data, options);
+  }
+
   async writeBinary(
     path: string,
     data: ArrayBuffer,

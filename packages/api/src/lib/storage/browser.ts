@@ -664,7 +664,8 @@ export class BrowserHandleVaultAdapter
     const path = normalizeVaultPath(normalizedPath);
     const file = await this.withHandleRetry(async () => {
       const handle = await this.getHandle(path);
-      if (!handle || handle.kind !== "file") throw createFsError("ENOENT", path);
+      if (!handle || handle.kind !== "file")
+        throw createFsError("ENOENT", path);
       return handle.getFile();
     });
     return {
@@ -692,7 +693,9 @@ export class BrowserHandleVaultAdapter
           async pull(controller) {
             if (signal.aborted) {
               await reader.cancel(signal.reason);
-              controller.error(signal.reason ?? new DOMException("Aborted", "AbortError"));
+              controller.error(
+                signal.reason ?? new DOMException("Aborted", "AbortError"),
+              );
               return;
             }
             const next = await reader.read();
@@ -715,16 +718,23 @@ export class BrowserHandleVaultAdapter
     const path = normalizeVaultPath(normalizedPath);
     await this.withPathLock(path, () =>
       this.withHandleRetry(async () => {
-        const [parent, name] = await this.getParentDirectory(path, { create: true });
+        const [parent, name] = await this.getParentDirectory(path, {
+          create: true,
+        });
         const existing = await this.readStoredStat(path);
         const handle = await parent.getFileHandle(name, { create: true });
-        const writable = await handle.createWritable({ keepExistingData: false });
+        const writable = await handle.createWritable({
+          keepExistingData: false,
+        });
         const reader = source.getReader();
         let size = 0;
         try {
           while (true) {
             if (options.signal?.aborted) {
-              throw options.signal.reason ?? new DOMException("Aborted", "AbortError");
+              throw (
+                options.signal.reason ??
+                new DOMException("Aborted", "AbortError")
+              );
             }
             const next = await reader.read();
             if (next.done) break;
@@ -767,29 +777,64 @@ export class BrowserHandleVaultAdapter
 
   /** Stage bytes under an exclusive writer, rechecking before publication. */
   async writeTextIfUnchanged(
-    normalizedPath: string,
+    path: string,
     data: string,
     expected: string | null,
     options?: DataWriteOptions,
   ): Promise<void> {
-    const path = normalizeVaultPath(normalizedPath);
     if (expected !== null && typeof expected !== "string")
       throw createFsError("EINVAL", path);
+    return this.writeIfUnchanged(path, data, expected, options);
+  }
+
+  async writeBinaryIfUnchanged(
+    path: string,
+    data: ArrayBuffer,
+    expected: ArrayBuffer | null,
+    options?: DataWriteOptions,
+  ): Promise<void> {
+    return this.writeIfUnchanged(path, data, expected, options);
+  }
+
+  private async writeIfUnchanged(
+    normalizedPath: string,
+    data: string | ArrayBuffer,
+    expected: string | ArrayBuffer | null,
+    options?: DataWriteOptions,
+  ): Promise<void> {
+    const path = normalizeVaultPath(normalizedPath);
+    const same = (
+      actual: string | ArrayBuffer | null,
+      baseline: string | ArrayBuffer | null,
+    ) => {
+      if (
+        typeof actual === "string" ||
+        typeof baseline === "string" ||
+        actual === null ||
+        baseline === null
+      )
+        return actual === baseline;
+      const bytes = new Uint8Array(actual);
+      const prior = new Uint8Array(baseline);
+      return (
+        bytes.length === prior.length &&
+        bytes.every((byte, index) => byte === prior[index])
+      );
+    };
     await this.withPathLock(path, async () => {
       const [parent, name] = await this.getParentDirectory(path, {
         create: true,
       });
       const read = async () => {
         try {
-          return await (
-            await (await parent.getFileHandle(name)).getFile()
-          ).text();
+          const file = await (await parent.getFileHandle(name)).getFile();
+          return typeof data === "string" ? file.text() : file.arrayBuffer();
         } catch (error) {
           if (isNotFound(error)) return null;
           throw error;
         }
       };
-      if ((await read()) !== expected) throw createFsError("ECONFLICT", path);
+      if (!same(await read(), expected)) throw createFsError("ECONFLICT", path);
       const stored = await this.readStoredStat(path);
       const handle = await parent.getFileHandle(name, { create: true });
       const writer = await handle.createWritable({
@@ -799,7 +844,12 @@ export class BrowserHandleVaultAdapter
       try {
         // Creating a missing handle exposes an empty file before its first commit.
         const check = async () => {
-          if ((await read()) !== (expected ?? ""))
+          if (
+            !same(
+              await read(),
+              expected ?? (typeof data === "string" ? "" : new ArrayBuffer(0)),
+            )
+          )
             throw createFsError("ECONFLICT", path);
         };
         await check();
@@ -861,7 +911,9 @@ export class BrowserHandleVaultAdapter
         const existing = await this.readStoredStat(path);
         const handle = await parent.getFileHandle(name, { create: true });
         const file = await handle.getFile();
-        const writable = await handle.createWritable({ keepExistingData: true });
+        const writable = await handle.createWritable({
+          keepExistingData: true,
+        });
         await writable.seek(file.size);
         await writable.write(data);
         await writable.close();
@@ -890,7 +942,9 @@ export class BrowserHandleVaultAdapter
         const existing = await this.readStoredStat(path);
         const handle = await parent.getFileHandle(name, { create: true });
         const file = await handle.getFile();
-        const writable = await handle.createWritable({ keepExistingData: true });
+        const writable = await handle.createWritable({
+          keepExistingData: true,
+        });
         await writable.seek(file.size);
         await writable.write(data);
         await writable.close();

@@ -1,5 +1,7 @@
 # Explorer Plugin
 
+The public-profile cohort retains Explorer registration through its built package. Skill byte guards remain a storage concern and do not change Explorer file creation, navigation or view ownership.
+
 File Explorer admits released Design Core 0.13.0 through its portable range.
 The registry lock resolves the same Core identity as Workspace and the host;
 file actions and persistence remain owned by Explorer and the App.

@@ -1,5 +1,9 @@
 # Bases Plugin / Bases queries and views
 
+The Bases 0.4 catalog intake uses the package's bounded Unsupported view surface.
+Consumer acceptance checks its title, configured type, empty-state icon and
+retained document view type, matching the owning package's public contract.
+
 Retained Notes acceptance consumes the published Bases package. Its picker
 accessibility repair belongs to the sibling plugin source and must reach Notes
 through a registry release. Consumer plays wait for visible suggestions and
