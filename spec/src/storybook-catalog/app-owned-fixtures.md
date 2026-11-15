@@ -10,6 +10,13 @@ that document trailing space remains on the outer editor only.
 
 **Requirement.** Every executable story family MUST declare application, component, integration or prototype coverage. Application stories MUST render the public production WorkspaceShell through their actual render path, without replacement chrome, production-style overrides or unresolved alternate composition. Components MUST identify their production subject; integration fixtures and prototypes MUST record a governing requirement and purpose. Normal and specification checks MUST reject missing declarations, stale inventories or overrides and unresolved composition; imports alone MUST NOT prove parity.
 
+The shared App Profile session is traced through its public export, owned barrel
+and Svelte source to the production shell. A public session import alone cannot
+qualify a replacement body. Ready, native Repository registration and startup
+retry use the same full-shell session with no presentation overrides.
+Ready acceptance also verifies the seeded document's rendered heading and body;
+an empty editor inside otherwise populated shell chrome cannot qualify.
+
 ## LN-CAT-119 — Distinct fixture controls
 
 <a id="ln-cat-119"></a>

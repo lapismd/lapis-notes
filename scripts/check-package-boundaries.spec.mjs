@@ -36,7 +36,9 @@ function manifest(definition, overrides = {}) {
 }
 
 async function fixture(records = PUBLIC_PACKAGE_GRAPH) {
-  const repoRoot = await mkdtemp(path.join(tmpdir(), "lapis-package-boundary-"));
+  const repoRoot = await mkdtemp(
+    path.join(tmpdir(), "lapis-package-boundary-"),
+  );
   for (const definition of records) {
     const packageDir = path.join(repoRoot, "packages", definition.directory);
     mkdirSync(packageDir, { recursive: true });
@@ -69,7 +71,9 @@ test("validates the public package graph", async () => {
         }),
       };
     });
-    assert.doesNotThrow(() => validatePublicPackageBoundaries({ repoRoot, records }));
+    assert.doesNotThrow(() =>
+      validatePublicPackageBoundaries({ repoRoot, records }),
+    );
   } finally {
     await rm(repoRoot, { recursive: true, force: true });
   }
@@ -83,7 +87,8 @@ test("rejects local dependency protocols in packed public manifests", async () =
       version: INITIAL_PUBLIC_VERSION,
       manifest: manifest(definition),
     }));
-    records[0].manifest.dependencies["@lapismd/design-core"] = "link:../design-core";
+    records[0].manifest.dependencies["@lapismd/design-core"] =
+      "link:../design-core";
 
     assert.throws(
       () => validatePublicPackageBoundaries({ repoRoot, records }),
@@ -92,4 +97,32 @@ test("rejects local dependency protocols in packed public manifests", async () =
   } finally {
     await rm(repoRoot, { recursive: true, force: true });
   }
+});
+
+test("includes the shared App Profile after its released framework dependencies", () => {
+  const profile = PUBLIC_PACKAGE_GRAPH.find(
+    (entry) => entry.name === "@lapis-notes/app-profile",
+  );
+  assert.ok(profile, "App Profile must be a governed public release package");
+  for (const dependency of [
+    "@lapis-notes/api",
+    "@lapis-notes/file-explorer",
+    "@lapis-notes/workspace",
+  ]) {
+    assert.ok(profile.internalDependencies.includes(dependency));
+    assert.ok(
+      PUBLIC_PACKAGE_GRAPH.findIndex((entry) => entry.name === dependency) <
+        PUBLIC_PACKAGE_GRAPH.indexOf(profile),
+    );
+  }
+  assert.ok(
+    profile.importSpecifiers.includes(
+      "@lapis-notes/app-profile/native-repository",
+    ),
+  );
+  assert.ok(
+    profile.importSpecifiers.includes(
+      "@lapis-notes/app-profile/workspace-session",
+    ),
+  );
 });

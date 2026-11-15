@@ -199,11 +199,11 @@ unfiltered finding, dependency path, scope limitation, and removal procedure.
 
 **Requirement.** `@lapis-notes/desktop-deno` MUST privately own session-scoped startup recovery persistence and presentation while reusing the public API `AppSafeModeState` and Design Core startup surface. It MUST retain saved vault profiles after recoverable open failures, preserve native filesystem failure classes, and avoid adding public package exports or desktop-only canonical vault settings.
 
-## LN-PKG-129 — Independent framework package releases
+## LN-PKG-129 — Independent Lapis package releases
 
 <a id="ln-pkg-129"></a>
 
-**Requirement.** Public Lapis Notes framework packages MUST start at version `0.1.0`, publish independently in dependency order `@lapis-notes/ui`, `@lapis-notes/api`, `@lapis-notes/language-service`, `@lapis-notes/file-explorer`, then `@lapis-notes/workspace`, and keep internal runtime ranges compatible with the published provider version before a dependent package can be released.
+**Requirement.** Public Lapis Notes packages MUST start at version `0.1.0`, publish independently in dependency order `@lapis-notes/ui`, `@lapis-notes/api`, `@lapis-notes/language-service`, `@lapis-notes/file-explorer`, `@lapis-notes/workspace`, then `@lapis-notes/app-profile`, and keep internal runtime ranges compatible with the published provider version before a dependent package can be released.
 
 ## LN-PKG-130 — Release workflow: keep Changesets version PR creation, build
 
@@ -215,7 +215,7 @@ unfiltered finding, dependency path, scope limitation, and removal procedure.
 
 <a id="ln-pkg-131"></a>
 
-**Requirement.** Public package checks MUST reject missing README, changelog, license, repository, homepage, bugs, or public publish metadata; tarball checks MUST reject local dependency protocols, private package runtime references, wrong source repository URLs, generated artifacts, and clean-consumer import failures for documented UI, API, Workspace, and CSS entrypoints.
+**Requirement.** Public package checks MUST reject missing README, changelog, license, repository, homepage, bugs, or public publish metadata; tarball checks MUST reject local dependency protocols, private package runtime references, wrong source repository URLs, generated artifacts, and clean-consumer import failures for documented UI, API, Workspace, App Profile, and CSS entrypoints.
 
 ## LN-PKG-133 — Sibling lapis-plugins repository: own source, behavior specifications, tests, release tooling
 
@@ -257,7 +257,7 @@ unfiltered finding, dependency path, scope limitation, and removal procedure.
 
 <a id="ln-pkg-141"></a>
 
-**Requirement.** Post-publication verification of a partial manifest MUST install each selected package at its manifest version and every unchanged public framework package at its repository version from npm before exercising documented UI, API, Workspace, and CSS entrypoints. A just-published version that is not yet installable MUST be retried a few times with short backoff, MUST NOT wait for many minutes, and MUST fail if it stays unavailable.
+**Requirement.** Post-publication verification of a partial manifest MUST install each selected package at its manifest version and every unchanged public framework package at its repository version from npm before exercising documented UI, API, Workspace, App Profile, and CSS entrypoints. A just-published version that is not yet installable MUST be retried a few times with short backoff, MUST NOT wait for many minutes, and MUST fail if it stays unavailable.
 
 ## LN-PKG-142 — CI: populate package build outputs once, then run
 
@@ -387,7 +387,7 @@ batch through npm ranges: AI 0.1.5; Bases, Bookmarks, Graph, Search and Spellche
 0.1.3; History 0.1.4; Markdown 0.1.6; Markdown Lint, Source Editor and Word Count
 0.1.2. Slides 0.1.0 remains available through installed-plugin management rather
 than the static profile. The tracked lockfile resolves public npm packages;
-test-signed archive fixtures remain separate acceptance inputs. Local consumer qualification builds the five public host packages from exact source and records archive hashes under LN-ARCH-146. It does not create a release candidate or change registry dependency ranges. The static PWA consumes published Design Core 0.10.0 through normal registry ranges, with active public package ranges admitting the new native-control contract.
+test-signed archive fixtures remain separate acceptance inputs. Local consumer qualification builds the six public host packages from exact source and records archive hashes under LN-ARCH-146. It does not create a release candidate or change registry dependency ranges. The static PWA consumes published Design Core 0.10.0 through normal registry ranges, with active public package ranges admitting the new native-control contract.
 
 <!-- ci-dependency-image:start -->
 

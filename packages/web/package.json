@@ -33,7 +33,7 @@
     "@lucide/svelte": "^0.523.0",
     "fflate": "^0.8.3",
     "workbox-window": "^7.4.1",
-    "@lapis-notes/history": "^0.1.4",
+    "@lapis-notes/history": "^0.4.0",
     "@lapismd/jj-history": "~0.1.0"
   },
   "devDependencies": {
@@ -41,7 +41,7 @@
     "@sveltejs/vite-plugin-svelte": "^6.2.4",
     "@tailwindcss/vite": "^4.1.12",
     "@tsconfig/svelte": "^5.0.5",
-    "@types/node": "^24.0.0",
+    "@types/node": "^26.1.2",
     "sharp": "^0.35.0",
     "svelte": "5.56.10",
     "svelte-check": "^4.3.1",

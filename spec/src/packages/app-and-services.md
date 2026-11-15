@@ -1,8 +1,8 @@
 # Packages / App and services
 
 Workspace and File Explorer keep their portable Design Core union ranges and
-resolve registry 0.12.4 with API, UI, Web and the private profile. Distinct
-0.12.1/0.12.4 controller identities are rejected.
+retain one registry Design Core identity with API, UI, Web and the application
+profile. Duplicate controller identities remain rejected.
 
 The hosted renderer now selects the Rust backend through its private host
 composition. Ordinary server build/start no longer requires the Node host
@@ -18,14 +18,13 @@ behind the selected native HTTP origin. Static delivery changes no App ownership
 conversation writer or renderer callback authority under
 [CORE054–057](../architecture/rust-hosted-delivery.md).
 
-The private profile consumes published Markdown `^0.2.0`, matching its current
-API/Workspace cohort without a host override or legacy renderer dependency.
+The public App Profile candidate consumes API `^0.6.3`, History `^0.4.0`,
+Markdown `^0.3.1`, Search `^0.1.12`, Source Editor `^0.1.11`, Agent UI `^0.2.6`
+and Design Core `^0.13.3` through normal registry ranges. Its native Repository
+types declare History SDK `^0.1.0`. Package versioning/publication remains
+separate from source and built-consumer qualification.
 
-The private profile accepts published Agent UI `^0.2.6`, History `^0.2.0`, and
-Design Core `^0.13.2`, while remaining private at `0.0.0`. The separately
-qualified API release is `0.4.0`.
-
-The private application profile owns the native-turn observer and optional AI
+The application profile owns the native-turn observer and optional AI
 plugin under LN-CORE-004/006/007/008. It uses the existing public Agent screens
 and built public exports. Temporary verified local archives admit unpublished
 Agent UI during migration; tracked dependency declarations keep normal ranges
@@ -200,11 +199,11 @@ application policy. Native consumer adoption remains separately outstanding.
 
 **Requirement.** `App` MUST register palette command `app:rebuild-generated-state`. That command MUST await `metadataCache.rebuild()`, then execute `search:rebuild-search-index` when that command is registered, otherwise `appDatabase.rebuildSearchIndex()`.
 
-## LN-PKG-132 — Private @lapis-notes/app-profile: own the shared Web and Deno static
+## LN-PKG-132 — Shared application profile and workspace session
 
 <a id="ln-pkg-132"></a>
 
-**Requirement.** Private `@lapis-notes/app-profile` MUST own the shared Web and Deno static plugin profile and app-owned plugin-management registration. Host packages MUST consume that one profile instead of duplicating registration arrays or importing extracted plugins directly.
+**Requirement.** Public `@lapis-notes/app-profile` MUST own the shared application plugin profile, plugin-management registration and workspace-session lifecycle. Hosts MUST consume its built public exports, inject platform services, and retain transport, credential custody, routing and permission policy. A supplied Repository factory MUST register History before configured plugin loading without eagerly opening native services.
 
 ## LN-PKG-148 — @lapis-notes/api: advertise a transport-neutral nostr-signer native capability but
 
@@ -272,3 +271,9 @@ The public `@lapis-notes/web` build and typecheck do not compile the hosted Rust
 Native Chat sessions belong to one plugin activation. Successful disable fences
 that feature session; re-enable creates a fresh session while accepted native
 work remains owned by the host.
+
+LN-PKG-132 retains the same four optional plugins while App Profile becomes a
+governed public package. Its optional native Repository entry and complete
+workspace session are built exports; host ports retain custody and authority.
+The shared session owns retry and leave policy, with existing Web behavior
+retained in the owning host hooks and source-owned session helpers.

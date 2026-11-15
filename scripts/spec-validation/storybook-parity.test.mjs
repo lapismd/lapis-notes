@@ -358,3 +358,26 @@ test("fixture controls cannot conceal another production shell", () => {
     }).some((x) => /contain.*shell/.test(x.message)),
   );
 });
+
+const sessionSource =
+  "packages/app-profile/src/workspace-session/NotesWorkspaceSession.svelte";
+function sessionAudit(component) {
+  return audit({
+    [fixture]:
+      '<script>import {NotesWorkspaceSession} from "@lapis-notes/app-profile/workspace-session";</script><NotesWorkspaceSession />',
+    "packages/app-profile/package.json": JSON.stringify({
+      exports: {
+        "./workspace-session": { svelte: "./dist/workspace-session/index.js" },
+      },
+    }),
+    "packages/app-profile/src/workspace-session/index.ts":
+      'export {default as NotesWorkspaceSession} from "./NotesWorkspaceSession.svelte";',
+    [sessionSource]: component,
+  });
+}
+test("shared public session follows its owned source to the real shell", () => {
+  assert.deepEqual(sessionAudit(real), []);
+});
+test("shared session with a replacement body cannot qualify application parity", () => {
+  assert.ok(sessionAudit("<main>Replacement</main>").length);
+});

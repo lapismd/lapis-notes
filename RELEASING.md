@@ -8,6 +8,7 @@ This repository publishes the reusable Lapis Notes packages from the
 3. `@lapis-notes/language-service`
 4. `@lapis-notes/file-explorer`
 5. `@lapis-notes/workspace`
+6. `@lapis-notes/app-profile`
 
 The first public version for each package is `0.1.0`.
 

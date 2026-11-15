@@ -128,11 +128,11 @@ authored inside the note. The seeded Ideas preview retains its map image.
 
 **Requirement.** Editing cards MUST ignore hover departure and focus movement. Outside pointer dismissal flushes and closes only after successful persistence; Escape remains keyboard dismissal, and failed saves keep the dirty editor open.
 
-## LN-MD-065 — Mira-owned portaled previews and Lapis full-file Markdown: resolve the effective obsidian theme. Editable FileEmbed
+## LN-MD-065 — Inherited preview palette and focus
 
 <a id="ln-md-065"></a>
 
-**Requirement.** Mira-owned portaled previews and Lapis full-file Markdown surfaces MUST resolve the effective `obsidian` theme. Editable `FileEmbed` and full-file surface roots MUST establish that theme explicitly so Mira descendants consume Lapis semantic appearance tokens instead of the portable fallback palette.
+**Requirement.** Mira-owned portaled previews and Lapis full-file Markdown surfaces MUST inherit their owning workspace's Mira semantic palette and focus ring. Editable `FileEmbed` and full-file surface roots MUST NOT reset those inherited tokens to a named theme or portable fallback palette.
 
 ## LN-MD-066 — Local Obsidian alias layer: map Mira accent, focus, soft-accent, selection,
 

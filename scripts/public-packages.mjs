@@ -72,6 +72,30 @@ export const PUBLIC_PACKAGE_GRAPH = Object.freeze([
     importSpecifiers: ["@lapis-notes/workspace"],
     resolveSpecifiers: [],
   }),
+  Object.freeze({
+    name: "@lapis-notes/app-profile",
+    directory: "app-profile",
+    internalDependencies: [
+      "@lapis-notes/api",
+      "@lapis-notes/file-explorer",
+      "@lapis-notes/workspace",
+    ],
+    importSpecifiers: [
+      "@lapis-notes/app-profile",
+      "@lapis-notes/app-profile/native-chat",
+      "@lapis-notes/app-profile/native-repository",
+      "@lapis-notes/app-profile/workspace-session",
+    ],
+    resolveSpecifiers: ["@lapis-notes/app-profile/plugin-host-build"],
+  }),
+]);
+
+/** Separately released packages owned by lapis-plugins. Unknown private dependencies still fail closed. */
+export const EXTERNAL_NOTES_PACKAGES = new Set([
+  "@lapis-notes/markdown",
+  "@lapis-notes/search",
+  "@lapis-notes/source-editor",
+  "@lapis-notes/history",
 ]);
 
 export const PUBLIC_PACKAGE_NAMES = new Set(

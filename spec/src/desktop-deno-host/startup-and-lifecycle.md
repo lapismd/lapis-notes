@@ -1,5 +1,9 @@
 # Deno Desktop Host / Startup and lifecycle
 
+Publishing the shared App Profile session adds no frozen Deno adoption. Its
+existing platform startup remains separate; native remotes adoption and release
+acceptance belong to the current Desktop and Server owners.
+
 The shared private profile refreshes Search to registry `^0.1.6`. Its startup
 order and enablement policy are unchanged; this consumer dependency intake
 does not publish or replace an installed Desktop application.

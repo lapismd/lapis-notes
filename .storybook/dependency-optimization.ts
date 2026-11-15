@@ -11,6 +11,11 @@ export const storybookFirstPartyPackageExcludes = [
 
 export const storybookPackedDependencyIncludes = [
   "@storybook/addon-a11y > axe-core",
+  "@lapis-notes/history/repository",
+  "@lapis-notes/app-profile > @lapismd/agent-ui",
+  "@lapis-notes/app-profile > @lapismd/agent-ui/core",
+  "@lapis-notes/app-profile > @lapismd/agent-ui/chat",
+  "@lapis-notes/app-profile > @lapismd/agent-ui/screens",
   "@lapis-notes/api > nostr-tools/pure",
   "@lapis-notes/api > nostr-tools/nip44",
   "@lapis-notes/api > eventemitter3",

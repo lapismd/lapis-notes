@@ -5,7 +5,21 @@ import { describe, expect, it } from "vitest";
 describe("web plugin profile registration", () => {
   it("registers the shared Notes profile before configured plugins and restore work", () => {
     const source = readFileSync(
-      path.resolve(process.cwd(), "src/WebWorkspaceSession.svelte"),
+      path.resolve(
+        process.cwd(),
+        "../app-profile/src/workspace-session/NotesWorkspaceSession.svelte",
+      ),
+      "utf8",
+    );
+    const application = readFileSync(
+      path.resolve(
+        process.cwd(),
+        "../app-profile/src/workspace-session/application.ts",
+      ),
+      "utf8",
+    );
+    const webHost = readFileSync(
+      path.resolve(process.cwd(), "src/web-session-host.ts"),
       "utf8",
     );
     const registerProfile = source.indexOf(
@@ -16,12 +30,12 @@ describe("web plugin profile registration", () => {
     const layout = source.indexOf("await app.workspace.loadLayout");
 
     expect(source).toContain("notesPluginProfile");
-    expect(source).toContain("registerNotesPluginSettings(app)");
-    expect(source).toContain("registerNotesPluginBrowser(app)");
-    expect(source.indexOf("registerNotesPluginBrowser(app)")).toBeLessThan(
+    expect(application).toContain("registerNotesPluginSettings(app)");
+    expect(application).toContain("registerNotesPluginBrowser(app)");
+    expect(source.indexOf("createNotesApplication(options)")).toBeLessThan(
       source.indexOf("await app.workspace.loadLayout"),
     );
-    expect(source).toContain("disposePluginBrowser()");
+    expect(application).toContain("releaseBrowser()");
     expect(source).toContain('communityPlugins: "configured"');
     expect(source).not.toMatch(
       /@lapis-notes\/(?:ai|bases|bookmarks|graph|history|markdown-lint|spellcheck|wordcount)/u,
@@ -37,14 +51,16 @@ describe("web plugin profile registration", () => {
     expect(source).toContain('id: "layout"');
     expect(source).toContain("onProgress");
     expect(source).toContain("startMetadataCache");
-    expect(source).toContain(
-      "unavailablePlugins: webPluginRestrictionsFor(!!nativeChat)",
+    expect(webHost).toContain(
+      "unavailablePlugins: webPluginRestrictionsFor(nativeChat)",
     );
-    expect(source).toContain("registerWebVaultTransferSettings");
+    expect(webHost).toContain("registerWebVaultTransferSettings");
     expect(source).not.toContain("syncWebAgentRuntime");
     expect(
-      source.indexOf("registerWebVaultTransferSettings(app)"),
-    ).toBeGreaterThan(source.indexOf("await app.configuration.load()"));
+      webHost.indexOf("registerWebVaultTransferSettings(app)"),
+    ).toBeGreaterThan(
+      webHost.indexOf("await removeObsoleteServiceSecrets(app)"),
+    );
     expect(source).not.toMatch(/await app\.metadataCache\.load/u);
     expect(source).not.toContain("Opening vault…");
   });

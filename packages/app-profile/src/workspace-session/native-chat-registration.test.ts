@@ -2,7 +2,7 @@ import { expect, it, vi } from "vitest";
 import type { App } from "@lapis-notes/api";
 import { registerSessionNativeChat } from "./native-chat-registration";
 
-vi.mock("@lapis-notes/app-profile/native-chat", () => ({
+vi.mock("../native-chat/index", () => ({
   createNativeChatPlugin: vi.fn(() => class NativeChatPlugin {}),
 }));
 

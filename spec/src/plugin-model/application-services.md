@@ -1,5 +1,10 @@
 # Plugin Model / Application services
 
+The published App Profile owns the shared Notes workspace session. A supplied
+native Repository factory registers optional History before plugin loading;
+platform ports and secret storage remain host-owned. Standalone Web keeps its
+ordinary four-plugin selection when no Repository factory is supplied.
+
 ## LN-PLUG-129 — Native plugin operations
 
 <a id="ln-plug-129"></a>

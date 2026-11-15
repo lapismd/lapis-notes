@@ -83,6 +83,39 @@ export function compositionModel(source, read, options = {}) {
     cache.set(file, result);
     return result;
   }
+  function ownedSession(ref) {
+    if (
+      !componentMatches(
+        ref,
+        "@lapis-notes/app-profile/workspace-session#NotesWorkspaceSession",
+      )
+    )
+      return null;
+    const manifest = JSON.parse(
+      read("packages/app-profile/package.json") ?? "{}",
+    );
+    if (
+      manifest.exports?.["./workspace-session"]?.svelte !==
+      "./dist/workspace-session/index.js"
+    )
+      throw Error(
+        "Shared session public export does not resolve to its owned build",
+      );
+    const binding = source
+      .module("packages/app-profile/src/workspace-session/index.ts")
+      .exports.get(ref.name);
+    if (
+      !binding?.path?.startsWith(
+        "packages/app-profile/src/workspace-session/",
+      ) ||
+      !binding.path.endsWith(".svelte") ||
+      binding.name !== "default"
+    )
+      throw Error(
+        "Shared session barrel must resolve to its owned Svelte component",
+      );
+    return { kind: "reference", ...binding };
+  }
   function inspect(ref, props, kind, subject, chain = []) {
     if (!ref || ref === unknown)
       return { reaches: false, errors: ["Unresolved rendered component."] };
@@ -91,7 +124,12 @@ export function compositionModel(source, read, options = {}) {
     if (kind === "component" && componentMatches(ref, subject))
       return { reaches: true, errors: [] };
     if (ref.path === controlsPath) return { reaches: false, errors: [] };
-    if (!ref.path?.startsWith("stories/") || !ref.path.endsWith(".svelte"))
+    const owned = ownedSession(ref);
+    if (owned) ref = owned;
+    if (
+      (!ref.path?.startsWith("stories/") && !owned) ||
+      !ref.path.endsWith(".svelte")
+    )
       return {
         reaches: false,
         errors:
