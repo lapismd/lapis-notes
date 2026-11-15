@@ -148,7 +148,7 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0(node-llama-cpp@3.18.1(typescript@5.9.3))(zod@4.6.6)
       '@lapismd/design-core':
-        specifier: ^0.13.2
+        specifier: ^0.13.3
         version: 0.13.3(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapismd/mira':
         specifier: ~0.2.0
@@ -331,7 +331,7 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0(zod@4.6.6)
       '@lapismd/design-core':
-        specifier: ^0.13.2
+        specifier: ^0.13.3
         version: 0.13.3(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapismd/mira':
         specifier: ~0.2.0
@@ -533,7 +533,7 @@ importers:
         specifier: ^0.2.6
         version: 0.2.6(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapismd/design-core':
-        specifier: ^0.13.2
+        specifier: ^0.13.3
         version: 0.13.3(svelte@5.56.10)(tailwindcss@4.3.3)
     devDependencies:
       '@sveltejs/package':
@@ -688,7 +688,7 @@ importers:
         specifier: ^0.4.0
         version: 0.4.0(svelte@5.56.10)
       '@lapismd/design-core':
-        specifier: ^0.13.2
+        specifier: ^0.13.3
         version: 0.13.3(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lucide/svelte':
         specifier: ^0.515.0
@@ -779,7 +779,7 @@ importers:
         specifier: workspace:*
         version: link:../workspace
       '@lapismd/design-core':
-        specifier: ^0.13.2
+        specifier: ^0.13.3
         version: 0.13.3(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapismd/jj-history':
         specifier: ~0.1.0
@@ -840,7 +840,7 @@ importers:
         specifier: ^0.2.0
         version: link:../ui
       '@lapismd/design-core':
-        specifier: ^0.13.2
+        specifier: ^0.13.3
         version: 0.13.3(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lucide/svelte':
         specifier: ^0.523.0
@@ -3899,109 +3899,136 @@ packages:
   '@secretlint/secretlint-rule-1password@13.0.5':
     resolution: {integrity: sha512-mPh3nLDwUgVhoMJ/dYmUVmbuMq1ynCu6dUDSjqSydVuzXdTLMMpr6NtYiTQ2HdcM8ImSZfY87hh/Ub82kOijsQ==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/1password.md
 
   '@secretlint/secretlint-rule-anthropic@13.0.5':
     resolution: {integrity: sha512-g3bik9U6RO/BXjhCkne7/2TLdHKGm/hVSyLGv1qmy1KvSOFk210RZapiI/T4hsPekR7cbp3uwSW7BVOobD0dDA==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/anthropic.md
 
   '@secretlint/secretlint-rule-aws@13.0.5':
     resolution: {integrity: sha512-EG2JuyggT5CZSyKOuI2tUnmE+mza5SxgkizZs0dhEh2wpPWIC4usG8iol4IeWomDw5dZOgV3UqX0EmeAvC+j8g==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/aws.md
 
   '@secretlint/secretlint-rule-basicauth@13.0.5':
     resolution: {integrity: sha512-yUNH+Voocm62hKmCYYas+1/JPHturWSZco5o0XdkzGFOC8YlLKOfDaH+EhQSHD1f5Zkz12XKD2NGz6XqJAQJMw==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/basicauth.md
 
   '@secretlint/secretlint-rule-cloudflare@13.0.5':
     resolution: {integrity: sha512-x6Uhm6f7qLBhS2lkmjlIbc/9bTyPMP4JbKAYolJffCu4GlJXRCTrJI2DtKX1XWsHU333q0BsWNi4PLpegFieUw==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/cloudflare.md
 
   '@secretlint/secretlint-rule-database-connection-string@13.0.5':
     resolution: {integrity: sha512-87/+X5/FGJ5TeL/eqfffD/j1z3FXQBg443Q6G5PJlxc1tLR7sxbGXQqVuRoxhm4OZ8pmTbF77o21PHCN6d3pUA==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/database-connection-string.md
 
   '@secretlint/secretlint-rule-databricks@13.0.5':
     resolution: {integrity: sha512-nOY77IGT7nWsfGiAq3tNpOzEg12cMz6BED38tpnBDB9oKzWZ3qzLEBYmxziZEvH6u8QwT/LqfuI8T6QFhKgXLA==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/databricks.md
 
   '@secretlint/secretlint-rule-docker@13.0.5':
     resolution: {integrity: sha512-+ZsX8EKJ9cUFVwJ7m8+Xm8LUFzJLn7lmpHHjKha0ozbb+HJQWTP9TFdY4AK7cELJAYzZxsmGj4p+63sjwRzPwA==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/docker.md
 
   '@secretlint/secretlint-rule-figma@13.0.5':
     resolution: {integrity: sha512-1T+qkoce0bQDRidyvajPl6XdQ1sGjaY2rwvh8+YEy7exmMryrCg4R7eXoikfhfzWFUuXPRhvLI3kOiupv0cfkA==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/figma.md
 
   '@secretlint/secretlint-rule-gcp@13.0.5':
     resolution: {integrity: sha512-upGPXG3LyChNBv7SQvXSrGKtgnNuPya+ucUpEEDFhOCUvhiLLM/3F72IMrYr5lSKevvCa2bPBhybCEIT5sKIaQ==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/gcp.md
 
   '@secretlint/secretlint-rule-github@13.0.5':
     resolution: {integrity: sha512-Wxr/l8uHVfQ1Vm4sTHpciak+xZFv1NLkrXX5Yc+/DW4+fJfitgSHkiTWbzu9Mr0y8CVoEPqLpCzA96R7tT5LHw==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/github.md
 
   '@secretlint/secretlint-rule-gitlab@13.0.5':
     resolution: {integrity: sha512-i+KN1SZz3A8F+e/MgNPHRNlmSdLmGj+xcv3pA38gFMHCRwAh0BvWqSvnCtePZ4CDEdn96LxtDrwSRZBDeKbW0A==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/gitlab.md
 
   '@secretlint/secretlint-rule-grafana@13.0.5':
     resolution: {integrity: sha512-EZVsR+6qYqbf4GUV+juc64YGhue+rLpQUiqKhsFZOMXQhMSPsA1Xb32h6eBt84mQW8EioW1W9iX8DDMcbAHhPA==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/grafana.md
 
   '@secretlint/secretlint-rule-groq@13.0.5':
     resolution: {integrity: sha512-6EWvQXWE68kZ3TJhmBFkGp9lSi+jTKleh4OYT7WXuKcMCa4U3z1CBQhrZkmm0BukgqEc3P5nVEgWxtRtojX96g==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/groq.md
 
   '@secretlint/secretlint-rule-hashicorp-vault@13.0.5':
     resolution: {integrity: sha512-mbezLbUiFjcdGDjCS8mRPX4qG3UEOSKr1qYip+VfU27PhRzp8BnM1IaHc/CM/74naHfzFaiA3XcDoa2111vPIw==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/hashicorp-vault.md
 
   '@secretlint/secretlint-rule-huggingface@13.0.5':
     resolution: {integrity: sha512-YeBPy+4NUUJdn1KeoCDoRUZg8r0k0qCuhFrB+R2qCI8OLzD9+20Asb2eROPK6sBqggQLXptKbz+ghcuOv104MQ==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/huggingface.md
 
   '@secretlint/secretlint-rule-linear@13.0.5':
     resolution: {integrity: sha512-xRiXDQ5YLlSiy/vYjZJ6duYmmMzqhR/HOQmYVuk+DP9VBhtYDsxUnIrianxFm6Ot+o1KdA4YeoAyHuqlsMR+cw==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/linear.md
 
   '@secretlint/secretlint-rule-notion@13.0.5':
     resolution: {integrity: sha512-IlDs/RfQTb69KMAhyNHZor52jfp9H3ysxVTnB5Y1bcisIl28VyE9hJYGMfq33D8sbWz+u2HVrtTJJcPDPMzpUg==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/notion.md
 
   '@secretlint/secretlint-rule-npm@13.0.5':
     resolution: {integrity: sha512-wNiqIHKlaKWuMO5liaTCSuR+I6LCIjyk/GzUKpYmhx7hXLFKZSv2NuYklqeFHHi2pemUn3xeX9urR3RZnmd4+w==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/npm.md
 
   '@secretlint/secretlint-rule-openai@13.0.5':
     resolution: {integrity: sha512-KFw3ASk84/j0v/bD4o+HFGZnqfVj+HOyXNBipWXbJxV8eIOScdLsxpqakrljni0w/BVRlf8cwwZr4tPQ5Ed0zQ==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/openai.md
 
   '@secretlint/secretlint-rule-privatekey@13.0.5':
     resolution: {integrity: sha512-/6X/rvqul36d6VKBLhbMiG1Ot35/MlBJagnYI1QwJz9r7eCKwSLHcoqaedu6FCOqFbJ1NtBliL0NkwFthlEifA==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/privatekey.md
 
   '@secretlint/secretlint-rule-sendgrid@13.0.5':
     resolution: {integrity: sha512-OcZPDaRRJM9xgZlYRpfQzGIBSkkoYDRJbtId3wQz2AgZo9RErEo/Inxn3wHRDCYwsiFkBIKjcvEXy49nA1NQew==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/sendgrid.md
 
   '@secretlint/secretlint-rule-shopify@13.0.5':
     resolution: {integrity: sha512-cdbTx+fFJCAILAmlvD1sf7MvZpB7MxvaUKLTabGIt6seY83osaswZP0ZhnFdwC6bKEsl5JozOMnTC3U710iNVQ==}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/shopify.md
 
   '@secretlint/secretlint-rule-slack@13.0.5':
     resolution: {integrity: sha512-DR4lu+e7V/esZWK1CIIhvEV7jPiVgLayNCdMhSstgeX4XY0HL4rWdWNgpvUfj7HZnRv7hwU6r6ucaqqlCK5uqA==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/slack.md
 
   '@secretlint/secretlint-rule-stripe@13.0.5':
     resolution: {integrity: sha512-KkRAun3d/5D+Oq8S3lgR7unPvRcCOntDrBUUGuQuMbuA0n3sfkYMNqBvuZcOFMbq8IXPuEp4quRWaN0HFjU46g==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/stripe.md
 
   '@secretlint/secretlint-rule-tailscale@13.0.5':
     resolution: {integrity: sha512-eOhCG5GsLQedhJIsj4IfOPW4UQeVEn79XGydZzFVdMouZbbmV6zmDzFxBCkEwN4Rv7KPznXF9GJoiNGvWnJIBw==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/tailscale.md
 
   '@secretlint/secretlint-rule-vercel@13.0.5':
     resolution: {integrity: sha512-Yg9Hnwnf8TWniOjlE9LiRWYl4/VkTmi5GHa7DgswNRDYANwMCM8TybPy3K2RMC7tUjbGJA/ycgg+i89PwbfaAw==}
     engines: {node: '>=22.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/vercel.md
 
   '@secretlint/types@13.0.5':
     resolution: {integrity: sha512-VUIv9iZ9pg2lcWARUmR+7psoi02QBjgUtQnQGPRmAq/3Yt1whB5y52xwP2v5zxfj7C8KGrM2fxf7GhbHCHJUgQ==}
