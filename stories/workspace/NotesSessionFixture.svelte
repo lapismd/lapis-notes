@@ -1,5 +1,10 @@
 <script lang="ts" module>
   const disposers = new Set<() => Promise<void>>();
+  const readyGates = new Set<() => void>();
+  export function releaseNotesSessionReadiness() {
+    for (const release of readyGates) release();
+    readyGates.clear();
+  }
   export async function disposeNotesSessionFixtures() {
     for (const dispose of disposers) await dispose();
     disposers.clear();
@@ -23,7 +28,12 @@
   let {
     failOnce = false,
     nativeRepository = false,
-  }: { failOnce?: boolean; nativeRepository?: boolean } = $props();
+    holdReady = false,
+  }: {
+    failOnce?: boolean;
+    nativeRepository?: boolean;
+    holdReady?: boolean;
+  } = $props();
   const unselectedReader = async (): Promise<never> => {
     throw new Error("The catalog has not selected a native history read");
   };
@@ -37,6 +47,11 @@
   let session = $state.raw<VaultSession>();
   let component: NotesWorkspaceSessionHandle | undefined = $state();
   let attempts = 0;
+  let hostReadyPending = $state(false);
+  let releaseReady = () => {};
+  const hostReady = new Promise<void>((resolve) => {
+    releaseReady = resolve;
+  });
   const ready = $derived(!!session);
   onMount(() => {
     const adapter = new MemoryVaultAdapter({
@@ -50,12 +65,14 @@
       session = value;
     });
     disposers.add(async () => {
+      releaseReady();
+      readyGates.delete(releaseReady);
       await component?.dispose(false);
     });
   });
 </script>
 
-<div class="notes-session-fixture">
+<div class="notes-session-fixture" data-session-host-pending={hostReadyPending}>
   {#if ready && session}
     <NotesWorkspaceSession
       bind:this={
@@ -83,6 +100,12 @@
       onOpenRecent={async () => {}}
       onManageVaults={async () => {}}
       onReady={async (app) => {
+        if (holdReady) {
+          hostReadyPending = true;
+          readyGates.add(releaseReady);
+          await hostReady;
+          hostReadyPending = false;
+        }
         const file = app.vault.getFileByPath("Welcome.md");
         if (file) await app.openFile(file);
       }}

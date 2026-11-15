@@ -16,6 +16,8 @@ qualify a replacement body. Ready, native Repository registration and startup
 retry use the same full-shell session with no presentation overrides.
 Ready acceptance also verifies the seeded document's rendered heading and body;
 an empty editor inside otherwise populated shell chrome cannot qualify.
+The held-host-readiness scenario also proves that a mounted shell remains inert
+and unready until the actual host callback settles, then opens its real document.
 
 ## LN-CAT-119 — Distinct fixture controls
 

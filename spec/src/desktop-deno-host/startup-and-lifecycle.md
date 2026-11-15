@@ -1,5 +1,10 @@
 # Deno Desktop Host / Startup and lifecycle
 
+The public Profile session keeps its mounted shell inert until layout flushing
+and the owning host's readiness callback finish. Its session-ready marker covers
+that interaction barrier; it does not change frozen Deno startup or qualify
+installed Desktop adoption. See the [startup readiness record](../../records/2026-11-15-profile-startup-readiness.md).
+
 Publishing the shared App Profile session adds no frozen Deno adoption. Its
 existing platform startup remains separate; native remotes adoption and release
 acceptance belong to the current Desktop and Server owners.

@@ -5,6 +5,12 @@ native Repository factory registers optional History before plugin loading;
 platform ports and secret storage remain host-owned. Standalone Web keeps its
 ordinary four-plugin selection when no Repository factory is supplied.
 
+Shared-session interaction begins after layout projection and the owning host's
+readiness callback complete. Rendering the shell earlier grants no interactive
+readiness: the session keeps that shell inert and its ready marker false. This
+barrier preserves plugin and App ownership without introducing a second startup
+controller or changing host authority.
+
 ## LN-PLUG-129 — Native plugin operations
 
 <a id="ln-plug-129"></a>

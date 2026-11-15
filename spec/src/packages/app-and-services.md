@@ -1,5 +1,11 @@
 # Packages / App and services
 
+The shared Profile session exposes interaction readiness only after its initial
+layout flush and host readiness callback settle. A mounted shell remains inert
+and busy during that interval. Failure and disposal retire readiness together;
+the existing App and host service ownership remains unchanged. The controlled
+Host Readiness story covers this barrier through the public session export.
+
 Workspace and File Explorer keep their portable Design Core union ranges and
 retain one registry Design Core identity with API, UI, Web and the application
 profile. Duplicate controller identities remain rejected.
