@@ -8,6 +8,8 @@ The shared session starts the owning workspace controller, mounts the shell
 and drains its initial layout projection and writes before delivering host
 readiness. Initial file navigation then selects a populated document. Teardown
 during that boundary fences the readiness callback.
+The mounted shell remains inert until that flush and the host callback settle;
+the session readiness marker cannot expose an interactive partial startup.
 
 Ordinary hosted builds identify as `rust-server` and select the native
 metadata/History/Tasks backend together under LN-CORE-069. Both retained hosted

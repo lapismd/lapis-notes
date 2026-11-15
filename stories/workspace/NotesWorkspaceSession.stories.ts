@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import NotesSessionFixture, {
   disposeNotesSessionFixtures,
+  releaseNotesSessionReadiness,
 } from "./NotesSessionFixture.svelte";
 
 const meta = {
@@ -18,7 +19,9 @@ async function expectReady(canvasElement: HTMLElement) {
   await waitFor(
     () =>
       expect(
-        canvasElement.querySelector('[data-app-shell-ready="true"]'),
+        canvasElement.querySelector(
+          '[data-notes-session-ready="true"] [data-app-shell-ready="true"]',
+        ),
       ).toBeInTheDocument(),
     { timeout: 15_000 },
   );
@@ -40,6 +43,25 @@ async function expectReady(canvasElement: HTMLElement) {
 
 export const Ready: Story = {
   play: async ({ canvasElement }) => {
+    await expectReady(canvasElement);
+  },
+};
+export const HostReadiness: Story = {
+  args: { holdReady: true },
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector('[data-session-host-pending="true"]'),
+      ).toBeInTheDocument(),
+    );
+    expect(
+      canvasElement.querySelector('[data-notes-session-ready="true"]'),
+    ).toBeNull();
+    const shell = canvasElement.querySelector(
+      '[data-ui-component="lapis-workspace-shell"]',
+    )!;
+    expect(shell.closest("[inert]")).not.toBeNull();
+    releaseNotesSessionReadiness();
     await expectReady(canvasElement);
   },
 };

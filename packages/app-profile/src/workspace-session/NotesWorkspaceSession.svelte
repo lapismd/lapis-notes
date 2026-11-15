@@ -29,6 +29,7 @@
     { id: "plugins", label: "Load configured core plugins", status: "pending" },
     { id: "layout", label: "Restore the workspace layout", status: "pending" },
   ];
+  let interactive = $state(false);
   let ready = $state(false);
   let tasks = $state(structuredClone(startupTasks));
   let failure = $state<WorkspaceStartupFailure | null>(null);
@@ -44,6 +45,7 @@
     app,
     session: untrack(() => options.session),
     fence: () => {
+      interactive = false;
       ready = false;
     },
     releaseObservers,
@@ -117,6 +119,7 @@
   }
 
   async function teardownPartialBoot(): Promise<void> {
+    interactive = false;
     ready = false;
     releaseObservers();
     await app.vaultChanges.stop().catch(() => undefined);
@@ -194,8 +197,11 @@
       await app.workspace.flushLayout();
       if (!lifecycle.canRecoverLeave()) return;
       await options.onReady(app);
+      if (!lifecycle.canRecoverLeave()) return;
+      interactive = true;
       startMetadataCache();
     } catch (error) {
+      interactive = false;
       ready = false;
       setTask(activeTask, "failed");
       failure = {
@@ -229,11 +235,13 @@
 
 <section
   class="notes-workspace-session"
-  data-notes-session-ready={ready}
+  data-notes-session-ready={interactive}
   data-web-runtime={options.runtime}
   data-vault-id={options.profile.id}
   aria-label="Notes workspace"
   role="group"
+  aria-busy={!interactive}
+  inert={ready && !interactive}
 >
   {#if ready}
     <WorkspaceShell
