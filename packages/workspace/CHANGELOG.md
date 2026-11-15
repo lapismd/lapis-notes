@@ -1,5 +1,20 @@
 # @lapis-notes/workspace
 
+## 0.4.5
+
+### Patch Changes
+
+- [#122](https://github.com/lapismd/lapis-notes/pull/122)
+  [`385ccc8`](https://github.com/lapismd/lapis-notes/commit/385ccc8e60dc60e737138ec0c69cbdc1ead8fa5a)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Keep the actively
+  advancing plugin first in shared progress notifications, and add bulk install,
+  bulk update, installed discovery, filtering, and registry management actions
+  to the workspace plugin browser.
+- Updated dependencies
+  [[`3c91239`](https://github.com/lapismd/lapis-notes/commit/3c91239e31f9eeba38c204d722045c94ed992b1a),
+  [`385ccc8`](https://github.com/lapismd/lapis-notes/commit/385ccc8e60dc60e737138ec0c69cbdc1ead8fa5a)]:
+  - @lapis-notes/api@0.6.3
+
 ## 0.4.4
 
 ### Patch Changes
