@@ -113,3 +113,5 @@ composition. There is no second engine, snapshotter, writer or persistent store.
 Qualification preserves dirty files and complete original metadata bytes, proves
 foreign/stale scope refusal and source replacement, and exercises both real
 retained source selections through authenticated hosted transport.
+
+The App Profile History `^0.5.0` dependency intake preserves LN-CORE-022/023: native owners retain capture, selection and accepted work; observers retain only presentation and explicit recovery. [History 0.5 intake](../../records/2026-11-15-profile-history-050-intake.md) records source and consumer checks separately from native host acceptance.

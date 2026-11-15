@@ -332,3 +332,7 @@ host trust boundaries remain unchanged.
 The Mira 0.2 intake preserves the merged Design Core 0.13.2 browser graph.
 Web startup and plugin admission retain the public API and registry package
 boundaries; no sibling source alias or host policy is introduced.
+
+History 0.5 registry intake preserves the public Profile session and browser
+adapters. Native host remotes inject admitted services; the standalone Web host
+does not gain token custody, host SSH or remote publication from this intake.

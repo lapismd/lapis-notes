@@ -87,3 +87,5 @@ over the matching session port. Construction performs no selection or IO.
 Persisted plugin/layout state grants no History authority; the Repository plugin
 still requires its separately bound reader and owned lifecycle. Other plugin
 registration and enablement contracts are unchanged.
+
+Under LN-PKG-132, the History `^0.5.0` Profile intake retains the same explicit App binding, plugin loading order and teardown authority. Its native synchronization observer schedules no transfers and holds no credentials. See [History 0.5 intake](../../records/2026-11-15-profile-history-050-intake.md).
