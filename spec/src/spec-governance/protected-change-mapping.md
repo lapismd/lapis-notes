@@ -1,5 +1,9 @@
 # Specification Governance / Protected change mapping
 
+Generated version-PR authority maps to LN-GOV-054 and retains the release
+boundary under LN-PKG-130. Scope/authentication regressions qualify that job;
+they do not replace publication or candidate acceptance.
+
 App Profile publication maps its built exports, workspace-session lifecycle and
 startup retry to the package, architecture, database and host chapters under
 LN-PKG-132 and LN-PKG-191. The public release graph admits the four known

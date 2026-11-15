@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { parse } from "yaml";
 import { DEFAULT_REPO_ROOT, RELEASE_ENVIRONMENT } from "./public-packages.mjs";
 
 function fail(message) {
@@ -24,6 +25,66 @@ function requireDigestPinnedCiImage(name, source) {
   ) {
     fail(`${name} must use a digest-pinned Lapis CI image`);
   }
+}
+
+export function validateVersionPrAuthentication(source) {
+  const job = parse(source).jobs?.changesets;
+  const require = (condition, message) => {
+    if (!condition) fail(`Version PR authentication: ${message}`);
+  };
+  require(job?.if ===
+    "github.ref == 'refs/heads/main'", "must require trusted main");
+  require(job.permissions?.contents === "read" &&
+    job.permissions?.packages === "read" &&
+    Object.keys(job.permissions).every((key) =>
+      ["contents", "packages"].includes(key),
+    ), "workflow token must have only contents/packages reads");
+  const checkout = job.steps.find((step) =>
+    step.uses?.startsWith("actions/checkout@"),
+  );
+  const app = job.steps.find((step) => step.id === "app");
+  const version = job.steps.find((step) => step.id === "changesets");
+  require(version?.uses ===
+    "changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b", "must retain the reviewed Changesets action");
+  require(checkout?.with?.["persist-credentials"] ===
+    false, "checkout credentials must not persist");
+  require(app?.uses ===
+    "actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510", "must mint the existing pinned App token");
+  require(app.with?.["client-id"] ===
+    "${{ vars.LAPIS_DEPENDENCY_APP_CLIENT_ID }}" &&
+    app.with?.["private-key"] ===
+      "${{ secrets.LAPIS_DEPENDENCY_APP_PRIVATE_KEY }}", "must use the existing encrypted App configuration");
+  require(app.with?.owner === "${{ github.repository_owner }}" &&
+    app.with?.repositories ===
+      "${{ github.event.repository.name }}", "App scope must be this repository only");
+  require(app.with?.["permission-contents"] === "write" &&
+    app.with?.["permission-pull-requests"] === "write" &&
+    Object.keys(app.with).every(
+      (key) =>
+        !key.startsWith("permission-") ||
+        ["permission-contents", "permission-pull-requests"].includes(key),
+    ), "App token must have only contents/PR writes");
+  require(version?.env?.GITHUB_TOKEN ===
+    "${{ steps.app.outputs.token }}", "version writer must use App output without fallback");
+  require(version.with?.version === "pnpm release:version" &&
+    version.with?.commitMode === "github-api" &&
+    version.with?.createGithubReleases === false &&
+    version.with?.publish ===
+      undefined, "version recipe must remain preparation-only");
+  require(job.steps.indexOf(app) <
+    job.steps.indexOf(
+      version,
+    ), "token creation must precede version preparation");
+  require(!job["continue-on-error"] &&
+    !app["continue-on-error"] &&
+    !version[
+      "continue-on-error"
+    ], "authentication and version failures must remain blocking");
+  for (const step of job.steps)
+    if (step.uses && !step.uses.startsWith("./"))
+      require(/@[a-f0-9]{40}$/.test(
+        step.uses,
+      ), "external version-job actions must be immutable");
 }
 
 export function validateReleaseWorkflows({ ci, release, pages } = {}) {
@@ -59,7 +120,7 @@ export function validateReleaseWorkflows({ ci, release, pages } = {}) {
   }
 
   for (const fragment of [
-    "changesets/action@v1.8.0",
+    "changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b",
     "actions: write",
     "commitMode: github-api",
     "pnpm release:version",
@@ -118,6 +179,9 @@ export function validateWorkflowFiles(repoRoot = DEFAULT_REPO_ROOT) {
       "utf8",
     ),
   });
+  validateVersionPrAuthentication(
+    readFileSync(path.join(repoRoot, ".github/workflows/release.yml"), "utf8"),
+  );
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

@@ -205,7 +205,7 @@ unfiltered finding, dependency path, scope limitation, and removal procedure.
 
 **Requirement.** Public Lapis Notes packages MUST start at version `0.1.0`, publish independently in dependency order `@lapis-notes/ui`, `@lapis-notes/api`, `@lapis-notes/language-service`, `@lapis-notes/file-explorer`, `@lapis-notes/workspace`, then `@lapis-notes/app-profile`, and keep internal runtime ranges compatible with the published provider version before a dependent package can be released.
 
-## LN-PKG-130 — Release workflow: keep Changesets version PR creation, build
+## LN-PKG-130 — Release workflow and [version PR authority](../spec-governance/validation-and-ci.md#ln-gov-054)
 
 <a id="ln-pkg-130"></a>
 
