@@ -1,5 +1,16 @@
 # @lapis-notes/app-profile
 
+## 0.2.2
+
+### Patch Changes
+
+- [#133](https://github.com/lapismd/lapis-notes/pull/133)
+  [`ea9e45b`](https://github.com/lapismd/lapis-notes/commit/ea9e45b69f7d2dbf01404afa09894684881d16c0)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Consume History 0.5's
+  passive native synchronization observer alongside shared repository remotes
+  and credentials. Hosts retain transport, custody and native operation
+  ownership.
+
 ## 0.2.1
 
 ### Patch Changes
