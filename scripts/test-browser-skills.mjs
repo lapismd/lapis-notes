@@ -96,6 +96,34 @@ test("public packaged skill installer protects real browser filesystem storage a
           "local edit",
         );
         output.push((await manageSkills(adapter, [skill], "update"))[0].reason);
+        const binarySkill = {
+          name: "lapis-binary",
+          source: "example",
+          version: "1",
+          files: { "SKILL.md": "one", "reference.md": "\uFFFD" },
+        };
+        await manageSkills(adapter, [binarySkill], "install");
+        await adapter.writeBinary(
+          ".agents/skills/lapis-binary/reference.md",
+          new Uint8Array([0xff]).buffer,
+        );
+        output.push(
+          (
+            await manageSkills(
+              adapter,
+              [{ ...binarySkill, version: "2", files: { "SKILL.md": "two" } }],
+              "update",
+            )
+          )[0].reason,
+        );
+        output.push(await adapter.read(".agents/skills/lapis-binary/SKILL.md"));
+        output.push([
+          ...new Uint8Array(
+            await adapter.readBinary(
+              ".agents/skills/lapis-binary/reference.md",
+            ),
+          ),
+        ]);
         const competing = await Promise.allSettled([
           adapter.writeTextIfUnchanged(
             ".agents/skills/lapis-browser/SKILL.md",
@@ -118,6 +146,9 @@ test("public packaged skill installer protects real browser filesystem storage a
       "updated",
       false,
       "locally-modified",
+      "locally-modified",
+      "one",
+      [255],
       ["fulfilled", "rejected"],
     ];
     assert.deepEqual(results, [...expected, ...expected]);
@@ -151,6 +182,29 @@ test("public packaged skill installer protects real browser filesystem storage a
           await adapter.read(".agents/skills/lapis-browser/SKILL.md"),
         );
         output.push(
+          (
+            await manageSkills(
+              adapter,
+              [
+                {
+                  name: "lapis-binary",
+                  source: "example",
+                  version: "3",
+                  files: { "SKILL.md": "three" },
+                },
+              ],
+              "update",
+            )
+          )[0].reason,
+        );
+        output.push([
+          ...new Uint8Array(
+            await adapter.readBinary(
+              ".agents/skills/lapis-binary/reference.md",
+            ),
+          ),
+        ]);
+        output.push(
           JSON.parse(await adapter.read(".agents/.lapis-skills.json"))
             .schemaVersion,
         );
@@ -160,9 +214,13 @@ test("public packaged skill installer protects real browser filesystem storage a
     assert.deepEqual(cold, [
       "locally-modified",
       "first edit",
+      "locally-modified",
+      [255],
       1,
       "locally-modified",
       "first edit",
+      "locally-modified",
+      [255],
       1,
     ]);
   } finally {

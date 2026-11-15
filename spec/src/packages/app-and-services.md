@@ -1,5 +1,11 @@
 # Packages / App and services
 
+## LN-PKG-191 — Explicit startup discovery retry
+
+<a id="ln-pkg-191"></a>
+
+**Requirement.** Vault discovery and SyncHost readiness MUST retain failed startup outcomes until an explicit retry. Retry MUST share active and completed work, retry only failed initialization and preserve disposal fences. Eager startup MUST retain observable rejection without an unhandled promise rejection.
+
 The shared Profile session exposes interaction readiness only after its initial
 layout flush and host readiness callback settle. A mounted shell remains inert
 and busy during that interval. Failure and disposal retire readiness together;

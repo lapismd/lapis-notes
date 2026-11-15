@@ -1,5 +1,7 @@
 # Workspace Shell / Layout and persistence
 
+Published workspace-session composition under LN-PKG-132 retains explicit App ownership, layout persistence and disposal order. Explicit failed-startup retry under LN-PKG-191 shares active or completed startup without rebuilding the shell.
+
 Foreground App file navigation joins the same projection-aware reveal as
 explicit view navigation. LN-WS-005 retains its original revision fence;
 opening a note preserves a non-file tab and selects its intended main tab.

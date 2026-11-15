@@ -299,6 +299,13 @@ export interface VaultAdapter extends DataAdapter {
     expected: string | null,
     options?: DataWriteOptions,
   ): Promise<void>;
+  /** Reject unless the current bytes exactly match (null means absent). */
+  writeBinaryIfUnchanged?(
+    normalizedPath: string,
+    data: ArrayBuffer,
+    expected: ArrayBuffer | null,
+    options?: DataWriteOptions,
+  ): Promise<void>;
   openRead?(normalizedPath: string): Promise<VaultReadHandle>;
   atomicWrite?(
     normalizedPath: string,

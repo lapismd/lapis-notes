@@ -179,3 +179,12 @@ The release-artifact worker receives the read-only GitHub job token for package
 release lookups as well as release-plan generation. Registry package bytes and
 lookup failures retain their existing validation rules; this read credential
 does not broaden publication authority.
+
+## Public profile registry security qualification
+
+The shared profile uses the published plugin cohort and frozen registry lock.
+[Security qualification](../../records/2026-11-15-profile-registry-security.md)
+retains the initial failures, bounded patched resolutions and actual Workbox
+manifest/cancellation regressions. Full functional and browser lanes qualify
+changed build dependencies; any unpatched advisory exception requires its
+separately recorded acceptance before publication.

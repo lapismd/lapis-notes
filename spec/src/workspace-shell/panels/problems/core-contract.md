@@ -1,5 +1,8 @@
 # Problems / Integration contracts
 
+The published profile retains the App-owned diagnostic bridge and Problems panel. Registry-cohort intake and optional skill byte guards introduce no diagnostic collector, panel-state owner or presentation change.
+
+
 LN-WS-005/063 foreground file reveal retains Problems and its original owner
 while selecting a note tab. LN-WS-025 diagnostic collections, navigation
 openers, quick fixes and their access/persistence guards are unchanged.

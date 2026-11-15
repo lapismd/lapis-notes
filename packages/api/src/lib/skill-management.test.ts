@@ -41,6 +41,45 @@ describe("protected skill installation", () => {
       expect(await adapter.read(path + "SKILL.md")).toContain("one");
     });
   }
+  it("detects binary edits even when text decoding matches the receipt", async () => {
+    const adapter = new MemoryVaultAdapter();
+    const original = skill();
+    (original.files as Record<string, string>)["references/example.md"] =
+      "\uFFFD";
+    await manageSkills(adapter, [original], "install");
+    await adapter.writeBinary(
+      path + "references/example.md",
+      new Uint8Array([0xff]).buffer,
+    );
+    expect(
+      (await manageSkills(adapter, [skill("two")], "update"))[0],
+    ).toMatchObject({
+      status: "skipped",
+      reason: "locally-modified",
+    });
+    expect(await adapter.read(path + "SKILL.md")).toContain("one");
+    expect(
+      new Uint8Array(await adapter.readBinary(path + "references/example.md")),
+    ).toEqual(new Uint8Array([0xff]));
+  });
+  it("preserves added binary resources and refuses adapters without byte guards", async () => {
+    const adapter = new MemoryVaultAdapter();
+    await manageSkills(adapter, [skill()], "install");
+    await adapter.writeBinary(
+      path + "mine.png",
+      new Uint8Array([0xff, 0, 0xfe]).buffer,
+    );
+    expect(
+      (await manageSkills(adapter, [skill("two")], "update"))[0],
+    ).toMatchObject({ status: "skipped", reason: "locally-modified" });
+    expect(await adapter.read(path + "SKILL.md")).toContain("one");
+    Object.defineProperty(adapter, "writeBinaryIfUnchanged", {
+      value: undefined,
+    });
+    await expect(
+      manageSkills(adapter, [skill("two")], "update"),
+    ).rejects.toThrow("conditional writes");
+  });
   it("preserves unmanaged directories and rejects corrupt receipts", async () => {
     const adapter = new MemoryVaultAdapter();
     await adapter.mkdir(path.slice(0, -1), { recursive: true });
@@ -71,8 +110,8 @@ describe("protected skill installation", () => {
   it("keeps an interrupted operation fenced on restart", async () => {
     const adapter = new MemoryVaultAdapter();
     await manageSkills(adapter, [skill()], "install");
-    const write = adapter.writeTextIfUnchanged.bind(adapter);
-    adapter.writeTextIfUnchanged = async (file, ...args) => {
+    const write = adapter.writeBinaryIfUnchanged.bind(adapter);
+    adapter.writeBinaryIfUnchanged = async (file, ...args) => {
       if (file === path + "references/example.md")
         throw new Error("interrupted");
       return write(file, ...args);
@@ -80,7 +119,7 @@ describe("protected skill installation", () => {
     await expect(
       manageSkills(adapter, [skill("two")], "update"),
     ).rejects.toThrow("interrupted");
-    adapter.writeTextIfUnchanged = write;
+    adapter.writeBinaryIfUnchanged = write;
     expect(
       (await manageSkills(adapter, [skill("two")], "update"))[0].reason,
     ).toBe("interrupted");

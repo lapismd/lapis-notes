@@ -107,8 +107,8 @@ async function snapshot(
   adapter: VaultAdapter,
   root: string,
   prefix = "",
-): Promise<Record<string, string>> {
-  const files: Record<string, string> = Object.create(null);
+): Promise<Record<string, ArrayBuffer>> {
+  const files: Record<string, ArrayBuffer> = Object.create(null);
   if (!(await adapter.exists(root))) return files;
   const listing = await adapter.list(root);
   for (const child of listing.files) {
@@ -118,7 +118,7 @@ async function snapshot(
     const file = `${root}/${child}`;
     const name = prefix + child;
     assertSkillRelativePath(name, "Installed skill file");
-    files[name] = await adapter.read(file);
+    files[name] = await adapter.readBinary(file);
   }
   for (const child of listing.folders) {
     assertSkillRelativePath(child, "Installed skill child");
@@ -132,7 +132,7 @@ async function snapshot(
   return files;
 }
 async function hashes(
-  files: Readonly<Record<string, string>>,
+  files: Readonly<Record<string, string | ArrayBuffer>>,
 ): Promise<Record<string, string>> {
   return Object.fromEntries(
     await Promise.all(
@@ -198,7 +198,10 @@ async function execute(
   }
   if (selected && !seen.has(selected))
     throw new Error(`Skill is unavailable: ${selected}`);
-  if (action !== "list" && !adapter.writeTextIfUnchanged)
+  if (
+    action !== "list" &&
+    (!adapter.writeTextIfUnchanged || !adapter.writeBinaryIfUnchanged)
+  )
     throw new Error("Skill installation requires conditional writes");
   let receiptText = (await adapter.exists(receiptPath))
     ? await adapter.read(receiptPath)
@@ -265,9 +268,9 @@ async function execute(
           destination.slice(0, destination.lastIndexOf("/")),
           { recursive: true },
         );
-        await adapter.writeTextIfUnchanged!(
+        await adapter.writeBinaryIfUnchanged!(
           destination,
-          body,
+          new Uint8Array(new TextEncoder().encode(body)).buffer,
           current[file] ?? null,
         );
       }
@@ -275,7 +278,10 @@ async function execute(
         (file) => !Object.hasOwn(bundle.files, file),
       )) {
         const destination = `${root}/${file}`;
-        if ((await adapter.read(destination)) !== current[file])
+        if (
+          (await sha256Hex(await adapter.readBinary(destination))) !==
+          actual[file]
+        )
           throw new Error("Skill changed during installation");
         await adapter.remove(destination);
       }

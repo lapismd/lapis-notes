@@ -1,5 +1,10 @@
 # App Database / Sessions and ownership
 
+The public App Profile session accepts an admitted VaultSession under LN-PKG-132.
+It drains App-owned services before closing the session and retains its
+compatibility lease through awaited host cleanup. Failed preflight preserves the
+live owner for explicit recovery; hosts retain storage and database admission.
+
 Hosted database sessions now invoke the shared Rust service directly. Retiring
 the Node supervisor/Unix companion does not change admitted session ownership,
 raw-SQL restrictions, committed revision delivery or explicit close/drain.

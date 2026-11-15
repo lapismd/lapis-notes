@@ -34,3 +34,19 @@ admission; this API change adds no hosted operation or server authority.
 The shared API/browser graph consumes released Mira 0.2 with Design Core
 0.13.2. This dependency intake adds no hosted operation, credentials or native
 authority and retains public package boundaries.
+
+## Shared skill-management API qualification
+
+The shared profile/API release qualifies explicit startup retry under
+[LN-PKG-191](../packages/app-and-services.md#ln-pkg-191) and raw-byte conditional
+skill writes under [LN-PKG-192](../packages/vault-and-storage.md#ln-pkg-192).
+Hosted consumers select the released API version carrying those guards through
+the profile's public dependency range. This package qualification does not
+establish native Server adoption: the owning Server release separately verifies
+its filesystem byte preservation, authenticated CLI write authority, shared-vault
+app/CLI commands and cold restart. Existing read-only credentials gain no write
+authority from installing or upgrading the shared profile.
+
+The [current release evidence](../../records/2026-11-15-profile-registry-security.md)
+keeps public-package qualification and remaining Server/Desktop adoption
+separate, including the explicitly accepted catalog-only limitations.

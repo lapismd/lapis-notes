@@ -1,6 +1,6 @@
 # Plugin Model / Lifecycle and views
 
-The private application profile consumes registry Search `^0.1.6` to exercise
+The published application profile consumes registry Search `^0.1.12` to exercise
 its retained accessible result labels. Plugin identity, activation, view
 registration, user disablement and teardown retain their existing contracts.
 
@@ -11,7 +11,7 @@ and view types through the public Plugin lifecycle. One feature-owned session
 coordinates read-only views; closing a view detaches observation. Hosts prepare
 detach versus explicit disable/close before unload, and the native owner retains
 accepted work and its writer. The shared default profile remains unchanged.
-The hosted server mounts that workspace through `@lapis-notes/web/session`, which
+The hosted server mounts that workspace through `@lapis-notes/app-profile/workspace-session`, which
 keeps the shared application profile inside Notes.
 The History opener defaults to an ungrouped right sidebar and reveals moved
 instances. Its selections preserve the History view and reuse only a matching

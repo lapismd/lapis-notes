@@ -1,5 +1,7 @@
 # Architecture / Host boundaries
 
+The published application profile uses the built API cohort under LN-PKG-132. Conditional byte writes under LN-PKG-192 belong to portable storage; native skill installation remains owned by the admitted native service.
+
 Required native-service admission uses the host's existing capability registry
 (LN-PLUG-121). A missing entry is unsupported; an unavailable entry is a disabled
 supported service. Checking availability does not launch or authorize services.
@@ -64,10 +66,7 @@ an admitted native profile/runtime session (LN-DENO-086 through LN-DENO-088).
 The native host owns wrapping material, durable key storage and serialized
 operations; renderer/plugin code receives scoped crypto results.
 
-Memory-backed application hosts advertise the existing conditional text-write
-capability. Comparing the exact snapshot and mutating it occurs before yielding,
-so competing writes cannot silently overwrite each other. Native host policy and
-persistence remain separate.
+Memory-backed application hosts advertise the existing conditional text-write capability. Comparing the exact snapshot and mutating it occurs before yielding, so competing writes cannot silently overwrite each other. Native host policy and persistence remain separate.
 
 ## LN-ARCH-009 — Api compatibility projection: preserve every persisted design-core V3 workspace region
 

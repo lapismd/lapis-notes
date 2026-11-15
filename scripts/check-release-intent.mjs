@@ -1,11 +1,14 @@
 import { execFileSync } from "node:child_process";
 
-const PUBLIC_PACKAGE_CHANGE = /^packages\/(?:ui|api|workspace)\/(?:src\/|package\.json$|README\.md$|CHANGELOG\.md$)/;
+const PUBLIC_PACKAGE_CHANGE =
+  /^packages\/(?:ui|api|workspace|app-profile)\/(?:src\/|package\.json$|README\.md$|CHANGELOG\.md$)/;
 const CHANGESET_FILE = /^\.changeset\/.+\.md$/;
 
 function parseArgs(argv) {
   const options = {
-    base: process.env.GITHUB_BASE_REF ? `origin/${process.env.GITHUB_BASE_REF}` : null,
+    base: process.env.GITHUB_BASE_REF
+      ? `origin/${process.env.GITHUB_BASE_REF}`
+      : null,
     head: "HEAD",
     files: [],
   };
@@ -37,9 +40,13 @@ function changedFiles(base, head) {
   if (!base) {
     return [];
   }
-  const output = execFileSync("git", ["diff", "--name-only", `${base}...${head}`], {
-    encoding: "utf8",
-  });
+  const output = execFileSync(
+    "git",
+    ["diff", "--name-only", `${base}...${head}`],
+    {
+      encoding: "utf8",
+    },
+  );
   return output.split("\n").filter(Boolean);
 }
 
@@ -48,7 +55,9 @@ export function checkReleaseIntent(files, env = process.env) {
     return { required: false, hasChangeset: false, files };
   }
 
-  const publicChanges = files.filter((file) => PUBLIC_PACKAGE_CHANGE.test(file));
+  const publicChanges = files.filter((file) =>
+    PUBLIC_PACKAGE_CHANGE.test(file),
+  );
   if (publicChanges.length === 0) {
     return { required: false, hasChangeset: false, files };
   }
@@ -64,7 +73,10 @@ export function checkReleaseIntent(files, env = process.env) {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const options = parseArgs(process.argv.slice(2));
-  const files = options.files.length > 0 ? options.files : changedFiles(options.base, options.head);
+  const files =
+    options.files.length > 0
+      ? options.files
+      : changedFiles(options.base, options.head);
   checkReleaseIntent(files);
   process.stdout.write("Release intent check passed.\n");
 }

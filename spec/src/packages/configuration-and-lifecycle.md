@@ -64,7 +64,7 @@ The public API Workspace owns awaitable layout persistence under
 The packaged method uses the same shared `.lapis` path and selected workspace
 filename as normal debounced persistence.
 
-The private application profile owns plugin App URL registration, while
+The shared application profile owns plugin App URL registration, while
 Workspace's public navigator accepts an optional selected release version.
 The profile and hosts consume that generic navigator under
 [LN-PLUG-106](../plugin-model/app-ownership.md#ln-plug-106); no registry-specific

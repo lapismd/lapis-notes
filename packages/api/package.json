@@ -341,7 +341,7 @@
     "svelte-sonner": "^1.0.5",
     "tslib": "^2.8.1",
     "typescript": "~5.8.3",
-    "vite": "^6.4.2",
+    "vite": "^6.4.5",
     "vitest": "^4.1.8"
   }
 }

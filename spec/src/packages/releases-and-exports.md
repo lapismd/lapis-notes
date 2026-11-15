@@ -382,7 +382,7 @@ Recovery reports persist as JSON files in the test output directory and attach
 by path. Both Web Playwright configurations preserve passing test output so the
 always-run CI artifact upload can retain successful recovery evidence.
 
-The private application profile and root catalog consume the approved plugin
+The shared application profile and root catalog consume the approved plugin
 batch through npm ranges: AI 0.1.5; Bases, Bookmarks, Graph, Search and Spellcheck
 0.1.3; History 0.1.4; Markdown 0.1.6; Markdown Lint, Source Editor and Word Count
 0.1.2. Slides 0.1.0 remains available through installed-plugin management rather

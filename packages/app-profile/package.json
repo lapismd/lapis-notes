@@ -60,7 +60,7 @@
     "svelte": "5.56.10",
     "svelte-check": "^4.3.1",
     "typescript": "~5.8.3",
-    "vite": "^7.3.6",
+    "vite": "^7.3.7",
     "vitest": "^4.1.10",
     "@types/node": "^26.1.2"
   },
@@ -75,7 +75,7 @@
   ],
   "peerDependencies": {
     "svelte": "^5.56.10",
-    "vite": "^6.4.5 || ^7.3.6"
+    "vite": "^6.4.5 || ^7.3.7"
   },
   "description": "Shared Lapis Notes application profile and workspace session",
   "repository": {

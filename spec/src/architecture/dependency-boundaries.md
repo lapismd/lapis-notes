@@ -10,7 +10,7 @@ Framework packages and application hosts require published Design Core
 registry dependency refresh retains public export resolution and existing
 application-owned state; it does not activate Sync or publish local host work.
 Workspace and File Explorer resolve the same released 0.13.0 identity as
-API, UI, Web and the private profile. Mixed AppShellController package
+API, UI, Web and the shared profile. Mixed AppShellController package
 identities fail closed.
 Notes declares its own Prettier and JSDoc formatter development dependencies;
 Design Core's authoring tools are no longer supplied as runtime dependencies.
@@ -63,12 +63,18 @@ The API accepts the Mira 0.1 public-export line alongside its existing 0.0.5
 range for isolated Lapis Desktop shared-screen acceptance. Package source and
 installed applications retain their existing ownership.
 
-The private App Profile now requests published Markdown `^0.2.0` so its public
-rendering dependency matches the current API/Workspace cohort without a host
-override or a second legacy renderer dependency line.
+The published App Profile requests Markdown `^0.3.0`, Search `^0.1.12` and
+Source Editor `^0.1.11`, using the API 0.6 / Workspace 0.4 cohort through
+portable npm ranges and built public exports under LN-PKG-132.
 
-The private App Profile requests published Agent UI `^0.2.6`, History
-`^0.2.0`, and Design Core `^0.13.2`. The profile stays private at `0.0.0`.
+The published App Profile requests Agent UI `^0.2.6`, History `^0.3.1` and
+Design Core `^0.13.2`. Hosts retain storage, native admission and release policy.
+The validation graph selects patched Storybook 10.6.5 and Vite 7.3.7. Bounded
+same-major Vite resolutions cover retained developer dependencies. Public
+consumer verification still installs registry dependencies without repo overrides.
+The root catalog selects that same packaged plugin cohort, including Bases 0.4
+and Markdown 0.3. It removes the retired Bases 0.1.4 source patch rather than
+carrying that workaround into the new public package intake.
 Workspace requires Core `^0.13.0` for its public mobile navigation contract;
 API, UI and File Explorer admit that released line through portable ranges.
 

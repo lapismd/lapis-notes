@@ -2,7 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import { playwright } from "@vitest/browser-playwright";
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 import {
   storybookFirstPartyPackageExcludes,
   storybookPackedDependencyIncludes,
@@ -50,6 +50,18 @@ export default defineConfig({
         },
         test: {
           name: "storybook",
+          // User-approved quarantine: the two LinkPreviewAcceptance cases can
+          // lose the browser orchestrator connection before either test runs.
+          // Catalog/pointer fixtures remain available; omitted tests are not a pass.
+          // Evidence: spec/records/2026-11-15-link-preview-browser-quarantine.md
+          exclude: [
+            ...configDefaults.exclude,
+            ...(process.env.LAPIS_NOTES_RUN_QUARANTINED_LINK_PREVIEW === "1"
+              ? []
+              : [
+                  "stories/plugins/markdown/panels/LinkPreviewAcceptance.stories.ts",
+                ]),
+          ],
           setupFiles: ["./.storybook/vitest.setup.ts"],
           testTimeout: 120_000,
           // App-backed stories share browser-level compatibility and overlay

@@ -1,5 +1,7 @@
 # Lapis Editor Demo / Editor scenarios / Part 2
 
+The shared-profile registry intake retains this editor demonstration and its owned App. Optional conditional byte writes for packaged skills do not change document text persistence or editor lifecycle.
+
 ## LN-ED-053 — API editors and command scopes: retain their owning App for persistence, workspace
 
 <a id="ln-ed-053"></a>

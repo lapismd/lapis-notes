@@ -1,5 +1,7 @@
 # UI and Styling / Retained UI contracts
 
+The shared profile consumes the published UI 0.2 cohort required by API 0.6. This dependency intake retains Design Core paint authority and the alias-only UI theme; optional skill byte writes do not alter UI styling.
+
 The retained UI runtime and compatible peer range admit released Design Core
 0.13.0 for the mobile shell cohort. Public package composition and the alias-only
 Lapis theme boundary remain unchanged; shared paint stays Core-owned.

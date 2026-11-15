@@ -64,7 +64,8 @@ export declare class Vault extends EventDispatcher<{
   exists(path: string, sensitive?: boolean): Promise<boolean>;
   stat(path: string): Promise<import("./fs").Stat | null>;
   list(path?: string): Promise<import("./fs").ListedFiles>;
-  load(): Promise<void>;
+  /** Retry failed discovery without restarting an active or completed load. */
+  load(options?: { retry?: boolean }): Promise<void>;
   reload(): Promise<TFolder>;
   reconcile(
     hints?: readonly ChangeEvent[],

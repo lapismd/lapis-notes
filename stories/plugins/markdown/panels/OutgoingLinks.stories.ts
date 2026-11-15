@@ -119,6 +119,7 @@ async function replaceEditablePreview(
 
   const editor = preview.querySelector<HTMLElement>(".cm-content");
   if (!editor) throw new Error("Missing editable preview CodeMirror content");
+  expect(getComputedStyle(editor).color).toBe(editorForeground);
   await userEvent.click(editor);
   await new Promise((resolve) => setTimeout(resolve, 50));
   const selectAllModifier = /Mac/.test(
