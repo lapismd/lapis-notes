@@ -34,6 +34,7 @@
   } from "@lapis-notes/api";
   import { registryStatusLabel } from "./community-presentation/model-adapter";
   import type { PluginRegistryController } from "./plugin-registry-controller.svelte";
+  import type { RegistryInstallAction } from "./community-presentation/model-adapter";
   let {
     registry,
     compact = false,
@@ -45,6 +46,10 @@
     installedIds,
     updateIds,
     downloads,
+    actionFor,
+    canUninstall,
+    oninstall,
+    onuninstall,
     onopen: onOpenPlugin,
     onchange,
   }: {
@@ -58,6 +63,10 @@
     installedIds: Set<string>;
     updateIds: ReadonlySet<string>;
     downloads: (id: string) => number;
+    actionFor: (plugin: RegistryCatalogEntry) => RegistryInstallAction;
+    canUninstall: (plugin: RegistryCatalogEntry) => boolean;
+    oninstall: (plugin: RegistryCatalogEntry) => void | Promise<void>;
+    onuninstall: (plugin: RegistryCatalogEntry) => void | Promise<void>;
     onopen: (plugin: RegistryCatalogEntry) => void;
     onchange: (state: RegistryDirectoryState) => void;
   } = $props();
@@ -99,7 +108,8 @@
       directoryState.platforms.length +
       directoryState.statuses.length +
       (directoryState.officialOnly ? 1 : 0) +
-      (directoryState.updatesOnly ? 1 : 0),
+      (directoryState.updatesOnly ? 1 : 0) +
+      (directoryState.installation !== "all" ? 1 : 0),
   );
   const resizeMinimum = 192;
   const hoverScrollbarProps = { scrollbarVisibility: "hover" } as const;
@@ -140,6 +150,7 @@
       statuses: [],
       officialOnly: false,
       updatesOnly: false,
+      installation: "all",
     });
   }
 
@@ -231,6 +242,67 @@
         </Collapsible.Trigger>
       </h2>
       <Collapsible.Content class="registry-directory__group-content">
+        <button
+          type="button"
+          class="registry-directory__filter"
+          class:selected={directoryState.installation === "installed"}
+          aria-pressed={directoryState.installation === "installed"}
+          onclick={() =>
+            replaceState({
+              installation:
+                directoryState.installation === "installed"
+                  ? "all"
+                  : "installed",
+            })}
+        >
+          <span>
+            {@render filterMark(
+              "installed",
+              directoryState.installation === "installed",
+            )}
+            Installed
+          </span>
+          <span>{countFor((plugin) => installedIds.has(plugin.id))}</span>
+        </button>
+
+        <button
+          type="button"
+          class="registry-directory__filter"
+          class:selected={directoryState.updatesOnly}
+          aria-pressed={directoryState.updatesOnly}
+          onclick={() =>
+            replaceState({ updatesOnly: !directoryState.updatesOnly })}
+        >
+          <span>
+            {@render filterMark("updates", directoryState.updatesOnly)}
+            Updates
+          </span>
+          <span>{countFor((plugin) => updateIds.has(plugin.id))}</span>
+        </button>
+
+        <button
+          type="button"
+          class="registry-directory__filter"
+          class:selected={directoryState.installation === "available"}
+          aria-pressed={directoryState.installation === "available"}
+          onclick={() =>
+            replaceState({
+              installation:
+                directoryState.installation === "available"
+                  ? "all"
+                  : "available",
+            })}
+        >
+          <span>
+            {@render filterMark(
+              "available",
+              directoryState.installation === "available",
+            )}
+            Available
+          </span>
+          <span>{countFor((plugin) => !installedIds.has(plugin.id))}</span>
+        </button>
+
         <button
           type="button"
           class="registry-directory__filter selected"
@@ -373,23 +445,6 @@
         </Collapsible.Trigger>
       </h2>
       <Collapsible.Content class="registry-directory__group-content">
-        <button
-          type="button"
-          class="registry-directory__filter"
-          class:selected={directoryState.updatesOnly}
-          aria-pressed={directoryState.updatesOnly}
-          onclick={() =>
-            replaceState({ updatesOnly: !directoryState.updatesOnly })}
-        >
-          <span
-            >{@render filterMark(
-              "updates",
-              directoryState.updatesOnly,
-            )}Updates</span
-          >
-          <span>{countFor((plugin) => updateIds.has(plugin.id))}</span>
-        </button>
-
         <button
           type="button"
           class="registry-directory__filter"
@@ -626,6 +681,16 @@
                 Updates <XIcon data-icon="inline-end" aria-hidden="true" />
               </CommunityChip>
             {/if}
+            {#if directoryState.installation !== "all"}
+              <CommunityChip
+                variant="muted"
+                ariaLabel={`Remove ${titleCaseRegistryValue(directoryState.installation)} filter`}
+                onclick={() => replaceState({ installation: "all" })}
+              >
+                {titleCaseRegistryValue(directoryState.installation)}
+                <XIcon data-icon="inline-end" aria-hidden="true" />
+              </CommunityChip>
+            {/if}
             <Tooltip.Provider>
               <Tooltip.Root>
                 <Tooltip.Trigger>
@@ -677,7 +742,10 @@
               <RegistryPluginCard
                 {plugin}
                 variant={directoryState.view === "grid" ? "card" : "list"}
+                action={actionFor(plugin)}
                 onOpen={onOpenPlugin}
+                onInstall={oninstall}
+                onUninstall={canUninstall(plugin) ? onuninstall : undefined}
               />
             {/each}
           </div>

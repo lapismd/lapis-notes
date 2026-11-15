@@ -28,6 +28,7 @@
   import { getPluginManagementContext } from "./plugin-management-context.svelte";
   import "./plugin-management.css";
   import PluginRegistryContentState from "./PluginRegistryContentState.svelte";
+  import PluginBulkActionDialog from "./PluginBulkActionDialog.svelte";
   import type { PluginRegistryBadgeTone } from "./PluginRegistryBadge.svelte";
   import PluginRegistryRow, {
     type RegistryRowBadge,
@@ -47,6 +48,8 @@
   let uninstallTarget = $state<InstalledPluginRecord | null>(null);
   let uninstallDisableInstead = $state(false);
   let bundleFileInput = $state<HTMLInputElement | null>(null);
+  let bulkUpdatesOpen = $state(false);
+  let selectedUpdateIds = $state<string[]>([]);
 
   let installedSearch = $state("");
   let installedStatus = $state("all");
@@ -235,6 +238,14 @@
             left.name.localeCompare(right.name),
       );
   });
+  let eligibleUpdates = $derived(
+    registry.updates.filter(
+      (update) =>
+        update.canUpdate &&
+        !staticPluginIds.has(update.id) &&
+        !registry.isPluginActionPending(update.id),
+    ),
+  );
   let browseFilterCount = $derived(
     Number(Boolean(browseSearch.trim())) +
       Number(browsePlatform !== "all") +
@@ -340,6 +351,18 @@
   }
   async function updatePlugin(update: PluginUpdateInfo) {
     await registry.update(update);
+  }
+
+  function openBulkUpdates(): void {
+    selectedUpdateIds = eligibleUpdates.map((update) => update.id);
+    bulkUpdatesOpen = true;
+  }
+
+  async function updateSelectedPlugins(ids: readonly string[]): Promise<void> {
+    for (const id of ids) {
+      const update = eligibleUpdates.find((candidate) => candidate.id === id);
+      if (update) await registry.update(update);
+    }
   }
 
   async function openDetails(entry: PluginCatalogEntry): Promise<void> {
@@ -957,6 +980,21 @@
         resultCount={filteredUpdates.length}
         onreset={resetUpdateFilters}
       />
+      {#if eligibleUpdates.length}
+        <div class="lapis-plugin-registry__bulk-actions">
+          <Button.Root
+            size="sm"
+            variant="outline"
+            disabled={eligibleUpdates.some((update) =>
+              registry.isPluginActionPending(update.id),
+            )}
+            onclick={openBulkUpdates}
+          >
+            <ArrowUpCircle data-icon="inline-start" aria-hidden="true" />
+            Update all
+          </Button.Root>
+        </div>
+      {/if}
       {#if registry.initialLoading}
         <PluginRegistryContentState
           kind="loading"
@@ -1148,6 +1186,22 @@
       </div>
     </Tabs.Content>
   </Tabs.Root>
+
+  <PluginBulkActionDialog
+    bind:open={bulkUpdatesOpen}
+    bind:selectedIds={selectedUpdateIds}
+    title="Choose plugin updates"
+    description="Select the eligible installed plugins to update. Incompatible and revoked releases stay unchanged."
+    verb="Update"
+    items={eligibleUpdates.map((update) => ({
+      id: update.id,
+      name: update.name,
+      description: `${update.currentVersion} → ${update.targetVersion}`,
+      version: update.targetVersion,
+      plugin: registry.catalogEntries.find((entry) => entry.id === update.id),
+    }))}
+    onconfirm={updateSelectedPlugins}
+  />
 
   <AlertDialog.Root bind:open={uninstallConfirmOpen}>
     <AlertDialog.Content

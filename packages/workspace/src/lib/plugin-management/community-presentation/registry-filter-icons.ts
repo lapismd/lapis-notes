@@ -1,4 +1,4 @@
-import RefreshCwIcon from "@lucide/svelte/icons/refresh-cw";
+import ArrowUpCircleIcon from "@lucide/svelte/icons/arrow-up-circle";
 import BotIcon from "@lucide/svelte/icons/bot";
 import Clock3Icon from "@lucide/svelte/icons/clock-3";
 import CloudUploadIcon from "@lucide/svelte/icons/cloud-upload";
@@ -9,6 +9,7 @@ import SmartphoneIcon from "@lucide/svelte/icons/smartphone";
 import BadgeCheckIcon from "@lucide/svelte/icons/badge-check";
 import BlocksIcon from "@lucide/svelte/icons/blocks";
 import CircleOffIcon from "@lucide/svelte/icons/circle-off";
+import CircleCheckIcon from "@lucide/svelte/icons/circle-check";
 import DatabaseIcon from "@lucide/svelte/icons/database";
 import FileTextIcon from "@lucide/svelte/icons/file-text";
 import GlobeIcon from "@lucide/svelte/icons/globe";
@@ -30,7 +31,8 @@ import type { Component } from "svelte";
 
 export const registryFilterIcons: Record<string, Component> = {
   ai: BotIcon,
-  updates: RefreshCwIcon,
+  installed: CircleCheckIcon,
+  updates: ArrowUpCircleIcon,
   active: BadgeCheckIcon,
   all: SlidersHorizontalIcon,
   automation: ZapIcon,

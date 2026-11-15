@@ -1,29 +1,49 @@
 <script lang="ts">
   import ChevronRightIcon from "@lucide/svelte/icons/chevron-right";
+  import DownloadIcon from "@lucide/svelte/icons/download";
   import PackageIcon from "@lucide/svelte/icons/package";
+  import { Button } from "@lapismd/design-core/shadcn/button";
 
   import { landingSections as registryLandingSections } from "./plugin-browser-model";
   import type { PluginCatalogEntry as RegistryCatalogEntry } from "@lapis-notes/api";
   import RegistryPluginCard from "./PluginBrowserCard.svelte";
   import { registryFilterIcon } from "./community-presentation/registry-filter-icons";
+  import type { RegistryInstallAction } from "./community-presentation/model-adapter";
 
   let {
     plugins,
     updateIds,
+    installedIds,
+    installableCount,
     onOpenUpdates,
+    onOpenInstalled,
     onOpenDirectory,
+    onInstallAll,
     onOpenPlugin,
     onOpenCategory,
+    actionFor,
+    onInstall,
+    onUninstall,
   }: {
     plugins: readonly RegistryCatalogEntry[];
     updateIds: ReadonlySet<string>;
+    installedIds: ReadonlySet<string>;
+    installableCount: number;
     onOpenUpdates: () => void;
+    onOpenInstalled: () => void;
     onOpenDirectory: () => void;
+    onInstallAll: () => void;
     onOpenPlugin: (plugin: RegistryCatalogEntry) => void;
     onOpenCategory: (category: string) => void;
+    actionFor: (plugin: RegistryCatalogEntry) => RegistryInstallAction;
+    onInstall: (plugin: RegistryCatalogEntry) => void | Promise<void>;
+    onUninstall: (plugin: RegistryCatalogEntry) => void | Promise<void>;
   } = $props();
 
   const sections = $derived(registryLandingSections(plugins, updateIds));
+  const installedPlugins = $derived(
+    plugins.filter((plugin) => installedIds.has(plugin.id)),
+  );
 
   function interceptNavigation(event: MouseEvent, action: () => void): void {
     if (
@@ -48,31 +68,71 @@
     <p>
       Browse {plugins.length} plugins built for Lapis Notes by the community.
     </p>
+    {#if installableCount}
+      <Button type="button" variant="outline" onclick={onInstallAll}>
+        <DownloadIcon data-icon="inline-start" aria-hidden="true" />
+        Install all
+      </Button>
+    {/if}
   </header>
 
-  {#if sections.updates.length}
-    <section
-      class="registry-landing__section"
-      aria-labelledby="registry-landing-updates"
+  {#if installedPlugins.length || sections.updates.length}
+    <div
+      class="registry-landing__status-lanes"
+      data-ui-part="registry-status-lanes"
     >
-      <a
-        class="registry-landing__section-link"
-        href="#/registry/plugins?updates"
-        onclick={(event) => interceptNavigation(event, onOpenUpdates)}
-      >
-        <h2 id="registry-landing-updates">Updates</h2>
-        <ChevronRightIcon aria-hidden="true" />
-      </a>
-      <div class="registry-landing__updates">
-        {#each sections.updates as plugin (plugin.id)}
-          <RegistryPluginCard
-            {plugin}
-            variant="compact"
-            onOpen={onOpenPlugin}
-          />
-        {/each}
-      </div>
-    </section>
+      {#if installedPlugins.length}
+        <section aria-labelledby="registry-landing-installed">
+          <a
+            class="registry-landing__lane-link"
+            href="#/registry/plugins?installed"
+            onclick={(event) => interceptNavigation(event, onOpenInstalled)}
+          >
+            <h2 id="registry-landing-installed">Installed</h2>
+            <ChevronRightIcon aria-hidden="true" />
+          </a>
+          <div class="registry-landing__list">
+            {#each installedPlugins.slice(0, 5) as plugin (plugin.id)}
+              <RegistryPluginCard
+                {plugin}
+                variant="compact"
+                action={actionFor(plugin)}
+                showInstalledBadge={false}
+                onOpen={onOpenPlugin}
+                {onInstall}
+                onUninstall={(entry) => void onUninstall(entry)}
+              />
+            {/each}
+          </div>
+        </section>
+      {/if}
+
+      {#if sections.updates.length}
+        <section aria-labelledby="registry-landing-updates">
+          <a
+            class="registry-landing__lane-link"
+            href="#/registry/plugins?updates"
+            onclick={(event) => interceptNavigation(event, onOpenUpdates)}
+          >
+            <h2 id="registry-landing-updates">Updates</h2>
+            <ChevronRightIcon aria-hidden="true" />
+          </a>
+          <div class="registry-landing__list">
+            {#each sections.updates.slice(0, 5) as plugin (plugin.id)}
+              <RegistryPluginCard
+                {plugin}
+                variant="compact"
+                action={actionFor(plugin)}
+                showInstalledBadge={false}
+                onOpen={onOpenPlugin}
+                {onInstall}
+                onUninstall={(entry) => void onUninstall(entry)}
+              />
+            {/each}
+          </div>
+        </section>
+      {/if}
+    </div>
   {/if}
 
   <section
@@ -264,11 +324,34 @@
     color: var(--primary);
   }
 
-  .registry-landing__lanes,
-  .registry-landing__updates {
+  .registry-landing__lanes {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: clamp(1.5rem, 4cqi, 3rem);
+  }
+
+  .registry-landing__status-lanes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.5rem, 4cqi, 3rem);
+  }
+
+  :global(
+      .registry-landing__status-lanes
+        .registry-plugin-card__action[data-ui-component="button"]
+    ) {
+    width: 1.625rem;
+    height: 1.625rem;
+    min-height: 1.625rem;
+  }
+
+  :global(
+      .registry-landing__status-lanes
+        .registry-plugin-card__action[data-ui-component="button"]
+        svg
+    ) {
+    width: 0.8rem;
+    height: 0.8rem;
   }
 
   .registry-landing__list {
@@ -321,8 +404,7 @@
   }
 
   @container plugin-browser (max-width: 58rem) {
-    .registry-landing__lanes,
-    .registry-landing__updates {
+    .registry-landing__lanes {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
@@ -333,7 +415,7 @@
 
   @container plugin-browser (max-width: 38rem) {
     .registry-landing__lanes,
-    .registry-landing__updates,
+    .registry-landing__status-lanes,
     .registry-landing__categories {
       grid-template-columns: minmax(0, 1fr);
     }

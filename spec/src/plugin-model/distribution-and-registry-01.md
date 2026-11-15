@@ -169,7 +169,7 @@ cannot disappear when the host registers the public plugin Settings pages.
 
 <a id="ln-plug-055"></a>
 
-**Requirement.** Installed, Browse, Updates, and Sources MUST use one compact responsive registry-row system with tab-specific Design Core search that expands to reveal supported filters and sorting, plus active-filter count, matching-result count, and Reset. Actions and status reasons MUST stay inside their owning row without adding ratings, source editing, or Update All.
+**Requirement.** Installed, Browse, Updates, and Sources MUST use one compact responsive registry-row system with tab-specific Design Core search that expands to reveal supported filters and sorting, plus active-filter count, matching-result count, and Reset. Actions and status reasons MUST stay inside their owning row without adding ratings or source editing.
 
 ## LN-PLUG-056 — Registry details: expose verified Overview, Changelog, and Releases inside
 

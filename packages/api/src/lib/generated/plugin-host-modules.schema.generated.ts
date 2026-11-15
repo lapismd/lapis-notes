@@ -529,7 +529,7 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/native-sync",
-    "version": "0.6.1"
+    "version": "0.6.2"
   },
   "@lapis-notes/api/native-tasks": {
     "entry": "@lapis-notes/api/native-tasks",

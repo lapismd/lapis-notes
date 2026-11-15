@@ -1023,9 +1023,11 @@ export const UpdatesLanding: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = await ready(canvasElement);
-    const updates = within(
-      await canvas.findByRole("region", { name: "Updates", exact: true }),
-    );
+    const updatesRegion = await canvas.findByRole("region", {
+      name: "Updates",
+      exact: true,
+    });
+    const updates = within(updatesRegion);
     await expect(
       updates.getByRole("link", { name: "Open AI Assistant", exact: true }),
     ).toBeVisible();
@@ -1035,8 +1037,136 @@ export const UpdatesLanding: Story = {
     await expect(
       updates.queryByRole("link", { name: "Open Slides", exact: true }),
     ).toBeNull();
+    const statusLanes = updatesRegion.closest(
+      '[data-ui-part="registry-status-lanes"]',
+    ) as HTMLElement | null;
+    expect(statusLanes).not.toBeNull();
+    await waitFor(() => {
+      expect(
+        getComputedStyle(statusLanes!).gridTemplateColumns.split(" "),
+      ).toHaveLength(2);
+    });
+    await userEvent.click(
+      updates.getByRole("link", { name: "Updates", exact: true }),
+    );
+    await expect(
+      await canvas.findByRole("button", {
+        name: "Remove Updates filter",
+        exact: true,
+      }),
+    ).toBeVisible();
   },
 };
+
+export const InstalledLandingManagement: Story = {
+  name: "Installed Landing Management",
+  tags: ["visual-pending"],
+  render: render("middle-top-tabs", "updates"),
+  parameters: reviewParameters(
+    "installed-landing-management",
+    "The registry homepage identifies installed plugins and keeps eligible update and uninstall actions with their cards.",
+    {},
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = await ready(canvasElement);
+    const installed = within(
+      await canvas.findByRole("region", { name: "Installed", exact: true }),
+    );
+    await expect(
+      installed.queryByText("Installed", {
+        selector: '[data-ui-part="community-chip"]',
+      }),
+    ).toBeNull();
+    await expect(
+      installed.getByRole("link", {
+        name: "Open AI Assistant",
+        exact: true,
+      }),
+    ).toBeVisible();
+    const updateButton = installed.getByRole("button", {
+      name: "Update AI Assistant",
+      exact: true,
+    });
+    await expect(updateButton).toBeEnabled();
+    await expect(updateButton).toHaveAttribute("data-tooltip-trigger");
+    await expect(updateButton).toHaveAttribute("data-plugin-action", "update");
+    await expect(updateButton).toHaveTextContent(/^$/);
+    const title = installed.getByText("AI Assistant", {
+      selector: ".registry-plugin-card__title",
+    });
+    expect(updateButton.getBoundingClientRect().right).toBeGreaterThan(
+      title.getBoundingClientRect().right,
+    );
+    expect(
+      Math.abs(
+        updateButton.getBoundingClientRect().top -
+          title.getBoundingClientRect().top,
+      ),
+    ).toBeLessThan(12);
+    const uninstallButton = installed.getByRole("button", {
+      name: "Uninstall AI Assistant",
+      exact: true,
+    });
+    await expect(uninstallButton).toBeEnabled();
+    await expect(uninstallButton).toHaveAttribute("data-tooltip-trigger");
+    await expect(uninstallButton).toHaveAttribute(
+      "data-plugin-action",
+      "uninstall",
+    );
+    await expect(uninstallButton).toHaveTextContent(/^$/);
+    expect(uninstallButton.getBoundingClientRect().width).toBe(
+      uninstallButton.getBoundingClientRect().height,
+    );
+    expect(uninstallButton.getBoundingClientRect().width).toBeLessThan(32);
+  },
+};
+
+export const BulkInstallSelection: Story = {
+  name: "Bulk Install Selection",
+  tags: ["visual-pending"],
+  render: render("middle-top-tabs", "updates"),
+  parameters: reviewParameters(
+    "bulk-install-selection",
+    "Install all opens a searchable Design Core Command View with only eligible catalog entries selected for review.",
+    {},
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = await ready(canvasElement);
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Install all", exact: true }),
+    );
+    const body = within(canvasElement.ownerDocument.body);
+    const dialog = await body.findByRole("dialog", {
+      name: "Choose plugins to install",
+    });
+    await expect(
+      dialog.querySelector(
+        '[data-ui-component="command-view"][data-ui-part="root"]',
+      ),
+    ).not.toBeNull();
+    await expect(within(dialog).getAllByRole("option").length).toBeGreaterThan(
+      0,
+    );
+    for (const option of within(dialog).getAllByRole("option")) {
+      expect(
+        option.querySelector('[data-ui-part="registry-plugin-icon"]'),
+      ).not.toBeNull();
+    }
+    const searchIcon = dialog.querySelector(
+      '[data-ui-part="search-icon"]',
+    ) as SVGElement;
+    expect(searchIcon.getBoundingClientRect().width).toBeLessThanOrEqual(16);
+    for (const mark of dialog.querySelectorAll(
+      ".plugin-bulk-action-dialog__selection-mark",
+    )) {
+      expect(getComputedStyle(mark).borderTopWidth).toBe("0px");
+    }
+    await expect(
+      within(dialog).getByRole("button", { name: /Install \d+ plugins?/ }),
+    ).toBeEnabled();
+  },
+};
+
 const updatesReview = {
   route: { page: "directory" },
   directory: { updatesOnly: true },
@@ -1047,7 +1177,7 @@ export const UpdatesDirectory: Story = {
   render: render("middle-top-tabs", "updates", updatesReview),
   parameters: reviewParameters(
     "updates-directory",
-    "The removable Updates chip and Other filter row restrict the real directory to eligible installed upgrades, combine with search and restore from layout state.",
+    "The removable Updates chip and Type filter row directly below Installed restrict the real directory to eligible installed upgrades, combine with search and restore from layout state.",
     updatesReview,
   ),
   play: async ({ canvasElement }) => {
@@ -1068,8 +1198,78 @@ export const UpdatesDirectory: Story = {
     await userEvent.click(remove);
     await expect(filter).toHaveAttribute("aria-pressed", "false");
     await expect(canvas.getByText("8 results", { exact: true })).toBeVisible();
+    const installedFilter = canvas.getByRole("button", {
+      name: /^Installed\s+3$/,
+    });
+    expect(installedFilter.nextElementSibling).toBe(filter);
+    expect(
+      installedFilter.querySelector('[data-filter-icon="installed"]'),
+    ).not.toBeNull();
+    expect(filter.querySelector('[data-filter-icon="updates"]')).not.toBeNull();
     await userEvent.click(filter);
     await expect(canvas.getByText("2 results", { exact: true })).toBeVisible();
+  },
+};
+
+const installedDirectoryReview = {
+  route: { page: "directory" },
+  directory: { installation: "installed" },
+};
+export const InstalledDirectoryManagement: Story = {
+  name: "Installed Directory Management",
+  tags: ["visual-pending"],
+  render: render("middle-top-tabs", "updates", installedDirectoryReview),
+  parameters: reviewParameters(
+    "installed-directory-management",
+    "The removable Installed filter limits the directory to managed plugins whose cards expose update or uninstall actions.",
+    installedDirectoryReview,
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = await ready(canvasElement);
+    await expect(
+      await canvas.findByRole("button", { name: "Remove Installed filter" }),
+    ).toBeVisible();
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Show plugin filters" }),
+    );
+    const body = within(canvasElement.ownerDocument.body);
+    const filter = await body.findByRole("button", { name: /^Installed\s+3$/ });
+    await expect(filter).toHaveAttribute("aria-pressed", "true");
+    await expect(canvas.getByText("3 results", { exact: true })).toBeVisible();
+    await expect(
+      canvas.getByRole("button", {
+        name: "Update AI Assistant",
+        exact: true,
+      }),
+    ).toBeEnabled();
+    await expect(
+      canvas.getByRole("button", {
+        name: "Uninstall AI Assistant",
+        exact: true,
+      }),
+    ).toBeEnabled();
+    const aiCard = canvas
+      .getByRole("link", { name: "Open AI Assistant", exact: true })
+      .closest("article")!;
+    const updateBadge = within(aiCard).getByText("Update 0.0.1 → 1.4.0", {
+      selector: '[data-ui-part="community-chip"]',
+    });
+    expect(updateBadge).toHaveAttribute("data-chip-tone", "warning");
+    expect(
+      updateBadge.closest(".registry-plugin-card__categories"),
+    ).not.toBeNull();
+    expect(updateBadge.closest(".registry-plugin-card__actions")).toBeNull();
+    const slidesCard = canvas
+      .getByRole("link", { name: "Open Slides", exact: true })
+      .closest("article")!;
+    const installedBadge = within(slidesCard).getByText("Installed", {
+      selector: '[data-ui-part="community-chip"]',
+    });
+    expect(installedBadge).toHaveAttribute("data-chip-tone", "accent");
+    expect(
+      installedBadge.closest(".registry-plugin-card__categories"),
+    ).not.toBeNull();
+    expect(installedBadge.closest(".registry-plugin-card__actions")).toBeNull();
   },
 };
 const updateDetailReview = { route: { page: "plugin", pluginId: "graph" } };

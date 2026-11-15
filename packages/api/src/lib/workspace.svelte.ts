@@ -3459,7 +3459,7 @@ export class Workspace extends EventDispatcher<{
           projected.delete(id);
         }
       }
-      for (const snapshot of visible) {
+      for (const snapshot of [...visible].reverse()) {
         let handle = projected.get(snapshot.id);
         if (!handle) {
           handle = controller.notifications.createProgress({

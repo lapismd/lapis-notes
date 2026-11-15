@@ -12,6 +12,7 @@
   import CheckCircleIcon from "@lucide/svelte/icons/circle-check";
   import CircleAlertIcon from "@lucide/svelte/icons/circle-alert";
   import DownloadIcon from "@lucide/svelte/icons/download";
+  import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import EllipsisIcon from "@lucide/svelte/icons/ellipsis";
   import ExternalLinkIcon from "@lucide/svelte/icons/external-link";
 
@@ -45,6 +46,7 @@
     changelog,
     downloadSummary,
     onInstall,
+    onUninstall,
     onOpenPlugin,
     onOpenCategory,
     onOpenPlatform,
@@ -59,6 +61,7 @@
     changelog?: Snippet;
     downloadSummary?: Snippet;
     onInstall?: (request: RegistryInstallRequest) => void | Promise<void>;
+    onUninstall?: () => void | Promise<void>;
     onOpenPlugin: (plugin: RegistryCatalogEntry) => void;
     onOpenCategory: (category: string) => void;
     onOpenPlatform: (platform: string) => void;
@@ -341,6 +344,17 @@
             />{/if}
           {installLabel}
         </Button>
+        {#if onUninstall}
+          <Button
+            type="button"
+            variant="outline"
+            aria-label={`Uninstall ${detail.name}`}
+            onclick={() => void onUninstall()}
+          >
+            <Trash2Icon data-icon="inline-start" aria-hidden="true" />
+            Uninstall
+          </Button>
+        {/if}
         <DropdownMenu.Root>
           <DropdownMenu.Trigger>
             {#snippet child({ props })}

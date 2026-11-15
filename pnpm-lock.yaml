@@ -149,7 +149,7 @@ importers:
         version: 0.1.0(node-llama-cpp@3.18.1(typescript@5.9.3))(zod@4.6.6)
       '@lapismd/design-core':
         specifier: ^0.13.2
-        version: 0.13.2(svelte@5.56.10)(tailwindcss@4.3.3)
+        version: 0.13.3(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapismd/mira':
         specifier: ~0.2.0
         version: 0.2.0(@codemirror/autocomplete@6.20.3)(@codemirror/commands@6.10.4)(@codemirror/lang-markdown@6.5.2)(@codemirror/lang-yaml@6.1.3)(@codemirror/language-data@6.5.2)(@codemirror/language@6.12.4)(@codemirror/legacy-modes@6.5.3)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/state@6.7.1)(@codemirror/view@6.43.8)(@internationalized/date@3.12.4)(@lezer/common@1.5.2)(@lezer/highlight@1.2.3)(@lezer/markdown@1.7.2)(svelte@5.56.10)(tailwindcss@4.3.3)
@@ -332,7 +332,7 @@ importers:
         version: 0.3.0(zod@4.6.6)
       '@lapismd/design-core':
         specifier: ^0.13.2
-        version: 0.13.2(svelte@5.56.10)(tailwindcss@4.3.3)
+        version: 0.13.3(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapismd/mira':
         specifier: ~0.2.0
         version: 0.2.0(@codemirror/autocomplete@6.20.3)(@codemirror/commands@6.10.4)(@codemirror/lang-markdown@6.5.2)(@codemirror/lang-yaml@6.1.3)(@codemirror/language-data@6.5.2)(@codemirror/language@6.12.4)(@codemirror/legacy-modes@6.5.3)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/state@6.7.1)(@codemirror/view@6.43.8)(@internationalized/date@3.12.4)(@lezer/common@1.5.2)(@lezer/highlight@1.2.3)(@lezer/markdown@1.7.2)(svelte@5.56.10)(tailwindcss@4.3.3)
@@ -534,7 +534,7 @@ importers:
         version: 0.2.6(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapismd/design-core':
         specifier: ^0.13.2
-        version: 0.13.2(svelte@5.56.10)(tailwindcss@4.3.3)
+        version: 0.13.3(svelte@5.56.10)(tailwindcss@4.3.3)
     devDependencies:
       '@sveltejs/package':
         specifier: ^2.5.8
@@ -689,7 +689,7 @@ importers:
         version: 0.4.0(svelte@5.56.10)
       '@lapismd/design-core':
         specifier: ^0.13.2
-        version: 0.13.2(svelte@5.56.10)(tailwindcss@4.3.3)
+        version: 0.13.3(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lucide/svelte':
         specifier: ^0.515.0
         version: 0.515.0(svelte@5.56.10)
@@ -780,7 +780,7 @@ importers:
         version: link:../workspace
       '@lapismd/design-core':
         specifier: ^0.13.2
-        version: 0.13.2(svelte@5.56.10)(tailwindcss@4.3.3)
+        version: 0.13.3(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapismd/jj-history':
         specifier: ~0.1.0
         version: 0.1.0
@@ -841,7 +841,7 @@ importers:
         version: link:../ui
       '@lapismd/design-core':
         specifier: ^0.13.2
-        version: 0.13.2(svelte@5.56.10)(tailwindcss@4.3.3)
+        version: 0.13.3(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lucide/svelte':
         specifier: ^0.523.0
         version: 0.523.0(svelte@5.56.10)
@@ -2584,8 +2584,8 @@ packages:
     peerDependencies:
       svelte: ^5.0.0
 
-  '@lapismd/design-core@0.13.2':
-    resolution: {integrity: sha512-0Xplq0/zsdrb56UP4pWQZYuP3dUMvNpnHfjMT593pivn+qdCf99SNOCk93eWRGHWKihy61qrAIeByMS191MUnw==}
+  '@lapismd/design-core@0.13.3':
+    resolution: {integrity: sha512-VpzlcMhzfPefS8HYiinkL/Jw/+pZgKITGb9TGDhec+5nCiuRCDOzNVY4cTIWDdhZTSdZXdJL4VovpJMACjNRxw==}
     engines: {node: ^22.11 || ^24 || >=26}
     peerDependencies:
       svelte: ^5.0.0
@@ -10592,7 +10592,7 @@ snapshots:
 
   '@lapismd/agent-ui@0.2.6(svelte@5.56.10)(tailwindcss@4.3.3)':
     dependencies:
-      '@lapismd/design-core': 0.13.2(svelte@5.56.10)(tailwindcss@4.3.3)
+      '@lapismd/design-core': 0.13.3(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lucide/svelte': 1.66.0(svelte@5.56.10)
       svelte: 5.56.10
     transitivePeerDependencies:
@@ -10736,7 +10736,7 @@ snapshots:
       - supports-color
       - tailwindcss
 
-  '@lapismd/design-core@0.13.2(svelte@5.56.10)(tailwindcss@4.3.3)':
+  '@lapismd/design-core@0.13.3(svelte@5.56.10)(tailwindcss@4.3.3)':
     dependencies:
       '@codemirror/autocomplete': 6.20.4
       '@codemirror/commands': 6.11.1

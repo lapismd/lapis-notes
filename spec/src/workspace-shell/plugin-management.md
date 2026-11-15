@@ -37,6 +37,11 @@ flow ([LN-PLUG-107](../plugin-model/editor-contributions.md#ln-plug-107),
 Successful app-link navigation dismisses owning Settings under
 [LN-PLUG-109](../plugin-model/app-ownership.md#ln-plug-109).
 
+Bulk update and install selection plus installed homepage/directory management
+follow LN-PLUG-132/134. The shared workspace presentation uses Design Core
+Command View and card controls, while the existing App controller retains
+eligibility, progress, confirmation and mutation ownership.
+
 ## LN-WS-007 — Shell: render design-core's default desktop and mobile chrome
 
 <a id="ln-ws-007"></a>
