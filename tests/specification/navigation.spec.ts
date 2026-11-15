@@ -33,6 +33,10 @@ test("canonical chapter links open their Storybook docs", async ({ page }) => {
 test("requirement links, outline, and history survive reload", async ({
   page,
 }) => {
+  test.skip(
+    process.env.LAPIS_NOTES_RUN_QUARANTINED_DOCS_HISTORY !== "1",
+    "Quarantined Storybook 10.6 Forward-history regression; see spec/records/2026-11-15-docs-history-quarantine.md",
+  );
   await page.goto("?path=/docs/specification-workspace-shell--docs", {
     waitUntil: "domcontentloaded",
   });

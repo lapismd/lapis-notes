@@ -128,7 +128,7 @@ Browser file serialization MUST be configured on the browser pool itself.
 
 <a id="ln-cat-121"></a>
 
-**Requirement.** Pull-request, reusable and local release CI MUST disable the quarantined Storybook Vitest browser lane and identify omitted interaction/accessibility coverage. Explicit diagnostics and local commands MAY run it with errors remaining fatal. Notes validation tooling owns restoration after the documented transport cause is fixed and three consecutive complete cold Linux runs pass without retries. Specification browser acceptance and other enabled gates MUST remain blocking.
+**Requirement.** Pull-request, reusable and local release CI MUST disable the documented Storybook Vitest quarantine and report omitted coverage; the explicitly accepted Docs history case MAY be quarantined separately. Explicit diagnostics MUST keep errors fatal. Notes validation tooling owns restoration after the documented cause is fixed and three consecutive complete cold Linux runs pass without retries. All other specification browser acceptance and enabled gates MUST remain blocking.
 
 The [quarantine record](../../records/2026-11-01-storybook-browser-quarantine.md)
 owns evidence, disabled coverage, diagnostic commands and restoration steps.
@@ -170,3 +170,8 @@ explicit user acceptance on 2026-11-15. Their catalog routes and other panel
 coverage remain enabled. [Targeted quarantine](../../records/2026-11-15-link-preview-browser-quarantine.md)
 records failed aggregates, unchanged diagnostic passes, the omitted count and
 the explicit opt-in diagnostic command. The transport failure is not repaired.
+
+The [Docs history quarantine](../../records/2026-11-15-docs-history-quarantine.md)
+omits only the named history case from development and static runs, with an
+explicit fatal opt-in diagnostic. Acceptance is documented quarantine, not
+authorization to merge red required checks. Remaining cases stay enabled.

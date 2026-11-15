@@ -230,3 +230,14 @@ After the chapter correction, the same base-to-updated-head gate passes with
 The full specification aggregate, 67 governance cases, documentation type/mirror
 check and affected Markdown formatting pass. This is a documentation-only
 correction; the already qualified product and catalog code is unchanged.
+
+## Accepted failures are quarantined, not red-merge exceptions
+
+The user clarifies that accepting the Docs history failure requires documenting
+and quarantining its test, with green required checks before merge. This
+supersedes the earlier interpretation of acceptance as permission to merge the
+red Docs jobs. The [single-case Docs quarantine](2026-11-15-docs-history-quarantine.md)
+retains all assertions and timeouts, keeps both Docs jobs and their other cases
+enabled, and supplies an explicit diagnostic opt-in. The exact default target
+reports one omitted case; opt-in reproduces the original failure. No red
+required check will be bypassed for this release.
