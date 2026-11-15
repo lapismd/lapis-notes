@@ -274,11 +274,11 @@ The release caller grants every token permission requested by reusable CI, inclu
 
 <a id="ln-arch-095"></a>
 
-**Requirement.** CI MUST consume a digest-pinned lockfile-specific `lapis-notes-ci` image built over the shared multi-architecture `lapis-ci` toolchain. The dependency layer MUST contain only the pnpm store derived from manifests, patches, and the lockfile; source and reusable `node_modules` MUST remain outside the image.
+**Requirement.** Active CI, release and Pages containers MUST resolve the complete current dependency context through the shared signed-image verifier. A verified cache MUST use its immutable multi-architecture digest; absence or service unavailability MUST select the reviewed base, followed by the same frozen install. Invalid provenance MUST fail closed. Cache layers MUST contain only the fetched pnpm store, excluding source, credentials and reusable `node_modules`.
 
 <!-- ci-dependency-image:start -->
 
-## Current CI dependency image
+## Retained rollback dependency image
 
 - Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:9d5aa165fe46bd038294bc6716c2c59c4ea618d4c33cfa0e713c8b4ca251ebb7`
 - Lockfile tag: `lock-29cea641f8dd6775`

@@ -24,11 +24,17 @@ env:
   TURBO_REMOTE_CACHE_SIGNATURE_KEY: ${{ secrets.TURBO_REMOTE_CACHE_SIGNATURE_KEY }}
 
 jobs:
+  resolve-image:
+    uses: ./.github/workflows/resolve-dependency-image.yml
+    with:
+      artifact-name: publish-storybook-pages-dependency-image
+
   build:
     name: Build Storybook
+    needs: resolve-image
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lapismd/lapis-ci@sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503
+      image: ${{ needs.resolve-image.outputs.reference }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}

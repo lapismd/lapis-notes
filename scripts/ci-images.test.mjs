@@ -172,26 +172,17 @@ test("malformed snapshot markers prevent any pin or chapter rewrite", async (t) 
   );
 });
 
-test("automation stages all mapped pin outputs and checks them for changes", async () => {
-  const workflow = await readFile(
-    new URL("../.github/workflows/dependency-image.yml", import.meta.url),
+test("rollback image updater retains all mapped pin outputs", async () => {
+  const source = await readFile(
+    new URL("./update-ci-image-manifest.mjs", import.meta.url),
     "utf8",
   );
-  const paths = workflow
-    .match(/pin_paths=\(([\s\S]*?)\)/)?.[1]
-    .trim()
-    .split(/\s+/);
-  assert.ok(paths, "The automation must declare its complete pin output set.");
-  for (const output of [
-    ".ci/images.json",
+  for (const chapter of [
     "spec/src/architecture/dependency-boundaries.md",
     "spec/src/packages/releases-and-exports.md",
     "spec/src/spec-governance/protected-change-mapping.md",
-  ]) {
-    assert.ok(paths.includes(output), `Automation omits ${output}`);
-  }
-  assert.ok(workflow.includes('git diff --quiet -- "${pin_paths[@]}"'));
-  assert.ok(workflow.includes('git add -- "${pin_paths[@]}"'));
+  ])
+    assert(source.includes(chapter.replace(/^spec\/src\//, "")), chapter);
 });
 
 test("invalid digest does not rewrite the image manifest", async (t) => {
