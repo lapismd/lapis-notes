@@ -214,3 +214,19 @@ Npm supplies no gitHead for this version, so no source-provenance claim is made.
 The live trusted publisher now matches lapismd/lapis-notes, release.yml and
 npm-production, with publish/stage-publish permissions. No publisher write is
 performed by this slice. The prior authentication failure is historical.
+
+## PR 130 governance follow-up
+
+The exact committed base/head spec-first gate reproduces CI job 132933294478:
+one SPEC-FIRST-MISSING finding for the Hosted Server chapter after main
+reconciliation. Source documentation is corrected with the shared API retry/byte
+guards, published dependency boundary and separate native Server acceptance;
+no protected mapping or implementation is weakened. The before log is retained
+at `.local/pr130-governance-before-20261115.log`. Latest spec-validator remains
+Deno-free 0.2.0; doctor and QMD search run before this correction.
+
+After the chapter correction, the same base-to-updated-head gate passes with
+29 protected files and 26 canonical chapters (one finding before, zero after).
+The full specification aggregate, 67 governance cases, documentation type/mirror
+check and affected Markdown formatting pass. This is a documentation-only
+correction; the already qualified product and catalog code is unchanged.
