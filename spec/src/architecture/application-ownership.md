@@ -1,5 +1,10 @@
 # Architecture / Application ownership
 
+The optional native Sync service under LN-PKG-188 through LN-PKG-190 belongs to
+the owning App and admitted VaultSession. Plugin leases receive provider-bound
+observations and replies only; protocol algorithms, durable work, scheduling,
+filesystem capabilities and native cleanup policy remain outside the renderer.
+
 Under LN-PLUG-112, the App that changes canonical plugin data owns its
 compatibility-mirror writes. An App observing external configuration reloads
 does not acquire another native writer for the same mirrored data.

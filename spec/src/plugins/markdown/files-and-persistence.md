@@ -120,4 +120,9 @@ LN-CORE-027 reports native admission/rearm through the existing Problems
 collection without replacing Markdown persistence. Saved-file review opens a
 separate retained Reading tab; diagnostics never claim to contain draft bytes.
 
+Markdown editors and embeds remain registered with the existing App writer
+registry during native Sync apply. LN-PKG-190 protects and flushes that complete
+registry before the host call; Sync does not add a Markdown save path, infer
+clean state from view absence or take ownership of retained draft bytes.
+
 The packaged Markdown workflow is installed explicitly under vault `.agents/skills`. Updating it preserves locally edited skill directories and does not change note persistence or frontmatter ownership.

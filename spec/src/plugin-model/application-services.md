@@ -34,6 +34,11 @@ Plugins register their real writer and saved text through that registry; native
 readiness, protection and protected yield/rearm remain App-owned. The port
 grants no path, secret or persistence authority beyond the admitted host client.
 
+LN-PKG-188 through LN-PKG-190 add one optional App-owned native Sync service.
+The Sync plugin selects only its declared Lapis Server lease and receives opaque
+snapshots and replies; it never receives the host port or another scheduler.
+Plugin unload revokes observation while accepted native work remains Core-owned.
+
 The public `NativeTurnService` is an already-admitted host port. Its generated
 DTOs carry portable commands and observations; plugins cannot nominate native
 launch paths or credentials. Accepted work and transcript writes stay in Core

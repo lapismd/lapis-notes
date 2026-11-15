@@ -11,6 +11,7 @@ import {
 import type { NativeBackgroundIndexing } from "../native-background-indexing";
 import type { NativeHistoryIndex } from "../native-history-index";
 import type { NativeEditingIntents } from "../native-editing-intents";
+import type { NativeSyncPort } from "../native-sync";
 import { BrowserCoordinatedAppDatabase } from "./browser-coordinated-app-database";
 import { BrowserAppDatabaseCoordinator } from "./browser-app-database-coordination";
 import type { VaultAdapter, VaultIdentityAdapter } from "./fs";
@@ -53,6 +54,7 @@ export interface VaultSession {
   nativeHistoryIndex?: NativeHistoryIndex;
   nativeEditingIntents?: NativeEditingIntents;
   nativeTasks?: NativeTasks;
+  nativeSync?: NativeSyncPort;
   operations?: import("../operations").OperationHost;
   skillManagement?: import("../skill-management").SkillManagementHost;
   appDatabaseState: VaultSessionAppDatabaseState;

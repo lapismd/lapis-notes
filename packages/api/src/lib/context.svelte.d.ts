@@ -11,6 +11,7 @@ import { CommandManager, Keymap, Scope, type UserEvent } from "./command.svelte"
 import { MetadataCache } from "./cache.svelte";
 import type { NativeBackgroundIndexingObserver } from "./native-background-indexing";
 import type { NativeHistoryIndex } from "./native-history-index";
+import { NativeSyncService, type NativeSyncPort } from "./native-sync";
 import type { NativeEditingIntents } from "./native-editing-intents";
 import type { MarkdownDirectiveRenderer, MarkdownPostProcessor, MarkdownViewMenuItemProvider } from "./markdown";
 import { type Logger } from "./logging";
@@ -69,6 +70,8 @@ export type AppStateProperties = {
     nativeHistoryIndex?: NativeHistoryIndex;
     nativeEditingIntents?: NativeEditingIntents;
     nativeTasks?: NativeTasks;
+    /** Optional host-owned Sync service; the selected provider remains explicit. */
+    nativeSync?: NativeSyncPort;
     operations?: OperationHost;
     skillManagement?: import("./skill-management").SkillManagementHost;
     appDatabase?: AppDatabase;
@@ -178,6 +181,7 @@ export declare class App {
     readonly session?: VaultSession;
     readonly nativeHistoryIndex?: NativeHistoryIndex;
     readonly nativeTasks?: NativeTasksSession;
+    readonly nativeSync?: NativeSyncService;
     readonly operations?: OperationSession;
     readonly skillManagement: import("./skill-management").SkillManagementHost;
     readonly safeMode: AppSafeModeState;

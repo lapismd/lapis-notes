@@ -82,6 +82,7 @@ import { FileEditingSessionRegistry } from "./file-editing-sessions";
 import { SearchDocumentProviderRegistry } from "./search-document-provider";
 import type { NativeBackgroundIndexingObserver } from "./native-background-indexing";
 import type { NativeHistoryIndex } from "./native-history-index";
+import { NativeSyncService, type NativeSyncPort } from "./native-sync";
 import type { NativeEditingIntents } from "./native-editing-intents";
 import { SearchResultProviderRegistry } from "./search-result-provider";
 import { DailyDocumentProviderRegistry } from "./daily-document-provider";
@@ -154,6 +155,8 @@ export type AppStateProperties = {
   nativeHistoryIndex?: NativeHistoryIndex;
   nativeEditingIntents?: NativeEditingIntents;
   nativeTasks?: NativeTasks;
+  /** Optional host-owned Sync service; the selected provider remains explicit. */
+  nativeSync?: NativeSyncPort;
   operations?: OperationHost;
   skillManagement?: SkillManagementHost;
   appDatabase?: AppDatabase;
@@ -309,6 +312,7 @@ export class App {
   readonly session?: VaultSession;
   readonly nativeHistoryIndex?: NativeHistoryIndex;
   readonly nativeTasks?: NativeTasksSession;
+  readonly nativeSync?: NativeSyncService;
   readonly operations?: OperationSession;
   readonly skillManagement: SkillManagementHost;
   readonly safeMode: AppSafeModeState;
@@ -399,6 +403,10 @@ export class App {
     this.fileEditingSessions = new FileEditingSessionRegistry(
       props.nativeEditingIntents ?? props.session?.nativeEditingIntents,
     );
+    const nativeSync = props.session?.nativeSync ?? props.nativeSync;
+    this.nativeSync = nativeSync
+      ? new NativeSyncService(nativeSync, this.fileEditingSessions)
+      : undefined;
     this.nativeHistoryIndex =
       props.nativeHistoryIndex ?? props.session?.nativeHistoryIndex;
     this.safeMode = props.safeMode ?? createDefaultAppSafeModeState();
