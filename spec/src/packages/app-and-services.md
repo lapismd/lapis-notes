@@ -107,13 +107,19 @@ application policy. Native consumer adoption remains separately outstanding.
 
 <a id="ln-pkg-189"></a>
 
-**Requirement.** A native Sync lease MUST validate and clone provider-bound snapshots, commands and replies. Detach and App disposal MUST synchronously stop observation and new calls, reject late results, ignore late observations and drain accepted calls. Provider observation failures MUST remain observable without replaying a command or stopping native-owned durable work.
+**Requirement.** A native Sync lease MUST validate and clone provider-bound snapshots, commands and replies. Detach and App disposal MUST synchronously stop observation and new calls, reject late results, ignore late observations and drain accepted calls. Provider observation failures MUST remain observable without replaying a command or stopping native-owned durable work. App disposal MUST then await any supplied transport detachment and propagate cleanup failures.
 
 ## LN-PKG-190 — Whole-vault native Sync apply admission
 
 <a id="ln-pkg-190"></a>
 
 **Requirement.** Native Sync working-vault apply MUST execute inside `FileEditingSessionRegistry.guard(undefined)` for the complete asynchronous call. The lease MUST recheck revocation after guard admission and after the native result. Guard failure or revocation before invocation MUST prevent native mutation without a fallback writer.
+
+## LN-PKG-193 — Recoverable native Sync leave preparation
+
+<a id="ln-pkg-193"></a>
+
+**Requirement.** Native Sync leave preparation MUST synchronously fence new calls and selections, reject overlapping preparation and drain accepted calls before session teardown enters the writer guard. Preparation MUST retain the same leases and live observations. Refused leave MUST release the fence idempotently without replaying calls; releasing it after disposal MUST NOT revive the service. The shared App Profile lifecycle MUST acquire preparation before other preflights and release it after refusal or completed teardown.
 
 ## LN-PKG-001 — @lapis-notes/api: remain the shared runtime kernel: app container
 

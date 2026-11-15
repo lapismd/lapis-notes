@@ -21,6 +21,11 @@ export function createNotesSessionLifecycle(options: {
 }) {
   const { app, session } = options;
   let disposed = false;
+  let resumeSync: (() => void) | undefined;
+  const releaseSyncPreparation = () => {
+    resumeSync?.();
+    resumeSync = undefined;
+  };
   const persistLayout = async () => {
     if (disposed || !app.workspace.layoutReady) return;
     await app.workspace.flushLayout();
@@ -35,6 +40,7 @@ export function createNotesSessionLifecycle(options: {
   const dispose = createWorkspaceLeave({
     isDisposed: () => disposed,
     preflight: async () => {
+      resumeSync = await app.nativeSync?.prepareLeave();
       await prepareNativeRepositoryLeave(app);
       await app.vaultChanges.stop();
       await app.workspace.flushPluginChanges();
@@ -43,6 +49,7 @@ export function createNotesSessionLifecycle(options: {
       await app.fileEditingSessions.preflightNativeRecovery();
     },
     onRefused: async (error) => {
+      releaseSyncPreparation();
       const resumed = await Promise.allSettled([
         resumeNativeRepositoryLeave(app),
         app.vaultChanges.start(),
@@ -67,38 +74,43 @@ export function createNotesSessionLifecycle(options: {
     },
     commit: async (persist) => {
       if (disposed) return;
-      const failures: unknown[] = [];
-      const attempt = async (action: () => unknown | Promise<unknown>) => {
-        try {
-          await action();
-        } catch (error) {
-          failures.push(error);
-        }
-      };
-      await app.fileEditingSessions.guard(undefined, async () => {
-        await app.workspace.flushLayout();
-        if (persist) await persistLayout();
-        disposed = true;
-        await attempt(() => app.nativeTasks?.detach());
-        await attempt(() => prepareNativeChatLeave(app, "detach"));
-        options.fence();
-        await attempt(() => app.workspace.disposeWorkspaceHost());
-        await attempt(options.releaseObservers);
-        await attempt(() => app.metadataCache.dispose());
-        for (const plugin of [...app.plugins.plugins.values()].reverse()) {
-          await attempt(() => plugin.disable());
-        }
-      });
-      await attempt(() => app.fileEditingSessions.dispose());
-      await attempt(options.releaseServices);
-      await attempt(() => session.close());
-      await attempt(options.releaseHostServices);
-      if (failures.length)
-        throw new AggregateError(
-          failures,
-          "Notes session cleanup did not complete",
-        );
-      options.releaseApplication();
+      try {
+        const failures: unknown[] = [];
+        const attempt = async (action: () => unknown | Promise<unknown>) => {
+          try {
+            await action();
+          } catch (error) {
+            failures.push(error);
+          }
+        };
+        await app.fileEditingSessions.guard(undefined, async () => {
+          await app.workspace.flushLayout();
+          if (persist) await persistLayout();
+          disposed = true;
+          await attempt(() => app.nativeTasks?.detach());
+          await attempt(() => prepareNativeChatLeave(app, "detach"));
+          options.fence();
+          await attempt(() => app.workspace.disposeWorkspaceHost());
+          await attempt(options.releaseObservers);
+          await attempt(() => app.metadataCache.dispose());
+          for (const plugin of [...app.plugins.plugins.values()].reverse()) {
+            await attempt(() => plugin.disable());
+          }
+        });
+        await attempt(() => app.fileEditingSessions.dispose());
+        await attempt(options.releaseServices);
+        await attempt(() => session.close());
+        await attempt(options.releaseHostServices);
+        if (failures.length)
+          throw new AggregateError(
+            failures,
+            "Notes session cleanup did not complete",
+          );
+        releaseSyncPreparation();
+        options.releaseApplication();
+      } finally {
+        releaseSyncPreparation();
+      }
     },
   });
   return { persistLayout, dispose, canRecoverLeave: () => !disposed };

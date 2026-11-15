@@ -19,6 +19,12 @@ A session may also inject the host-owned native Sync port from LN-PKG-188.
 That capability remains independent of AppDatabase selection and storage.
 App teardown revokes its observation lease before the database/session owner
 closes, while already accepted native work drains without a database fallback.
+All started native-service drains MUST be observed immediately and settled
+before teardown reports their collected cleanup failures; a slow Task drain
+must not leave a failed Sync detachment unhandled.
+Before taking the session writer guard, App Profile prepares Sync leave under
+LN-PKG-193. This drains queued applies without waiting on the guard held by
+teardown; a refused leave resumes the original live capability.
 
 An explicit `rust-server` session uses its admitted HTTP AppDatabaseProvider in
 the direct role. It requires that provider and never opens browser storage;

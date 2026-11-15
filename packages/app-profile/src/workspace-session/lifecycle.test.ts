@@ -17,7 +17,16 @@ function fixture() {
     vi.fn(async () => {
       events.push(name);
     });
+  const resumeSync = vi.fn(() => {
+    events.push("sync:resume");
+  });
   const app = {
+    nativeSync: {
+      prepareLeave: vi.fn(async () => {
+        events.push("sync:prepare");
+        return resumeSync;
+      }),
+    },
     vaultChanges: { stop: task("watch:stop"), start: task("watch:resume") },
     workspace: {
       layoutReady: true,
@@ -33,7 +42,10 @@ function fixture() {
     fileEditingSessions: {
       settleOperations: task("writers:settle"),
       preflightNativeRecovery: task("writers:preflight"),
-      guard: async (_: unknown, action: () => Promise<void>) => action(),
+      guard: async (_: unknown, action: () => Promise<void>) => {
+        events.push("writers:guard");
+        return action();
+      },
       dispose: task("writers:dispose"),
     },
     metadataCache: { dispose: task("metadata:dispose") },
@@ -59,10 +71,67 @@ function fixture() {
       events.push("compatibility:release");
     },
   });
-  return { app, session, lifecycle, events, host };
+  return { app, session, lifecycle, events, host, resumeSync };
 }
 
 describe("shared Notes session teardown", () => {
+  it("drains native Sync before other preflights and entering the writer guard", async () => {
+    const { app, lifecycle, events, resumeSync } = fixture();
+    let finish!: () => void;
+    app.nativeSync.prepareLeave.mockImplementationOnce(
+      () =>
+        new Promise((done) => {
+          finish = () => done(resumeSync);
+        }),
+    );
+    const pending = lifecycle.dispose(false);
+    await vi.waitFor(() =>
+      expect(app.nativeSync.prepareLeave).toHaveBeenCalledOnce(),
+    );
+    expect(events).not.toContain("watch:stop");
+    expect(events).not.toContain("writers:guard");
+    finish();
+    await pending;
+    expect(events.indexOf("writers:guard")).toBeLessThan(
+      events.indexOf("metadata:dispose"),
+    );
+    expect(events.indexOf("metadata:dispose")).toBeLessThan(
+      events.indexOf("sync:resume"),
+    );
+    expect(resumeSync).toHaveBeenCalledOnce();
+  });
+
+  it("releases native Sync preparation after refused layout persistence and prepares again on retry", async () => {
+    const { app, session, lifecycle, resumeSync } = fixture();
+    session.vaultAdapter.write.mockRejectedValueOnce(
+      new Error("Layout save failed"),
+    );
+    await expect(lifecycle.dispose(true)).rejects.toThrow("Layout save failed");
+    expect(resumeSync).toHaveBeenCalledOnce();
+    expect(app.metadataCache.dispose).not.toHaveBeenCalled();
+    expect(lifecycle.canRecoverLeave()).toBe(true);
+    await lifecycle.dispose(true);
+    expect(app.nativeSync.prepareLeave).toHaveBeenCalledTimes(2);
+    expect(resumeSync).toHaveBeenCalledTimes(2);
+  });
+
+  it("releases preparation after irreversible cleanup failure without repeating teardown", async () => {
+    const { app, lifecycle, resumeSync } = fixture();
+    app.metadataCache.dispose.mockRejectedValueOnce(
+      new Error("Transport detach failed"),
+    );
+    await expect(lifecycle.dispose(false)).rejects.toThrow(
+      "cleanup did not complete",
+    );
+    expect(resumeSync).toHaveBeenCalledOnce();
+    expect(lifecycle.canRecoverLeave()).toBe(false);
+    await expect(lifecycle.dispose(false)).rejects.toThrow(
+      "cleanup did not complete",
+    );
+    expect(app.nativeSync.prepareLeave).toHaveBeenCalledOnce();
+    expect(app.metadataCache.dispose).toHaveBeenCalledOnce();
+  });
+
   it("resumes file watching even when Repository observation cannot resume", async () => {
     const { session, lifecycle, events } = fixture();
     session.vaultAdapter.write.mockRejectedValueOnce(

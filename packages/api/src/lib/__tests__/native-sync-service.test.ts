@@ -13,6 +13,7 @@ import {
 import { MemoryAppDatabase } from "../storage/app-database";
 import { MemoryVaultAdapter } from "../storage/memory-vault-adapter";
 import type { VaultSession } from "../storage/vault-session";
+import type { NativeTasks } from "../native-tasks";
 
 const command: NativeSyncCommand = {
   provider: "lapis-server",
@@ -105,6 +106,7 @@ afterEach(async () => {
 async function appFixture(
   nativeSync?: NativeSyncPort,
   sessionNativeSync?: NativeSyncPort,
+  nativeTasks?: NativeTasks,
 ) {
   const database = new MemoryAppDatabase("native-sync-service");
   databases.push(database);
@@ -140,6 +142,7 @@ async function appFixture(
         session,
         appDatabase: database,
         nativeSync,
+        nativeTasks,
         markdownRenderer: async () => {},
       },
       onApp: (value) => (app = value),
@@ -295,4 +298,178 @@ it("App disposal invalidates native Sync and drains accepted calls", async () =>
   await expect(pending).rejects.toThrow(/revoked/);
   await expect(disposing).resolves.toBeUndefined();
   await app.fileEditingSessions.dispose();
+});
+
+it("App disposal awaits transport detachment after accepted native Sync calls drain", async () => {
+  const accepted = Promise.withResolvers<NativeSyncReply>();
+  const released = Promise.withResolvers<void>();
+  const fixture = portFixture({ call: () => accepted.promise });
+  const detach = vi.fn(() => released.promise);
+  const port = { ...fixture.port, detach };
+  const app = await appFixture(port);
+  const lease = app.nativeSync!.select("lapis-server");
+  const pending = lease.call(command);
+  const rejected = expect(pending).rejects.toThrow(/revoked/);
+  const disposing = app.metadataCache.dispose({ persist: false });
+  let completed = false;
+  void disposing.then(
+    () => {
+      completed = true;
+    },
+    () => {
+      completed = true;
+    },
+  );
+  try {
+    expect(lease.detached).toBe(true);
+    expect(detach).not.toHaveBeenCalled();
+    accepted.resolve(reply());
+    await rejected;
+    await vi.waitFor(() => expect(detach).toHaveBeenCalledOnce());
+    expect(completed).toBe(false);
+    released.resolve();
+    await expect(disposing).resolves.toBeUndefined();
+    await app.nativeSync!.dispose();
+    expect(detach).toHaveBeenCalledOnce();
+  } finally {
+    accepted.resolve(reply());
+    released.resolve();
+    await disposing.catch(() => undefined);
+  }
+});
+
+it("App disposal drains calls from an already detached Sync lease before transport release", async () => {
+  const accepted = Promise.withResolvers<NativeSyncReply>();
+  let settled = false;
+  const fixture = portFixture({
+    call: async () => {
+      const result = await accepted.promise;
+      settled = true;
+      return result;
+    },
+  });
+  const detach = vi.fn(async () => {
+    expect(settled).toBe(true);
+  });
+  const service = new NativeSyncService(
+    { ...fixture.port, detach },
+    new FileEditingSessionRegistry(),
+  );
+  const lease = service.select("lapis-server");
+  const pending = lease.call(command);
+  const rejected = expect(pending).rejects.toThrow(/revoked/);
+  const detaching = lease.detach();
+  const disposing = service.dispose();
+  void disposing.catch(() => undefined);
+  try {
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(detach).not.toHaveBeenCalled();
+    accepted.resolve(reply());
+    await rejected;
+    await detaching;
+    await expect(disposing).resolves.toBeUndefined();
+    expect(detach).toHaveBeenCalledOnce();
+  } finally {
+    accepted.resolve(reply());
+    await disposing.catch(() => undefined);
+    await detaching;
+  }
+});
+
+it("App disposal propagates asynchronous transport release failure even without a selected lease", async () => {
+  const fixture = portFixture();
+  const failure = new Error("native view release outcome unknown");
+  const detach = vi.fn(async () => {
+    throw failure;
+  });
+  const app = await appFixture({ ...fixture.port, detach });
+  await expect(app.metadataCache.dispose({ persist: false })).rejects.toBe(
+    failure,
+  );
+  await expect(app.nativeSync!.dispose()).rejects.toBe(failure);
+  expect(detach).toHaveBeenCalledOnce();
+  expect(fixture.call).not.toHaveBeenCalled();
+});
+
+it("aggregates observation and transport cleanup failures without retrying either", async () => {
+  const fixture = portFixture();
+  const observationFailure = new Error("observation detach failed");
+  const transportFailure = new Error("native view release failed");
+  const stop = vi.fn(() => {
+    throw observationFailure;
+  });
+  const detach = vi.fn(async () => {
+    throw transportFailure;
+  });
+  const service = new NativeSyncService(
+    { ...fixture.port, observe: () => stop, detach },
+    new FileEditingSessionRegistry(),
+  );
+  const lease = service.select("lapis-server");
+  const disposal = service.dispose();
+  expect(service.dispose()).toBe(disposal);
+  await expect(disposal).rejects.toMatchObject({
+    errors: [observationFailure, transportFailure],
+  });
+  expect(lease.detached).toBe(true);
+  expect(stop).toHaveBeenCalledOnce();
+  expect(detach).toHaveBeenCalledOnce();
+});
+
+it("App disposal observes a failed Sync detach while another native service is still draining", async () => {
+  const tasks = Promise.withResolvers<never>();
+  const taskFailure = new Error("accepted Task response failed");
+  const syncFailure = new Error("native Sync view release failed");
+  const fixture = portFixture();
+  const detach = vi.fn(async () => {
+    throw syncFailure;
+  });
+  const app = await appFixture({ ...fixture.port, detach }, undefined, {
+    call: () => tasks.promise,
+  });
+  const task = app.nativeTasks!.call({ kind: "status" });
+  const rejectedTask = expect(task).rejects.toBe(taskFailure);
+  const disposing = app.metadataCache.dispose({ persist: false });
+  const rejectedDispose = expect(disposing).rejects.toBe(syncFailure);
+  let complete = false;
+  void disposing.then(
+    () => {
+      complete = true;
+    },
+    () => {
+      complete = true;
+    },
+  );
+  try {
+    await vi.waitFor(() => expect(detach).toHaveBeenCalledOnce());
+    expect(complete).toBe(false);
+    tasks.reject(taskFailure);
+    await rejectedTask;
+    await rejectedDispose;
+  } finally {
+    tasks.reject(taskFailure);
+    await disposing.catch(() => undefined);
+  }
+});
+
+it("refuses foreign or unselected leases before forwarding a native call", async () => {
+  const first = portFixture();
+  const other = portFixture();
+  const service = new NativeSyncService(
+    first.port,
+    new FileEditingSessionRegistry(),
+  );
+  const foreign = new NativeSyncService(
+    other.port,
+    new FileEditingSessionRegistry(),
+  );
+  const lease = foreign.select("lapis-server");
+  await expect(service.invoke(lease, command, false)).rejects.toThrow(
+    /revoked/,
+  );
+  expect(first.call).not.toHaveBeenCalled();
+  expect(other.call).not.toHaveBeenCalled();
+  await service.dispose();
+  await foreign.dispose();
 });

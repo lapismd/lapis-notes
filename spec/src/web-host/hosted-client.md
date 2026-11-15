@@ -1,5 +1,9 @@
 # Web Host / Hosted client
 
+Shared App Profile teardown prepares an explicitly injected native Sync service
+before writer-guard entry under LN-PKG-193. Refusal restores its live lease;
+this adds no browser Sync provider or automatic host selection.
+
 These client requirements stayed in Notes when the hosted server book moved
 to lapis-server. The server specification is
 <https://lapismd.github.io/lapis-server/>.

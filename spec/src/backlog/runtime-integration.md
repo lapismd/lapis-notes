@@ -14,6 +14,16 @@ migration plans. They do not reopen completed extraction or hosted cutover.
 Current contracts are [Rust services](../architecture/rust-application-services.md),
 [web](../web-host.md), [packages](../packages.md) and [styling](../ui-and-styling.md).
 
+## Native Sync transport detachment
+
+Owner: Notes API and App Profile. LN-PKG-189 transport detachment and
+LN-PKG-193 recoverable leave-preparation source qualification pass, including
+2,290 package cases and 288 cold interaction/axe cases. Verified public archive
+intake and actual Desktop/native qualification remain outstanding. App teardown must await the host's presentation-resource release after
+accepted calls settle, propagate cleanup failures and leave native durable work
+owned by the host. Desktop owns Tauri/native consumer integration; source-only
+API tests do not qualify that boundary.
+
 ## Standalone local and offline browser qualification
 
 Owner: Notes web and API packages. Disposition: qualification pending where no

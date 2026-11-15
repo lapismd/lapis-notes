@@ -1,5 +1,9 @@
 # Deno Desktop Host / Native vault and storage / Part 1
 
+LN-PKG-193 governs shared App Profile Sync leave preparation. The frozen Deno
+host does not acquire a native Sync port; actual Tauri transport and close
+integration remain Desktop-owned qualification boundaries.
+
 LN-PKG-132 publishes the shared profile and portable session through built exports.
 The frozen Deno host retains its native lifecycle and bridge policy. Current
 Tauri Desktop adoption and distribution are qualified in lapis-desktop against
