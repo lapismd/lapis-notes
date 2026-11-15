@@ -1,5 +1,15 @@
 # @lapis-notes/api
 
+## 0.6.2
+
+### Patch Changes
+
+- [#118](https://github.com/lapismd/lapis-notes/pull/118)
+  [`2798ef0`](https://github.com/lapismd/lapis-notes/commit/2798ef0c7d41d3b4dfa32b7b8a329cb39a79dac0)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Preserve live plugin
+  views when workspace layout JSON omits undefined optional state keys, keeping
+  in-progress interactions attached during projection.
+
 ## 0.6.1
 
 ### Patch Changes
