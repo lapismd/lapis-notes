@@ -1,5 +1,10 @@
 # Packages / Workspace APIs
 
+Live view-state comparison under LN-WS-098 treats omitted undefined optional
+keys as equivalent to their JSON projection. This retains the claimed view
+and its interaction state without changing public exports, explicit
+same-type navigation or plugin-owned routing.
+
 LN-PLUG-127/128 add optional `ribbonItems` and `markdownViewMenuItems` to
 `LapisExtensionContributions`. Their public contribution records reference an
 owned manifest command; the shared PluginManager installs disposable discovery

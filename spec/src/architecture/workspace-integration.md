@@ -1,5 +1,10 @@
 # Architecture / Workspace integration
 
+Live view-state comparison under LN-WS-098 treats omitted undefined optional
+keys as equivalent to their JSON projection. This retains the claimed view
+and its interaction state without changing public exports, explicit
+same-type navigation or plugin-owned routing.
+
 LN-PLUG-127/128 retain enabled plugins' ribbon and Markdown menu discovery
 without evaluating dormant runtime code. API owns disposable declarations and
 owner-qualified command activation; the existing workspace projects the same
