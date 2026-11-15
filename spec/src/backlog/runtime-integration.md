@@ -1,5 +1,14 @@
 # Runtime and package integration
 
+## Generated version PR authentication
+
+Owner: Notes release automation. LN-GOV-054 prepares repository-scoped App
+authentication without changing the version recipe or publication approval.
+Local source qualification is recorded in the
+[authentication receipt](../../records/2026-11-15-version-pr-authentication.md).
+Hosted deployment and a real generated candidate's ordinary CI remain pending;
+do not manufacture a package bump or treat source checks as npm publication.
+
 These entries retain outstanding integration and qualification from the retired
 migration plans. They do not reopen completed extraction or hosted cutover.
 Current contracts are [Rust services](../architecture/rust-application-services.md),

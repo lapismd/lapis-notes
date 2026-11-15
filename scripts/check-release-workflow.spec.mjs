@@ -2,10 +2,76 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { parse } from "yaml";
-import { validateReleaseWorkflows } from "./check-release-workflow.mjs";
+import { parse, stringify } from "yaml";
+import {
+  validateReleaseWorkflows,
+  validateVersionPrAuthentication,
+} from "./check-release-workflow.mjs";
 import "./ci-setup.test.mjs";
 import "./check-release-lookup-auth.spec.mjs";
+
+test("version PR job uses a repository-scoped App with read-only workflow authority", () => {
+  const source = readFileSync(
+    new URL("../.github/workflows/release.yml", import.meta.url),
+    "utf8",
+  );
+  const job = parse(source).jobs.changesets;
+  assert.deepEqual(job.permissions, { contents: "read", packages: "read" });
+  assert.equal(job.if, "github.ref == 'refs/heads/main'");
+  const checkout = job.steps.find((step) =>
+    step.uses?.startsWith("actions/checkout@"),
+  );
+  assert.equal(checkout.with["persist-credentials"], false);
+  const app = job.steps.find((step) => step.id === "app");
+  assert.equal(app.with.owner, "${{ github.repository_owner }}");
+  assert.equal(app.with.repositories, "${{ github.event.repository.name }}");
+  assert.equal(app.with["permission-contents"], "write");
+  assert.equal(app.with["permission-pull-requests"], "write");
+  const version = job.steps.find((step) => step.id === "changesets");
+  assert.equal(version.env.GITHUB_TOKEN, "${{ steps.app.outputs.token }}");
+  assert.equal(version.with.version, "pnpm release:version");
+  assert.equal(version.with.createGithubReleases, false);
+  assert.doesNotThrow(() => validateVersionPrAuthentication(source));
+});
+
+for (const [name, mutate] of Object.entries({
+  "workflow-token fallback": (job) => {
+    job.steps.find((step) => step.id === "changesets").env.GITHUB_TOKEN =
+      "${{ steps.app.outputs.token || github.token }}";
+  },
+  "expanded App scope": (job) => {
+    job.steps.find((step) => step.id === "app").with.repositories =
+      "lapis-notes,other-repo";
+  },
+  "persistent checkout": (job) => {
+    job.steps.find((step) => step.uses?.startsWith("actions/checkout@")).with[
+      "persist-credentials"
+    ] = true;
+  },
+  "missing main gate": (job) => {
+    delete job.if;
+  },
+  "publication during versioning": (job) => {
+    job.steps.find((step) => step.id === "changesets").with.publish =
+      "pnpm release:publish";
+  },
+  "workflow write authority": (job) => {
+    job.permissions.contents = "write";
+  },
+}))
+  test(`version validation rejects ${name}`, () => {
+    const workflow = parse(
+      readFileSync(
+        new URL("../.github/workflows/release.yml", import.meta.url),
+        "utf8",
+      ),
+    );
+    mutate(workflow.jobs.changesets);
+    assert.throws(
+      () => validateVersionPrAuthentication(stringify(workflow)),
+      /Version PR authentication:/,
+    );
+  });
 
 const pinnedImage =
   "ghcr.io/lapismd/lapis-notes-ci@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
@@ -36,7 +102,7 @@ const ci = [
 ].join("\n");
 
 const release = [
-  "changesets/action@v1.8.0",
+  "changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b",
   "actions: write",
   "commitMode: github-api",
   "pnpm release:version",

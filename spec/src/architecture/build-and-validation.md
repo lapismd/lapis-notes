@@ -54,6 +54,10 @@ Registry-only release qualification stays a separate gate.
 Release versioning regenerates the API host-module catalogue after metadata
 bumps, so a later package build leaves tracked source unchanged. Local clean
 release preparation retains its empty-working-copy guard.
+The generated version PR uses the existing repository-scoped dependency App
+under [LN-GOV-054](../spec-governance/validation-and-ci.md#ln-gov-054). Its
+main-only job retains the same version recipe, read-only workflow token and
+non-persistent checkout; package publication remains a separate protected gate.
 An archive projection preserves pnpm's effective dependency override policy
 before adding selected archives. A package-level projection must not shadow
 workspace security overrides; invalid policy stops before installation. Tracked
