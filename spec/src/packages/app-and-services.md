@@ -81,6 +81,29 @@ The public host controller's `dispose()` drains this custody after invalidation
 Desktop composes this provider for `sync` with native profile admission, JSON
 security RPC and dedicated wrapped-key storage (LN-DENO-079 through LN-DENO-081).
 
+The optional native Sync port remains App/session-owned. A plugin activation
+selects the exact Lapis Server provider through a revocable lease; the API
+forwards opaque protocol values without importing plugin algorithms or native
+application policy. Native consumer adoption remains separately outstanding.
+
+## LN-PKG-188 — Explicit App-owned native Sync selection
+
+<a id="ln-pkg-188"></a>
+
+**Requirement.** `App` and `VaultSession` MAY accept one host-owned native Sync port. `App.nativeSync` MUST require exact `lapis-server` selection before exposing a lease. Absence, provider mismatch, initial observation failure and command failure MUST remain explicit without selecting renderer execution, disposable storage or another provider.
+
+## LN-PKG-189 — Revocable native Sync observation lifetime
+
+<a id="ln-pkg-189"></a>
+
+**Requirement.** A native Sync lease MUST validate and clone provider-bound snapshots, commands and replies. Detach and App disposal MUST synchronously stop observation and new calls, reject late results, ignore late observations and drain accepted calls. Provider observation failures MUST remain observable without replaying a command or stopping native-owned durable work.
+
+## LN-PKG-190 — Whole-vault native Sync apply admission
+
+<a id="ln-pkg-190"></a>
+
+**Requirement.** Native Sync working-vault apply MUST execute inside `FileEditingSessionRegistry.guard(undefined)` for the complete asynchronous call. The lease MUST recheck revocation after guard admission and after the native result. Guard failure or revocation before invocation MUST prevent native mutation without a fallback writer.
+
 ## LN-PKG-001 — @lapis-notes/api: remain the shared runtime kernel: app container
 
 <a id="ln-pkg-001"></a>

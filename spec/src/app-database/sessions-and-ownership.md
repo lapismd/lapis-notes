@@ -10,6 +10,11 @@ that port and drains registered writer operations before database/session
 teardown. This admission changes neither database provider selection nor
 content persistence; ordinary editor saves keep their existing conditional writer.
 
+A session may also inject the host-owned native Sync port from LN-PKG-188.
+That capability remains independent of AppDatabase selection and storage.
+App teardown revokes its observation lease before the database/session owner
+closes, while already accepted native work drains without a database fallback.
+
 An explicit `rust-server` session uses its admitted HTTP AppDatabaseProvider in
 the direct role. It requires that provider and never opens browser storage;
 session teardown closes the database view before its hosted attachment.

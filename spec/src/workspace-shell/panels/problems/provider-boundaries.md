@@ -5,6 +5,11 @@ The native operations port under
 returns service outcomes. It does not create diagnostic collections, recovery
 callbacks or Problems presentation.
 
+Native Sync observation errors under LN-PKG-189 remain typed service failures.
+The Sync plugin may project them through its existing owner-scoped diagnostic
+collection, but the raw host observation adds no Problems provider, recovery
+callback, file authority or competing presentation lifecycle.
+
 Generic plugin SVG and pack registrations follow LN-PLUG-123 independently of
 diagnostic collections. File-view artwork is presentation metadata, never a
 Problems diagnostic payload, permission or recovery action. Existing diagnostic

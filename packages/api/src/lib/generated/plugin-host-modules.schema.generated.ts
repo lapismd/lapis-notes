@@ -518,6 +518,19 @@ export const pluginHostModuleRegistry = {
     "specifier": "@lapis-notes/api/native-history-index",
     "version": "0.6.1"
   },
+  "@lapis-notes/api/native-sync": {
+    "entry": "@lapis-notes/api/native-sync",
+    "moduleId": "lapis-notes-api-native-sync",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/native-sync",
+    "version": "0.6.1"
+  },
   "@lapis-notes/api/native-tasks": {
     "entry": "@lapis-notes/api/native-tasks",
     "moduleId": "lapis-notes-api-native-tasks",

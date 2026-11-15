@@ -299,6 +299,11 @@
       "import": "./dist/native-editing-intents.js",
       "default": "./dist/native-editing-intents.js"
     },
+    "./native-sync": {
+      "types": "./dist/native-sync.d.ts",
+      "import": "./dist/native-sync.js",
+      "default": "./dist/native-sync.js"
+    },
     "./skill-management": {
       "types": "./dist/skill-management.d.ts",
       "default": "./dist/skill-management.js"

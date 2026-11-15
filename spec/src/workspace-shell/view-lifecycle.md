@@ -15,6 +15,11 @@ teardown. Failed retirement or rearm keeps local input protected and preserves
 the original writer. Workspace disposal does not silently release the native
 fence or add another save path.
 
+Native Sync follows the same App lifetime without becoming leaf-owned. Closing
+or moving a Sync view only detaches its presentation subscription. Plugin unload
+revokes the selected lease, while complete App teardown drains that lease before
+the writer registry and native session are released (LN-PKG-189/LN-PKG-190).
+
 ## LN-WS-101 — Explicit close persistence scope
 
 <a id="ln-ws-101"></a>
