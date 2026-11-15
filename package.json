@@ -153,7 +153,7 @@
     "@lapis-notes/bookmarks": "^0.1.12",
     "@lapis-notes/file-explorer": "workspace:*",
     "@lapis-notes/graph": "^0.1.12",
-    "@lapis-notes/history": "^0.4.0",
+    "@lapis-notes/history": "^0.5.0",
     "@lapis-notes/markdown": "^0.3.1",
     "@lapis-notes/markdown-lint": "^0.1.5",
     "@lapis-notes/search": "^0.1.12",
