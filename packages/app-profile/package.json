@@ -1,6 +1,6 @@
 {
   "name": "@lapis-notes/app-profile",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "exports": {
     ".": {
@@ -41,12 +41,12 @@
     "prepack": "pnpm build && publint"
   },
   "dependencies": {
-    "@lapis-notes/api": "^0.6.3",
+    "@lapis-notes/api": "^0.6.4",
     "@lapis-notes/file-explorer": "^0.2.8",
     "@lapis-notes/markdown": "^0.3.1",
     "@lapis-notes/search": "^0.1.12",
     "@lapis-notes/source-editor": "^0.1.11",
-    "@lapis-notes/workspace": "^0.4.5",
+    "@lapis-notes/workspace": "^0.4.6",
     "@lapismd/agent-ui": "^0.2.6",
     "@lapismd/design-core": "^0.13.3",
     "@lapis-notes/history": "^0.4.0",

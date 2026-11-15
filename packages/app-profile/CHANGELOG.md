@@ -1,5 +1,29 @@
 # @lapis-notes/app-profile
 
+## 0.2.0
+
+### Minor Changes
+
+- [#127](https://github.com/lapismd/lapis-notes/pull/127)
+  [`40fd72e`](https://github.com/lapismd/lapis-notes/commit/40fd72ee9581ab804acbe1736a985d33e451c009)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Restore the complete
+  shared workspace session and optional native Repository registration to built
+  public exports. Consume the released API and History remotes cohort through
+  normal registry ranges while retaining current browser appearance, native Chat
+  startup/retry and guarded session lifetime.
+
+### Patch Changes
+
+- [#128](https://github.com/lapismd/lapis-notes/pull/128)
+  [`acdb5bc`](https://github.com/lapismd/lapis-notes/commit/acdb5bc6a3636fd536b21eb3c1409ee3418f1e15)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Keep the mounted
+  workspace inert and its session-ready marker false until initial layout
+  projection and the host readiness callback finish.
+- Updated dependencies
+  [[`2645d4b`](https://github.com/lapismd/lapis-notes/commit/2645d4ba3689a6a153d8fe2face6773589ccb1c0)]:
+  - @lapis-notes/api@0.6.4
+  - @lapis-notes/workspace@0.4.6
+
 ## 0.1.0
 
 - Prepare the shared Notes application profile and workspace session for public
