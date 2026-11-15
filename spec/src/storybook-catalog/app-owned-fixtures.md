@@ -164,3 +164,9 @@ collection and menu, using only disposable transport/storage fixtures. No JSON
 observer output or alternate recovery screen is visible. All stories stay
 `visual-pending`; independent nested paths under
 `stories/workspace/editing-recovery/` are declared without PNG capture.
+
+Local Vitest runs also exclude only the two LinkPreviewAcceptance cases after
+explicit user acceptance on 2026-11-15. Their catalog routes and other panel
+coverage remain enabled. [Targeted quarantine](../../records/2026-11-15-link-preview-browser-quarantine.md)
+records failed aggregates, unchanged diagnostic passes, the omitted count and
+the explicit opt-in diagnostic command. The transport failure is not repaired.

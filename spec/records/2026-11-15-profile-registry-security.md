@@ -187,3 +187,30 @@ Main's release workflow 43745647019 reaches publication but fails npm
 authentication for App Profile 0.2.0. The package remains absent from npm at the
 check. This is a publisher configuration gate, not a reason to bypass signing
 or substitute a local package in consumer manifests.
+
+The combined-main root check, all 27 package lanes (2,177 unique cases), 62 exact
+storage/retry cases and 112 release-tool cases pass. Package receipt:
+`.local/validation/runs/lapis-notes-validation-e1d210f7-a1a7-48e6-862a-cc3d2af0ac7f`.
+Clean-revision tarball preparation and its isolated consumer build pass after
+using disk-backed TMPDIR. The failed disposable consumer initially exhausts
+/tmp inodes and prevents Docker startup and publint; only that exact task-owned
+consumer is removed. The failed attempts and successful retry remain in
+`.local/profile-main-clean-pack-final-20261115.log` and
+`.local/profile-main-clean-pack-retry-20261115.log`. Public API build and real
+browser storage/cold restart pass after the same temporary-storage correction.
+
+Fresh static Docs has five passes, the one accepted history failure and two
+existing watcher-only skips. Fresh development Docs has seven passes and the
+same accepted failure. No other Docs failure is waived. The repeated final
+LinkPreviewAcceptance transport failure is now covered only by the user's
+explicit [two-case quarantine](2026-11-15-link-preview-browser-quarantine.md);
+omitted cases are not passing coverage.
+
+The user reports App Profile 0.2.0 published. The first exact npm lookup is
+still cached 404; a later normal lookup confirms the expected API 0.6.4 /
+Workspace 0.4.6 / History 0.4 dependency graph. The actual npm tarball verifies
+SHA-512 integrity, all five public export maps and absent test/fixture assets.
+Npm supplies no gitHead for this version, so no source-provenance claim is made.
+The live trusted publisher now matches lapismd/lapis-notes, release.yml and
+npm-production, with publish/stage-publish permissions. No publisher write is
+performed by this slice. The prior authentication failure is historical.
