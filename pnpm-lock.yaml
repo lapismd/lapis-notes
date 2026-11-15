@@ -122,8 +122,8 @@ importers:
         specifier: ^0.1.12
         version: 0.1.12(@codemirror/autocomplete@6.20.3)(@codemirror/commands@6.10.4)(@codemirror/language@6.12.4)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/state@6.7.1)(@codemirror/view@6.43.8)(@lapis-notes/api@packages+api)(@lapis-notes/markdown@0.3.1(@codemirror/autocomplete@6.20.3)(@codemirror/commands@6.10.4)(@codemirror/lang-markdown@6.5.2)(@codemirror/lang-yaml@6.1.3)(@codemirror/language-data@6.5.2)(@codemirror/language@6.12.4)(@codemirror/legacy-modes@6.5.3)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/state@6.7.1)(@codemirror/view@6.43.8)(@internationalized/date@3.12.4)(@lapis-notes/api@packages+api)(@lapis-notes/ui@packages+ui)(@lezer/common@1.5.2)(@lezer/highlight@1.2.3)(@lezer/lr@1.4.10)(@lezer/markdown@1.7.2)(svelte@5.56.10)(tailwindcss@4.3.3)(unified@11.0.5))(@lezer/common@1.5.2)(@lezer/highlight@1.2.3)(@lezer/lr@1.4.10)(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapis-notes/history':
-        specifier: ^0.4.0
-        version: 0.4.0(@lapis-notes/api@packages+api)(@lapismd/jj-history@0.1.0)(svelte@5.56.10)(tailwindcss@4.3.3)
+        specifier: ^0.5.0
+        version: 0.5.0(@lapis-notes/api@packages+api)(@lapismd/jj-history@0.1.0)(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapis-notes/markdown':
         specifier: ^0.3.1
         version: 0.3.1(@codemirror/autocomplete@6.20.3)(@codemirror/commands@6.10.4)(@codemirror/lang-markdown@6.5.2)(@codemirror/lang-yaml@6.1.3)(@codemirror/language-data@6.5.2)(@codemirror/language@6.12.4)(@codemirror/legacy-modes@6.5.3)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/state@6.7.1)(@codemirror/view@6.43.8)(@internationalized/date@3.12.4)(@lapis-notes/api@packages+api)(@lapis-notes/ui@packages+ui)(@lezer/common@1.5.2)(@lezer/highlight@1.2.3)(@lezer/lr@1.4.10)(@lezer/markdown@1.7.2)(svelte@5.56.10)(tailwindcss@4.3.3)(unified@11.0.5)
@@ -519,8 +519,8 @@ importers:
         specifier: ^0.2.8
         version: link:../file-explorer
       '@lapis-notes/history':
-        specifier: ^0.4.0
-        version: 0.4.0(@lapis-notes/api@packages+api)(@lapismd/jj-history@0.1.0)(svelte@5.56.10)(tailwindcss@4.3.3)
+        specifier: ^0.5.0
+        version: 0.5.0(@lapis-notes/api@packages+api)(@lapismd/jj-history@0.1.0)(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapis-notes/markdown':
         specifier: ^0.3.1
         version: 0.3.1(@codemirror/autocomplete@6.20.4)(@codemirror/commands@6.11.1)(@codemirror/lang-markdown@6.5.2)(@codemirror/lang-yaml@6.1.3)(@codemirror/language-data@6.5.2)(@codemirror/language@6.13.1)(@codemirror/legacy-modes@6.5.5)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.2)(@codemirror/state@6.7.6)(@codemirror/view@6.43.15)(@internationalized/date@3.12.4)(@lapis-notes/api@packages+api)(@lapis-notes/ui@packages+ui)(@lezer/common@1.5.5)(@lezer/highlight@1.2.5)(@lezer/lr@1.4.12)(@lezer/markdown@1.8.1)(svelte@5.56.10)(tailwindcss@4.3.3)(unified@11.0.5)
@@ -2477,6 +2477,16 @@ packages:
 
   '@lapis-notes/history@0.4.0':
     resolution: {integrity: sha512-IyZOWT/gvZFD8gwMBrYt55Z/TivSXUTzLfvzPPx0PpVfyztEJjniK/9B9vSRlgU3WVBVoBbFB/VU+Ke65D4RCw==}
+    peerDependencies:
+      '@lapis-notes/api': ^0.2.0 || ^0.4.0 || ^0.6.0
+      '@lapismd/jj-history': ^0.1.0
+      svelte: ^5.0.0
+    peerDependenciesMeta:
+      '@lapismd/jj-history':
+        optional: true
+
+  '@lapis-notes/history@0.5.0':
+    resolution: {integrity: sha512-zHGeeT4jRNkaHmvmbl//b615qY3gxYQYebAJgkoSAqjKT86+nEOt0pMpfsP45dLlZUJAWFsq3XdNVzcDB8B/Nw==}
     peerDependencies:
       '@lapis-notes/api': ^0.2.0 || ^0.4.0 || ^0.6.0
       '@lapismd/jj-history': ^0.1.0
@@ -9955,6 +9965,20 @@ snapshots:
       - tailwindcss
 
   '@lapis-notes/history@0.4.0(@lapis-notes/api@packages+api)(@lapismd/jj-history@0.1.0)(svelte@5.56.10)(tailwindcss@4.3.3)':
+    dependencies:
+      '@lapis-notes/api': link:packages/api
+      '@lapismd/design-core': 0.13.3(svelte@5.56.10)(tailwindcss@4.3.3)
+      '@lucide/svelte': 1.66.0(svelte@5.56.10)
+      '@tanstack/svelte-virtual': 3.13.50(svelte@5.56.10)
+      svelte: 5.56.10
+    optionalDependencies:
+      '@lapismd/jj-history': 0.1.0
+    transitivePeerDependencies:
+      - '@sveltejs/kit'
+      - supports-color
+      - tailwindcss
+
+  '@lapis-notes/history@0.5.0(@lapis-notes/api@packages+api)(@lapismd/jj-history@0.1.0)(svelte@5.56.10)(tailwindcss@4.3.3)':
     dependencies:
       '@lapis-notes/api': link:packages/api
       '@lapismd/design-core': 0.13.3(svelte@5.56.10)(tailwindcss@4.3.3)
