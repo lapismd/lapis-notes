@@ -1,5 +1,18 @@
 # @lapis-notes/app-profile
 
+## 0.2.1
+
+### Patch Changes
+
+- [#130](https://github.com/lapismd/lapis-notes/pull/130)
+  [`6b2d021`](https://github.com/lapismd/lapis-notes/commit/6b2d021da8213bb73ba41ff795abd65f600a7dcb)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Qualify the shared
+  application profile against the current published plugin cohort and byte-safe
+  skill-management API.
+- Updated dependencies
+  [[`6b2d021`](https://github.com/lapismd/lapis-notes/commit/6b2d021da8213bb73ba41ff795abd65f600a7dcb)]:
+  - @lapis-notes/api@0.6.5
+
 ## 0.2.0
 
 ### Minor Changes
