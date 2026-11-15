@@ -180,8 +180,8 @@ overlay teardown fix; test-signed fixtures never authorize public assets.
 
 ## Current CI dependency image
 
-- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:9d5aa165fe46bd038294bc6716c2c59c4ea618d4c33cfa0e713c8b4ca251ebb7`
-- Lockfile tag: `lock-29cea641f8dd6775`
-- pnpm-lock.yaml SHA-256: `29cea641f8dd6775c582a38498bbdd300e6bdb5aac371f795e369ea01d18d71c`
+- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:c46c40fcb0fb939502a0327c275dadb5f2cd161d6cf06fbb0dac4f49afc5f091`
+- Lockfile tag: `lock-374a4f6328d79d62`
+- pnpm-lock.yaml SHA-256: `374a4f6328d79d62c0130dc5bf86defbe673d8c314801318bfefde30539da436`
 
 <!-- ci-dependency-image:end -->
