@@ -1,15 +1,32 @@
 # Packages / Host and plugin integration
 
-The private application profile owns optional Repository registration and its
-App-scoped binding before configured plugin loading. The generic Web session
-selects that public private-profile entry; it does not import plugin classes.
+The published application profile owns optional Repository registration and its
+App-scoped binding before configured plugin loading. Its complete shared session
+exports built output for both hosted and browser applications. Web selects that
+session through the public package; hosts retain transport, credential custody,
+permissions, appearance and platform lifecycle.
 
-The private Rust-hosted History profile consumes the retained public Repository
+LN-PKG-129/130/131 apply to App Profile after API, File Explorer and Workspace in
+the public release graph. Registry ranges admit the current API and History
+remotes cohort. The profile declares the native History SDK needed by its public
+Repository types rather than relying on a development-only transitive peer.
+The ordinary four-plugin profile remains unchanged; supplying a
+Repository factory explicitly registers the source-owned History plugin without
+calling native services before enablement. Shared session startup, retry, writer
+preflight and disposable App ownership remain application-profile policy.
+
+This integration adapts the committed shared-session implementation at
+`1c790698abb1e5fb033534e1e5ae75ef71d951c4` to current main. Later native Chat
+startup/retry behavior, browser appearance persistence, PWA disposal and default
+responsive shell selection remain retained. Source and published-package
+qualification are distinct from Desktop/Server acceptance.
+
+The optional Rust-hosted History profile consumes the retained public Repository
 plugin and lossless History SDK through the same App/session and admitted client.
-It adds no published API export or alternate plugin engine. The unpublished SDK
+It adds no published API export or alternate plugin engine. The native Rust SDK
 uses the documented private-app sibling exception and exact public validation archive.
 
-The private native-chat application profile consumes host-authored target
+The native-chat application profile consumes host-authored target
 `default_mode` metadata under LN-CORE-009/010. It resolves the exact target again
 before Send, refuses missing or invalid metadata and preserves explicit native
 input modes. It never infers provider permissions from target IDs or labels.

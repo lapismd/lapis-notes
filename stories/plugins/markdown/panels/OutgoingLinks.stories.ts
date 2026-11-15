@@ -94,9 +94,6 @@ async function replaceEditablePreview(
     "[data-editable-markdown-editor]",
   );
   if (!editorSurface) throw new Error("Missing editable preview surface");
-  expect(
-    editorSurface.closest<HTMLElement>("[data-mira-theme]")?.dataset.miraTheme,
-  ).toContain("obsidian");
 
   await waitFor(() => {
     const frontmatterWidget = editorSurface.querySelector<HTMLElement>(
@@ -107,6 +104,11 @@ async function replaceEditablePreview(
   });
 
   const colorProbe = editorSurface.ownerDocument.createElement("span");
+  editorSurface.append(colorProbe);
+  colorProbe.style.color = "var(--mira-foreground)";
+  const editorForeground = getComputedStyle(colorProbe).color;
+  preview.append(colorProbe);
+  expect(editorForeground).toBe(getComputedStyle(colorProbe).color);
   editorSurface.append(colorProbe);
   colorProbe.style.color = "var(--mira-focus-ring)";
   const miraFocusColor = getComputedStyle(colorProbe).color;
@@ -119,7 +121,12 @@ async function replaceEditablePreview(
   if (!editor) throw new Error("Missing editable preview CodeMirror content");
   await userEvent.click(editor);
   await new Promise((resolve) => setTimeout(resolve, 50));
-  await userEvent.keyboard("{Control>}a{/Control}");
+  const selectAllModifier = /Mac/.test(
+    editor.ownerDocument.defaultView!.navigator.platform,
+  )
+    ? "Meta"
+    : "Control";
+  await userEvent.keyboard(`{${selectAllModifier}>}a{/${selectAllModifier}}`);
   await userEvent.paste(value);
   expect(
     preview.querySelector(

@@ -186,7 +186,7 @@ The editable-preview scenario verifies:
 
 The live-edit parity scenario verifies:
 
-- Both preview families resolve an effective `obsidian` theme whose focus color matches design-core's Lapis workspace focus token.
+- Both preview families inherit the owning Mira foreground and resolve a focus color identical to design-core's Lapis workspace focus token.
 - Nested frontmatter widgets retain zero inline padding so preview-only inset does not move metadata away from the editor content column.
 - The panel editor exposes vertical overflow through CodeMirror inside the preview viewport without an outer preview scrollbar.
 

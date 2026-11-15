@@ -10,6 +10,7 @@ const directories = [
   "workspace",
   "file-explorer",
   "language-service",
+  "app-profile",
 ];
 const output = resolve(root, ".release/validation-packages");
 await mkdir(output, { recursive: true });

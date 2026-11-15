@@ -2,7 +2,7 @@ import type { App } from "@lapis-notes/api";
 import {
   createNativeChatPlugin,
   type NativeChatHost,
-} from "@lapis-notes/app-profile/native-chat";
+} from "../native-chat/index";
 
 export function registerSessionNativeChat(
   app: App,

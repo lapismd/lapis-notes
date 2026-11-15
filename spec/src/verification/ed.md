@@ -29,7 +29,7 @@
 | LN-ED-024 | [editor-demo](../editor-demo/core-contract-01.md#ln-ed-024) | Implemented | Outgoing Links middle-top-tabs acceptance asserts Mira internal-link owner-document placement, viewport-capped geometry, split crossing, and topmost adjacent-pane paint |
 | LN-ED-025 | [editor-demo](../editor-demo/core-contract-01.md#ln-ed-025) | Implemented | Outgoing Links middle-top-tabs edits and persists both ordinary-link and panel FileEmbed previews while retaining cross-pane overlay geometry |
 | LN-ED-026 | [editor-demo](../editor-demo/core-contract-01.md#ln-ed-026) | Implemented | ordinary and panel preview acceptance asserts headerless padded chrome, no synthetic panel embed guide, sticky open action, and two-pixel editing border |
-| LN-ED-027 | [editor-demo](../editor-demo/core-contract-01.md#ln-ed-027) | Implemented | ordinary and panel preview editors assert inherited Obsidian/Lapis focus paint, unpadded nested frontmatter geometry, and panel CodeMirror-owned vertical overflow |
+| LN-ED-027 | [editor-demo](../editor-demo/core-contract-01.md#ln-ed-027) | Implemented | ordinary and panel preview editors assert inherited Mira foreground and exact Lapis focus paint, unpadded nested frontmatter geometry, and panel CodeMirror-owned vertical overflow |
 | LN-ED-028 | [editor-demo](../editor-demo/core-contract-01.md#ln-ed-028) | Implemented | All Properties runs in six surfaces without a visible Markdown leaf |
 | LN-ED-029 | [editor-demo](../editor-demo/core-contract-01.md#ln-ed-029) | Implemented | All Properties Autodocs exposes only its real app input |
 | LN-ED-030 | [editor-demo](../editor-demo/core-contract-01.md#ln-ed-030) | Implemented | movable-panel fixtures assert design-core placement and resolved view paint |

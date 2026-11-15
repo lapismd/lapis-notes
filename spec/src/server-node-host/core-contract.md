@@ -1,5 +1,10 @@
 # Hosted Server / Integration contracts
 
+Hosted clients may consume App Profile’s built shared session and native
+Repository registration. The server retains its authenticated transport and
+credential custody; package qualification alone does not establish server
+adoption or cold hosted acceptance.
+
 The shared Web client follows App-owned mobile preferences under LN-WS-105/106. Responsive presentation and mobile actions remain in the shared renderer and workspace adapter; this change adds no hosted server operation or native authority.
 
 LN-WEB-090 adapts the desktop chooser's native paint for browser-local vaults; it does not add hosted-server operations.

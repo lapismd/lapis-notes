@@ -1,5 +1,9 @@
 # Specification Governance / Validation and CI
 
+Application composition validation traces the shared App Profile public export
+through its owned barrel and Svelte source. It still rejects a replacement body;
+an imported session name is never accepted as shell evidence by itself.
+
 The reusable CI aggregate includes Cloudflare PWA packaging, HTTP semantics and fresh-browser artifact acceptance. Production publication runs that aggregate for every main revision independently of npm versioning; only its main-restricted deployment job receives the Cloudflare token (LN-WEB-083–086).
 
 <!-- dependency-automation-policy -->

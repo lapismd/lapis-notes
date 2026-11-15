@@ -67,7 +67,7 @@
 | LN-MD-062 | [markdown-panel-link-previews](../plugins/markdown/panels/link-previews.md#ln-md-062) | Implemented | editable panel cards omit the guide and retain a sticky space-reserving open-note action |
 | LN-MD-063 | [markdown-panel-link-previews](../plugins/markdown/panels/link-previews.md#ln-md-063) | Implemented | preview viewport constrains FileEmbed so CodeMirror owns the only edit scrollbar |
 | LN-MD-064 | [markdown-panel-link-previews](../plugins/markdown/panels/link-previews.md#ln-md-064) | Implemented | edit cards ignore hover/focus departure and dismiss only after persistence succeeds |
-| LN-MD-065 | [markdown-panel-link-previews](../plugins/markdown/panels/link-previews.md#ln-md-065) | Implemented | portaled previews inherit Obsidian theme while editable FileEmbed and full-file Markdown surface roots establish it explicitly |
+| LN-MD-065 | [markdown-panel-link-previews](../plugins/markdown/panels/link-previews.md#ln-md-065) | Implemented | portaled previews, editable FileEmbed and full-file surfaces inherit the owning Mira palette and exact workspace focus ring |
 | LN-MD-066 | [markdown-panel-link-previews](../plugins/markdown/panels/link-previews.md#ln-md-066) | Implemented | Obsidian aliases map Mira accents to Lapis tokens without leaking preview inset into live frontmatter |
 | LN-MD-067 | [markdown-panel-outgoing-links](../plugins/markdown/panels/outgoing-links.md#ln-md-067) | Implemented | Outgoing Links collapse, search, sorting, context, and live refresh controls |
 | LN-MD-068 | [markdown-panel-outgoing-links](../plugins/markdown/panels/outgoing-links.md#ln-md-068) | Implemented | selecting a resolved Outgoing Links result opens the target note |

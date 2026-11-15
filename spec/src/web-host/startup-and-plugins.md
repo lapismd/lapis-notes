@@ -1,5 +1,14 @@
 # Web Host / Startup and plugins
 
+Web delegates workspace boot, retry and teardown to the public App Profile
+session. Its adapter retains browser prompts, PWA runtime attachment, obsolete
+secret cleanup, transfer settings and startup appearance. A failed startup
+callback cannot retain an active browser appearance observer.
+The shared session starts the owning workspace controller, mounts the shell
+and drains its initial layout projection and writes before delivering host
+readiness. Initial file navigation then selects a populated document. Teardown
+during that boundary fences the readiness callback.
+
 Ordinary hosted builds identify as `rust-server` and select the native
 metadata/History/Tasks backend together under LN-CORE-069. Both retained hosted
 Vite mode names produce that same application; standalone Web/PWA stays separate.

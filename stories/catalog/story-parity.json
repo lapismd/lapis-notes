@@ -227,5 +227,8 @@
   "stories/api/CliSettings.stories.ts": {
     "kind": "component",
     "subject": "@lapis-notes/ui/cli#CliSettings"
+  },
+  "stories/workspace/NotesWorkspaceSession.stories.ts": {
+    "kind": "application"
   }
 }

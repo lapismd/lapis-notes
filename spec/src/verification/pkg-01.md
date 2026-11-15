@@ -12,7 +12,7 @@
 | LN-PKG-018 | [packages](../packages/editor-apis.md#ln-pkg-018) | Implemented | root and narrow public exports for Mira-backed FileEmbed, MarkdownEmbed, and NoteLink |
 | LN-PKG-019 | [packages](../packages/vault-and-storage.md#ln-pkg-019) | Implemented | additive FileEmbed editable/editing contract backed by Mira EditableMarkdownPreview while default embeds remain read-only |
 | LN-PKG-020 | [packages](../packages/workspace-apis.md#ln-pkg-020) | Implemented | persistence-safe FileEmbed exit delegation and additive blur-return control for link-panel outside-click dismissal |
-| LN-PKG-021 | [packages](../packages/editor-apis.md#ln-pkg-021) | Implemented | explicit Obsidian-themed FileEmbed and full-file surface descendants plus rendered-preview-only card inset |
+| LN-PKG-021 | [packages](../packages/editor-apis.md#ln-pkg-021) | Implemented | FileEmbed and full-file descendants inherit the owning Mira palette and workspace focus ring, with rendered-preview-only card inset |
 | LN-PKG-022 | [packages](../packages/releases-and-exports.md#ln-pkg-022) | Implemented | explicit sidebar-custom public prop contracts keep generated declarations on portable package paths |
 | LN-PKG-023 | [packages](../packages/editor-apis.md#ln-pkg-023) | Implemented | markupEditor fold-gutter configuration plus Markdown suppression for Mira inline folding |
 | LN-PKG-024 | [packages](../packages/editor-apis.md#ln-pkg-024) | Implemented | API editor ScrollArea owns long-document scrolling while nested CodeMirror expands; its complete interaction rail retains pointer priority. [Inline spacing qualification](../../records/2026-10-30-inline-editor-spacing.md) proves nested inline editors exclude document trailing space; 269 browser stories and full check/build pass. |

@@ -54,6 +54,14 @@ recorded revisions.
 
 ## Package and UI integration
 
+The shared App Profile candidate restores public session exports and native
+Repository registration against API 0.6 and History 0.4. Its
+[source qualification](../../records/2026-11-15-native-repository-profile-cohort.md)
+does not qualify production host adoption. Publish App Profile 0.2 through the
+GitHub release workflow and verify its minimal registry consumer. Server and
+Desktop own subsequent normal-registry intake, remotes/credential adapters,
+native automatic synchronization and cold application acceptance.
+
 The revoked-vault Sync cleanup repair is released in API `0.2.3` on npm's
 `next` channel. [Publication and signed provenance](../../records/2026-10-31-api-023-publication.md)
 verify its exact bytes and source `0d9d4d92`; the released-source private App

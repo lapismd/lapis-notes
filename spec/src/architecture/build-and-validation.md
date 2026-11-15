@@ -1,5 +1,11 @@
 # Architecture / Build and validation
 
+Cold session stories pre-optimize the public History and Agent UI entry points
+before interactions, preventing dependency discovery from reloading axe imports.
+App Profile joins clean consumer packing after its framework dependencies. Its
+shared session checks, startup/retry stories and full catalog qualify the built
+public export; host credential custody and cold transport remain host gates.
+
 Shared deferred-activation qualification covers overlapping demand, shared
 failure followed by explicit retry, and independent plugin IDs before the
 complete API and cold App catalog gates. The normal registry dependency graph

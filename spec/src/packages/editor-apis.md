@@ -131,7 +131,7 @@ on unload.
 
 <a id="ln-pkg-021"></a>
 
-**Requirement.** The Lapis `FileEmbed` wrapper and full-file Markdown surface MUST establish `data-mira-theme="obsidian"` for portable Mira descendants. Editable-card padding MUST target only the rendered preview branch of `EditableMarkdownPreview`; it MUST NOT match CodeMirror's nested rendered widgets or change live-edit frontmatter geometry. No new public component input is introduced.
+**Requirement.** The Lapis `FileEmbed` wrapper and full-file Markdown surface MUST inherit the owning workspace's Mira semantic palette without resetting it to a named theme. Editable-card padding MUST target only the rendered preview branch of `EditableMarkdownPreview`; it MUST NOT match CodeMirror's nested rendered widgets or change live-edit frontmatter geometry. No new public component input is introduced.
 
 ## LN-PKG-023 — Configured CodeMirror fold gutter
 

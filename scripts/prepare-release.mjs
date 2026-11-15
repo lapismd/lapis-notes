@@ -11,10 +11,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import {
-  createReleasePlan,
-  renderReleasePlan,
-} from "./release-plan.mjs";
+import { createReleasePlan, renderReleasePlan } from "./release-plan.mjs";
 import {
   buildReleaseManifest,
   defaultReleaseManifestPath,
@@ -25,6 +22,7 @@ import {
 import {
   DEFAULT_REPO_ROOT,
   PUBLIC_PACKAGE_NAMES,
+  EXTERNAL_NOTES_PACKAGES,
   readPublicPackages,
   REPOSITORY,
 } from "./public-packages.mjs";
@@ -93,11 +91,17 @@ function parsePnpmPackJson(output) {
   if (Array.isArray(parsed) && parsed.length === 1) {
     return parsed[0];
   }
-  if (parsed && typeof parsed === "object" && typeof parsed.filename === "string") {
+  if (
+    parsed &&
+    typeof parsed === "object" &&
+    typeof parsed.filename === "string"
+  ) {
     return parsed;
   }
   if (Array.isArray(parsed)) {
-    throw new Error("pnpm pack --json output did not contain one packed artifact");
+    throw new Error(
+      "pnpm pack --json output did not contain one packed artifact",
+    );
   }
   throw new Error("pnpm pack --json output did not contain a packed artifact");
 }
@@ -110,7 +114,7 @@ function readPackedJson(filePath, member) {
   return JSON.parse(output);
 }
 
-function assertNoLocalDependencyProtocols(manifest, packageName) {
+export function assertNoLocalDependencyProtocols(manifest, packageName) {
   const dependencyFields = [
     "dependencies",
     "peerDependencies",
@@ -119,13 +123,19 @@ function assertNoLocalDependencyProtocols(manifest, packageName) {
   ];
 
   for (const field of dependencyFields) {
-    for (const [dependencyName, range] of Object.entries(manifest[field] ?? {})) {
+    for (const [dependencyName, range] of Object.entries(
+      manifest[field] ?? {},
+    )) {
       if (/^(?:file|link|workspace):/.test(range)) {
         throw new Error(
           `${packageName} packed ${field}.${dependencyName} uses local protocol ${range}`,
         );
       }
-      if (dependencyName.startsWith("@lapis-notes/") && !PUBLIC_PACKAGE_NAMES.has(dependencyName)) {
+      if (
+        dependencyName.startsWith("@lapis-notes/") &&
+        !PUBLIC_PACKAGE_NAMES.has(dependencyName) &&
+        !EXTERNAL_NOTES_PACKAGES.has(dependencyName)
+      ) {
         throw new Error(
           `${packageName} packed ${field}.${dependencyName} references private package ${dependencyName}`,
         );
@@ -159,13 +169,22 @@ function assertTarballContents(entry, tarballPath) {
   if (manifest.publishConfig?.access !== "public") {
     throw new Error(`${entry.name} tarball must publish with public access`);
   }
-  if (manifest.repository?.url !== "git+https://github.com/lapismd/lapis-notes.git") {
-    throw new Error(`${entry.name} tarball repository URL must point at ${REPOSITORY}`);
+  if (
+    manifest.repository?.url !==
+    "git+https://github.com/lapismd/lapis-notes.git"
+  ) {
+    throw new Error(
+      `${entry.name} tarball repository URL must point at ${REPOSITORY}`,
+    );
   }
   if (manifest.repository?.directory !== `packages/${entry.directory}`) {
     throw new Error(`${entry.name} tarball repository directory is incorrect`);
   }
-  if (!manifest.homepage?.includes(`github.com/lapismd/lapis-notes/tree/main/packages/${entry.directory}`)) {
+  if (
+    !manifest.homepage?.includes(
+      `github.com/lapismd/lapis-notes/tree/main/packages/${entry.directory}`,
+    )
+  ) {
     throw new Error(`${entry.name} tarball homepage is incorrect`);
   }
   if (manifest.bugs?.url !== "https://github.com/lapismd/lapis-notes/issues") {
@@ -206,7 +225,9 @@ export function cleanConsumerDependencyEntries(repoRoot, manifest) {
 }
 
 function createCleanConsumer(repoRoot, manifest) {
-  const consumerDir = mkdtempSync(path.join(tmpdir(), "lapis-notes-release-consumer-"));
+  const consumerDir = mkdtempSync(
+    path.join(tmpdir(), "lapis-notes-release-consumer-"),
+  );
   const selectedTarballEntries = Object.fromEntries(
     manifest.packages.map((entry) => [
       entry.name,
@@ -344,9 +365,13 @@ function createCleanConsumer(repoRoot, manifest) {
     ].join("\n"),
   );
 
-  run("pnpm", ["install", "--ignore-scripts", "--strict-peer-dependencies=false"], {
-    cwd: consumerDir,
-  });
+  run(
+    "pnpm",
+    ["install", "--ignore-scripts", "--strict-peer-dependencies=false"],
+    {
+      cwd: consumerDir,
+    },
+  );
   run("pnpm", ["check"], { cwd: consumerDir });
 
   rmSync(consumerDir, { recursive: true, force: true });
@@ -362,7 +387,9 @@ export async function prepareRelease(options = {}) {
   process.stdout.write(`${renderReleasePlan(plan)}\n`);
 
   const packageRecords = readPublicPackages(repoRoot);
-  const selectedByName = new Map(plan.selected.map((entry) => [entry.name, entry]));
+  const selectedByName = new Map(
+    plan.selected.map((entry) => [entry.name, entry]),
+  );
   const tarballs = [];
 
   for (const record of packageRecords) {

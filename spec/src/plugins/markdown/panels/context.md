@@ -60,7 +60,7 @@ state from their owning registered view rather than ambient host state.
 
 - The document Reading surface removes Mira Editor's framework border and uses the inherited Design Core Scroll Area as its sole preview scroll owner (LN-MD-107); movable panel paint remains governed by the separate workspace panel contract.
 
-- Complete file surfaces establish the effective Mira `obsidian` theme before domain contributions render inside them.
+- Complete file surfaces inherit the owning workspace's Mira palette and focus ring before domain contributions render inside them.
 
 - The reusable Problems view is specified under Workspace Shell / Panels rather than as a Markdown panel because non-Markdown providers and non-Lapis hosts may publish the same generic diagnostic model.
 

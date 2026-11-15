@@ -1,5 +1,5 @@
 import type { App } from "@lapis-notes/api";
-import { prepareNativeChatLeave } from "@lapis-notes/app-profile/native-chat";
+import { prepareNativeChatLeave } from "../native-chat/index";
 
 /** Retire this App's plugin observations before retrying startup. */
 export async function retirePluginsForRetry(app: App): Promise<void> {
