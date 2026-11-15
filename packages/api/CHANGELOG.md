@@ -1,5 +1,19 @@
 # @lapis-notes/api
 
+## 0.6.5
+
+### Patch Changes
+
+- [#130](https://github.com/lapismd/lapis-notes/pull/130)
+  [`6b2d021`](https://github.com/lapismd/lapis-notes/commit/6b2d021da8213bb73ba41ff795abd65f600a7dcb)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Support explicit retry of
+  failed vault discovery and SyncHost initialization while retaining shared
+  active/completed work and disposal fences.
+
+  Protect installed skills using complete byte snapshots and conditional binary
+  writes, including local invalid UTF-8 edits that decode identically to
+  packaged text.
+
 ## 0.6.4
 
 ### Patch Changes
