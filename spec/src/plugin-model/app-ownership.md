@@ -1,5 +1,9 @@
 # Plugin Model / App ownership
 
+App-owned native Sync leave preparation under LN-PKG-193 keeps plugin leases
+and observations live while fencing commands. Refused session leave restores
+the original capability; transport detachment occurs only during disposal.
+
 The optional hosted Repository binding is scoped to the explicitly owned App
 before plugin loading. Plugin teardown drains its read handles before the binding
 and native attachment are released. It neither assigns a compatibility App nor
@@ -87,5 +91,11 @@ over the matching session port. Construction performs no selection or IO.
 Persisted plugin/layout state grants no History authority; the Repository plugin
 still requires its separately bound reader and owned lifecycle. Other plugin
 registration and enablement contracts are unchanged.
+
+LN-PKG-189 retains Sync calls from retired plugin leases through App disposal.
+App teardown awaits the supplied presentation-transport detach after those
+calls settle and surfaces every cleanup failure without closing native durable
+work. Concurrent native service drains remain observed while another owner is
+pending, before plugin and session teardown can proceed.
 
 Under LN-PKG-132, the History `^0.5.0` Profile intake retains the same explicit App binding, plugin loading order and teardown authority. Its native synchronization observer schedules no transfers and holds no credentials. See [History 0.5 intake](../../records/2026-11-15-profile-history-050-intake.md).

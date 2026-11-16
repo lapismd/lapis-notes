@@ -727,6 +727,12 @@ export class MetadataCache extends EventDispatcher<{
     const nativeTasksDetached = this.app.nativeTasks?.detach();
     const nativeSyncDetached = this.app.nativeSync?.dispose();
     const operationsDetached = this.app.operations?.detach();
+    // Observe all started drains before any other synchronous cleanup can fail.
+    const nativeDetached = Promise.allSettled([
+      nativeTasksDetached,
+      nativeSyncDetached,
+      operationsDetached,
+    ]);
     this.disposed = true;
     this.nativeIndexing?.dispose();
     this.app.vault.off("all", this.handleVaultChange);
@@ -738,9 +744,13 @@ export class MetadataCache extends EventDispatcher<{
     this.snapshotLeaseValue = null;
     this.saveSnapshotDebounced.cancel();
     this.disposePromise = (async () => {
-      if (nativeTasksDetached) await nativeTasksDetached;
-      if (nativeSyncDetached) await nativeSyncDetached;
-      if (operationsDetached) await operationsDetached;
+      const detached = await nativeDetached;
+      const failures = detached.flatMap((result) =>
+        result.status === "rejected" ? [result.reason] : [],
+      );
+      if (failures.length === 1) throw failures[0];
+      if (failures.length)
+        throw new AggregateError(failures, "Native service cleanup failed");
       if (this.nativeIndexing) return;
       await Promise.allSettled([...this.pendingOperations]);
       if (!this.nativeIndexing)

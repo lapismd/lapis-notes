@@ -30,6 +30,11 @@ export interface NativeSyncPort {
     listener: (observation: NativeSyncObservation) => void,
     reportError: (error: unknown) => void,
   ): () => void;
+  /**
+   * Revoke this App's presentation transport after calls drain, without
+   * cancelling accepted native work or closing the native service owner.
+   */
+  detach?(): Promise<void>;
 }
 
 function unavailable(): Error {
@@ -185,10 +190,12 @@ export class NativeSyncLease {
 export class NativeSyncService {
   readonly provider: NativeSyncProvider;
   readonly #leases = new Set<NativeSyncLease>();
+  readonly #pending = new Set<Promise<NativeSyncReply>>();
   #current?: NativeSyncObservation;
   #stopObservation?: () => void;
   #observationGeneration = 0;
   #disposed = false;
+  #preparingLeave = false;
   #disposePromise?: Promise<void>;
 
   constructor(
@@ -200,6 +207,8 @@ export class NativeSyncService {
 
   select(provider: NativeSyncProvider): NativeSyncLease {
     if (this.#disposed || provider !== this.provider) throw unavailable();
+    if (this.#preparingLeave)
+      throw new Error("Native Sync is preparing to leave");
     if (!this.#leases.size) this.#startObservation();
     const lease = new NativeSyncLease(this);
     this.#leases.add(lease);
@@ -211,11 +220,44 @@ export class NativeSyncService {
     return structuredClone(this.#current);
   }
 
-  async invoke(
+  /** Fence before yielding; drain outside the session's writer guard. */
+  async prepareLeave(): Promise<() => void> {
+    if (this.#disposed) throw revoked();
+    if (this.#preparingLeave)
+      throw new Error("Native Sync is preparing to leave");
+    this.#preparingLeave = true;
+    await Promise.allSettled([...this.#pending]);
+    if (this.#disposed) throw revoked();
+    let released = false;
+    return () => {
+      if (released) return;
+      released = true;
+      this.#preparingLeave = false;
+    };
+  }
+
+  invoke(
     lease: NativeSyncLease,
     command: NativeSyncCommand,
     guarded: boolean,
   ): Promise<NativeSyncReply> {
+    const pending = this.#invoke(lease, command, guarded);
+    this.#pending.add(pending);
+    void pending.then(
+      () => this.#pending.delete(pending),
+      () => this.#pending.delete(pending),
+    );
+    return pending;
+  }
+
+  async #invoke(
+    lease: NativeSyncLease,
+    command: NativeSyncCommand,
+    guarded: boolean,
+  ): Promise<NativeSyncReply> {
+    if (this.#disposed || !this.#leases.has(lease)) throw revoked();
+    if (this.#preparingLeave)
+      throw new Error("Native Sync is preparing to leave");
     lease.assertActive();
     validateCommand(command, this.provider);
     const call = async () => {
@@ -248,11 +290,20 @@ export class NativeSyncService {
     }
     const pending = [...this.#leases].map((lease) => lease.detach());
     this.#leases.clear();
-    this.#disposePromise = Promise.allSettled(pending).then((results) => {
+    // Retired leases still have accepted calls; track settlement independently
+    // of observation ownership and keep command errors on their original calls.
+    const calls = Promise.allSettled([...this.#pending]);
+    this.#disposePromise = Promise.allSettled(pending).then(async (results) => {
+      await calls;
       const failures = results.flatMap((result) =>
         result.status === "rejected" ? [result.reason] : [],
       );
       if (cleanupFailure !== undefined) failures.unshift(cleanupFailure);
+      try {
+        await this.port.detach?.();
+      } catch (error) {
+        failures.push(error);
+      }
       if (failures.length === 1) throw failures[0];
       if (failures.length)
         throw new AggregateError(failures, "Native Sync cleanup failed");
