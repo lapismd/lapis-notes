@@ -2,18 +2,13 @@
 
 The shared profile consumes the published UI 0.2 cohort required by API 0.6. This dependency intake retains Design Core paint authority and the alias-only UI theme; optional skill byte writes do not alter UI styling.
 
-The retained UI runtime and compatible peer range admit released Design Core
-0.13.0 for the mobile shell cohort. Public package composition and the alias-only
-Lapis theme boundary remain unchanged; shared paint stays Core-owned.
-
-The active API, retained UI, Workspace, Explorer and Web graph resolves published
-Design Core `0.13.0`, including prepared
-browser CSS and bundled font assets, through the existing public style exports.
-The graph retains the close guard, asynchronous plugin flush and centered
-bottom-panel contracts. Portable compatibility ranges retain older supported
-hosts; the PWA's mobile shell requires the 0.13 contract. Older hosts
-cannot advertise capabilities absent from their selected release. The frozen
-Deno host is unchanged.
+The retained UI runtime directly selects released Design Core `^0.13.4` with
+API and Workspace. Its compatible peer range still admits the retained older
+hosts. Core owns paint, public style exports and bundled fonts; the UI theme
+remains alias-only. The intake changes no component markup, shell geometry,
+close guard, asynchronous plugin flush or centered bottom-panel contract.
+Root tooling and App Profile retain their separately held `^0.13.3` selection;
+File Explorer's compatibility range and the frozen Deno host remain unchanged.
 
 UI 0.1.3 is the prepared packaging patch for the retained runtime dependency
 declarations. Its CSS, tokens, component markup and public exports are unchanged.

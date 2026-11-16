@@ -1,5 +1,19 @@
 # Specification Governance / Validation and CI
 
+## LN-GOV-056 — Exact-range main specification gate
+
+<a id="ln-gov-056"></a>
+
+**Requirement.** Main push and manual validation MUST run specification-first against verified immutable related commits, independently of PR bot exemptions. Missing or inconsistent context MUST fail closed before publication or Pages build.
+
+### Acceptance details
+
+The main-range gate retains these controls:
+
+- Push validation MUST use the webhook's nonzero before/after commits, require the exact checked-out main head and reject missing, unrelated or substituted revisions; it MUST NOT substitute a parent when before is absent.
+- Manual validation MUST require the exact main checkout and select that commit's verified first parent. Actor identity and user inputs MUST NOT select a baseline or grant exemption.
+- Reusable CI governance and standalone Storybook Pages MUST execute the same source-owned range guard with full history. The existing narrow PR author exemption and all functional, release and deployment gates MUST remain unchanged.
+
 LN-PKG-141 requires fresh registry metadata on every exact-version consumer
 probe; only pending-version lookup failures retain the existing bounded retry.
 

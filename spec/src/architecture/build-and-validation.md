@@ -1,5 +1,12 @@
 # Architecture / Build and validation
 
+The admitted dependency intake raises only API, retained UI and Workspace direct
+Design Core ranges to `^0.13.4`. Root tooling and App Profile retain `^0.13.3`,
+and File Explorer retains its compatible multi-version range; those separately
+held paths are not part of this intake. The existing Changeset records release
+intent. LN-GOV-056 restores exact-range main governance after the narrow PR
+exemption; successful product jobs alone do not establish canonical coverage.
+
 Published registry consumers request online metadata before relying on cached
 packuments; immutable tarball checks, short bounded retries and publication
 authority remain unchanged under LN-PKG-141.

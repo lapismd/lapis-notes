@@ -40,11 +40,14 @@ The private root specification commands validate canonical contracts, verificati
 navigation and source mappings. They do not generate an application-status ledger
 or enter published package exports.
 
-The root development cohort selects released Mira `~0.1.3`, Design Core
-`^0.7.2` and the published `~0.0.3` Mira companions. API's direct dependencies
-and peers use those same Mira and Design Core ranges. Tracked manifests and the
-frozen lockfile use registry packages; historical temporary archive admission
-remains in the [dependency intake receipt](../../records/2026-10-25-released-mira-dependency-intake.md).
+The root development cohort selects released Mira `~0.2.0`, Design Core
+`^0.13.3` and published `~0.0.4` Mira companions. API selects Mira `~0.2.0`;
+API, UI and Workspace directly select Core `^0.13.4`. Their existing peer
+compatibility ranges remain unchanged. App Profile retains Core `^0.13.3`,
+while File Explorer retains its multi-version compatibility range. The frozen
+lockfile records this bounded registry intake; held consumers do not inherit
+permission to regenerate. The existing Changeset owns release intent, with
+publication and consumer qualification remaining independent gates.
 
 Root, API and UI select published Bits UI `2.20.2`. The user-approved,
 reproducible `patches/bits-ui@2.20.2.patch` composes Link Preview selection-timer

@@ -8,6 +8,7 @@ import {
   validateVersionPrAuthentication,
 } from "./check-release-workflow.mjs";
 import "./ci-setup.test.mjs";
+import "./main-spec-first.test.mjs";
 import "./dependency-completed.test.mjs";
 import "./check-release-lookup-auth.spec.mjs";
 
@@ -89,6 +90,7 @@ const ci = [
   "release-artifacts:",
   "validate:",
   "pnpm spec:first",
+  "node scripts/main-spec-first.mjs",
   "pnpm packages:policy",
   "pnpm packages:pack -- --already-built",
   "node scripts/run-turbo.mjs ci:storybook-static --summarize",

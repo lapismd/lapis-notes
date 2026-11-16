@@ -170,6 +170,7 @@ export function validateReleaseWorkflows({ ci, release, pages } = {}) {
     "release-artifacts:",
     "validate:",
     "pnpm spec:first",
+    "node scripts/main-spec-first.mjs",
     "pnpm packages:policy",
     "pnpm packages:pack -- --already-built",
     "node scripts/run-turbo.mjs ci:storybook-static --summarize",
