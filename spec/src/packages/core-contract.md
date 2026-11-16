@@ -1,5 +1,14 @@
 # Packages / Host and plugin integration
 
+The prepared partial release is UI `0.2.2` → API `0.6.7` → Workspace `0.4.7`
+for the admitted Core `^0.13.4` intake. API's UI peer floor becomes `^0.2.2`;
+Workspace's API/UI dependencies become `^0.6.7`/`^0.2.2`. The existing three
+patch Changeset entries own these versions. Language Service, File Explorer
+and App Profile retain their current versions and independently held dependency
+ranges. API's generated module inventory updates version metadata only. This
+candidate does not establish npm publication or change any dist-tag; the
+existing governed release recipe and package order remain required.
+
 The published application profile owns optional Repository registration and its
 App-scoped binding before configured plugin loading. Its complete shared session
 exports built output for both hosted and browser applications. Web selects that

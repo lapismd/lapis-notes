@@ -1,5 +1,11 @@
 # Workspace Shell / Chrome and navigation
 
+Prepared Workspace `0.4.7` consumes API `^0.6.7`, UI `^0.2.2` and the admitted
+Core `^0.13.4` floor. Those mechanical internal range updates close the existing
+three-package patch release plan; shell geometry, App ownership and plugin
+activation are unchanged. Prepared package versions do not imply publication
+or wider admission of the separately held consumers.
+
 Deferred plugins retain declared ribbon and Markdown pane actions under
 LN-PLUG-127/128. Invoking a declaration activates its owner before executing
 the existing runtime command; activation replaces placeholders without
