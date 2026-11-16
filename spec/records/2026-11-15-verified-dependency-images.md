@@ -65,3 +65,21 @@ again. The current 17-file identity is
 the earlier receipt above records the initial candidate. The unchanged lockfile
 with a changed package manifest correctly produces a different complete-input
 identity. No incoming version, changelog or consumed Changeset is reverted.
+
+## Requalification against current main — 2026-11-16
+
+PR #135 was rebased without conflicts onto main
+`ee6615b2bb2fe63642d7288763fa7e5816edca16`, retaining the unrelated Sync
+integration from PR #136. A byte comparison preserves all sixteen incoming
+non-overlapping Sync files and every unrelated package-verification row;
+only the already-scoped cache row differs in the overlapping verification file.
+Root manifest, workspace configuration and lockfile are unchanged from the
+previous cache candidate. No frozen-host or Deno package change is introduced.
+
+The exact cache-adoption target passes 7/7. Complete release tooling passes
+120/120; specification checks pass all six configured lanes and all 69 validator
+regressions, including App ownership and metadata-query audits. Release policy,
+formatter and actionlint for all five touched workflows pass. Audit retains the
+existing one recorded LOW ignore without adding an exception. Hosted CI for the
+refreshed head, actual publication and complete warm consumer acceptance remain
+required; this requalification does not claim those hosted results.
