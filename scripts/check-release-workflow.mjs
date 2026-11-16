@@ -20,11 +20,81 @@ function requireNotContains(name, source, fragment) {
 }
 
 function requireDigestPinnedCiImage(name, source) {
-  if (
-    !/ghcr\.io\/lapismd\/lapis-(?:notes-)?ci@sha256:[a-f0-9]{64}/.test(source)
-  ) {
-    fail(`${name} must use a digest-pinned Lapis CI image`);
+  const pinned = /^ghcr\.io\/lapismd\/lapis-(?:notes-)?ci@sha256:[a-f0-9]{64}$/;
+  const message = `${name} must use a digest-pinned Lapis CI image or the verified current-input resolver`;
+  let document;
+  try {
+    document = parse(source);
+  } catch {
+    /* Legacy fragment fixtures retain literal digest checks. */
   }
+  if (!document?.jobs) {
+    if (
+      !/ghcr\.io\/lapismd\/lapis-(?:notes-)?ci@sha256:[a-f0-9]{64}/.test(source)
+    )
+      fail(message);
+    return;
+  }
+  const resolver = document.jobs["resolve-image"];
+  let count = 0;
+  for (const job of Object.values(document.jobs)) {
+    if (!job.container) continue;
+    count++;
+    const image =
+      typeof job.container === "string" ? job.container : job.container.image;
+    if (pinned.test(image)) continue;
+    const needs = Array.isArray(job.needs) ? job.needs : [job.needs];
+    if (
+      image !== "${{ needs.resolve-image.outputs.reference }}" ||
+      resolver?.uses !== "./.github/workflows/resolve-dependency-image.yml" ||
+      !needs.includes("resolve-image")
+    )
+      fail(message);
+  }
+  if (!count) fail(message);
+}
+
+export function validateDependencyImageResolver(resolver, producer) {
+  const document = parse(resolver);
+  const jobs = Object.values(document.jobs ?? {});
+  const steps = jobs.flatMap((job) => job.steps ?? []);
+  const pin = "29d83b5a61c0cf2b895873489de43f0d85e38e48";
+  const action = steps.find((step) => step.id === "resolve");
+  if (
+    action?.uses !==
+      `lapismd/lapis-ci/actions/resolve-dependency-image@${pin}` ||
+    steps.some(
+      (step) =>
+        step.uses?.startsWith("lapismd/lapis-ci/actions/") &&
+        !step.uses.endsWith(`@${pin}`),
+    ) ||
+    action.with?.repository !== "lapismd/lapis-notes" ||
+    action.with?.context !== ".ci/dependency-context" ||
+    document.permissions?.contents !== "read" ||
+    document.permissions?.packages !== "read" ||
+    Object.values(document.permissions ?? {}).some((v) => v !== "read") ||
+    jobs.some((job) => job.permissions || job["continue-on-error"])
+  )
+    fail(
+      "Dependency image resolver must retain exact reviewed verification and read-only authority",
+    );
+  const publication = parse(producer);
+  const publish = publication.jobs?.publish;
+  if (
+    publication.concurrency?.["cancel-in-progress"] !== false ||
+    publish?.if !==
+      "github.repository == 'lapismd/lapis-notes' && github.ref == 'refs/heads/main'" ||
+    !publish.steps.some(
+      (step) =>
+        step.uses ===
+        `lapismd/lapis-ci/actions/publish-dependency-image@${pin}`,
+    ) ||
+    publication.permissions?.contents !== "read" ||
+    publication.permissions?.["pull-requests"]
+  )
+    fail(
+      "Dependency image producer must retain trusted serialized publication without source/PR writes",
+    );
 }
 
 export function validateVersionPrAuthentication(source) {
@@ -165,6 +235,16 @@ export function validateReleaseWorkflows({ ci, release, pages } = {}) {
 }
 
 export function validateWorkflowFiles(repoRoot = DEFAULT_REPO_ROOT) {
+  validateDependencyImageResolver(
+    readFileSync(
+      path.join(repoRoot, ".github/workflows/resolve-dependency-image.yml"),
+      "utf8",
+    ),
+    readFileSync(
+      path.join(repoRoot, ".github/workflows/dependency-image.yml"),
+      "utf8",
+    ),
+  );
   validateReleaseWorkflows({
     ci: readFileSync(
       path.join(repoRoot, ".github/workflows/lapis-ci.yml"),

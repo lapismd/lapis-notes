@@ -1,4 +1,4 @@
-name: Publish lockfile CI image
+name: Publish verified dependency image
 
 on:
   workflow_dispatch:
@@ -6,25 +6,25 @@ on:
     branches: [main]
     paths:
       - .ci/dependency-image.Dockerfile
+      - .ci/images.json
       - .github/workflows/dependency-image.yml
+      - package.json
+      - packages/**/package.json
       - patches/**
       - pnpm-lock.yaml
       - pnpm-workspace.yaml
-      - scripts/ci-images.test.mjs
       - scripts/lib/ci-images.mjs
       - scripts/prepare-ci-dependency-context.mjs
-      - scripts/update-ci-image-manifest.mjs
 
 permissions:
+  contents: read
   attestations: write
-  contents: write
   id-token: write
   packages: write
-  pull-requests: write
 
 concurrency:
-  group: dependency-image-${{ github.ref }}
-  cancel-in-progress: true
+  group: dependency-image-${{ github.repository }}
+  cancel-in-progress: false
 
 env:
   LAPIS_NOTES_VALIDATION_RUNTIME: native
@@ -34,98 +34,33 @@ jobs:
     if: github.repository == 'lapismd/lapis-notes' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 24.15.0
-      - name: Activate pinned pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@10.34.5 --activate
       - name: Prepare dependency-only build context
-        id: image
+        id: context
         run: node scripts/prepare-ci-dependency-context.mjs --github-output "$GITHUB_OUTPUT"
-      - uses: docker/setup-buildx-action@v4
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Resolve image metadata
-        id: metadata
-        uses: docker/metadata-action@v6
-        with:
-          images: ${{ steps.image.outputs.dependency_image }}
-          tags: type=raw,value=${{ steps.image.outputs.tag }}
-          labels: |
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.version=${{ steps.image.outputs.tag }}
-      - name: Build and publish multi-architecture dependency image
-        id: build
-        uses: docker/build-push-action@v7
+      - name: Reuse or publish the signed complete-input identity
+        id: publish
+        uses: lapismd/lapis-ci/actions/publish-dependency-image@29d83b5a61c0cf2b895873489de43f0d85e38e48
         with:
           context: .ci/dependency-context
-          push: true
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.metadata.outputs.tags }}
-          labels: ${{ steps.metadata.outputs.labels }}
-          provenance: mode=max
-          sbom: true
-      - name: Attest dependency image provenance
-        uses: actions/attest-build-provenance@v4
+          base-image: ${{ steps.context.outputs.base_image }}
+          image: ${{ steps.context.outputs.dependency_image }}
+      - name: Retain publication inputs and verified immutable result
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          subject-name: ${{ steps.image.outputs.dependency_image }}
-          subject-digest: ${{ steps.build.outputs.digest }}
-          push-to-registry: true
-      - name: Verify and propose immutable digest pin
-        env:
-          GH_TOKEN: ${{ github.token }}
-          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
-          IMAGE_TAG: ${{ steps.image.outputs.tag }}
-        run: |
-          set -euo pipefail
-          node scripts/update-ci-image-manifest.mjs "$IMAGE_DIGEST"
-          pin_paths=(
-            .ci/images.json
-            spec/src/architecture/dependency-boundaries.md
-            spec/src/packages/releases-and-exports.md
-            spec/src/spec-governance/protected-change-mapping.md
-          )
-          branch="automation/lapis-notes-ci"
-          open_pr_number="$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number // empty')"
-          close_legacy_prs() {
-            legacy_pr_numbers="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/pulls?state=open&base=main&per_page=100" --jq '
-              .[]
-              | select(.user.login == "github-actions[bot]" and .head.repo.full_name == .base.repo.full_name)
-              | select(.head.ref | test("^automation/lapis-notes-ci-lock-[a-f0-9]{16}$"))
-              | .number
-            ')"
-            while IFS= read -r number; do
-              if [[ -n "$number" ]]; then
-                gh pr close "$number"
-              fi
-            done <<< "$legacy_pr_numbers"
-          }
-          if git diff --quiet -- "${pin_paths[@]}"; then
-            if [[ -n "$open_pr_number" ]]; then
-              gh pr close "$open_pr_number"
-            fi
-            close_legacy_prs
-            echo "The checked-in dependency image digest is current." >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git switch -c "$branch"
-          git add -- "${pin_paths[@]}"
-          git commit -m "chore(ci): pin ${IMAGE_TAG} dependency image"
-          git push --force origin "HEAD:refs/heads/$branch"
-          if [[ -n "$open_pr_number" ]]; then
-            gh pr edit "$open_pr_number" --title "chore(ci): pin ${IMAGE_TAG} dependency image" --body "Pins the verified multi-architecture dependency image built from the current lockfile and records its digest, tag, and lockfile hash in every mapped canonical chapter."
-          else
-            gh pr create --head "$branch" --base main --title "chore(ci): pin ${IMAGE_TAG} dependency image" --body "Pins the verified multi-architecture dependency image built from the current lockfile and records its digest, tag, and lockfile hash in every mapped canonical chapter."
-          fi
-          close_legacy_prs
-          echo "Published ${IMAGE_TAG} at ${IMAGE_DIGEST}." >> "$GITHUB_STEP_SUMMARY"
+          name: dependency-image-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .ci/dependency-image-receipt.json
+            .ci/dependency-image-resolution.json
+            .ci/dependency-image-publication.json
+          if-no-files-found: warn
+          retention-days: 14

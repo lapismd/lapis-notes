@@ -26,15 +26,22 @@ env:
   LAPIS_NOTES_VALIDATION_RUNTIME: native
 
 jobs:
+  resolve-image:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/resolve-dependency-image.yml
+    with:
+      artifact-name: release-dependency-image
+
   changesets:
     name: Version packages
     if: github.ref == 'refs/heads/main'
+    needs: resolve-image
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: read
     container:
-      image: ghcr.io/lapismd/lapis-ci@sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503
+      image: ${{ needs.resolve-image.outputs.reference }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -77,11 +84,13 @@ jobs:
 
   publish:
     name: Publish packages
-    needs: validation
+    needs:
+      - resolve-image
+      - validation
     if: github.event_name == 'workflow_dispatch' && inputs.publish == true && needs.validation.outputs.has_work == 'true' && needs.validation.outputs.bootstrap_required != 'true'
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lapismd/lapis-ci@sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503
+      image: ${{ needs.resolve-image.outputs.reference }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -106,6 +115,7 @@ jobs:
   verify:
     name: Verify published packages
     needs:
+      - resolve-image
       - validation
       - publish
     if: always() && needs.validation.outputs.has_work == 'true' && needs.validation.outputs.bootstrap_required != 'true' && needs.publish.result == 'success'
@@ -114,7 +124,7 @@ jobs:
       contents: read
       packages: read
     container:
-      image: ghcr.io/lapismd/lapis-ci@sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503
+      image: ${{ needs.resolve-image.outputs.reference }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -130,12 +140,13 @@ jobs:
   notes:
     name: Create GitHub releases
     needs:
+      - resolve-image
       - validation
       - verify
     if: always() && needs.validation.outputs.has_work == 'true' && needs.validation.outputs.bootstrap_required != 'true' && needs.verify.result == 'success'
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lapismd/lapis-ci@sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503
+      image: ${{ needs.resolve-image.outputs.reference }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}

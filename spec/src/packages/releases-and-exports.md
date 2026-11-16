@@ -2,10 +2,10 @@
 
 The verified publication job may notify the dependency coordinator. This adds no merge, publication, signing or deployment authority. PR checks validate every pending Changesets release plan without publishing, rejecting mixed private/public versioning entries. Retained consumer acceptance now requires released Search `^0.1.6` through registry resolution so its existing accessible-name contract is exercised against the qualified package.
 
-The active browser graph requires published Core 0.13.2 for the Mira 0.2 renderer cohort and retains the native-control divider. LN-WEB-090 adapts desktop chooser paint without adding a public API. The private web deployment toolchain pins Wrangler and JSONC parsing in the root lockfile. Cloudflare publication consumes the tested browser artifact without publishing application packages or copying local dependency sources (LN-WEB-083–084). Artifact acceptance includes runtime and saved-startup appearance (LN-WEB-087), plus immutable hashed runtime and revalidated stable entrypoints (LN-WEB-088) and revision-specific installation identity (LN-WEB-089). Dependency-image reviews use the rolling branch and obsolete-review cleanup in LN-GOV-050/LN-GOV-052–053 while retaining LN-PKG-142; API Mira consumes `~0.2.0` with `~0.1.3 || ~0.2.0` peers and API patch release intent.
+The active browser graph requires published Core 0.13.2 for the Mira 0.2 renderer cohort and retains the native-control divider. LN-WEB-090 adapts desktop chooser paint without adding a public API. The private web deployment toolchain pins Wrangler and JSONC parsing in the root lockfile. Cloudflare publication consumes the tested browser artifact without publishing application packages or copying local dependency sources (LN-WEB-083–084). Artifact acceptance includes runtime and saved-startup appearance (LN-WEB-087), plus immutable hashed runtime and revalidated stable entrypoints (LN-WEB-088) and revision-specific installation identity (LN-WEB-089). Dependency caches use the verified current-context resolver and no-PR publication in LN-GOV-050/LN-GOV-052–053 while retaining LN-PKG-142; API Mira consumes `~0.2.0` with `~0.1.3 || ~0.2.0` peers and API patch release intent.
 The [native service exports](./native-service-exports.md) define generated admitted ports separately from release and registry policy.
 
-Release and validation containers consume shared image `2026.10.14.1` by digest. GitHub CLI 2.102.0 is supplied upstream so approved npm publication can create its GitHub release records without a consumer tool-install workaround.
+Release, validation and Pages containers select verified current-input caches or the reviewed shared base by digest, then run their frozen install. GitHub CLI 2.102.0 is supplied upstream so approved npm publication can create its GitHub release records without a consumer tool-install workaround.
 
 Registry-consumer toolchain and build-policy acceptance is recorded in
 [the release verification record](../../records/2026-10-13-registry-consumer-toolchain.md).
@@ -391,7 +391,7 @@ test-signed archive fixtures remain separate acceptance inputs. Local consumer q
 
 <!-- ci-dependency-image:start -->
 
-## Current CI dependency image
+## Retained rollback dependency image
 
 - Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:9d5aa165fe46bd038294bc6716c2c59c4ea618d4c33cfa0e713c8b4ca251ebb7`
 - Lockfile tag: `lock-29cea641f8dd6775`

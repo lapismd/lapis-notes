@@ -44,11 +44,17 @@ env:
   LAPIS_DEPENDENCY_BOT_LOGIN: ${{ vars.LAPIS_DEPENDENCY_BOT_LOGIN }}
 
 jobs:
+  resolve-image:
+    uses: ./.github/workflows/resolve-dependency-image.yml
+    with:
+      artifact-name: lapis-ci-dependency-image
+
   build-cache:
+    needs: resolve-image
     runs-on: ubuntu-latest
     timeout-minutes: 20
     container:
-      image: ghcr.io/lapismd/lapis-ci@sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503
+      image: ${{ needs.resolve-image.outputs.reference }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -61,11 +67,13 @@ jobs:
         run: node scripts/report-turbo-cache.mjs --github-summary
 
   governance:
-    needs: build-cache
+    needs:
+      - resolve-image
+      - build-cache
     runs-on: ubuntu-latest
     timeout-minutes: 20
     container:
-      image: ghcr.io/lapismd/lapis-ci@sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503
+      image: ${{ needs.resolve-image.outputs.reference }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -87,11 +95,13 @@ jobs:
         run: pnpm release:intent --base "origin/${{ github.base_ref }}" --head "${{ github.sha }}"
 
   quality:
-    needs: build-cache
+    needs:
+      - resolve-image
+      - build-cache
     runs-on: ubuntu-latest
     timeout-minutes: 25
     container:
-      image: ghcr.io/lapismd/lapis-ci@sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503
+      image: ${{ needs.resolve-image.outputs.reference }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -109,11 +119,13 @@ jobs:
         run: node scripts/report-turbo-cache.mjs --github-summary
 
   unit:
-    needs: build-cache
+    needs:
+      - resolve-image
+      - build-cache
     runs-on: ubuntu-latest
     timeout-minutes: 30
     container:
-      image: ghcr.io/lapismd/lapis-ci@sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503
+      image: ${{ needs.resolve-image.outputs.reference }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -130,11 +142,13 @@ jobs:
       - run: pnpm test:ai:smoke-harness
 
   storybook-static:
-    needs: build-cache
+    needs:
+      - resolve-image
+      - build-cache
     runs-on: ubuntu-latest
     timeout-minutes: 25
     container:
-      image: ghcr.io/lapismd/lapis-ci@sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503
+      image: ${{ needs.resolve-image.outputs.reference }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -152,11 +166,13 @@ jobs:
   storybook-interaction:
     # LN-CAT-121: skipped coverage is quarantined, never a passing test result.
     if: github.event_name == 'workflow_dispatch' && inputs.run_quarantined_storybook == true
-    needs: build-cache
+    needs:
+      - resolve-image
+      - build-cache
     runs-on: ubuntu-latest
     timeout-minutes: 40
     container:
-      image: ghcr.io/lapismd/lapis-ci@sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503
+      image: ${{ needs.resolve-image.outputs.reference }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -184,11 +200,13 @@ jobs:
           done
 
   storybook-specification:
-    needs: build-cache
+    needs:
+      - resolve-image
+      - build-cache
     runs-on: ubuntu-latest
     timeout-minutes: 20
     container:
-      image: ghcr.io/lapismd/lapis-ci@sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503
+      image: ${{ needs.resolve-image.outputs.reference }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -206,10 +224,11 @@ jobs:
         run: node scripts/report-turbo-cache.mjs --github-summary
 
   registry-fixture:
+    needs: resolve-image
     runs-on: ubuntu-latest
     timeout-minutes: 30
     container:
-      image: ghcr.io/lapismd/lapis-ci@sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503
+      image: ${{ needs.resolve-image.outputs.reference }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -273,14 +292,16 @@ jobs:
           retention-days: 14
 
   release-artifacts:
-    needs: build-cache
+    needs:
+      - resolve-image
+      - build-cache
     runs-on: ubuntu-latest
     timeout-minutes: 35
     outputs:
       bootstrap_required: ${{ steps.plan.outputs.bootstrap_required }}
       has_work: ${{ steps.plan.outputs.has_work }}
     container:
-      image: ghcr.io/lapismd/lapis-ci@sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503
+      image: ${{ needs.resolve-image.outputs.reference }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -311,11 +332,13 @@ jobs:
           retention-days: 14
 
   web-cloudflare:
-    needs: build-cache
+    needs:
+      - resolve-image
+      - build-cache
     runs-on: ubuntu-latest
     timeout-minutes: 25
     container:
-      image: ghcr.io/lapismd/lapis-ci@sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503
+      image: ${{ needs.resolve-image.outputs.reference }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -341,6 +364,7 @@ jobs:
   validate:
     if: always()
     needs:
+      - resolve-image
       - build-cache
       - governance
       - quality
@@ -355,6 +379,7 @@ jobs:
     steps:
       - name: Aggregate blocking validation lanes
         env:
+          IMAGE_RESOLUTION: ${{ needs.resolve-image.result }}
           BUILD_CACHE: ${{ needs.build-cache.result }}
           GOVERNANCE: ${{ needs.governance.result }}
           QUALITY: ${{ needs.quality.result }}
@@ -368,6 +393,7 @@ jobs:
         run: |
           set -euo pipefail
           results=(
+            "$IMAGE_RESOLUTION"
             "$BUILD_CACHE"
             "$GOVERNANCE"
             "$QUALITY"

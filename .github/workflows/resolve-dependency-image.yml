@@ -1,0 +1,67 @@
+name: Resolve verified dependency image
+
+on:
+  workflow_call:
+    inputs:
+      artifact-name:
+        description: Distinct caller name for the immutable resolution receipt
+        required: true
+        type: string
+    outputs:
+      reference:
+        value: ${{ jobs.resolve.outputs.reference }}
+      state:
+        value: ${{ jobs.resolve.outputs.state }}
+      identity:
+        value: ${{ jobs.resolve.outputs.identity }}
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  LAPIS_NOTES_VALIDATION_RUNTIME: native
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      reference: ${{ steps.resolve.outputs.reference }}
+      state: ${{ steps.resolve.outputs.state }}
+      identity: ${{ steps.resolve.outputs.identity }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24.15.0
+      - uses: lapismd/lapis-ci/actions/setup-gh@29d83b5a61c0cf2b895873489de43f0d85e38e48
+      - uses: lapismd/lapis-ci/actions/setup-image-tools@29d83b5a61c0cf2b895873489de43f0d85e38e48
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Prepare the current source-owned dependency context
+        id: context
+        run: node scripts/prepare-ci-dependency-context.mjs --github-output "$GITHUB_OUTPUT"
+      - name: Verify immutable dependency image or select the reviewed base
+        id: resolve
+        uses: lapismd/lapis-ci/actions/resolve-dependency-image@29d83b5a61c0cf2b895873489de43f0d85e38e48
+        with:
+          context: .ci/dependency-context
+          base-image: ${{ steps.context.outputs.base_image }}
+          image: ${{ steps.context.outputs.dependency_image }}
+          repository: lapismd/lapis-notes
+      - name: Retain the immutable resolution receipt
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: ${{ inputs.artifact-name }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .ci/dependency-image-resolution.json
+          if-no-files-found: warn
+          retention-days: 14

@@ -7,6 +7,8 @@ original acceptance boundary. Historical receipts do not schedule current work.
 
 ## Outstanding topics
 
+- Complete hosted signed dependency-cache publication, warm/no-op reuse and consumer qualification under LN-ARCH-095 and LN-GOV-046/050/052/053; retain all frozen installs and functional gates.
+
 - [Runtime and package integration](backlog/runtime-integration.md)
 - [Legacy plugin ports](backlog/legacy-plugin-ports.md)
 

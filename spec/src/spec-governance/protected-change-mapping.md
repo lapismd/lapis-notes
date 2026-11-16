@@ -150,7 +150,7 @@ overlay teardown fix; test-signed fixtures never authorize public assets.
 
 <a id="ln-gov-046"></a>
 
-**Requirement.** Dependency-image pin automation MUST update the verified digest, lockfile tag, and lockfile hash in Architecture, Packages, and Specification Governance alongside the manifest. The generated PR MUST include those chapters and retain the normal spec-first gate.
+**Requirement.** Dependency-image adoption MUST update its current-input, publication and verification contracts in Architecture, Packages and Specification Governance. Active cache publication MUST retain input, resolution and publication receipts without modifying source, specifications or pull requests. Any explicit rollback pin change MUST include every mapped chapter and retain the normal spec-first gate.
 
 ## LN-GOV-047 — Generated changeset-release/main PR: skip CI spec-first and release-intent checks already
 
@@ -162,23 +162,23 @@ overlay teardown fix; test-signed fixtures never authorize public assets.
 
 <a id="ln-gov-050"></a>
 
-**Requirement.** Dependency-image publication MUST run only from `main` and reuse only an open pull request for the fixed `automation/lapis-notes-ci` head and `main` base across lockfile changes. A previously closed or merged pull request MUST result in a new review PR for the fresh digest.
+**Requirement.** Dependency-image publication MUST run only from trusted `main`, serialize without cancellation, and use the shared build, attest and immutable promotion action. All producer and resolver actions MUST pin one reviewed helper cohort. Existing verified identities MUST be reused without rebuilding or overwriting them; uncertain registry writes MUST NOT be retried.
 
 ## LN-GOV-052 — Superseded dependency-image reviews
 
 <a id="ln-gov-052"></a>
 
-**Requirement.** After successfully proposing a rolling image pin, or finding the pin already current on `main`, automation MUST close open superseded image reviews. Cleanup MUST select only `github-actions[bot]` reviews targeting `main` from this repository with heads matching `automation/lapis-notes-ci-lock-<16 lowercase hexadecimal characters>`; unrelated reviews MUST remain untouched.
+**Requirement.** Migration cleanup MUST select only obsolete `github-actions[bot]` image reviews targeting `main` from this repository, with the fixed `automation/lapis-notes-ci` head or legacy `automation/lapis-notes-ci-lock-<16 lowercase hexadecimal characters>` heads. It MUST revalidate each review before closing it and retain unrelated or manually edited reviews. Cache publication MUST NOT possess PR-write authority.
 
 ## LN-GOV-053 — Already-current dependency-image review
 
 <a id="ln-gov-053"></a>
 
-**Requirement.** When the generated image pin already matches `main`, automation MUST close any open review for the fixed rolling head without pushing or creating a replacement review.
+**Requirement.** An already published and verified current-input cache MUST produce a retained reuse receipt without source changes or a new image review. Missing or unavailable caches MUST preserve ordinary candidate validation through the reviewed base; cache reuse MUST NOT skip the exact frozen source install.
 
 <!-- ci-dependency-image:start -->
 
-## Current CI dependency image
+## Retained rollback dependency image
 
 - Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:9d5aa165fe46bd038294bc6716c2c59c4ea618d4c33cfa0e713c8b4ca251ebb7`
 - Lockfile tag: `lock-29cea641f8dd6775`
