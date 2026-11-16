@@ -8,6 +8,7 @@ import {
   validateVersionPrAuthentication,
 } from "./check-release-workflow.mjs";
 import "./ci-setup.test.mjs";
+import "./dependency-completed.test.mjs";
 import "./check-release-lookup-auth.spec.mjs";
 
 test("version PR job uses a repository-scoped App with read-only workflow authority", () => {

@@ -1,0 +1,22 @@
+name: Notify dependency completion
+on:
+  workflow_run:
+    workflows:
+      - Lapis CI
+      - Publish Storybook Pages
+      - Publish PWA to Cloudflare
+      - Release
+      - Publish verified dependency image
+    types: [completed]
+permissions:
+  contents: read
+  actions: read
+  pull-requests: read
+jobs:
+  notify:
+    if: github.event.workflow_run.conclusion == 'success'
+    uses: lapismd/dependency-automation/.github/workflows/completion.yml@e3c91cb3bc19f19299842054a9309b0ca44da5b6
+    with:
+      automation-ref: e3c91cb3bc19f19299842054a9309b0ca44da5b6
+    secrets:
+      app-private-key: ${{ secrets.LAPIS_DEPENDENCY_APP_PRIVATE_KEY }}

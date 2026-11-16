@@ -1,5 +1,11 @@
 # Architecture / Build and validation
 
+LN-GOV-055 adds a metadata-only completion wake-up through the pinned coordinator.
+Its reusable runner owns its reviewed Node runtime; local Notes validation
+runners retain explicit native selection. The PWA deployment workflow now
+declares that existing native runtime explicitly instead of failing the
+workflow-wide audit. Every product lane remains required.
+
 Cold session stories pre-optimize the public History and Agent UI entry points
 before interactions, preventing dependency discovery from reloading axe imports.
 App Profile joins clean consumer packing after its framework dependencies. Its

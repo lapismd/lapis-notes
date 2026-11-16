@@ -71,6 +71,16 @@ test("all hosted workflows explicitly select their provisioned native runtime", 
   const dir = new URL("../.github/workflows/", import.meta.url);
   for (const name of await readdir(dir)) {
     if (!/\.ya?ml$/.test(name)) continue;
+    const text = await readFile(new URL(name, dir), "utf8");
+    if (name === "dependency-completed.yml") {
+      // This runner is owned by the exact reviewed coordinator, not local tooling.
+      assert.match(
+        text,
+        /^    uses: lapismd\/dependency-automation\/\.github\/workflows\/completion\.yml@e3c91cb3bc19f19299842054a9309b0ca44da5b6$/m,
+      );
+      assert.doesNotMatch(text, /^\s+(?:runs-on|steps|container|run):/m);
+      continue;
+    }
     assert.match(
       await readFile(new URL(name, dir), "utf8"),
       /LAPIS_NOTES_VALIDATION_RUNTIME: native/,
@@ -114,9 +124,8 @@ test("archive inputs require identity, version and exact checksum", () => {
 });
 for (const workspace of [false, true])
   test(`snapshot preserves a dirty JJ commit and its direct parent${workspace ? " from a separate workspace" : ""}`, async () => {
-    const { mkdtemp, writeFile, rm, readFile } = await import(
-      "node:fs/promises"
-    );
+    const { mkdtemp, writeFile, rm, readFile } =
+      await import("node:fs/promises");
     const { tmpdir } = await import("node:os");
     const { join } = await import("node:path");
     const { execFileSync } = await import("node:child_process");
@@ -260,9 +269,8 @@ test("report collection drains trailing archive bytes and rejects corrupt archiv
 });
 
 test("native lane dispatch resolves project binaries and preserves literal arguments", async () => {
-  const { mkdtemp, mkdir, writeFile, readFile, rm } = await import(
-    "node:fs/promises"
-  );
+  const { mkdtemp, mkdir, writeFile, readFile, rm } =
+    await import("node:fs/promises");
   const { tmpdir } = await import("node:os");
   const { join } = await import("node:path");
   const { runNative } = await import("./validation.mjs");

@@ -4,6 +4,20 @@ LN-WEB-092 retains the prepared PWA before browser qualification and preserves
 failed acceptance logs. Full validation and exact-source deployment admission
 remain required; retained diagnostic artifacts grant no deployment authority.
 
+## LN-GOV-055 — Verified dependency completion callback
+
+<a id="ln-gov-055"></a>
+
+**Requirement.** Successful same-repository PR or default-branch CI completion MUST notify the dependency coordinator only through the pinned trusted `workflow_run` verifier. The caller MUST expose no candidate execution or source-write authority and MUST retain complete current-head qualification and repair ownership.
+
+### Acceptance details
+
+The source-owned caller retains these controls:
+
+- The workflow MUST list only the five reviewed CI, Storybook, PWA, Release and dependency-image workflows, excluding itself and deferred surfaces; it MUST NOT cancel independent completion notifications.
+- The reusable workflow and `automation-ref` MUST share an exact reviewed commit. It MUST use only the existing named App key and public `LAPIS_DEPENDENCY_APP_CLIENT_ID`, with contents/Actions/PR reads for the workflow token.
+- The caller MUST execute no local steps or candidate checkout, artifact or cache handling; publication remains independently gated and an unqualified current lane MUST remain a hold.
+
 ## LN-GOV-054 — Generated version PR authority
 
 <a id="ln-gov-054"></a>
