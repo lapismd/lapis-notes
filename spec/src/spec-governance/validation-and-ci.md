@@ -1,5 +1,9 @@
 # Specification Governance / Validation and CI
 
+LN-WEB-092 retains the prepared PWA before browser qualification and preserves
+failed acceptance logs. Full validation and exact-source deployment admission
+remain required; retained diagnostic artifacts grant no deployment authority.
+
 ## LN-GOV-054 — Generated version PR authority
 
 <a id="ln-gov-054"></a>

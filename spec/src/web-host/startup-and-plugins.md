@@ -8,6 +8,9 @@ The shared session starts the owning workspace controller, mounts the shell
 and drains its initial layout projection and writes before delivering host
 readiness. Initial file navigation then selects a populated document. Teardown
 during that boundary fences the readiness callback.
+The shared Profile session exposes the bounded vault-operation marker under
+LN-PKG-194. Offline artifact acceptance records that operation alongside its
+existing bounded browser and startup diagnostics without changing readiness.
 The mounted shell remains inert until that flush and the host callback settle;
 the session readiness marker cannot expose an interactive partial startup.
 

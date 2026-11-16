@@ -1,5 +1,8 @@
 # Deno Desktop Host / Startup and lifecycle
 
+Shared Profile vault-operation diagnostics follow LN-PKG-194. This adds no
+Deno runtime, tooling or frozen-host behavior change.
+
 The public Profile session keeps its mounted shell inert until layout flushing
 and the owning host's readiness callback finish. Its session-ready marker covers
 that interaction barrier; it does not change frozen Deno startup or qualify

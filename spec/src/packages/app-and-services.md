@@ -1,5 +1,11 @@
 # Packages / App and services
 
+## LN-PKG-194 — Bounded vault startup operation diagnostics
+
+<a id="ln-pkg-194"></a>
+
+**Requirement.** The shared Profile session MUST expose its current vault startup operation as one of vault discovery, Sync readiness, state-directory creation or completion. A pending or failed operation MUST remain identifiable without advancing readiness. Diagnostics MUST NOT expose vault names, paths, content, credentials or add retries or timeouts.
+
 ## LN-PKG-191 — Explicit startup discovery retry
 
 <a id="ln-pkg-191"></a>
