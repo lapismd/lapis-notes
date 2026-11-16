@@ -71,6 +71,7 @@ function fixture(t, options = {}) {
   const bin = path.join(repoRoot, "bin");
   mkdirSync(bin);
   const attemptFile = path.join(bin, "install-attempts");
+  const cacheTrace = path.join(bin, "metadata-caches.json");
   const pnpm = path.join(bin, "pnpm");
   writeFileSync(
     pnpm,
@@ -81,6 +82,18 @@ const attemptFile = ${JSON.stringify(attemptFile)};
 const count = fs.existsSync(attemptFile) ? Number(fs.readFileSync(attemptFile, 'utf8')) : 0;
 fs.writeFileSync(attemptFile, String(count + 1));
 const failures = Number(process.env.LAPIS_REGISTRY_INSTALL_FAILURES || 0);
+const cacheIndex = process.argv.indexOf('--cache-dir');
+const cacheDir = cacheIndex >= 0 ? process.argv[cacheIndex + 1] : null;
+const cacheTrace = ${JSON.stringify(cacheTrace)};
+const caches = fs.existsSync(cacheTrace) ? JSON.parse(fs.readFileSync(cacheTrace, 'utf8')) : [];
+fs.writeFileSync(cacheTrace, JSON.stringify([...caches, cacheDir]));
+if (${JSON.stringify(options.staleMetadata ?? false)}) {
+  if (!cacheDir || fs.existsSync(require('node:path').join(cacheDir, 'unavailable-version.json'))) {
+    console.error('ERR_PNPM_NO_MATCHING_VERSION Cached metadata omits the just-published version');
+    process.exit(1);
+  }
+  if (count < failures) fs.writeFileSync(require('node:path').join(cacheDir, 'unavailable-version.json'), '{}');
+}
 if (count < failures) {
   console.error(process.env.LAPIS_REGISTRY_INSTALL_ERROR || 'ERR_PNPM_NO_MATCHING_VERSION No matching version found for @lapis-notes/ui@0.1.0');
   process.exit(1);
@@ -131,7 +144,12 @@ fs.writeFileSync(process.env.LAPIS_CONSUMER_POLICY_CAPTURE, JSON.stringify({
     }
     return JSON.parse(readFileSync(capturePath, "utf8"));
   }
-  return { repoRoot, capturePath, verify };
+  return {
+    repoRoot,
+    capturePath,
+    verify,
+    caches: () => JSON.parse(readFileSync(cacheTrace, "utf8")),
+  };
 }
 
 test("consumer install receives the root's exact packageManager pin", async (t) => {
@@ -190,12 +208,48 @@ test("retries a pending registry install with short backoff", async (t) => {
     },
   });
   assert.equal(
-    REGISTRY_INSTALL_RETRY_DELAYS_MS.reduce((total, delay) => total + delay, 0) <
-      120_000,
+    REGISTRY_INSTALL_RETRY_DELAYS_MS.reduce(
+      (total, delay) => total + delay,
+      0,
+    ) < 120_000,
     true,
   );
   await verify();
   assert.deepEqual(delays, [REGISTRY_INSTALL_RETRY_DELAYS_MS[0]]);
+});
+
+test("fresh published consumers bypass stale registry metadata without waiting for cache expiry", async (t) => {
+  const delays = [];
+  const { verify } = fixture(t, {
+    staleMetadata: true,
+    sleep: async (ms) => delays.push(ms),
+  });
+  const result = await verify();
+  assert.equal(result.package.dependencies["@lapis-notes/ui"], "0.1.0");
+  assert.deepEqual(
+    delays,
+    [],
+    "Fresh registry metadata must be requested on the first probe",
+  );
+});
+
+test("pending publication retries do not reuse a failed probe's metadata cache", async (t) => {
+  const delays = [];
+  const { verify, caches } = fixture(t, {
+    staleMetadata: true,
+    installFailures: 1,
+    sleep: async (ms) => delays.push(ms),
+  });
+  await verify();
+  assert.deepEqual(delays, [REGISTRY_INSTALL_RETRY_DELAYS_MS[0]]);
+  assert.equal(caches().length, 2);
+  assert.notEqual(caches()[0], caches()[1]);
+  for (const cache of caches())
+    assert.equal(
+      existsSync(cache),
+      false,
+      "Temporary metadata caches must be removed after every probe",
+    );
 });
 
 test("does not retry an unrelated install failure", async (t) => {

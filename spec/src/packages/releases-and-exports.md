@@ -257,7 +257,7 @@ unfiltered finding, dependency path, scope limitation, and removal procedure.
 
 <a id="ln-pkg-141"></a>
 
-**Requirement.** Post-publication verification of a partial manifest MUST install each selected package at its manifest version and every unchanged public framework package at its repository version from npm before exercising documented UI, API, Workspace, App Profile, and CSS entrypoints. A just-published version that is not yet installable MUST be retried a few times with short backoff, MUST NOT wait for many minutes, and MUST fail if it stays unavailable.
+**Requirement.** Post-publication verification of a partial manifest MUST install each selected package at its manifest version and every unchanged public framework package at its repository version from npm using fresh registry metadata before exercising documented UI, API, Workspace, App Profile, and CSS entrypoints. A just-published version that is not yet installable MUST be retried a few times with short backoff, MUST NOT wait for many minutes, and MUST fail if it stays unavailable.
 
 ## LN-PKG-142 — CI: populate package build outputs once, then run
 

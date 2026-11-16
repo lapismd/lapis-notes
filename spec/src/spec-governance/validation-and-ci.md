@@ -1,5 +1,8 @@
 # Specification Governance / Validation and CI
 
+LN-PKG-141 requires fresh registry metadata on every exact-version consumer
+probe; only pending-version lookup failures retain the existing bounded retry.
+
 LN-WEB-092 retains the prepared PWA before browser qualification and preserves
 failed acceptance logs. Full validation and exact-source deployment admission
 remain required; retained diagnostic artifacts grant no deployment authority.

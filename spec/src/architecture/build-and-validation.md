@@ -1,5 +1,9 @@
 # Architecture / Build and validation
 
+Published registry consumers request online metadata before relying on cached
+packuments; immutable tarball checks, short bounded retries and publication
+authority remain unchanged under LN-PKG-141.
+
 LN-GOV-055 adds a metadata-only completion wake-up through the pinned coordinator.
 Its reusable runner owns its reviewed Node runtime; local Notes validation
 runners retain explicit native selection. The PWA deployment workflow now
