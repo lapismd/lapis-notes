@@ -2,10 +2,14 @@
 
 ## Installation metadata readiness
 
-LN-PKG-195 source qualification passes exact-candidate readiness and actual
-consumer installation; hosted PR adoption remains pending.
-Tasks/Docs/Mira reuse requires each publisher's existing identity, signing and
-provenance gates. Exhaustion stays a failed gate and grants no blind rerun.
+LN-PKG-195's original source-owned engine is deployed through PR144. LN-PKG-196
+now consolidates its retry/process implementation onto the qualified shared
+source while preserving Notes' policy and real Vite/import/CSS acceptance.
+Owning-source checks and real retained consumer acceptance pass for the changed
+adapter. Hosted current-head qualification and production verification remain
+separate open gates. Tasks/Docs/Mira reuse retains each
+publisher's existing identity, signing and provenance checks. Exhaustion stays
+a failed gate and grants no blind rerun; frozen Deno packages remain excluded.
 
 ## Generated version PR authentication
 

@@ -140,6 +140,8 @@ jobs:
       - name: Report cache restoration
         run: node scripts/report-turbo-cache.mjs --github-summary
       - run: pnpm test:local-plugin-consumer
+      - name: Prepare the source-pinned readiness regression runtime
+        uses: lapismd/lapis-ci/actions/setup-registry-readiness@69a81e05ca32dc5b7024ef2cd0711860b1813926
       - run: pnpm release:test
       - run: pnpm test:spec-validation
       - run: pnpm test:ai:smoke-harness

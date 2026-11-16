@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import "./registry-install-controls.spec.mjs";
+import { sharedReadiness } from "./registry-readiness.fixture.mjs";
 import {
   chmodSync,
   existsSync,
@@ -62,7 +63,7 @@ function fixture(t, options = {}) {
         shouldPublish: false,
         tarball: "tarballs/lapis-notes-ui-0.1.0.tgz",
         shasum: "a".repeat(64),
-        integrity: "sha512-aaaa",
+        integrity: "sha512-" + Buffer.alloc(64, 1).toString("base64"),
         size: 1,
         files: ["package/package.json"],
       },
@@ -78,6 +79,7 @@ function fixture(t, options = {}) {
     pnpm,
     `#!${process.execPath}
 const fs = require('node:fs');
+if (process.argv[2] === '--version') { console.log(${JSON.stringify(options.installedPnpmVersion)} ?? JSON.parse(fs.readFileSync('package.json','utf8')).packageManager.slice(5).split('+')[0]); process.exit(0); }
 if (process.argv[2] !== 'install') process.exit(0);
 const attemptFile = ${JSON.stringify(attemptFile)};
 const count = fs.existsSync(attemptFile) ? Number(fs.readFileSync(attemptFile, 'utf8')) : 0;
@@ -143,11 +145,15 @@ fs.writeFileSync(process.env.LAPIS_CONSUMER_POLICY_CAPTURE, JSON.stringify({
                   "0.1.0": {
                     name: "@lapis-notes/ui",
                     version: "0.1.0",
-                    dist: { integrity: "sha512-aaaa" },
+                    dist: {
+                      integrity:
+                        "sha512-" + Buffer.alloc(64, 1).toString("base64"),
+                    },
                   },
                 },
               }),
             )),
+        readiness: sharedReadiness,
       });
     } finally {
       process.env.PATH = previousPath;
@@ -179,6 +185,20 @@ test("consumer install receives the root's exact packageManager pin", async (t) 
     JSON.stringify({ packageManager: "pnpm@10.33.1" }),
   );
   assert.equal((await verify()).package.packageManager, "pnpm@10.33.1");
+});
+
+test("installed pnpm drift stops before consumer installation and cannot retry", async (t) => {
+  const delays = [];
+  const { verify, capturePath } = fixture(t, {
+    installedPnpmVersion: "10.34.4",
+    sleep: async (ms) => delays.push(ms),
+  });
+  await assert.rejects(
+    verify,
+    (error) => error.code === "REGISTRY_INSTALL_TOOL",
+  );
+  assert.equal(existsSync(capturePath), false);
+  assert.deepEqual(delays, []);
 });
 
 test("consumer install receives only the approved dependency-build policy", async (t) => {
@@ -280,7 +300,12 @@ test("does not retry an unrelated install failure", async (t) => {
       delays.push(ms);
     },
   });
-  await assert.rejects(verify, /unrelated install failure/);
+  await assert.rejects(
+    verify,
+    (error) =>
+      error.code === "REGISTRY_INSTALL_FAILED" &&
+      error.stderr.includes("unrelated install failure"),
+  );
   assert.deepEqual(delays, []);
 });
 
@@ -292,7 +317,13 @@ test("stops after the bounded pending-install retries", async (t) => {
       delays.push(ms);
     },
   });
-  await assert.rejects(verify, /ERR_PNPM_NO_MATCHING_VERSION/);
+  await assert.rejects(
+    verify,
+    (error) =>
+      error.code === "REGISTRY_READINESS_EXHAUSTED" &&
+      error.cause?.code === "REGISTRY_INSTALL_FAILED" &&
+      error.cause.stderr.includes("ERR_PNPM_NO_MATCHING_VERSION"),
+  );
   assert.deepEqual(delays, REGISTRY_INSTALL_RETRY_DELAYS_MS);
 });
 
@@ -320,7 +351,10 @@ test("installation metadata must expose the exact candidate before pnpm runs", a
                   "0.1.0": {
                     name: "@lapis-notes/ui",
                     version: "0.1.0",
-                    dist: { integrity: "sha512-aaaa" },
+                    dist: {
+                      integrity:
+                        "sha512-" + Buffer.alloc(64, 1).toString("base64"),
+                    },
                   },
                 },
         }),
@@ -367,6 +401,11 @@ test("missing versions outside the candidate cohort do not retry", async (t) => 
     }),
     sleep: async (ms) => delays.push(ms),
   });
-  await assert.rejects(verify, /ERR_PNPM_NO_MATCHING_VERSION/);
+  await assert.rejects(
+    verify,
+    (error) =>
+      error.code === "REGISTRY_INSTALL_FAILED" &&
+      JSON.parse(error.stderr).package.name === "unrelated",
+  );
   assert.deepEqual(delays, []);
 });
