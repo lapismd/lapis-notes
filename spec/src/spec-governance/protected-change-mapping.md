@@ -185,3 +185,7 @@ overlay teardown fix; test-signed fixtures never authorize public assets.
 - pnpm-lock.yaml SHA-256: `29cea641f8dd6775c582a38498bbdd300e6bdb5aac371f795e369ea01d18d71c`
 
 <!-- ci-dependency-image:end -->
+
+The dependency completion workflow maps to Architecture, Packages and Validation
+and CI under LN-GOV-055. Its tests run in the existing release-tool lane; no
+package manifest or cache input change is needed for notification adoption.
