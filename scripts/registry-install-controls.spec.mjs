@@ -14,21 +14,157 @@ import http from "node:http";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { parse } from "yaml";
+import * as owningReadiness from "./lib/registry-consumer-install.mjs";
 import {
-  installPublishedConsumer,
-  INSTALL_METADATA_ACCEPT,
-} from "./lib/registry-consumer-install.mjs";
-
-import {
-  runRegistryInstall,
-  assertRegistryInstallPlatform,
-} from "./lib/registry-install-process.mjs";
+  sharedReadiness,
+  sharedProcesses,
+} from "./registry-readiness.fixture.mjs";
+const { INSTALL_METADATA_ACCEPT } = sharedReadiness;
+const { assertInstallPlatform: assertRegistryInstallPlatform } =
+  sharedProcesses;
+const packageManager = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url)),
+).packageManager;
+const toolVersion = packageManager.slice(5).split("+")[0];
+const runRegistryInstall = (cwd, cacheDir, timeoutMs, registry) =>
+  sharedReadiness
+    .registryInstaller("pnpm-default-peers", toolVersion)
+    .run({ cwd, cacheDir, timeoutMs, registry });
+function installPublishedConsumer(options) {
+  const api = options.runInstall
+    ? {
+        ...sharedReadiness,
+        registryInstaller: (...args) => ({
+          ...sharedReadiness.registryInstaller(...args),
+          run: ({ cwd, cacheDir, timeoutMs, registry }) =>
+            options.runInstall(cwd, cacheDir, timeoutMs, registry),
+        }),
+      }
+    : sharedReadiness;
+  return owningReadiness.installPublishedConsumer(
+    { packageManager, ...options },
+    api,
+  );
+}
 
 const entry = {
   name: "@fixture/readiness",
   version: "1.0.1",
-  integrity: "sha512-YQ==",
+  integrity: "sha512-" + Buffer.alloc(64, 1).toString("base64"),
 };
+
+test("Notes delegates exact consumer identities and its bounded pnpm policy to the shared source", async () => {
+  assert.equal(typeof owningReadiness.loadNotesReadiness, "function");
+  const calls = [];
+  const installer = {};
+  const api = {
+    registryInstaller(...args) {
+      calls.push(args);
+      return installer;
+    },
+    async installPublishedConsumer(options) {
+      calls.push(options);
+    },
+  };
+  const entries = [
+    {
+      name: "@fixture/readiness",
+      version: "1.0.1",
+      integrity: "sha512-" + Buffer.alloc(64, 1).toString("base64"),
+    },
+  ];
+  await owningReadiness.installPublishedConsumer(
+    {
+      consumerDir: "/tmp/notes-policy",
+      entries,
+      registry: "https://registry.npmjs.org",
+      packageManager: "pnpm@10.34.5",
+    },
+    api,
+  );
+  assert.deepEqual(calls[0], ["pnpm-default-peers", "10.34.5"]);
+  assert.equal(calls[1].cwd, "/tmp/notes-policy");
+  assert.deepEqual(calls[1].entries, entries);
+  assert.equal(calls[1].installer, installer);
+  assert.deepEqual(calls[1].policy, {
+    budgetMs: 110000,
+    delaysMs: [5000, 10000, 20000, 30000, 30000],
+  });
+});
+
+test("missing shared setup and invalid owner budgets never select a local fallback", async () => {
+  for (const value of [
+    "",
+    "relative/registry-readiness.mjs",
+    "/tmp/unreviewed.mjs",
+  ])
+    await assert.rejects(
+      owningReadiness.loadNotesReadiness(value),
+      /source-pinned/,
+    );
+  let calls = 0;
+  const api = {
+    registryInstaller() {
+      calls++;
+    },
+    async installPublishedConsumer() {
+      calls++;
+    },
+  };
+  for (const changed of [
+    { budgetMs: 0 },
+    { budgetMs: 110001 },
+    { budgetMs: Infinity },
+    { packageManager: "pnpm@latest" },
+    { packageManager: "pnpm@11.0.0" },
+  ])
+    await assert.rejects(
+      owningReadiness.installPublishedConsumer(
+        {
+          consumerDir: "/tmp/notes-policy",
+          entries: [entry],
+          registry: "https://registry.npmjs.org",
+          packageManager,
+          ...changed,
+        },
+        api,
+      ),
+    );
+  assert.equal(calls, 0);
+});
+
+test("CI regressions and publication verification prepare the same immutable shared source", () => {
+  const turbo = JSON.parse(
+    readFileSync(new URL("../turbo.json", import.meta.url), "utf8"),
+  );
+  assert(
+    turbo.tasks["//#release:test:run"].passThroughEnv?.includes(
+      "LAPIS_REGISTRY_READINESS_MODULE",
+    ),
+  );
+  for (const [file, job, command] of [
+    ["lapis-ci.yml", "unit", "pnpm release:test"],
+    ["release.yml", "verify", "pnpm release:verify"],
+  ]) {
+    const workflow = parse(
+      readFileSync(
+        new URL(`../.github/workflows/${file}`, import.meta.url),
+        "utf8",
+      ),
+    );
+    const steps = workflow.jobs[job].steps;
+    const setup = steps.findIndex(
+      (step) =>
+        step.uses ===
+        `lapismd/lapis-ci/actions/setup-registry-readiness@${owningReadiness.NOTES_READINESS_SOURCE}`,
+    );
+    assert(setup >= 0);
+    assert(setup < steps.findIndex((step) => step.run === command));
+    assert.equal(steps[setup].if, undefined);
+    assert.equal(steps[setup]["continue-on-error"], undefined);
+  }
+});
 const ready = () =>
   new Response(
     JSON.stringify({
@@ -88,9 +224,11 @@ test("deadline exhaustion fails before another install or metadata request", asy
   let time = 0,
     installs = 0,
     probes = 0;
+  const events = [];
   await assert.rejects(
     installPublishedConsumer(
       options(dir, {
+        report: (event) => events.push(event),
         now: () => time,
         fetchImpl: async () => {
           probes++;
@@ -104,10 +242,15 @@ test("deadline exhaustion fails before another install or metadata request", asy
     ),
     (error) =>
       error.code === "REGISTRY_READINESS_EXHAUSTED" &&
-      /metadata for @fixture\/readiness@1.0.1 after 1\/6/.test(error.message),
+      error.cause?.code === "REGISTRY_READINESS_EXHAUSTED",
   );
   assert.equal(probes, 1);
   assert.equal(installs, 0);
+  assert.equal(events.at(-1).phase, "exhausted");
+  assert.equal(events.at(-1).failedPhase, "metadata");
+  assert.deepEqual(events.at(-1).candidates, ["@fixture/readiness@1.0.1"]);
+  assert.equal(events.at(-1).attempt, 1);
+  assert.equal(events.at(-1).attempts, 6);
 });
 
 test("metadata auth, invalid JSON, identity and certificate errors stop immediately", async (t) => {
@@ -201,12 +344,10 @@ test("consumer installation deadline kills its owned process group", async (t) =
   const started = performance.now();
   try {
     await assert.rejects(
-      runRegistryInstall(
-        dir,
-        path.join(dir, "metadata"),
-        400,
-        "https://registry.npmjs.org",
-      ),
+      sharedProcesses.runInstallCommand("pnpm", ["install"], {
+        cwd: dir,
+        timeoutMs: 400,
+      }),
       (error) => error.code === "REGISTRY_INSTALL_TIMEOUT",
     );
   } finally {
@@ -307,11 +448,9 @@ test("real pinned pnpm waits for install-v1 metadata despite an already-ready fu
         registry,
       ),
       (error) =>
-        error.errors?.some(
-          (event) =>
-            event.code === "ERR_PNPM_NO_MATCHING_VERSION" &&
-            event.package?.version === entry.version,
-        ),
+        sharedReadiness
+          .registryInstaller("pnpm-default-peers", toolVersion)
+          .pending(error, [entry]),
     );
     const sleeps = [];
     await installPublishedConsumer({

@@ -25,3 +25,22 @@ The source-owned verifier preserves these boundaries:
 
 [The installation-readiness record](../../records/2026-11-16-installation-readiness.md)
 retains before/after evidence and consumer reuse limits.
+
+## LN-PKG-196 — Shared readiness implementation authority
+
+<a id="ln-pkg-196"></a>
+
+**Requirement.** Notes MUST obtain installation-metadata retry and process execution from the qualified immutable shared Lapis CI readiness source. Its local adapter MAY select existing owner budgets and client policy and map verified publication identities. Missing setup MUST fail without a local-engine fallback.
+
+The source-pinned setup precedes both CI regression execution and publication
+verification. Notes retains its110-second deadline, five backoff delays, exact
+root pnpm10 pin and approved minimal consumer dependency-build policy. The
+shared pnpm profile preserves that policy; it does not blanket-enable scripts.
+The duplicate metadata/retry and process engines are removed from Notes.
+
+Local test fixtures use the same three public shared files, bound to immutable
+source69a81e05 and their SHA256 values, in owned temporary directories. Provided
+CI setup is verified against those hashes; unavailable or altered evidence
+fails. This test-only fixture staging is not a production download fallback or
+a vendored implementation. The [shared-source adoption record](../../records/2026-11-16-shared-registry-readiness.md)
+keeps source checks, retained consumer acceptance and deployment distinct.

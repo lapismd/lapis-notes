@@ -64,6 +64,7 @@ export async function verifyPublishedPackages({
   sleep,
   now,
   fetchImpl,
+  readiness,
 } = {}) {
   validateReleaseManifest(manifest, {
     repoRoot,
@@ -222,14 +223,18 @@ export async function verifyPublishedPackages({
       ].join("\n"),
     );
 
-    await installPublishedConsumer({
-      consumerDir,
-      entries: manifest.packages,
-      registry: manifest.registry,
-      sleep,
-      now,
-      fetchImpl,
-    });
+    await installPublishedConsumer(
+      {
+        consumerDir,
+        entries: manifest.packages,
+        registry: manifest.registry,
+        packageManager,
+        sleep,
+        now,
+        fetchImpl,
+      },
+      readiness,
+    );
     run("pnpm", ["check"], { cwd: consumerDir });
   } finally {
     rmSync(consumerDir, { recursive: true, force: true });

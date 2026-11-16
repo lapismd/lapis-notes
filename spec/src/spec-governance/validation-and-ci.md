@@ -16,6 +16,12 @@ The main-range gate retains these controls:
 
 [LN-PKG-195](../packages/registry-readiness.md#ln-pkg-195) bounds exact-candidate installation readiness and preserves all release gates. LN-PKG-141 requires fresh registry metadata on every exact-version consumer
 probe; only typed exact-candidate transient failures retain bounded retries within the shared deadline.
+LN-PKG-196 prepares the same immutable shared readiness source before CI
+regressions and published consumer verification. Missing setup remains a failed
+gate; it grants no workflow-token fallback or publication retry. Existing
+quarantined Storybook lanes retain their explicit disposition, not a new pass.
+Turbo passes the public shared-module path specifically to the release
+regression task, preserving strict environment selection.
 
 LN-WEB-092 retains the prepared PWA before browser qualification and preserves
 failed acceptance logs. Full validation and exact-source deployment admission
