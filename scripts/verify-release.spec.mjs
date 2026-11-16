@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import "./registry-install-controls.spec.mjs";
 import {
   chmodSync,
   existsSync,
@@ -95,7 +96,9 @@ if (${JSON.stringify(options.staleMetadata ?? false)}) {
   if (count < failures) fs.writeFileSync(require('node:path').join(cacheDir, 'unavailable-version.json'), '{}');
 }
 if (count < failures) {
-  console.error(process.env.LAPIS_REGISTRY_INSTALL_ERROR || 'ERR_PNPM_NO_MATCHING_VERSION No matching version found for @lapis-notes/ui@0.1.0');
+  if (process.env.LAPIS_REGISTRY_INSTALL_ERROR) console.error(process.env.LAPIS_REGISTRY_INSTALL_ERROR);
+  else if (process.argv.includes('--reporter=ndjson')) console.error(JSON.stringify({level:'error',name:'pnpm',code:'ERR_PNPM_NO_MATCHING_VERSION',package:{name:'@lapis-notes/ui',version:'0.1.0',bareSpecifier:'0.1.0'}}));
+  else console.error('ERR_PNPM_NO_MATCHING_VERSION No matching version found for @lapis-notes/ui@0.1.0');
   process.exit(1);
 }
 fs.writeFileSync(process.env.LAPIS_CONSUMER_POLICY_CAPTURE, JSON.stringify({
@@ -129,6 +132,22 @@ fs.writeFileSync(process.env.LAPIS_CONSUMER_POLICY_CAPTURE, JSON.stringify({
         manifest,
         manifestPath: path.join(repoRoot, "release-manifest.json"),
         sleep: options.sleep,
+        now: options.now,
+        fetchImpl:
+          options.fetchImpl ??
+          (async () =>
+            new Response(
+              JSON.stringify({
+                name: "@lapis-notes/ui",
+                versions: {
+                  "0.1.0": {
+                    name: "@lapis-notes/ui",
+                    version: "0.1.0",
+                    dist: { integrity: "sha512-aaaa" },
+                  },
+                },
+              }),
+            )),
       });
     } finally {
       process.env.PATH = previousPath;
@@ -275,4 +294,79 @@ test("stops after the bounded pending-install retries", async (t) => {
   });
   await assert.rejects(verify, /ERR_PNPM_NO_MATCHING_VERSION/);
   assert.deepEqual(delays, REGISTRY_INSTALL_RETRY_DELAYS_MS);
+});
+
+test("installation metadata must expose the exact candidate before pnpm runs", async (t) => {
+  let probes = 0;
+  const delays = [];
+  const { verify, capturePath } = fixture(t, {
+    sleep: async (ms) => {
+      delays.push(ms);
+      assert.equal(existsSync(capturePath), false);
+    },
+    fetchImpl: async (_url, options) => {
+      assert.match(
+        options.headers.Accept,
+        /^application\/vnd\.npm\.install-v1\+json/,
+      );
+      probes += 1;
+      return new Response(
+        JSON.stringify({
+          name: "@lapis-notes/ui",
+          versions:
+            probes === 1
+              ? {}
+              : {
+                  "0.1.0": {
+                    name: "@lapis-notes/ui",
+                    version: "0.1.0",
+                    dist: { integrity: "sha512-aaaa" },
+                  },
+                },
+        }),
+      );
+    },
+  });
+  await verify();
+  assert.equal(probes, 2);
+  assert.deepEqual(delays, [REGISTRY_INSTALL_RETRY_DELAYS_MS[0]]);
+});
+
+test("installation metadata integrity mismatches stop before consumer installation", async (t) => {
+  const delays = [];
+  const { verify, capturePath } = fixture(t, {
+    sleep: async (ms) => delays.push(ms),
+    fetchImpl: async () =>
+      new Response(
+        JSON.stringify({
+          name: "@lapis-notes/ui",
+          versions: {
+            "0.1.0": {
+              name: "@lapis-notes/ui",
+              version: "0.1.0",
+              dist: { integrity: "sha512-other" },
+            },
+          },
+        }),
+      ),
+  });
+  await assert.rejects(verify, /integrity/i);
+  assert.equal(existsSync(capturePath), false);
+  assert.deepEqual(delays, []);
+});
+
+test("missing versions outside the candidate cohort do not retry", async (t) => {
+  const delays = [];
+  const { verify } = fixture(t, {
+    installFailures: 1,
+    installError: JSON.stringify({
+      level: "error",
+      name: "pnpm",
+      code: "ERR_PNPM_NO_MATCHING_VERSION",
+      package: { name: "unrelated", version: "9.9.9", bareSpecifier: "9.9.9" },
+    }),
+    sleep: async (ms) => delays.push(ms),
+  });
+  await assert.rejects(verify, /ERR_PNPM_NO_MATCHING_VERSION/);
+  assert.deepEqual(delays, []);
 });

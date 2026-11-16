@@ -1,5 +1,12 @@
 # Runtime and package integration
 
+## Installation metadata readiness
+
+LN-PKG-195 source qualification passes exact-candidate readiness and actual
+consumer installation; hosted PR adoption remains pending.
+Tasks/Docs/Mira reuse requires each publisher's existing identity, signing and
+provenance gates. Exhaustion stays a failed gate and grants no blind rerun.
+
 ## Generated version PR authentication
 
 Owner: Notes release automation. LN-GOV-054 prepares repository-scoped App

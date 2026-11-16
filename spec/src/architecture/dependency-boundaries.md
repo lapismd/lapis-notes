@@ -12,6 +12,8 @@ application-owned state; it does not activate Sync or publish local host work.
 Workspace and File Explorer resolve the same released 0.13.0 identity as
 API, UI, Web and the shared profile. Mixed AppShellController package
 identities fail closed.
+Registry consumer readiness follows [LN-PKG-195](../packages/registry-readiness.md#ln-pkg-195) before actual npm installation; it grants no publisher or signing authority.
+
 Notes declares its own Prettier and JSDoc formatter development dependencies;
 Design Core's authoring tools are no longer supplied as runtime dependencies.
 
