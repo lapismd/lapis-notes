@@ -82,6 +82,12 @@ pnpm release:verify
 pnpm release:notes
 ```
 
+The private registry verifier runs in Linux CI/containers or on macOS, where
+its110-second readiness/install deadline can terminate the owned process group.
+Other native platforms fail closed; this is a release-tool boundary, independent
+of application/package platform support. Exhausted npm propagation remains a
+failed gate and never authorizes a blind workflow or publication retry.
+
 The first manual publish intentionally does not use npm provenance. Future
 workflow publishes use npm trusted publishing and provenance through GitHub OIDC.
 

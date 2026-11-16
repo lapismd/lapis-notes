@@ -14,8 +14,8 @@ The main-range gate retains these controls:
 - Manual validation MUST require the exact main checkout and select that commit's verified first parent. Actor identity and user inputs MUST NOT select a baseline or grant exemption.
 - Reusable CI governance and standalone Storybook Pages MUST execute the same source-owned range guard with full history. The existing narrow PR author exemption and all functional, release and deployment gates MUST remain unchanged.
 
-LN-PKG-141 requires fresh registry metadata on every exact-version consumer
-probe; only pending-version lookup failures retain the existing bounded retry.
+[LN-PKG-195](../packages/registry-readiness.md#ln-pkg-195) bounds exact-candidate installation readiness and preserves all release gates. LN-PKG-141 requires fresh registry metadata on every exact-version consumer
+probe; only typed exact-candidate transient failures retain bounded retries within the shared deadline.
 
 LN-WEB-092 retains the prepared PWA before browser qualification and preserves
 failed acceptance logs. Full validation and exact-source deployment admission

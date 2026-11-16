@@ -90,6 +90,7 @@ const preview: Preview = {
               "Host and plugin integration",
               "Editor APIs",
               "Releases and exports",
+              "Registry readiness",
               "Native service exports",
               "Vault and storage",
               "Workspace APIs",

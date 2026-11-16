@@ -9,6 +9,10 @@ Its static-Web/health and explicit build/start contracts retain separate
 native/container/default
 acceptance; the documentation entry adds no application screen or runtime owner.
 
+The [Registry readiness](../packages/registry-readiness.md) topic uses the
+metadata-only generated Specification mirror and SUMMARY order under LN-CAT-080
+and LN-CAT-115. Its release-tool contract adds no application story or boot path.
+
 The [Native service exports](../packages/native-service-exports.md) topic is
 separate from release policy and uses a metadata-only mirror in SUMMARY order.
 Its source owns the port contracts; navigation adds no runtime or release gate.
