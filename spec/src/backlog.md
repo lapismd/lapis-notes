@@ -7,6 +7,8 @@ original acceptance boundary. Historical receipts do not schedule current work.
 
 ## Outstanding topics
 
+- Qualify the exact main/manual specification-first path under LN-GOV-056 after source review and full hosted PR/main validation. The recovered three-package Core intake grants no wider canonical-preparation opt-in; keep pending version work held until current source is qualified.
+
 - Qualify a genuine current-head completion wake-up under LN-GOV-055 after source adoption; retain every failing or pending product lane as a hold.
 
 - Diagnose the repeated production-artifact offline startup stall before admitting the dependency pilot; preserve exact failing artifacts and acceptance diagnostics under LN-WEB-092.

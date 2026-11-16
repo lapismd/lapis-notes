@@ -132,6 +132,10 @@ The release caller token grant, including `actions: write` for reusable CI, is r
 
 ## LN-GOV-044 — Spec-first map: route CI images, dependency-context helpers, signed Turbo
 
+The exact-range `scripts/main-spec-first.mjs` guard maps to Architecture,
+Packages and Specification Governance alongside its calling workflows. Its
+range selection and fail-closed behavior remain protected by LN-GOV-056.
+
 Final registry acceptance maps its exact Plugins candidate pin to Architecture,
 Packages and this chapter. The pinned version candidate uses the released Mira
 overlay teardown fix; test-signed fixtures never authorize public assets.

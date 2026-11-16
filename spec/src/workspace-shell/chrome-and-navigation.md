@@ -6,9 +6,11 @@ the existing runtime command; activation replaces placeholders without
 duplicate controls. Markdown actions retain and revalidate their originating
 leaf/file, and disabled owners remove their declarations and fence old menus.
 
-The active browser/catalog shell consumes published Design Core 0.10.1 through
-the shared package graph. LN-WEB-085 owns browser geometry detection; the host
-supplies public leading, trailing and title-bar-height tokens to shared chrome.
+Workspace, API and retained UI directly consume published Design Core `^0.13.4`
+through their public package graph. Root tooling, App Profile and File Explorer
+retain their separately admitted ranges. This intake preserves shell placement,
+App ownership, plugin activation and the public chrome contract. LN-WEB-085
+owns browser geometry detection; the host supplies public leading, trailing and title-bar-height tokens to shared chrome.
 
 LN-PKG-185 supplies common file/folder discovery exclusions to Explorer and
 pickers through Vault. The workspace keeps its existing App, chrome and settings

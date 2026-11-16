@@ -1,5 +1,11 @@
 # Plugin Model / Application services
 
+API, retained UI and Workspace now consume the released Design Core `^0.13.4`
+through public package exports. This bounded intake changes their dependency
+floor, not plugin activation, manifest contributions, App ownership or host
+permissions. App Profile and File Explorer keep their separately admitted
+ranges; consuming the shared packages does not authorize their regeneration.
+
 The published App Profile owns the shared Notes workspace session. A supplied
 native Repository factory registers optional History before plugin loading;
 platform ports and secret storage remain host-owned. Standalone Web keeps its

@@ -89,6 +89,9 @@ jobs:
         if: >-
           (github.event_name == 'pull_request' && github.head_ref != 'changeset-release/main') && !(github.event.pull_request.user.type == 'Bot' && (contains(fromJSON('["dependabot[bot]","renovate[bot]","lapismd-dependency-bot[bot]"]'), github.event.pull_request.user.login) || (vars.LAPIS_DEPENDENCY_BOT_LOGIN != '' && github.event.pull_request.user.login == vars.LAPIS_DEPENDENCY_BOT_LOGIN)))
         run: pnpm spec:first --base "origin/${{ github.base_ref }}" --head "${{ github.sha }}"
+      - name: Main spec-first gate
+        if: github.event_name != 'pull_request'
+        run: node scripts/main-spec-first.mjs
       - name: Release intent gate
         if: >-
           github.event_name == 'pull_request' && github.head_ref != 'changeset-release/main'

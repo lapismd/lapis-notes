@@ -40,7 +40,12 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: ./.github/actions/ci-setup
+      - name: Main spec-first gate
+        if: github.event_name != 'pull_request'
+        run: node scripts/main-spec-first.mjs
       - name: Restore package builds
         run: node scripts/run-turbo.mjs build --summarize
       - name: Report cache restoration
