@@ -1,5 +1,16 @@
 # @lapis-notes/api
 
+## 0.6.6
+
+### Patch Changes
+
+- [#136](https://github.com/lapismd/lapis-notes/pull/136)
+  [`d51d6ac`](https://github.com/lapismd/lapis-notes/commit/d51d6acbabbbef1d6a04c187c696432705340661)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Fence and drain App-owned
+  native Sync calls before session writer protection, restore live leases after
+  refused leave, and await presentation transport detachment without closing
+  native-owned work.
+
 ## 0.6.5
 
 ### Patch Changes

@@ -513,7 +513,7 @@ importers:
   packages/app-profile:
     dependencies:
       '@lapis-notes/api':
-        specifier: ^0.6.5
+        specifier: ^0.6.6
         version: link:../api
       '@lapis-notes/file-explorer':
         specifier: ^0.2.8
