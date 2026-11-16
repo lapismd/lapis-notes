@@ -30,11 +30,11 @@ behind the selected native HTTP origin. Static delivery changes no App ownership
 conversation writer or renderer callback authority under
 [CORE054–057](../architecture/rust-hosted-delivery.md).
 
-The public App Profile candidate consumes API `^0.6.5`, History `^0.5.0`,
+The public App Profile 0.2.2 consumes API `^0.6.5`, History `^0.5.0`,
 Markdown `^0.3.1`, Search `^0.1.12`, Source Editor `^0.1.11`, Agent UI `^0.2.6`
 and Design Core `^0.13.3` through normal registry ranges. Its native Repository
-types declare History SDK `^0.1.0`. Package versioning/publication remains
-separate from source and built-consumer qualification.
+types declare History SDK `^0.1.0`. [Publication and final source qualification](../../records/2026-11-16-profile-022-publication.md)
+are complete; consumer acceptance remains host-owned.
 
 The History range includes its passive native synchronization observer. Hosts
 inject admitted remotes and synchronization ports; Profile does not schedule
