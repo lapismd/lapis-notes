@@ -113,3 +113,9 @@ Rust profiles keep the port absent until their separate cutover gates.
 <a id="ln-web-090"></a>
 
 **Requirement.** The browser vault chooser MUST match the desktop launcher's bounded logo, branded header, responsive cards, action buttons and compact recent-vault rows using native CSS and public Design Core tokens. Browser storage and transfer actions MUST retain their existing host ownership. Empty, recent-vault and manage-vault states MUST be reviewable in Storybook before publishing presentation changes.
+
+## LN-WEB-092 — Failed artifact acceptance replay
+
+<a id="ln-web-092"></a>
+
+**Requirement.** CI MUST retain the exact prepared, source-labelled PWA artifact before post-build browser acceptance so a failing acceptance can be replayed. Diagnostic retention MUST preserve the failed command status. Retaining an artifact MUST NOT admit deployment without successful full validation and exact source-identity verification.

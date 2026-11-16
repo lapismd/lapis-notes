@@ -1,6 +1,5 @@
 <script lang="ts">
   import { provideApplicationState, type VaultProfile } from "@lapis-notes/api";
-  import { DEFAULT_APP_STATE_DIRECTORY } from "@lapis-notes/api/path";
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
@@ -17,6 +16,10 @@
   import { createNotesApplication } from "./application";
   import { registerSessionDatabaseStatus } from "./database-status";
   import { createNotesSessionLifecycle } from "./lifecycle";
+  import {
+    openSessionVault,
+    type VaultStartupOperation,
+  } from "./vault-startup";
   import type { NotesWorkspaceSessionProps } from "./types";
 
   let options: NotesWorkspaceSessionProps = $props();
@@ -33,6 +36,7 @@
   let ready = $state(false);
   let tasks = $state(structuredClone(startupTasks));
   let failure = $state<WorkspaceStartupFailure | null>(null);
+  let startupOperation = $state<VaultStartupOperation | "idle">("idle");
   let booting = false;
   let bootFlight: Promise<void> | undefined;
   let corePluginsRegistered = false;
@@ -157,9 +161,9 @@
           registerSessionNativeChat(app, options.nativeChat, options.runtime);
         corePluginsRegistered = true;
       }
-      await app.vault.load();
-      await application.syncHost.ready();
-      await app.vault.mkpath(DEFAULT_APP_STATE_DIRECTORY);
+      await openSessionVault(app.vault, application.syncHost, (operation) => {
+        startupOperation = operation;
+      });
       if (!lifecycle.canRecoverLeave()) return;
       setTask(activeTask, "complete");
       activeTask = "configuration";
@@ -236,6 +240,7 @@
 <section
   class="notes-workspace-session"
   data-notes-session-ready={interactive}
+  data-notes-startup-operation={startupOperation}
   data-web-runtime={options.runtime}
   data-vault-id={options.profile.id}
   aria-label="Notes workspace"

@@ -25,7 +25,9 @@ asset delivery, update, appearance and caching requirements are LN-WEB-083–089
 Published Core 0.10.1 supplies the continuous native-control divider.
 LN-WEB-090 qualifies the desktop-aligned browser chooser in Storybook before publication.
 The prepared-artifact browser lane qualifies saved startup appearance and system
-transitions before its plugin/offline checks.
+transitions before its plugin/offline checks. Under LN-WEB-092 it retains the
+prepared artifact before acceptance and uploads the acceptance log after failure;
+full validation and exact-revision deployment admission remain mandatory.
 
 <!-- dependency-automation-policy -->
 

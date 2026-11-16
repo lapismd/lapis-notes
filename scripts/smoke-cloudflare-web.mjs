@@ -114,6 +114,12 @@ try {
   await page
     .locator('[data-app-shell-ready="true"]')
     .waitFor({ timeout: 120_000 });
+  assert.equal(
+    await page
+      .locator("[data-notes-startup-operation]")
+      .getAttribute("data-notes-startup-operation"),
+    "complete",
+  );
   await page.waitForFunction(
     async () => !!(await navigator.serviceWorker.getRegistration())?.active,
     undefined,
@@ -195,6 +201,10 @@ try {
               document
                 .querySelector("[data-web-host-state]")
                 ?.getAttribute("data-web-host-state") ?? null,
+            vaultOperation:
+              document
+                .querySelector("[data-notes-startup-operation]")
+                ?.getAttribute("data-notes-startup-operation") ?? null,
             shellReady: Boolean(
               document.querySelector('[data-app-shell-ready="true"]'),
             ),

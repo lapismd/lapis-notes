@@ -1,5 +1,8 @@
 # Plugin Model / App ownership
 
+LN-PKG-194 adds a bounded operation marker to the existing owned Profile
+session; App custody, plugin startup order and readiness remain unchanged.
+
 App-owned native Sync leave preparation under LN-PKG-193 keeps plugin leases
 and observations live while fencing commands. Refused session leave restores
 the original capability; transport detachment occurs only during disposal.

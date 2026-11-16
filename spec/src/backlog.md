@@ -7,6 +7,8 @@ original acceptance boundary. Historical receipts do not schedule current work.
 
 ## Outstanding topics
 
+- Diagnose the repeated production-artifact offline startup stall before admitting the dependency pilot; preserve exact failing artifacts and acceptance diagnostics under LN-WEB-092.
+
 - Complete hosted signed dependency-cache publication, warm/no-op reuse and consumer qualification under LN-ARCH-095 and LN-GOV-046/050/052/053; retain all frozen installs and functional gates.
 
 - [Runtime and package integration](backlog/runtime-integration.md)

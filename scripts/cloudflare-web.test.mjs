@@ -7,6 +7,7 @@ import os from "node:os";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { test } from "node:test";
+import { parse } from "yaml";
 import { fileURLToPath } from "node:url";
 import {
   ASSET_LIMIT,
@@ -204,4 +205,52 @@ test("offline reload failure retains bounded browser and startup diagnostics", a
   assert.match(source, /data-ui-component="workspace-startup"/);
   assert.match(source, /navigator\.serviceWorker\.getRegistrations\(\)/);
   assert.match(source, /cacheEntries/);
+  assert.match(source, /data-notes-startup-operation/);
+});
+
+test("PWA artifact is retained before qualification while deployment requires successful validation", async () => {
+  const ci = parse(
+    await readFile(path.join(root, ".github/workflows/lapis-ci.yml"), "utf8"),
+  );
+  const steps = ci.jobs["web-cloudflare"].steps;
+  const prepare = steps.findIndex(
+    (step) => step.run === "pnpm web:cloudflare:prepare",
+  );
+  const upload = steps.findIndex(
+    (step) => step.with?.name === "lapis-pwa-${{ github.sha }}",
+  );
+  const qualify = steps.findIndex(
+    (step) => step.name === "Qualify the exact artifact in Wrangler",
+  );
+  assert.ok(
+    prepare >= 0 && prepare < upload && upload < qualify,
+    "retain the built artifact even when later acceptance fails",
+  );
+  assert.match(steps[qualify].run, /set -euo pipefail/);
+  assert.match(
+    steps[qualify].run,
+    /pnpm web:cloudflare:acceptance 2>&1 \| tee \.ci\/pwa-acceptance\/acceptance\.log/,
+  );
+  const diagnostics = steps.find(
+    (step) => step.name === "Retain artifact acceptance diagnostics",
+  );
+  assert.equal(diagnostics.if, "always()");
+  assert.equal(diagnostics.with.path, ".ci/pwa-acceptance");
+  assert.equal(steps[upload].with.path, ".cloudflare");
+  assert.equal(steps[upload].with["if-no-files-found"], "error");
+  const deploy = parse(
+    await readFile(
+      path.join(root, ".github/workflows/publish-web-cloudflare.yml"),
+      "utf8",
+    ),
+  );
+  assert.equal(deploy.jobs.deploy.needs, "validation");
+  assert.equal(deploy.jobs.deploy.if, undefined);
+  assert.ok(
+    deploy.jobs.deploy.steps.some(
+      (step) =>
+        step.name === "Verify tested artifact identity" &&
+        step.run.includes("Artifact source mismatch"),
+    ),
+  );
 });
