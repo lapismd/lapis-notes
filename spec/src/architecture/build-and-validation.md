@@ -1,5 +1,13 @@
 # Architecture / Build and validation
 
+The prepared Core-intake patch release selects UI `0.2.2`, API `0.6.7` and
+Workspace `0.4.7`, in dependency order. Their Core floor remains `^0.13.4`.
+Changesets consumes the already accepted intake intent and regenerates API's
+public host-module version metadata; it changes no host-module declarations.
+The canonical release preparation accompanies the version candidate so main
+specification-first remains mandatory after the PR-only exemption. Published
+registry bytes and consumer adoption remain separate qualification.
+
 The admitted dependency intake raises only API, retained UI and Workspace direct
 Design Core ranges to `^0.13.4`. Root tooling and App Profile retain `^0.13.3`,
 and File Explorer retains its compatible multi-version range; those separately

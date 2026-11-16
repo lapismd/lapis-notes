@@ -1,5 +1,11 @@
 # Plugin Model / Application services
 
+The prepared API `0.6.7` release stamps its existing generated public host-module
+inventory with that package version. The module names, export declarations and
+plugin/native authority contracts are unchanged. UI `0.2.2` and Workspace
+`0.4.7` carry the same bounded Core intake; no additional plugin or separately
+held App Profile/File Explorer regeneration is admitted by version preparation.
+
 API, retained UI and Workspace now consume the released Design Core `^0.13.4`
 through public package exports. This bounded intake changes their dependency
 floor, not plugin activation, manifest contributions, App ownership or host

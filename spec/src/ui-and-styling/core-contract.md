@@ -1,5 +1,11 @@
 # UI and Styling / Retained UI contracts
 
+Prepared UI `0.2.2` records the accepted Core `^0.13.4` patch intake; API
+`0.6.7` admits it through UI peer floor `^0.2.2`. Existing peer compatibility,
+Core paint authority, public CSS exports and alias-only theme remain intact.
+Version preparation changes no UI markup, styling or runtime behavior and
+cannot stand in for registry publication qualification.
+
 The shared profile consumes the published UI 0.2 cohort required by API 0.6. This dependency intake retains Design Core paint authority and the alias-only UI theme; optional skill byte writes do not alter UI styling.
 
 The retained UI runtime directly selects released Design Core `^0.13.4` with
