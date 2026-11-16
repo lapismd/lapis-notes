@@ -73,8 +73,9 @@ versioned or published.
 Mapped spec validation and69 policy tests pass. An initial new-chapter check
 caught missing generated mirror/order and a verification row appended below
 prose; corrected canonical wiring passes. The generated195-chapter Storybook
-build and index pass; static specification acceptance passes5 cases with three
-existing explicit development-only skips. Preview changes only the generated
+build and index pass; static specification acceptance passes5 cases with two
+existing development-only skips and the existing quarantined Storybook
+Forward-history case. Preview changes only the generated
 Specification order, not an application decorator, fixture, boot or story.
 
 Standalone `pnpm spec:first` hits the unchanged runner's `--head requires --base`
