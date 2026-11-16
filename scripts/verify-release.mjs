@@ -72,18 +72,33 @@ function registryVersionIsPending(error) {
 async function installPublishedConsumer(consumerDir, sleep) {
   const attempts = REGISTRY_INSTALL_RETRY_DELAYS_MS.length + 1;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const metadataCache = mkdtempSync(
+      path.join(consumerDir, ".registry-metadata-"),
+    );
     try {
-      run("pnpm", ["install", "--strict-peer-dependencies=false"], {
-        cwd: consumerDir,
-      });
+      run(
+        "pnpm",
+        [
+          "install",
+          "--cache-dir",
+          metadataCache,
+          "--strict-peer-dependencies=false",
+        ],
+        {
+          cwd: consumerDir,
+        },
+      );
       return;
     } catch (error) {
       const delayMs = REGISTRY_INSTALL_RETRY_DELAYS_MS[attempt - 1];
-      if (!registryVersionIsPending(error) || delayMs === undefined) throw error;
+      if (!registryVersionIsPending(error) || delayMs === undefined)
+        throw error;
       process.stdout.write(
         `Published version is not installable yet; retrying in ${delayMs}ms (${attempt}/${attempts}).\n`,
       );
       await sleep(delayMs);
+    } finally {
+      rmSync(metadataCache, { recursive: true, force: true });
     }
   }
 }
