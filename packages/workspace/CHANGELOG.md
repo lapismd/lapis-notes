@@ -1,5 +1,20 @@
 # @lapis-notes/workspace
 
+## 0.4.8
+
+### Patch Changes
+
+- [#152](https://github.com/lapismd/lapis-notes/pull/152)
+  [`e575ecf`](https://github.com/lapismd/lapis-notes/commit/e575ecf7e15c47e2fca5f36c070f86acb94fddf9)
+  Thanks
+  [@lapismd-dependency-bot](https://github.com/apps/lapismd-dependency-bot)! -
+  Refresh first-party Lapis dependencies to the published versions recorded in
+  this pull request.
+- Updated dependencies
+  [[`e575ecf`](https://github.com/lapismd/lapis-notes/commit/e575ecf7e15c47e2fca5f36c070f86acb94fddf9)]:
+  - @lapis-notes/api@0.6.8
+  - @lapis-notes/ui@0.2.3
+
 ## 0.4.7
 
 ### Patch Changes
