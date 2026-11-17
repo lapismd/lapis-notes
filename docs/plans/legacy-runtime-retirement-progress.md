@@ -49,12 +49,12 @@ readiness and the retirement entry; the original plan workspace is unchanged.
 | Substep                                                       | Status                     | Evidence / remaining boundary                                                                          |
 | ------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------ |
 | Refresh current registration and release entrypoints          | Verified source            | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller      |
-| Reject retired publication and metadata selectors             | Source committed           | Plugins `ukmnqynp` / `8fd08403`; 241 release tests and full artifact qualification                     |
-| Disable mutable registry source and block reactivation        | Source committed           | Registry `qvlolmsk` / `e0136ede`; 146 tests, 26 cold browser cases; signing/publication pending        |
-| Remove shared implementation, package and media catalogs      | Source committed/pushed    | Plugins `yttxpspt` / `035d65c8`; 410 interactions, 1,022 package tests; source and artifacts qualified |
-| Remove Notes duplicate stories/controller probes/dependencies | Partially source-qualified | Keep API `ai-host/file-tools` and app-profile native chat                                              |
+| Reject retired publication and metadata selectors             | Merged                     | Plugins #154/#155; main `e8f8eb1b`; exact-main CI `44149978818` passed                                 |
+| Disable mutable registry source and block reactivation        | Source committed/pushed    | Registry #181 / `37ee5060`; 146 tests, 26 cold browser cases; protected signing approval requested     |
+| Remove shared implementation, package and media catalogs      | Merged                     | Plugins #155; 410 interactions, 1,022 package tests, 243 release-tooling tests and 16 artifacts        |
+| Remove Notes duplicate stories/controller probes/dependencies | Partially source-qualified | Launcher #157 merged at `14d3138c`; catalog candidate `zuwpuyzx` in final qualification                |
 | Preserve installed-data/native lifecycle                      | Pending                    | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                 |
-| Update Website and organization metadata                      | Pending                    | Bundled/native AI guidance and source provenance                                                       |
+| Update Website and organization metadata                      | Merged                     | Website #1 / `9cbdc233`, exact-main CI `44157445481` passed; .github #15 / `5f81879f`                  |
 | Complete source/public-package/consumer gates                 | Partially qualified        | Plugins source/artifact/catalog gates pass; Notes consumer and actual native/data gates remain pending |
 | npm deprecation, signed registry publication and deployment   | Pending release gates      | No unpublish or installed-app replacement                                                              |
 
@@ -383,3 +383,39 @@ tool requires committed source plus an empty JJ working-copy commit. A local
 candidate checkpoint supplies that precondition; packing, static/dev Docs and
 complete cold interactions still must pass before this branch is pushed/landed.
 No release precondition or functional assertion is bypassed.
+
+## Shared-AI consumer continuation
+
+Notes launcher #157 merged at `14d3138cb0f3c1d10996be650530376e4fbb877a`.
+Required PR CI `44149841579` passed. Main Pages, PWA, Release and dependency-image
+workflows all succeeded. These workflow outcomes do not by themselves qualify
+new npm publication or native AI/data behavior.
+
+Website #1 merged at `9cbdc233a7bec69d50d92e5da813edc3586a25fd` after both
+hosted push/PR checks passed, including pinned Node 24.15.0. Exact-main workflow
+`44157445481` also passed. It retains 26 guides and all historical source/media
+provenance, removes shared AI from the 18-entry active table and rejects new
+shared-package media imports before writes. Qualification: 13 unit tests,
+25 cold browser cases, 234-page build, route crawl, ordinary and spec checks;
+exact mobile/desktop inventory target 2/2. Its owner receipt is
+`spec/records/2026-11-17-retired-shared-ai.md`. The website remains behind its
+manual deployment gate; this merge did not deploy it.
+
+Notes catalog removal is JJ change `zuwpuyzx`, with all current main package
+versions and generated host schema preserved. Its first complete committed-source
+release run passed before main-version intake; all 239 interactions/axe cases
+passed across four cold shards. Rebased package checks/tests/builds also pass,
+but packaging exposed a stale root Deno lock. The generated lock removes 60
+unreachable versions and adds none, normalizes four now-unambiguous references
+and brings root importer metadata in line with the manifests. Frozen desktop
+controller declarations remain unchanged. Final qualification of that lock-only
+follow-up, final evidence and PR landing are still pending. Do not label this
+consumer slice delivered until those gates pass.
+
+Registry #181 remains draft at `37ee50609d5fbb89ce4bc3bb81b1d3ec5d091df1`.
+The protected metadata signing workflow is prepared against its exact source
+branch; explicit signing approval has been requested. Deployment and npm
+package deprecation remain separate release gates. Native installed-data,
+disablement/Safe Mode/cold acceptance and caller-aware contract ownership audit
+remain the next shared-AI boundaries. Do not start host/API removal until those
+are resolved; terminal remains the final removal.
