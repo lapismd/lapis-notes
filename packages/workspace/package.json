@@ -48,7 +48,7 @@
   "dependencies": {
     "@lapis-notes/api": "^0.6.7",
     "@lapis-notes/ui": "^0.2.2",
-    "@lapismd/design-core": "^0.13.4",
+    "@lapismd/design-core": "^0.13.5",
     "@lucide/svelte": "^0.523.0"
   },
   "peerDependencies": {
