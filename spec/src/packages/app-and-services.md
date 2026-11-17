@@ -336,3 +336,13 @@ governed public package. Its optional native Repository entry and complete
 workspace session are built exports; host ports retain custody and authority.
 The shared session owns retry and leave policy, with existing Web behavior
 retained in the owning host hooks and source-owned session helpers.
+
+## Retired external AI distribution
+
+LN-PLUG-137 governs the API installer's retired-provenance boundary. Its private
+guards classify original shared-AI artifact origins and verified release source
+coordinates, including no-endpoint legacy caches and mirrored bundles. This
+changes no public method signatures or error-code union. Bundled/native AI,
+unrelated AI packages and saved plugin/conversation/memory data remain outside
+that refusal. Publication and ordinary-registry consumer adoption remain
+separate from source qualification.

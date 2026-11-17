@@ -362,6 +362,103 @@ describe("VerifiedPluginInstaller", () => {
     expect(requests).toEqual([endpoint]);
   });
 
+  it.each(["ai%400.1.0", "ai@0.1.0"])(
+    "refuses retired shared AI from an active legacy catalog without a download endpoint (%s)",
+    async (tag) => {
+      const fixture = await createInstallFixture({ pluginId: "ai" });
+      const origin = `https://github.com/lapismd/lapis-plugins/releases/download/${tag}/ai-0.1.0.lapis-plugin`;
+      fixture.entry.status = "active";
+      fixture.detail.status = "active";
+      fixture.detail.versions["0.1.0"].bundle.url = origin;
+      expect(
+        fixture.detail.versions["0.1.0"].bundle.downloadUrl,
+      ).toBeUndefined();
+      const adapter = new InMemoryDataAdapter();
+      const saved = '{"settings":{"model":"saved"},"conversations":["keep"]}';
+      await adapter.write(".lapis/plugins/ai/data.json", saved);
+      const write = vi.spyOn(adapter, "write");
+      const fetch = vi.fn(fakeBinaryFetch({ [origin]: fixture.bundle }));
+      const installer = new VerifiedPluginInstaller({
+        adapter,
+        trustedKeys: [fixture.trustedKey],
+        fetch,
+      });
+
+      await expect(
+        installer.install({ entry: fixture.entry, detail: fixture.detail }),
+      ).rejects.toMatchObject({ code: "metadata-invalid" });
+      expect(fetch).not.toHaveBeenCalled();
+      expect(write).not.toHaveBeenCalled();
+      expect(await adapter.read(".lapis/plugins/ai/data.json")).toBe(saved);
+      expect(await adapter.exists(".lapis/plugins/ai/main.mjs")).toBe(false);
+      expect(await adapter.exists(".lapis/installed-plugins.json")).toBe(false);
+    },
+  );
+
+  it.each(["catalog", "bundle", "verified"] as const)(
+    "refuses signed retired provenance through the %s install path without changing data",
+    async (path) => {
+      const fixture = await createInstallFixture({
+        pluginId: "ai",
+        releaseSource:
+          path === "verified"
+            ? { repo: "https://github.com/LapisMD/lapis-plugins.git" }
+            : { repo: "lapismd/lapis-plugins", package: "@lapis-notes/ai" },
+      });
+      const adapter = new InMemoryDataAdapter();
+      const saved = '{"settings":{"model":"saved"},"memory":"preserve"}';
+      await adapter.write(".lapis/plugins/ai/data.json", saved);
+      const write = vi.spyOn(adapter, "write");
+      const binaryWrite = vi.spyOn(adapter, "writeBinary");
+      const installer = new VerifiedPluginInstaller({
+        adapter,
+        trustedKeys: [fixture.trustedKey],
+        fetch: fakeBinaryFetch(fixture.responses),
+      });
+      const operation =
+        path === "catalog"
+          ? installer.install({ entry: fixture.entry, detail: fixture.detail })
+          : path === "bundle"
+            ? installer.installBundle({ bundle: fixture.bundle })
+            : installer.installVerifiedPayload(
+                await verifyPluginBundlePayload({
+                  bundle: fixture.bundle,
+                  trustedKeys: [fixture.trustedKey],
+                }),
+                {},
+              );
+      await expect(operation).rejects.toMatchObject({
+        code: "metadata-invalid",
+      });
+      expect(write).not.toHaveBeenCalled();
+      expect(binaryWrite).not.toHaveBeenCalled();
+      expect(await adapter.read(".lapis/plugins/ai/data.json")).toBe(saved);
+      expect(await adapter.exists(".lapis/installed-plugins.json")).toBe(false);
+    },
+  );
+
+  it.each([
+    { repo: "example/plugins", package: "@example/ai" },
+    { repo: "lapismd/lapis-ai", package: "@lapismd/ai" },
+    { repo: "lapismd/lapis-plugins", package: "@example/ai" },
+  ])("allows non-retired AI provenance $package from $repo", async (source) => {
+    const fixture = await createInstallFixture({
+      pluginId: "ai",
+      releaseSource: source,
+    });
+    const name = source.repo === "lapismd/lapis-plugins" ? "other" : "ai";
+    const origin = `https://github.com/${source.repo}/releases/download/${name}%400.1.0/${name}-0.1.0.lapis-plugin`;
+    fixture.detail.versions["0.1.0"].bundle.url = origin;
+    const installer = new VerifiedPluginInstaller({
+      adapter: new InMemoryDataAdapter(),
+      trustedKeys: [fixture.trustedKey],
+      fetch: fakeBinaryFetch({ [origin]: fixture.bundle }),
+    });
+    await expect(
+      installer.install({ entry: fixture.entry, detail: fixture.detail }),
+    ).resolves.toMatchObject({ pluginId: "ai", installedVersion: "0.1.0" });
+  });
+
   it("does not fall back after cancellation of a signed endpoint download", async () => {
     const fixture = await createInstallFixture();
     fixture.detail.versions["0.1.0"].bundle.downloadUrl =
@@ -810,6 +907,7 @@ const createInstallFixture = async (
     responseOverrides?: Record<string, string>;
     manifestOverride?: Record<string, unknown>;
     releaseRuntime?: PluginReleaseManifest["runtime"];
+    releaseSource?: PluginReleaseManifest["source"];
     channel?: "official" | "community";
     corruptBundleResponse?: boolean;
     tamperSignature?: boolean;
@@ -894,6 +992,7 @@ const createInstallFixture = async (
       pluginId,
       version: "0.1.0",
       channel,
+      ...(options.releaseSource ? { source: options.releaseSource } : {}),
       compatibility: {
         minAppVersion: "0.20.0",
         platforms: ["web", "electron"],
