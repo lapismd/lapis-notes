@@ -5,6 +5,8 @@ post-shared-AI source. Its package build and packing inputs omit retired AI;
 ephemeral fixture keys remain separate from production signing authority.
 This changes no public package range, application profile or installed data.
 
+LN-WEB-093 gives the private Web package its raster icon input while retaining the API-owned SVG logo. This build-input relocation changes no published package export, version or dependency range.
+
 LN-CAT-123 removes Notes root shared-AI/controller development dependencies and
 the archive requirement after their catalog/launcher callers are gone. The
 root controller-only Git security fixture is retired with its caller, while

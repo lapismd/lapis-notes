@@ -3,6 +3,7 @@
 <!-- prettier-ignore -->
 | ID | Chapter | Status | Evidence |
 | --- | --- | --- | --- |
+| LN-WEB-093 | [Independent Web icons](../web-host/application-presentation.md#ln-web-093) | In progress | Cold generator regression changes from 1 failure to 1 pass without the frozen Deno host; all seven public icon hashes are identical. Complete package and canonical gates await combined qualification; see [source receipt](../../records/2026-11-17-web-icon-input-retirement.md). |
 | LN-WEB-092 | [Failed artifact replay](../web-host/application-presentation.md#ln-web-092) | Implemented | Exact retention regression changes from 1 failure to 1 pass; all five Cloudflare cases and 120 release/workflow cases pass. Prepared artifacts precede qualification; logged failures retain their status and deployment admission. [Source evidence](../../records/2026-11-16-pwa-offline-startup-diagnostics.md); intermittent startup diagnosis and hosted adoption remain separate. |
 | LN-WEB-091 | [Browser resources](../web-host/browser-storage-and-sync.md#ln-web-091) | Implemented | Six exact MIME cases change from failure to pass; all 36 browser-storage tests, full check/test/build/spec lanes, 275 cold catalog cases and seven installed Canvas Web cases pass. [Source and host evidence](../../records/2026-11-12-browser-vault-media.md). |
 | LN-WEB-083 | [web-host](../web-host/application-presentation.md#ln-web-083) | In progress | Cloudflare PWA implementation and focused acceptance pending; production cutover is not yet qualified. |

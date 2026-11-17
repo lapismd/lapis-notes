@@ -5,6 +5,8 @@ Graph supplies category/detail navigation; verified Word Count installation,
 Settings and reload assertions remain. This changes neither third-party AI
 admission nor production registry trust under LN-PLUG-095.
 
+LN-WEB-093 relocates the Web icon build input without changing plugin artwork, signed catalog provenance, plugin installation or registry policy.
+
 ## LN-PLUG-095 — Local signed-registry configuration
 
 <a id="ln-plug-095"></a>

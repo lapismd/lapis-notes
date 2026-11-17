@@ -5,6 +5,8 @@ fixture while retaining category, install and persistence checks. It changes
 no hosted-server transport, credentials or runtime selection and does not
 substitute Notes browser checks for lapis-server acceptance.
 
+LN-WEB-093 decouples the shared Web icon build step from frozen Deno desktop artwork. The unchanged generated assets do not alter hosted service routing, runtime selection or PWA identity.
+
 Current framework dependency intake selects published Design Core `0.13.5`.
 API, retained UI, Workspace and Web require `^0.13.5`; the separate App Profile
 minimum remains `^0.13.4`. Root tooling and File Explorer resolve the same

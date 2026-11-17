@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "base": "5ffb33c152404b6880debd1b5fd70762121d6196",
+  "requirements": ["LN-WEB-093", "LN-WEB-001"],
+  "before": {
+    "passed": 0,
+    "failed": 1,
+    "revision": "b7eef852698f25e10c55341a3cebfcab6f95b3cf"
+  },
+  "after": {
+    "passed": 1,
+    "failed": 0,
+    "revision": "dcbdcb7eb268c7d779db41e304af35f34a1cebfd"
+  },
+  "files": [
+    {
+      "path": "packages/web/assets/app-icon.png",
+      "bytes": 237695,
+      "sha256": "89c801232c2ddbc6dae9cf386a9dd49fcf9151551f59fd3b68901133a5e3ffa2"
+    },
+    {
+      "path": "packages/desktop-deno/build/icon.png",
+      "bytes": 237695,
+      "sha256": "89c801232c2ddbc6dae9cf386a9dd49fcf9151551f59fd3b68901133a5e3ffa2"
+    },
+    {
+      "path": "packages/api/src/lib/assets/lapis-logo.svg",
+      "bytes": 66482,
+      "sha256": "ff52cbc5c4fe5ab335d296c4758331399a26124bcd0bd7f9666dc9ae1741577e"
+    },
+    {
+      "path": "packages/web/public/apple-touch-icon.png",
+      "bytes": 14085,
+      "sha256": "f3ee1e6b733f050c4525363a764c12f8f25a2fe929a9f421cedd41d97fbf488b"
+    },
+    {
+      "path": "packages/web/public/favicon.svg",
+      "bytes": 66482,
+      "sha256": "ff52cbc5c4fe5ab335d296c4758331399a26124bcd0bd7f9666dc9ae1741577e"
+    },
+    {
+      "path": "packages/web/public/pwa-1024x1024-maskable.png",
+      "bytes": 212973,
+      "sha256": "7a0b15a97a7c8dcd98bfd1d8dad401fb0635f6e8130111f9cbe82e7ce9d99255"
+    },
+    {
+      "path": "packages/web/public/pwa-1024x1024.png",
+      "bytes": 149650,
+      "sha256": "18c19ad07a09981810af3ab7c6e51411287b4e3d3de1be76f90c39c8ca03bf5c"
+    },
+    {
+      "path": "packages/web/public/pwa-192x192.png",
+      "bytes": 14836,
+      "sha256": "22b859a2ea521b975b3ef4a8d1c5d3bd2ad5254dfa002d1c99e58bf3a8b405b4"
+    },
+    {
+      "path": "packages/web/public/pwa-512x512-maskable.png",
+      "bytes": 64643,
+      "sha256": "fddbcc875e6b931a1baff65337adb10fc5262beb041128149647e63f6f46adda"
+    },
+    {
+      "path": "packages/web/public/pwa-512x512.png",
+      "bytes": 59940,
+      "sha256": "59237e35b01a48c5a9af63bd0d315f86e8759bd66b0d597db59e3bcd88630320"
+    }
+  ]
+}

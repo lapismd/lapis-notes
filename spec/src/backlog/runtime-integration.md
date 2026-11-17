@@ -13,6 +13,10 @@ a failed gate and grants no blind rerun; frozen Deno packages remain excluded.
 
 ## Legacy runtime and package retirement
 
+LN-WEB-093 prepares an independent Web-owned raster icon input before frozen
+host removal. Cold regeneration proves all seven output hashes unchanged;
+complete package/canonical qualification remains pending in the [icon source receipt](../../records/2026-11-17-web-icon-input-retirement.md).
+
 Status: in progress. Plugins source/catalog and Notes launcher/catalog removals
 are merged and source-qualified; Notes #158 passed required hosted CI after
 2,194 package tests and 239 cold interactions. Approved registry signing and
