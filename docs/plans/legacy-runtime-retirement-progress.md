@@ -314,3 +314,31 @@ controller dependency-security test must be assessed with its removed caller;
 it must not retain that root dependency merely to test an unused import.
 Website snapshots/media and the AI help route still promote the retired package
 and need a provenance-aware refresh. Terminal work remains last.
+
+### Plugins source landed; next-source checkpoint
+
+[Plugins removal #155](https://github.com/lapismd/lapis-plugins/pull/155) now
+includes the safeguards and approved audit exception and merged directly to
+main as `e8f8eb1b73ffe4bc2b96974c7388e2efbe4b911f`. GitHub also marks ancestor
+[PR #154](https://github.com/lapismd/lapis-plugins/pull/154) merged. Exact head
+`886de04910571fa5349d9e6ba51af1031c462306` passes the complete hosted workflow
+[44148140915](https://github.com/lapismd/lapis-plugins/actions/runs/44148140915),
+including audit, quality, unit, static Storybook, all four interaction shards,
+artifacts and aggregate validation. A superseded same-head event was cancelled;
+the completed latest event succeeds. The Plugins task workspace now rests on
+landed main; its retired-source audit passes and neither retired directory exists.
+The pre-existing conflicted local main bookmark remains untouched.
+
+Fresh exact-main Plugins CI is queued as
+[44149978818](https://github.com/lapismd/lapis-plugins/actions/runs/44149978818).
+Publication and signed-registry deployment remain separate. Notes launcher PR
+#157's fresh main-targeted event at `3c1182ceed98dc5f2019893f4c2b7424cf57e463`
+is [44149841579](https://github.com/lapismd/lapis-notes/actions/runs/44149841579),
+currently pending, not failed or qualified. Observe these existing handles before
+any deliberate restart. Do not merge a stale-event failure or waive a gate.
+
+Next: complete Notes catalog/bridge/dependency retirement and full affected
+consumer checks, while landing #157 when its current required checks pass.
+Website, installed-data/native product acceptance and protected registry signing
+remain open. Then proceed through non-terminal hosts and deprecated interfaces;
+terminal ownership/host retirement remains the final removal.
