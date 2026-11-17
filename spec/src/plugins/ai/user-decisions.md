@@ -12,30 +12,6 @@
 
 **Requirement.** `AgentCapabilities.approvals` MUST report `supported`, `interactive`, `persistentDecisions`, `granularPermissions`, and `policyAmendments`. Runtime selection MUST use these fields rather than vendor conditionals.
 
-## LN-AI-006 — Compatibility AcpAgentRuntime: adapt acpx/runtime 0.8.0 or later, map onPermissionRequest
-
-<a id="ln-ai-006"></a>
-
-**Requirement.** Compatibility `AcpAgentRuntime` MAY adapt `acpx/runtime` 0.8.0 or later, map `onPermissionRequest` to `ApprovalRequest`, and keep acpx types inside the adapter. First-party execution MUST use `ControllerAgentRuntime`.
-
-## LN-AI-007 — FakeAgentRuntime: implement the runtime contract with deterministic events
-
-<a id="ln-ai-007"></a>
-
-**Requirement.** A `FakeAgentRuntime` MUST implement the runtime contract with deterministic events and blocking approvals. Default tests and default Storybook stories MUST use it and MUST NOT require a live agent subscription.
-
-## LN-AI-012 — Compatibility native Codex runtime: exist only for approval, user-input, or model
-
-<a id="ln-ai-012"></a>
-
-**Requirement.** A compatibility native Codex runtime MAY exist only for approval, user-input, or model surfaces ACP cannot express. It MUST keep runtime-neutral contracts without leaking app-server types. First-party execution MUST use the shared controller.
-
-## LN-AI-014 — Storybook: demonstrate the public AI chat panel
-
-<a id="ln-ai-014"></a>
-
-**Requirement.** Storybook MUST demonstrate the public AI chat panel with Fake runtime, including send/complete plus independently inspectable requested and accepted permission and question paths, using public `@lapis-notes/ai` Show Code.
-
 ## LN-AI-015 — Normalized AgentEvent values: cover text, thinking, tool start/end, permission
 
 <a id="ln-ai-015"></a>

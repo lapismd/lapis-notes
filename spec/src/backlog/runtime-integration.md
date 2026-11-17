@@ -19,8 +19,10 @@ are merged and source-qualified; Notes #158 passed required hosted CI after
 production deployment are complete. Live signed metadata, saved links and UI
 reject shared AI, but Notes' stale-metadata installer fallback after HTTP 404
 remains open; a focused 410 response change awaits public API confirmation.
-Native/data acceptance, remaining contract ownership and npm deprecation remain
-pending. Website source is merged; its manual deployment is separate.
+Sixteen obsolete package/controller/Fake/attach implementation requirements are
+archived with their original evidence. Generic feature ownership and native/data
+acceptance remain pending, along with npm deprecation. Website source is merged;
+its manual deployment is separate.
 Notes coordinates the
 [consolidated retirement plan](../../../docs/plans/legacy-runtime-retirement.md)
 for the frozen Deno desktop, shared AI plugin, obsolete host/tooling edges and

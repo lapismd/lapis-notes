@@ -12,18 +12,6 @@
 
 **Requirement.** Domain plugins MUST register tool contributions through a package-owned registry. The AI plugin MUST attach those contributions at session start and MUST NOT own CV, applications, tasks, or docs tool implementations.
 
-## LN-AI-020 — Fake rich trace: emit thinking, a tool start and end
-
-<a id="ln-ai-020"></a>
-
-**Requirement.** A Fake rich trace MUST emit thinking, a tool start and end, and assistant text that includes Markdown. Storybook MUST demonstrate those items on the public chat panel without a live subscription.
-
-## LN-AI-031 — Plugin: obtain live ACP and native Codex runtimes
-
-<a id="ln-ai-031"></a>
-
-**Requirement.** The plugin MUST obtain live ACP and native Codex runtimes from a host factory gated by the `agent-runtime` capability. It MUST NOT construct those runtimes when the capability is unavailable.
-
 ## LN-AI-033 — AgentCapabilities.steer: true only when AgentSession.steer is implemented
 
 <a id="ln-ai-033"></a>
