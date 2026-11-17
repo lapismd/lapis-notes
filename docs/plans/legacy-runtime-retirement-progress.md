@@ -46,17 +46,17 @@ readiness and the retirement entry; the original plan workspace is unchanged.
 
 ## Removal 1: shared AI plugin — in progress
 
-| Substep                                                       | Status                     | Evidence / remaining boundary                                                                                 |
-| ------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Refresh current registration and release entrypoints          | Verified source            | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller             |
-| Reject retired publication and metadata selectors             | Merged                     | Plugins #154/#155; main `e8f8eb1b`; exact-main CI `44149978818` passed                                        |
-| Disable mutable registry source and block reactivation        | Source committed/pushed    | Registry #181 / `37ee5060`; 146 tests, 26 cold browser cases; approved signing workflow `44159554590` running |
-| Remove shared implementation, package and media catalogs      | Merged                     | Plugins #155; 410 interactions, 1,022 package tests, 243 release-tooling tests and 16 artifacts               |
-| Remove Notes duplicate stories/controller probes/dependencies | Partially source-qualified | Launcher #157 merged at `14d3138c`; catalog candidate `zuwpuyzx` in final qualification                       |
-| Preserve installed-data/native lifecycle                      | Pending                    | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                        |
-| Update Website and organization metadata                      | Merged                     | Website #1 / `9cbdc233`, exact-main CI `44157445481` passed; .github #15 / `5f81879f`                         |
-| Complete source/public-package/consumer gates                 | Partially qualified        | Plugins source/artifact/catalog gates pass; Notes consumer and actual native/data gates remain pending        |
-| npm deprecation, signed registry publication and deployment   | Pending release gates      | No unpublish or installed-app replacement                                                                     |
+| Substep                                                       | Status                               | Evidence / remaining boundary                                                                                            |
+| ------------------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| Refresh current registration and release entrypoints          | Verified source                      | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller                        |
+| Reject retired publication and metadata selectors             | Merged                               | Plugins #154/#155; main `e8f8eb1b`; exact-main CI `44149978818` passed                                                   |
+| Disable mutable registry source and block reactivation        | Deployed; stale-client gap open      | Registry #181 / `42903595`; signed live metadata and UI disabled; 410 response decision pending                          |
+| Remove shared implementation, package and media catalogs      | Merged                               | Plugins #155; 410 interactions, 1,022 package tests, 243 release-tooling tests and 16 artifacts                          |
+| Remove Notes duplicate stories/controller probes/dependencies | Merged                               | #157 and #158 / `52cffda1`; 2,194 package tests, 239 cold interactions, 3 inspected tarballs and required hosted CI pass |
+| Preserve installed-data/native lifecycle                      | Pending                              | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                                   |
+| Update Website and organization metadata                      | Merged                               | Website #1 / `9cbdc233`, exact-main CI `44157445481` passed; .github #15 / `5f81879f`                                    |
+| Complete source/public-package/consumer gates                 | Source qualified; acceptance pending | Plugins and Notes source/artifact/catalog lanes pass; stale installer and native/data gates remain open                  |
+| npm deprecation, signed registry publication and deployment   | Registry deployed; npm pending       | Approved signed candidate is live; 11 npm versions await deprecation approval; no unpublish or installed-app replacement |
 
 ## Later removals — pending
 
@@ -415,7 +415,7 @@ The existing Specification Docs history quarantine remains skipped; the enabled
 static/development cases pass 5/7 respectively. Final hosted PR landing remains
 pending; this source qualification does not complete native/data acceptance.
 
-Registry #181 remains draft at `37ee50609d5fbb89ce4bc3bb81b1d3ec5d091df1`.
+Registry #181 was prepared at `37ee50609d5fbb89ce4bc3bb81b1d3ec5d091df1`.
 The user explicitly approved protected metadata signing for that exact source.
 Workflow `44159554590` is running against `retirement/shared-ai-distribution`
 using the existing main-owned protected workflow. Review its generated-only PR
@@ -424,3 +424,97 @@ package deprecation remain separate release gates. Native installed-data,
 disablement/Safe Mode/cold acceptance and caller-aware contract ownership audit
 remain the next shared-AI boundaries. Do not start host/API removal until those
 are resolved; terminal remains the final removal.
+
+## Approved signing and final consumer PRs
+
+Notes catalog/source/lock removal is pushed in
+[PR #158](https://github.com/lapismd/lapis-notes/pull/158), exact head
+`cfaf4c53bfe070398e6e24da7bce8f46d332a933`. All local required lanes pass;
+required hosted workflow `44160243971` is running. Observe that existing run
+before deciding its landing; do not infer CI success or publication from a push.
+
+The user explicitly approved registry signing for `37ee5060` only. Protected
+workflow `44159554590` passed and opened generated-only #182. Its head
+`356412082836bb7629a3a6169412c5ab082e8eeb` passed complete hosted Checks
+`44159923356` and merged into the feature branch at
+`812e4a44d3843e83cad15c1f34086843511703d3`. The five generated files change
+only shared-AI disablement and corresponding mutable metadata signatures.
+Independent structural comparison retains every historical version, origin,
+hash and artifact; all 21 metadata signatures verify locally. The owner signing
+receipt is committed in Registry `36bd61e3`; parent #181 is ready for review
+and needs final-head checks.
+
+Deployment needs a separate decision: Registry `publish.yml` runs on a main
+push and its existing `STATIC_REGISTRY_V2_DEPLOY_APPROVED` variable is `true`.
+Merging #181 therefore deploys the candidate; signing approval does not authorize
+that main merge/deployment. Do not change the repository variable to bypass the
+gate. Website merge remains independent and its deployment is manual.
+
+The npm retirement payload is prepared, not applied: the public registry has
+11 versions of `@lapis-notes/ai` (0.1.0, 0.1.1, 0.1.2, 0.1.5, 0.1.6, 0.1.7,
+0.1.8, 0.1.12, 0.1.13, 0.1.15 and 0.1.16). Proposed deprecation message:
+"Retired shared AI plugin. Use the AI bundled with Lapis Desktop; keep existing
+settings, conversations and memory. See https://github.com/lapismd/lapis-desktop."
+No npm deprecation or unpublish has occurred.
+
+Resume shared AI with: observe/land Notes #158 after all required checks; observe
+Registry #181's exact final checks, obtain deployment approval before its main
+merge and prove live disabled metadata/direct/saved-link/stale-cache behavior;
+complete native installed-data/disablement/Safe Mode/cold acceptance and the
+remaining caller-aware contract ownership audit; obtain npm deprecation approval
+before applying the prepared message. Host/API retirement follows this removal;
+terminal ownership migration/retirement remains last.
+
+## Registry production landing and stale-consumer finding
+
+The user separately approved merge and production deployment of Registry #181
+at `36bd61e3488b4282d903a2004062ef36817f42c9`. It merged at
+`42903595b7ea78194d47635319dfa0f5046ab5bb`. Exact-main Checks `44161464343`,
+Publish registry `44161464626`, publication preparation `44161464641` and its
+qualified-candidate workflow `44161584703` all passed. This approval does not
+publish npm packages or deploy the separate website.
+
+Live index and AI detail metadata both verify against the pinned registry trust
+root and report disabled. All nine indexed AI versions reject saved GET and HEAD
+links with HTTP 404 and no redirect. The production Playwright target
+`tests/registry-versions.spec.ts` / `retired shared AI keeps history but cannot
+install any retained version` passes (1/1). Historical versions/artifacts remain.
+
+Actual Notes installer inspection found an additional stale-consumer path:
+`VerifiedPluginInstaller.install()` falls back to the preserved signed artifact
+origin after any download-endpoint failure except cancellation or HTTP 410.
+The manager blocks a fresh disabled index, but a stale active index can bypass
+an endpoint's 404 through that fallback. Do not count saved-link rejection alone
+as complete stale-cache/direct-API acceptance.
+
+Proposed registry-owned fix: respond HTTP 410 Gone for intentionally disabled
+releases before origin fetch or analytics writes. Existing Notes handling already
+stops fallback on 410, so this needs no new consumer package release. Active,
+pending, unknown and revoked endpoint behavior stays as before; user data and
+historical artifacts stay intact. The exact registry target starts 15/15 green;
+the new 410 regression reproduces 1 failure with 14 existing cases passing.
+Source implementation awaits the user's explicit public API confirmation under
+their saved standing rule; that question is pending. Registry task workspace
+contains only the deliberately failing regression at this checkpoint.
+
+Notes #158 still awaits its last hosted web-acceptance job; all other enabled
+jobs pass and inherited interaction CI remains explicitly skipped. Its local
+complete 239-case interaction/axe receipt remains separate evidence. Resume by
+observing that run and the pending public API decision, then finish shared-AI
+consumer/native/contracts/npm gates before host/API retirement. Terminal is last.
+
+## Notes consumer landing
+
+Notes #158 merged at `52cffda160e68f3b70f481bd82df8dbbf69062b9` after exact
+head `cfaf4c53bfe070398e6e24da7bce8f46d332a933` passed complete required
+workflow `44160243971`, including web acceptance and aggregate validation.
+The inherited browser interaction CI job remains skipped; the independently
+completed 239 cold interaction/axe cases are recorded separately. No native/data
+qualification, new npm publication or website deployment is inferred.
+
+[Live registry receipt](../../spec/records/2026-11-17-retired-ai-registry-live-before-gone.json)
+records the disabled signed documents, 18 saved-link GET/HEAD checks, production
+browser case and still-open stale-client limitation. The current next action is
+the pending public HTTP response decision, followed by its focused source and
+consumer acceptance. Preserve the remaining native/data/contracts/npm gates and
+the final-terminal sequence.
