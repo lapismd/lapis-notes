@@ -34,7 +34,29 @@ All product qualification above uses registry-only remote omarchy Docker.
 Source was then rebased cleanly onto Notes main
 `7b9b1c2bf16130bb64025eb49ca2c77c3e601e81`, whose intervening change archives
 obsolete shared-AI contracts without altering runtime implementation.
-The full release, packed-consumer and cold browser qualification is pending.
+Full `ci:release` passes on that rebased source in
+`e0f5a118-52f2-4947-ada6-1593cec5b6b7`, including complete release-tooling,
+package and specification lanes, static Storybook, 5 static Docs cases and
+7 development Docs cases. The existing Forward-history quarantine and
+static-only watcher exclusions are unchanged. The three packed artifacts are
+UI 0.2.3, API 0.6.8 and Workspace 0.4.8. Independent archive inspection confirms
+the API contains the compiled retired-distribution guard. This is candidate
+artifact evidence, not npm publication or native adoption.
+The complete cold `test:storybook` lane passes all 239 interaction/accessibility
+cases across 57 files and four sequential shards (96 + 49 + 41 + 53) in
+`1e63c26f-046d-4644-baf4-3c580324a91c`. No force argument, assertion change or new quarantine
+is used. Its snapshot differs from the release snapshot only in coordination
+and receipt documents; runtime implementation is identical.
+[Exact source, invocation and artifact hashes](2026-11-17-retired-ai-provenance-validation.json)
+record the source boundaries separately.
+
+Host spec discovery uses the provisioned Deno-free 0.2.1 CLI with a temporary
+module lookup path. Doctor reports the known QMD native ABI mismatch; the exact
+LN-PLUG-137 search uses the documented text fallback. No successful semantic
+retrieval or global configuration change is claimed.
+
+Final canonical check after coordination/verification updates passes in
+`3dbf25fa-0a71-4e48-abbe-e40e21afff06`.
 
 ## Release and consumer limits
 

@@ -1,0 +1,191 @@
+{
+  "schema": 1,
+  "sourceMerge": "e99f5fd40c92a779b26fcab4a5efa84372d6f4a3",
+  "candidate": "ca8421f515e54aa0da32ea65018ca662039829fb",
+  "workflows": {
+    "pullRequest": 44165451713,
+    "mainChecks": 44166043673,
+    "publish": 44166044133,
+    "qualified": 44166153748
+  },
+  "results": [
+    {
+      "target": "index",
+      "http": 200,
+      "status": "disabled",
+      "keyId": "lapis-registry-2026-06",
+      "sha256": "aedd90237311453f1f453228abc29cbc1e1469537b4f01c53320c202beec73b3",
+      "inlineAndDetachedSignatureVerified": true
+    },
+    {
+      "target": "plugins/ai",
+      "http": 200,
+      "status": "disabled",
+      "keyId": "lapis-registry-2026-06",
+      "sha256": "4c63f64d60f99bb49e938599eaa75e3df66d42072fa9376096e91b6b43a7b6ac",
+      "inlineAndDetachedSignatureVerified": true
+    },
+    {
+      "version": "0.1.12",
+      "method": "GET",
+      "http": 410,
+      "redirect": false,
+      "cors": "*",
+      "cacheControl": "no-store"
+    },
+    {
+      "version": "0.1.12",
+      "method": "HEAD",
+      "http": 410,
+      "redirect": false,
+      "cors": "*",
+      "cacheControl": "no-store"
+    },
+    {
+      "version": "0.1.13",
+      "method": "GET",
+      "http": 410,
+      "redirect": false,
+      "cors": "*",
+      "cacheControl": "no-store"
+    },
+    {
+      "version": "0.1.13",
+      "method": "HEAD",
+      "http": 410,
+      "redirect": false,
+      "cors": "*",
+      "cacheControl": "no-store"
+    },
+    {
+      "version": "0.1.15",
+      "method": "GET",
+      "http": 410,
+      "redirect": false,
+      "cors": "*",
+      "cacheControl": "no-store"
+    },
+    {
+      "version": "0.1.15",
+      "method": "HEAD",
+      "http": 410,
+      "redirect": false,
+      "cors": "*",
+      "cacheControl": "no-store"
+    },
+    {
+      "version": "0.1.16",
+      "method": "GET",
+      "http": 410,
+      "redirect": false,
+      "cors": "*",
+      "cacheControl": "no-store"
+    },
+    {
+      "version": "0.1.16",
+      "method": "HEAD",
+      "http": 410,
+      "redirect": false,
+      "cors": "*",
+      "cacheControl": "no-store"
+    },
+    {
+      "version": "0.1.2",
+      "method": "GET",
+      "http": 410,
+      "redirect": false,
+      "cors": "*",
+      "cacheControl": "no-store"
+    },
+    {
+      "version": "0.1.2",
+      "method": "HEAD",
+      "http": 410,
+      "redirect": false,
+      "cors": "*",
+      "cacheControl": "no-store"
+    },
+    {
+      "version": "0.1.5",
+      "method": "GET",
+      "http": 410,
+      "redirect": false,
+      "cors": "*",
+      "cacheControl": "no-store"
+    },
+    {
+      "version": "0.1.5",
+      "method": "HEAD",
+      "http": 410,
+      "redirect": false,
+      "cors": "*",
+      "cacheControl": "no-store"
+    },
+    {
+      "version": "0.1.6",
+      "method": "GET",
+      "http": 410,
+      "redirect": false,
+      "cors": "*",
+      "cacheControl": "no-store"
+    },
+    {
+      "version": "0.1.6",
+      "method": "HEAD",
+      "http": 410,
+      "redirect": false,
+      "cors": "*",
+      "cacheControl": "no-store"
+    },
+    {
+      "version": "0.1.7",
+      "method": "GET",
+      "http": 410,
+      "redirect": false,
+      "cors": "*",
+      "cacheControl": "no-store"
+    },
+    {
+      "version": "0.1.7",
+      "method": "HEAD",
+      "http": 410,
+      "redirect": false,
+      "cors": "*",
+      "cacheControl": "no-store"
+    },
+    {
+      "version": "0.1.8",
+      "method": "GET",
+      "http": 410,
+      "redirect": false,
+      "cors": "*",
+      "cacheControl": "no-store"
+    },
+    {
+      "version": "0.1.8",
+      "method": "HEAD",
+      "http": 410,
+      "redirect": false,
+      "cors": "*",
+      "cacheControl": "no-store"
+    }
+  ],
+  "historicalAiMetadataExactlyMatchesSignedCandidate": true,
+  "activeControl": {
+    "id": "bases",
+    "version": "0.4.2",
+    "method": "HEAD",
+    "http": 200
+  },
+  "unknownControl": {
+    "http": 404
+  },
+  "consumer": {
+    "completeInstallerCases": 28,
+    "http410RefusesOriginFallback": true
+  },
+  "limits": [
+    "No npm deprecation or unpublish",
+    "Native installed-data acceptance remains separate"
+  ]
+}
