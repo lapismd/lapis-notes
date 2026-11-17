@@ -415,7 +415,7 @@ The existing Specification Docs history quarantine remains skipped; the enabled
 static/development cases pass 5/7 respectively. Final hosted PR landing remains
 pending; this source qualification does not complete native/data acceptance.
 
-Registry #181 remains draft at `37ee50609d5fbb89ce4bc3bb81b1d3ec5d091df1`.
+Registry #181 was prepared at `37ee50609d5fbb89ce4bc3bb81b1d3ec5d091df1`.
 The user explicitly approved protected metadata signing for that exact source.
 Workflow `44159554590` is running against `retirement/shared-ai-distribution`
 using the existing main-owned protected workflow. Review its generated-only PR
@@ -424,3 +424,43 @@ package deprecation remain separate release gates. Native installed-data,
 disablement/Safe Mode/cold acceptance and caller-aware contract ownership audit
 remain the next shared-AI boundaries. Do not start host/API removal until those
 are resolved; terminal remains the final removal.
+
+## Approved signing and final consumer PRs
+
+Notes catalog/source/lock removal is pushed in
+[PR #158](https://github.com/lapismd/lapis-notes/pull/158), exact head
+`cfaf4c53bfe070398e6e24da7bce8f46d332a933`. All local required lanes pass;
+required hosted workflow `44160243971` is running. Observe that existing run
+before deciding its landing; do not infer CI success or publication from a push.
+
+The user explicitly approved registry signing for `37ee5060` only. Protected
+workflow `44159554590` passed and opened generated-only #182. Its head
+`356412082836bb7629a3a6169412c5ab082e8eeb` passed complete hosted Checks
+`44159923356` and merged into the feature branch at
+`812e4a44d3843e83cad15c1f34086843511703d3`. The five generated files change
+only shared-AI disablement and corresponding mutable metadata signatures.
+Independent structural comparison retains every historical version, origin,
+hash and artifact; all 21 metadata signatures verify locally. The owner signing
+receipt is committed in Registry `36bd61e3`; parent #181 is ready for review
+and needs final-head checks.
+
+Deployment needs a separate decision: Registry `publish.yml` runs on a main
+push and its existing `STATIC_REGISTRY_V2_DEPLOY_APPROVED` variable is `true`.
+Merging #181 therefore deploys the candidate; signing approval does not authorize
+that main merge/deployment. Do not change the repository variable to bypass the
+gate. Website merge remains independent and its deployment is manual.
+
+The npm retirement payload is prepared, not applied: the public registry has
+11 versions of `@lapis-notes/ai` (0.1.0, 0.1.1, 0.1.2, 0.1.5, 0.1.6, 0.1.7,
+0.1.8, 0.1.12, 0.1.13, 0.1.15 and 0.1.16). Proposed deprecation message:
+"Retired shared AI plugin. Use the AI bundled with Lapis Desktop; keep existing
+settings, conversations and memory. See https://github.com/lapismd/lapis-desktop."
+No npm deprecation or unpublish has occurred.
+
+Resume shared AI with: observe/land Notes #158 after all required checks; observe
+Registry #181's exact final checks, obtain deployment approval before its main
+merge and prove live disabled metadata/direct/saved-link/stale-cache behavior;
+complete native installed-data/disablement/Safe Mode/cold acceptance and the
+remaining caller-aware contract ownership audit; obtain npm deprecation approval
+before applying the prepared message. Host/API retirement follows this removal;
+terminal ownership migration/retirement remains last.
