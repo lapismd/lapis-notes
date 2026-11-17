@@ -277,3 +277,40 @@ signature checks until the protected signing refresh. No generated metadata or
 signature has been hand-edited, and no signing/deployment approval is inferred.
 Organization active listings are being updated separately; Website remains
 pending. Terminal migration remains the final removal after other changes land.
+
+### Landed coordination and organization metadata
+
+[Notes coordination #156](https://github.com/lapismd/lapis-notes/pull/156) merged
+as `31b13657817d1dc49b25d4b7ae12303a28025637` after all enabled required checks
+passed. Its existing Storybook browser quarantine remains explicitly skipped.
+[Organization profile #15](https://github.com/lapismd/.github/pull/15) merged as
+`5f81879fc49091c17b16a1f7bb7be3d1dc7dca0b`; both PR and exact-main updater CI
+pass. The generated package list excludes shared AI and preserves standalone
+controller listings. Concurrent profile version updates were preserved when
+resolving its rebase conflict.
+
+[Notes launcher removal #157](https://github.com/lapismd/lapis-notes/pull/157) is
+committed and pushed (`c771f8a5`, receipt formatting `7787a642`), now targeting
+main. The first hosted event captured the old stacked base, which GitHub deleted
+after #156 merged. Its specification-first job correctly rejects that missing
+ref. This checkpoint triggers a fresh event against main; no gate or baseline
+is changed, and the failed event remains evidence. Final receipt JSON required
+one whitespace-only formatting commit; checks pass afterward.
+
+Desktop source refresh confirms `notes-bundled-plugins.ts` chooses one owned AI
+implementation and rejects simultaneous renderer/native owners. The API rejects
+loading an installed copy of an already static identity before evaluation.
+Desktop `aiEnabledByDefault` reads saved app-shell/installed disablement without
+writing those files. Its LD-PLUG-001 verification is still **Planned** and its
+AI-qualification backlog retains the actual product gate: these inspections do
+not prove old-external/native coexistence, saved-data or cold native acceptance.
+No Desktop code or existing qualification status changed.
+
+The next Notes source boundary includes shared panel fixture registrations,
+WorkspaceShellDemo, catalog/parity mappings, the manual preview bridge and its
+URL/token optimizer/cache inputs, local archive requirements and root package
+dependencies. Preserve the PWA security tests and API file-tools. The old direct
+controller dependency-security test must be assessed with its removed caller;
+it must not retain that root dependency merely to test an unused import.
+Website snapshots/media and the AI help route still promote the retired package
+and need a provenance-aware refresh. Terminal work remains last.
