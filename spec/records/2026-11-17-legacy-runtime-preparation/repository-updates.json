@@ -1,0 +1,409 @@
+[
+  {
+    "repo": "agent-redaction",
+    "remote": "codex-https",
+    "before": "3083e1821a2c2a36b7e43dc093a113a2255f2384",
+    "target": "3cf32015d265aa35c889813709913f8f997a06e6",
+    "previous_parent": "3c3dc0d768afbe197e796d4bf94c0be5074faa4c",
+    "outcome": "updated"
+  },
+  {
+    "repo": "agent-ui",
+    "remote": "release-https",
+    "before": "2fb55b151f69da2217f54fa19802371d8e16b4f2",
+    "target": "1643b8dad19f6da57873899a6f60d8f8de9a1515",
+    "previous_parent": "bbc8821672a8a83c8910ff73823f78f357b93622",
+    "outcome": "updated"
+  },
+  {
+    "repo": "ai-controller",
+    "remote": "codex-https",
+    "before": "a54693bd7299509729bf3f80a4a2da2b5e5f0d38",
+    "target": "cf632cacb24fb71b34a0375f91eef7d747660111",
+    "previous_parent": "89b5c6f1792a207016a1b8bfc1cf413bfad90089",
+    "preserved_bookmark": "local/pre-legacy-retirement-20261117-89b5c6f1792a",
+    "outcome": "updated"
+  },
+  {
+    "repo": "ai-host",
+    "remote": "codex-https",
+    "before": "0285238504929e31fdc547a6380654c7c750aa4c",
+    "target": "5a323bc5435eb82f682ff89d285fb0258b3470a4",
+    "previous_parent": "58d0ffc5ca50e51f4ce23090a25228b99fb7f397",
+    "preserved_bookmark": "local/pre-legacy-retirement-20261117-58d0ffc5ca50",
+    "outcome": "updated"
+  },
+  {
+    "repo": "community-local",
+    "outcome": "no-remote"
+  },
+  {
+    "repo": "dependency-automation",
+    "remote": "origin",
+    "before": "781ec762b657ffbe663493a11007e09a8af2ae88",
+    "target": "091dbf1c260e76ddf174cf0acc20fdd5159a7e93",
+    "previous_parent": "0ff2101b11cf2d2debfea1ce9cae02824d5edaa0",
+    "outcome": "updated"
+  },
+  {
+    "repo": "design-core",
+    "remote": "codex-https",
+    "before": "42d0026e51c7e994d0eb2859d59f1d87332e9dfb",
+    "target": "ec0d539a787b570a6238476ee0045af885163c92",
+    "previous_parent": "66df6d769a7b5acaf2bbf4fc3a1c1af9560f0978",
+    "outcome": "updated"
+  },
+  {
+    "repo": "github-profile",
+    "remote": "origin",
+    "before": "352cc91ba0295f37dee7be4498adb419e8362c41",
+    "target": "a324a98fedbe389acc8bee86ef3aa0b03d8ed161",
+    "previous_parent": "2bfda37bb4796745406f66009147cc0032168a8d",
+    "outcome": "updated"
+  },
+  {
+    "repo": "homebrew-tap",
+    "remote": "origin",
+    "before": "769d2b30f496023becdfbe26f7bbda67ecff0a45",
+    "target": "37ffee7e172be5c7fae49ed96e51b8c24bb0fcbd",
+    "previous_parent": "b5bcf0293b72b346df95b44209f93ee4d6aa19df",
+    "outcome": "updated"
+  },
+  {
+    "repo": "jj-acp",
+    "remote": "origin",
+    "before": "5d758d196ac92918576f68fed194b9067f662cb3",
+    "target": "8f36d73f5d78f9c3cde239a1ff75f7e11aade178",
+    "outcome": "fetched-preserved-dirty",
+    "files": [
+      "Cargo.lock"
+    ]
+  },
+  {
+    "repo": "jj-checkpoint",
+    "outcome": "no-remote"
+  },
+  {
+    "repo": "jj-desktop",
+    "outcome": "no-remote"
+  },
+  {
+    "repo": "jj-nostr",
+    "outcome": "no-remote"
+  },
+  {
+    "repo": "jj-sample-repo",
+    "remote": "origin",
+    "before": "621b9df5addeb845ad0d269d58b0c65c5de268c0",
+    "outcome": "updated",
+    "trunk": "trunk@origin",
+    "target": "694b06c4",
+    "preserved_bookmark": "local/pre-legacy-retirement-20261117-621b9df5"
+  },
+  {
+    "repo": "jj-store",
+    "remote": "origin-https",
+    "before": "5687025a946afaee7d3f75c5129f88f561ee2c19",
+    "target": "62959b5dc8bbf90fbc6d9c91af023eea0048142f",
+    "previous_parent": "ed30546e5e95023794223f1e158b27231d76eb21",
+    "outcome": "updated"
+  },
+  {
+    "repo": "jujutsu-skills",
+    "remote": "origin",
+    "before": "7b0d61a4d390a6b9c9028e098b4c86cedee39c40",
+    "target": "a87110a205e364a85dc530743c4f711307d8cc7b",
+    "previous_parent": "4089fe8edca1cea05256143aa5f78871262c2bbf",
+    "preserved_bookmark": "local/pre-legacy-retirement-20261117-4089fe8edca1",
+    "outcome": "updated"
+  },
+  {
+    "repo": "lapis-ai",
+    "remote": "origin",
+    "before": "da77dbd8583784f720d4bc89924cbb41fbbb2959",
+    "target": "1e6743d0095f83c52b3329782a927437e63b3107",
+    "previous_parent": "a1e651c6c1f6634fb6c492ca9ba031e6b8c3a381",
+    "outcome": "updated"
+  },
+  {
+    "repo": "lapis-ci",
+    "remote": "origin",
+    "before": "5f93d8488668b135536949ba30458da6eefdf08d",
+    "target": "30fd2352fcc4ff708778eebb821bd7def646cf40",
+    "previous_parent": "d0eea80ba0c746e5d8e1d546d35576fb8b941200",
+    "outcome": "updated"
+  },
+  {
+    "repo": "lapis-community",
+    "remote": "codex-https",
+    "before": "51c847763d5f7b65d7ab4466f37215e40a67cd11",
+    "target": "4670760cc04fa2940bc68b029c29fe9b71bb8685",
+    "outcome": "fetched-preserved-dirty",
+    "files": [
+      "scripts/architecture-baseline.json",
+      "spec/src/architecture.md",
+      "spec/src/registry-pipeline.md",
+      "spec/src/verification.md",
+      "src/fixture/release-manifest.test.ts",
+      "src/fixture/release-manifest.ts",
+      "src/fixture/seed.ts"
+    ]
+  },
+  {
+    "repo": "lapis-desktop",
+    "remote": "handoff-https",
+    "before": "5711e8e8035fb1f03fa6c0aebe876c8ef5e7791b",
+    "target": "9805eff8882eead854c3df2c46a29d724077c137",
+    "outcome": "fetched-preserved-dirty",
+    "files": [
+      "package.json",
+      "pnpm-lock.yaml",
+      "scripts/ci-prepare-links.mjs",
+      "spec/src/current/governance.md",
+      "spec/src/current/local-dependencies.md",
+      "tests/governance/turbo-task-graph.test.mjs"
+    ]
+  },
+  {
+    "repo": "lapis-desktop-ci",
+    "remote": "origin",
+    "before": "b4a18f0a61fb35cfe2d9f180c2066932e8f1f020",
+    "target": "9805eff8882eead854c3df2c46a29d724077c137",
+    "previous_parent": "a07a35e8aeb2b267b5edbf07642619dcacac1b81",
+    "outcome": "updated"
+  },
+  {
+    "repo": "lapis-maintenance",
+    "remote": "origin",
+    "before": "9f17a39d69622cc6e4ae08caa71e2417edb617f3",
+    "target": "b5a9ca28ab9ba55d66c32a7596b147960326183c",
+    "previous_parent": "b5a9ca28ab9ba55d66c32a7596b147960326183c",
+    "outcome": "already-current"
+  },
+  {
+    "repo": "lapis-notes",
+    "remote": "codex-https",
+    "before": "1a3c6c2ea879f559e0438de489d654edee25261a",
+    "target": "29011545d526b9543551bf19e25cbaf3d94c4f64",
+    "previous_parent": "453590e3eefe41bae3584156961193a56f43462c",
+    "outcome": "updated"
+  },
+  {
+    "repo": "lapis-notes-ci-image-pr-20261101",
+    "remote": "origin",
+    "before": "753b4e5ac529a51ecb0a4eb0239d389a350539e8",
+    "target": "29011545d526b9543551bf19e25cbaf3d94c4f64",
+    "previous_parent": "9fa76c88e673d22acc306bb3b277bb2ec52d847d",
+    "outcome": "updated"
+  },
+  {
+    "repo": "lapis-notes-dependency-ci-20261101",
+    "remote": "origin",
+    "before": "fdae44de7c98c2fd9875c88f2030998e9b4f62b6",
+    "target": "29011545d526b9543551bf19e25cbaf3d94c4f64",
+    "previous_parent": "e8a04959eb36aeb8801b8f23935ff2060eda4692",
+    "outcome": "updated"
+  },
+  {
+    "repo": "lapis-notes-registry-final-ci",
+    "remote": "origin",
+    "before": "9dde15e8ecfe9bde81e8130f0543c354396a68af",
+    "target": "29011545d526b9543551bf19e25cbaf3d94c4f64",
+    "previous_parent": "3580e280a75e32476cffb01f6243fd8e02f7d196",
+    "outcome": "updated"
+  },
+  {
+    "repo": "lapis-plugin-cv-roles",
+    "remote": "origin",
+    "before": "03efacd6f921b52d334135944ec6ce9eac563e32",
+    "outcome": "fetch-failed",
+    "detail": "git: ERROR: Repository not found.        \nError: Git process failed: External git program failed:\nfatal: Could not read from remote repository.\n\nPlease make sure you have the correct access rights\nand the repository exists.\n\n"
+  },
+  {
+    "repo": "lapis-plugin-docs",
+    "remote": "origin",
+    "before": "9a66bc194557a16571e45464b7a5cf299e6d7804",
+    "target": "8aa7886eed72cf6c4df0dc18e1851afe0292702f",
+    "previous_parent": "7ee3c8ff8ce06a575dfcb6c91e597cca7fcadb09",
+    "outcome": "updated"
+  },
+  {
+    "repo": "lapis-plugin-nostr-sync",
+    "outcome": "no-remote"
+  },
+  {
+    "repo": "lapis-plugin-notebook",
+    "remote": "codex-https",
+    "before": "e76357ca075fb8a901d96f88e43155b0551f0d35",
+    "target": "3712b63c286632fc5ede182d3bab89e617baf7c2",
+    "previous_parent": "b387c7b1df64d161c638a7a666604a4c2c2b1d2c",
+    "preserved_bookmark": "local/pre-legacy-retirement-20261117-b387c7b1df64",
+    "outcome": "updated"
+  },
+  {
+    "repo": "lapis-plugin-tasks",
+    "remote": "origin",
+    "before": "41a3695b1c2869fb21d5661b3ce58fde6d6d988a",
+    "target": "5a76dda189be11d90a0033b10a8874aff0e54751",
+    "previous_parent": "ca3bdee0076efa126e9d641362fa646ebdea6233",
+    "preserved_bookmark": "local/pre-legacy-retirement-20261117-ca3bdee0076e",
+    "outcome": "updated"
+  },
+  {
+    "repo": "lapis-plugin-terminal",
+    "remote": "origin",
+    "before": "9c609eea58848368c394435bc25e6dbaa7f957c3",
+    "target": "cec9a7b38dc4d6acac0b7ec6e3a3612273eafda9",
+    "outcome": "fetched-preserved-dirty",
+    "files": [
+      "package.json",
+      "pnpm-lock.yaml"
+    ]
+  },
+  {
+    "repo": "lapis-plugins",
+    "remote": "codex-https",
+    "before": "6af1993cf86b5e5ad8874a475df835a7d882bbd8",
+    "target": "313b4a41b8910e2f1db2cf07a64e73ca13f26fe3",
+    "previous_parent": "1c0bba269a5b4374a192b8b504a7b19082d7e77c",
+    "preserved_bookmark": "local/pre-legacy-retirement-20261117-1c0bba269a5b",
+    "outcome": "updated"
+  },
+  {
+    "repo": "lapis-plugins-history-feedback-pr",
+    "remote": "origin",
+    "before": "ea831ef37053f060005d1d9d00aa8fcf34b42c90",
+    "target": "313b4a41b8910e2f1db2cf07a64e73ca13f26fe3",
+    "previous_parent": "a35c1c16d085083c2b3d729a819b917f33ed8968",
+    "preserved_bookmark": "local/pre-legacy-retirement-20261117-a35c1c16d085",
+    "outcome": "updated"
+  },
+  {
+    "repo": "lapis-plugins-registry-version",
+    "remote": "origin",
+    "before": "95942d31680e8a2e972ae999973cd39531db1d6d",
+    "target": "313b4a41b8910e2f1db2cf07a64e73ca13f26fe3",
+    "previous_parent": "defa3d061ae7b985c8d19b8de794540b4e146842",
+    "outcome": "updated"
+  },
+  {
+    "repo": "lapis-server",
+    "remote": "codex-https",
+    "before": "ae70b617c98cb0acefcb318a2927bedf6561015e",
+    "target": "83fca8ddd25b7b7913723e231779862f94f7dbcb",
+    "outcome": "fetched-preserved-dirty",
+    "files": [
+      "package.json",
+      "spec/src/current/governance.md",
+      "web/e2e/hosted-terminal.spec.ts",
+      "web/playwright.hosted-notes.config.ts",
+      "web/renderer-dependencies.ts",
+      "web/src/hosted/rust/backend.ts",
+      "web/src/hosted/rust/native-chat.test.ts",
+      "web/src/hosted/rust/terminal-client.test.ts",
+      "web/src/hosted/rust/terminal-client.ts",
+      "web/src/hosted/rust/terminal-registration.test.ts",
+      "web/src/hosted/rust/terminal-registration.ts",
+      "web/src/hosted/rust/terminal-stream.ts"
+    ]
+  },
+  {
+    "repo": "lapis-terminal",
+    "remote": "origin",
+    "before": "9225474390b0c543e4df28fdfc3a0247d0ba52fb",
+    "target": "f93e854a34a2abab22869e42806dac7670385978",
+    "previous_parent": "ecbc42511f6eb5d550d73f0cfa271c121480c9b4",
+    "preserved_bookmark": "local/pre-legacy-retirement-20261117-ecbc42511f6e",
+    "outcome": "updated"
+  },
+  {
+    "repo": "lapis-website",
+    "remote": "origin",
+    "before": "6a181e5fc04f504524e5b1f5ac3aedc10322eb5a",
+    "target": "7ab1f931feeee25fe99c60bf1e9b6611b84928c2",
+    "previous_parent": "7ab1f931feeee25fe99c60bf1e9b6611b84928c2",
+    "outcome": "already-current"
+  },
+  {
+    "repo": "lapismd-github-config",
+    "remote": "origin",
+    "before": "4db803ee505a38adc54b11f9fae488f5f6ce30e2",
+    "target": "a324a98fedbe389acc8bee86ef3aa0b03d8ed161",
+    "previous_parent": "12efd488632fe9ecdd3f178309a30e4f5f7a0112",
+    "outcome": "updated"
+  },
+  {
+    "repo": "mira-mde",
+    "remote": "codex-https",
+    "before": "f9f67db81672397d66ac22a7f467a78a8feead2d",
+    "target": "03f6500c5bb44d0032c7a3ae93db75b4c04b05b6",
+    "previous_parent": "51912b930411f600e4d559a35fa069fdf4903e3a",
+    "outcome": "updated"
+  },
+  {
+    "repo": "nostr-agent-controller",
+    "outcome": "no-remote"
+  },
+  {
+    "repo": "nostr-auth",
+    "remote": "origin",
+    "before": "988ac8271a2b8785f9a5ba3248b93007608ae0ba",
+    "target": "4a982f1dca33a3e08c01cf4cf67fec7b3362504f",
+    "previous_parent": "c67da83185d091ae53658e792f0a0b489272c6c2",
+    "preserved_bookmark": "local/pre-legacy-retirement-20261117-c67da83185d0",
+    "outcome": "updated"
+  },
+  {
+    "repo": "nostr-plugin-registry",
+    "remote": "origin",
+    "before": "f5a3e42cfb5bdb0b357d032f41ae45dbbe03098b",
+    "target": "0503bac93a3a3b6c1c64f5ec0d49cecf55ba5d6e",
+    "outcome": "fetched-preserved-dirty",
+    "files": [
+      "package.json",
+      "pnpm-lock.yaml"
+    ]
+  },
+  {
+    "repo": "nostr-relay",
+    "remote": "origin",
+    "before": "51c7ca958665abe8c5dbd06c9bdb224d78a90f5e",
+    "target": "9da26a7f2e5b90419075821c8e658cc0b2d25b08",
+    "previous_parent": "5f1248c1baffb3bba7da27ec8a84b1086f4e732b",
+    "preserved_bookmark": "local/pre-legacy-retirement-20261117-5f1248c1baff",
+    "outcome": "updated"
+  },
+  {
+    "repo": "spec-validator",
+    "remote": "origin",
+    "before": "2f3a3479f05e5857c4017b4157e06c2b3d67e186",
+    "target": "70c92752dd45ea1aea8cce75f5db7eb68ee00570",
+    "previous_parent": "55036e9633cbb111aac6aad6e885cb55ec9fb5ec",
+    "outcome": "updated"
+  },
+  {
+    "repo": "storybook-addon-visual-delta",
+    "remote": "codex-https",
+    "before": "35318cce6d19d47b039e09de26372366a79c37c1",
+    "target": "1d01be1b8d928841f6cc91e1ddfaabddb2997af9",
+    "previous_parent": "67ebc69dc233539e21a68660c204dbcc9d360d1b",
+    "outcome": "updated"
+  },
+  {
+    "repo": "terminal-host",
+    "remote": "codex-https",
+    "before": "95996125ee5e4b28fc1c1c20b877763a8b007577",
+    "target": "894ceb2eb214a17e4b6b949a1bfa601124f90da6",
+    "previous_parent": "289b091d5e4726efa544510a4f0a6bf324ce4b3e",
+    "preserved_bookmark": "local/pre-legacy-retirement-20261117-289b091d5e47",
+    "outcome": "updated"
+  },
+  {
+    "repo": "workspace-bootstrap",
+    "remote": "origin",
+    "before": "70722f188f67a28d1b6ac98eedd5c07e6da1425d",
+    "target": "6a3cd6edc89e77e46f37ab677ddbcbbdb221589d",
+    "previous_parent": "92610e1ab9643d6e3bb3fa4cedac1d6b54c28cc8",
+    "outcome": "updated"
+  }
+]

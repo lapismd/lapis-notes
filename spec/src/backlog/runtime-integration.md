@@ -11,6 +11,25 @@ separate open gates. Tasks/Docs/Mira reuse retains each
 publisher's existing identity, signing and provenance checks. Exhaustion stays
 a failed gate and grants no blind rerun; frozen Deno packages remain excluded.
 
+## Legacy runtime and package retirement
+
+Status: in progress; shared AI publication safeguards and registry source
+disablement are committed and source-qualified. Plugins package/catalog removal
+is committed, pushed and qualified; Notes consumer/probe cleanup, native/data
+acceptance and signed publication remain pending.
+Notes coordinates the
+[consolidated retirement plan](../../../docs/plans/legacy-runtime-retirement.md)
+for the frozen Deno desktop, shared AI plugin, obsolete host/tooling edges and
+deprecated interfaces. Sibling owners retain their contracts, implementation,
+qualification and release authority. Preserve Tauri-owned AI, native chat,
+the API file-tools kernel, required Rust services and planned Sync work.
+`nostr-agent-controller`, `community-local` and `nostr-auth` are excluded;
+standalone `ai-controller` is preserved for those consumers. The 2026-11-15
+audit remains dated evidence. Current bases, preparation results, verified
+substeps and pending acceptance are recorded in the
+[progress and resume record](../../../docs/plans/legacy-runtime-retirement-progress.md).
+Source preparation does not qualify product or release gates.
+
 ## Generated version PR authentication
 
 Owner: Notes release automation. LN-GOV-054 prepares repository-scoped App
