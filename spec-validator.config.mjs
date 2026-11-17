@@ -59,7 +59,6 @@ export default defineConfig(headingRequirements(), {
     "STORYBOOK-SHELL-COMPOSITION": "LN-CAT-076",
     "STORYBOOK-SHELL-GEOMETRY": "LN-CAT-076",
     "STORYBOOK-WORKSPACE-INVENTORY": "LN-CAT-077",
-    "STORYBOOK-AI-STATE-MATRIX": "LN-CAT-079",
     "STORYBOOK-SPECIFICATION-ORDER": "LN-CAT-074",
   },
   validators: {

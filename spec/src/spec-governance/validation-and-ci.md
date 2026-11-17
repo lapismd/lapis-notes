@@ -1,5 +1,11 @@
 # Specification Governance / Validation and CI
 
+LN-CAT-123 extends the retired-AI tooling lane to reject shared catalog sources,
+bridges, dependencies and attachment inputs. The obsolete shared-AI state-matrix
+audit is retired with its catalog; all surviving shell, geometry, ownership,
+static and interaction/accessibility assertions remain required. Removed
+catalog requirements and verification rows retain their historical archive.
+
 LN-CAT-122 replaces CI's obsolete shared-AI smoke fixture lane with the
 retired-launcher regression. Normal and canonical checks also enforce the source
 audit through the existing validation router. The lane never starts a provider,

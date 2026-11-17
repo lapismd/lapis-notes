@@ -342,3 +342,44 @@ consumer checks, while landing #157 when its current required checks pass.
 Website, installed-data/native product acceptance and protected registry signing
 remain open. Then proceed through non-terminal hosts and deprecated interfaces;
 terminal ownership/host retirement remains the final removal.
+
+### Notes catalog removal candidate — qualification running
+
+The source candidate removes the 14 shared-AI story/fixture files, hidden panel
+and WorkspaceShell registrations, manual controller bridge/URL/token inputs,
+root package dependencies and local AI archive requirement. The root-only
+controller Git-security fixture is removed with its caller; PWA security and
+API file-tools remain. Frozen desktop controller declarations and its Deno lock
+are unchanged until host retirement. The new LN-CAT-123 catalog audit runs with
+the existing launcher audit in normal/spec checks and CI regressions.
+
+The exact new source regression initially has 1 failure and 1 pass, then both
+pass. Source/tooling/structure/routing targets pass 25 cases; the retired AI-only
+state-matrix case is removed, while shell/inventory regression coverage uses
+retained Bases/Graph fixtures. The first cold History/Workspace run passes 12
+and fails 1 solely on the now-removed Open Chat action. Its assertion now proves
+absence; the exact 13-case cold rerun passes. Full checks, packing/static and
+complete cold interactions are still required before committing this slice.
+
+Nineteen catalog-specific requirements and their verification rows are archived;
+common panel/shell/geometry contracts retain their surviving subjects. The
+independent file-conflict context is preserved. Legacy provider/presentation
+requirements still need a caller-aware ownership audit; their historic evidence
+does not qualify current native AI. No native/data gate is marked complete.
+
+Lock regeneration initially hits stale offline Core metadata; online refresh
+resolves the already-declared published Core 0.13.5. The final pnpm-native lock
+diff is 459 deleted lines, only the root importer changes, 40 package versions
+are unreachable and no versions are added. No override or advisory exception
+changes. A formatting attempt lacked a Svelte parser; the changed Svelte source
+contains deletions only and its cold compilation/interactions pass. Generated
+lock formatting is restored through pnpm to avoid unrelated YAML churn.
+
+The first full Notes candidate run passes 27 package check/test/build tasks with
+2,194 unique package tests (the existing 90-case Deno-service suite also runs in
+its check/build lanes), 196 release-tooling tests, 68 spec regressions and all
+canonical/ownership gates. It stops at archive preparation because the release
+tool requires committed source plus an empty JJ working-copy commit. A local
+candidate checkpoint supplies that precondition; packing, static/dev Docs and
+complete cold interactions still must pass before this branch is pushed/landed.
+No release precondition or functional assertion is bypassed.

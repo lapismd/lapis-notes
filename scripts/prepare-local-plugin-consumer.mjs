@@ -42,7 +42,6 @@ const generatedConsumerCaches = [
   path.join(repositoryRoot, "packages/web/node_modules/.vite"),
 ];
 const requiredPackages = new Set([
-  "@lapis-notes/ai",
   "@lapis-notes/bases",
   "@lapis-notes/bookmarks",
   "@lapis-notes/graph",

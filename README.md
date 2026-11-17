@@ -44,7 +44,6 @@ manager.
 | Markdown      | `@lapis-notes/markdown`      | Yes                 | [![npm](https://img.shields.io/npm/v/@lapis-notes/markdown?label=npm)](https://www.npmjs.com/package/@lapis-notes/markdown)           |
 | File Explorer | `@lapis-notes/file-explorer` | Yes                 | [![npm](https://img.shields.io/npm/v/@lapis-notes/file-explorer?label=npm)](https://www.npmjs.com/package/@lapis-notes/file-explorer) |
 | Search        | `@lapis-notes/search`        | Yes                 | [![npm](https://img.shields.io/npm/v/@lapis-notes/search?label=npm)](https://www.npmjs.com/package/@lapis-notes/search)               |
-| AI            | `@lapis-notes/ai`            | No                  | [![npm](https://img.shields.io/npm/v/@lapis-notes/ai?label=npm)](https://www.npmjs.com/package/@lapis-notes/ai)                       |
 | Bases         | `@lapis-notes/bases`         | No                  | [![npm](https://img.shields.io/npm/v/@lapis-notes/bases?label=npm)](https://www.npmjs.com/package/@lapis-notes/bases)                 |
 | Bookmarks     | `@lapis-notes/bookmarks`     | No                  | [![npm](https://img.shields.io/npm/v/@lapis-notes/bookmarks?label=npm)](https://www.npmjs.com/package/@lapis-notes/bookmarks)         |
 | Graph         | `@lapis-notes/graph`         | No                  | [![npm](https://img.shields.io/npm/v/@lapis-notes/graph?label=npm)](https://www.npmjs.com/package/@lapis-notes/graph)                 |

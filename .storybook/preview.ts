@@ -1,6 +1,5 @@
 import type { Preview } from "@storybook/svelte-vite";
 import { withThemeByDataAttribute } from "@storybook/addon-themes";
-import { createControllerConnectionBridge } from "../scripts/lib/controller-connection-bridge";
 import { syncCatalogStoryLayout } from "@lapismd/design-core/storybook/catalog-layout";
 import { SpecificationDocsContainer } from "./specification-docs";
 // Brand + shadcn paint: design-core. ui/theme.css is Obsidian alias-only.
@@ -8,23 +7,8 @@ import { SpecificationDocsContainer } from "./specification-docs";
 import "@lapismd/design-core/storybook.css";
 import "@lapismd/design-core/themes/lapis.css";
 import "@lapis-notes/bases/styles.css";
-import "@lapis-notes/ai/styles.css";
 import "@lapis-notes/ui/theme.css";
 import "@lapis-notes/ui/codemirror-autocomplete.css";
-
-// Live ACP is opt-in: attach a manually started controller through
-// `.env.storybook.local`. Storybook never starts the host.
-// Register through the desktop-bridge global so preview does not import the
-// API barrel (that hung the iframe on every story).
-const controllerUrl = import.meta.env.LAPIS_AGENT_RUNTIME_URL;
-const controllerToken = import.meta.env.LAPIS_AGENT_RUNTIME_TOKEN;
-const native = globalThis as { __LAPIS_NATIVE_DESKTOP__?: unknown };
-if (!native.__LAPIS_NATIVE_DESKTOP__ && controllerUrl && controllerToken) {
-  native.__LAPIS_NATIVE_DESKTOP__ = createControllerConnectionBridge({
-    url: controllerUrl,
-    token: controllerToken,
-  });
-}
 
 const preview: Preview = {
   tags: ["autodocs", "test"],
@@ -296,15 +280,6 @@ const preview: Preview = {
             "Markdown Lint",
             "Bases",
             ["Views", "Workflows", "Embeds", "Shell", ["Lifecycle", "*"], "*"],
-            "AI",
-            [
-              "Panels",
-              ["Chat", "History", "*"],
-              "Chat",
-              "Live Host",
-              "Shell",
-              "*",
-            ],
             "*",
           ],
           "Workspace",

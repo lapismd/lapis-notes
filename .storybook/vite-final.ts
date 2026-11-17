@@ -135,12 +135,6 @@ export async function viteFinal(
   ];
   return mergeConfig(viteConfig, {
     define: {
-      "import.meta.env.LAPIS_AGENT_RUNTIME_URL": JSON.stringify(
-        process.env.LAPIS_AGENT_RUNTIME_URL ?? "",
-      ),
-      "import.meta.env.LAPIS_AGENT_RUNTIME_TOKEN": JSON.stringify(
-        process.env.LAPIS_AGENT_RUNTIME_TOKEN ?? "",
-      ),
       "import.meta.env.LAPIS_TERMINAL_HOST_URL": JSON.stringify(
         process.env.LAPIS_TERMINAL_HOST_URL ?? "",
       ),
@@ -291,12 +285,7 @@ export async function viteFinal(
       ],
     },
     optimizeDeps: {
-      exclude: [
-        "@storybook/svelte",
-        ...storybookFirstPartyPackageExcludes,
-        "@lapismd/ai-controller/client",
-        "@lapismd/ai-controller/runtime",
-      ],
+      exclude: ["@storybook/svelte", ...storybookFirstPartyPackageExcludes],
       include: [
         "aria-query",
         ...storybookPackedDependencyIncludes,

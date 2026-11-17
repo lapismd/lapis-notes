@@ -18,12 +18,6 @@ function quotedTitle(source) {
 
 const pluginShells = [
   {
-    plugin: "AI",
-    storyFile: "stories/plugins/ai/shell/Shell.stories.ts",
-    demoFile: "stories/plugins/ai/shell/ShellDemo.svelte",
-    runtimeFile: "stories/plugins/ai/shell/create-shell-demo.ts",
-  },
-  {
     plugin: "Bases",
     storyFile: "stories/plugins/bases/shell/Shell.stories.ts",
     demoFile: "stories/plugins/bases/shell/ShellDemo.svelte",
@@ -368,7 +362,6 @@ function auditPersistedWorkspace({ readOptional }) {
     "HistoryPlugin",
     "WordCountPlugin",
     "BasesPlugin",
-    "AiPlugin",
   ];
   const pluginIds = [
     "markdown",
@@ -380,7 +373,6 @@ function auditPersistedWorkspace({ readOptional }) {
     "history",
     "wordcount",
     "bases",
-    "ai",
   ];
   const valid =
     demo !== null &&
@@ -393,7 +385,6 @@ function auditPersistedWorkspace({ readOptional }) {
       ).test(demo),
     ) &&
     pluginIds.every((id) => story.includes(`{ id: "${id}", enabled: true }`)) &&
-    demo.includes('defaultRuntime: "fake"') &&
     story.includes("export const PersistedDesktop") &&
     story.includes("export const Mobile") &&
     (story.match(/loadBundledPlugins:\s*true/g)?.length ?? 0) >= 2;
@@ -404,74 +395,9 @@ function auditPersistedWorkspace({ readOptional }) {
           "STORYBOOK-WORKSPACE-INVENTORY",
           demo === null ? demoFile : storyFile,
           1,
-          "PersistedDesktop and Mobile must enable bundled plugins including Graph and Bookmarks and use Fake AI",
+          "PersistedDesktop and Mobile must enable bundled plugins including Graph and Bookmarks",
         ),
       ];
-}
-
-const aiStateStories = [
-  "PermissionRequested",
-  "PermissionAccepted",
-  "QuestionAsked",
-  "QuestionAnswered",
-  "ToolRunning",
-  "SuccessfulToolCall",
-  "FailedToolCall",
-  "ValidationAndEmptyState",
-  "FailedMessageAndRetry",
-  "AgentTrace",
-];
-
-function storyBlock(source, exportName) {
-  const startToken = `export const ${exportName}`;
-  const start = source.indexOf(startToken);
-  if (start < 0) return null;
-  const next = source.indexOf("\nexport const ", start + startToken.length);
-  return source.slice(start, next < 0 ? source.length : next);
-}
-
-/** Enforce the independently inspectable AI interaction state matrix. */
-export function auditAiStateMatrix({ readOptional }) {
-  const storyFile = "stories/plugins/ai/AiChat.stories.ts";
-  const source = readOptional(storyFile);
-  if (source === null) {
-    return [
-      finding(
-        "STORYBOOK-AI-STATE-MATRIX",
-        storyFile,
-        1,
-        "AI Chat must provide the canonical interaction state catalog",
-      ),
-    ];
-  }
-
-  const requiredTokens = [
-    "workspaceCatalogParameters(",
-    "docs:",
-    "source:",
-    "visualDelta:",
-    "images:",
-    "play:",
-  ];
-  const findings = [];
-  for (const exportName of aiStateStories) {
-    const block = storyBlock(source, exportName);
-    const missing =
-      block === null
-        ? ["story export"]
-        : requiredTokens.filter((token) => !block.includes(token));
-    if (missing.length > 0) {
-      findings.push(
-        finding(
-          "STORYBOOK-AI-STATE-MATRIX",
-          storyFile,
-          lineFor(source, `export const ${exportName}`),
-          `AI Chat ${exportName} is missing ${missing.join(", ")}`,
-        ),
-      );
-    }
-  }
-  return findings;
 }
 
 function auditSpecificationOrder({ readOptional }) {
@@ -509,7 +435,6 @@ export function auditStorybookStructure({
     ...auditCatalogTaxonomy({ trackedFiles, readOptional }),
     ...auditShells({ readOptional, shells }),
     ...auditPersistedWorkspace({ readOptional }),
-    ...auditAiStateMatrix({ readOptional }),
     ...auditSpecificationOrder({ readOptional }),
   ];
 }

@@ -1,5 +1,11 @@
 # Packages / App and services
 
+LN-CAT-123 removes Notes root shared-AI/controller development dependencies and
+the archive requirement after their catalog/launcher callers are gone. The
+root controller-only Git security fixture is retired with its caller, while
+PWA security tests and the API file-tools kernel remain active. Frozen desktop
+controller declarations are unchanged until their host retirement slice.
+
 Retirement under LN-CAT-122 removes only Notes-owned shared-AI launch/probe
 commands in this step. Shared-AI catalog dependencies and the frozen desktop's
 controller package remain until their owning consumer slices; no package export,

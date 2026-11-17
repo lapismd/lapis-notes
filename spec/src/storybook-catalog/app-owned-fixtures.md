@@ -50,35 +50,11 @@ and unready until the actual host callback settles, then opens its real document
 
 **Requirement.** An intentionally Storybook-local component MUST use its honest co-located fixture import in Show Code and identify that package-boundary exception. Documentation MUST NOT invent a public package export for a story-only component.
 
-## LN-CAT-061 — Plugins/AI/Shell: boot a real App, fill the standalone
-
-<a id="ln-cat-061"></a>
-
-**Requirement.** `Plugins/AI/Shell` MUST boot a real App, fill the standalone viewport while the bottom panel is closed, keep Explorer visible on the left and Search retained collapsed on the right, and demonstrate the server-backed model selector without free text. Its empty transcript MUST fill the remaining panel above the bottom composer.
-
-## LN-CAT-065 — Plugins/AI/Chat: demonstrate Layout scroll-to-latest after the transcript is
-
-<a id="ln-cat-065"></a>
-
-**Requirement.** `Plugins/AI/Chat` MUST demonstrate Layout scroll-to-latest after the transcript is scrolled away from the newest item, using a seeded Fake session, public Show Code, and a `visual-pending` nested-import baseline.
-
-## LN-CAT-068 — Plugins/AI/Live Host: the manual live lane, tagged skip-visual,
-
-<a id="ln-cat-068"></a>
-
-**Requirement.** `Plugins/AI/Live Host` MUST be the manual live lane, tagged `skip-visual`, with no visual baseline. ManualAttach MUST cover missing-attach setup and MUST NOT send a live prompt. ReloadResume MUST seed the shared `lapis-ai-story:` key and assert transcript, divider, and usage before resume without sending a prompt.
-
 ## LN-CAT-072 — Live Host missing-attach state: point to a seeded supervisor that starts
 
 <a id="ln-cat-072"></a>
 
 **Requirement.** The Live Host missing-attach state MUST point to a seeded supervisor that starts an isolated loopback host and injects an ephemeral token into Storybook without writing or logging it. Storybook itself MUST NOT start the host, and lower-level manual attachment MUST remain available.
-
-## LN-CAT-073 — Plugins/AI/Shell: use a story-controlled initialization gate to assert
-
-<a id="ln-cat-073"></a>
-
-**Requirement.** `Plugins/AI/Shell` MUST use a story-controlled initialization gate to assert immediate disabled chat chrome followed by an enabled composer without timing assumptions. Its local-conversations play MUST assert that History preserves the chat leaf and selecting the same conversation twice reuses one main-area tab.
 
 ## LN-CAT-078 — Roles and CV catalog ownership
 
@@ -114,7 +90,7 @@ and unready until the actual host callback settles, then opens its real document
 
 <a id="ln-cat-069"></a>
 
-**Requirement.** App-backed stories MUST install disposable compatibility leases while their canvases use the App they own. Multi-App acceptance MUST prove Workspace, Bases, and AI do not follow another story's compatibility alias.
+**Requirement.** App-backed stories MUST install disposable compatibility leases while their canvases use the App they own. Multi-App acceptance MUST prove Workspace and Bases do not follow another story's compatibility alias.
 
 ## LN-CAT-070 — Storybook browser project: retain a bounded 120-second per-story ceiling
 
@@ -181,3 +157,9 @@ authorization to merge red required checks. Remaining cases stay enabled.
 <a id="ln-cat-122"></a>
 
 **Requirement.** Notes tooling MUST NOT seed, start or probe the retired shared-AI controller integration. Normal checks, canonical specification checks and CI MUST reject reintroduced launcher files or root commands. The preserved standalone controller and frozen desktop remain separately owned pending their scoped consumer retirement.
+
+## LN-CAT-123 — Retired shared-AI catalog and dependencies
+
+<a id="ln-cat-123"></a>
+
+**Requirement.** Notes MUST NOT import, register or require the retired shared-AI catalog, controller bridge or root package dependencies. Normal and canonical checks MUST reject reintroduction. Native Chat, API file-tools and independent Mira AI MUST remain available through their owning public boundaries.

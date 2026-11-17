@@ -17,12 +17,6 @@ import {
 import "@lapis-notes/graph/styles.css";
 import { HistoryPlugin, HistoryViewType } from "@lapis-notes/history";
 import {
-  AiCatalogViewType,
-  AiHistoryViewType,
-  AiPlugin,
-  AiViewType,
-} from "@lapis-notes/ai";
-import {
   FileExplorerPlugin,
   FileExplorerViewType,
 } from "@lapis-notes/file-explorer";
@@ -43,9 +37,6 @@ import { SearchPlugin, SearchViewType } from "@lapis-notes/search";
 import { watchMetadata } from "../../../workspace/watch-metadata";
 
 export type PanelDemoKind =
-  | "ai-history"
-  | "ai-catalog"
-  | "ai-chat"
   | "all-properties"
   | "explorer"
   | "file-properties"
@@ -77,9 +68,6 @@ export const PANEL_DEMO_LAYOUTS: PanelDemoLayout[] = [
 ];
 
 export const PANEL_VIEW_TYPE: Record<PanelDemoKind, string> = {
-  "ai-history": AiHistoryViewType,
-  "ai-catalog": AiCatalogViewType,
-  "ai-chat": AiViewType,
   "all-properties": AllPropertiesViewType,
   explorer: FileExplorerViewType,
   "file-properties": FilePropertiesViewType,
@@ -98,24 +86,6 @@ export const PANEL_LEAF_META: Record<
   PanelDemoKind,
   { title: string; icon: string; group: string; requiresFile: boolean }
 > = {
-  "ai-history": {
-    title: "AI conversations",
-    icon: "history",
-    group: "AI",
-    requiresFile: true,
-  },
-  "ai-catalog": {
-    title: "Catalog",
-    icon: "library",
-    group: "AI",
-    requiresFile: true,
-  },
-  "ai-chat": {
-    title: "AI chat",
-    icon: "bot",
-    group: "AI",
-    requiresFile: false,
-  },
   "all-properties": {
     title: "All properties",
     icon: "archive",
@@ -577,8 +547,6 @@ export function createPanelDemoSeed(
     "Notes/FilenameOnly.md":
       "# Quiet note\n\nThe body deliberately omits the filename token.\n",
     "Assets/map.png": new Uint8Array([137, 80, 78, 71]).buffer,
-    ...(kind === "ai-history" ? createAiHistorySeed() : {}),
-    ...(kind === "ai-catalog" ? createAiCatalogSeed() : {}),
     ...(kind === "history" ? createHistorySeed() : {}),
     ...(kind === "bookmarks" ? createBookmarksSeed() : {}),
   };
@@ -669,98 +637,6 @@ async function seedHistoryRevisions(app: App): Promise<void> {
   });
 }
 
-function createAiCatalogSeed(): Record<string, string> {
-  return {
-    "Notes/.agents/skills/daily/SKILL.md": [
-      "---",
-      "name: daily",
-      "description: Daily notes",
-      "---",
-      "",
-      "Daily skill body.",
-      "",
-    ].join("\n"),
-    "Notes/.agents/commands/review.md": [
-      "---",
-      "description: Review the current note for gaps",
-      "kind: prompt",
-      "---",
-      "",
-      "Review $ARGUMENTS. Report missing tests first.",
-      "",
-    ].join("\n"),
-  };
-}
-
-function createAiHistorySeed(): Record<string, string> {
-  return {
-    ...conversationSeed({
-      scopeDir: "Notes",
-      id: "123e4567-e89b-42d3-a456-426614174000",
-      title: "Summarize project notes",
-      status: "active",
-      message: "Summarize the project notes and identify the next milestone.",
-      updatedAt: "2026-08-16T11:30:00.000Z",
-    }),
-    ...conversationSeed({
-      scopeDir: "Notes",
-      id: "223e4567-e89b-42d3-a456-426614174001",
-      title: "Archived planning chat",
-      status: "archived",
-      message: "Review the planning notes from last week.",
-      updatedAt: "2026-08-15T09:00:00.000Z",
-    }),
-    ...conversationSeed({
-      scopeDir: "Projects/Atlas",
-      id: "323e4567-e89b-42d3-a456-426614174002",
-      title: "Fix parser errors",
-      status: "active",
-      message: "Find the parser error in the Atlas import pipeline.",
-      updatedAt: "2026-08-16T10:00:00.000Z",
-    }),
-    ...conversationSeed({
-      scopeDir: "",
-      id: "423e4567-e89b-42d3-a456-426614174003",
-      title: "Plan vault release",
-      status: "active",
-      message: "Draft a release checklist for the whole vault.",
-      updatedAt: "2026-08-14T13:00:00.000Z",
-    }),
-  };
-}
-
-function conversationSeed(input: {
-  scopeDir: string;
-  id: string;
-  title: string;
-  status: "active" | "archived";
-  message: string;
-  updatedAt: string;
-}): Record<string, string> {
-  const scopePrefix = input.scopeDir ? `${input.scopeDir}/` : "";
-  const root = `${scopePrefix}.lapis/agents/sessions/${input.id}`;
-  return {
-    [`${root}/metadata.yaml`]: [
-      "schemaVersion: 1",
-      `id: ${input.id}`,
-      `title: ${JSON.stringify(input.title)}`,
-      'createdAt: "2026-08-14T08:00:00.000Z"',
-      `updatedAt: ${JSON.stringify(input.updatedAt)}`,
-      `status: ${input.status}`,
-      "",
-    ].join("\n"),
-    [`${root}/agents.jsonl`]: "",
-    [`${root}/transcript.jsonl`]: `${JSON.stringify({
-      schemaVersion: 1,
-      id: `message-${input.id}`,
-      type: "message",
-      role: "user",
-      text: input.message,
-      createdAt: input.updatedAt,
-    })}\n`,
-  };
-}
-
 function findMarkdownLeaf(app: App): WorkspaceLeaf | null {
   let found: WorkspaceLeaf | null = null;
   app.workspace.iterateRootLeaves((leaf) => {
@@ -816,12 +692,6 @@ export async function bootPanelDemo(
     },
     { plugin: BookmarksPlugin, required: false, enabledByDefault: true },
     { plugin: HistoryPlugin, required: false, enabledByDefault: true },
-    {
-      plugin: AiPlugin,
-      required: false,
-      enabledByDefault: true,
-      distribution: "bundled",
-    },
   ]);
 
   await app.vault.load();
@@ -866,11 +736,6 @@ export async function bootPanelDemo(
   if (kind === "history") {
     await seedHistoryRevisions(app);
   }
-  const aiPlugin = app.plugins.plugins.get("ai");
-  if (aiPlugin instanceof AiPlugin) {
-    await aiPlugin.updateSettings({ defaultRuntime: "fake" });
-    await aiPlugin.conversationIndex.rebuild();
-  }
   await app.workspace.loadLayout();
 
   const panelType = PANEL_VIEW_TYPE[kind];
@@ -886,24 +751,6 @@ export async function bootPanelDemo(
     throw new Error(`Missing Markdown context leaf for ${kind} ${layout}`);
   }
   if (markdownLeaf) app.workspace.setActiveLeaf(markdownLeaf, { focus: false });
-  if (kind === "ai-catalog" && aiPlugin instanceof AiPlugin) {
-    await aiPlugin.refreshFileCommands("Notes");
-    app.workspace.getLeavesOfType(AiCatalogViewType)[0]?.view.load();
-    const catalog = await aiPlugin.loadAiCatalog();
-    const hasReviewCommand = catalog.some((group) =>
-      group.commands.some((command) => command.name === "review"),
-    );
-    if (!hasReviewCommand) {
-      throw new Error(
-        `AI catalog fixture could not discover review from ${app.workspace.getActiveFile()?.path ?? "no active file"}; matching files: ${
-          app.vault
-            .getFilesByGlob("Notes/.agents/commands/*.md")
-            .map((file) => file.path)
-            .join(", ") || "none"
-        }`,
-      );
-    }
-  }
 
   return {
     app,
