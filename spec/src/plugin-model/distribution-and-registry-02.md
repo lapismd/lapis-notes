@@ -1,5 +1,10 @@
 # Plugin Model / Distribution and registry / Part 2
 
+LN-CAT-124/125 use the post-retirement signed fixture without shared AI.
+Graph supplies category/detail navigation; verified Word Count installation,
+Settings and reload assertions remain. This changes neither third-party AI
+admission nor production registry trust under LN-PLUG-095.
+
 ## LN-PLUG-095 — Local signed-registry configuration
 
 <a id="ln-plug-095"></a>

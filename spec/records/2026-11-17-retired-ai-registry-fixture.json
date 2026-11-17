@@ -1,0 +1,238 @@
+{
+  "date": "2026-11-17",
+  "requirements": ["LN-CAT-124", "LN-CAT-125"],
+  "provenance": {
+    "name": "lapis-retirement-registry-fixture-f729c5c5-8a75-4a65-9e38-8030f3b70221",
+    "id": "7dc23c4fbd0d591f2689f70fd623744f7a3253563bf932f4e4015c21766afe0d",
+    "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+    "pin": "969356250f26c5561fac22cf00d8da8f395dbdae",
+    "notes": "5ffb33c152404b6880debd1b5fd70762121d6196",
+    "sourceHashes": {
+      "plugins": "61293084f9af033596e18ff56139e3b4da90eed396629de22a8e0155f765b3e4",
+      "notes": "60260c553bb74aecacaf0f138cddadc4768bc1462cc4198e14a8da27ab9abbd8"
+    }
+  },
+  "sourceInputs": "Immutable committed Plugins969 and Notes5ff archives; only the Web acceptance test is overlaid for after runs. No production-code or dependency override.",
+  "fixture": {
+    "plugins": 16,
+    "signedCatalogDocuments": 18,
+    "retiredSharedAiAbsent": true,
+    "bundleVerification": {
+      "pluginsSource": "969356250f26c5561fac22cf00d8da8f395dbdae",
+      "verified": 16,
+      "bundles": [
+        {
+          "name": "bases-0.4.2.lapis-plugin",
+          "sha256": "7785b3073966af9a7519706379e14bcbb573864ea6f98c01a7d578cf14cf57f6",
+          "pluginId": "bases",
+          "source": "969356250f26c5561fac22cf00d8da8f395dbdae",
+          "files": 8
+        },
+        {
+          "name": "bookmarks-0.1.13.lapis-plugin",
+          "sha256": "246fbfcc050abf9c18807b7ee6aecfc598cbcc34a2778562571962afc2cc79f7",
+          "pluginId": "bookmarks",
+          "source": "969356250f26c5561fac22cf00d8da8f395dbdae",
+          "files": 4
+        },
+        {
+          "name": "history-0.5.1.lapis-plugin",
+          "sha256": "e9d386f9cbd2f2b04ef0e05472f544a0b525d8de6a2034529b3ce37839ef57b9",
+          "pluginId": "history",
+          "source": "969356250f26c5561fac22cf00d8da8f395dbdae",
+          "files": 4
+        },
+        {
+          "name": "lapis-canvas-0.4.2.lapis-plugin",
+          "sha256": "33998a14d33c2b9bd97f14db30c417e8637186251e8569e4f87e0b86aca1d25c",
+          "pluginId": "lapis-canvas",
+          "source": "969356250f26c5561fac22cf00d8da8f395dbdae",
+          "files": 182
+        },
+        {
+          "name": "lapis-csv-0.2.10.lapis-plugin",
+          "sha256": "4c279fa115027daeed52a074e7a1d2c69ae2ed81c06acb3a3c952d1fba4f9a6c",
+          "pluginId": "lapis-csv",
+          "source": "969356250f26c5561fac22cf00d8da8f395dbdae",
+          "files": 4
+        },
+        {
+          "name": "lapis-docx-0.2.3.lapis-plugin",
+          "sha256": "5ace14ca158f0ba888910a27273d420a3ce813695105e46faf37aa5cff6d690b",
+          "pluginId": "lapis-docx",
+          "source": "969356250f26c5561fac22cf00d8da8f395dbdae",
+          "files": 12
+        },
+        {
+          "name": "lapis-graph-0.1.13.lapis-plugin",
+          "sha256": "0399d277dc3b8cbe8234df71a2bd725af32fa5dc8e8910ac350a09c7bb0b42b2",
+          "pluginId": "lapis-graph",
+          "source": "969356250f26c5561fac22cf00d8da8f395dbdae",
+          "files": 178
+        },
+        {
+          "name": "lapis-markdown-lint-0.1.5.lapis-plugin",
+          "sha256": "83e20cf8a47d0ae900e623a8a45b56938d3c3dbb571eed14ac5c9a40d8d7ca59",
+          "pluginId": "lapis-markdown-lint",
+          "source": "969356250f26c5561fac22cf00d8da8f395dbdae",
+          "files": 6
+        },
+        {
+          "name": "lapis-pdf-0.2.3.lapis-plugin",
+          "sha256": "9f1c558d5baadc03d0c07a087b91ddd88178d597eaf19d5a89abfb867d97bcc2",
+          "pluginId": "lapis-pdf",
+          "source": "969356250f26c5561fac22cf00d8da8f395dbdae",
+          "files": 8
+        },
+        {
+          "name": "lapis-slides-0.1.4.lapis-plugin",
+          "sha256": "1d9cf4b8f354925bd6baf7786420c711259383ea32e0cbe15b5862e1bf0d2dce",
+          "pluginId": "lapis-slides",
+          "source": "969356250f26c5561fac22cf00d8da8f395dbdae",
+          "files": 178
+        },
+        {
+          "name": "lapis-source-editor-0.1.12.lapis-plugin",
+          "sha256": "91c63e1769ad2d7d36b0f93a2b917449ed63f0b29de6cc3a434fa20ce70286c0",
+          "pluginId": "lapis-source-editor",
+          "source": "969356250f26c5561fac22cf00d8da8f395dbdae",
+          "files": 4
+        },
+        {
+          "name": "lapis-transcripts-0.2.9.lapis-plugin",
+          "sha256": "83c504f095d370edf7fda816e6b8713d01792527e1e5d00b43efe8ce653cbac0",
+          "pluginId": "lapis-transcripts",
+          "source": "969356250f26c5561fac22cf00d8da8f395dbdae",
+          "files": 109
+        },
+        {
+          "name": "markdown-0.3.3.lapis-plugin",
+          "sha256": "da1830d46759afde2fd7d4d3639ea05c8a9316caac6143bb6a3e3826a6228bbb",
+          "pluginId": "markdown",
+          "source": "969356250f26c5561fac22cf00d8da8f395dbdae",
+          "files": 186
+        },
+        {
+          "name": "search-0.1.13.lapis-plugin",
+          "sha256": "1d7f3a70cd83de3dcc38e79321edffb9ec89978bb34bbeafea6c9fbfb89c80b5",
+          "pluginId": "search",
+          "source": "969356250f26c5561fac22cf00d8da8f395dbdae",
+          "files": 4
+        },
+        {
+          "name": "spellcheck-0.1.6.lapis-plugin",
+          "sha256": "7746309c9da816543d36de5fe212a430c59beea57d5a0393dbb999ba924cfbc4",
+          "pluginId": "spellcheck",
+          "source": "969356250f26c5561fac22cf00d8da8f395dbdae",
+          "files": 8
+        },
+        {
+          "name": "wordcount-0.1.5.lapis-plugin",
+          "sha256": "d4f22f2985d82befe3673ccea3fc4e7e7ee1f9dad0f099c13a49d673778a3ee9",
+          "pluginId": "wordcount",
+          "source": "969356250f26c5561fac22cf00d8da8f395dbdae",
+          "files": 4
+        }
+      ]
+    }
+  },
+  "runs": [
+    {
+      "name": "Source admission regression before",
+      "result": "fail",
+      "passed": 196,
+      "failed": 1
+    },
+    {
+      "name": "Full release tooling after final workflow checks",
+      "command": "node scripts/validation.mjs run release:test",
+      "runId": "9d43ede1-b806-41d3-929e-625a6b92cd91",
+      "result": "pass",
+      "passed": 197,
+      "failed": 0
+    },
+    {
+      "name": "Actual post-removal producer",
+      "commands": [
+        "node scripts/check-retired-ai.mjs",
+        "pnpm install --frozen-lockfile --ignore-pnpmfile",
+        "pnpm run audit",
+        "pnpm exec node scripts/check-framework-publication.mjs",
+        "pnpm build",
+        "pnpm packages:pack -- --already-built",
+        "pnpm plugin:build",
+        "pnpm plugin:verify",
+        "pnpm exec node scripts/create-registry-acceptance-fixture.mjs"
+      ],
+      "result": "pass"
+    },
+    {
+      "name": "Initial producer container",
+      "result": "fail",
+      "cause": "Remote Docker disk full; removed only completed owned workers with retained local receipts, no global prune."
+    },
+    {
+      "name": "Initial Web build",
+      "result": "fail",
+      "cause": "Default 2GiB V8 heap exhausted inside 12GiB container; bounded reruns use NODE_OPTIONS=--max-old-space-size=6144."
+    },
+    {
+      "name": "Web against actual retired-free fixture before test repair",
+      "command": "pnpm test:web:e2e",
+      "result": "fail",
+      "passed": 12,
+      "failed": 1,
+      "cause": "Obsolete browser test required AI category/detail from removed shared plugin."
+    },
+    {
+      "name": "Exact Web navigation/install/reload regression after",
+      "command": "pnpm test:web:e2e -- e2e/plugins-browser.spec.ts",
+      "result": "pass",
+      "passed": 1,
+      "failed": 0,
+      "note": "One test selected; build and cold browser process. Optional missing playwright-report copy was a collection diagnostic, test exit0."
+    },
+    {
+      "name": "Concurrent source spec attempt",
+      "result": "fail",
+      "cause": "Same-workspace validation lease correctly rejected simultaneous spec runner. Retried serially after release tooling completed."
+    },
+    {
+      "name": "Independent bundle verifier invocation",
+      "result": "fail",
+      "cause": "Ad hoc inline script had newline escaping syntax error before executing verifier. Corrected file-based script verifies all16 bundles."
+    },
+    {
+      "name": "Full Web after",
+      "result": "pass",
+      "command": "pnpm test:web:e2e",
+      "passed": 13,
+      "failed": 0,
+      "coldBrowser": true
+    },
+    {
+      "name": "Final source spec after",
+      "result": "pass",
+      "command": "node scripts/validation.mjs run spec:check",
+      "runId": "609c58c6-7d07-4d09-af96-dbb0e0100a6d",
+      "specToolCases": 68,
+      "failed": 0
+    }
+  ],
+  "preserved": [
+    "verified installs and Settings state",
+    "single-view ownership",
+    "saved navigation and cold reload",
+    "native Desktop AI",
+    "installed settings, transcripts and memory",
+    "historical artifacts"
+  ],
+  "remaining": [
+    "Hosted exact-head CI",
+    "Actual native/data lifecycle acceptance",
+    "Public Notes/API publication and consumer adoption",
+    "Website production cutover",
+    "Desktop independent fixture input qualification"
+  ],
+  "search": "spec-validator0.2.1 doctor reports host QMD ABI147 mismatch; semantic search explicitly degraded to rg. Host workspace lacks installed node_modules, so pinned dlx authoring commands used; product gates run in omarchy Docker."
+}

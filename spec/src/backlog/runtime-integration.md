@@ -27,7 +27,14 @@ Sixteen obsolete package/controller/Fake/attach implementation requirements are
 archived with their original evidence. Generic feature ownership and native/data
 acceptance remain pending. All eleven npm versions are deprecated, and each
 original tarball passes independent SHA-512 verification. Website source is merged;
-its manual deployment is separate.
+its manual deployment is separate. Notes #164's peer cleanup is merged and
+its exact six-package cohort is qualified in Desktop source checks; complete
+catalog/hosted and actual native/data acceptance remain open. LN-CAT-124 removes
+the CI registry fixture's pre-retirement Plugins source input. Its guarded
+post-removal producer, 18 signed catalog documents, 16 signed bundles and all
+13 cold Web cases pass; hosted exact-head qualification remains pending.
+Desktop's older fixture pin and stale local-build guard are being repaired in
+an isolated parallel workspace, with Rust/native pins preserved.
 Notes coordinates the
 [consolidated retirement plan](../../../docs/plans/legacy-runtime-retirement.md)
 for the frozen Deno desktop, shared AI plugin, obsolete host/tooling edges and

@@ -7,9 +7,10 @@ original acceptance boundary. Historical receipts do not schedule current work.
 
 ## Outstanding topics
 
-- Complete hosted LN-PKG-199 qualification and Desktop intake of the verified
-  source archives. Its installed production audit is clean; the separate
-  development advisory gate, package publication and distribution remain open.
+- Complete Desktop intake of LN-PKG-199's verified merged-source archives.
+  Owner hosted qualification is complete and the installed production audit is
+  clean; apply the approved exact development exception and finish consumer
+  catalog/canonical/hosted gates. Publication and distribution remain separate.
 
 - Complete the prepared App Profile Core `^0.13.4` minimum repair in PR150: source and cold candidate qualification pass, while final-head/main acceptance, genuine patch publication and coordinator retirement remain open. Canonical version preparation LN-PKG-197–198 is qualified through merged PR148/149 and actual Profile0.2.4 publication; the old draft147 is closed.
 

@@ -15,22 +15,27 @@ test("Plugins ribbon opens the category homepage and shares verified installs wi
   await expect(
     page.getByRole("heading", { name: "Categories", exact: true }),
   ).toBeVisible();
-  await page.getByRole("link", { name: "AI, 1 plugin", exact: true }).click();
   await expect(
-    page.getByRole("button", { name: "Remove AI filter" }),
+    page.getByRole("link", { name: /^AI, \d+ plugins?$/ }),
+  ).toHaveCount(0);
+  await page
+    .getByRole("link", { name: "Graph, 1 plugin", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Remove Graph filter" }),
   ).toBeVisible();
-  await page.getByRole("link", { name: "Open AI", exact: true }).click();
+  await page.getByRole("link", { name: "Open Graph", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "AI", exact: true }),
+    page.getByRole("heading", { name: "Graph", exact: true }),
   ).toBeVisible();
   await page
     .locator('[data-ui-component="workspace-view-header"]')
     .getByRole("button", { name: "Plugins", exact: true })
     .click();
   await expect(
-    page.getByRole("button", { name: "Remove AI filter" }),
+    page.getByRole("button", { name: "Remove Graph filter" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Remove AI filter" }).click();
+  await page.getByRole("button", { name: "Remove Graph filter" }).click();
   await page
     .getByRole("textbox", { name: "Search registry plugins" })
     .fill("Word Count");

@@ -1,5 +1,10 @@
 # Specification Governance / Validation and CI
 
+LN-CAT-124 requires the checked-out Plugins retirement audit before fixture
+installation or builds. CI selects the post-removal immutable source and its
+explicit native runner inside the already provisioned container. Missing or
+rejecting source checks remain fatal; production release gates are unchanged.
+
 LN-CAT-123 extends the retired-AI tooling lane to reject shared catalog sources,
 bridges, dependencies and attachment inputs. The obsolete shared-AI state-matrix
 audit is retired with its catalog; all surviving shell, geometry, ownership,

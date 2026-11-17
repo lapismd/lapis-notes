@@ -32,7 +32,7 @@ defaults:
 env:
   LAPIS_NOTES_VALIDATION_RUNTIME: native
   LAPIS_BUILD_COMMIT: ${{ github.sha }}
-  LAPIS_PLUGIN_CANDIDATE_COMMIT: "da7d8bb73541eb3421ca8fdfaf1eaaf2baecc850"
+  LAPIS_PLUGIN_CANDIDATE_COMMIT: "969356250f26c5561fac22cf00d8da8f395dbdae"
   TURBO_API: ${{ vars.TURBO_API }}
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -247,14 +247,19 @@ jobs:
           path: .ci-candidates/plugins
       - name: Build test-signed registry candidate
         working-directory: .ci-candidates/plugins
+        env:
+          LAPIS_PLUGINS_VALIDATION_RUNTIME: native
         run: |
           test "$(git rev-parse HEAD)" = "$LAPIS_PLUGIN_CANDIDATE_COMMIT"
           export GITHUB_SHA="$LAPIS_PLUGIN_CANDIDATE_COMMIT"
+          node scripts/check-retired-ai.mjs
           pnpm install --frozen-lockfile
+          pnpm run audit
           node scripts/check-framework-publication.mjs
           pnpm build
           pnpm packages:pack -- --already-built
           pnpm plugin:build
+          pnpm plugin:verify
           node scripts/create-registry-acceptance-fixture.mjs
       - uses: actions/upload-artifact@v7
         with:
