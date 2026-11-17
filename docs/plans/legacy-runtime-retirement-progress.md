@@ -46,17 +46,17 @@ readiness and the retirement entry; the original plan workspace is unchanged.
 
 ## Removal 1: shared AI plugin — in progress
 
-| Substep                                                       | Status                     | Evidence / remaining boundary                                                                                 |
-| ------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Refresh current registration and release entrypoints          | Verified source            | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller             |
-| Reject retired publication and metadata selectors             | Merged                     | Plugins #154/#155; main `e8f8eb1b`; exact-main CI `44149978818` passed                                        |
-| Disable mutable registry source and block reactivation        | Source committed/pushed    | Registry #181 / `37ee5060`; 146 tests, 26 cold browser cases; approved signing workflow `44159554590` running |
-| Remove shared implementation, package and media catalogs      | Merged                     | Plugins #155; 410 interactions, 1,022 package tests, 243 release-tooling tests and 16 artifacts               |
-| Remove Notes duplicate stories/controller probes/dependencies | Partially source-qualified | Launcher #157 merged at `14d3138c`; catalog candidate `zuwpuyzx` in final qualification                       |
-| Preserve installed-data/native lifecycle                      | Pending                    | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                        |
-| Update Website and organization metadata                      | Merged                     | Website #1 / `9cbdc233`, exact-main CI `44157445481` passed; .github #15 / `5f81879f`                         |
-| Complete source/public-package/consumer gates                 | Partially qualified        | Plugins source/artifact/catalog gates pass; Notes consumer and actual native/data gates remain pending        |
-| npm deprecation, signed registry publication and deployment   | Pending release gates      | No unpublish or installed-app replacement                                                                     |
+| Substep                                                       | Status                               | Evidence / remaining boundary                                                                                            |
+| ------------------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| Refresh current registration and release entrypoints          | Verified source                      | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller                        |
+| Reject retired publication and metadata selectors             | Merged                               | Plugins #154/#155; main `e8f8eb1b`; exact-main CI `44149978818` passed                                                   |
+| Disable mutable registry source and block reactivation        | Deployed; stale-client gap open      | Registry #181 / `42903595`; signed live metadata and UI disabled; 410 response decision pending                          |
+| Remove shared implementation, package and media catalogs      | Merged                               | Plugins #155; 410 interactions, 1,022 package tests, 243 release-tooling tests and 16 artifacts                          |
+| Remove Notes duplicate stories/controller probes/dependencies | Merged                               | #157 and #158 / `52cffda1`; 2,194 package tests, 239 cold interactions, 3 inspected tarballs and required hosted CI pass |
+| Preserve installed-data/native lifecycle                      | Pending                              | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                                   |
+| Update Website and organization metadata                      | Merged                               | Website #1 / `9cbdc233`, exact-main CI `44157445481` passed; .github #15 / `5f81879f`                                    |
+| Complete source/public-package/consumer gates                 | Source qualified; acceptance pending | Plugins and Notes source/artifact/catalog lanes pass; stale installer and native/data gates remain open                  |
+| npm deprecation, signed registry publication and deployment   | Registry deployed; npm pending       | Approved signed candidate is live; 11 npm versions await deprecation approval; no unpublish or installed-app replacement |
 
 ## Later removals — pending
 
@@ -502,3 +502,19 @@ jobs pass and inherited interaction CI remains explicitly skipped. Its local
 complete 239-case interaction/axe receipt remains separate evidence. Resume by
 observing that run and the pending public API decision, then finish shared-AI
 consumer/native/contracts/npm gates before host/API retirement. Terminal is last.
+
+## Notes consumer landing
+
+Notes #158 merged at `52cffda160e68f3b70f481bd82df8dbbf69062b9` after exact
+head `cfaf4c53bfe070398e6e24da7bce8f46d332a933` passed complete required
+workflow `44160243971`, including web acceptance and aggregate validation.
+The inherited browser interaction CI job remains skipped; the independently
+completed 239 cold interaction/axe cases are recorded separately. No native/data
+qualification, new npm publication or website deployment is inferred.
+
+[Live registry receipt](../../spec/records/2026-11-17-retired-ai-registry-live-before-gone.json)
+records the disabled signed documents, 18 saved-link GET/HEAD checks, production
+browser case and still-open stale-client limitation. The current next action is
+the pending public HTTP response decision, followed by its focused source and
+consumer acceptance. Preserve the remaining native/data/contracts/npm gates and
+the final-terminal sequence.

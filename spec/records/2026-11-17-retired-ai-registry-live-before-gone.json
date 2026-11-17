@@ -1,0 +1,131 @@
+{
+  "sourceMerge": "42903595b7ea78194d47635319dfa0f5046ab5bb",
+  "results": [
+    {
+      "target": "index",
+      "http": 200,
+      "status": "disabled",
+      "verifiedKey": "lapis-registry-2026-06"
+    },
+    {
+      "target": "plugins/ai",
+      "http": 200,
+      "status": "disabled",
+      "verifiedKey": "lapis-registry-2026-06"
+    },
+    {
+      "version": "0.1.12",
+      "method": "HEAD",
+      "http": 404,
+      "redirect": false
+    },
+    {
+      "version": "0.1.13",
+      "method": "HEAD",
+      "http": 404,
+      "redirect": false
+    },
+    {
+      "version": "0.1.15",
+      "method": "HEAD",
+      "http": 404,
+      "redirect": false
+    },
+    {
+      "version": "0.1.16",
+      "method": "HEAD",
+      "http": 404,
+      "redirect": false
+    },
+    {
+      "version": "0.1.2",
+      "method": "HEAD",
+      "http": 404,
+      "redirect": false
+    },
+    {
+      "version": "0.1.5",
+      "method": "HEAD",
+      "http": 404,
+      "redirect": false
+    },
+    {
+      "version": "0.1.6",
+      "method": "HEAD",
+      "http": 404,
+      "redirect": false
+    },
+    {
+      "version": "0.1.7",
+      "method": "HEAD",
+      "http": 404,
+      "redirect": false
+    },
+    {
+      "version": "0.1.8",
+      "method": "HEAD",
+      "http": 404,
+      "redirect": false
+    },
+    {
+      "version": "0.1.12",
+      "method": "GET",
+      "http": 404,
+      "redirect": false
+    },
+    {
+      "version": "0.1.13",
+      "method": "GET",
+      "http": 404,
+      "redirect": false
+    },
+    {
+      "version": "0.1.15",
+      "method": "GET",
+      "http": 404,
+      "redirect": false
+    },
+    {
+      "version": "0.1.16",
+      "method": "GET",
+      "http": 404,
+      "redirect": false
+    },
+    {
+      "version": "0.1.2",
+      "method": "GET",
+      "http": 404,
+      "redirect": false
+    },
+    {
+      "version": "0.1.5",
+      "method": "GET",
+      "http": 404,
+      "redirect": false
+    },
+    {
+      "version": "0.1.6",
+      "method": "GET",
+      "http": 404,
+      "redirect": false
+    },
+    {
+      "version": "0.1.7",
+      "method": "GET",
+      "http": 404,
+      "redirect": false
+    },
+    {
+      "version": "0.1.8",
+      "method": "GET",
+      "http": 404,
+      "redirect": false
+    }
+  ],
+  "remaining": "404 download fallback requires public API confirmation and follow-up",
+  "liveBrowser": {
+    "command": "LAPIS_REGISTRY_TEST_BASE_URL=https://registry.lapis.md pnpm exec playwright test tests/registry-versions.spec.ts --grep 'retired shared AI'",
+    "passed": 1,
+    "failed": 0
+  }
+}

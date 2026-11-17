@@ -13,13 +13,14 @@ a failed gate and grants no blind rerun; frozen Deno packages remain excluded.
 
 ## Legacy runtime and package retirement
 
-Status: in progress; shared AI publication safeguards and registry source
-disablement are committed and source-qualified. Plugins package/catalog removal
-is committed, pushed and qualified. Notes controller launchers/probes are removed
-and source-qualified. Duplicate catalogs, preview bridge and root dependencies
-are removed in the current source candidate; complete consumer qualification,
-remaining contract ownership, native/data acceptance and signed publication
-remain pending.
+Status: in progress. Plugins source/catalog and Notes launcher/catalog removals
+are merged and source-qualified; Notes #158 passed required hosted CI after
+2,194 package tests and 239 cold interactions. Approved registry signing and
+production deployment are complete. Live signed metadata, saved links and UI
+reject shared AI, but Notes' stale-metadata installer fallback after HTTP 404
+remains open; a focused 410 response change awaits public API confirmation.
+Native/data acceptance, remaining contract ownership and npm deprecation remain
+pending. Website source is merged; its manual deployment is separate.
 Notes coordinates the
 [consolidated retirement plan](../../../docs/plans/legacy-runtime-retirement.md)
 for the frozen Deno desktop, shared AI plugin, obsolete host/tooling edges and
