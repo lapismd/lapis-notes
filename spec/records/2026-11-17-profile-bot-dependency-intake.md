@@ -17,17 +17,20 @@ Web host and frozen Desktop. Their factual dependency/unchanged-contract
 coverage and LN-PKG-132's verification row are repaired together. The frozen
 Desktop chapter records absence of a host change; it authorizes no Deno work.
 
-PR146 remains draft while source acceptance is incomplete. A complete cold
-`pnpm test:storybook` is running through the standard Docker validation runner.
-Its final result remains pending. The existing LN-CAT-121 quarantine was an
+PR146 remains draft until final-head acceptance is complete. The complete cold
+`pnpm test:storybook` passes through the standard Docker validation runner:
+all288 interaction/accessibility cases across63 files pass in four fresh shards
+(105 +73 +48 +62), with zero failed cases and zero cached tasks. Source
+`0f40b081424a2bd74c562a781a2a0c913c1d1e95` supplies the unchanged runtime
+candidate; the follow-up edits only canonical documentation. The existing LN-CAT-121 quarantine was an
 explicit earlier user decision, with automatic execution disabled; skipped
 coverage is not a pass and this intake does not silently restore that lane.
-Main-range spec acceptance, final-head functional checks, actual publication
-verification and host adoption remain separate gates.
+Final-head functional checks, actual publication verification and host adoption
+remain separate gates.
 
 The repaired main-range `spec:first` comparison now passes with three protected
 files and six canonical chapters, reducing the original five missing mappings
 to zero. The explicit native specification check passes all configured lanes,
 including App ownership, metadata queries and69 governance regression cases.
 Formatter checks pass for every changed page; no page exceeds the canonical
-line/byte limits. Browser acceptance and final publication are still pending.
+line/byte limits. Final-head hosted acceptance and publication remain pending.
