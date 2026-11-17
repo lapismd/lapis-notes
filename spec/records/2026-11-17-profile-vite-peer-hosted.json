@@ -1,0 +1,128 @@
+{
+  "pr": 164,
+  "checkedHead": "42da3822fc8cbbab7c5d68940d49de746dc06fa8",
+  "mergeCommit": "5ffb33c152404b6880debd1b5fd70762121d6196",
+  "workflowRun": 44186417709,
+  "firstFailedJob": 134405933499,
+  "successfulRetryJob": 134415532823,
+  "failedArtifact": {
+    "id": 14374532361,
+    "sha256": "c0010f3ec1ad1eeda5731619dca6cf643afb53711a9f475beb23ab0c2727a59e",
+    "buildCommit": "a569eb5728c4c7e84685cde41e87d825ac3e6600"
+  },
+  "failureDiagnostic": [
+    "2026-11-17T22:10:48.0951370Z Error: Offline reload did not reach the ready shell: {\"consoleErrors\":[],\"failedRequests\":[],\"failedResponses\":[],\"pageErrors\":[],\"state\":{\"document\":{\"readyState\":\"complete\",\"online\":false,\"buildCommit\":\"a569eb5728c4c7e84685cde41e87d825ac3e6600\"},\"host\":{\"state\":\"opening\",\"vaultOperation\":\"sync-readiness\",\"shellReady\":false},\"startup\":{\"state\":\"loading\",\"title\":\"Opening Lapis Notes\",\"message\":\"Open the vault\",\"failure\":null,\"tasks\":[{\"status\":\"active\",\"label\":\"Open the vault\"},{\"status\":\"pending\",\"label\":\"Load app configuration\"},{\"status\":\"pending\",\"label\":\"Load configured core plugins\"},{\"status\":\"pending\",\"label\":\"Restore the workspace layout\"}]},\"serviceWorker\":{\"controlled\":true,\"controller\":\"/sw.js\",\"registrations\":[{\"active\":\"activated\",\"installing\":null,\"waiting\":null}]},\"caches\":[{\"name\":\"workbox-precache-v2-http://127.0.0.1:40481/\",\"entries\":609},{\"name\":\"lapis-plugin-assets-v1\",\"entries\":3}]}}",
+    "2026-11-17T22:10:48.0954039Z   [cause]: locator.waitFor: Timeout 90000ms exceeded."
+  ],
+  "unchangedHeadRetry": true,
+  "runtimeFixClaimed": false,
+  "unchangedMainControl": {
+    "revision": "af645ddb8d7c01230a212a1cac48fe054f5a5974",
+    "status": 0,
+    "sourceTarSha256": "dfbb3ceec917196bf9c0f92cd7af213f1214804b33e38dd4d4002fb7a0c806ab"
+  },
+  "actualFailedArtifactControl": {
+    "artifactId": 14374532361,
+    "artifactZipSha256": "c0010f3ec1ad1eeda5731619dca6cf643afb53711a9f475beb23ab0c2727a59e",
+    "buildCommit": "a569eb5728c4c7e84685cde41e87d825ac3e6600",
+    "status": 0,
+    "acceptanceSource": "af645ddb; scripts identical to42da3822"
+  },
+  "mergedMainPack": {
+    "schema": 1,
+    "run": "lapis-notes-validation-07cf0ce2-cf5f-4924-8620-3feae56b4313",
+    "lane": "validation:consumer-pack",
+    "args": [],
+    "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+    "imageTarget": "ui",
+    "workspace": "84c2c8f6da2041b5",
+    "cache": {
+      "javascript": "5169474634680ef1ff01"
+    },
+    "resources": {
+      "cpus": 4,
+      "memoryGiB": 12,
+      "shmGiB": 2
+    },
+    "source": {
+      "schema": 1,
+      "nativeSources": [],
+      "revision": "5ffb33c152404b6880debd1b5fd70762121d6196",
+      "parents": [
+        "42da3822fc8cbbab7c5d68940d49de746dc06fa8",
+        "af645ddb8d7c01230a212a1cac48fe054f5a5974"
+      ],
+      "fileCount": 2602,
+      "archives": [],
+      "packSha256": "103b08cae342942d3e234afbcf57aa1c07ce00e87206f7d6585ad5a1ccadc5ba"
+    },
+    "started": "2026-11-17T22:29:53.024Z",
+    "status": "passed",
+    "tools": {
+      "node": "v24.15.0",
+      "pnpm": "10.34.5",
+      "jj": "jj 0.45.1-7c41cdeb16b6b321c64e789a966b6adf723816a5",
+      "git": "git version 2.39.5",
+      "mdbook": "mdbook v0.5.4",
+      "deno": "deno 2.9.7 (stable, release, x86_64-unknown-linux-gnu)\nv8 15.0.245.2-rusty\ntypescript 6.0.3"
+    },
+    "invocations": [
+      {
+        "args": [],
+        "status": "passed"
+      }
+    ],
+    "exitCode": 0,
+    "finished": "2026-11-17T22:30:13.577Z"
+  },
+  "archiveComparison": [
+    {
+      "name": "@lapis-notes/api",
+      "sameArchiveSha256": true,
+      "oldSha256": "c90eac5de04eb15b971d45665f0bd26603abf3a00fd35320a9ed3cb56dc0f4ce",
+      "mergedMainSha256": "c90eac5de04eb15b971d45665f0bd26603abf3a00fd35320a9ed3cb56dc0f4ce"
+    },
+    {
+      "name": "@lapis-notes/ui",
+      "sameArchiveSha256": true,
+      "oldSha256": "d8dc5f8e2469f2e9f4dd5bcd5b727db9780507caa5a8701f3c8a9d32f9a32e95",
+      "mergedMainSha256": "d8dc5f8e2469f2e9f4dd5bcd5b727db9780507caa5a8701f3c8a9d32f9a32e95"
+    },
+    {
+      "name": "@lapis-notes/workspace",
+      "sameArchiveSha256": true,
+      "oldSha256": "558ecb749a420cbb222a790f19f5527aef9b2d956fcb367e633ca26cc7d60177",
+      "mergedMainSha256": "558ecb749a420cbb222a790f19f5527aef9b2d956fcb367e633ca26cc7d60177"
+    },
+    {
+      "name": "@lapis-notes/file-explorer",
+      "sameArchiveSha256": true,
+      "oldSha256": "5ab4ba28eb6a839bf64cfbc4031c77bb60b9883069ce9c0a510ecce32be3f342",
+      "mergedMainSha256": "5ab4ba28eb6a839bf64cfbc4031c77bb60b9883069ce9c0a510ecce32be3f342"
+    },
+    {
+      "name": "@lapis-notes/language-service",
+      "sameArchiveSha256": true,
+      "oldSha256": "9b371f7c14850d73961f9d2a94aad126c964b7f3800576b38079185e821f28a0",
+      "mergedMainSha256": "9b371f7c14850d73961f9d2a94aad126c964b7f3800576b38079185e821f28a0"
+    },
+    {
+      "name": "@lapis-notes/app-profile",
+      "sameArchiveSha256": true,
+      "oldSha256": "82f533715b31a0504f4ce3e9780b9071a8c00bcfb1f9c929c5deff46a0e1d859",
+      "mergedMainSha256": "82f533715b31a0504f4ce3e9780b9071a8c00bcfb1f9c929c5deff46a0e1d859"
+    }
+  ],
+  "discardedPack": {
+    "run": "b0c0b9ed-3010-42ad-a0af-985fa249e794",
+    "source": "5bea69d3938330ac24a5060d1c12c7ca44bc8efe",
+    "reason": "Ordinary read-only edit of immutable main was rejected, leaving an empty local child selected. Reject that archive provenance; accepted07cf0ce2 runs at exact merged main after explicit read-only selection."
+  },
+  "temporaryWorkerCleanup": {
+    "removedCompletedTaskContainers": 18,
+    "unrecordedStoppedWorkerPreserved": true,
+    "activeCatalogWorkerPreserved": true,
+    "sourceReceiptsAndOriginalRepositoriesPreserved": true,
+    "globalPrune": false
+  }
+}

@@ -163,3 +163,15 @@ authorization to merge red required checks. Remaining cases stay enabled.
 <a id="ln-cat-123"></a>
 
 **Requirement.** Notes MUST NOT import, register or require the retired shared-AI catalog, controller bridge or root package dependencies. Normal and canonical checks MUST reject reintroduction. Native Chat, API file-tools and independent Mira AI MUST remain available through their owning public boundaries.
+
+## LN-CAT-124 — Retired-AI-free registry fixture source
+
+<a id="ln-cat-124"></a>
+
+**Requirement.** CI registry fixtures MUST use a pinned Plugins revision without retired shared AI. The checked-out source's retirement audit MUST pass before dependency installation, compilation or packing. An absent or rejecting audit MUST stop the fixture build before those operations.
+
+## LN-CAT-125 — Registry acceptance without retired AI
+
+<a id="ln-cat-125"></a>
+
+**Requirement.** Web registry acceptance MUST exercise category, filter and detail navigation with an active fixture plugin and assert that the retired shared-AI category is absent. It MUST retain verified installation, Settings state, single-view ownership, saved navigation and cold-reload persistence assertions without requiring the retired plugin.

@@ -1,5 +1,10 @@
 # Web Host / Startup and plugins
 
+LN-CAT-125 exercises the signed fixture browser through active Graph, then
+verified Word Count installation and persisted Settings/navigation. The
+retired first-party AI category is absent from that fixture; independent
+third-party AI and bundled/native AI remain governed by their own provenance.
+
 Under LN-PKG-199, Web's existing direct Vite development dependency supplies the
 active App Profile build helper. Removing Profile's optional Vite peer changes
 neither the helper's exports nor Web's renderer import map or startup lifecycle.

@@ -1,5 +1,10 @@
 # Packages / App and services
 
+LN-CAT-124 advances the CI-only signed registry fixture to Plugins' verified
+post-shared-AI source. Its package build and packing inputs omit retired AI;
+ephemeral fixture keys remain separate from production signing authority.
+This changes no public package range, application profile or installed data.
+
 LN-CAT-123 removes Notes root shared-AI/controller development dependencies and
 the archive requirement after their catalog/launcher callers are gone. The
 root controller-only Git security fixture is retired with its caller, while

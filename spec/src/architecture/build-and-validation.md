@@ -196,10 +196,13 @@ portable; full Web acceptance remains blocking under LN-PKG-142. Notes CI does
 not build, package, or publish the desktop app.
 Fixture builds verify the checked-out Plugins commit before setting source
 provenance inside the executing shell, independently of the host workflow SHA.
-Final plugin acceptance pins `da7d8bb73541eb3421ca8fdfaf1eaaf2baecc850`,
-the version candidate containing AI 0.1.5, History 0.1.4, Markdown 0.1.6 and
-released Mira 0.0.4. Ephemeral fixture signatures establish acceptance evidence;
-production signing and publication retain their separate approval gate.
+The retirement candidate selects Plugins
+`969356250f26c5561fac22cf00d8da8f395dbdae`, after shared-AI source/catalog
+removal. LN-CAT-124 checks that source before dependency installation or builds.
+The provisioned CI container explicitly selects Plugins' native validation
+runtime; it does not attempt a nested Docker runner or use a host fallback.
+Ephemeral fixture signatures establish acceptance evidence; production signing
+and publication retain their separate approval gate.
 Web acceptance retains static Storybook, separate development specification
 acceptance and the public Web end-to-end lane. LN-CAT-121 disables automatic
 Vitest browser interactions/axe until the documented transport cause is fixed

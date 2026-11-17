@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { parse, stringify } from "yaml";
 import {
@@ -401,6 +403,56 @@ test("Web fixtures come from an immutable Plugins candidate", () => {
   assert.ok(workflow.jobs["web-acceptance"].needs.includes("registry-fixture"));
 });
 
+test("registry fixtures reject retired Plugins source before installing or building", (t) => {
+  const root = mkdtempSync(
+    path.join(tmpdir(), "notes-retired-registry-source-"),
+  );
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const build = workflow.jobs["registry-fixture"].steps.find(
+    (step) => step.name === "Build test-signed registry candidate",
+  );
+  const candidate = workflow.env.LAPIS_PLUGIN_CANDIDATE_COMMIT;
+  const run = (state) => {
+    const log = path.join(root, `${state}.log`);
+    const result = spawnSync(
+      "bash",
+      [
+        "-e",
+        "-o",
+        "pipefail",
+        "-c",
+        `
+      git() { printf '%s\\n' "$LAPIS_PLUGIN_CANDIDATE_COMMIT"; }
+      pnpm() { printf '%s\\n' "$*" >> "$INSTALL_LOG"; }
+      node() {
+        if [ "$1" = scripts/check-retired-ai.mjs ]; then
+          test "$RETIRED_SOURCE" = absent
+        fi
+      }
+      ${build.run}
+    `,
+      ],
+      {
+        env: {
+          ...process.env,
+          LAPIS_PLUGIN_CANDIDATE_COMMIT: candidate,
+          RETIRED_SOURCE: state,
+          INSTALL_LOG: log,
+        },
+        encoding: "utf8",
+      },
+    );
+    return { result, log };
+  };
+  const legacy = run("present");
+  assert.notEqual(legacy.result.status, 0, "retired source must fail closed");
+  assert.equal(existsSync(legacy.log), false, "no install or build may start");
+  const current = run("absent");
+  assert.equal(current.result.status, 0, current.result.stderr);
+  assert.match(readFileSync(current.log, "utf8"), /install --frozen-lockfile/);
+  assert.equal(build.env?.LAPIS_PLUGINS_VALIDATION_RUNTIME, "native");
+});
+
 test("Notes CI does not run server acceptance", () => {
   assert.equal(workflow.jobs["server-acceptance"], undefined);
   assert.equal(
@@ -440,7 +492,10 @@ test("fixture build uses the checked-out Plugins source instead of the host work
     });
   const matched = run(candidate);
   assert.equal(matched.status, 0, matched.stderr);
-  assert.equal(matched.stdout.trim(), `${candidate}\n${candidate}`);
+  assert.equal(
+    matched.stdout.trim(),
+    `${candidate}\n${candidate}\n${candidate}`,
+  );
   assert.notEqual(run("c".repeat(40)).status, 0);
 });
 
