@@ -1,5 +1,9 @@
 # Architecture / Dependency boundaries
 
+The prepared next App Profile patch requires registry Design Core `^0.13.4`.
+This repairs its retained runtime minimum after the lock already selected0.13.4;
+source qualification and actual publication remain separate.
+
 Source package versions only; publication and host adoption remain separate.
 
 <!-- notes-release-versions:start -->

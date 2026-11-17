@@ -1,5 +1,9 @@
 # Plugin Model / Application services
 
+The prepared App Profile dependency repair requires registry Core `^0.13.4`,
+with its existing source-owned patch release intent. It adds no plugin,
+permission or native service and preserves explicit App ownership.
+
 Source package versions only; publication and host adoption remain separate.
 
 <!-- notes-release-versions:start -->

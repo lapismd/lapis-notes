@@ -1,5 +1,10 @@
 # Packages / App and services
 
+The prepared next App Profile patch raises its Design Core minimum to
+`^0.13.4`. Existing session, plugin, native service and explicit App contracts
+remain unchanged; [qualification](../../records/2026-11-17-profile-core-minimum.md)
+does not claim publication or host adoption.
+
 The next App Profile patch intake selects released Markdown `^0.3.3`, Search
 `^0.1.13`, Source Editor `^0.1.12`, Agent UI `^0.2.8` and History `^0.5.1`
 through registry dependencies. LN-PKG-132's plugin identities, explicit App,
