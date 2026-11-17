@@ -558,8 +558,8 @@ shared-AI acceptance; terminal migration and retirement remain last.
 ### npm deprecation gate
 
 The user approved the exact 11-version npm metadata retirement candidate on
-2026-11-17. The candidate is prepared at `/tmp/lapis-retired-ai-npm-proposal.json`
-and preserves the 0.1.0 packaging-defect warning. Execution is not complete:
+2026-11-17. The [approved candidate](../../spec/records/2026-11-17-retired-ai-npm-deprecation-candidate.json)
+preserves the 0.1.0 packaging-defect warning. Execution is not complete:
 `npm whoami` returns E401 and npm web login awaits the user's authentication.
 No token is recorded here, no tarball is removed and no metadata change is
 claimed. After authentication, recheck candidate version/integrity identities,
