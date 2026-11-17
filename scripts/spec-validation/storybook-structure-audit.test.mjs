@@ -134,8 +134,6 @@ const workspaceDemo = `
 { plugin: HistoryPlugin, required: false, enabledByDefault: true }
 { plugin: WordCountPlugin, required: false, enabledByDefault: true }
 { plugin: BasesPlugin, required: false, enabledByDefault: true }
-{ plugin: AiPlugin, required: false, enabledByDefault: true }
-defaultRuntime: "fake"
 `;
 const workspaceStory = `
 export const PersistedDesktop = { args: { loadBundledPlugins: true } };
@@ -149,42 +147,11 @@ export const Mobile = { args: { loadBundledPlugins: true } };
 { id: "history", enabled: true }
 { id: "wordcount", enabled: true }
 { id: "bases", enabled: true }
-{ id: "ai", enabled: true }
 `;
-const aiStateStoryNames = [
-  "PermissionRequested",
-  "PermissionAccepted",
-  "QuestionAsked",
-  "QuestionAnswered",
-  "ToolRunning",
-  "SuccessfulToolCall",
-  "FailedToolCall",
-  "ValidationAndEmptyState",
-  "FailedMessageAndRetry",
-  "AgentTrace",
-];
-const aiStateStories = aiStateStoryNames
-  .map(
-    (name) => `
-export const ${name} = {
-  parameters: {
-    ...workspaceCatalogParameters("fixture-${name}"),
-    docs: { source: { code: "example" } },
-    visualDelta: { images: ["/visual-baselines/${name}.png"] },
-  },
-  play: async () => {},
-};`,
-  )
-  .join("\n");
-
 function validStructureFiles() {
   return new Map([
     ["stories/plugins/_shared/panels/PanelDemo.svelte", panelDemo],
     ["stories/plugins/_shared/panels/panel-story-helpers.ts", panelHelper],
-    ["stories/plugins/ai/shell/Shell.stories.ts", shellStory("AI")],
-    ["stories/plugins/ai/shell/ShellDemo.svelte", shellDemo],
-    ["stories/plugins/ai/shell/create-shell-demo.ts", shellRuntime],
-    ["stories/plugins/ai/AiChat.stories.ts", aiStateStories],
     ["stories/plugins/bases/shell/Shell.stories.ts", shellStory("Bases")],
     ["stories/plugins/bases/shell/ShellDemo.svelte", shellDemo],
     ["stories/plugins/bases/shell/create-shell-demo.ts", shellRuntime],
@@ -239,11 +206,11 @@ test("rejects external Terminal catalog coupling", () => {
 test("rejects incomplete plugin shell variants, composition, visual status, and geometry", () => {
   const files = validStructureFiles();
   files.set(
-    "stories/plugins/ai/shell/Shell.stories.ts",
-    'export default { title: "Plugins/AI/Workspace" }; export const Desktop = {};',
+    "stories/plugins/bases/shell/Shell.stories.ts",
+    'export default { title: "Plugins/Bases/Workspace" }; export const Desktop = {};',
   );
-  files.set("stories/plugins/ai/shell/ShellDemo.svelte", "<main />");
-  files.set("stories/plugins/ai/shell/create-shell-demo.ts", "AiPlugin;");
+  files.set("stories/plugins/bases/shell/ShellDemo.svelte", "<main />");
+  files.set("stories/plugins/bases/shell/create-shell-demo.ts", "BasesPlugin;");
   const codes = auditStructure(files).map((entry) => entry.code);
   for (const code of [
     "STORYBOOK-SHELL-TITLE",
@@ -284,7 +251,7 @@ test("rejects an incomplete persisted Workspace plugin inventory", () => {
   files.set(
     "stories/workspace/WorkspaceShellDemo.svelte",
     workspaceDemo.replace(
-      "{ plugin: AiPlugin, required: false, enabledByDefault: true }",
+      "{ plugin: GraphPlugin, required: false, enabledByDefault: true }",
       "",
     ),
   );
@@ -293,22 +260,6 @@ test("rejects an incomplete persisted Workspace plugin inventory", () => {
       (entry) => entry.code === "STORYBOOK-WORKSPACE-INVENTORY",
     ),
   );
-});
-
-test("rejects a missing or incompletely governed AI interaction state", () => {
-  const files = validStructureFiles();
-  files.set(
-    "stories/plugins/ai/AiChat.stories.ts",
-    aiStateStories
-      .replace(/export const FailedToolCall[\s\S]*?(?=\nexport const )/, "")
-      .replace("play: async () => {},", ""),
-  );
-  const findings = auditStructure(files).filter(
-    (entry) => entry.code === "STORYBOOK-AI-STATE-MATRIX",
-  );
-  assert.ok(findings.length >= 2);
-  assert.ok(findings.some((entry) => entry.message.includes("FailedToolCall")));
-  assert.ok(findings.some((entry) => entry.message.includes("play:")));
 });
 
 test("requires Specification to be the first Storybook menu item", () => {

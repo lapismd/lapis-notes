@@ -1,5 +1,11 @@
 # Architecture / Build and validation
 
+LN-CAT-123 removes shared-AI catalog dependencies and manual controller
+attachment, including its optimizer and cache inputs. The retired catalog audit
+runs alongside the launcher audit in normal and canonical checks. Terminal
+attachment inputs retain their existing cache/admission behavior until the
+final terminal slice. Retained stories require complete cold qualification.
+
 LN-CAT-122 replaces the retired shared-AI smoke lane with a fail-closed launcher
 audit and focused regression lane. Normal and canonical checks run that audit;
 CI runs the regression through the existing bounded validation/Turbo routing.

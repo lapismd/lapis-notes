@@ -48,7 +48,7 @@
 
 - Single-line editors use the compact row content height at the cell start while wrapped tag and multivalue editors expand downward from the same origin.
 
-- `@lapis-notes/ai` owns the provider-agnostic agent runtime and model-provider registries, Fake and ACP adapters, optional native Codex adapter, provider-safe plugin-data session persistence, vault-scoped file mentions, Codex and Cursor model catalogs, chat settings, movable chat panel, grouped Design Core tool-call transcripts that unwrap tool envelopes into `json`, `bash`, or `plaintext` `CodeBlock` language (LN-AI-133), a busy-turn Stop abort that clears busy before runtime cancel settles, and error presentation that removes the working indicator.
+- The shared `@lapis-notes/ai` package and its Notes catalog are retired. Current native AI is owned by Desktop and App Profile; Notes API file-tools remain active. Historical provider/presentation contracts require a caller-aware ownership audit before their remaining authority is retired.
 
 - It also owns an ungrouped History sidebar leaf, a movable Catalog command leaf, and an Open Chat left-ribbon action that reuses the opening command.
 

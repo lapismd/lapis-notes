@@ -46,17 +46,17 @@ readiness and the retirement entry; the original plan workspace is unchanged.
 
 ## Removal 1: shared AI plugin — in progress
 
-| Substep                                                       | Status                     | Evidence / remaining boundary                                                                          |
-| ------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Refresh current registration and release entrypoints          | Verified source            | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller      |
-| Reject retired publication and metadata selectors             | Source committed           | Plugins `ukmnqynp` / `8fd08403`; 241 release tests and full artifact qualification                     |
-| Disable mutable registry source and block reactivation        | Source committed           | Registry `qvlolmsk` / `e0136ede`; 146 tests, 26 cold browser cases; signing/publication pending        |
-| Remove shared implementation, package and media catalogs      | Source committed/pushed    | Plugins `yttxpspt` / `035d65c8`; 410 interactions, 1,022 package tests; source and artifacts qualified |
-| Remove Notes duplicate stories/controller probes/dependencies | Partially source-qualified | Keep API `ai-host/file-tools` and app-profile native chat                                              |
-| Preserve installed-data/native lifecycle                      | Pending                    | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                 |
-| Update Website and organization metadata                      | Pending                    | Bundled/native AI guidance and source provenance                                                       |
-| Complete source/public-package/consumer gates                 | Partially qualified        | Plugins source/artifact/catalog gates pass; Notes consumer and actual native/data gates remain pending |
-| npm deprecation, signed registry publication and deployment   | Pending release gates      | No unpublish or installed-app replacement                                                              |
+| Substep                                                       | Status                     | Evidence / remaining boundary                                                                                 |
+| ------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Refresh current registration and release entrypoints          | Verified source            | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller             |
+| Reject retired publication and metadata selectors             | Merged                     | Plugins #154/#155; main `e8f8eb1b`; exact-main CI `44149978818` passed                                        |
+| Disable mutable registry source and block reactivation        | Source committed/pushed    | Registry #181 / `37ee5060`; 146 tests, 26 cold browser cases; approved signing workflow `44159554590` running |
+| Remove shared implementation, package and media catalogs      | Merged                     | Plugins #155; 410 interactions, 1,022 package tests, 243 release-tooling tests and 16 artifacts               |
+| Remove Notes duplicate stories/controller probes/dependencies | Partially source-qualified | Launcher #157 merged at `14d3138c`; catalog candidate `zuwpuyzx` in final qualification                       |
+| Preserve installed-data/native lifecycle                      | Pending                    | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                        |
+| Update Website and organization metadata                      | Merged                     | Website #1 / `9cbdc233`, exact-main CI `44157445481` passed; .github #15 / `5f81879f`                         |
+| Complete source/public-package/consumer gates                 | Partially qualified        | Plugins source/artifact/catalog gates pass; Notes consumer and actual native/data gates remain pending        |
+| npm deprecation, signed registry publication and deployment   | Pending release gates      | No unpublish or installed-app replacement                                                                     |
 
 ## Later removals — pending
 
@@ -314,3 +314,113 @@ controller dependency-security test must be assessed with its removed caller;
 it must not retain that root dependency merely to test an unused import.
 Website snapshots/media and the AI help route still promote the retired package
 and need a provenance-aware refresh. Terminal work remains last.
+
+### Plugins source landed; next-source checkpoint
+
+[Plugins removal #155](https://github.com/lapismd/lapis-plugins/pull/155) now
+includes the safeguards and approved audit exception and merged directly to
+main as `e8f8eb1b73ffe4bc2b96974c7388e2efbe4b911f`. GitHub also marks ancestor
+[PR #154](https://github.com/lapismd/lapis-plugins/pull/154) merged. Exact head
+`886de04910571fa5349d9e6ba51af1031c462306` passes the complete hosted workflow
+[44148140915](https://github.com/lapismd/lapis-plugins/actions/runs/44148140915),
+including audit, quality, unit, static Storybook, all four interaction shards,
+artifacts and aggregate validation. A superseded same-head event was cancelled;
+the completed latest event succeeds. The Plugins task workspace now rests on
+landed main; its retired-source audit passes and neither retired directory exists.
+The pre-existing conflicted local main bookmark remains untouched.
+
+Fresh exact-main Plugins CI is queued as
+[44149978818](https://github.com/lapismd/lapis-plugins/actions/runs/44149978818).
+Publication and signed-registry deployment remain separate. Notes launcher PR
+#157's fresh main-targeted event at `3c1182ceed98dc5f2019893f4c2b7424cf57e463`
+is [44149841579](https://github.com/lapismd/lapis-notes/actions/runs/44149841579),
+currently pending, not failed or qualified. Observe these existing handles before
+any deliberate restart. Do not merge a stale-event failure or waive a gate.
+
+Next: complete Notes catalog/bridge/dependency retirement and full affected
+consumer checks, while landing #157 when its current required checks pass.
+Website, installed-data/native product acceptance and protected registry signing
+remain open. Then proceed through non-terminal hosts and deprecated interfaces;
+terminal ownership/host retirement remains the final removal.
+
+### Notes catalog removal candidate — qualification running
+
+The source candidate removes the 14 shared-AI story/fixture files, hidden panel
+and WorkspaceShell registrations, manual controller bridge/URL/token inputs,
+root package dependencies and local AI archive requirement. The root-only
+controller Git-security fixture is removed with its caller; PWA security and
+API file-tools remain. Frozen desktop controller declarations and its Deno lock
+are unchanged until host retirement. The new LN-CAT-123 catalog audit runs with
+the existing launcher audit in normal/spec checks and CI regressions.
+
+The exact new source regression initially has 1 failure and 1 pass, then both
+pass. Source/tooling/structure/routing targets pass 25 cases; the retired AI-only
+state-matrix case is removed, while shell/inventory regression coverage uses
+retained Bases/Graph fixtures. The first cold History/Workspace run passes 12
+and fails 1 solely on the now-removed Open Chat action. Its assertion now proves
+absence; the exact 13-case cold rerun passes. Full checks, packing/static and
+complete cold interactions are still required before committing this slice.
+
+Nineteen catalog-specific requirements and their verification rows are archived;
+common panel/shell/geometry contracts retain their surviving subjects. The
+independent file-conflict context is preserved. Legacy provider/presentation
+requirements still need a caller-aware ownership audit; their historic evidence
+does not qualify current native AI. No native/data gate is marked complete.
+
+Lock regeneration initially hits stale offline Core metadata; online refresh
+resolves the already-declared published Core 0.13.5. The final pnpm-native lock
+diff is 459 deleted lines, only the root importer changes, 40 package versions
+are unreachable and no versions are added. No override or advisory exception
+changes. A formatting attempt lacked a Svelte parser; the changed Svelte source
+contains deletions only and its cold compilation/interactions pass. Generated
+lock formatting is restored through pnpm to avoid unrelated YAML churn.
+
+The first full Notes candidate run passes 27 package check/test/build tasks with
+2,194 unique package tests (the existing 90-case Deno-service suite also runs in
+its check/build lanes), 196 release-tooling tests, 68 spec regressions and all
+canonical/ownership gates. It stops at archive preparation because the release
+tool requires committed source plus an empty JJ working-copy commit. A local
+candidate checkpoint supplies that precondition; packing, static/dev Docs and
+complete cold interactions still must pass before this branch is pushed/landed.
+No release precondition or functional assertion is bypassed.
+
+## Shared-AI consumer continuation
+
+Notes launcher #157 merged at `14d3138cb0f3c1d10996be650530376e4fbb877a`.
+Required PR CI `44149841579` passed. Main Pages, PWA, Release and dependency-image
+workflows all succeeded. These workflow outcomes do not by themselves qualify
+new npm publication or native AI/data behavior.
+
+Website #1 merged at `9cbdc233a7bec69d50d92e5da813edc3586a25fd` after both
+hosted push/PR checks passed, including pinned Node 24.15.0. Exact-main workflow
+`44157445481` also passed. It retains 26 guides and all historical source/media
+provenance, removes shared AI from the 18-entry active table and rejects new
+shared-package media imports before writes. Qualification: 13 unit tests,
+25 cold browser cases, 234-page build, route crawl, ordinary and spec checks;
+exact mobile/desktop inventory target 2/2. Its owner receipt is
+`spec/records/2026-11-17-retired-shared-ai.md`. The website remains behind its
+manual deployment gate; this merge did not deploy it.
+
+Notes catalog removal is JJ change `zuwpuyzx`, with all current main package
+versions and generated host schema preserved. Its first complete committed-source
+release run passed before main-version intake; all 239 interactions/axe cases
+passed across four cold shards. Rebased package checks/tests/builds also pass,
+but packaging exposed a stale root Deno lock. The generated lock removes 60
+unreachable versions and adds none, normalizes four now-unambiguous references
+and brings root importer metadata in line with the manifests. Frozen desktop
+controller declarations remain unchanged. The committed-lock release and normal checks now pass, including three public
+package tarballs; all 239 current-main cold interactions pass. Exact receipts and
+counts are in `spec/records/2026-11-17-retired-ai-catalog.md` and its JSON receipt.
+The existing Specification Docs history quarantine remains skipped; the enabled
+static/development cases pass 5/7 respectively. Final hosted PR landing remains
+pending; this source qualification does not complete native/data acceptance.
+
+Registry #181 remains draft at `37ee50609d5fbb89ce4bc3bb81b1d3ec5d091df1`.
+The user explicitly approved protected metadata signing for that exact source.
+Workflow `44159554590` is running against `retirement/shared-ai-distribution`
+using the existing main-owned protected workflow. Review its generated-only PR
+and all checks before source landing. Deployment and npm
+package deprecation remain separate release gates. Native installed-data,
+disablement/Safe Mode/cold acceptance and caller-aware contract ownership audit
+remain the next shared-AI boundaries. Do not start host/API removal until those
+are resolved; terminal remains the final removal.

@@ -381,14 +381,12 @@ test("the bounded runner preserves test arguments and separates forced/live cach
   assert.equal(
     resolveTurboArguments(
       ["test:spec-validation:storybook-structure:run", "--task-args"],
-      { LAPIS_AGENT_RUNTIME_URL: "live" },
+      { LAPIS_TERMINAL_HOST_URL: "live" },
     ).live,
     false,
     "source-only audits do not consume live Storybook services",
   );
   for (const key of [
-    "LAPIS_AGENT_RUNTIME_URL",
-    "LAPIS_AGENT_RUNTIME_TOKEN",
     "LAPIS_TERMINAL_HOST_URL",
     "LAPIS_TERMINAL_HOST_TOKEN",
     "SPECIFICATION_BASE_URL",

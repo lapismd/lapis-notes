@@ -95,25 +95,6 @@
     "kind": "component",
     "subject": "@lapismd/design-core/shadcn/tooltip#Provider"
   },
-  "stories/plugins/ai/AiChat.stories.ts": {
-    "kind": "component",
-    "subject": "@lapis-notes/ai#AiChatPanel"
-  },
-  "stories/plugins/ai/AiLiveHost.stories.ts": {
-    "kind": "application"
-  },
-  "stories/plugins/ai/panels/Catalog.stories.ts": {
-    "kind": "application"
-  },
-  "stories/plugins/ai/panels/Chat.stories.ts": {
-    "kind": "application"
-  },
-  "stories/plugins/ai/panels/History.stories.ts": {
-    "kind": "application"
-  },
-  "stories/plugins/ai/shell/Shell.stories.ts": {
-    "kind": "application"
-  },
   "stories/plugins/bases/BasesViews.stories.ts": {
     "kind": "component",
     "subject": "@lapis-notes/bases#BasesViewSurface"

@@ -21,12 +21,10 @@ failure/recovery acceptance. Their changed stories remain `visual-pending` and
 capture may produce review artifacts, but this implementation does not approve
 new baselines.
 
-The application-tool story family uses deterministic transcript seeds and an
-inert resumable runtime to keep approval cards pending without starting an
-agent. Seeded read and write cards use the OpenClaw-named `read` and `edit`
-tools. The community-tool shell story mutates the real AI settings contract and
-verifies Search, Markdown `notes_list`, and API file-tool enablement plus the
-disabled and newly enabled community-tool states.
+The retired shared-AI catalog and manual controller attachment are absent under
+LN-CAT-123. Current native AI/transcript and installed-data acceptance remain
+host responsibilities; the owning Plugins catalog retains Search tool-result
+coverage independently of shared AI.
 
 The Specification sidebar follows SUMMARY order, including Deno Desktop Host,
 Deno Desktop Parity Blockers, Web Host, and Node Server Host in their canonical
@@ -76,20 +74,8 @@ Direct api imports (one story family each):
 - `sidebar-custom`, `table-dnd`
 - `helpers` (`cn` / `fuzzySearch`) — interaction-only, `skip-visual`
 
-- The `Plugins/AI/Chat` attach play asserts a Command View host inside the paperclip popover, visible border and shadow, and stacking above an open composer drawer.
-
-- The same Fake chat family includes a `skip-visual` automatic-memory-recall scenario.
-
-- Its play enables recall, submits one turn, and proves a typed recall block reached the Fake session exactly once while the visible and durable user prompt remains authored text only.
-
-- Memory maintenance and review surfaces stay unit- and command-covered until their visual review UI is promoted to a governed catalog family.
-
-- The `Plugins/AI/Shell` Local Conversations play opens the composer overflow menu, asserts Archive Chat, Delete Chat, and New Chat, checks those labels are not clipped, and matches their font size to the model menu (LN-AI-109, LN-AI-123).
-
-- It waits for menu teardown to restore pointer interaction before opening the History options, then verifies archive, restore, delete, and new-chat behavior (LN-CAT-071).
-
-The structured plugin-panel catalog covers Explorer, Search, History, AI Chat, AI
-History, AI Catalog, and the six Markdown command views. History compare stories assert
+The structured plugin-panel catalog covers Explorer, Search, History, and the six
+Markdown command views. History compare stories assert
 `History` plus parent-path header breadcrumbs and that History opens or reveals
 the History panel. `Plugins/History/Shell` provides Desktop and Mobile full-app
 stories with Explorer on the left, a multi-section Welcome compare in the

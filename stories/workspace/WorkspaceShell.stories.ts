@@ -81,7 +81,6 @@ function expectBundledPlugins(canvas: ReturnType<typeof within>) {
     { id: "history", enabled: true },
     { id: "wordcount", enabled: true },
     { id: "bases", enabled: true },
-    { id: "ai", enabled: true },
   ]);
 }
 
@@ -267,8 +266,8 @@ export const PersistedDesktop: Story = {
       expect(settings).toBeVisible();
     });
     await expect(
-      within(ribbon).getByRole("button", { name: "Open Chat" }),
-    ).toBeVisible();
+      within(ribbon).queryByRole("button", { name: "Open Chat" }),
+    ).toBeNull();
     await expectWordCountForWelcome(canvasElement, canvas);
 
     const newTabButton = canvas.getByRole("button", { name: "New tab" });

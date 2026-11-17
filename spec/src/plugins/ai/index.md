@@ -1,6 +1,12 @@
 # AI Plugin
 
-Defines AI integration with Lapis: providers, conversations, tools, user decisions, and session storage. The sibling lapis-plugins repository owns the plugin implementation.
+The external shared `@lapis-notes/ai` implementation and Notes catalog are
+retired. Desktop and App Profile own current native AI; the portable Notes API
+file-tools kernel remains active. The topics below retain integration, data and
+parity contracts while their caller-aware ownership audit is completed. Historic
+shared-plugin evidence does not qualify the current native implementation.
+Do not restore the external package or its controller-backed catalog to satisfy
+an obsolete example.
 
 ## Topics
 

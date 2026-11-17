@@ -50,11 +50,9 @@ service lifetime and durable native turn-admission chapters use that same
 metadata-only mirror and SUMMARY order. Adding them does not change production
 stories or their interaction/visual gates.
 
-The optional development controller metadata bridge now lives in
-`scripts/lib/controller-connection-bridge.ts` for manual catalog attachment.
-The retired shared-AI launchers, paid-agent probes and workspace seeder are
-removed under LN-CAT-122. The bridge remains excluded from the Web product;
-default stories remain Fake and no controller sidecar is started.
+Notes no longer imports the shared-AI catalog or attaches its controller.
+The retired package/bridge/root dependency boundary is enforced by LN-CAT-123;
+current native AI stays owned by Desktop and App Profile.
 
 Plugins app-link stories demonstrate the public App URL registry and Workspace
 navigator under [LN-PLUG-106](../plugin-model/app-ownership.md#ln-plug-106).
@@ -199,23 +197,11 @@ detail's titled alert independently of the simultaneous notification toast.
 
 **Requirement.** Bases stories MUST share one canonical seeded vault fixture, use `BasesViewSurface` as focused Autodocs authority, hide harness state from Controls, and provide explicit public-package Show Code. App stories MUST use isolated 700px iframes; every story remains `visual-pending` with an independent nested-import baseline until review.
 
-## LN-CAT-062 — Plugins/AI/Chat: demonstrate a Fake rich turn with visible
-
-<a id="ln-cat-062"></a>
-
-**Requirement.** `Plugins/AI/Chat` MUST demonstrate a Fake rich turn with visible thinking, expandable tool input and output, Markdown assistant text, a date divider, timestamps, a Copy response action, Design Core Composer Drawer attachment chips, a streamed context-usage bar, filtered provider bookkeeping statuses, an active-turn working indicator, and checked Model and Thinking submenus. Deterministic failure scenarios MUST cover both composer top validation and a failed assistant message with Retry. It MUST use public Show Code and retain a `visual-pending` nested-import baseline.
-
 ## LN-CAT-063 — Focused Bases Editable Cells and real editor-shell: enter advanced-filter edit mode, open CodeMirror completions
 
 <a id="ln-cat-063"></a>
 
 **Requirement.** The focused Bases Editable Cells and real editor-shell stories MUST enter advanced-filter edit mode, open CodeMirror completions, and assert the inline editor has no default outline while the completion surface has opaque, rounded, shadowed Lapis popover chrome.
-
-## LN-CAT-067 — Fake runtimes in default AI stories
-
-<a id="ln-cat-067"></a>
-
-**Requirement.** Default `Plugins/AI` stories MUST stay Fake. Storybook MUST NOT start an AI controller as a sidecar. Preview MAY publish the web host's thin controller connection bridge using an explicit URL and token. The AI plugin MUST use the installed shared client package, without a controller source alias.
 
 ## LN-CAT-093 — App-backed Graph panel placements
 
@@ -247,23 +233,17 @@ detail's titled alert independently of the simultaneous notification toast.
 
 **Requirement.** Storybook Vite MUST use one Svelte transform pipeline, inline its compiled component CSS, and exclude registry-installed Design Core Svelte source from dependency optimization so rune modules and styles remain valid when focused browser stories start from a cold dependency cache.
 
-## LN-CAT-098 — Plugins/AI/Shell/JSONL Preview: boot the real AI plugin, open
-
-<a id="ln-cat-098"></a>
-
-**Requirement.** `Plugins/AI/Shell/JSONL Preview` MUST boot the real AI plugin, open a seeded portable `transcript.jsonl` through its registered default file view, and assert user and Markdown assistant messages, reasoning, tool activity, file-association metadata, and the absence of a composer. Its visual MUST remain `visual-pending` until human review.
-
 ## LN-CAT-074 — Plugin catalog hierarchy
 
 <a id="ln-cat-074"></a>
 
 **Requirement.** Story titles and physical catalog paths for bundled plugins MUST use `Plugins/<Plugin>`. Command-access panels MUST use `Plugins/<Plugin>/Panels/<Panel>` and full app examples MUST use `Plugins/<Plugin>/Shell`; `Workspace/Panels` and `Workspace/Plugins` are forbidden. The nested `Specification` group MUST be the first top-level Storybook menu item and preserve SUMMARY order.
 
-## LN-CAT-075 — Explorer, Bookmarks, Search, History, AI Chat, AI: each demonstrate Middle Top Tabs, Stacked Tabs
+## LN-CAT-075 — Explorer, Bookmarks, Search, History: each demonstrate Middle Top Tabs, Stacked Tabs
 
 <a id="ln-cat-075"></a>
 
-**Requirement.** Explorer, Bookmarks, Search, History, AI Chat, AI History, AI Catalog, and the six Markdown command panels MUST each demonstrate Middle Top Tabs, Stacked Tabs, Left Sidebar, Right Sidebar, Bottom Panel, and Sidebar As a Group through real workspace chrome. Standalone previews MUST fill the viewport with no canvas padding or document scrolling; only Docs canvases use the isolated 700px height.
+**Requirement.** Explorer, Bookmarks, Search, History, and the six Markdown command panels MUST each demonstrate Middle Top Tabs, Stacked Tabs, Left Sidebar, Right Sidebar, Bottom Panel, and Sidebar As a Group through real workspace chrome. Standalone previews MUST fill the viewport with no canvas padding or document scrolling; only Docs canvases use the isolated 700px height.
 
 ## LN-CAT-076 — Plugin Shell family: provide Desktop and Mobile stories with Explorer
 
@@ -275,7 +255,7 @@ detail's titled alert independently of the simultaneous notification toast.
 
 <a id="ln-cat-077"></a>
 
-**Requirement.** Workspace Shell PersistedDesktop and Mobile MUST load Markdown, Markdown Lint, Explorer, Bookmarks, Search, History, Bases, AI, and Word Count as enabled bundled plugins. The AI runtime MUST remain deterministic Fake. Those stories MUST assert F-Mode is present and disabled.
+**Requirement.** Workspace Shell PersistedDesktop and Mobile MUST load Markdown, Markdown Lint, Explorer, Bookmarks, Search, History, Bases, and Word Count as enabled bundled plugins. Shared AI MUST NOT be registered by these stories. Those stories MUST assert F-Mode is present and disabled.
 
 ## LN-CAT-080 — SUMMARY chapter: have one exact metadata-only Storybook mirror
 
@@ -328,12 +308,6 @@ runtime.
 <a id="ln-cat-085"></a>
 
 **Requirement.** `Workspace/Shell` PersistedDesktop MUST keep Design Core tooltip paint inverted in light mode after bundled Markdown loads Mira styles. Hovering File Explorer chrome MUST show a dark surface and light text.
-
-## LN-CAT-089 — Plugins/AI/Panels/Catalog: cover the nested owner and kind tree
-
-<a id="ln-cat-089"></a>
-
-**Requirement.** `Plugins/AI/Panels/Catalog` MUST cover the nested owner and kind tree, a row-click tool description expand, expand-all, a filter, a persisted tool checkbox, Open on a vault `SKILL.md`, Open on a vault command Markdown file, public Show Code, and all six governed placements.
 
 ## LN-CAT-112 — Plugin Management Sources story: render both a Nostr source
 

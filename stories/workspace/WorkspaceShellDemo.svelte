@@ -10,7 +10,6 @@
     type WorkspaceLeaf,
   } from "@lapis-notes/api";
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
-  import { AiPlugin } from "@lapis-notes/ai";
   import { BasesPlugin } from "@lapis-notes/bases";
   import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
   import { GraphPlugin } from "@lapis-notes/graph";
@@ -287,7 +286,6 @@
     "history",
     "wordcount",
     "bases",
-    "ai",
   ] as const;
   if (shouldLoadBundledPlugins) {
     app.plugins.registerCorePlugins([
@@ -306,7 +304,6 @@
       { plugin: HistoryPlugin, required: false, enabledByDefault: true },
       { plugin: WordCountPlugin, required: false, enabledByDefault: true },
       { plugin: BasesPlugin, required: false, enabledByDefault: true },
-      { plugin: AiPlugin, required: false, enabledByDefault: true },
     ]);
   }
 
@@ -371,10 +368,6 @@
           communityPlugins: "disabled",
           optionalCorePlugins: "configured",
         });
-        const aiPlugin = app.plugins.plugins.get("ai");
-        if (aiPlugin instanceof AiPlugin) {
-          await aiPlugin.updateSettings({ defaultRuntime: "fake" });
-        }
         stopWatchingMetadata = watchMetadata(app);
         await app.metadataCache.load();
         bundledPluginState = JSON.stringify(

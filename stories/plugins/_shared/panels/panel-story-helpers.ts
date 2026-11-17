@@ -117,9 +117,6 @@ export function placementParameters(
 ) {
   const placement = PANEL_PLACEMENTS[layout];
   const familyPath = {
-    "ai-chat": "ai/panels/chat",
-    "ai-history": "ai/panels/history",
-    "ai-catalog": "ai/panels/catalog",
     explorer: "explorer/panels/explorer",
     search: "search/panels/search",
     bookmarks: "bookmarks/panels/bookmarks",
@@ -187,11 +184,7 @@ export async function expectPanelSource(
             ? 'from "@lapis-notes/history";'
             : kind === "explorer"
               ? 'from "@lapis-notes/file-explorer";'
-              : kind === "ai-history" ||
-                  kind === "ai-catalog" ||
-                  kind === "ai-chat"
-                ? 'from "@lapis-notes/ai";'
-                : 'from "@lapis-notes/markdown";',
+              : 'from "@lapis-notes/markdown";',
   );
   await expect(source).not.toContain("PanelDemo");
   await expect(source).not.toContain("args.");
@@ -315,9 +308,7 @@ export async function expectPanelPlacement(
     storyWindow.getComputedStyle(paintHost).backgroundColor,
   );
   const panelBackground = storyWindow.getComputedStyle(panel).backgroundColor;
-  if (kind === "ai-chat") {
-    await expect(panelBackground).not.toBe("rgba(0, 0, 0, 0)");
-  } else if (kind === "explorer" || kind === "bookmarks") {
+  if (kind === "explorer" || kind === "bookmarks") {
     await expect(panelBackground).toBe("rgba(0, 0, 0, 0)");
   } else {
     await expect(panelBackground).toBe(viewBackground);
