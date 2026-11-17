@@ -1,0 +1,507 @@
+{
+  "schema": 1,
+  "runs": {
+    "focusedInitial": {
+      "schema": 1,
+      "run": "lapis-notes-validation-653a2f66-7950-421f-b038-39e824f1d61b",
+      "lane": "test:storybook",
+      "args": [
+        "stories/plugins/history/panels/History.stories.ts",
+        "stories/workspace/WorkspaceShell.stories.ts"
+      ],
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "imageTarget": "ui",
+      "workspace": "84c2c8f6da2041b5",
+      "cache": {
+        "javascript": "07fa2ee0afaf4349fbde"
+      },
+      "resources": {
+        "cpus": 4,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "source": {
+        "schema": 1,
+        "nativeSources": [],
+        "revision": "e021fddb6189370819d0d42b2439384cee303f72",
+        "parents": ["2bbf97de47b4a5d89474ecfc3cbd6cf1450704d3"],
+        "fileCount": 2586,
+        "archives": [],
+        "packSha256": "87f76aca3966ed2197f4fd32cc298abf7ce04689ebb1883d3f67e23ece2d3f4b"
+      },
+      "started": "2026-11-17T18:45:27.426Z",
+      "status": "failed",
+      "tools": {
+        "node": "v24.15.0",
+        "pnpm": "10.34.5",
+        "jj": "jj 0.45.1-7c41cdeb16b6b321c64e789a966b6adf723816a5",
+        "git": "git version 2.39.5",
+        "mdbook": "mdbook v0.5.4",
+        "deno": "deno 2.9.7 (stable, release, x86_64-unknown-linux-gnu)\nv8 15.0.245.2-rusty\ntypescript 6.0.3"
+      },
+      "invocations": [
+        {
+          "args": [
+            "stories/plugins/history/panels/History.stories.ts",
+            "stories/workspace/WorkspaceShell.stories.ts",
+            "--reporter=default",
+            "--reporter=junit",
+            "--outputFile=.release/ci-results/storybook-1.xml"
+          ],
+          "status": "failed",
+          "error": "/bin/sh exited 1"
+        }
+      ],
+      "exitCode": 1,
+      "error": "Validation invocation failed; inspect the per-invocation reports.",
+      "finished": "2026-11-17T18:47:01.913Z"
+    },
+    "focusedFinal": {
+      "schema": 1,
+      "run": "lapis-notes-validation-0d24619b-1430-45a7-a117-a45f09f535b9",
+      "lane": "test:storybook",
+      "args": [
+        "stories/plugins/history/panels/History.stories.ts",
+        "stories/workspace/WorkspaceShell.stories.ts"
+      ],
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "imageTarget": "ui",
+      "workspace": "84c2c8f6da2041b5",
+      "cache": {
+        "javascript": "4ae8f1771b40c3f57524"
+      },
+      "resources": {
+        "cpus": 4,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "source": {
+        "schema": 1,
+        "nativeSources": [],
+        "revision": "f69f30377c9e8a3fa5198b316a37e996eab8c704",
+        "parents": ["2bbf97de47b4a5d89474ecfc3cbd6cf1450704d3"],
+        "fileCount": 2586,
+        "archives": [],
+        "packSha256": "2e28cba2509ea46a95c1ae5f6c8241c96ee1e347c6dabbb51c60c48483683057"
+      },
+      "started": "2026-11-17T18:48:09.878Z",
+      "status": "passed",
+      "tools": {
+        "node": "v24.15.0",
+        "pnpm": "10.34.5",
+        "jj": "jj 0.45.1-7c41cdeb16b6b321c64e789a966b6adf723816a5",
+        "git": "git version 2.39.5",
+        "mdbook": "mdbook v0.5.4",
+        "deno": "deno 2.9.7 (stable, release, x86_64-unknown-linux-gnu)\nv8 15.0.245.2-rusty\ntypescript 6.0.3"
+      },
+      "invocations": [
+        {
+          "args": [
+            "stories/plugins/history/panels/History.stories.ts",
+            "stories/workspace/WorkspaceShell.stories.ts",
+            "--reporter=default",
+            "--reporter=junit",
+            "--outputFile=.release/ci-results/storybook-1.xml"
+          ],
+          "status": "passed"
+        }
+      ],
+      "exitCode": 0,
+      "finished": "2026-11-17T18:49:44.768Z"
+    },
+    "unshardedIncomplete": {
+      "schema": 1,
+      "run": "lapis-notes-validation-6c8b65ba-b99f-4090-a3a2-b2012313da17",
+      "lane": "test:storybook",
+      "args": ["--force"],
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "imageTarget": "ui",
+      "workspace": "84c2c8f6da2041b5",
+      "cache": {
+        "javascript": "4ae8f1771b40c3f57524"
+      },
+      "resources": {
+        "cpus": 4,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "source": {
+        "schema": 1,
+        "nativeSources": [],
+        "revision": "16ae0733a2341af77a55fdbc396ba5cdedbf3ae2",
+        "parents": ["233dec60ccda8f257ad9f71563f3e5919d34dc21"],
+        "fileCount": 2586,
+        "archives": [],
+        "packSha256": "158c697e0a8997daf9179eb7c3fd7a7da66e8e2c6ad8f9fd2bd65dc3fcde7dd6"
+      },
+      "started": "2026-11-17T19:00:30.920Z",
+      "status": "failed",
+      "tools": {
+        "node": "v24.15.0",
+        "pnpm": "10.34.5",
+        "jj": "jj 0.45.1-7c41cdeb16b6b321c64e789a966b6adf723816a5",
+        "git": "git version 2.39.5",
+        "mdbook": "mdbook v0.5.4",
+        "deno": "deno 2.9.7 (stable, release, x86_64-unknown-linux-gnu)\nv8 15.0.245.2-rusty\ntypescript 6.0.3"
+      },
+      "invocations": [
+        {
+          "args": [
+            "--force",
+            "--reporter=default",
+            "--reporter=junit",
+            "--outputFile=.release/ci-results/storybook-1.xml"
+          ],
+          "status": "failed",
+          "error": "/bin/sh exited 1"
+        }
+      ],
+      "exitCode": 1,
+      "error": "Validation invocation failed; inspect the per-invocation reports.",
+      "finished": "2026-11-17T19:04:52.710Z"
+    },
+    "shardedBeforeVersionIntake": {
+      "schema": 1,
+      "run": "lapis-notes-validation-981f3a29-a895-4ab1-a77f-fa4e1efe4b2f",
+      "lane": "test:storybook",
+      "args": [],
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "imageTarget": "ui",
+      "workspace": "84c2c8f6da2041b5",
+      "cache": {
+        "javascript": "4ae8f1771b40c3f57524"
+      },
+      "resources": {
+        "cpus": 4,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "source": {
+        "schema": 1,
+        "nativeSources": [],
+        "revision": "16ae0733a2341af77a55fdbc396ba5cdedbf3ae2",
+        "parents": ["233dec60ccda8f257ad9f71563f3e5919d34dc21"],
+        "fileCount": 2586,
+        "archives": [],
+        "packSha256": "9deb5ed5b9f8c676882967ec6093e4a3f2790f60be21baf2f71508383a6f4ab7"
+      },
+      "started": "2026-11-17T19:06:38.166Z",
+      "status": "passed",
+      "tools": {
+        "node": "v24.15.0",
+        "pnpm": "10.34.5",
+        "jj": "jj 0.45.1-7c41cdeb16b6b321c64e789a966b6adf723816a5",
+        "git": "git version 2.39.5",
+        "mdbook": "mdbook v0.5.4",
+        "deno": "deno 2.9.7 (stable, release, x86_64-unknown-linux-gnu)\nv8 15.0.245.2-rusty\ntypescript 6.0.3"
+      },
+      "invocations": [
+        {
+          "args": [
+            "--shard=1/4",
+            "--reporter=default",
+            "--reporter=junit",
+            "--outputFile=.release/ci-results/storybook-1.xml"
+          ],
+          "status": "passed"
+        },
+        {
+          "args": [
+            "--shard=2/4",
+            "--reporter=default",
+            "--reporter=junit",
+            "--outputFile=.release/ci-results/storybook-2.xml"
+          ],
+          "status": "passed"
+        },
+        {
+          "args": [
+            "--shard=3/4",
+            "--reporter=default",
+            "--reporter=junit",
+            "--outputFile=.release/ci-results/storybook-3.xml"
+          ],
+          "status": "passed"
+        },
+        {
+          "args": [
+            "--shard=4/4",
+            "--reporter=default",
+            "--reporter=junit",
+            "--outputFile=.release/ci-results/storybook-4.xml"
+          ],
+          "status": "passed"
+        }
+      ],
+      "exitCode": 0,
+      "finished": "2026-11-17T19:13:42.516Z"
+    },
+    "currentMainBeforeLockCorrection": {
+      "schema": 1,
+      "run": "lapis-notes-validation-15ffa511-ec2e-4f29-b6eb-9699d47b06e9",
+      "lane": "ci:release",
+      "args": [],
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "imageTarget": "ui",
+      "workspace": "84c2c8f6da2041b5",
+      "cache": {
+        "javascript": "5169474634680ef1ff01"
+      },
+      "resources": {
+        "cpus": 4,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "source": {
+        "schema": 1,
+        "nativeSources": [],
+        "revision": "2e1c98ef8fd938a8e25962eafc3dd8587869018e",
+        "parents": ["213527a49ef01fd98b1a469d4f10d4c2d555ea85"],
+        "fileCount": 2585,
+        "archives": [],
+        "packSha256": "1876ab9c7034510fb79a55667fb797c72f37f2804c24dd52ce4035f2ac780510"
+      },
+      "started": "2026-11-17T19:15:56.084Z",
+      "status": "failed",
+      "tools": {
+        "node": "v24.15.0",
+        "pnpm": "10.34.5",
+        "jj": "jj 0.45.1-7c41cdeb16b6b321c64e789a966b6adf723816a5",
+        "git": "git version 2.39.5",
+        "mdbook": "mdbook v0.5.4",
+        "deno": "deno 2.9.7 (stable, release, x86_64-unknown-linux-gnu)\nv8 15.0.245.2-rusty\ntypescript 6.0.3"
+      },
+      "invocations": [
+        {
+          "args": [],
+          "status": "failed",
+          "error": "/bin/sh exited 1"
+        }
+      ],
+      "exitCode": 1,
+      "error": "Validation invocation failed; inspect the per-invocation reports.",
+      "finished": "2026-11-17T19:19:43.877Z"
+    },
+    "currentMainSharded": {
+      "schema": 1,
+      "run": "lapis-notes-validation-3dda40c5-9d74-4e6b-a765-9ae4bbeb09eb",
+      "lane": "test:storybook",
+      "args": [],
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "imageTarget": "ui",
+      "workspace": "84c2c8f6da2041b5",
+      "cache": {
+        "javascript": "5169474634680ef1ff01"
+      },
+      "resources": {
+        "cpus": 4,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "source": {
+        "schema": 1,
+        "nativeSources": [],
+        "revision": "2e1c98ef8fd938a8e25962eafc3dd8587869018e",
+        "parents": ["213527a49ef01fd98b1a469d4f10d4c2d555ea85"],
+        "fileCount": 2585,
+        "archives": [],
+        "packSha256": "2e4066ce76c26b6a703c1713ec9df038fd0a19c98498d2614149c849c89c20f3"
+      },
+      "started": "2026-11-17T19:21:19.913Z",
+      "status": "passed",
+      "tools": {
+        "node": "v24.15.0",
+        "pnpm": "10.34.5",
+        "jj": "jj 0.45.1-7c41cdeb16b6b321c64e789a966b6adf723816a5",
+        "git": "git version 2.39.5",
+        "mdbook": "mdbook v0.5.4",
+        "deno": "deno 2.9.7 (stable, release, x86_64-unknown-linux-gnu)\nv8 15.0.245.2-rusty\ntypescript 6.0.3"
+      },
+      "invocations": [
+        {
+          "args": [
+            "--shard=1/4",
+            "--reporter=default",
+            "--reporter=junit",
+            "--outputFile=.release/ci-results/storybook-1.xml"
+          ],
+          "status": "passed"
+        },
+        {
+          "args": [
+            "--shard=2/4",
+            "--reporter=default",
+            "--reporter=junit",
+            "--outputFile=.release/ci-results/storybook-2.xml"
+          ],
+          "status": "passed"
+        },
+        {
+          "args": [
+            "--shard=3/4",
+            "--reporter=default",
+            "--reporter=junit",
+            "--outputFile=.release/ci-results/storybook-3.xml"
+          ],
+          "status": "passed"
+        },
+        {
+          "args": [
+            "--shard=4/4",
+            "--reporter=default",
+            "--reporter=junit",
+            "--outputFile=.release/ci-results/storybook-4.xml"
+          ],
+          "status": "passed"
+        }
+      ],
+      "exitCode": 0,
+      "finished": "2026-11-17T19:28:30.476Z"
+    },
+    "committedLockRelease": {
+      "schema": 1,
+      "run": "lapis-notes-validation-928dda70-61d5-489b-b159-8f4a400dea1d",
+      "lane": "ci:release",
+      "args": [],
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "imageTarget": "ui",
+      "workspace": "84c2c8f6da2041b5",
+      "cache": {
+        "javascript": "5169474634680ef1ff01"
+      },
+      "resources": {
+        "cpus": 4,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "source": {
+        "schema": 1,
+        "nativeSources": [],
+        "revision": "dd8867cd5d028f81e7d1dc11dacfecb41ff9b63e",
+        "parents": ["0ecb438ea3f7e1fb324e2bf0a93d4c4ae8c61c62"],
+        "fileCount": 2586,
+        "archives": [],
+        "packSha256": "0976b85d3f9b20bc416fc8be0c46c53a23cc1c309009203e8375a0e57427b319"
+      },
+      "started": "2026-11-17T19:29:29.067Z",
+      "status": "passed",
+      "tools": {
+        "node": "v24.15.0",
+        "pnpm": "10.34.5",
+        "jj": "jj 0.45.1-7c41cdeb16b6b321c64e789a966b6adf723816a5",
+        "git": "git version 2.39.5",
+        "mdbook": "mdbook v0.5.4",
+        "deno": "deno 2.9.7 (stable, release, x86_64-unknown-linux-gnu)\nv8 15.0.245.2-rusty\ntypescript 6.0.3"
+      },
+      "invocations": [
+        {
+          "args": [],
+          "status": "passed"
+        }
+      ],
+      "exitCode": 0,
+      "finished": "2026-11-17T19:32:36.719Z"
+    },
+    "committedLockCheck": {
+      "schema": 1,
+      "run": "lapis-notes-validation-a7b70d57-9dc7-4292-81e0-c232f2c0f700",
+      "lane": "check",
+      "args": [],
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "imageTarget": "ui",
+      "workspace": "84c2c8f6da2041b5",
+      "cache": {
+        "javascript": "5169474634680ef1ff01"
+      },
+      "resources": {
+        "cpus": 4,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "source": {
+        "schema": 1,
+        "nativeSources": [],
+        "revision": "dd8867cd5d028f81e7d1dc11dacfecb41ff9b63e",
+        "parents": ["0ecb438ea3f7e1fb324e2bf0a93d4c4ae8c61c62"],
+        "fileCount": 2586,
+        "archives": [],
+        "packSha256": "2a1ff3ea3a9068c632185e522a9166775142f85414f12caf78e5047b727ba568"
+      },
+      "started": "2026-11-17T19:32:48.683Z",
+      "status": "passed",
+      "tools": {
+        "node": "v24.15.0",
+        "pnpm": "10.34.5",
+        "jj": "jj 0.45.1-7c41cdeb16b6b321c64e789a966b6adf723816a5",
+        "git": "git version 2.39.5",
+        "mdbook": "mdbook v0.5.4",
+        "deno": "deno 2.9.7 (stable, release, x86_64-unknown-linux-gnu)\nv8 15.0.245.2-rusty\ntypescript 6.0.3"
+      },
+      "invocations": [
+        {
+          "args": [],
+          "status": "passed"
+        }
+      ],
+      "exitCode": 0,
+      "finished": "2026-11-17T19:33:10.985Z"
+    }
+  },
+  "artifacts": [
+    {
+      "file": "lapis-notes-api-0.6.8.tgz",
+      "name": "@lapis-notes/api",
+      "version": "0.6.8",
+      "sha256": "3197adf940c033caaf7fd9127760d0cc46df5408886a3b24e24e7590a4562042",
+      "sharedAiDependency": false
+    },
+    {
+      "file": "lapis-notes-ui-0.2.3.tgz",
+      "name": "@lapis-notes/ui",
+      "version": "0.2.3",
+      "sha256": "d8dc5f8e2469f2e9f4dd5bcd5b727db9780507caa5a8701f3c8a9d32f9a32e95",
+      "sharedAiDependency": false
+    },
+    {
+      "file": "lapis-notes-workspace-0.4.8.tgz",
+      "name": "@lapis-notes/workspace",
+      "version": "0.4.8",
+      "sha256": "558ecb749a420cbb222a790f19f5527aef9b2d956fcb367e633ca26cc7d60177",
+      "sharedAiDependency": false
+    }
+  ],
+  "counts": {
+    "focused": {
+      "before": {
+        "passed": 12,
+        "failed": 1
+      },
+      "after": {
+        "passed": 13,
+        "failed": 0
+      }
+    },
+    "currentMainInteractions": {
+      "files": 57,
+      "passed": 239,
+      "failed": 0,
+      "shards": [96, 49, 41, 53]
+    },
+    "uniquePackageTests": 2194,
+    "releaseTooling": 196,
+    "specRegressions": 68,
+    "staticSpecification": {
+      "passed": 5,
+      "skipped": 3
+    },
+    "developmentSpecification": {
+      "passed": 7,
+      "skipped": 1
+    }
+  },
+  "limits": [
+    "Source and registry-package qualification only; native/data acceptance remains open.",
+    "Final browser runtime snapshot predates generated Deno lock correction and evidence-only documents.",
+    "No npm publication, registry deployment or visual-baseline approval."
+  ]
+}

@@ -32,7 +32,7 @@ audit; old shared-controller evidence does not qualify native behavior.
   `653a2f66-7950-421f-b038-39e824f1d61b`.
 - Before current-main version intake, the committed-source `ci:release` passed
   in `2062444b-5407-4ca9-9f1a-f638311e27a5`, including package checks/tests/builds,
-  static Storybook and 8 development Specification Docs cases. The packing lane
+  static Storybook and the development Specification Docs lane. The packing lane
   found no unpublished versions and selected no tarballs; this is not a new
   packed-package or publication receipt.
 - That source also passed ordinary `check`, including all root audits and
@@ -68,10 +68,21 @@ desktop's own controller declarations are unchanged. This root-lock pruning is
 not the later Deno host removal. The pnpm lock changes only the root importer,
 removes 40 unreachable versions and adds no versions or overrides.
 
-Final current-main release/check confirmation and evidence remain pending in
-the progress record until the new committed lock passes those lanes. The cold
-current-main interaction snapshot differs from the final source only in this
-generated Deno lock and subsequent evidence documents.
+The committed-lock `ci:release` passed in
+`928dda70-61d5-489b-b159-8f4a400dea1d`, including packing UI 0.2.3, API 0.6.8
+and Workspace 0.4.8. Their tarball manifests were independently inspected and
+contain no shared-AI dependency. Normal `check` passed all root audits and
+16 package tasks in `a7b70d57-9dc7-4292-81e0-c232f2c0f700`.
+The cold current-main interaction lane passed all 239 cases across 57 files in
+`3dda40c5-9d74-4e6b-a765-9ae4bbeb09eb`. That runtime snapshot differs from the
+final source only in the generated Deno lock and subsequent evidence documents.
+
+Specification Docs separately passed 5 static and 7 development cases. The
+pre-existing Forward-history quarantine remains skipped in both modes, and two
+watcher-only cases are skipped for static output. No skip was added or changed.
+[Exact invocation/source receipts and three packed-artifact hashes](2026-11-17-retired-ai-catalog-validation.json)
+retain passing, incomplete and failed attempts separately. These checks qualify
+source and package artifacts, not publication or native AI/data acceptance.
 
 ## Limits and next boundary
 

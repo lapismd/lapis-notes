@@ -46,17 +46,17 @@ readiness and the retirement entry; the original plan workspace is unchanged.
 
 ## Removal 1: shared AI plugin — in progress
 
-| Substep                                                       | Status                     | Evidence / remaining boundary                                                                          |
-| ------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Refresh current registration and release entrypoints          | Verified source            | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller      |
-| Reject retired publication and metadata selectors             | Merged                     | Plugins #154/#155; main `e8f8eb1b`; exact-main CI `44149978818` passed                                 |
-| Disable mutable registry source and block reactivation        | Source committed/pushed    | Registry #181 / `37ee5060`; 146 tests, 26 cold browser cases; protected signing approval requested     |
-| Remove shared implementation, package and media catalogs      | Merged                     | Plugins #155; 410 interactions, 1,022 package tests, 243 release-tooling tests and 16 artifacts        |
-| Remove Notes duplicate stories/controller probes/dependencies | Partially source-qualified | Launcher #157 merged at `14d3138c`; catalog candidate `zuwpuyzx` in final qualification                |
-| Preserve installed-data/native lifecycle                      | Pending                    | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                 |
-| Update Website and organization metadata                      | Merged                     | Website #1 / `9cbdc233`, exact-main CI `44157445481` passed; .github #15 / `5f81879f`                  |
-| Complete source/public-package/consumer gates                 | Partially qualified        | Plugins source/artifact/catalog gates pass; Notes consumer and actual native/data gates remain pending |
-| npm deprecation, signed registry publication and deployment   | Pending release gates      | No unpublish or installed-app replacement                                                              |
+| Substep                                                       | Status                     | Evidence / remaining boundary                                                                                 |
+| ------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Refresh current registration and release entrypoints          | Verified source            | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller             |
+| Reject retired publication and metadata selectors             | Merged                     | Plugins #154/#155; main `e8f8eb1b`; exact-main CI `44149978818` passed                                        |
+| Disable mutable registry source and block reactivation        | Source committed/pushed    | Registry #181 / `37ee5060`; 146 tests, 26 cold browser cases; approved signing workflow `44159554590` running |
+| Remove shared implementation, package and media catalogs      | Merged                     | Plugins #155; 410 interactions, 1,022 package tests, 243 release-tooling tests and 16 artifacts               |
+| Remove Notes duplicate stories/controller probes/dependencies | Partially source-qualified | Launcher #157 merged at `14d3138c`; catalog candidate `zuwpuyzx` in final qualification                       |
+| Preserve installed-data/native lifecycle                      | Pending                    | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                        |
+| Update Website and organization metadata                      | Merged                     | Website #1 / `9cbdc233`, exact-main CI `44157445481` passed; .github #15 / `5f81879f`                         |
+| Complete source/public-package/consumer gates                 | Partially qualified        | Plugins source/artifact/catalog gates pass; Notes consumer and actual native/data gates remain pending        |
+| npm deprecation, signed registry publication and deployment   | Pending release gates      | No unpublish or installed-app replacement                                                                     |
 
 ## Later removals — pending
 
@@ -408,13 +408,18 @@ passed across four cold shards. Rebased package checks/tests/builds also pass,
 but packaging exposed a stale root Deno lock. The generated lock removes 60
 unreachable versions and adds none, normalizes four now-unambiguous references
 and brings root importer metadata in line with the manifests. Frozen desktop
-controller declarations remain unchanged. Final qualification of that lock-only
-follow-up, final evidence and PR landing are still pending. Do not label this
-consumer slice delivered until those gates pass.
+controller declarations remain unchanged. The committed-lock release and normal checks now pass, including three public
+package tarballs; all 239 current-main cold interactions pass. Exact receipts and
+counts are in `spec/records/2026-11-17-retired-ai-catalog.md` and its JSON receipt.
+The existing Specification Docs history quarantine remains skipped; the enabled
+static/development cases pass 5/7 respectively. Final hosted PR landing remains
+pending; this source qualification does not complete native/data acceptance.
 
 Registry #181 remains draft at `37ee50609d5fbb89ce4bc3bb81b1d3ec5d091df1`.
-The protected metadata signing workflow is prepared against its exact source
-branch; explicit signing approval has been requested. Deployment and npm
+The user explicitly approved protected metadata signing for that exact source.
+Workflow `44159554590` is running against `retirement/shared-ai-distribution`
+using the existing main-owned protected workflow. Review its generated-only PR
+and all checks before source landing. Deployment and npm
 package deprecation remain separate release gates. Native installed-data,
 disablement/Safe Mode/cold acceptance and caller-aware contract ownership audit
 remain the next shared-AI boundaries. Do not start host/API removal until those
