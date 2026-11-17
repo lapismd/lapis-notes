@@ -144,3 +144,14 @@ UI install work without sharing cancellation tokens across requests or Apps.
 The unchanged SyncHost startup reuses scanned identities under LN-DB-047.
 
 The App-owned content watch and Vault discovery exclude the installed-plugin directory from recursive content scans. Plugin assets remain accessible through their owning adapters.
+
+## Retired distribution admission
+
+LN-PLUG-137 is enforced in the API's verified installer, before installation
+writes. The original shared-AI artifact origin can refuse a legacy no-endpoint
+catalog before network IO; verified source coordinates cover mirrors, portable
+bundles and adapter-verified payloads before their files or records are written.
+Host plugin identity and saved data remain outside that refusal: the same `ai`
+identity can belong to bundled/native or unrelated third-party implementations.
+This does not transfer native lifecycle or storage authority into the registry,
+and does not remove installed state, settings, conversations or memory.

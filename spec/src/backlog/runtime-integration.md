@@ -17,8 +17,12 @@ Status: in progress. Plugins source/catalog and Notes launcher/catalog removals
 are merged and source-qualified; Notes #158 passed required hosted CI after
 2,194 package tests and 239 cold interactions. Approved registry signing and
 production deployment are complete. Live signed metadata, saved links and UI
-reject shared AI, but Notes' stale-metadata installer fallback after HTTP 404
-remains open; a focused 410 response change awaits public API confirmation.
+reject shared AI; registry #183's approved HTTP 410 behavior is deployed and
+verified across all retained versions. A reproduced legacy cached-catalog path
+without a download endpoint requires the approved LN-PLUG-137 provenance guard.
+Its 36 installer cases, 2,202 package tests, full release, three inspected
+tarballs and 239 cold interaction/axe cases pass. Required hosted qualification
+and API publication/adoption remain separate gates.
 Sixteen obsolete package/controller/Fake/attach implementation requirements are
 archived with their original evidence. Generic feature ownership and native/data
 acceptance remain pending, along with npm deprecation. Website source is merged;

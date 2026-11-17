@@ -46,17 +46,17 @@ readiness and the retirement entry; the original plan workspace is unchanged.
 
 ## Removal 1: shared AI plugin — in progress
 
-| Substep                                                       | Status                               | Evidence / remaining boundary                                                                                            |
-| ------------------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
-| Refresh current registration and release entrypoints          | Verified source                      | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller                        |
-| Reject retired publication and metadata selectors             | Merged                               | Plugins #154/#155; main `e8f8eb1b`; exact-main CI `44149978818` passed                                                   |
-| Disable mutable registry source and block reactivation        | Deployed; stale-client gap open      | Registry #181 / `42903595`; signed live metadata and UI disabled; 410 response decision pending                          |
-| Remove shared implementation, package and media catalogs      | Merged                               | Plugins #155; 410 interactions, 1,022 package tests, 243 release-tooling tests and 16 artifacts                          |
-| Remove Notes duplicate stories/controller probes/dependencies | Merged                               | #157 and #158 / `52cffda1`; 2,194 package tests, 239 cold interactions, 3 inspected tarballs and required hosted CI pass |
-| Preserve installed-data/native lifecycle                      | Pending                              | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                                   |
-| Update Website and organization metadata                      | Merged                               | Website #1 / `9cbdc233`, exact-main CI `44157445481` passed; .github #15 / `5f81879f`                                    |
-| Complete source/public-package/consumer gates                 | Source qualified; acceptance pending | Plugins and Notes source/artifact/catalog lanes pass; stale installer and native/data gates remain open                  |
-| npm deprecation, signed registry publication and deployment   | Registry deployed; npm pending       | Approved signed candidate is live; 11 npm versions await deprecation approval; no unpublish or installed-app replacement |
+| Substep                                                       | Status                                        | Evidence / remaining boundary                                                                                                                        |
+| ------------------------------------------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Refresh current registration and release entrypoints          | Verified source                               | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller                                                    |
+| Reject retired publication and metadata selectors             | Merged                                        | Plugins #154/#155; main `e8f8eb1b`; exact-main CI `44149978818` passed                                                                               |
+| Disable mutable registry source and block reactivation        | Deployed; legacy-cache guard source qualified | Registry #181/#183; signed disabled metadata and 18 live GET/HEAD responses verified; HTTP 410 stops fallback                                        |
+| Remove shared implementation, package and media catalogs      | Merged                                        | Plugins #155; 410 interactions, 1,022 package tests, 243 release-tooling tests and 16 artifacts                                                      |
+| Remove Notes duplicate stories/controller probes/dependencies | Merged                                        | #157 and #158 / `52cffda1`; 2,194 package tests, 239 cold interactions, 3 inspected tarballs and required hosted CI pass                             |
+| Preserve installed-data/native lifecycle                      | Pending                                       | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                                                               |
+| Update Website and organization metadata                      | Merged                                        | Website #1 / `9cbdc233`, exact-main CI `44157445481` passed; .github #15 / `5f81879f`                                                                |
+| Complete source/public-package/consumer gates                 | Source qualified; acceptance pending          | Catalog removals pass; approved legacy-cache provenance guard source-qualified; API release and native/data gates remain open                        |
+| npm deprecation, signed registry publication and deployment   | Registry deployed; npm pending                | Approved signed candidate is live; 11 npm deprecations approved; execution awaits restored authentication; no unpublish or installed-app replacement |
 
 ## Later removals — pending
 
@@ -514,7 +514,53 @@ qualification, new npm publication or website deployment is inferred.
 
 [Live registry receipt](../../spec/records/2026-11-17-retired-ai-registry-live-before-gone.json)
 records the disabled signed documents, 18 saved-link GET/HEAD checks, production
-browser case and still-open stale-client limitation. The current next action is
-the pending public HTTP response decision, followed by its focused source and
-consumer acceptance. Preserve the remaining native/data/contracts/npm gates and
-the final-terminal sequence.
+browser case and still-open stale-client limitation. That receipt predates the approved HTTP 410 follow-up below. Preserve the
+remaining native/data/contracts/npm gates and the final-terminal sequence.
+
+## HTTP 410 deployment and cached-provenance guard
+
+Registry #183 merged at `e99f5fd40c92a779b26fcab4a5efa84372d6f4a3` and deployed
+from verified head `ca8421f515e54aa0da32ea65018ca662039829fb`. PR checks
+`44165451713`, main checks `44166043673`, publish `44166044133` and qualified
+workflow `44166153748` pass. The approved HTTP 410 behavior stops Notes origin
+fallback before registry archive fetch or analytics writes. Source qualification
+includes 16 focused cases, 147 unit tests, 26 browsers, 21 signatures and all
+28 then-existing Notes installer cases.
+
+The [live receipt](../../spec/records/2026-11-17-retired-ai-registry-live-gone.json)
+verifies signed disabled index/detail metadata, unchanged historical metadata,
+all 18 GET/HEAD checks across nine AI versions returning 410 without redirects,
+active Bases returning 200 and unknown IDs returning 404. The production
+retired-AI browser case also passes. Earlier 404 receipts are historical
+checkpoints, not the current endpoint contract.
+
+Notes #160 merged at `7b9b1c2bf16130bb64025eb49ca2c77c3e601e81` after required
+CI `44167542884` passed. Sixteen obsolete implementation requirements and their
+evidence are archived verbatim. Generic feature and native/data ownership
+remains open. Desktop was refreshed to main `18aac280`; no Desktop runtime
+change or native qualification is claimed.
+
+A further legacy cached-catalog gap was reproduced: no `downloadUrl` means the
+installer can fetch the preserved artifact directly. The user approved the
+LN-PLUG-137 provenance exception. The guard rejects original artifact URLs and
+verified retired source before installation writes, preserving other AI and
+saved data. All 36 installer cases, 2,202 package tests, normal checks, spec checks,
+full release and 239 cold interaction/axe cases pass;
+[the owning receipt](../../spec/records/2026-11-17-retired-ai-provenance.md)
+records the reproduced failure and source evidence. The API patch is not yet
+published or adopted by native consumers.
+
+Resume with required hosted guard qualification and verified landing, then retained AI
+contract ownership and actual native/data acceptance. npm deprecation and
+website deployment remain separate approval gates. Host/API removal follows
+shared-AI acceptance; terminal migration and retirement remain last.
+
+### npm deprecation gate
+
+The user approved the exact 11-version npm metadata retirement candidate on
+2026-11-17. The [approved candidate](../../spec/records/2026-11-17-retired-ai-npm-deprecation-candidate.json)
+preserves the 0.1.0 packaging-defect warning. Execution is not complete:
+`npm whoami` returns E401 and npm web login awaits the user's authentication.
+No token is recorded here, no tarball is removed and no metadata change is
+claimed. After authentication, recheck candidate version/integrity identities,
+apply only the approved messages and verify every tarball URL/hash is unchanged.

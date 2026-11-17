@@ -26,7 +26,21 @@ size, embedded signatures, runtime validation, and normal installation policy.
 
 <a id="ln-plug-111"></a>
 
-**Requirement.** The installer MAY retry the same release's signed `bundle.url` when a signed delivery endpoint cannot transport the archive. Cancellation, an endpoint revocation response, and archive integrity or signature failures MUST NOT trigger origin fallback. Catalogs without a delivery endpoint MUST continue to use their signed archive origin.
+**Requirement.** The installer MAY retry the same release's signed `bundle.url` when a signed delivery endpoint cannot transport the archive. Cancellation, an authoritative HTTP 410 response, and archive integrity or signature failures MUST NOT trigger origin fallback. Catalogs without a delivery endpoint MUST use their signed archive origin unless its distribution is retired under LN-PLUG-137.
+
+## LN-PLUG-137 — Retired shared-AI distribution provenance
+
+<a id="ln-plug-137"></a>
+
+**Requirement.** New installs or updates of retired shared `@lapis-notes/ai` MUST fail before installation writes, including legacy cached catalogs without a delivery endpoint. Classification MUST use its original GitHub artifact origin or verified signed repository/package provenance, not plugin ID alone. Unrelated AI packages, bundled/native AI and existing saved data MUST remain unaffected.
+
+### Acceptance details
+
+The retirement boundary preserves these independent paths:
+
+- Known `lapismd/lapis-plugins` AI release origins refuse before network IO.
+- Verified shared-package source provenance refuses mirrored, manual-bundle and adapter-verified installation before data or code writes.
+- Third-party and current native AI provenance remains installable under ordinary verification; existing settings, conversations, memory and installed records are not removed.
 
 ## LN-PLUG-002 — Standalone first-party plugins: use repositories named lapis-plugin-\*, version independently,
 

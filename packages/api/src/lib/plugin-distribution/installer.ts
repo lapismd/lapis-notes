@@ -20,6 +20,10 @@ import {
   type VerifiedPluginBundlePayload,
 } from "./plugin-bundle-verifier";
 import { assertPluginIdAllowedForProvenance } from "./reserved-ids";
+import {
+  assertActivePluginArchiveOrigin,
+  assertActivePluginReleaseSource,
+} from "./retired-distribution";
 import { validatePluginReleaseRuntime } from "./runtime-validation";
 import type {
   InstalledPluginRecord,
@@ -151,6 +155,7 @@ export class VerifiedPluginInstaller {
       release.bundle.url,
       options.entry.detail,
     ).toString();
+    assertActivePluginArchiveOrigin(options.entry.id, bundleUrl);
     let bundle: Uint8Array;
     const downloadUrl = release.bundle.downloadUrl
       ? new URL(release.bundle.downloadUrl, options.entry.detail).toString()
@@ -367,6 +372,7 @@ export class VerifiedPluginInstaller {
 
     const provenance = options.provenance ?? "official";
     assertPluginIdAllowedForProvenance(releaseManifest.pluginId, provenance);
+    assertActivePluginReleaseSource(releaseManifest);
     if (provenance === "official" && releaseManifest.channel !== "official") {
       throw new PluginDistributionError(
         "metadata-invalid",
