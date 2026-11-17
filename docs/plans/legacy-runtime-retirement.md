@@ -29,6 +29,10 @@ requirements or transfer ownership to Notes.
 - Migrate callers and persisted data before removing public interfaces. Use
   appropriate breaking-release semantics rather than indefinite compatibility
   shims, consumer patches or copied implementations.
+- Defer the `lapis-terminal` ownership migration and Deno terminal-host retirement
+  until all other in-scope removals and their required consumer changes have
+  landed. Retain the existing Rust PTY dependency and its required tooling until
+  that final removal; it does not block independently qualified earlier slices.
 - Keep functional, keyboard, accessibility, packaging and native acceptance.
   Visual baseline updates are excluded.
 
@@ -125,26 +129,13 @@ Source anchors:
 [Notes default profile](https://github.com/lapismd/lapis-notes/blob/main/packages/app-profile/src/index.ts),
 [web native-chat registration](https://github.com/lapismd/lapis-notes/blob/main/packages/web/src/native-chat-registration.ts).
 
-## Slice 2: consolidate native terminal ownership
-
-Owners: Terminal Host, Lapis Terminal, Server and terminal plugin.
-
-- Relocate the existing Deno-free Rust PTY service crate into `lapis-terminal`,
-  retaining its API behavior and regression tests; update Server's pinned
-  dependency. Preserve raw bytes, cursors, truncation, exit reporting,
-  confinement and shutdown. Do not replace Server's raw protocol with parsed
-  terminal frames.
-- Keep authentication, vault admission and resource ownership in the host.
-  Preserve the terminal plugin's public bridge and current hosted-terminal
-  integration. Reconcile concurrent Server work instead of recreating its adapter.
-- After consumer acceptance, retire the Deno CLI, FFI/native-library downloads,
-  standalone WebSocket host and corresponding install/publish machinery. Remove
-  stale advice to start `lapis-terminal-host`; do not create a new standalone
-  service as part of this retirement.
-
-## Slice 3: remove retired hosts and unnecessary Deno tooling
+## Slice 2: remove retired hosts and unnecessary Deno tooling
 
 Owners: Notes, Desktop, host packages, Plugins and Homebrew tap.
+
+Terminal-host retirement is deferred to slice 4. Remove only tooling no surviving
+consumer needs; preserve terminal-specific paths and any shared Deno tooling
+still required by that deferred slice.
 
 - Relocate the PWA icon asset before deleting its old desktop source. Remove
   the frozen desktop, Deno compatibility services, unused portable host-services,
@@ -168,7 +159,7 @@ Owners: Notes, Desktop, host packages, Plugins and Homebrew tap.
   Tauri manifests, artifact URLs or checksums. A Tauri distribution replacement
   requires actual qualified release artifacts. Preserve installed apps and data.
 
-## Slice 4: migrate and remove deprecated interfaces
+## Slice 3: migrate and remove deprecated interfaces
 
 Perform caller migration before removing public exports. Update each owner's
 canonical contract and verification with the implementation, not through this
@@ -205,6 +196,28 @@ avoid rewriting immutable signed records.
   Community/relay acceptance. Leave the excluded cluster and its renderer
   prerequisite intact. This slice does not delete that renderer's source.
 
+## Slice 4: consolidate native terminal ownership
+
+Owners: Terminal Host, Lapis Terminal, Server and terminal plugin.
+
+Start only after slices 1–3 and their required consumer changes have landed. This
+is the final removal slice, followed by the whole-plan qualification in slice 5.
+Until then, preserve the existing Rust PTY crate location, Server dependency and
+required terminal-host tooling; record those retained edges explicitly.
+
+- Relocate the existing Deno-free Rust PTY service crate into `lapis-terminal`,
+  retaining its API behavior and regression tests; update Server's pinned
+  dependency. Preserve raw bytes, cursors, truncation, exit reporting,
+  confinement and shutdown. Do not replace Server's raw protocol with parsed
+  terminal frames.
+- Keep authentication, vault admission and resource ownership in the host.
+  Preserve the terminal plugin's public bridge and current hosted-terminal
+  integration. Reconcile concurrent Server work instead of recreating its adapter.
+- After consumer acceptance, retire the Deno CLI, FFI/native-library downloads,
+  standalone WebSocket host and corresponding install/publish machinery. Remove
+  stale advice to start `lapis-terminal-host`; do not create a new standalone
+  service as part of this retirement.
+
 ## Slice 5: final qualification and dependency cleanup
 
 Before implementation, refresh exact source revisions, remote/package state and
@@ -220,6 +233,10 @@ tests, required builds, package/archive acceptance and relevant consumer lanes.
 Shared changes require complete relevant interaction/accessibility coverage and
 at least one cold startup/teardown run. Keep source, consumer and native evidence
 distinct; compilation, mocks and screenshots do not establish native acceptance.
+
+Qualify and land each earlier slice at its own boundary without waiting for the
+terminal migration. Record terminal-related Deno/tooling exceptions as pending,
+then close them and run the complete Deno-absent acceptance after slice 4.
 
 Required acceptance scenarios:
 

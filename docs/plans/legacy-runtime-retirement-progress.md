@@ -2,7 +2,9 @@
 
 Coordination owner: Notes. Implementation authorized 2026-11-17. Follow the
 [agreed plan](legacy-runtime-retirement.md). Work one removal at a time; do not
-start terminal/host/API cleanup while shared AI removal remains in progress.
+start host/API cleanup while shared AI removal remains in progress. Defer the
+terminal ownership migration and Deno terminal-host retirement until every other
+removal and its required consumer changes have landed.
 Source commits, consumer qualification and release/deployment are separate gates.
 
 ## Preparation completed
@@ -58,10 +60,19 @@ readiness and the retirement entry; the original plan workspace is unchanged.
 
 ## Later removals — pending
 
-1. Consolidate Rust PTY service into `lapis-terminal`, then retire Deno terminal host.
-2. Remove frozen Deno desktop/services and obsolete runtime/tooling paths.
-3. Migrate deprecated interfaces and registry compatibility consumers in owner order.
-4. Final Deno-absent package/host qualification and dependency/inventory cleanup.
+1. Remove frozen Deno desktop/services and obsolete runtime/tooling paths,
+   preserving tooling still needed by the deferred terminal work.
+2. Migrate deprecated interfaces and registry compatibility consumers in owner order.
+3. Qualify and land all non-terminal removals and their required consumer changes.
+4. As the final removal, consolidate the Rust PTY service into `lapis-terminal`,
+   update and qualify Server consumers, then retire the Deno terminal host.
+5. Complete whole-plan Deno-absent package/host qualification and final
+   dependency/inventory cleanup.
+
+This order follows the user's revised sequencing request. Until step 4, retain the
+current Rust PTY crate location, Server pin and required terminal-host tooling.
+Track these as deferred edges; they do not block independently qualified earlier
+slices or establish that the overall Deno retirement is complete.
 
 Preserve standalone `ai-controller` for excluded `nostr-agent-controller`,
 `community-local`, `nostr-auth`; preserve API file-tools, active native AI and
