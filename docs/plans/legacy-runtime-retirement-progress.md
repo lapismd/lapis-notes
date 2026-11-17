@@ -586,8 +586,9 @@ The owner [Plugins #156](https://github.com/lapismd/lapis-plugins/pull/156) reco
 the exact candidate, successful operation, downloaded bytes/hashes, initial E401,
 browser authentication and stale verification read. The 0.1.0 mutation was not
 replayed after acceptance. Evidence commit: `f93b30a42bc5d7b0848249af52474e7f878c7d7e`;
-its hosted documentation checks and landing remain pending. The preceding
-authentication-pending checkpoint is historical. Notes API publication/adoption,
+required hosted CI `44174284319` passed and Plugins #156 merged at
+`969356250f26c5561fac22cf00d8da8f395dbdae`. The preceding authentication-pending
+checkpoint is historical. Notes API publication/adoption,
 actual native/data acceptance and website deployment remain separate gates.
 
 ### Approved installer guard landed
