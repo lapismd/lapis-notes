@@ -21,11 +21,12 @@ reject shared AI; registry #183's approved HTTP 410 behavior is deployed and
 verified across all retained versions. A reproduced legacy cached-catalog path
 without a download endpoint requires the approved LN-PLUG-137 provenance guard.
 Its 36 installer cases, 2,202 package tests, full release, three inspected
-tarballs and 239 cold interaction/axe cases pass. Required hosted qualification
-and API publication/adoption remain separate gates.
+tarballs and 239 cold interaction/axe cases pass. Notes #161 passed required
+hosted workflow `44172806383` and merged at `d369ec9d`; API publication/adoption remains gated.
 Sixteen obsolete package/controller/Fake/attach implementation requirements are
 archived with their original evidence. Generic feature ownership and native/data
-acceptance remain pending, along with npm deprecation. Website source is merged;
+acceptance remain pending. All eleven npm versions are deprecated, and each
+original tarball passes independent SHA-512 verification. Website source is merged;
 its manual deployment is separate.
 Notes coordinates the
 [consolidated retirement plan](../../../docs/plans/legacy-runtime-retirement.md)

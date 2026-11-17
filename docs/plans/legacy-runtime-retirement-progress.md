@@ -7,6 +7,14 @@ terminal ownership migration and Deno terminal-host retirement until every other
 removal and its required consumer changes have landed.
 Source commits, consumer qualification and release/deployment are separate gates.
 
+Current resume: the approved installer guard is merged in Notes #161; registry
+HTTP 410 is deployed and all eleven npm versions are deprecated with original
+tarballs independently verified. Plugins #156 carries its committed receipt.
+Still pending: caller-aware AI feature contracts, actual old-external/bundled
+native data/startup acceptance, API package publication/adoption and website
+cutover. Continue shared-AI acceptance before host/API removal. Terminal is last.
+The tables below describe current status; older receipts are dated checkpoints.
+
 ## Preparation completed
 
 Bootstrap quarantined 45 integrated workspaces, preserving directories and JJ
@@ -46,17 +54,17 @@ readiness and the retirement entry; the original plan workspace is unchanged.
 
 ## Removal 1: shared AI plugin — in progress
 
-| Substep                                                       | Status                                        | Evidence / remaining boundary                                                                                                                        |
-| ------------------------------------------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Refresh current registration and release entrypoints          | Verified source                               | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller                                                    |
-| Reject retired publication and metadata selectors             | Merged                                        | Plugins #154/#155; main `e8f8eb1b`; exact-main CI `44149978818` passed                                                                               |
-| Disable mutable registry source and block reactivation        | Deployed; legacy-cache guard source qualified | Registry #181/#183; signed disabled metadata and 18 live GET/HEAD responses verified; HTTP 410 stops fallback                                        |
-| Remove shared implementation, package and media catalogs      | Merged                                        | Plugins #155; 410 interactions, 1,022 package tests, 243 release-tooling tests and 16 artifacts                                                      |
-| Remove Notes duplicate stories/controller probes/dependencies | Merged                                        | #157 and #158 / `52cffda1`; 2,194 package tests, 239 cold interactions, 3 inspected tarballs and required hosted CI pass                             |
-| Preserve installed-data/native lifecycle                      | Pending                                       | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                                                               |
-| Update Website and organization metadata                      | Merged                                        | Website #1 / `9cbdc233`, exact-main CI `44157445481` passed; .github #15 / `5f81879f`                                                                |
-| Complete source/public-package/consumer gates                 | Source qualified; acceptance pending          | Catalog removals pass; approved legacy-cache provenance guard source-qualified; API release and native/data gates remain open                        |
-| npm deprecation, signed registry publication and deployment   | Registry deployed; npm pending                | Approved signed candidate is live; 11 npm deprecations approved; execution awaits restored authentication; no unpublish or installed-app replacement |
+| Substep                                                       | Status                               | Evidence / remaining boundary                                                                                                                         |
+| ------------------------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Refresh current registration and release entrypoints          | Verified source                      | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller                                                     |
+| Reject retired publication and metadata selectors             | Merged                               | Plugins #154/#155; main `e8f8eb1b`; exact-main CI `44149978818` passed                                                                                |
+| Disable mutable registry source and block reactivation        | Deployed                             | Registry #181/#183; signed disabled metadata and 18 live GET/HEAD responses verified; HTTP 410 stops fallback                                         |
+| Remove shared implementation, package and media catalogs      | Merged                               | Plugins #155; 410 interactions, 1,022 package tests, 243 release-tooling tests and 16 artifacts                                                       |
+| Remove Notes duplicate stories/controller probes/dependencies | Merged                               | #157 and #158 / `52cffda1`; 2,194 package tests, 239 cold interactions, 3 inspected tarballs and required hosted CI pass                              |
+| Preserve installed-data/native lifecycle                      | Pending                              | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                                                                |
+| Update Website and organization metadata                      | Merged                               | Website #1 / `9cbdc233`, exact-main CI `44157445481` passed; .github #15 / `5f81879f`                                                                 |
+| Complete source/public-package/consumer gates                 | Source qualified; acceptance pending | Catalog removals pass; approved legacy-cache provenance guard source-qualified; API release and native/data gates remain open                         |
+| npm deprecation, signed registry publication and deployment   | Registry and npm complete            | Approved signed candidate is live; All 11 npm versions deprecated; every original tarball SHA-512 verified; no unpublish or installed-app replacement |
 
 ## Later removals — pending
 
@@ -550,12 +558,12 @@ full release and 239 cold interaction/axe cases pass;
 records the reproduced failure and source evidence. The API patch is not yet
 published or adopted by native consumers.
 
-Resume with required hosted guard qualification and verified landing, then retained AI
-contract ownership and actual native/data acceptance. npm deprecation and
-website deployment remain separate approval gates. Host/API removal follows
-shared-AI acceptance; terminal migration and retirement remain last.
+Resume with retained AI contract ownership and actual native/data acceptance.
+Website deployment remains a separate approval gate; approved npm deprecation
+is complete as recorded below. Host/API removal follows shared-AI acceptance;
+terminal migration and retirement remain last.
 
-### npm deprecation gate
+### Historical npm authentication checkpoint
 
 The user approved the exact 11-version npm metadata retirement candidate on
 2026-11-17. The [approved candidate](../../spec/records/2026-11-17-retired-ai-npm-deprecation-candidate.json)
@@ -564,3 +572,38 @@ preserves the 0.1.0 packaging-defect warning. Execution is not complete:
 No token is recorded here, no tarball is removed and no metadata change is
 claimed. After authentication, recheck candidate version/integrity identities,
 apply only the approved messages and verify every tarball URL/hash is unchanged.
+
+### Completed npm metadata retirement
+
+The approved messages are now live for all eleven published `@lapis-notes/ai`
+versions. Version 0.1.0 retains its packaging-defect warning. Fresh public metadata
+verifies all messages, the unchanged version inventory and unchanged `latest`
+tag. All eleven original tarballs were downloaded and independently SHA-512
+verified against the pre-change integrity values. No unpublish, new publication
+or installed-data removal occurred.
+
+The owner [Plugins #156](https://github.com/lapismd/lapis-plugins/pull/156) records
+the exact candidate, successful operation, downloaded bytes/hashes, initial E401,
+browser authentication and stale verification read. The 0.1.0 mutation was not
+replayed after acceptance. Evidence commit: `f93b30a42bc5d7b0848249af52474e7f878c7d7e`;
+required hosted CI `44174284319` passed and Plugins #156 merged at
+`969356250f26c5561fac22cf00d8da8f395dbdae`. The preceding authentication-pending
+checkpoint is historical. Notes API publication/adoption,
+actual native/data acceptance and website deployment remain separate gates.
+
+### Approved installer guard landed
+
+Notes #161 merged at `d369ec9d4c8024565ba1a066bd4eabbc1cd8a6fe` after complete
+required hosted workflow `44172806383` passed at exact head
+`23a9d509ddb360e4b0e3f0db121a1d0ba3139210`. All enabled checks, including
+web acceptance, release artifacts and aggregate validation, pass. The inherited
+hosted interaction skip is unchanged; the independent 239-case cold Docker
+interaction/axe run remains its source receipt.
+
+LN-PLUG-137 is source-qualified and merged. New API package publication and
+consumer adoption are not inferred. The next shared-AI work is the remaining
+caller-aware feature ownership audit and actual old-external/bundled native
+startup/data/disablement/Safe Mode/cold-reopen acceptance. These retirement
+preservation checks do not require closing every unrelated native-AI backlog
+item. Website production still requires its separate reviewed cutover and
+legacy-publisher prerequisite. Terminal remains the final removal.
