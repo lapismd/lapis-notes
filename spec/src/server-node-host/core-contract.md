@@ -1,5 +1,12 @@
 # Hosted Server / Integration contracts
 
+Current framework dependency intake selects published Design Core `0.13.5`.
+API, retained UI, Workspace and Web require `^0.13.5`; the separate App Profile
+minimum remains `^0.13.4`. Root tooling and File Explorer resolve the same
+registry identity within their existing ranges. Public exports, App ownership
+and host lifecycle remain governed by this chapter; qualification is recorded
+in [the Core intake receipt](../../records/2026-11-17-core-0135-intake.md).
+
 Hosted clients may consume App Profile’s built shared session and native
 Repository registration. The server retains its authenticated transport and
 credential custody; package qualification alone does not establish server

@@ -1,5 +1,12 @@
 # Architecture / Dependency boundaries
 
+Current framework dependency intake selects published Design Core `0.13.5`.
+API, retained UI, Workspace and Web require `^0.13.5`; the separate App Profile
+minimum remains `^0.13.4`. Root tooling and File Explorer resolve the same
+registry identity within their existing ranges. Public exports, App ownership
+and host lifecycle remain governed by this chapter; qualification is recorded
+in [the Core intake receipt](../../records/2026-11-17-core-0135-intake.md).
+
 The prepared next App Profile patch requires registry Design Core `^0.13.4`.
 This repairs its retained runtime minimum after the lock already selected0.13.4;
 source qualification and actual publication remain separate.
