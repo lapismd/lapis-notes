@@ -14,8 +14,9 @@ a failed gate and grants no blind rerun; frozen Deno packages remain excluded.
 ## Legacy runtime and package retirement
 
 Status: in progress; shared AI publication safeguards and registry source
-disablement are committed and source-qualified. Package/catalog removal, native
-data acceptance and signed publication remain pending.
+disablement are committed and source-qualified. Plugins package/catalog removal
+is committed, pushed and qualified; Notes consumer/probe cleanup, native/data
+acceptance and signed publication remain pending.
 Notes coordinates the
 [consolidated retirement plan](../../../docs/plans/legacy-runtime-retirement.md)
 for the frozen Deno desktop, shared AI plugin, obsolete host/tooling edges and
