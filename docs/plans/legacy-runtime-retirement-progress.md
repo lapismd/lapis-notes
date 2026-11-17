@@ -38,6 +38,27 @@ preserves the initial 12-pass/1-failure run and environmental failures. Hosted
 exact-head qualification remains pending. Next also address Desktop's older Plugins fixture input and guard
 its on-demand local plugin build against stale source; those are distinct from
 the preserved Rust-owned `@lapismd/ai` package.
+The parallel checkpoints are now reviewable: Notes fixture [#165](https://github.com/lapismd/lapis-notes/pull/165),
+Web icon prerequisite [#166](https://github.com/lapismd/lapis-notes/pull/166),
+Desktop consumer [#47](https://github.com/lapismd/lapis-desktop/pull/47),
+fixture admission [#48](https://github.com/lapismd/lapis-desktop/pull/48) and
+prepared native preservation [#49](https://github.com/lapismd/lapis-desktop/pull/49).
+Desktop PRs remain drafts. #49 prepares four new cases but executes zero native
+cases; original signed-artifact and App Profile native-chat preservation remain
+separate. #48's fresh artifact audit found Language Service packing before its
+compiled output was built. Fix the Desktop producer and regenerate/verify the
+artifact before treating either Desktop intake as ready; E-RETIRE-005 records
+that follow-up. Existing local source qualification used independently verified
+complete archives and does not excuse the hosted producer defect.
+
+A separate `retirement-qualification` Desktop workspace from `351811a9` runs
+final consumer/canonical checks while the original catalog worker completes.
+A separate session-UI audit has proven seven private files unreachable and is
+qualifying their removal without deleting active stores, cards or saved-session
+types. Its later E-RETIRE-006 receipt must retain the before/after caller audit
+and directly affected checks. This is still within shared-AI cleanup; it does
+not authorize broad native AI deletion or advance terminal retirement.
+
 The tables below describe current status; older receipts are dated checkpoints.
 
 ## Preparation completed
