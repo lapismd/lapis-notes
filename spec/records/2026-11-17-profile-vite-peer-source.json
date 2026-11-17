@@ -1,0 +1,283 @@
+{
+  "purpose": "approved-profile-build-tool-metadata-source-qualification",
+  "runs": [
+    {
+      "attempt": "before",
+      "schema": 1,
+      "run": "lapis-notes-validation-669fd749-29cf-48fd-99eb-8dec329ddae0",
+      "lane": "test:package-boundaries",
+      "args": ["--test-name-pattern=App Profile keeps Vite"],
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "imageTarget": "ui",
+      "workspace": "84c2c8f6da2041b5",
+      "cache": {
+        "javascript": "5169474634680ef1ff01"
+      },
+      "resources": {
+        "cpus": 4,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "source": {
+        "schema": 1,
+        "nativeSources": [],
+        "revision": "f3f3d4bb750b55b53b97a4f6f47f3b421378c317",
+        "parents": ["af645ddb8d7c01230a212a1cac48fe054f5a5974"],
+        "fileCount": 2596,
+        "archives": [],
+        "packSha256": "e010a0fb32f61d626b732fc13ec139a35d4b2785c6155bc8cd7c19c5bbdecfe8"
+      },
+      "started": "2026-11-17T21:49:02.412Z",
+      "status": "failed",
+      "tools": {
+        "node": "v24.15.0",
+        "pnpm": "10.34.5",
+        "jj": "jj 0.45.1-7c41cdeb16b6b321c64e789a966b6adf723816a5",
+        "git": "git version 2.39.5",
+        "mdbook": "mdbook v0.5.4",
+        "deno": "deno 2.9.7 (stable, release, x86_64-unknown-linux-gnu)\nv8 15.0.245.2-rusty\ntypescript 6.0.3"
+      },
+      "invocations": [
+        {
+          "args": ["--test-name-pattern=App Profile keeps Vite"],
+          "status": "failed",
+          "error": "/bin/sh exited 1"
+        }
+      ],
+      "exitCode": 1,
+      "error": "Validation invocation failed; inspect the per-invocation reports.",
+      "finished": "2026-11-17T21:49:20.002Z"
+    },
+    {
+      "attempt": "after",
+      "schema": 1,
+      "run": "lapis-notes-validation-051a4e21-2fb7-4e27-8cc2-4cf848504acd",
+      "lane": "test:package-boundaries",
+      "args": ["--test-name-pattern=App Profile keeps Vite"],
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "imageTarget": "ui",
+      "workspace": "84c2c8f6da2041b5",
+      "cache": {
+        "javascript": "5169474634680ef1ff01"
+      },
+      "resources": {
+        "cpus": 4,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "source": {
+        "schema": 1,
+        "nativeSources": [],
+        "revision": "72fc5c1073b74a9ba1760faa5652fdd378ae870f",
+        "parents": ["af645ddb8d7c01230a212a1cac48fe054f5a5974"],
+        "fileCount": 2597,
+        "archives": [],
+        "packSha256": "b237be695611e7041cbf095c30fa1a6e79721774f797382f715fba4017cde1ff"
+      },
+      "started": "2026-11-17T21:49:34.189Z",
+      "status": "passed",
+      "tools": {
+        "node": "v24.15.0",
+        "pnpm": "10.34.5",
+        "jj": "jj 0.45.1-7c41cdeb16b6b321c64e789a966b6adf723816a5",
+        "git": "git version 2.39.5",
+        "mdbook": "mdbook v0.5.4",
+        "deno": "deno 2.9.7 (stable, release, x86_64-unknown-linux-gnu)\nv8 15.0.245.2-rusty\ntypescript 6.0.3"
+      },
+      "invocations": [
+        {
+          "args": ["--test-name-pattern=App Profile keeps Vite"],
+          "status": "passed"
+        }
+      ],
+      "exitCode": 0,
+      "finished": "2026-11-17T21:49:52.214Z"
+    },
+    {
+      "attempt": "check-all",
+      "schema": 1,
+      "run": "lapis-notes-validation-4afabfb4-0c3a-4a23-8733-69ca9252d194",
+      "lane": "check:all",
+      "args": [],
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "imageTarget": "ui",
+      "workspace": "84c2c8f6da2041b5",
+      "cache": {
+        "javascript": "5169474634680ef1ff01"
+      },
+      "resources": {
+        "cpus": 4,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "source": {
+        "schema": 1,
+        "nativeSources": [],
+        "revision": "72fc5c1073b74a9ba1760faa5652fdd378ae870f",
+        "parents": ["af645ddb8d7c01230a212a1cac48fe054f5a5974"],
+        "fileCount": 2597,
+        "archives": [],
+        "packSha256": "08c7e0408d0cad7fedb4dd98fa003bbcdb7d006b6c15c81e1fdf6cfbe9956393"
+      },
+      "started": "2026-11-17T21:50:02.221Z",
+      "status": "failed",
+      "tools": {
+        "node": "v24.15.0",
+        "pnpm": "10.34.5",
+        "jj": "jj 0.45.1-7c41cdeb16b6b321c64e789a966b6adf723816a5",
+        "git": "git version 2.39.5",
+        "mdbook": "mdbook v0.5.4",
+        "deno": "deno 2.9.7 (stable, release, x86_64-unknown-linux-gnu)\nv8 15.0.245.2-rusty\ntypescript 6.0.3"
+      },
+      "invocations": [
+        {
+          "args": [],
+          "status": "failed",
+          "error": "/bin/sh exited 1"
+        }
+      ],
+      "exitCode": 1,
+      "error": "Validation invocation failed; inspect the per-invocation reports.",
+      "finished": "2026-11-17T21:50:22.776Z"
+    },
+    {
+      "attempt": "check-all-retry",
+      "schema": 1,
+      "run": "lapis-notes-validation-478d26b7-9a2a-465d-b529-200a60680fad",
+      "lane": "check:all",
+      "args": [],
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "imageTarget": "ui",
+      "workspace": "84c2c8f6da2041b5",
+      "cache": {
+        "javascript": "5169474634680ef1ff01"
+      },
+      "resources": {
+        "cpus": 4,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "source": {
+        "schema": 1,
+        "nativeSources": [],
+        "revision": "c0cf63b9cbed36365fdcb98338bfbb138ca158d9",
+        "parents": ["af645ddb8d7c01230a212a1cac48fe054f5a5974"],
+        "fileCount": 2597,
+        "archives": [],
+        "packSha256": "bd963f8896f1b3477da41e0dc9c4a3bf12b001500120b8169b52e4905093b96a"
+      },
+      "started": "2026-11-17T21:50:41.821Z",
+      "status": "passed",
+      "tools": {
+        "node": "v24.15.0",
+        "pnpm": "10.34.5",
+        "jj": "jj 0.45.1-7c41cdeb16b6b321c64e789a966b6adf723816a5",
+        "git": "git version 2.39.5",
+        "mdbook": "mdbook v0.5.4",
+        "deno": "deno 2.9.7 (stable, release, x86_64-unknown-linux-gnu)\nv8 15.0.245.2-rusty\ntypescript 6.0.3"
+      },
+      "invocations": [
+        {
+          "args": [],
+          "status": "passed"
+        }
+      ],
+      "exitCode": 0,
+      "finished": "2026-11-17T21:52:22.905Z"
+    },
+    {
+      "attempt": "ci-release",
+      "schema": 1,
+      "run": "lapis-notes-validation-8b4effc2-9dfb-4336-8ae2-60c0b75a19d6",
+      "lane": "ci:release",
+      "args": [],
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "imageTarget": "ui",
+      "workspace": "84c2c8f6da2041b5",
+      "cache": {
+        "javascript": "5169474634680ef1ff01"
+      },
+      "resources": {
+        "cpus": 4,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "source": {
+        "schema": 1,
+        "nativeSources": [],
+        "revision": "c0cf63b9cbed36365fdcb98338bfbb138ca158d9",
+        "parents": ["af645ddb8d7c01230a212a1cac48fe054f5a5974"],
+        "fileCount": 2597,
+        "archives": [],
+        "packSha256": "9aadc5d474b79da7513f58f5b6ae00c4939024f73a02ea351d8b24095f2a25fb"
+      },
+      "started": "2026-11-17T21:52:47.980Z",
+      "status": "failed",
+      "tools": {
+        "node": "v24.15.0",
+        "pnpm": "10.34.5",
+        "jj": "jj 0.45.1-7c41cdeb16b6b321c64e789a966b6adf723816a5",
+        "git": "git version 2.39.5",
+        "mdbook": "mdbook v0.5.4",
+        "deno": "deno 2.9.7 (stable, release, x86_64-unknown-linux-gnu)\nv8 15.0.245.2-rusty\ntypescript 6.0.3"
+      },
+      "invocations": [
+        {
+          "args": [],
+          "status": "failed",
+          "error": "/bin/sh exited 1"
+        }
+      ],
+      "exitCode": 1,
+      "error": "Validation invocation failed; inspect the per-invocation reports.",
+      "finished": "2026-11-17T21:53:25.228Z"
+    },
+    {
+      "attempt": "ci-release-retry",
+      "schema": 1,
+      "run": "lapis-notes-validation-799b56ce-c31f-41cf-9e37-154ec5fea28f",
+      "lane": "ci:release",
+      "args": [],
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "imageTarget": "ui",
+      "workspace": "84c2c8f6da2041b5",
+      "cache": {
+        "javascript": "5169474634680ef1ff01"
+      },
+      "resources": {
+        "cpus": 4,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "source": {
+        "schema": 1,
+        "nativeSources": [],
+        "revision": "b5d2839422f9093b2a70f38578a0f1c1f6e200a9",
+        "parents": ["af645ddb8d7c01230a212a1cac48fe054f5a5974"],
+        "fileCount": 2597,
+        "archives": [],
+        "packSha256": "1415f1bcc9f31ae34203cfb3f8ba2984f4aef32ab2c5b0938585c34e0d48dfd4"
+      },
+      "started": "2026-11-17T21:54:07.724Z",
+      "status": "failed",
+      "tools": {
+        "node": "v24.15.0",
+        "pnpm": "10.34.5",
+        "jj": "jj 0.45.1-7c41cdeb16b6b321c64e789a966b6adf723816a5",
+        "git": "git version 2.39.5",
+        "mdbook": "mdbook v0.5.4",
+        "deno": "deno 2.9.7 (stable, release, x86_64-unknown-linux-gnu)\nv8 15.0.245.2-rusty\ntypescript 6.0.3"
+      },
+      "invocations": [
+        {
+          "args": [],
+          "status": "failed",
+          "error": "/bin/sh exited 1"
+        }
+      ],
+      "exitCode": 1,
+      "error": "Validation invocation failed; inspect the per-invocation reports.",
+      "finished": "2026-11-17T21:54:55.459Z"
+    }
+  ]
+}

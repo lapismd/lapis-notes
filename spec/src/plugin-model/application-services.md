@@ -1,5 +1,9 @@
 # Plugin Model / Application services
 
+LN-PKG-199 keeps the active `app-profile/plugin-host-build` export and its types
+while removing App Profile's optional Vite peer. Plugin registration, native Chat
+and workspace lifecycle retain their existing contracts; hosts own build tooling.
+
 Current framework dependency intake selects published Design Core `0.13.5`.
 API, retained UI, Workspace and Web require `^0.13.5`; the separate App Profile
 minimum remains `^0.13.4`. Root tooling and File Explorer resolve the same

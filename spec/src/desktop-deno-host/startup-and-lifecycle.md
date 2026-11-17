@@ -1,5 +1,9 @@
 # Deno Desktop Host / Startup and lifecycle
 
+LN-PKG-199 removes only App Profile's optional Vite peer. The frozen host's
+existing direct Vite development dependency continues to supply its active
+`plugin-host-build` import; no frozen Deno runtime adoption is implied.
+
 The prepared shared Profile patch requires Core `^0.13.4`. This dependency
 minimum repair changes no frozen Deno package, tool, startup or writer contract
 and does not claim installed Desktop adoption.

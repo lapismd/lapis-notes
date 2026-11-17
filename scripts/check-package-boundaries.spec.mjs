@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
@@ -9,6 +9,27 @@ import {
   PUBLIC_PACKAGE_GRAPH,
 } from "./public-packages.mjs";
 import { validatePublicPackageBoundaries } from "./check-package-boundaries.mjs";
+
+test("App Profile keeps Vite in build tooling without a runtime peer", async () => {
+  const profile = JSON.parse(
+    await readFile(
+      new URL("../packages/app-profile/package.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  assert.ok(profile.devDependencies.vite);
+  assert.equal(profile.dependencies.vite, undefined);
+  assert.equal(profile.peerDependencies.vite, undefined);
+  assert.equal(profile.peerDependenciesMeta?.vite, undefined);
+  assert.equal(
+    profile.exports["./plugin-host-build"].types,
+    "./dist/plugin-host-build.d.ts",
+  );
+  assert.equal(
+    profile.exports["./plugin-host-build"].import,
+    "./dist/plugin-host-build.js",
+  );
+});
 
 function manifest(definition, overrides = {}) {
   return {

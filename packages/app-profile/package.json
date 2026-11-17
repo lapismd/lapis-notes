@@ -74,8 +74,7 @@
     "!dist/**/*.fixture.*"
   ],
   "peerDependencies": {
-    "svelte": "^5.56.10",
-    "vite": "^6.4.5 || ^7.3.7"
+    "svelte": "^5.56.10"
   },
   "description": "Shared Lapis Notes application profile and workspace session",
   "repository": {
@@ -94,10 +93,5 @@
   "types": "./dist/index.d.ts",
   "sideEffects": [
     "**/*.css"
-  ],
-  "peerDependenciesMeta": {
-    "vite": {
-      "optional": true
-    }
-  }
+  ]
 }

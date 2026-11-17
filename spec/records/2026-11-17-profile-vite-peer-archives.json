@@ -1,0 +1,177 @@
+{
+  "purpose": "profile-build-tool-archive-qualification",
+  "sourceCommit": "b3a93b2f5e49d514a6c447a0d6e2664d3179bb3e",
+  "release": {
+    "schema": 1,
+    "run": "lapis-notes-validation-ecf99e57-cf1a-43ce-92bf-6af3c58ec839",
+    "lane": "ci:release",
+    "args": [],
+    "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+    "imageTarget": "ui",
+    "workspace": "84c2c8f6da2041b5",
+    "cache": {
+      "javascript": "5169474634680ef1ff01"
+    },
+    "resources": {
+      "cpus": 4,
+      "memoryGiB": 12,
+      "shmGiB": 2
+    },
+    "source": {
+      "schema": 1,
+      "nativeSources": [],
+      "revision": "97589bbb1d28f1f2885011db4ac0a38fe6f22d2a",
+      "parents": ["b3a93b2f5e49d514a6c447a0d6e2664d3179bb3e"],
+      "fileCount": 2599,
+      "archives": [],
+      "packSha256": "a2f769d65d1db5f91e3f96c22a6f47812854a1cf47be35bf6ffa19fb5b43b529"
+    },
+    "started": "2026-11-17T21:56:05.814Z",
+    "status": "passed",
+    "tools": {
+      "node": "v24.15.0",
+      "pnpm": "10.34.5",
+      "jj": "jj 0.45.1-7c41cdeb16b6b321c64e789a966b6adf723816a5",
+      "git": "git version 2.39.5",
+      "mdbook": "mdbook v0.5.4",
+      "deno": "deno 2.9.7 (stable, release, x86_64-unknown-linux-gnu)\nv8 15.0.245.2-rusty\ntypescript 6.0.3"
+    },
+    "invocations": [
+      {
+        "args": [],
+        "status": "passed"
+      }
+    ],
+    "exitCode": 0,
+    "finished": "2026-11-17T21:59:11.861Z"
+  },
+  "pack": {
+    "schema": 1,
+    "run": "lapis-notes-validation-4098f2c6-59bb-414d-884d-ce9c5c01fd8a",
+    "lane": "validation:consumer-pack",
+    "args": [],
+    "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+    "imageTarget": "ui",
+    "workspace": "84c2c8f6da2041b5",
+    "cache": {
+      "javascript": "5169474634680ef1ff01"
+    },
+    "resources": {
+      "cpus": 4,
+      "memoryGiB": 12,
+      "shmGiB": 2
+    },
+    "source": {
+      "schema": 1,
+      "nativeSources": [],
+      "revision": "b3a93b2f5e49d514a6c447a0d6e2664d3179bb3e",
+      "parents": ["af645ddb8d7c01230a212a1cac48fe054f5a5974"],
+      "fileCount": 2599,
+      "archives": [],
+      "packSha256": "3b52bb074d8de220d2697b6b99d88cf3822358187d1ce6f9849a5692eb1a873a"
+    },
+    "started": "2026-11-17T21:59:28.809Z",
+    "status": "passed",
+    "tools": {
+      "node": "v24.15.0",
+      "pnpm": "10.34.5",
+      "jj": "jj 0.45.1-7c41cdeb16b6b321c64e789a966b6adf723816a5",
+      "git": "git version 2.39.5",
+      "mdbook": "mdbook v0.5.4",
+      "deno": "deno 2.9.7 (stable, release, x86_64-unknown-linux-gnu)\nv8 15.0.245.2-rusty\ntypescript 6.0.3"
+    },
+    "invocations": [
+      {
+        "args": [],
+        "status": "passed"
+      }
+    ],
+    "exitCode": 0,
+    "finished": "2026-11-17T21:59:54.501Z"
+  },
+  "helperConsumer": {
+    "cohort": [
+      {
+        "name": "@lapis-notes/api",
+        "version": "0.6.8",
+        "path": "lapis-notes-api-0.6.8.tgz",
+        "sha256": "c90eac5de04eb15b971d45665f0bd26603abf3a00fd35320a9ed3cb56dc0f4ce"
+      },
+      {
+        "name": "@lapis-notes/ui",
+        "version": "0.2.3",
+        "path": "lapis-notes-ui-0.2.3.tgz",
+        "sha256": "d8dc5f8e2469f2e9f4dd5bcd5b727db9780507caa5a8701f3c8a9d32f9a32e95"
+      },
+      {
+        "name": "@lapis-notes/workspace",
+        "version": "0.4.8",
+        "path": "lapis-notes-workspace-0.4.8.tgz",
+        "sha256": "558ecb749a420cbb222a790f19f5527aef9b2d956fcb367e633ca26cc7d60177"
+      },
+      {
+        "name": "@lapis-notes/file-explorer",
+        "version": "0.2.8",
+        "path": "lapis-notes-file-explorer-0.2.8.tgz",
+        "sha256": "5ab4ba28eb6a839bf64cfbc4031c77bb60b9883069ce9c0a510ecce32be3f342"
+      },
+      {
+        "name": "@lapis-notes/language-service",
+        "version": "0.1.6",
+        "path": "lapis-notes-language-service-0.1.6.tgz",
+        "sha256": "9b371f7c14850d73961f9d2a94aad126c964b7f3800576b38079185e821f28a0"
+      },
+      {
+        "name": "@lapis-notes/app-profile",
+        "version": "0.2.5",
+        "path": "lapis-notes-app-profile-0.2.5.tgz",
+        "sha256": "82f533715b31a0504f4ce3e9780b9071a8c00bcfb1f9c929c5deff46a0e1d859"
+      }
+    ],
+    "results": [
+      {
+        "vite": "6.4.5",
+        "types": "passed",
+        "build": "passed",
+        "importMap": "passed",
+        "productionVite": "absent"
+      },
+      {
+        "vite": "7.3.7",
+        "types": "passed",
+        "build": "passed",
+        "importMap": "passed",
+        "productionVite": "absent"
+      }
+    ]
+  },
+  "helperEnvironment": {
+    "name": "lapis-retirement-profile-smoke-23dbbe07-6dc5-4839-b6a7-6c1f68ae1b99",
+    "id": "ad1f1b1d2cd7d9766b32ce8d458d7f6f3d840464173d287d1eda588449ef53b5",
+    "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+    "source": {
+      "schema": 1,
+      "nativeSources": [],
+      "revision": "b3a93b2f5e49d514a6c447a0d6e2664d3179bb3e",
+      "parents": ["af645ddb8d7c01230a212a1cac48fe054f5a5974"],
+      "fileCount": 2599,
+      "archives": [],
+      "packSha256": "3b52bb074d8de220d2697b6b99d88cf3822358187d1ce6f9849a5692eb1a873a"
+    },
+    "packRun": "lapis-notes-validation-4098f2c6-59bb-414d-884d-ce9c5c01fd8a"
+  },
+  "archiveComparison": {
+    "baselineArchive": ".local/validation/runs/lapis-notes-validation-8f7bdc44-ce31-4685-bcd4-2cc5e0796e07/.release_validation-packages/lapis-notes-app-profile-0.2.5.tgz",
+    "candidateArchive": ".local/validation/runs/lapis-notes-validation-4098f2c6-59bb-414d-884d-ce9c5c01fd8a/.release_validation-packages/lapis-notes-app-profile-0.2.5.tgz",
+    "baselineSha256": "86fdcaa4d801ffbbd64faa06f31b61e44ab7f525418ba15bed1f382082ed3ac9",
+    "candidateSha256": "82f533715b31a0504f4ce3e9780b9071a8c00bcfb1f9c929c5deff46a0e1d859",
+    "changedMembers": ["package/README.md", "package/package.json"],
+    "unchangedDistFiles": 64,
+    "builtHelperJsUnchanged": true,
+    "builtHelperTypesUnchanged": true
+  },
+  "failedHelperAttempt": {
+    "name": "lapis-retirement-profile-smoke-6251c80a-a7e8-4a6b-b4b4-952ecaa6c480",
+    "reason": "Fixture declared only Profile and could not resolve the unpublished UI peer. Retry declares all six verified cohort archives directly, without changing source packages or skipping type checks."
+  }
+}
