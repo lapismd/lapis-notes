@@ -1,5 +1,16 @@
 # @lapis-notes/app-profile
 
+## 0.2.5
+
+### Patch Changes
+
+- [#150](https://github.com/lapismd/lapis-notes/pull/150)
+  [`82a8d48`](https://github.com/lapismd/lapis-notes/commit/82a8d4802a0567dcbb11a186200ebcdb7f1569cb)
+  Thanks
+  [@lapismd-dependency-bot](https://github.com/apps/lapismd-dependency-bot)! -
+  Refresh first-party Lapis dependencies to the published versions recorded in
+  this pull request.
+
 ## 0.2.4
 
 ### Patch Changes
