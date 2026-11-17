@@ -31,12 +31,14 @@ controller or changing host authority.
 
 Under LN-WS-106, the mobile shell invokes Search through its registered `search:open-search` plugin command. It does not import Search internals. Disabling Search makes that action unavailable, and shell disposal removes only commands registered by that shell.
 
-The shared application profile consumes published Markdown `^0.3.0`; it keeps
+The shared application profile selects released Markdown `^0.3.3`; it keeps
 the same plugin IDs, App ownership and host-owned static selection.
 
-The shared application profile accepts published Agent UI `^0.2.6`, History
-`^0.3.1`, and Design Core `^0.13.2`; it keeps the same plugin IDs, App
-ownership and host-owned static selection.
+The same dependency intake selects Agent UI `^0.2.8`, History `^0.5.1`,
+Search `^0.1.13` and Source Editor `^0.1.12`, retaining Design Core `^0.13.3`.
+It keeps the same plugin IDs, explicit App ownership and host-owned static
+selection. [Intake qualification](../../records/2026-11-17-profile-bot-dependency-intake.md)
+does not grant another native transport, service or writer.
 
 The ordinary hosted profile selects native metadata, History and Tasks together
 under LN-CORE-069. Plugin observers keep their existing owning App and native

@@ -27,14 +27,15 @@ While a hosted attachment opens, its retained workspace startup/recovery surface
 stays visible. The chooser can hide a retained ready session; it cannot hide a
 prepared session's progress or failure while waiting for that session's readiness.
 
-The published application profile consumes Markdown `^0.3.0`, alongside
+The application profile dependency intake selects Markdown `^0.3.3`, alongside
 its current API/Workspace cohort. Hosts retain profile selection and lifecycle;
 this dependency intake does not add plugin policy to the reusable shell.
 
-The shared application profile accepts published Agent UI `^0.2.6`, History
-`^0.3.1`, and Design Core `^0.13.2`, alongside its current API/Workspace cohort.
+The same intake selects Agent UI `^0.2.8`, History `^0.5.1`, Search `^0.1.13`
+and Source Editor `^0.1.12`, retaining Design Core `^0.13.3` and API/Workspace.
 Hosts retain profile selection and lifecycle; this dependency intake does not
-add plugin policy to the reusable shell.
+add plugin policy to the reusable shell. [Qualification](../../records/2026-11-17-profile-bot-dependency-intake.md)
+keeps browser/source acceptance and final publication separate.
 
 ## LN-WEB-002 — Web host: own its launcher, profile selection, session lifecycle
 

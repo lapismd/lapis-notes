@@ -70,12 +70,15 @@ The API accepts the Mira 0.1 public-export line alongside its existing 0.0.5
 range for isolated Lapis Desktop shared-screen acceptance. Package source and
 installed applications retain their existing ownership.
 
-The published App Profile requests Markdown `^0.3.0`, Search `^0.1.12` and
-Source Editor `^0.1.11`, using the API 0.6 / Workspace 0.4 cohort through
+The App Profile dependency intake requests Markdown `^0.3.3`, Search `^0.1.13` and
+Source Editor `^0.1.12`, using the API 0.6 / Workspace 0.4 cohort through
 portable npm ranges and built public exports under LN-PKG-132.
 
-The published App Profile requests Agent UI `^0.2.6`, History `^0.3.1` and
-Design Core `^0.13.2`. Hosts retain storage, native admission and release policy.
+The same intake requests Agent UI `^0.2.8`, History `^0.5.1` and retains
+Design Core `^0.13.3`. Root Mira Editor and Mermaid development dependencies
+select `~0.0.5`. Hosts retain storage, native admission and release policy.
+[Candidate qualification](../../records/2026-11-17-profile-bot-dependency-intake.md)
+keeps source acceptance and publication separate from host adoption.
 The validation graph selects patched Storybook 10.6.5 and Vite 7.3.7. Bounded
 same-major Vite resolutions cover retained developer dependencies. Public
 consumer verification still installs registry dependencies without repo overrides.
