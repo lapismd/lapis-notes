@@ -15,8 +15,11 @@ native data/startup acceptance, API package publication/adoption and website
 cutover. Continue shared-AI acceptance before host/API removal. Terminal is last.
 Desktop consumer intake found an optional App Profile Vite peer promoting
 build tooling into its production audit graph. The approved owner metadata
-cleanup preserves the active public build helper; source qualification passes,
-while archive/host acceptance and Desktop audit requalification are in progress.
+cleanup preserves the active public build helper; source/release qualification
+and built Vite 6/7 helper checks pass. Desktop's 748 AI tests pass and its actual
+installed production graph has zero advisories. The separate development-only
+Picomatch exception is approved through 2026-11-30; its application and hosted
+owner/consumer intake remain open.
 The tables below describe current status; older receipts are dated checkpoints.
 
 ## Preparation completed
