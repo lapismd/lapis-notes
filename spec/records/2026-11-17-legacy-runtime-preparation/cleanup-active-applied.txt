@@ -1,0 +1,231 @@
+blocked lapismd/lapis-notes/dependency-automation-20261101: outside the direct sibling cleanup boundary
+blocked lapismd/lapis-notes/desktop-profile-intake: workspace root is missing or a symlink
+blocked lapismd/lapis-notes/legacy-retirement-plan: contains commits not integrated by exact ancestry
+blocked lapismd/lapis-notes/mobile-layout: contains commits not integrated by exact ancestry
+blocked lapismd/lapis-notes/notebook-inline: contains commits not integrated by exact ancestry
+blocked lapismd/lapis-notes/notebook-release: contains commits not integrated by exact ancestry
+blocked lapismd/lapis-notes/notes-api023-profile-20261031: workspace root is missing or a symlink
+blocked lapismd/lapis-notes/notes-bits-patch-20261031: workspace root is missing or a symlink
+blocked lapismd/lapis-notes/notes-ci-browser-repro-20261031: workspace root is missing or a symlink
+blocked lapismd/lapis-notes/notes-minimatch-security-20261031: workspace root is missing or a symlink
+blocked lapismd/lapis-notes/notes-release-followthrough-20261030: workspace root is missing or a symlink
+blocked lapismd/lapis-notes/pwa-cloudflare-20261101: outside the direct sibling cleanup boundary
+blocked lapismd/lapis-notes/repository-remotes: contains commits not integrated by exact ancestry
+blocked lapismd/lapis-notes/rolling-ci-image-pr: outside the direct sibling cleanup boundary
+blocked lapismd/lapis-desktop/ci-catalog2: workspace root is missing or a symlink
+blocked lapismd/lapis-desktop/ci-final-catalog-1: workspace root is missing or a symlink
+blocked lapismd/lapis-desktop/ci-final-catalog-2: workspace root is missing or a symlink
+blocked lapismd/lapis-desktop/ci-final-catalog-3: workspace root is missing or a symlink
+blocked lapismd/lapis-desktop/ci-final-catalog-4: workspace root is missing or a symlink
+blocked lapismd/lapis-desktop/ci-repair: workspace root is missing or a symlink
+blocked lapismd/lapis-desktop/dependency-automation-20261101: outside the direct sibling cleanup boundary
+blocked lapismd/lapis-desktop/desktop-docs-ci-probe-20261101: outside the direct sibling cleanup boundary
+blocked lapismd/lapis-desktop/homebrew-release-20261101: outside the direct sibling cleanup boundary
+blocked lapismd/lapis-desktop/mobile-layout: cannot inspect live working copy
+blocked lapismd/lapis-desktop/registry-catalog-2-071: workspace root is missing or a symlink
+blocked lapismd/lapis-desktop/registry-catalog-3-071: workspace root is missing or a symlink
+blocked lapismd/lapis-desktop/registry-catalog-4-071: workspace root is missing or a symlink
+blocked lapismd/lapis-desktop/registry-design-core-071: workspace root is missing or a symlink
+blocked lapismd/lapis-desktop/registry-types-071: workspace root is missing or a symlink
+blocked lapismd/lapis-desktop/release-handoff-20261031: workspace root is missing or a symlink
+blocked lapismd/lapis-desktop/remotes-final-catalog: cannot inspect live working copy
+blocked lapismd/lapis-desktop/remotes-final-shard1: cannot inspect live working copy
+blocked lapismd/lapis-desktop/remotes-final-shard2: cannot inspect live working copy
+blocked lapismd/lapis-desktop/remotes-final-shard3: cannot inspect live working copy
+blocked lapismd/lapis-desktop/remotes-final-shard4: cannot inspect live working copy
+blocked lapismd/lapis-desktop/repository-remotes: contains commits not integrated by exact ancestry
+blocked lapismd/lapis-desktop/server-ui-parity: contains commits not integrated by exact ancestry
+blocked lapismd/lapis-desktop/sync-plan-pr: cannot inspect live working copy
+blocked lapismd/lapis-desktop/vault-backup: outside the direct sibling cleanup boundary
+blocked lapismd/lapis-desktop/website-media: contains commits not integrated by exact ancestry
+blocked lapismd/lapis-desktop/website-media-before: workspace root is missing or a symlink
+blocked lapismd/lapis-server/default-image-qualification: outside the direct sibling cleanup boundary
+blocked lapismd/lapis-server/dependency-automation-20261101: outside the direct sibling cleanup boundary
+eligible lapismd/lapis-server/remotes-sync: /Users/stevejuma/code/lapismd/lapis-server-remotes-sync
+eligible lapismd/lapis-server/repository-remotes: /Users/stevejuma/code/lapismd/lapis-server-remotes
+blocked lapismd/lapis-server/repository-remotes-runtime: contains commits not integrated by exact ancestry
+blocked lapismd/lapis-server/terminal-baseline: contains commits not integrated by exact ancestry
+blocked lapismd/lapis-server/terminal-pr: contains commits not integrated by exact ancestry
+blocked lapismd/lapis-maintenance/maintenance-acceptance: contains commits not integrated by exact ancestry
+blocked lapismd/mira-mde/bits-intake-20261025: workspace root is missing or a symlink
+blocked lapismd/mira-mde/bits-intake-pack-validation-20261025: workspace root is missing or a symlink
+blocked lapismd/mira-mde/dependency-automation-20261101: outside the direct sibling cleanup boundary
+eligible lapismd/mira-mde/desktop-migration: /Users/stevejuma/code/lapismd/mira-mde-desktop-migration
+eligible lapismd/mira-mde/inline-links: /Users/stevejuma/code/lapismd/mira-mde-inline-links
+blocked lapismd/mira-mde/input-lease-20261026: workspace root is missing or a symlink
+blocked lapismd/mira-mde/math-release-20261031: workspace root is missing or a symlink
+eligible lapismd/mira-mde/notebook-activation: /Users/stevejuma/code/lapismd/mira-notebook-activation
+blocked lapismd/mira-mde/notebook-fences: contains commits not integrated by exact ancestry
+eligible lapismd/mira-mde/npm-release: /Users/stevejuma/code/lapismd/mira-mde-npm-release
+blocked lapismd/mira-mde/preview-attachment-tracking-20261026: workspace root is missing or a symlink
+blocked lapismd/mira-mde/properties-edit-boundary-20261026: workspace root is missing or a symlink
+eligible lapismd/mira-mde/static-registry-ci: /Users/stevejuma/code/lapismd/mira-mde-static-registry-ci
+eligible lapismd/mira-mde/wave3-release: /Users/stevejuma/code/lapismd/mira-mde-wave3-release
+eligible lapismd/design-core/activity-regression: /Users/stevejuma/code/lapismd/design-core-activity-regression
+blocked lapismd/design-core/bases-embeds: cannot inspect live working copy
+blocked lapismd/design-core/catalog-package: workspace root is missing or a symlink
+blocked lapismd/design-core/column-fit-contents-20261025: workspace root is missing or a symlink
+blocked lapismd/design-core/composer-lifetime: workspace root is missing or a symlink
+blocked lapismd/design-core/composer-package-20261025: workspace root is missing or a symlink
+blocked lapismd/design-core/default: workspace root is missing or a symlink
+blocked lapismd/design-core/dependency-automation-20261101: outside the direct sibling cleanup boundary
+eligible lapismd/design-core/design-core-sv-bump: /Users/stevejuma/code/lapismd/design-core-sv-bump
+blocked lapismd/design-core/desktop-composer: workspace root is missing or a symlink
+blocked lapismd/design-core/docker-validation: workspace root is missing or a symlink
+blocked lapismd/design-core/json-highlighting-20261030: contains commits not integrated by exact ancestry
+eligible lapismd/design-core/kanban-alignment: /Users/stevejuma/code/lapismd/design-core-kanban-alignment
+eligible lapismd/design-core/kanban-virtualization: /Users/stevejuma/code/lapismd/design-core-kanban-virtualization
+blocked lapismd/design-core/linux-release-ro-20261031: workspace root is missing or a symlink
+blocked lapismd/design-core/linux-ro-20261031: workspace root is missing or a symlink
+eligible lapismd/design-core/maintenance-kanban: /Users/stevejuma/code/lapismd/design-core-maintenance-kanban
+eligible lapismd/design-core/mira-012: /Users/stevejuma/code/lapismd/design-core-mira-012
+eligible lapismd/design-core/mira-activation: /Users/stevejuma/code/lapismd/design-core-mira-activation-pr
+blocked lapismd/design-core/mobile-pr: contains commits not integrated by exact ancestry
+blocked lapismd/design-core/notebook-release: contains commits not integrated by exact ancestry
+blocked lapismd/design-core/notebook-status: contains commits not integrated by exact ancestry
+eligible lapismd/design-core/notebook-tables: /Users/stevejuma/code/lapismd/design-core-notebook-tables
+blocked lapismd/design-core/picker-contrast-20261026: workspace root is missing or a symlink
+blocked lapismd/design-core/plugin-file-icons: workspace root is missing or a symlink
+blocked lapismd/design-core/pwa-cloudflare-20261101: outside the direct sibling cleanup boundary
+blocked lapismd/design-core/release-metadata-20261030: contains commits not integrated by exact ancestry
+eligible lapismd/design-core/release-verify-20261030: /Users/stevejuma/code/lapismd/design-core-release-verify
+eligible lapismd/design-core/reply-baseline-20261030: /Users/stevejuma/code/lapismd/design-core-reply-baseline
+blocked lapismd/design-core/required-release-20261031: workspace root is missing or a symlink
+blocked lapismd/design-core/swipe-lifetime-20261025: workspace root is missing or a symlink
+blocked lapismd/design-core/swipe-package-20261025: workspace root is missing or a symlink
+blocked lapismd/spec-validator/dependency-automation-20261101: outside the direct sibling cleanup boundary
+blocked lapismd/storybook-addon-visual-delta/dependency-automation-20261101: outside the direct sibling cleanup boundary
+blocked lapismd/agent-ui/branches-fit-20261025: workspace root is missing or a symlink
+blocked lapismd/agent-ui/catalog-retention-20261025: workspace root is missing or a symlink
+blocked lapismd/agent-ui/dependency-automation-20261101: outside the direct sibling cleanup boundary
+blocked lapismd/agent-ui/desktop-send: workspace root is missing or a symlink
+blocked lapismd/agent-ui/docker-validation-20261025: workspace root is missing or a symlink
+blocked lapismd/agent-ui/independent-publisher-20261031: workspace root is missing or a symlink
+blocked lapismd/agent-ui/maintenance-checks: contains commits not integrated by exact ancestry
+blocked lapismd/agent-ui/maintenance-identifiers: outside the direct sibling cleanup boundary
+blocked lapismd/agent-ui/patched-release-20261031: workspace root is missing or a symlink
+blocked lapismd/agent-ui/release-readiness-20261030: tracked or untracked working-copy changes
+blocked lapismd/agent-ui/send-capability-20261027: workspace root is missing or a symlink
+eligible lapismd/agent-ui/server-ui-parity: /Users/stevejuma/code/lapismd/agent-ui-server-ui-parity
+eligible lapismd/agent-ui/verify-parallel: /Users/stevejuma/code/lapismd/agent-ui-verify-parallel
+blocked lapismd/agent-redaction/dependency-automation-20261101: outside the direct sibling cleanup boundary
+eligible lapismd/agent-redaction/npm-release: /Users/stevejuma/code/lapismd/agent-redaction-npm-release
+blocked lapismd/ai-controller/ai-controller-bot-activation-20261101: outside the direct sibling cleanup boundary
+blocked lapismd/ai-controller/dependency-automation-20261101: outside the direct sibling cleanup boundary
+blocked lapismd/ai-controller/homebrew-runtime: contains commits not integrated by exact ancestry
+eligible lapismd/ai-controller/npm-release: /Users/stevejuma/code/lapismd/ai-controller-npm-release
+eligible lapismd/ai-controller/release-docs: /Users/stevejuma/code/lapismd/ai-controller-docs
+eligible lapismd/ai-controller/static-ci: /Users/stevejuma/code/lapismd/ai-controller-static-ci
+blocked lapismd/ai-host/dependency-automation-20261101: outside the direct sibling cleanup boundary
+eligible lapismd/ai-host/npm-release: /Users/stevejuma/code/lapismd/ai-host-npm-release
+blocked lapismd/lapis-ai/dependency-automation-20261101: outside the direct sibling cleanup boundary
+eligible lapismd/lapis-terminal/attach-replay-20261030: /Users/stevejuma/code/lapismd/lapis-terminal-attach-replay
+blocked lapismd/lapis-terminal/dependency-automation-20261101: outside the direct sibling cleanup boundary
+blocked lapismd/lapis-terminal/terminal-publication-20261030: workspace root is missing or a symlink
+eligible lapismd/lapis-plugins/bases-polish: /Users/stevejuma/code/lapismd/lapis-plugins-bases-polish
+blocked lapismd/lapis-plugins/dependency-automation-20261101: outside the direct sibling cleanup boundary
+eligible lapismd/lapis-plugins/file-limits: /Users/stevejuma/code/lapismd/lapis-plugins-file-limits
+blocked lapismd/lapis-plugins/history-notification-pr: tracked or untracked working-copy changes
+blocked lapismd/lapis-plugins/kanban-pr: contains commits not integrated by exact ancestry
+blocked lapismd/lapis-plugins/lapis-plugins-markdown-017: contains commits not integrated by exact ancestry
+blocked lapismd/lapis-plugins/notebook-activation: tracked or untracked working-copy changes
+eligible lapismd/lapis-plugins/notebook-canvas-compat: /Users/stevejuma/code/lapismd/lapis-plugins-notebook-canvas-compat
+blocked lapismd/lapis-plugins/package-release-20261030: tracked or untracked working-copy changes
+blocked lapismd/lapis-plugins/plugins-bits-patch-20261031: workspace root is missing or a symlink
+blocked lapismd/lapis-plugins/plugins-reading-math-20261031: workspace root is missing or a symlink
+eligible lapismd/lapis-plugins/registry-refresh: /Users/stevejuma/code/lapismd/lapis-plugins-registry-refresh
+eligible lapismd/lapis-plugins/release-investigation: /Users/stevejuma/code/lapismd/lapis-plugins-release-investigation
+eligible lapismd/lapis-plugins/remotes-baseline: /Users/stevejuma/code/lapismd/lapis-plugins-remotes-baseline
+blocked lapismd/lapis-plugins/remotes-preview: contains commits not integrated by exact ancestry
+blocked lapismd/lapis-plugins/remotes-validation-a: cannot inspect live working copy
+blocked lapismd/lapis-plugins/remotes-validation-b: cannot inspect live working copy
+blocked lapismd/lapis-plugins/remotes-validation-c: cannot inspect live working copy
+eligible lapismd/lapis-plugins/server-ui-parity: /Users/stevejuma/code/lapismd/lapis-plugins-server-ui-parity
+blocked lapismd/lapis-plugins/sync-plan-pr: cannot inspect live working copy
+blocked lapismd/lapis-plugins/website-bases: contains commits not integrated by exact ancestry
+blocked lapismd/lapis-plugins/website-media: contains commits not integrated by exact ancestry
+blocked lapismd/lapis-plugin-notebook/canvas-tables: contains commits not integrated by exact ancestry
+blocked lapismd/lapis-plugin-notebook/dependency-automation-20261101: outside the direct sibling cleanup boundary
+blocked lapismd/lapis-plugin-notebook/notebook-activation: tracked or untracked working-copy changes
+blocked lapismd/lapis-plugin-notebook/notebook-bot-activation-20261101: outside the direct sibling cleanup boundary
+blocked lapismd/lapis-plugin-notebook/notebook-ci: cannot inspect live working copy
+blocked lapismd/lapis-plugin-notebook/notebook-dependencies: contains commits not integrated by exact ancestry
+eligible lapismd/lapis-plugin-notebook/notebook-execution: /Users/stevejuma/code/lapismd/lapis-plugin-notebook-execution
+blocked lapismd/lapis-plugin-notebook/notebook-execution-repro: tracked or untracked working-copy changes
+eligible lapismd/lapis-plugin-notebook/notebook-registry: /Users/stevejuma/code/lapismd/lapis-plugin-notebook-registry
+blocked lapismd/lapis-plugin-notebook/notebook-registry-qualification-20261101: outside the direct sibling cleanup boundary
+eligible lapismd/lapis-plugin-notebook/notebook-release-pipeline: /Users/stevejuma/code/lapismd/lapis-plugin-notebook-release-pipeline
+blocked lapismd/lapis-plugin-tasks/dependency-automation-20261101: outside the direct sibling cleanup boundary
+blocked lapismd/lapis-plugin-tasks/hosted-outcomes-20261026: workspace root is missing or a symlink
+blocked lapismd/lapis-plugin-tasks/lapis-task-daily-locale-20261026: workspace root is missing or a symlink
+blocked lapismd/lapis-plugin-tasks/native-host-adapter-20261026: workspace root is missing or a symlink
+blocked lapismd/lapis-plugin-tasks/native-mutation-parity-20261025: workspace root is missing or a symlink
+blocked lapismd/lapis-plugin-tasks/native-recurrence-20261025: workspace root is missing or a symlink
+blocked lapismd/lapis-plugin-tasks/native-task-coordination-reference-20261026: workspace root is missing or a symlink
+blocked lapismd/lapis-plugin-tasks/native-task-documents: tracked or untracked working-copy changes
+blocked lapismd/lapis-plugin-tasks/native-yaml-parser-20261025: workspace root is missing or a symlink
+eligible lapismd/lapis-plugin-tasks/server-ui-parity: /Users/stevejuma/code/lapismd/lapis-plugin-tasks-server-ui-parity
+eligible lapismd/lapis-plugin-tasks/tasks-detail-pr: /Users/stevejuma/code/lapismd/lapis-plugin-tasks-detail-pr
+blocked lapismd/lapis-plugin-tasks/tasks-publication-20261030: workspace root is missing or a symlink
+eligible lapismd/lapis-plugin-tasks/tasks-registry: /Users/stevejuma/code/lapismd/lapis-plugin-tasks-registry
+blocked lapismd/lapis-plugin-docs/dependency-automation-20261101: outside the direct sibling cleanup boundary
+blocked lapismd/lapis-plugin-docs/docs-native-projection-20261025: workspace root is missing or a symlink
+blocked lapismd/lapis-plugin-terminal/lapis-plugin-terminal-hosted: contains commits not integrated by exact ancestry
+blocked lapismd/lapis-community/dependency-automation-20261101: outside the direct sibling cleanup boundary
+blocked lapismd/lapis-community/npm-release: tracked or untracked working-copy changes
+eligible lapismd/lapis-community/release-docs: /Users/stevejuma/code/lapismd/lapis-community-docs
+blocked lapismd/lapis-community/static-schema-release: tracked or untracked working-copy changes
+blocked lapismd/lapis-community/static-v2: tracked or untracked working-copy changes
+blocked stevejuma/jj-store/conversations-cold-fixture-20261031: contains commits not integrated by exact ancestry
+blocked stevejuma/jj-store/conversations-qualify-20261031: workspace root is missing or a symlink
+blocked stevejuma/jj-store/conversations-release-20261030: tracked or untracked working-copy changes
+blocked stevejuma/jj-store/dependency-automation-20261101: outside the direct sibling cleanup boundary
+eligible stevejuma/jj-store/git-pins: /Users/stevejuma/code/lapismd/jj-store-git-pins
+blocked stevejuma/jj-store/hmac-keyinit: workspace root is missing or a symlink
+blocked stevejuma/jj-store/qualified-git-20261031: workspace root is missing or a symlink
+blocked stevejuma/jj-store/repository-remotes: contains commits not integrated by exact ancestry
+summary: eligible=41 blocked=145 repository_failures=0
+quarantined lapismd/lapis-server/remotes-sync: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/lapis-server/lapis-server-remotes-sync
+quarantined lapismd/lapis-server/repository-remotes: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/lapis-server/lapis-server-remotes
+quarantined lapismd/mira-mde/desktop-migration: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/mira-mde/mira-mde-desktop-migration
+quarantined lapismd/mira-mde/inline-links: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/mira-mde/mira-mde-inline-links
+quarantined lapismd/mira-mde/notebook-activation: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/mira-mde/mira-notebook-activation
+quarantined lapismd/mira-mde/npm-release: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/mira-mde/mira-mde-npm-release
+quarantined lapismd/mira-mde/static-registry-ci: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/mira-mde/mira-mde-static-registry-ci
+quarantined lapismd/mira-mde/wave3-release: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/mira-mde/mira-mde-wave3-release
+quarantined lapismd/design-core/activity-regression: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/design-core/design-core-activity-regression
+quarantined lapismd/design-core/design-core-sv-bump: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/design-core/design-core-sv-bump
+quarantined lapismd/design-core/kanban-alignment: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/design-core/design-core-kanban-alignment
+quarantined lapismd/design-core/kanban-virtualization: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/design-core/design-core-kanban-virtualization
+quarantined lapismd/design-core/maintenance-kanban: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/design-core/design-core-maintenance-kanban
+quarantined lapismd/design-core/mira-012: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/design-core/design-core-mira-012
+quarantined lapismd/design-core/mira-activation: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/design-core/design-core-mira-activation-pr
+quarantined lapismd/design-core/notebook-tables: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/design-core/design-core-notebook-tables
+quarantined lapismd/design-core/release-verify-20261030: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/design-core/design-core-release-verify
+quarantined lapismd/design-core/reply-baseline-20261030: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/design-core/design-core-reply-baseline
+quarantined lapismd/agent-ui/server-ui-parity: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/agent-ui/agent-ui-server-ui-parity
+quarantined lapismd/agent-ui/verify-parallel: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/agent-ui/agent-ui-verify-parallel
+quarantined lapismd/agent-redaction/npm-release: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/agent-redaction/agent-redaction-npm-release
+quarantined lapismd/ai-controller/npm-release: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/ai-controller/ai-controller-npm-release
+quarantined lapismd/ai-controller/release-docs: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/ai-controller/ai-controller-docs
+quarantined lapismd/ai-controller/static-ci: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/ai-controller/ai-controller-static-ci
+quarantined lapismd/ai-host/npm-release: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/ai-host/ai-host-npm-release
+quarantined lapismd/lapis-terminal/attach-replay-20261030: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/lapis-terminal/lapis-terminal-attach-replay
+quarantined lapismd/lapis-plugins/bases-polish: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/lapis-plugins/lapis-plugins-bases-polish
+quarantined lapismd/lapis-plugins/file-limits: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/lapis-plugins/lapis-plugins-file-limits
+quarantined lapismd/lapis-plugins/notebook-canvas-compat: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/lapis-plugins/lapis-plugins-notebook-canvas-compat
+quarantined lapismd/lapis-plugins/registry-refresh: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/lapis-plugins/lapis-plugins-registry-refresh
+quarantined lapismd/lapis-plugins/release-investigation: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/lapis-plugins/lapis-plugins-release-investigation
+quarantined lapismd/lapis-plugins/remotes-baseline: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/lapis-plugins/lapis-plugins-remotes-baseline
+quarantined lapismd/lapis-plugins/server-ui-parity: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/lapis-plugins/lapis-plugins-server-ui-parity
+quarantined lapismd/lapis-plugin-notebook/notebook-execution: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/lapis-plugin-notebook/lapis-plugin-notebook-execution
+quarantined lapismd/lapis-plugin-notebook/notebook-registry: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/lapis-plugin-notebook/lapis-plugin-notebook-registry
+quarantined lapismd/lapis-plugin-notebook/notebook-release-pipeline: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/lapis-plugin-notebook/lapis-plugin-notebook-release-pipeline
+quarantined lapismd/lapis-plugin-tasks/server-ui-parity: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/lapis-plugin-tasks/lapis-plugin-tasks-server-ui-parity
+quarantined lapismd/lapis-plugin-tasks/tasks-detail-pr: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/lapis-plugin-tasks/lapis-plugin-tasks-detail-pr
+quarantined lapismd/lapis-plugin-tasks/tasks-registry: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/lapis-plugin-tasks/lapis-plugin-tasks-registry
+quarantined lapismd/lapis-community/release-docs: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/lapismd/lapis-community/lapis-community-docs
+quarantined stevejuma/jj-store/git-pins: /Users/stevejuma/code/lapismd/.workspace-quarantine/20261117T151845Z-92402/stevejuma/jj-store/jj-store-git-pins
+quarantine batch: 20261117T151845Z-92402
+restore with: ./cleanup-workspaces.sh --restore 20261117T151845Z-92402 --apply
+purge with: ./cleanup-workspaces.sh --purge 20261117T151845Z-92402 --apply

@@ -1,9 +1,10 @@
 # Lapis legacy runtime and package retirement
 
-Status: planned; implementation has not started. Saved on 2026-11-17 from the
-consolidated source audit and scope decisions made on 2026-11-15. The request
-authorizes saving and committing this plan only. It does not authorize starting
-the removals, changing packages, publishing, deploying or replacing applications.
+Status: implementation started on 2026-11-17 after the user authorized cleanup,
+repository refresh, isolated workspaces and one removal at a time. The original
+plan-only commit remains preserved. Follow the [progress and resume record](legacy-runtime-retirement-progress.md)
+for completed substeps, exact evidence and pending work. Publication, deployment,
+npm deprecation and installed-application replacement retain their release gates.
 
 Notes is the coordination home because it owns the frozen desktop, shared API
 and application profile. Outstanding coordination status belongs to the
@@ -250,4 +251,5 @@ edge has an explicit owner and reason. The preserved controller and excluded
 repositories remain a separate service boundary. Do not claim a Deno-free entire
 workspace, completion of deferred Sync/native work, or visual approval.
 
-All implementation slices and their acceptance evidence remain pending.
+Implementation and qualification status are tracked in the progress record;
+unchecked work and release gates remain pending.
