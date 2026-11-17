@@ -38,7 +38,8 @@ its exact six-package cohort is qualified in Desktop source checks; complete
 catalog/hosted and actual native/data acceptance remain open. LN-CAT-124 removes
 the CI registry fixture's pre-retirement Plugins source input. Its guarded
 post-removal producer, 18 signed catalog documents, 16 signed bundles and all
-13 cold Web cases pass; hosted exact-head qualification remains pending.
+13 cold Web cases pass. Notes #165 passed hosted workflow `44198935057` and
+merged at `545284a0`; the source fixture edge is closed.
 Desktop's older fixture pin and stale local-build guard are being repaired in
 an isolated parallel workspace, with Rust/native pins preserved.
 Notes coordinates the
@@ -263,3 +264,12 @@ merging the consumer. Production deployment and the frozen
 Deno native gate remain separate. Desktop owns its pending compatible archive
 intake and production-root responsiveness acceptance; preserve its concurrent
 dependency work. Visual review remains pending without baseline changes.
+
+## Queued pull request base references
+
+Notes governance currently resolves the event base through a mutable remote
+branch name. A queued stacked PR retargeted after its base is merged/deleted
+can fail SPEC-FIRST-VCS despite unchanged base-tree bytes. Preserve the original
+failed attempt and qualify a fresh synchronize event against current main.
+A future source fix should resolve/fetch immutable event SHAs with regression
+coverage; no required gate is waived. See the [retirement hosted receipt](../../records/2026-11-17-retired-ai-fixture-hosted.md).
