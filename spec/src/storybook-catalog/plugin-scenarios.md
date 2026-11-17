@@ -35,7 +35,7 @@ and card-level update/uninstall actions before broader host acceptance resumes.
 
 <a id="ln-cat-033"></a>
 
-**Requirement.** Direct Lucide entry points used by governed panel and plugin-management stories, including empty-state illustrations and the uninstall dialog Power action, MUST be included in Storybook dependency optimization so clean browser tests do not reload during rendering.
+**Requirement.** Direct Lucide entry points used by governed settings, panel and plugin-management stories, including status, platform, empty-state and dialog actions, MUST be included in Storybook dependency optimization so clean browser tests do not reload during rendering.
 
 ## LN-CAT-120 — Version-specific UI dependency prebundling
 

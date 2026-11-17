@@ -73,7 +73,8 @@ Functional, keyboard, and axe gates retain their existing assertions.
 
 API / CLI Settings covers per-user setup/removal, installed and repair
 states, foreign-command conflicts, actionable failure and browser download
-instructions through the production component. It remains `visual-pending`;
+instructions through production registration inside the complete Design Core
+Settings surface with the built-in Workspace and Appearance navigation. It remains `visual-pending`;
 future captures use independent `api/cli-settings/<story>.png` paths.
 
 CLI catalog cases resolve the public UI subpath to its owning source compound

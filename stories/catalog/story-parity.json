@@ -206,8 +206,9 @@
     "kind": "application"
   },
   "stories/api/CliSettings.stories.ts": {
-    "kind": "component",
-    "subject": "@lapis-notes/ui/cli#CliSettings"
+    "kind": "integration",
+    "requirement": "LN-WS-107",
+    "reason": "Exercises declarative CLI registration inside the production Design Core Settings surface."
   },
   "stories/workspace/NotesWorkspaceSession.stories.ts": {
     "kind": "application"

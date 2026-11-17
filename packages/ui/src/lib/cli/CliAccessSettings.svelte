@@ -2,7 +2,10 @@
   import { onMount } from "svelte";
   import * as Button from "@lapismd/design-core/shadcn/button";
   import type { CliAccessHost, CliAccessStatus } from "./cli-settings";
-  let { host }: { host: CliAccessHost } = $props();
+  let {
+    host,
+    embedded = false,
+  }: { host: CliAccessHost; embedded?: boolean } = $props();
   let status = $state<CliAccessStatus>();
   let busy = $state(false);
   let error = $state("");
@@ -41,11 +44,13 @@
 </script>
 
 <section aria-label="Desktop CLI access">
-  <h3>Connect to desktop vaults</h3>
-  <p>
-    Allow explicitly scoped commands while this desktop app is running.
-    Installing the command does not enable access.
-  </p>
+  {#if !embedded}
+    <h3>Connect to desktop vaults</h3>
+    <p>
+      Allow explicitly scoped commands while this desktop app is running.
+      Installing the command does not enable access.
+    </p>
+  {/if}
   {#if status}
     <Button.Root
       disabled={busy}
@@ -134,8 +139,6 @@
   section {
     display: grid;
     gap: 0.75rem;
-    border-top: 1px solid var(--border);
-    padding-top: 1rem;
   }
   h3,
   p {

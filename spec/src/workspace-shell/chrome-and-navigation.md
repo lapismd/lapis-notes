@@ -92,9 +92,18 @@ here without changing this migration's dependency target.
 
 <a id="ln-ws-107"></a>
 
-**Requirement.** Hosts MUST register General → Advanced through the disposable `@lapis-notes/ui/cli` settings port on their owned workspace settings controller, using the declarative settings section and group so Design Core renders the standard heading, card and field layout. Host ports MUST own installation status, setup, removal, downloads and optional scoped desktop access. The shared presentation MUST show busy/error/recovery states, require explicit shell PATH consent and never infer browser-local installation. Secrets MUST NOT enter settings persistence.
+**Requirement.** Hosts MUST register General → Advanced as a declarative section, group and field through the disposable `@lapis-notes/ui/cli` port on their owned settings controller. Host ports MUST own installation status, setup, removal, downloads and optional scoped desktop access. The shared presentation MUST show busy/error/recovery states, require explicit shell PATH consent and never infer browser-local installation. Secrets MUST NOT enter settings persistence.
 
-The disposable UI registration owns the rendered field's ephemeral host binding;
-rendered descriptor identity does not own that authority. Its regression coverage
+The disposable UI registration owns each rendered field's ephemeral host binding;
+rendered descriptor identity does not own that authority. Regression coverage
 includes copied/proxied descriptors, independent controllers, replacement and
 disposal. These checks retain the existing public port and persistence boundary.
+
+### Acceptance details
+
+The shared CLI settings registration is accepted when:
+
+- General → Advanced uses the same Design Core Settings surface, heading and card composition as built-in Workspace and Appearance settings.
+- Browser downloads use Design Core Select, Bash CodeBlock and checksum copy controls. A uniquely matching browser platform is preselected without claiming installation; unknown or ambiguous platforms require explicit selection.
+- Status uses an icon-and-version badge with its command path on a full-width row. Install, repair and uninstall use aligned secondary actions with icons; Refresh retains distinct primary paint.
+- Installation failures use the destructive Design Core Alert beneath the action and span the complete declarative settings row.
