@@ -1,5 +1,9 @@
 # Web Host / Startup and plugins
 
+The prepared next Profile patch raises Core to `^0.13.4`; its lock already
+selected0.13.4. Web keeps its existing profile, plugin selection and lifecycle.
+Candidate qualification and publication remain separate from host adoption.
+
 Source package versions only; publication and host adoption remain separate.
 
 <!-- notes-release-versions:start -->

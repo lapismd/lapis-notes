@@ -1,5 +1,9 @@
 # Deno Desktop Host / Startup and lifecycle
 
+The prepared shared Profile patch requires Core `^0.13.4`. This dependency
+minimum repair changes no frozen Deno package, tool, startup or writer contract
+and does not claim installed Desktop adoption.
+
 Source package versions only; publication and host adoption remain separate.
 
 <!-- notes-release-versions:start -->

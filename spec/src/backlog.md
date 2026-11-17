@@ -7,7 +7,7 @@ original acceptance boundary. Historical receipts do not schedule current work.
 
 ## Outstanding topics
 
-- Qualify source-owned canonical version preparation under LN-PKG-197–198 through genuine Profile0.2.4 PR147. Its initial main-range comparison reports four missing mappings; source qualification, regenerated final-head/main acceptance and publication remain separate gates.
+- Complete the prepared App Profile Core `^0.13.4` minimum repair in PR150: source and cold candidate qualification pass, while final-head/main acceptance, genuine patch publication and coordinator retirement remain open. Canonical version preparation LN-PKG-197–198 is qualified through merged PR148/149 and actual Profile0.2.4 publication; the old draft147 is closed.
 
 - Complete manual-main specification-first acceptance under LN-GOV-056 and qualify the canonical-prepared Core-intake version candidate on its exact current head. PR143 and the actual main Pages gate passed; pending lanes remain holds. This bounded recovery grants no wider canonical-preparation opt-in or publication authority.
 
