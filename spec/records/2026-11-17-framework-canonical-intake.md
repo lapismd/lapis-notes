@@ -63,3 +63,41 @@ and no Linux capabilities. The successful receipt confirms isolation, browser
 vault, search, verified plugin offline, offline reopen, appearance, oversized
 WASM and prompt-update acceptance. New hosted candidate CI remains required;
 this proof does not republish a package or waive any source/main gate.
+
+The unrelated App Profile build-tool peer repair164 subsequently landed at
+5ffb33c152404b6880debd1b5fd70762121d6196. The final source rebase preserves that
+landed contract and allocates this intake LN-PKG-200 because164 already owns
+LN-PKG-199. Both verification rows and meaningful host/plugin-model context
+remain. No existing requirement is reassigned or removed. On this final base,
+frozen registry install,26 focused/222 complete release cases,16 root-check
+tasks, complete specification and exact-range spec-first pass again. Earlier
+af645ddb artifact receipts remain historical source evidence; hosted checks on
+the final rebased candidate remain the current gate. The documented unresolved
+intermittent offline startup issue is not claimed fixed by local passing runs.
+
+## November18 current-main icon-retirement requalification
+
+The complete three-change intake stack is rebased onto
+`6787e8248146edcd75e78228a28738840be8fce4` after Web icon retirement166.
+The two specification conflicts retain both LN-WEB-093 build-input contracts
+and this intake's independent guard and managed Core facts. A byte comparison
+against prior green source `7adaa31f4f0bf1a6bd8b8742c74792f4122442a0`
+confirms every adoption byte is retained: the only differences are the19
+landed retirement paths, including the three additive canonical paragraphs.
+Requirement IDs, Profile contracts, manifests, lockfiles and frozen-host
+selection are preserved without a new dependency or release change.
+
+An exact disposable source export installs frozen registry dependencies and
+passes26/26 intake cases,68/68 specification infrastructure cases, all11
+configured static validators and196 current documentation mirrors. Static
+validation uses the candidate's genuine immutable tracked-file list; exact
+base/head specification-first covers8 protected files and12 canonical chapters
+without missing ownership. All changed files pass formatting and the unchanged
+hosted workflow passes actionlint. Doctor passes after building the declared
+QMD SQLite prerequisite; its existing script-alias warning is retained.
+
+The export is a test snapshot, not an editing checkout, and contains no VCS
+metadata. These explicit API/static results do not claim a complete aggregate
+CLI, product or deployment rerun. The prior green candidate's hosted receipts
+remain historical; fresh hosted validation on the rebased head is mandatory.
+The unrelated active working copy is never switched or modified.
