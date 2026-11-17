@@ -13,6 +13,10 @@ tarballs independently verified. Plugins #156 carries its committed receipt.
 Still pending: caller-aware AI feature contracts, actual old-external/bundled
 native data/startup acceptance, API package publication/adoption and website
 cutover. Continue shared-AI acceptance before host/API removal. Terminal is last.
+Desktop consumer intake found an optional App Profile Vite peer promoting
+build tooling into its production audit graph. The approved owner metadata
+cleanup preserves the active public build helper; source qualification passes,
+while archive/host acceptance and Desktop audit requalification are in progress.
 The tables below describe current status; older receipts are dated checkpoints.
 
 ## Preparation completed

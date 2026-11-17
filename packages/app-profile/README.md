@@ -22,3 +22,7 @@ hosts still supply every native reader and transport.
 
 Other public entries are the default profile, `plugin-host-build`, `native-chat`
 and `native-repository`. Every entry resolves built package output.
+
+Hosts using `plugin-host-build` must declare Vite in their own build tooling.
+App Profile keeps Vite as a development dependency; installing the application
+profile does not require a Vite runtime peer.

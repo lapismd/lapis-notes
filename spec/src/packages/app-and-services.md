@@ -264,6 +264,12 @@ application policy. Native consumer adoption remains separately outstanding.
 
 **Requirement.** Public `@lapis-notes/app-profile` MUST own the shared application plugin profile, plugin-management registration and workspace-session lifecycle. Hosts MUST consume its built public exports, inject platform services, and retain transport, credential custody, routing and permission policy. A supplied Repository factory MUST register History before configured plugin loading without eagerly opening native services.
 
+## LN-PKG-199 — App Profile build-tool dependency ownership
+
+<a id="ln-pkg-199"></a>
+
+**Requirement.** App Profile MUST retain Vite as development tooling without declaring it as a runtime dependency or peer. Hosts using `@lapis-notes/app-profile/plugin-host-build` MUST provide their own Vite build dependency. The built helper's public exports and types MUST remain available.
+
 ## LN-PKG-148 — @lapis-notes/api: advertise a transport-neutral nostr-signer native capability but
 
 <a id="ln-pkg-148"></a>

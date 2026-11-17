@@ -1,5 +1,9 @@
 # Web Host / Startup and plugins
 
+Under LN-PKG-199, Web's existing direct Vite development dependency supplies the
+active App Profile build helper. Removing Profile's optional Vite peer changes
+neither the helper's exports nor Web's renderer import map or startup lifecycle.
+
 Current framework dependency intake selects published Design Core `0.13.5`.
 API, retained UI, Workspace and Web require `^0.13.5`; the separate App Profile
 minimum remains `^0.13.4`. Root tooling and File Explorer resolve the same
