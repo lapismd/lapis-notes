@@ -8,6 +8,7 @@ Defines the Lapis-owned package APIs and release boundaries. Follow the topic th
 - [Host and plugin integration](packages/core-contract.md)
 - [Editor APIs](packages/editor-apis.md)
 - [Releases and exports](packages/releases-and-exports.md)
+- [Canonical version preparation](packages/release-canonical-intake.md)
 - [Registry readiness](packages/registry-readiness.md)
 - [Native service exports](packages/native-service-exports.md)
 - [Vault and storage](packages/vault-and-storage.md)

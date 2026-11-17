@@ -31,6 +31,7 @@
   - [Packages / Host and plugin integration](./packages/core-contract.md)
   - [Packages / Editor APIs](./packages/editor-apis.md)
   - [Packages / Releases and exports](./packages/releases-and-exports.md)
+  - [Packages / Canonical version preparation](./packages/release-canonical-intake.md)
   - [Packages / Registry readiness](./packages/registry-readiness.md)
   - [Packages / Native service exports](./packages/native-service-exports.md)
   - [Packages / Vault and storage](./packages/vault-and-storage.md)

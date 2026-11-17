@@ -1,5 +1,22 @@
 # Architecture / Dependency boundaries
 
+Source package versions only; publication and host adoption remain separate.
+
+<!-- notes-release-versions:start -->
+
+```json
+{
+  "schemaVersion": 1,
+  "packages": {
+    "@lapis-notes/api": "0.6.7",
+    "@lapis-notes/file-explorer": "0.2.8",
+    "@lapis-notes/workspace": "0.4.7"
+  }
+}
+```
+
+<!-- notes-release-versions:end -->
+
 Actual hosted semantic Search acceptance uses the production HTTP database
 provider and the source-qualified CPU/model reference. Vector/ranking, admitted
 client lifetime and offline-cache evidence stay separate from engine source

@@ -13,6 +13,10 @@ The [Registry readiness](../packages/registry-readiness.md) topic uses the
 metadata-only generated Specification mirror and SUMMARY order under LN-CAT-080
 and LN-CAT-115. Its release-tool contract adds no application story or boot path.
 
+The [Canonical version preparation](../packages/release-canonical-intake.md)
+topic uses that same metadata-only mirror and SUMMARY order. Its managed source
+version facts add no application story, publication claim or frozen-host adoption.
+
 The [Native service exports](../packages/native-service-exports.md) topic is
 separate from release policy and uses a metadata-only mirror in SUMMARY order.
 Its source owns the port contracts; navigation adds no runtime or release gate.

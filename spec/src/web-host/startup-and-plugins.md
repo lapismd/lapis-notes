@@ -1,5 +1,20 @@
 # Web Host / Startup and plugins
 
+Source package versions only; publication and host adoption remain separate.
+
+<!-- notes-release-versions:start -->
+
+```json
+{
+  "schemaVersion": 1,
+  "packages": {
+    "@lapis-notes/app-profile": "0.2.3"
+  }
+}
+```
+
+<!-- notes-release-versions:end -->
+
 Web delegates workspace boot, retry and teardown to the public App Profile
 session. Its adapter retains browser prompts, PWA runtime attachment, obsolete
 secret cleanup, transfer settings and startup appearance. A failed startup

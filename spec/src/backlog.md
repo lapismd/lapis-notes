@@ -7,6 +7,8 @@ original acceptance boundary. Historical receipts do not schedule current work.
 
 ## Outstanding topics
 
+- Qualify source-owned canonical version preparation under LN-PKG-197–198 through genuine Profile0.2.4 PR147. Its initial main-range comparison reports four missing mappings; source qualification, regenerated final-head/main acceptance and publication remain separate gates.
+
 - Complete manual-main specification-first acceptance under LN-GOV-056 and qualify the canonical-prepared Core-intake version candidate on its exact current head. PR143 and the actual main Pages gate passed; pending lanes remain holds. This bounded recovery grants no wider canonical-preparation opt-in or publication authority.
 
 - Qualify a genuine current-head completion wake-up under LN-GOV-055 after source adoption; retain every failing or pending product lane as a hold.

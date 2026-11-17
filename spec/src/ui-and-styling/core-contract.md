@@ -1,5 +1,20 @@
 # UI and Styling / Retained UI contracts
 
+Source package versions only; publication and host adoption remain separate.
+
+<!-- notes-release-versions:start -->
+
+```json
+{
+  "schemaVersion": 1,
+  "packages": {
+    "@lapis-notes/ui": "0.2.2"
+  }
+}
+```
+
+<!-- notes-release-versions:end -->
+
 Prepared UI `0.2.2` records the accepted Core `^0.13.4` patch intake; API
 `0.6.7` admits it through UI peer floor `^0.2.2`. Existing peer compatibility,
 Core paint authority, public CSS exports and alias-only theme remain intact.

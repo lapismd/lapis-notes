@@ -1,5 +1,11 @@
 # Specification Governance / Protected change mapping
 
+Public version preparation carries bounded source facts under LN-PKG-197–198.
+Its helper remains mapped to Architecture, Packages and this chapter. Actual
+package ownership and this repository's spec-first map determine which pages
+receive version facts; unknown or ambiguous coverage remains an error. This is
+canonical preparation in the candidate, without a main specification exemption.
+
 Generated version-PR authority maps to LN-GOV-054 and retains the release
 boundary under LN-PKG-130. Scope/authentication regressions qualify that job;
 they do not replace publication or candidate acceptance.
