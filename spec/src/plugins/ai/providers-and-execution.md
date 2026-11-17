@@ -1,11 +1,5 @@
 # AI Plugin / Providers and execution
 
-## LN-AI-001 — @lapis-notes/ai: live at packages/ai in the sibling lapis-plugins
-
-<a id="ln-ai-001"></a>
-
-**Requirement.** `@lapis-notes/ai` MUST live at `packages/ai` in the sibling `lapis-plugins` repository, use runtime ID `ai`, remain available for static composition or registry installation, and remain user-disableable.
-
 ## LN-AI-002 — AgentRuntime execution boundary
 
 <a id="ln-ai-002"></a>
@@ -17,18 +11,6 @@
 <a id="ln-ai-010"></a>
 
 **Requirement.** The plugin MUST register a movable `ai` chat view and an opening command. The panel MUST compose public Design Core chat primitives and MUST fill the owning `WorkspaceViewHost`.
-
-## LN-AI-098 — When the selected runtime is not Fake: show an unavailable message that tells
-
-<a id="ln-ai-098"></a>
-
-**Requirement.** When the selected runtime is not Fake and no agent-runtime host is connected, chat MUST show an unavailable message that tells the user to start the local agent server and set its URL, port, and token. An explicit Fake session MUST NOT show that message.
-
-## LN-AI-011 — Host requirement for live runtimes
-
-<a id="ln-ai-011"></a>
-
-**Requirement.** Live process-backed runtimes MUST require an `agent-runtime` host. That host MAY be desktop IPC or a configured WebSocket. Without a host, web and Storybook MUST stay on Fake and MAY show an unavailable state.
 
 ## LN-AI-013 — Model listing and auth status: use ModelProvider, not AgentRuntime. An external runtime
 
@@ -42,12 +24,6 @@
 
 **Requirement.** Production presentation MUST use native CSS, public Design Core or `--ui-ai-*` tokens, and `data-ui-component` hosts. It MUST NOT use Tailwind utility strings.
 
-## LN-AI-019 — Compatibility Codex ModelProvider: list models through a leftover process host
-
-<a id="ln-ai-019"></a>
-
-**Requirement.** A compatibility Codex `ModelProvider` MAY list models through a leftover process host and MUST stay off `AgentRuntime`. When unavailable it MUST return an empty catalog without renderer spawn. First-party listing MUST use the shared controller client.
-
 ## LN-AI-022 — Composer: expose model and thinking controls. Model options
 
 <a id="ln-ai-022"></a>
@@ -60,29 +36,11 @@
 
 **Requirement.** The composer MUST present Effort and Model in an icon-only brain popover. Those fields MUST NOT remain as always-visible footer selects.
 
-## LN-AI-032 — Root @lapis-notes/ai export: publish contracts, Fake, the chat panel,
-
-<a id="ln-ai-032"></a>
-
-**Requirement.** The root `@lapis-notes/ai` export MUST publish contracts, Fake, the chat panel, and the plugin entry. ACP and native Codex adapters MUST be published only on `@lapis-notes/ai/runtimes`.
-
 ## LN-AI-034 — Fail-closed live-runtime selection
 
 <a id="ln-ai-034"></a>
 
 **Requirement.** When settings pin a live runtime that is missing or that `supports()` rejects, selection MUST throw and MUST NOT silently return Fake. Auto selection MAY use Fake when no live runtime supports the request.
-
-## LN-AI-036 — AI package dependency boundaries
-
-<a id="ln-ai-036"></a>
-
-**Requirement.** `@lapis-notes/ai` MUST NOT declare an acpx or `@lapismd/ai-host` dependency. Sibling `@lapismd/ai-host` MUST own acpx for the executor.
-
-## LN-AI-037 — Compatibility AcpAgentRuntime: forward model and thinking to a leftover
-
-<a id="ln-ai-037"></a>
-
-**Requirement.** Compatibility `AcpAgentRuntime` MAY forward model and thinking to a leftover ACP host. First-party `ControllerAgentRuntime` MUST pass those values through shared-controller thread configuration without exposing acpx types.
 
 ## LN-AI-040 — Chat: send AgentRequest.model.provider as the selected ACP agent
 
@@ -95,30 +53,6 @@
 <a id="ln-ai-041"></a>
 
 **Requirement.** The ACP adapter MUST forward the selected agent on desktop start. The host MUST pass that name to acpx `ensureSession` without exposing acpx types to the plugin.
-
-## LN-AI-044 — Compatibility ACP command adapters
-
-<a id="ln-ai-044"></a>
-
-**Requirement.** Compatibility adapters MAY keep `desktop_agent_acp_*` commands. First-party plugin code MUST use the shared controller client and MUST NOT add a second live execution protocol.
-
-## LN-AI-046 — Explicit Live Host Storybook lane
-
-<a id="ln-ai-046"></a>
-
-**Requirement.** `Plugins/AI/Live Host` MUST be the only live Storybook lane. It MUST use the attached controller when URL and token are set. It MUST NOT run a Fake send/complete play. When attach is missing, it MUST show setup copy and MUST NOT start a live session.
-
-### Acceptance details
-
-The Live Host story verifies:
-
-- Missing URL or token shows setup copy and does not boot an ACP workspace.
-- Configured URL and token boot the real AI workspace with `defaultRuntime` `acp`.
-- The story play never types or sends a prompt.
-
-The ReloadResume play seeds the shared `lapis-ai-story:` storage key with
-portable `.lapis/agents` files, remounts, and asserts transcript, agent
-divider, and usage before any live resume. It never sends a prompt.
 
 ## LN-AI-047 — AI views, controllers, and runtime selection: use the App owned by their plugin
 
@@ -205,12 +139,6 @@ The catalog command view verifies:
 <a id="ln-ai-195"></a>
 
 **Requirement.** When a session advertises model or thinking configuration, AI MUST configure and verify the active native session without switching bindings. Unsupported, failed, or unverifiable configuration MUST use a replacement binding and full handoff, while recording no successful configuration audit entry.
-
-## LN-AI-170 — Public AI renderer entry: remain browser and WebView bundleable. Its optional
-
-<a id="ln-ai-170"></a>
-
-**Requirement.** The public AI renderer entry MUST remain browser and WebView bundleable. Its optional Node user-agents store MUST load only through a runtime-gated dynamic boundary and MUST NOT add `node:*` modules to a renderer bundle.
 
 ## LN-AI-106 — Abort behavior during an active turn
 

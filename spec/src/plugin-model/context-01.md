@@ -105,7 +105,7 @@ processable metadata file (LN-DB-035, LN-PLUG-030).
 
 - History folder counts share one trailing edge across depths (LN-AI-169).
 
-- The public AI renderer entry keeps optional Node user-agent storage outside browser and WebView bundles (LN-AI-170).
+- The retired shared AI renderer and its optional Node user-agent store are historical. Desktop uses its admitted native user-command store; current renderer ownership remains with Desktop.
 
 - Permission and question option buttons use the public `feedback-option` part (LN-AI-157).
 
