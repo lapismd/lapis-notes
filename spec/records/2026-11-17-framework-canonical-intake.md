@@ -35,3 +35,31 @@ afterward, including repeated preparation; source adoption uses that repaired
 renderer. Hosted deployment and the next genuine generated update remain
 separate gates. No package version, dependency, release intent, frozen Deno
 host, application implementation or audit policy changes in this slice.
+
+## Current-main requalification after the November17 retirement changes
+
+The adoption is rebased onto af645ddb8d7c01230a212a1cac48fe054f5a5974. Conflict
+resolution retains the newer retired-AI tooling/catalog gates and removes no
+current functional check. The independent functional-lane regression exposed
+one missing router entry during resolution; restoring its real command yields
+26/26 focused cases and222/222 current release-tool cases. Ordinary root check
+passes16/16 tasks; complete specification and exact main-range spec-first pass.
+The generated-only Deno link-index refresh is discarded, retaining its original
+bytes. Existing unrelated PR163/164 and frozen-host contracts are untouched.
+
+The original PR155 Cloudflare failure was dynamic-plugin `Failed to fetch`.
+Current main's production PWA run44178888714 succeeds, including the exact
+validation/web-cloudflare job134379400807 and production smoke. Its immutable
+artifact14370034889 is independently downloaded and ZIP digest verified as
+SHA2561aa00e973ed92cf423b9e602ee7702821860b041b5d653245126b008ea8f4b48;
+`version.json` binds af645ddb. A cold replay on the host passes plugin install
+but fails later offline sync readiness. That failed host attempt is retained
+in the handoff; no timeout or assertion is relaxed.
+
+The exact same artifact and source-owned smoke commands pass cold in the pinned
+CI container ghcr.io/lapismd/lapis-ci@sha256:91341a81cc9306eed818c4c433cd29ed11d2ea64c703f32685391befe0eca503,
+with a fresh disposable browser/context/storage, no user profile or credentials
+and no Linux capabilities. The successful receipt confirms isolation, browser
+vault, search, verified plugin offline, offline reopen, appearance, oversized
+WASM and prompt-update acceptance. New hosted candidate CI remains required;
+this proof does not republish a package or waive any source/main gate.
