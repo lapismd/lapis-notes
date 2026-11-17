@@ -1,5 +1,12 @@
 # Packages / App and services
 
+The next App Profile patch intake selects released Markdown `^0.3.3`, Search
+`^0.1.13`, Source Editor `^0.1.12`, Agent UI `^0.2.8` and History `^0.5.1`
+through registry dependencies. LN-PKG-132's plugin identities, explicit App,
+session readiness and optional native service contracts stay unchanged.
+[Source and release acceptance](../../records/2026-11-17-profile-bot-dependency-intake.md)
+remain distinct from the earlier Profile publications below and host adoption.
+
 ## LN-PKG-194 — Bounded vault startup operation diagnostics
 
 <a id="ln-pkg-194"></a>

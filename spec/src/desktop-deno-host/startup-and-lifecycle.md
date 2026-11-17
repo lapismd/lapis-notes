@@ -216,4 +216,9 @@ The renderer host resolves Design Core through `^0.8.0` so its build-owned plugi
 
 Notebook module admission MUST include its declared Markdown and CodeMirror Markdown entries. Producer bundles use the admitted versioned Svelte renderer namespace; host resolution MUST retain one shared runtime during development optimization and production builds. Unknown modules and renderer-version mismatches MUST fail closed. This changes no native Deno service capability.
 
-The public App Profile now consumes History `^0.5.0`. This dependency-only intake changes no frozen Deno bootstrap, service or writer contract; current native Desktop and Server adoption remain host-owned. [History 0.5 intake](../../records/2026-11-15-profile-history-050-intake.md) retains separate qualification and release gates.
+The next public App Profile patch selects History `^0.5.1` with its reviewed
+published plugin cohort. This dependency-only intake changes no frozen Deno
+bootstrap, service or writer contract; current native Desktop and Server
+adoption remain host-owned. [Current intake](../../records/2026-11-17-profile-bot-dependency-intake.md)
+and the earlier [History 0.5 intake](../../records/2026-11-15-profile-history-050-intake.md)
+retain separate source, release and installed-host gates.
