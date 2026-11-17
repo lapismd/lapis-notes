@@ -5,6 +5,11 @@ installation or builds. CI selects the post-removal immutable source and its
 explicit native runner inside the already provisioned container. Missing or
 rejecting source checks remain fatal; production release gates are unchanged.
 
+LN-PKG-200's independent Core fact verifier runs through
+`check:dependency-intake` before ordinary checks and as a canonical functional
+lane. Trusted bot specification exemptions retain this lane; main-range
+specification-first and all release gates remain required. Source-owned
+workspace preparation updates factual slots only and grants no new exemption.
 LN-CAT-123 extends the retired-AI tooling lane to reject shared catalog sources,
 bridges, dependencies and attachment inputs. The obsolete shared-AI state-matrix
 audit is retired with its catalog; all surviving shell, geometry, ownership,

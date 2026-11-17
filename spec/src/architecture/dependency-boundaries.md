@@ -1,11 +1,25 @@
 # Architecture / Dependency boundaries
 
-Current framework dependency intake selects published Design Core `0.13.5`.
-API, retained UI, Workspace and Web require `^0.13.5`; the separate App Profile
-minimum remains `^0.13.4`. Root tooling and File Explorer resolve the same
-registry identity within their existing ranges. Public exports, App ownership
-and host lifecycle remain governed by this chapter; qualification is recorded
-in [the Core intake receipt](../../records/2026-11-17-core-0135-intake.md).
+<!-- dependency-intake:framework-registry:start -->
+
+Current registry dependency coordinates; qualification remains separate.
+
+<!-- prettier-ignore -->
+| Manifest | Dependency | Range | Locked version |
+| --- | --- | --- | --- |
+| `package.json` (devDependencies) | `@lapismd/design-core` | `^0.13.3` | `0.13.5` |
+| `packages/api/package.json` (dependencies) | `@lapismd/design-core` | `^0.13.5` | `0.13.5` |
+| `packages/api/package.json` (peerDependencies) | `@lapismd/design-core` | `^0.8.0 \|\| ^0.9.0 \|\| ^0.10.0 \|\| ^0.12.0 \|\| ^0.13.0` | Peer support |
+| `packages/app-profile/package.json` (dependencies) | `@lapismd/design-core` | `^0.13.4` | `0.13.5` |
+| `packages/file-explorer/package.json` (dependencies) | `@lapismd/design-core` | `^0.7.0 \|\| ^0.8.0 \|\| ^0.9.0 \|\| ^0.10.0 \|\| ^0.12.0 \|\| ^0.13.0` | `0.13.5` |
+| `packages/ui/package.json` (dependencies) | `@lapismd/design-core` | `^0.13.5` | `0.13.5` |
+| `packages/ui/package.json` (peerDependencies) | `@lapismd/design-core` | `^0.7.0 \|\| ^0.8.0 \|\| ^0.9.0 \|\| ^0.10.0 \|\| ^0.12.0 \|\| ^0.13.0` | Peer support |
+| `packages/web/package.json` (dependencies) | `@lapismd/design-core` | `^0.13.5` | `0.13.5` |
+| `packages/workspace/package.json` (dependencies) | `@lapismd/design-core` | `^0.13.5` | `0.13.5` |
+
+Manifest, peer and integrity facts SHA256: `35e60bb469dae77bc62c6745ef994173b1e1cd71e8c6c18fbe4c28782c62b39e`.
+
+<!-- dependency-intake:framework-registry:end -->
 
 The prepared next App Profile patch requires registry Design Core `^0.13.4`.
 This repairs its retained runtime minimum after the lock already selected0.13.4;

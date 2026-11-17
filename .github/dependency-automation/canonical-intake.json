@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 2,
+  "kind": "workspace-dependency-intake",
+  "repository": "lapismd/lapis-notes",
+  "slot": "framework-registry",
+  "dependencies": ["@lapismd/design-core"],
+  "manifests": [
+    "package.json",
+    "packages/api/package.json",
+    "packages/app-profile/package.json",
+    "packages/file-explorer/package.json",
+    "packages/ui/package.json",
+    "packages/web/package.json",
+    "packages/workspace/package.json"
+  ],
+  "chapters": [
+    "spec/src/architecture/dependency-boundaries.md",
+    "spec/src/packages/app-and-services.md",
+    "spec/src/plugin-model/application-services.md",
+    "spec/src/server-node-host/core-contract.md",
+    "spec/src/ui-and-styling/core-contract.md",
+    "spec/src/web-host/startup-and-plugins.md",
+    "spec/src/workspace-shell/catalog-acceptance.md"
+  ],
+  "lockClosure": "registry-transitives"
+}

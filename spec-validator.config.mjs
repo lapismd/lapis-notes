@@ -121,6 +121,15 @@ export default defineConfig(headingRequirements(), {
       ],
       rules: [
         {
+          pattern:
+            "^(?:scripts/dependency-automation/|\\.github/dependency-automation/)",
+          chapters: [
+            "spec/src/packages/release-canonical-intake.md",
+            "spec/src/architecture/dependency-boundaries.md",
+            "spec/src/spec-governance/validation-and-ci.md",
+          ],
+        },
+        {
           pattern: "^scripts/(?:validation/|validation-install\\.test\\.mjs$)",
           chapterPatterns: [
             "^spec/src/architecture/build-and-validation\\.md$",
@@ -404,6 +413,11 @@ export default defineConfig(headingRequirements(), {
   ],
   check: {
     lanes: [
+      {
+        name: "canonical-dependency-intake",
+        command: "pnpm",
+        args: ["check:dependency-intake"],
+      },
       {
         name: "specification-docs",
         command: "pnpm",
