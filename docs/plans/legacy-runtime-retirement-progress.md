@@ -464,3 +464,41 @@ complete native installed-data/disablement/Safe Mode/cold acceptance and the
 remaining caller-aware contract ownership audit; obtain npm deprecation approval
 before applying the prepared message. Host/API retirement follows this removal;
 terminal ownership migration/retirement remains last.
+
+## Registry production landing and stale-consumer finding
+
+The user separately approved merge and production deployment of Registry #181
+at `36bd61e3488b4282d903a2004062ef36817f42c9`. It merged at
+`42903595b7ea78194d47635319dfa0f5046ab5bb`. Exact-main Checks `44161464343`,
+Publish registry `44161464626`, publication preparation `44161464641` and its
+qualified-candidate workflow `44161584703` all passed. This approval does not
+publish npm packages or deploy the separate website.
+
+Live index and AI detail metadata both verify against the pinned registry trust
+root and report disabled. All nine indexed AI versions reject saved GET and HEAD
+links with HTTP 404 and no redirect. The production Playwright target
+`tests/registry-versions.spec.ts` / `retired shared AI keeps history but cannot
+install any retained version` passes (1/1). Historical versions/artifacts remain.
+
+Actual Notes installer inspection found an additional stale-consumer path:
+`VerifiedPluginInstaller.install()` falls back to the preserved signed artifact
+origin after any download-endpoint failure except cancellation or HTTP 410.
+The manager blocks a fresh disabled index, but a stale active index can bypass
+an endpoint's 404 through that fallback. Do not count saved-link rejection alone
+as complete stale-cache/direct-API acceptance.
+
+Proposed registry-owned fix: respond HTTP 410 Gone for intentionally disabled
+releases before origin fetch or analytics writes. Existing Notes handling already
+stops fallback on 410, so this needs no new consumer package release. Active,
+pending, unknown and revoked endpoint behavior stays as before; user data and
+historical artifacts stay intact. The exact registry target starts 15/15 green;
+the new 410 regression reproduces 1 failure with 14 existing cases passing.
+Source implementation awaits the user's explicit public API confirmation under
+their saved standing rule; that question is pending. Registry task workspace
+contains only the deliberately failing regression at this checkpoint.
+
+Notes #158 still awaits its last hosted web-acceptance job; all other enabled
+jobs pass and inherited interaction CI remains explicitly skipped. Its local
+complete 239-case interaction/axe receipt remains separate evidence. Resume by
+observing that run and the pending public API decision, then finish shared-AI
+consumer/native/contracts/npm gates before host/API retirement. Terminal is last.
