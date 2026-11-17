@@ -1,5 +1,20 @@
 # Workspace Shell / View lifecycle
 
+Source package versions only; publication and host adoption remain separate.
+
+<!-- notes-release-versions:start -->
+
+```json
+{
+  "schemaVersion": 1,
+  "packages": {
+    "@lapis-notes/workspace": "0.4.7"
+  }
+}
+```
+
+<!-- notes-release-versions:end -->
+
 Registry loading review holds the metadata transport while starting the real workspace controller, so LN-PLUG-125 skeletons render within the production Plugins view.
 
 The shared conflict review retains its layout-only close scope. Explicit disk acceptance resolves through the captured writer, preserving external deletion and clearing only the resolved review and diagnostic.

@@ -1,5 +1,20 @@
 # Explorer Plugin
 
+Source package versions only; publication and host adoption remain separate.
+
+<!-- notes-release-versions:start -->
+
+```json
+{
+  "schemaVersion": 1,
+  "packages": {
+    "@lapis-notes/file-explorer": "0.2.8"
+  }
+}
+```
+
+<!-- notes-release-versions:end -->
+
 The public-profile cohort retains Explorer registration through its built package. Skill byte guards remain a storage concern and do not change Explorer file creation, navigation or view ownership.
 
 File Explorer admits released Design Core 0.13.0 through its portable range.

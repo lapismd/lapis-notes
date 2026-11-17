@@ -80,5 +80,27 @@
 | LN-PKG-193 | [packages](../packages/app-and-services.md#ln-pkg-193) | Implemented | [Recoverable leave evidence](../../records/2026-11-15-native-sync-transport-detachment.md): exact missing-capability 0/1 becomes 1/1; all 18 Sync and nine shared App Profile lifecycle cases pass, plus complete source checks, 2,290 package cases, build, spec and 288 cold interaction/axe cases. Queued apply drains before writer-guard entry; overlapping preparation refuses, same leases/observations survive refusal, stale release and disposal cannot revive admission. Desktop consumer/native qualification remains separate. |
 | LN-PKG-195 | [packages](../packages/registry-readiness.md#ln-pkg-195) | Implemented | [Original source evidence](../../records/2026-11-16-installation-readiness.md): three exact regressions,20 verifier/170 release cases and real consumer acceptance; PR144 is deployed. Shared implementation adoption preserves these controls under LN-PKG-196. |
 | LN-PKG-196 | [packages](../packages/registry-readiness.md#ln-pkg-196) | In progress | [Shared-source adoption](../../records/2026-11-16-shared-registry-readiness.md):24 verifier/174 release controls,2194 package units, full source lanes and real retained Vite/import/CSS acceptance pass. Delegation and strict Turbo wiring each fail then pass. Hosted adoption and genuine production verification remain open. |
+| LN-PKG-197 | [packages](../packages/release-canonical-intake.md#ln-pkg-197) | In progress | [Current source versions](#source-version-evidence) retain factual evidence without asserting publication. [Source qualification](../../records/2026-11-17-canonical-version-preparation.md): exact recipe1→0 failures,26 focused cases and Profile main-range4→0 missing mappings; hosted regeneration pending. |
+| LN-PKG-198 | [packages](../packages/release-canonical-intake.md#ln-pkg-198) | In progress | [Bounded version edits](../../records/2026-11-17-canonical-version-preparation.md) prove no-write checks, preservation, idempotence and malformed/oversized/symlink/map rejection before edits; wider qualification retained separately. |
 
 User-file watch and targeted app-configuration isolation is under source and consumer qualification; see spec/records/2026-11-11-user-file-watch-scope.md.
+
+## Source version evidence
+
+<!-- notes-release-versions:start -->
+
+```json
+{
+  "schemaVersion": 1,
+  "packages": {
+    "@lapis-notes/api": "0.6.7",
+    "@lapis-notes/app-profile": "0.2.3",
+    "@lapis-notes/file-explorer": "0.2.8",
+    "@lapis-notes/language-service": "0.1.6",
+    "@lapis-notes/ui": "0.2.2",
+    "@lapis-notes/workspace": "0.4.7"
+  }
+}
+```
+
+<!-- notes-release-versions:end -->

@@ -1,5 +1,20 @@
 # Lapis Editor Demo / Editor scenarios / Part 1
 
+Source package versions only; publication and host adoption remain separate.
+
+<!-- notes-release-versions:start -->
+
+```json
+{
+  "schemaVersion": 1,
+  "packages": {
+    "@lapis-notes/file-explorer": "0.2.8"
+  }
+}
+```
+
+<!-- notes-release-versions:end -->
+
 Editor-demo acceptance uses the released Design Core 0.13.0 identity shared by
 File Explorer, API, UI and Workspace. Mobile mode changes retain the selected
 editor while App-owned actions preserve vault and command ownership.

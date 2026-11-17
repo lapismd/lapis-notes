@@ -1,5 +1,22 @@
 # Plugin Model / Application services
 
+Source package versions only; publication and host adoption remain separate.
+
+<!-- notes-release-versions:start -->
+
+```json
+{
+  "schemaVersion": 1,
+  "packages": {
+    "@lapis-notes/app-profile": "0.2.3",
+    "@lapis-notes/file-explorer": "0.2.8",
+    "@lapis-notes/workspace": "0.4.7"
+  }
+}
+```
+
+<!-- notes-release-versions:end -->
+
 The prepared API `0.6.7` release stamps its existing generated public host-module
 inventory with that package version. The module names, export declarations and
 plugin/native authority contracts are unchanged. UI `0.2.2` and Workspace

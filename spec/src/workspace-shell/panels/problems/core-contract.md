@@ -1,7 +1,21 @@
 # Problems / Integration contracts
 
-The published profile retains the App-owned diagnostic bridge and Problems panel. Registry-cohort intake and optional skill byte guards introduce no diagnostic collector, panel-state owner or presentation change.
+Source package versions only; publication and host adoption remain separate.
 
+<!-- notes-release-versions:start -->
+
+```json
+{
+  "schemaVersion": 1,
+  "packages": {
+    "@lapis-notes/language-service": "0.1.6"
+  }
+}
+```
+
+<!-- notes-release-versions:end -->
+
+The published profile retains the App-owned diagnostic bridge and Problems panel. Registry-cohort intake and optional skill byte guards introduce no diagnostic collector, panel-state owner or presentation change.
 
 LN-WS-005/063 foreground file reveal retains Problems and its original owner
 while selecting a note tab. LN-WS-025 diagnostic collections, navigation

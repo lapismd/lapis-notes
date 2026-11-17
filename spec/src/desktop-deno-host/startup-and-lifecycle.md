@@ -1,5 +1,21 @@
 # Deno Desktop Host / Startup and lifecycle
 
+Source package versions only; publication and host adoption remain separate.
+
+<!-- notes-release-versions:start -->
+
+```json
+{
+  "schemaVersion": 1,
+  "packages": {
+    "@lapis-notes/app-profile": "0.2.3",
+    "@lapis-notes/language-service": "0.1.6"
+  }
+}
+```
+
+<!-- notes-release-versions:end -->
+
 Shared Profile vault-operation diagnostics follow LN-PKG-194. This adds no
 Deno runtime, tooling or frozen-host behavior change.
 
