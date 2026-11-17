@@ -67,7 +67,7 @@ test("local test entry points use bounded Turbo tasks without raw-script recursi
     "release:test",
     "test:spec-validation",
     "test:local-plugin-consumer",
-    "test:ai:smoke-harness",
+    "test:retired-ai-tooling",
   ])
     assert.notEqual(config.tasks[`//#${name}:run`].cache, false, name);
   for (const name of [

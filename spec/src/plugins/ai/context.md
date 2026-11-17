@@ -175,14 +175,13 @@ Deno native bindings or standalone ai-host WebSocket (live) or Fake (tests)
 
 - Catalog reuses or creates its documented left-sidebar leaf.
 
-- Each explicit paid-agent probe exercises the real stdio shim with a volatile note vault: search, read, one approved patch, binding close, agent switch, and the same descriptor set on the replacement binding.
-
-- The deterministic seed and reset-confinement tests remain free of agent execution and network cost.
+Notes-owned paid-agent probes, controller launchers and deterministic workspace
+seeding are retired under LN-CAT-122. Their removed coverage does not qualify
+the active native AI or the preserved standalone controller.
 
 - `AiChatPanel`, `AiHistoryPanel`, and `AiCatalogPanel` are public presentation exports used by Autodocs, while the six-position stories still construct them through the real AI plugin.
 
 - Selecting the deterministic Fake runtime suppresses desktop-host unavailability because no live transport is required.
 
-For LN-AI-082, real-provider smoke setup MUST omit an optional thinking setting
-when the provider catalog does not advertise that setting and value. An explicit
-unsupported-setting regression remains separate from a successful task probe.
+LN-AI-082 remains an implementation contract for provider capability handling;
+retirement of Notes-owned probes supplies no new provider acceptance evidence.

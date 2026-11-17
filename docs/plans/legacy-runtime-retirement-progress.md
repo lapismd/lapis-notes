@@ -46,17 +46,17 @@ readiness and the retirement entry; the original plan workspace is unchanged.
 
 ## Removal 1: shared AI plugin — in progress
 
-| Substep                                                       | Status                  | Evidence / remaining boundary                                                                          |
-| ------------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------ |
-| Refresh current registration and release entrypoints          | Verified source         | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller      |
-| Reject retired publication and metadata selectors             | Source committed        | Plugins `ukmnqynp` / `8fd08403`; 241 release tests and full artifact qualification                     |
-| Disable mutable registry source and block reactivation        | Source committed        | Registry `qvlolmsk` / `e0136ede`; 146 tests, 26 cold browser cases; signing/publication pending        |
-| Remove shared implementation, package and media catalogs      | Source committed/pushed | Plugins `yttxpspt` / `035d65c8`; 410 interactions, 1,022 package tests; source and artifacts qualified |
-| Remove Notes duplicate stories/controller probes/dependencies | Pending                 | Keep API `ai-host/file-tools` and app-profile native chat                                              |
-| Preserve installed-data/native lifecycle                      | Pending                 | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                 |
-| Update Website and organization metadata                      | Pending                 | Bundled/native AI guidance and source provenance                                                       |
-| Complete source/public-package/consumer gates                 | Partially qualified     | Plugins source/artifact/catalog gates pass; Notes consumer and actual native/data gates remain pending |
-| npm deprecation, signed registry publication and deployment   | Pending release gates   | No unpublish or installed-app replacement                                                              |
+| Substep                                                       | Status                     | Evidence / remaining boundary                                                                          |
+| ------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Refresh current registration and release entrypoints          | Verified source            | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller      |
+| Reject retired publication and metadata selectors             | Source committed           | Plugins `ukmnqynp` / `8fd08403`; 241 release tests and full artifact qualification                     |
+| Disable mutable registry source and block reactivation        | Source committed           | Registry `qvlolmsk` / `e0136ede`; 146 tests, 26 cold browser cases; signing/publication pending        |
+| Remove shared implementation, package and media catalogs      | Source committed/pushed    | Plugins `yttxpspt` / `035d65c8`; 410 interactions, 1,022 package tests; source and artifacts qualified |
+| Remove Notes duplicate stories/controller probes/dependencies | Partially source-qualified | Keep API `ai-host/file-tools` and app-profile native chat                                              |
+| Preserve installed-data/native lifecycle                      | Pending                    | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                 |
+| Update Website and organization metadata                      | Pending                    | Bundled/native AI guidance and source provenance                                                       |
+| Complete source/public-package/consumer gates                 | Partially qualified        | Plugins source/artifact/catalog gates pass; Notes consumer and actual native/data gates remain pending |
+| npm deprecation, signed registry publication and deployment   | Pending release gates      | No unpublish or installed-app replacement                                                              |
 
 ## Later removals — pending
 
@@ -244,3 +244,73 @@ and packed-package JSON receipts. The source working copy is clean. No merge,
 npm deprecation/publication, signed-registry update, deployment or installed-app
 replacement occurred. Notes duplicate code/probes, native/data acceptance and
 Website/organization guidance remain pending as listed above.
+
+## Launcher removal and hosted landing checkpoint
+
+Notes removes its retired shared-AI controller/probe commands, workspace seeder
+and owning fixtures. LN-CAT-122 enforces their absence in normal/spec checks and
+the replacement CI lane. Exact regression: 1 initial failure becomes 2 passes;
+with routing, 3 pass. Registry-only Docker spec checks pass with 69 tests; all
+77 validation-tooling and 199 release-tooling cases pass. See
+[the source record](../../spec/records/2026-11-17-retired-ai-tooling.md).
+Duplicate AI catalogs, preview bridge and package/archive dependencies remain
+the next source boundary; this does not close native/data or release gates.
+
+Prepared PRs: [Plugins safeguard #154](https://github.com/lapismd/lapis-plugins/pull/154),
+[Plugins removal #155](https://github.com/lapismd/lapis-plugins/pull/155),
+[Notes coordination #156](https://github.com/lapismd/lapis-notes/pull/156),
+and [registry draft #181](https://github.com/lapismd/plugin-registry/pull/181).
+Merges are authorized; required hosted checks still govern each landing.
+
+Both Plugins PRs initially fail only the root audit after the Picomatch advisory
+GHSA-fc5q-39xc-vjpf expanded to all published versions. Unchanged main reproduces
+it and npm has no patched release. The user explicitly approved a documented
+temporary exception for this advisory. Plugins records CVE-2026-112366 in root
+and independent Sync tooling, preserving audit execution and all other findings.
+Both audits and 19 audit/workflow regressions pass; Docker spec checks pass.
+The safeguard head is now `d84dc813`; removal rebases without conflicts to
+`886de049`. Its only tree difference from the previously qualified removal is
+the five exception/configuration/record files. Full hosted checks are rerunning.
+
+Registry CI regenerates mutable metadata and correctly fails its existing
+signature checks until the protected signing refresh. No generated metadata or
+signature has been hand-edited, and no signing/deployment approval is inferred.
+Organization active listings are being updated separately; Website remains
+pending. Terminal migration remains the final removal after other changes land.
+
+### Landed coordination and organization metadata
+
+[Notes coordination #156](https://github.com/lapismd/lapis-notes/pull/156) merged
+as `31b13657817d1dc49b25d4b7ae12303a28025637` after all enabled required checks
+passed. Its existing Storybook browser quarantine remains explicitly skipped.
+[Organization profile #15](https://github.com/lapismd/.github/pull/15) merged as
+`5f81879fc49091c17b16a1f7bb7be3d1dc7dca0b`; both PR and exact-main updater CI
+pass. The generated package list excludes shared AI and preserves standalone
+controller listings. Concurrent profile version updates were preserved when
+resolving its rebase conflict.
+
+[Notes launcher removal #157](https://github.com/lapismd/lapis-notes/pull/157) is
+committed and pushed (`c771f8a5`, receipt formatting `7787a642`), now targeting
+main. The first hosted event captured the old stacked base, which GitHub deleted
+after #156 merged. Its specification-first job correctly rejects that missing
+ref. This checkpoint triggers a fresh event against main; no gate or baseline
+is changed, and the failed event remains evidence. Final receipt JSON required
+one whitespace-only formatting commit; checks pass afterward.
+
+Desktop source refresh confirms `notes-bundled-plugins.ts` chooses one owned AI
+implementation and rejects simultaneous renderer/native owners. The API rejects
+loading an installed copy of an already static identity before evaluation.
+Desktop `aiEnabledByDefault` reads saved app-shell/installed disablement without
+writing those files. Its LD-PLUG-001 verification is still **Planned** and its
+AI-qualification backlog retains the actual product gate: these inspections do
+not prove old-external/native coexistence, saved-data or cold native acceptance.
+No Desktop code or existing qualification status changed.
+
+The next Notes source boundary includes shared panel fixture registrations,
+WorkspaceShellDemo, catalog/parity mappings, the manual preview bridge and its
+URL/token optimizer/cache inputs, local archive requirements and root package
+dependencies. Preserve the PWA security tests and API file-tools. The old direct
+controller dependency-security test must be assessed with its removed caller;
+it must not retain that root dependency merely to test an unused import.
+Website snapshots/media and the AI help route still promote the retired package
+and need a provenance-aware refresh. Terminal work remains last.

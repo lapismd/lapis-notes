@@ -1,5 +1,11 @@
 # Specification Governance / Validation and CI
 
+LN-CAT-122 replaces CI's obsolete shared-AI smoke fixture lane with the
+retired-launcher regression. Normal and canonical checks also enforce the source
+audit through the existing validation router. The lane never starts a provider,
+resets a workspace or treats the retained manual catalog bridge as native
+acceptance. Other required checks and existing quarantine boundaries remain.
+
 ## LN-GOV-056 — Exact-range main specification gate
 
 <a id="ln-gov-056"></a>

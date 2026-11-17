@@ -51,9 +51,10 @@ metadata-only mirror and SUMMARY order. Adding them does not change production
 stories or their interaction/visual gates.
 
 The optional development controller metadata bridge now lives in
-`scripts/lib/controller-connection-bridge.ts`, shared by catalog preview and
-live acceptance fixtures. It is excluded from the Web product; default stories
-remain Fake and no controller sidecar is started.
+`scripts/lib/controller-connection-bridge.ts` for manual catalog attachment.
+The retired shared-AI launchers, paid-agent probes and workspace seeder are
+removed under LN-CAT-122. The bridge remains excluded from the Web product;
+default stories remain Fake and no controller sidecar is started.
 
 Plugins app-link stories demonstrate the public App URL registry and Workspace
 navigator under [LN-PLUG-106](../plugin-model/app-ownership.md#ln-plug-106).

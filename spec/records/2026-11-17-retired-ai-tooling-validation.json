@@ -1,0 +1,72 @@
+[
+  {
+    "lane": "test:retired-ai-tooling",
+    "run": "8a72e391-7ceb-4380-8f4a-962e8823c508",
+    "exitCode": 0,
+    "source": {
+      "schema": 1,
+      "nativeSources": [],
+      "revision": "6bea8beae98564edb3f2f3aeb83387016897814b",
+      "parents": ["9005d3381212df3cc07a0accbddd3dab15e14980"],
+      "fileCount": 2598,
+      "archives": [],
+      "packSha256": "d8efcd61fc3520ebe553a54cf790ba0ed84ba996460d0d8ff1ff8888c154f2e6"
+    }
+  },
+  {
+    "lane": "spec:check",
+    "run": "7869afc7-1787-40a1-9bb4-f24e67faf150",
+    "exitCode": 0,
+    "source": {
+      "schema": 1,
+      "nativeSources": [],
+      "revision": "a44498b50a9d7429bf3cdfb75f68181f3dd2423b",
+      "parents": ["9005d3381212df3cc07a0accbddd3dab15e14980"],
+      "fileCount": 2598,
+      "archives": [],
+      "packSha256": "4c65e572cfad160998274b8c207b80ff57b51dc8f7a918d1fc36ec8981b4f30a"
+    }
+  },
+  {
+    "lane": "validation:check",
+    "run": "d09c8ebf-f4ae-40b4-afdc-ee93616f60f9",
+    "exitCode": 0,
+    "source": {
+      "schema": 1,
+      "nativeSources": [],
+      "revision": "a44498b50a9d7429bf3cdfb75f68181f3dd2423b",
+      "parents": ["9005d3381212df3cc07a0accbddd3dab15e14980"],
+      "fileCount": 2598,
+      "archives": [],
+      "packSha256": "ba792f694eaa33ff7b474028aa9c6a85fe05f12d5c21735c6dc348033d6e11f6"
+    }
+  },
+  {
+    "lane": "release:test",
+    "run": "488b8ed9-e2cb-431e-b8ca-1e2b90b4efbc",
+    "exitCode": 0,
+    "source": {
+      "schema": 1,
+      "nativeSources": [],
+      "revision": "a44498b50a9d7429bf3cdfb75f68181f3dd2423b",
+      "parents": ["9005d3381212df3cc07a0accbddd3dab15e14980"],
+      "fileCount": 2598,
+      "archives": [],
+      "packSha256": "991424c2de34d51fd7ddb4d66167ed29954da82f66d282f19a516338b64520c0"
+    }
+  },
+  {
+    "lane": "spec:check (final evidence)",
+    "run": "edcf7da7-bf47-475b-8fb8-93e531c88817",
+    "exitCode": 0,
+    "source": {
+      "schema": 1,
+      "nativeSources": [],
+      "revision": "11f07a4ed7e2ff6e86b6918ec78205dc00a28fd5",
+      "parents": ["9005d3381212df3cc07a0accbddd3dab15e14980"],
+      "fileCount": 2600,
+      "archives": [],
+      "packSha256": "7bf08bbddfd53ba239be38e9e5e928a014847e438b0ee1498e3b06ff0f71c588"
+    }
+  }
+]
