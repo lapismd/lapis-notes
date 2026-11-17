@@ -85,17 +85,20 @@ Notes signed-fixture/Web slice and Desktop's current consumer checkpoint;
 independent workers own the following isolated prerequisites. None authorizes
 package publication, website deployment or native macOS execution.
 
-| Workstream                   | Workspace / JJ workspace name                                       | Status and integration boundary                                                                                                                               |
-| ---------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Desktop fixture admission    | `lapis-desktop-retirement-fixtures` / `retirement-fixtures`         | Guard install/build against retired source and advance only hosted Plugins input; retain Rust/native pins. E-RETIRE-003.                                      |
-| Native preservation coverage | `lapis-desktop-retirement-preservation` / `retirement-preservation` | Prepare production-boundary legacy-copy, disablement, Safe Mode and cold-reopen cases. Actual native execution remains unrun/pending. E-RETIRE-004.           |
-| Web icon input               | `lapis-notes-retirement-web-icons` / `retirement-web-icons`         | Remove frozen-host asset input with exact seven-output byte equivalence. Retain frozen host until owning removal; combined package gates pending. LN-WEB-093. |
+| Workstream                   | Workspace / JJ workspace name                                       | Status and integration boundary                                                                                                                                                                                                         |
+| ---------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Desktop fixture admission    | `lapis-desktop-retirement-fixtures` / `retirement-fixtures`         | Guard install/build against retired source and advance only hosted Plugins input; retain Rust/native pins. E-RETIRE-003.                                                                                                                |
+| Native preservation coverage | `lapis-desktop-retirement-preservation` / `retirement-preservation` | Prepare production-boundary legacy-copy, disablement, Safe Mode and cold-reopen cases. Actual native execution remains unrun/pending. E-RETIRE-004.                                                                                     |
+| Web icon input               | `lapis-notes-retirement-web-icons` / `retirement-web-icons`         | Remove frozen-host asset input with exact seven-output byte equivalence. Retain frozen host until owning removal; seven identical outputs, full Web checks/40 tests/build and integrated spec pass; hosted landing pending. LN-WEB-093. |
 
 Desktop checkpoint `351811a99485cf30c946641c8737200d903657ef` is pushed as
 [draft #47](https://github.com/lapismd/lapis-desktop/pull/47); required hosted
 workflow `44197829697` is running. Source qualification is recorded in immutable
 E-RETIRE-001. Its final qualification will append E-RETIRE-002, without rewriting
-the earlier pending receipt. Do not reuse older full CI artifacts after fixture
+the earlier pending receipt. Notes fixture source is pushed as [PR #165](https://github.com/lapismd/lapis-notes/pull/165).
+Desktop fixture admission is pushed as stacked [draft #48](https://github.com/lapismd/lapis-desktop/pull/48);
+29 directly affected Docker governance cases pass and its fresh artifact lane
+is being followed independently. Do not reuse older full CI artifacts after fixture
 source identity changes. Coordinate Docker browser/build lanes; a second runner
 in the same workspace correctly fails its exclusive lease instead of overlapping.
 

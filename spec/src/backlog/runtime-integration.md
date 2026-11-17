@@ -13,9 +13,11 @@ a failed gate and grants no blind rerun; frozen Deno packages remain excluded.
 
 ## Legacy runtime and package retirement
 
-LN-WEB-093 prepares an independent Web-owned raster icon input before frozen
-host removal. Cold regeneration proves all seven output hashes unchanged;
-complete package/canonical qualification remains pending in the [icon source receipt](../../records/2026-11-17-web-icon-input-retirement.md).
+LN-WEB-093 removes Web's frozen-host raster input with seven exact output
+hashes preserved. Full Web checks, 40 tests, build and integrated canonical
+qualification pass in the [integration receipt](../../records/2026-11-17-web-icon-input-integration.md);
+hosted landing remains pending. The frozen host itself remains until its
+separate owning removal.
 
 Status: in progress. Plugins source/catalog and Notes launcher/catalog removals
 are merged and source-qualified; Notes #158 passed required hosted CI after
