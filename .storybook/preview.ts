@@ -12,8 +12,8 @@ import "@lapis-notes/ai/styles.css";
 import "@lapis-notes/ui/theme.css";
 import "@lapis-notes/ui/codemirror-autocomplete.css";
 
-// Live ACP is opt-in. Prefer `pnpm ai:smoke:storybook`, or attach a manually
-// started host through `.env.storybook.local`. Storybook never starts the host.
+// Live ACP is opt-in: attach a manually started controller through
+// `.env.storybook.local`. Storybook never starts the host.
 // Register through the desktop-bridge global so preview does not import the
 // API barrel (that hung the iframe on every story).
 const controllerUrl = import.meta.env.LAPIS_AGENT_RUNTIME_URL;

@@ -1,5 +1,10 @@
 # Architecture / Build and validation
 
+LN-CAT-122 replaces the retired shared-AI smoke lane with a fail-closed launcher
+audit and focused regression lane. Normal and canonical checks run that audit;
+CI runs the regression through the existing bounded validation/Turbo routing.
+No provider process, test workspace or reset helper is retained by this lane.
+
 The prepared Core-intake patch release selects UI `0.2.2`, API `0.6.7` and
 Workspace `0.4.7`, in dependency order. Their Core floor remains `^0.13.4`.
 Changesets consumes the already accepted intake intent and regenerates API's

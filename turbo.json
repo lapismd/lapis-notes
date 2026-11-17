@@ -115,7 +115,7 @@
       ],
       "outputLogs": "new-only"
     },
-    "//#test:ai:smoke-harness:run": {
+    "//#test:retired-ai-tooling:run": {
       "inputs": [
         "$TURBO_DEFAULT$",
         "packages/*/src/**",

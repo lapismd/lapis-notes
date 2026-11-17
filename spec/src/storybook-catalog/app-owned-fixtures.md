@@ -175,3 +175,9 @@ The [Docs history quarantine](../../records/2026-11-15-docs-history-quarantine.m
 omits only the named history case from development and static runs, with an
 explicit fatal opt-in diagnostic. Acceptance is documented quarantine, not
 authorization to merge red required checks. Remaining cases stay enabled.
+
+## LN-CAT-122 — Retired shared-AI launchers
+
+<a id="ln-cat-122"></a>
+
+**Requirement.** Notes tooling MUST NOT seed, start or probe the retired shared-AI controller integration. Normal checks, canonical specification checks and CI MUST reject reintroduced launcher files or root commands. The preserved standalone controller and frozen desktop remain separately owned pending their scoped consumer retirement.

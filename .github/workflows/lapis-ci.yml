@@ -144,7 +144,7 @@ jobs:
         uses: lapismd/lapis-ci/actions/setup-registry-readiness@69a81e05ca32dc5b7024ef2cd0711860b1813926
       - run: pnpm release:test
       - run: pnpm test:spec-validation
-      - run: pnpm test:ai:smoke-harness
+      - run: pnpm test:retired-ai-tooling
 
   storybook-static:
     needs:

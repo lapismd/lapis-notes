@@ -46,17 +46,17 @@ readiness and the retirement entry; the original plan workspace is unchanged.
 
 ## Removal 1: shared AI plugin — in progress
 
-| Substep                                                       | Status                  | Evidence / remaining boundary                                                                          |
-| ------------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------ |
-| Refresh current registration and release entrypoints          | Verified source         | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller      |
-| Reject retired publication and metadata selectors             | Source committed        | Plugins `ukmnqynp` / `8fd08403`; 241 release tests and full artifact qualification                     |
-| Disable mutable registry source and block reactivation        | Source committed        | Registry `qvlolmsk` / `e0136ede`; 146 tests, 26 cold browser cases; signing/publication pending        |
-| Remove shared implementation, package and media catalogs      | Source committed/pushed | Plugins `yttxpspt` / `035d65c8`; 410 interactions, 1,022 package tests; source and artifacts qualified |
-| Remove Notes duplicate stories/controller probes/dependencies | Pending                 | Keep API `ai-host/file-tools` and app-profile native chat                                              |
-| Preserve installed-data/native lifecycle                      | Pending                 | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                 |
-| Update Website and organization metadata                      | Pending                 | Bundled/native AI guidance and source provenance                                                       |
-| Complete source/public-package/consumer gates                 | Partially qualified     | Plugins source/artifact/catalog gates pass; Notes consumer and actual native/data gates remain pending |
-| npm deprecation, signed registry publication and deployment   | Pending release gates   | No unpublish or installed-app replacement                                                              |
+| Substep                                                       | Status                     | Evidence / remaining boundary                                                                          |
+| ------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Refresh current registration and release entrypoints          | Verified source            | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller      |
+| Reject retired publication and metadata selectors             | Source committed           | Plugins `ukmnqynp` / `8fd08403`; 241 release tests and full artifact qualification                     |
+| Disable mutable registry source and block reactivation        | Source committed           | Registry `qvlolmsk` / `e0136ede`; 146 tests, 26 cold browser cases; signing/publication pending        |
+| Remove shared implementation, package and media catalogs      | Source committed/pushed    | Plugins `yttxpspt` / `035d65c8`; 410 interactions, 1,022 package tests; source and artifacts qualified |
+| Remove Notes duplicate stories/controller probes/dependencies | Partially source-qualified | Keep API `ai-host/file-tools` and app-profile native chat                                              |
+| Preserve installed-data/native lifecycle                      | Pending                    | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                 |
+| Update Website and organization metadata                      | Pending                    | Bundled/native AI guidance and source provenance                                                       |
+| Complete source/public-package/consumer gates                 | Partially qualified        | Plugins source/artifact/catalog gates pass; Notes consumer and actual native/data gates remain pending |
+| npm deprecation, signed registry publication and deployment   | Pending release gates      | No unpublish or installed-app replacement                                                              |
 
 ## Later removals — pending
 
@@ -244,3 +244,36 @@ and packed-package JSON receipts. The source working copy is clean. No merge,
 npm deprecation/publication, signed-registry update, deployment or installed-app
 replacement occurred. Notes duplicate code/probes, native/data acceptance and
 Website/organization guidance remain pending as listed above.
+
+## Launcher removal and hosted landing checkpoint
+
+Notes removes its retired shared-AI controller/probe commands, workspace seeder
+and owning fixtures. LN-CAT-122 enforces their absence in normal/spec checks and
+the replacement CI lane. Exact regression: 1 initial failure becomes 2 passes;
+with routing, 3 pass. Registry-only Docker spec checks pass with 69 tests; all
+77 validation-tooling and 199 release-tooling cases pass. See
+[the source record](../../spec/records/2026-11-17-retired-ai-tooling.md).
+Duplicate AI catalogs, preview bridge and package/archive dependencies remain
+the next source boundary; this does not close native/data or release gates.
+
+Prepared PRs: [Plugins safeguard #154](https://github.com/lapismd/lapis-plugins/pull/154),
+[Plugins removal #155](https://github.com/lapismd/lapis-plugins/pull/155),
+[Notes coordination #156](https://github.com/lapismd/lapis-notes/pull/156),
+and [registry draft #181](https://github.com/lapismd/plugin-registry/pull/181).
+Merges are authorized; required hosted checks still govern each landing.
+
+Both Plugins PRs initially fail only the root audit after the Picomatch advisory
+GHSA-fc5q-39xc-vjpf expanded to all published versions. Unchanged main reproduces
+it and npm has no patched release. The user explicitly approved a documented
+temporary exception for this advisory. Plugins records CVE-2026-112366 in root
+and independent Sync tooling, preserving audit execution and all other findings.
+Both audits and 19 audit/workflow regressions pass; Docker spec checks pass.
+The safeguard head is now `d84dc813`; removal rebases without conflicts to
+`886de049`. Its only tree difference from the previously qualified removal is
+the five exception/configuration/record files. Full hosted checks are rerunning.
+
+Registry CI regenerates mutable metadata and correctly fails its existing
+signature checks until the protected signing refresh. No generated metadata or
+signature has been hand-edited, and no signing/deployment approval is inferred.
+Organization active listings are being updated separately; Website remains
+pending. Terminal migration remains the final removal after other changes land.

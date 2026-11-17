@@ -1,5 +1,10 @@
 # Packages / App and services
 
+Retirement under LN-CAT-122 removes only Notes-owned shared-AI launch/probe
+commands in this step. Shared-AI catalog dependencies and the frozen desktop's
+controller package remain until their owning consumer slices; no package export,
+version, publication selector or release authority changes here.
+
 Current framework dependency intake selects published Design Core `0.13.5`.
 API, retained UI, Workspace and Web require `^0.13.5`; the separate App Profile
 minimum remains `^0.13.4`. Root tooling and File Explorer resolve the same
