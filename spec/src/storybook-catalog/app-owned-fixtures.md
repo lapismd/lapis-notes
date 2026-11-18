@@ -26,6 +26,12 @@ an empty editor inside otherwise populated shell chrome cannot qualify.
 The held-host-readiness scenario also proves that a mounted shell remains inert
 and unready until the actual host callback settles, then opens its real document.
 
+The CLI registration family declares the actual public AppSettingsRoot subject.
+Its real declarative fields exercise UI-owned registration bindings under
+LN-WS-107; fixture controls switch independent owners without replacing settings
+presentation. Copied descriptor, replacement and disposal evidence remains
+separate from the original Desktop public-archive acceptance.
+
 ## LN-CAT-119 — Distinct fixture controls
 
 <a id="ln-cat-119"></a>

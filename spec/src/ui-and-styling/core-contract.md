@@ -171,6 +171,12 @@ this Notes story update from the source-owned Bases naming repair.
 
 **Requirement.** `@lapis-notes/ui` MUST remain a versioned, pack-tested public artifact for API and external-plugin consumers. Its published manifest MUST use portable semver ranges for shared host dependencies while colocated development MAY link matching sibling versions.
 
+The private CLI field retains the disposable registration's host independently
+of copied or reactive descriptor identity. LN-WS-107 regression coverage checks
+separate owners, replacement and disposal through the unchanged public `/cli`
+port. Source qualification remains separate from built archive and consumer
+acceptance under LN-PKG-005.
+
 Notebook's shared-table intake updates retained UI's Design Core compatibility
 range without changing component paint or exports. The release cohort MUST
 resolve public CanvasTable and FilterBuilder exports through the host's shared

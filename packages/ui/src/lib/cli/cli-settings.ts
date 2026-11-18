@@ -79,7 +79,13 @@ export function registerCliSettings(
     description: "Use the lapis command from your terminal.",
     type: "custom",
     presentation: "full-width",
-    component: CliSettingsField,
+    component: (anchor) => {
+      if (hosts.get(settings) !== entry) {
+        throw new Error("CLI settings host is not bound");
+      }
+      CliSettingsField(anchor, { host: entry.host });
+      return {};
+    },
   };
   fieldHosts.set(field, host);
   const dispose = settings.registerSection({

@@ -211,5 +211,9 @@
   },
   "stories/workspace/NotesWorkspaceSession.stories.ts": {
     "kind": "application"
+  },
+  "stories/api/CliSettingsRegistration.stories.ts": {
+    "kind": "component",
+    "subject": "@lapismd/design-core/workspace/settings#AppSettingsRoot"
   }
 }
