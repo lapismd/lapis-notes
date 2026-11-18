@@ -1,5 +1,19 @@
 # @lapis-notes/api
 
+## 0.6.9
+
+### Patch Changes
+
+- [#161](https://github.com/lapismd/lapis-notes/pull/161)
+  [`34ea70e`](https://github.com/lapismd/lapis-notes/commit/34ea70e3cacb67e207f6a6c6d4a235043efefc76)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Reject retired shared AI
+  distribution by original artifact origin or verified source provenance,
+  including legacy cached catalogs without a registry download endpoint.
+  Preserve third-party/native AI and existing installed data.
+- Updated dependencies
+  [[`498a089`](https://github.com/lapismd/lapis-notes/commit/498a089e230d323852ab9b98346e45179a74461b)]:
+  - @lapis-notes/ui@0.2.4
+
 ## 0.6.8
 
 ### Patch Changes

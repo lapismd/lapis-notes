@@ -1,5 +1,19 @@
 # @lapis-notes/app-profile
 
+## 0.2.6
+
+### Patch Changes
+
+- [#164](https://github.com/lapismd/lapis-notes/pull/164)
+  [`b3a93b2`](https://github.com/lapismd/lapis-notes/commit/b3a93b2f5e49d514a6c447a0d6e2664d3179bb3e)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Remove the optional Vite
+  peer so installing the application profile does not promote build tooling into
+  the production dependency graph. Hosts using `plugin-host-build` continue to
+  provide Vite directly; its exports and types are unchanged.
+- Updated dependencies
+  [[`34ea70e`](https://github.com/lapismd/lapis-notes/commit/34ea70e3cacb67e207f6a6c6d4a235043efefc76)]:
+  - @lapis-notes/api@0.6.9
+
 ## 0.2.5
 
 ### Patch Changes
