@@ -112,6 +112,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/ci-setup
       - run: pnpm packages:policy
+      - run: pnpm check:dependency-intake
       - run: pnpm release:check
       - run: pnpm check:no-tailwind
       - run: pnpm check:app-ownership
