@@ -32,7 +32,7 @@ Registry-consumer toolchain and build-policy acceptance is recorded in
 
 <a id="ln-pkg-005"></a>
 
-**Requirement.** Package public exports MUST stay source of truth in each package `package.json` `exports` map. UI MUST expose host-independent CLI settings through `/cli`; consumers MUST qualify built public archives before governed release adoption.
+**Requirement.** Package public exports MUST stay source of truth in each package `package.json` `exports` map. UI MUST expose host-independent CLI settings through `/cli`, including the declarative General → Advanced registration; consumers MUST qualify built public archives before governed release adoption.
 
 ## LN-PKG-012 — @lapis-notes/api: consume @lapismd/mira through its published npm package
 

@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { WorkspaceSettingsController } from "@lapismd/design-core/workspace/settings";
-import { cliSettingsHost, registerCliSettings } from "./cli-settings";
+import {
+  cliSettingsFieldHost,
+  cliSettingsHost,
+  registerCliSettings,
+} from "./cli-settings";
 
 describe("host-owned CLI settings", () => {
   it("searches General → Advanced without storing host authority and retires only its own registration", () => {
@@ -8,6 +12,30 @@ describe("host-owned CLI settings", () => {
     const first = { downloads: async () => [] };
     const next = { downloads: async () => [] };
     const retireFirst = registerCliSettings(controller, first);
+    const general = controller.sections.find(
+      (section) => section.id === "general",
+    );
+    expect(general?.page).toBeUndefined();
+    expect(general?.fields).toEqual([
+      expect.objectContaining({
+        id: "advanced",
+        title: "Advanced",
+        type: "group",
+        fields: [
+          expect.objectContaining({
+            id: "cli",
+            title: "Command line interface",
+            type: "custom",
+          }),
+        ],
+      }),
+    ]);
+    const field = general?.fields?.[0];
+    if (field?.type !== "group" || field.fields[0]?.type !== "custom") {
+      throw new Error("CLI custom field was not registered");
+    }
+    const cliField = field.fields[0];
+    expect(cliSettingsFieldHost(cliField)).toBe(first);
     expect(controller.search("PATH")).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -22,6 +50,7 @@ describe("host-owned CLI settings", () => {
     expect(cliSettingsHost(controller)).toBe(next);
     expect(controller.search("CLI").length).toBeGreaterThan(0);
     retireNext();
+    expect(() => cliSettingsFieldHost(cliField)).toThrow("not bound");
     expect(controller.search("CLI")).toEqual([]);
     expect(() => cliSettingsHost(controller)).toThrow("not bound");
     controller.destroy();

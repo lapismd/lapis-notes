@@ -8,7 +8,7 @@
     CliInstallationStatus,
   } from "./cli-settings";
   import CliAccessSettings from "./CliAccessSettings.svelte";
-  let { host }: { host: CliSettingsHost } = $props();
+  let { host, embedded = false }: { host: CliSettingsHost; embedded?: boolean } = $props();
   let status = $state<CliInstallationStatus>();
   let downloads = $state<CliDownload[]>([]);
   let selectedDownload = $state("");
@@ -62,8 +62,10 @@
 >
   <div class="row">
     <div>
-      <h3>Command line interface</h3>
-      <p>Use the <code>lapis</code> command from your terminal.</p>
+      {#if !embedded}
+        <h3>Command line interface</h3>
+        <p>Use the <code>lapis</code> command from your terminal.</p>
+      {/if}
       {#if status}
         <p>
           {status.state === "installed"
