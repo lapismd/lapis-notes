@@ -17,8 +17,8 @@ order. Source commits, consumer qualification and release/deployment are separat
 
 Current resume: shared-AI source, Notes launcher/catalog and signed fixture,
 registry HTTP 410 and all eleven npm deprecations have landed. Notes #166's Web
-icon prerequisite and #168's scope correction are merged. Their hosted receipts
-preserve configured skips and the unrelated offline startup stall; #168's
+icon prerequisite, #168's scope correction and #169's verified host-boundary
+plan are merged. Their hosted receipts preserve configured skips and the unrelated offline startup stall; #168's
 [exact-artifact replay and hosted retry](../../spec/records/2026-11-18-retirement-scope-hosted.md)
 passed without changing product code, assertions or timeouts.
 
@@ -26,10 +26,14 @@ Desktop #48's complete fixture producer/admission repair has merged into #47's
 feature branch at `45d61a6c95d980892be8bb6a32f612137c1bb529`, not main.
 Prepared historical native fixtures (#49), private session UI removal (#51) and
 obsolete Deno validator bootstrap removal (#52) each passed complete hosted CI.
-Their unchanged commits are combined in [draft #53](https://github.com/lapismd/lapis-desktop/pull/53)
-at `9685e1e39cde23e96f6867f7ce00a4923fcd166e`, with fresh combined hosted
-run `44226223633` still pending at this checkpoint. Earlier individual/docs-only
-runs do not qualify that combined code. See the current checkpoint below.
+Their unchanged commits passed combined [Desktop #53](https://github.com/lapismd/lapis-desktop/pull/53)
+at `9685e1e39cde23e96f6867f7ce00a4923fcd166e`: hosted run `44226223633`
+completed with 18 successful jobs, two configured skips and all eight selected
+gates. It merged into #47's feature branch at
+`2b553332dd97f8ad86106060b7b5c8648cafab5f`, whose tree is identical and retains
+all original heads. Component PRs #49/#51/#52 are now marked merged. Actual
+updated #47 qualification is running as `44232361289`; main landing is pending.
+Earlier or component CI does not replace that actual-head gate.
 
 Still pending: actual old-external/bundled native startup/data acceptance,
 App Profile native-chat lifecycle/storage acceptance, API package publication
@@ -104,11 +108,11 @@ package publication, website deployment or native macOS execution.
 | Web icon input               | `lapis-notes-retirement-web-icons` / `retirement-web-icons`         | Remove frozen-host asset input with exact seven-output byte equivalence. Retain frozen host until owning removal; seven identical outputs, full Web checks/40 tests/build and integrated spec pass; merged #166 at `6787e824`; 12 hosted jobs and 13 Web cases pass. LN-WEB-093. |
 
 Desktop consumer [draft #47](https://github.com/lapismd/lapis-desktop/pull/47)
-currently contains merged #48 at `45d61a6c`. Combined #53 targets this feature
-branch; do not independently merge its unchanged component drafts #49/#51/#52.
-After #53's exact combined head qualifies, integrate it into #47 and qualify
-#47's actual updated head before main landing. Preserve native/data and release
-gates. Coordinate Docker browser/build lanes and retain each workspace's lease.
+contains #48 and the combined #53 merge at `2b553332`. Original #49/#51/#52
+heads remain ancestors and GitHub marks them merged. Fresh actual-head workflow
+`44232361289` is running; qualify it before main landing. Native/data and release
+gates remain open. Coordinate Docker browser/build lanes and keep workspace
+leases isolated.
 
 ## Removal 1: shared AI plugin — in progress
 
@@ -689,7 +693,8 @@ stylesheet removals are not started; planned services/functions remain protected
 
 ## Desktop/Deno implementation checkpoint, 2026-11-18
 
-All three following slices are committed and pushed. They preserve core API
+All three following slices are committed, pushed and integrated through #53
+into #47's feature branch. They preserve core API
 services/functions, Language Service and its existing eight-package dependency
 inventory. Hosted success and native acceptance are separate from these portable
 source results; no native macOS application or user profile was used.
@@ -719,9 +724,48 @@ records its integrated Docker qualification: spec run
 ownership, parity (116 families, zero findings), ordinary/e2e strict Clippy,
 formatting and renderer build pass. Final evidence checks pass 517 records.
 
-At this checkpoint, exact combined hosted run `44226223633` remains active.
-Merge only after that head qualifies, then rerun qualification for the actual
-updated #47 feature head. Do not reuse the earlier docs-only #53 result.
+Combined hosted run `44226223633` completed successfully: 18 jobs pass and two
+configured jobs (`Native bundle` and `Full source qualification`) are skipped.
+The Validate job confirms all eight selected gates, including both Linux builds
+and the complete four-shard interaction/axe matrix. Actual #53 merge `2b553332`
+is byte-identical to checked `9685e1e3`; all original source heads remain
+ancestors. Updated #47 workflow `44232361289` is live and remains a separate
+required gate. Do not reuse the earlier docs-only #53 result.
 No native macOS lane, publication, deployment or installed-app replacement is
 qualified by these results. Keep E-RETIRE-007 and generic API/helper/CSS cleanup
 out of scope; terminal remains last.
+
+## Remaining runtime audit and independent prerequisites
+
+The [integration and runtime audit](../../spec/records/2026-11-18-retirement-feature-integration.md)
+records the feature merge, Community disposition and concrete Website candidate.
+Notes #169 passed hosted run `44228577845` (12 successful jobs, one existing
+interaction skip) and merged at `538bb469`; the merge tree matches checked
+`4bd43c2e`. No core implementation changed.
+
+- Plugins' isolated `lapis-plugins-retirement-deno-validation` workspace at main
+  `8a90c106` removes only the unnecessary Docker runtime/probe dependency.
+  Registered `validation:smoke` first fails on `deno --version` and then passes
+  in the exact same Deno-free image, including Chromium/WebKit. All 64 validation
+  controls, ordinary checks and full release qualification pass: 48 package
+  tasks, 1,119 package/repository tests, 262 release controls and 16 npm/runtime
+  artifacts. All 410 cold interaction/axe cases pass across eight invocations; preserved
+  Sync checks, all 326 tests and its build/audit pass. Final canonical and format
+  checks pass. Reviewed source `54552e63` is committed/pushed as
+  [Plugins #158](https://github.com/lapismd/lapis-plugins/pull/158); hosted run
+  `44234359523` is active, with main landing pending. Public/core/Sync code,
+  manifests, lock and CI are unchanged; no new audit exception is added.
+- Community main `4670760c` has no direct Deno launcher/runtime match across
+  1,531 tracked source/configuration text files. Its old validator's engine
+  metadata and optional compiled Deno backend are not Community runtime registrations; the
+  selected CLI is Node. Preserve Community services, APIs, fixtures and future
+  functions. No Community source change or product qualification is claimed.
+- Website source `9cbdc233` has a sealed 546-file static artifact, a passing
+  frozen build/crawl and 25 cold browser cases. The legacy publisher is disabled
+  and idle, satisfying its actual runbook prerequisite. Pages production remains
+  `5a90e983` on `main`; proposed `website-preview` differs. Preview authorization
+  is pending; preview acceptance and separate production authorization still
+  follow. No upload, workflow dispatch, DNS or settings change has occurred.
+
+Keep pending native diagnostics and the AI Host audit exception as explicit
+unanswered decisions. Never infer consent from these independent passing lanes.
