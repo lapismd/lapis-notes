@@ -1,5 +1,16 @@
 # @lapis-notes/ui
 
+## 0.2.5
+
+### Patch Changes
+
+- [#174](https://github.com/lapismd/lapis-notes/pull/174)
+  [`8debba3`](https://github.com/lapismd/lapis-notes/commit/8debba36e6a2813d91f7b17f1173e03059402a10)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Keep General → Advanced
+  CLI fields bound to their disposable host registration when settings rendering
+  copies or proxies their descriptors. Preserve public ports, independent
+  owners, replacement/disposal and settings persistence.
+
 ## 0.2.4
 
 ### Patch Changes
