@@ -1,7 +1,7 @@
 {
   "build": "node --env-file-if-exists=.env scripts/run-turbo.mjs build",
   "build:web": "node --env-file-if-exists=.env scripts/run-turbo.mjs build --filter=@lapis-notes/web...",
-  "check": "pnpm check:retired-ai-tooling && pnpm check:storybook-parity && pnpm spec:validate && pnpm check:specification-docs && pnpm check:no-tailwind && pnpm check:app-ownership && pnpm check:metadata-queries && node --env-file-if-exists=.env scripts/run-turbo.mjs check",
+  "check": "pnpm check:dependency-intake && pnpm check:retired-ai-tooling && pnpm check:storybook-parity && pnpm spec:validate && pnpm check:specification-docs && pnpm check:no-tailwind && pnpm check:app-ownership && pnpm check:metadata-queries && node --env-file-if-exists=.env scripts/run-turbo.mjs check",
   "check:all": "pnpm check && pnpm test && pnpm build",
   "check:app-ownership": "tsx scripts/check-ambient-app-ownership.ts",
   "check:metadata-queries": "tsx scripts/check-first-party-metadata-queries.ts",
@@ -46,5 +46,6 @@
   "test:api:native-tasks": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:api:native-tasks:run --task-args",
   "capture:native-daily-locales-reference": "LAPIS_NOTES_CAPTURE_DAILY_LOCALES_REFERENCE=1 pnpm --filter @lapis-notes/api exec vitest run src/lib/native-daily-reference.test.ts src/lib/native-daily-en-gb-reference.test.ts src/lib/native-daily-en-us-week-reference.test.ts",
   "test:native-daily-locales-reference": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:native-daily-locales-reference:run --task-args",
-  "test:web:workspace-leave": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:web:workspace-leave:run --task-args"
+  "test:web:workspace-leave": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:web:workspace-leave:run --task-args",
+  "check:dependency-intake": "node scripts/dependency-automation/check-canonical-intake.mjs"
 }

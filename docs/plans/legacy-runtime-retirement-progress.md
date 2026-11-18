@@ -15,60 +15,40 @@ Independent prerequisites may run in parallel under the user's explicit
 authorization; retain one reviewable slice per removal and integrate in dependency
 order. Source commits, consumer qualification and release/deployment are separate gates.
 
-Current resume: the approved installer guard is merged in Notes #161; registry
-HTTP 410 is deployed and all eleven npm versions are deprecated with original
-tarballs independently verified. Plugins #156 carries its committed receipt.
-Still pending: retained Desktop AI acceptance, actual old-external/bundled
-native data/startup acceptance, API package publication/adoption and website
-cutover. Continue shared-AI acceptance before obsolete Desktop/Deno host removal.
-Core API services/functions are excluded from removal. Terminal is last.
-Notes #164 merged the approved App Profile peer cleanup at `5ffb33c1` after
-required hosted qualification; the initial offline PWA failure, exact artifact
-replay and unchanged-head retry remain in the
-[hosted receipt](../../spec/records/2026-11-17-profile-vite-peer-hosted.md).
-All six exact-main archive hashes match the source-qualified cohort. Desktop's
-794 governance/renderer, 748 AI and 290 Rust cases pass (two existing Rust ignores),
-as do types, strict Clippy, renderer and static catalog builds. Its actual
-installed production graph is clean; the approved exact development-only
-Picomatch exception expires 2026-11-30. Complete local catalog passes 2168 cases across all 16 viewport/theme variants,
-and final public admission/canonical checks pass (E-RETIRE-002). Fresh hosted
-consumer/artifact intake remains in progress, without package publication or
-native/data acceptance being inferred.
+Current resume: shared-AI source, Notes launcher/catalog and signed fixture,
+registry HTTP 410 and all eleven npm deprecations have landed. Notes #166's Web
+icon prerequisite and #168's scope correction are merged. Their hosted receipts
+preserve configured skips and the unrelated offline startup stall; #168's
+[exact-artifact replay and hosted retry](../../spec/records/2026-11-18-retirement-scope-hosted.md)
+passed without changing product code, assertions or timeouts.
 
-A deeper pipeline audit found Notes' signed registry fixture still building the
-old pre-retirement Plugins checkout. The current slice moves it to verified
-post-removal `96935625` and runs the source retirement guard before installation,
-retaining upstream audit/artifact checks. Its new regression changes one failure
-to 197 passing release-tool cases. Real fixture qualification passes 18 catalog
-signatures, 16 signed bundles and all 13 cold Web cases after replacing an
-obsolete AI test expectation. The [fixture receipt](../../spec/records/2026-11-17-retired-ai-registry-fixture.md)
-preserves the initial 12-pass/1-failure run and environmental failures. Notes #165 passed required hosted workflow `44198935057` and merged at
-`545284a05f418b8d8b882c797b48878cf820bab1`; the [hosted receipt](../../spec/records/2026-11-17-retired-ai-fixture-hosted.md)
-retains the successful producer and 13 Web cases. Next also address Desktop's older Plugins fixture input and guard
-its on-demand local plugin build against stale source; those are distinct from
-the preserved Rust-owned `@lapismd/ai` package.
-The parallel checkpoints are now reviewable: Notes fixture [#165](https://github.com/lapismd/lapis-notes/pull/165),
-Web icon prerequisite [#166](https://github.com/lapismd/lapis-notes/pull/166),
-Desktop consumer [#47](https://github.com/lapismd/lapis-desktop/pull/47),
-fixture admission [#48](https://github.com/lapismd/lapis-desktop/pull/48) and
-prepared native preservation [#49](https://github.com/lapismd/lapis-desktop/pull/49).
-Notes #165 is merged. #166's first queued event retained a deleted base name
-after retarget and failed spec-first VCS discovery; a fresh synchronized candidate
-retains all required checks. Desktop PRs remain drafts. #49 prepares four new cases but executes zero native
-cases; original signed-artifact and App Profile native-chat preservation remain
-separate. #48's fresh artifact audit found Language Service packing before its
-compiled output was built. Fix the Desktop producer and regenerate/verify the
-artifact before treating either Desktop intake as ready; E-RETIRE-005 records
-that follow-up. Existing local source qualification used independently verified
-complete archives and does not excuse the hosted producer defect.
+Desktop #48's complete fixture producer/admission repair has merged into #47's
+feature branch at `45d61a6c95d980892be8bb6a32f612137c1bb529`, not main.
+Prepared historical native fixtures (#49), private session UI removal (#51) and
+obsolete Deno validator bootstrap removal (#52) each passed complete hosted CI.
+Their unchanged commits are combined in [draft #53](https://github.com/lapismd/lapis-desktop/pull/53)
+at `9685e1e39cde23e96f6867f7ce00a4923fcd166e`, with fresh combined hosted
+run `44226223633` still pending at this checkpoint. Earlier individual/docs-only
+runs do not qualify that combined code. See the current checkpoint below.
 
-A separate `retirement-qualification` Desktop workspace from `351811a9` runs
-final consumer/canonical checks while the original catalog worker completes.
-A separate session-UI audit has proven seven private files unreachable and is
-qualifying their removal without deleting active stores, cards or saved-session
-types. Its later E-RETIRE-006 receipt must retain the before/after caller audit
-and directly affected checks. This is still within shared-AI cleanup; it does
-not authorize broad native AI deletion or advance terminal retirement.
+Still pending: actual old-external/bundled native startup/data acceptance,
+App Profile native-chat lifecycle/storage acceptance, API package publication
+and consumer adoption, Website cutover and installed-app replacement. No macOS
+native case has run. Approval for the explicitly on-demand diagnostic lane is
+still pending; portable or hosted Linux results do not close that gate.
+
+The [verified host-boundary audit](../../spec/records/2026-11-18-retirement-host-boundaries.md)
+retains portable Sync/core functions in the mixed `deno-host-services` package
+and active Agent Redaction/controller Deno compatibility. AI Host's single
+private orphan fixture removal is prepared but uncommitted: its ordinary check
+still fails on two pre-existing development audit findings. A separate exact
+version/path, expiring exception proposal awaits approval; earlier Desktop and
+Plugins exceptions do not authorize AI Host. Production audit has zero findings.
+Do not apply the policy, commit or push that candidate before its gate qualifies.
+
+No blanket host deletion starts before shared-AI preservation acceptance. Generic
+helpers, CSS, APIs and future-facing services remain excluded. E-RETIRE-007 stays
+parked; terminal ownership migration remains last.
 
 The tables below describe current status; older receipts are dated checkpoints.
 
@@ -117,22 +97,18 @@ Notes signed-fixture/Web slice and Desktop's current consumer checkpoint;
 independent workers own the following isolated prerequisites. None authorizes
 package publication, website deployment or native macOS execution.
 
-| Workstream                   | Workspace / JJ workspace name                                       | Status and integration boundary                                                                                                                                                                                                         |
-| ---------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Desktop fixture admission    | `lapis-desktop-retirement-fixtures` / `retirement-fixtures`         | Guard install/build against retired source and advance only hosted Plugins input; retain Rust/native pins. E-RETIRE-003.                                                                                                                |
-| Native preservation coverage | `lapis-desktop-retirement-preservation` / `retirement-preservation` | Prepare production-boundary legacy-copy, disablement, Safe Mode and cold-reopen cases. Actual native execution remains unrun/pending. E-RETIRE-004.                                                                                     |
-| Web icon input               | `lapis-notes-retirement-web-icons` / `retirement-web-icons`         | Remove frozen-host asset input with exact seven-output byte equivalence. Retain frozen host until owning removal; seven identical outputs, full Web checks/40 tests/build and integrated spec pass; hosted landing pending. LN-WEB-093. |
+| Workstream                   | Workspace / JJ workspace name                                       | Status and integration boundary                                                                                                                                                                                                                                                  |
+| ---------------------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Desktop fixture admission    | `lapis-desktop-retirement-fixtures` / `retirement-fixtures`         | Guard install/build against retired source and advance only hosted Plugins input; retain Rust/native pins. E-RETIRE-003.                                                                                                                                                         |
+| Native preservation coverage | `lapis-desktop-retirement-preservation` / `retirement-preservation` | Prepare production-boundary legacy-copy, disablement, Safe Mode and cold-reopen cases. Actual native execution remains unrun/pending. E-RETIRE-004.                                                                                                                              |
+| Web icon input               | `lapis-notes-retirement-web-icons` / `retirement-web-icons`         | Remove frozen-host asset input with exact seven-output byte equivalence. Retain frozen host until owning removal; seven identical outputs, full Web checks/40 tests/build and integrated spec pass; merged #166 at `6787e824`; 12 hosted jobs and 13 Web cases pass. LN-WEB-093. |
 
-Desktop checkpoint `351811a99485cf30c946641c8737200d903657ef` is pushed as
-[draft #47](https://github.com/lapismd/lapis-desktop/pull/47); required hosted
-workflow `44197829697` is running. Source qualification is recorded in immutable
-E-RETIRE-001. Its final qualification will append E-RETIRE-002, without rewriting
-the earlier pending receipt. Notes fixture source is pushed as [PR #165](https://github.com/lapismd/lapis-notes/pull/165).
-Desktop fixture admission is pushed as stacked [draft #48](https://github.com/lapismd/lapis-desktop/pull/48);
-29 directly affected Docker governance cases pass and its repaired producer now builds/verifies all seven plugin payloads and signed
-archives; fresh updated-head artifact/fanout qualification remains pending. Do not reuse older full CI artifacts after fixture
-source identity changes. Coordinate Docker browser/build lanes; a second runner
-in the same workspace correctly fails its exclusive lease instead of overlapping.
+Desktop consumer [draft #47](https://github.com/lapismd/lapis-desktop/pull/47)
+currently contains merged #48 at `45d61a6c`. Combined #53 targets this feature
+branch; do not independently merge its unchanged component drafts #49/#51/#52.
+After #53's exact combined head qualifies, integrate it into #47 and qualify
+#47's actual updated head before main landing. Preserve native/data and release
+gates. Coordinate Docker browser/build lanes and retain each workspace's lease.
 
 ## Removal 1: shared AI plugin — in progress
 
@@ -143,7 +119,7 @@ in the same workspace correctly fails its exclusive lease instead of overlapping
 | Disable mutable registry source and block reactivation        | Deployed                             | Registry #181/#183; signed disabled metadata and 18 live GET/HEAD responses verified; HTTP 410 stops fallback                                         |
 | Remove shared implementation, package and media catalogs      | Merged                               | Plugins #155; 410 interactions, 1,022 package tests, 243 release-tooling tests and 16 artifacts                                                       |
 | Remove Notes duplicate stories/controller probes/dependencies | Merged                               | #157 and #158 / `52cffda1`; 2,194 package tests, 239 cold interactions, 3 inspected tarballs and required hosted CI pass                              |
-| Remove retired AI from pinned fixture build inputs            | Notes merged; Desktop pending        | Notes #165 / `545284a0` closes its signed fixture edge; Desktop #48 guard and actual producer pass, fresh hosted artifact/fanout remain pending.      |
+| Remove retired AI from pinned fixture build inputs            | Notes merged; Desktop feature merged | Notes #165 / `545284a0`; Desktop #48 complete producer, fanout and Linux builds pass; merged into #47 at `45d61a6c`, main landing pending.            |
 | Preserve installed-data/native lifecycle                      | Pending                              | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                                                                |
 | Update Website and organization metadata                      | Merged                               | Website #1 / `9cbdc233`, exact-main CI `44157445481` passed; .github #15 / `5f81879f`                                                                 |
 | Complete source/public-package/consumer gates                 | Source qualified; acceptance pending | Catalog removals pass; approved legacy-cache provenance guard source-qualified; API release and native/data gates remain open                         |
@@ -718,25 +694,34 @@ services/functions, Language Service and its existing eight-package dependency
 inventory. Hosted success and native acceptance are separate from these portable
 source results; no native macOS application or user profile was used.
 
-| Slice                                                            | Current candidate                                                                                           | Verified source result                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Pending                                                                                                                                                                 |
-| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Private Desktop session UI, E-RETIRE-006                         | [Desktop #51](https://github.com/lapismd/lapis-desktop/pull/51), `c4c4509e5c6b24516370c0abc4460b2d145b8e89` | Seven superseded private presentation files removed; 432 reachable runtime modules and all edges unchanged. Full owner checks pass: 794 Node, 748 AI, 290 Rust with two existing ignores. Repaired-parent specification run `a15590dc-e650-42af-8218-195d09da9637` passes all four lanes.                                                                                                                                                                                                                                                                       | Draft; exact-head hosted run `44210561723`.                                                                                                                             |
-| Original signed shared-AI preservation preparation, E-RETIRE-009 | [Desktop #49](https://github.com/lapismd/lapis-desktop/pull/49), `5321742d33ca5eda04da0e2be536077182e070ea` | Original 0.1.16 registry/release signatures and 177 signed payload hashes verified; all 178 archive files preserved. Eight fixture controls pass, including missing/same-size-tampered input refusal before writes. Full Docker owner run `8dbbac50-0f96-4090-ac2f-8b14758f0d87`: 801 Node, 748 AI, 290 Rust with two existing ignores; types, strict ordinary/e2e Clippy, formatting and build pass. Specification run `def0f25f-966d-4433-aa57-ee09fe4d8e45` passes four lanes; final evidence run `32f7700e-3ca7-4270-9657-c30a9f83d5c0` passes 511 records. | Draft; hosted run `44211944371`. All ten native cases (two baseline, four synthetic, four historical) remain unexecuted; separate explicit on-demand decision required. |
-| Desktop Spec Validator Deno fallback, E-RETIRE-008               | [Desktop #52](https://github.com/lapismd/lapis-desktop/pull/52), `bbbf12f202b701a30fb3924e2b6befed1a4765bd` | Removes obsolete Deno bootstrap, checks supported Node/build inputs before source builds, and preserves source groups/public packages. Exact regression: 3 pass/6 fail to 9 pass/0 fail. Full Docker owner run `f0b34f3d-1024-4e58-a135-f7a774f83061`: 810 Node, 748 AI, 290 Rust with two existing ignores; types, strict Clippy, formatting and build pass. Specification run `01decfb8-1f09-47ee-9c55-04b89701607e` and final 510-record evidence run `ef43787f-5bb8-4b45-899e-bc2bbc300818` pass.                                                           | Draft; exact-head hosted run `44212059686`.                                                                                                                             |
+| Slice                                                            | Current candidate                                                                                           | Verified source result                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Pending                                                                                                                                                                                                                        |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Private Desktop session UI, E-RETIRE-006                         | [Desktop #51](https://github.com/lapismd/lapis-desktop/pull/51), `c4c4509e5c6b24516370c0abc4460b2d145b8e89` | Seven superseded private presentation files removed; 432 reachable runtime modules and all edges unchanged. Full owner checks pass: 794 Node, 748 AI, 290 Rust with two existing ignores. Repaired-parent specification run `a15590dc-e650-42af-8218-195d09da9637` passes all four lanes.                                                                                                                                                                                                                                                                       | Hosted `44210561723` passed: 18 successful jobs, two configured skips; unchanged commit included in #53.                                                                                                                       |
+| Original signed shared-AI preservation preparation, E-RETIRE-009 | [Desktop #49](https://github.com/lapismd/lapis-desktop/pull/49), `5321742d33ca5eda04da0e2be536077182e070ea` | Original 0.1.16 registry/release signatures and 177 signed payload hashes verified; all 178 archive files preserved. Eight fixture controls pass, including missing/same-size-tampered input refusal before writes. Full Docker owner run `8dbbac50-0f96-4090-ac2f-8b14758f0d87`: 801 Node, 748 AI, 290 Rust with two existing ignores; types, strict ordinary/e2e Clippy, formatting and build pass. Specification run `def0f25f-966d-4433-aa57-ee09fe4d8e45` passes four lanes; final evidence run `32f7700e-3ca7-4270-9657-c30a9f83d5c0` passes 511 records. | Hosted `44211944371` passed: 18 successful jobs, two configured skips; included in #53. All ten native cases (two baseline, four synthetic, four historical) remain unexecuted; separate explicit on-demand decision required. |
+| Desktop Spec Validator Deno fallback, E-RETIRE-008               | [Desktop #52](https://github.com/lapismd/lapis-desktop/pull/52), `bbbf12f202b701a30fb3924e2b6befed1a4765bd` | Removes obsolete Deno bootstrap, checks supported Node/build inputs before source builds, and preserves source groups/public packages. Exact regression: 3 pass/6 fail to 9 pass/0 fail. Full Docker owner run `f0b34f3d-1024-4e58-a135-f7a774f83061`: 810 Node, 748 AI, 290 Rust with two existing ignores; types, strict Clippy, formatting and build pass. Specification run `01decfb8-1f09-47ee-9c55-04b89701607e` and final 510-record evidence run `ef43787f-5bb8-4b45-899e-bc2bbc300818` pass.                                                           | Hosted `44212059686` passed: 18 successful jobs, two configured skips; unchanged commit included in #53.                                                                                                                       |
 
-These candidates are stacked on Desktop #48 at
-`5006a7cffe2f8d816bd822e1cc1a882e88a357be`, which repairs existing package
-preparation/admission without removing Language Service. Its fresh complete
-producer artifact and all 2,168 hosted Storybook interaction/accessibility
-executions pass; Linux native build jobs are still pending. Do not infer final
-workflow success before the aggregate finishes. Notes #166's Web-owned icon
-prerequisite passed all 12 executed hosted jobs and 13 Web cases at `ac2abc71`
-and merged at `6787e8248146edcd75e78228a28738840be8fce4`. Its configured interaction
-skip remains explicit in the [hosted receipt](../../spec/records/2026-11-18-web-icon-input-hosted.md).
+Desktop #48 at `5006a7cffe2f8d816bd822e1cc1a882e88a357be` passed complete
+hosted run `44201504767`: 18 successful jobs, two configured skips, both complete
+private producers, all 2,168 selected interaction/accessibility executions and
+both Linux native builds. Its actual feature-branch merge is `45d61a6c`, with
+Language Service retained. Notes #166 passed all 12 executed hosted jobs and
+13 Web cases and merged at `6787e8248146edcd75e78228a28738840be8fce4`.
+Its configured interaction skip remains explicit in the
+[hosted receipt](../../spec/records/2026-11-18-web-icon-input-hosted.md).
 
-Resume by verifying the exact hosted heads, landing in dependency order, and
-integrating the E-RETIRE-002 final consumer receipt. Preserve native
-startup/data, App Profile storage/lifecycle, publication, Website deployment and
-installed-app replacement as distinct remaining gates. Do not resume
-E-RETIRE-007 or generic API/helper cleanup; terminal ownership migration remains
-last.
+Combined #53 preserves all original source commits and ten immutable evidence
+files. Only overlapping current documentation required resolution. E-RETIRE-012
+records its integrated Docker qualification: spec run
+`59b575c1-98c5-4c59-a4d4-dee59c33770e`, complete owner run
+`bfc67998-70d6-4e10-919e-6887d9594bba` and evidence run
+`e3a3118c-db9d-4214-8cba-4fd79c31b239` pass. Counts: 810 Node, 748 AI and
+290 Rust cases with two existing ignores; types, source/architecture/App
+ownership, parity (116 families, zero findings), ordinary/e2e strict Clippy,
+formatting and renderer build pass. Final evidence checks pass 517 records.
+
+At this checkpoint, exact combined hosted run `44226223633` remains active.
+Merge only after that head qualifies, then rerun qualification for the actual
+updated #47 feature head. Do not reuse the earlier docs-only #53 result.
+No native macOS lane, publication, deployment or installed-app replacement is
+qualified by these results. Keep E-RETIRE-007 and generic API/helper/CSS cleanup
+out of scope; terminal remains last.

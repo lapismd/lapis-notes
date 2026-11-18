@@ -323,7 +323,7 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0
       '@lapis-notes/ui':
-        specifier: ^0.2.3
+        specifier: ^0.2.4
         version: link:../ui
       '@lapismd/ai-host':
         specifier: ^0.3.0
@@ -507,7 +507,7 @@ importers:
   packages/app-profile:
     dependencies:
       '@lapis-notes/api':
-        specifier: ^0.6.6
+        specifier: ^0.6.9
         version: link:../api
       '@lapis-notes/file-explorer':
         specifier: ^0.2.8

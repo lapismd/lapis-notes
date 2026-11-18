@@ -83,6 +83,7 @@
 | LN-PKG-197 | [packages](../packages/release-canonical-intake.md#ln-pkg-197) | In progress | [Current source versions](#source-version-evidence) retain factual evidence without asserting publication. [Source qualification](../../records/2026-11-17-canonical-version-preparation.md): exact recipe1→0 failures,26 focused cases and Profile main-range4→0 missing mappings; hosted regeneration pending. |
 | LN-PKG-198 | [packages](../packages/release-canonical-intake.md#ln-pkg-198) | In progress | [Bounded version edits](../../records/2026-11-17-canonical-version-preparation.md) prove no-write checks, preservation, idempotence and malformed/oversized/symlink/map rejection before edits; wider qualification retained separately. |
 | LN-PKG-199 | [packages](../packages/app-and-services.md#ln-pkg-199) | Implemented | [Source regression](../../records/2026-11-17-profile-vite-peer.md) and [archive qualification](../../records/2026-11-17-profile-vite-peer-archives.md) pass: Vite6/7 helper types/build/import maps, no production Vite, 64 unchanged built files, full source/release/spec lanes. Hosted intake and publication remain separate. |
+| LN-PKG-200 | [Canonical dependency intake](../packages/release-canonical-intake.md#ln-pkg-200) | In progress | Seven source-owned framework slots and independent offline verification are adopted; negative fact/scope and bot-functional routing checks qualify source separately from hosted candidate/main acceptance. |
 
 User-file watch and targeted app-configuration isolation is under source and consumer qualification; see spec/records/2026-11-11-user-file-watch-scope.md.
 
@@ -94,11 +95,11 @@ User-file watch and targeted app-configuration isolation is under source and con
 {
   "schemaVersion": 1,
   "packages": {
-    "@lapis-notes/api": "0.6.8",
-    "@lapis-notes/app-profile": "0.2.5",
+    "@lapis-notes/api": "0.6.9",
+    "@lapis-notes/app-profile": "0.2.6",
     "@lapis-notes/file-explorer": "0.2.8",
     "@lapis-notes/language-service": "0.1.6",
-    "@lapis-notes/ui": "0.2.3",
+    "@lapis-notes/ui": "0.2.4",
     "@lapis-notes/workspace": "0.4.8"
   }
 }

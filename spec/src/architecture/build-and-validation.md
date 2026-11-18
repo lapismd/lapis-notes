@@ -2,6 +2,12 @@
 
 LN-WEB-093 moves only the Web raster build input into the Web package. Its cold generator test runs before the Web unit suite and compares all seven public icons byte-for-byte without the frozen Deno host.
 
+The ordinary check runs the offline `check:dependency-intake` lane before
+specification validation. LN-PKG-200 binds all seven Core dependency areas to
+their actual manifest and lock facts, including trusted dependency-bot PRs.
+The canonical aggregate retains the same functional lane independently of
+specification exemptions; frozen host runtime setup remains unchanged.
+
 LN-CAT-123 removes shared-AI catalog dependencies and manual controller
 attachment, including its optimizer and cache inputs. The retired catalog audit
 runs alongside the launcher audit in normal and canonical checks. Terminal

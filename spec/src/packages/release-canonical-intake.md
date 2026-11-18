@@ -8,11 +8,11 @@ Source package versions only; publication and host adoption remain separate.
 {
   "schemaVersion": 1,
   "packages": {
-    "@lapis-notes/api": "0.6.8",
-    "@lapis-notes/app-profile": "0.2.5",
+    "@lapis-notes/api": "0.6.9",
+    "@lapis-notes/app-profile": "0.2.6",
     "@lapis-notes/file-explorer": "0.2.8",
     "@lapis-notes/language-service": "0.1.6",
-    "@lapis-notes/ui": "0.2.3",
+    "@lapis-notes/ui": "0.2.4",
     "@lapis-notes/workspace": "0.4.8"
   }
 }
@@ -53,3 +53,18 @@ The canonical edit contract retains these checks:
 - Read/check mode performs no writes, version regressions are rejected and repeated writes are deterministic no-ops.
 - All outputs must satisfy canonical line and byte limits before the first page is written.
 - Recipe regressions and the real candidate's complete main-range comparison remain distinct from PR specification exemptions and final publication acceptance.
+
+## LN-PKG-200 — Factual framework dependency intake
+
+<a id="ln-pkg-200"></a>
+
+**Requirement.** Compatible Design Core dependency intake MUST carry current declared ranges, resolved registry versions and integrity fingerprints into all seven source-owned canonical areas. An independent offline check MUST verify those facts in ordinary functional and canonical check lanes, including bot PRs.
+
+### Acceptance details
+
+The source-owned opt-in retains these controls:
+
+- The schema2 policy names every active Core importer and mapped chapter; source review is required to extend that scope. Root, API, UI, Workspace, Web, Profile and File Explorer retain their distinct declared and peer ranges.
+- The verifier checks current manifests, catalog routing, lock specifiers, one released registry identity and SHA512 integrity independently of the coordinator renderer. Missing importers, malformed or ambiguous sections and mismatched rows or fingerprints fail without writes.
+- The shared coordinator alone prepares bounded slots after immutable-source admission; authored contracts, release intent, frozen Deno boundaries and functional, audit and exact-main specification gates remain binding.
+- Current dependency facts never assert publication, browser acceptance or installed-host adoption. The normal check runs before specification exemptions and canonical aggregate checks retain it as a functional lane.

@@ -1,5 +1,15 @@
 # @lapis-notes/ui
 
+## 0.2.4
+
+### Patch Changes
+
+- [#167](https://github.com/lapismd/lapis-notes/pull/167)
+  [`498a089`](https://github.com/lapismd/lapis-notes/commit/498a089e230d323852ab9b98346e45179a74461b)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Render General → Advanced
+  CLI controls through the declarative Design Core settings group so they use
+  the same heading, card and field layout as core settings.
+
 ## 0.2.3
 
 ### Patch Changes

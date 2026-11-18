@@ -48,8 +48,16 @@ the CI registry fixture's pre-retirement Plugins source input. Its guarded
 post-removal producer, 18 signed catalog documents, 16 signed bundles and all
 13 cold Web cases pass. Notes #165 passed hosted workflow `44198935057` and
 merged at `545284a0`; the source fixture edge is closed.
-Desktop's older fixture pin and stale local-build guard are being repaired in
-an isolated parallel workspace, with Rust/native pins preserved.
+Desktop #48's older fixture pin/stale local-build guard repair passed complete
+hosted qualification and merged into #47's feature branch at `45d61a6c`.
+Combined #53 integrates the qualified private UI, historical-fixture preparation
+and Deno-bootstrap slices; fresh combined hosted and actual updated #47
+qualification remain pending. Native/data acceptance is not inferred.
+The [host-boundary audit](../../records/2026-11-18-retirement-host-boundaries.md)
+retains portable Sync/core functions in mixed `deno-host-services`, active
+Agent Redaction/controller Deno support and the stable Homebrew cutover gate.
+Do not delete whole service packages or core/public functions. Terminal remains
+last; only obsolete host portions and unnecessary runtime tooling are targets.
 Notes coordinates the
 [consolidated retirement plan](../../../docs/plans/legacy-runtime-retirement.md)
 for the frozen Deno desktop, shared AI plugin, obsolete host/tooling edges and
