@@ -5,6 +5,8 @@ repository refresh, isolated workspaces and one removal at a time. The original
 plan-only commit remains preserved. Follow the [progress and resume record](legacy-runtime-retirement-progress.md)
 for completed substeps, exact evidence and pending work. Publication, deployment,
 npm deprecation and installed-application replacement retain their release gates.
+For a takeover-oriented snapshot, ordered task tracker and exact local/GitHub
+resume points, use the [agent handover](legacy-runtime-retirement-handover.md).
 
 Notes is the coordination home because it owns the frozen desktop, shared API
 and application profile. Outstanding coordination status belongs to the
