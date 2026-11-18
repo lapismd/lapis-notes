@@ -54,7 +54,13 @@ Combined #53 integrates the qualified private UI, historical-fixture preparation
 and Deno-bootstrap slices. Exact `9685e1e3` passed complete hosted run
 `44226223633` (18 successful jobs, two configured skips) and merged into #47 at
 `2b553332`, retaining identical source and original commits. Actual updated #47
-workflow `44232361289` remains pending; native/data acceptance is not inferred.
+workflow `44232361289` passed and merged as main `2015c1ea`. Plugins #158's
+Deno-free private Docker slice passed all required checks and merged as main
+`2bab1ccd`. Fresh actual-main CI remains distinct from those PR checks;
+native/data acceptance is not inferred. The
+[source-landing receipt](../../records/2026-11-18-retirement-source-landings.md)
+retains the initial browser setup failure, cold diagnostics and one successful
+targeted retry without changing assertions or adding an exception.
 The [host-boundary audit](../../records/2026-11-18-retirement-host-boundaries.md)
 retains portable Sync/core functions in mixed `deno-host-services`, active
 Agent Redaction/controller Deno support and the stable Homebrew cutover gate.
