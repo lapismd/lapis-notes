@@ -1,7 +1,7 @@
 # Desktop and Deno retirement agent handover
 
-Snapshot: 2026-11-18 (refreshed after Notes #176). Coordination owner:
-`lapismd/lapis-notes`.
+Snapshot: 2026-11-18 (refreshed after Desktop E-RETIRE-014 PR #56). Coordination
+owner: `lapismd/lapis-notes`.
 
 This is the takeover entry point for the authorized Desktop/Deno retirement.
 The [canonical plan](legacy-runtime-retirement.md) owns scope and ordering. The
@@ -54,67 +54,52 @@ this snapshot; update this file and the GitHub tracker when a listed gate moves.
   `sha512-eDDE3XXNpfa8gbHrrQbi4/Z3Lbg4UVi6d4z57LMXeeOIl9oDcdj+OQ8eJv/XhHQ3vcdjvoSeDb49chtNfy/7vg==`,
   and was verified by Notes release run 44315243276.
 - Notes handover docs [#176](https://github.com/lapismd/lapis-notes/pull/176)
-  merged at `0ad5374294ea20c88b4300b4f86bb45681dc4cd8`.
+  merged at `0ad5374294ea20c88b4300b4f86bb45681dc4cd8`; handover refresh
+  [#178](https://github.com/lapismd/lapis-notes/pull/178) merged at
+  `637255f55a16449e0277b6a05e39792b5bc3a4a9`.
+- Desktop [#55](https://github.com/lapismd/lapis-desktop/pull/55) merged at
+  `9769c7febbdf7717ec5cac26b83b2ca7c0b51467` and adopted public UI 0.2.5 with
+  API 0.6.9 and App Profile 0.2.6.
 
 ## Live work and exact resume points
 
 ### 1. Adopt the released Notes cohort in Desktop
 
-Notes handover docs landed as [#176](https://github.com/lapismd/lapis-notes/pull/176)
-/ merge `0ad5374294ea20c88b4300b4f86bb45681dc4cd8`.
-
-Desktop PR [#55](https://github.com/lapismd/lapis-desktop/pull/55) is open at
-`54538ca06f59efc0add15d08b49f5f6f1de58ed0` (moved from handover snapshot
-`0bd8b581…`). It adopts public UI 0.2.5 with API 0.6.9 and App Profile 0.2.6.
-Hosted CI has 16 successes including all four Storybook interaction shards;
-Native Linux x86_64 is the remaining required job; Native bundle stays skipped.
-Do not land a second overlapping dependency intake beside #55.
-
-Reconciled public-UI follow-up workspace (unpublished-projection removal + CLI
-workspace acceptance + E-RETIRE-014, stacked on #55 head):
+Desktop [#55](https://github.com/lapismd/lapis-desktop/pull/55) landed. Follow-up
+[#56](https://github.com/lapismd/lapis-desktop/pull/56) seals `E-RETIRE-014` on
+public UI 0.2.5: removes API/UI/App Profile from unpublished CI projection, adds
+the real CLI Workspace story, and records catalog shard failures, the 88/88
+focused replay and public-UI Docker gates.
 
 - workspace: `/Users/stevejuma/code/lapismd/lapis-desktop-retirement-e014-public-ui`
-- JJ change: `sqkuovow` on parent `54538ca0`
-- receipt under edit: `spec/src/history/E-RETIRE-014.md`
+- JJ change/commit: `sqkuovow` / `442b15c4c869`
+- bookmark: `retirement/e014-public-ui-sqkuovow`
+- receipt: `spec/src/history/E-RETIRE-014.md` (`result: pass`)
 
-Historical private fixed-UI candidate (UI 0.2.4 overlay only; not final proof):
+Public-UI Omarchy Docker gates on five private archives + three npm packages:
 
-- workspace: `/Users/stevejuma/code/lapismd/lapis-desktop-retirement-released-notes-cohort`
-- JJ change/tree: `sryppvyl` / `f3df47d0ce9c1df1c349e57cfbd91b8e856529e9`
-- frozen archive inventory:
-  `.local/released-cohort/fixed-ui-archives.json`
+- CLI Workspace story 4/4 cold modes (`5d5175cc`);
+- `spec:check` (`9d118b1b`);
+- `check:evidence` 523 records (`e054a381`);
+- `build-storybook` (`f3a76e26`).
 
-Already green on the historical private-overlay candidate (preserve as evidence;
-replay final gates on public UI 0.2.5):
-
-- guard/schema 10/10 and original CLI case 4/4 modes;
-- affected CLI/NotesWorkspace 44/44;
-- 811 Node/governance/renderer cases;
-- 748 AI tests across 153 files;
-- 290 Rust passes with two existing ignores;
-- ordinary/e2e strict Clippy, types and renderer build.
-
-Catalog evidence used four frozen workspaces with the six-archive overlay.
-Shards 3 and 4 passed 504/504 and 604/604. Shards 1 and 2 retain three original
-transient failures: Chat Layout Review / Compact Composer remained booting,
-Upstream Status / Incoming And Outgoing left two tooltips, and Change History /
-View Navigation left `pointer-events: none`. A combined replay of all three
-story families passed 88/88 across all four display modes. Preserve the original
-failures. Note: PR #55 hosted interaction aggregate already passed on public
-UI 0.2.5; still obtain a clean required aggregate on the final reconciled head
-or explicit maintainer acceptance before treating the earlier private-overlay
-failures as non-blocking.
+Historical private fixed-UI evidence remains recorded only: shards 3/4 passed
+504/504 and 604/604; shards 1/2 retain three original transient failures (Chat
+Layout Review / Compact Composer booting; Upstream Status / Incoming And
+Outgoing dual tooltips; Change History / View Navigation `pointer-events: none`);
+focused three-family replay 88/88 (`238012cb`). Those original failures stay
+immutable and do not claim clean aggregate admission.
 
 Still required for this step:
 
-- [ ] Let PR #55 exact-head CI finish; inspect every required result; land #55.
-- [ ] Finish E-RETIRE-014 on public UI 0.2.5 (no private fixed-UI overlay).
-- [ ] Run final isolated Docker `build-storybook`, `spec:check` and
+- [x] Land Desktop #55 on public UI 0.2.5.
+- [x] Seal E-RETIRE-014 on public UI 0.2.5 (no private fixed-UI overlay).
+- [x] Run final isolated Docker `build-storybook`, `spec:check` and
       `check:evidence` with the exact final five-private archive inventory.
-- [ ] Seal E-RETIRE-014 with complete catalog counts, all three original
-      failures, the 88/88 replay and final gate results.
-- [ ] Commit/push/review the unpublished-removal + CLI acceptance follow-up,
-      land it, then verify fresh exact-main CI after merge.
+- [x] Record catalog counts, all three original failures, the 88/88 replay and
+      final gate results in E-RETIRE-014.
+- [ ] Land Desktop [#56](https://github.com/lapismd/lapis-desktop/pull/56), then
+      verify fresh exact-main CI after merge.
 
 ### 2. Prove native/data preservation
 
