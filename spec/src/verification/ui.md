@@ -4,7 +4,7 @@
 | ID | Chapter | Status | Evidence |
 | --- | --- | --- | --- |
 | LN-UI-016 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-016) | Implemented | sidebar-custom Input and Separator wrappers consume design-core's public named prop contracts |
-| LN-UI-017 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-017) | Implemented | UI package manifest is public, versioned, semver-portable, and pack-tested for external consumers |
+| LN-UI-017 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-017) | Implemented | UI package manifest is public, versioned, semver-portable, and pack-tested for external consumers; [CLI binding repair](../../records/2026-11-18-cli-field-host-binding.md): private owner/lifetime regressions, 19 UI units and 240 cold registered catalog cases pass; repaired-publication and final Desktop adoption remain separate. |
 | LN-UI-001 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-001) | Implemented | api + stories on `@lapismd/design-core/shadcn/*`; kept compounds only in ui |
 | LN-UI-002 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-002) | Implemented | `API/` stories under `stories/api/` |
 | LN-UI-003 | [ui-and-styling](../ui-and-styling/core-contract.md#ln-ui-003) | Implemented | colocated CSS + `--ui-*` on kept compounds + api chrome; confirm-dialog keeps Design Core dialog host identity and asserts overlay/surface paint |

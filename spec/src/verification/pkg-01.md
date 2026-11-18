@@ -37,7 +37,7 @@
 | LN-PKG-043 | [packages](../packages/releases-and-exports.md#ln-pkg-043) | Implemented | public `@lapis-notes/file-explorer@0.1.1` candidate, API 0.1.1 peer, exact changelog section, tarball checksums, and reusable current, landing-leaf, reveal-or-create, forced-new-tab, and hidden-file acceptance |
 | LN-PKG-040 | [packages](../packages/vault-and-storage.md#ln-pkg-040) | Implemented | Public `./markdownlint/runtime` export; packaged Deno native diagnostics consume the shared runtime boundary through the sole Markdown Lint plugin provider |
 | LN-PKG-042 | [packages](../packages/vault-and-storage.md#ln-pkg-042) | Implemented | `WorkspaceShell` forwards only the generic Design Core navigation contract; desktop owns vault profiles and actions |
-| LN-PKG-005 | [packages](../packages/releases-and-exports.md#ln-pkg-005) | Implemented | package `exports` maps |
+| LN-PKG-005 | [packages](../packages/releases-and-exports.md#ln-pkg-005) | Implemented | package `exports` maps; [private CLI repair archive](../../records/2026-11-18-cli-field-host-binding.md) retains public declarations; repaired publication and registry adoption remain pending |
 | LN-PKG-006 | [packages](../packages/vault-and-storage.md#ln-pkg-006) | Implemented | `VaultStorageKind` in `vault-state.ts`; LightningFS / `tauri-folder` removed |
 | LN-PKG-007 | [packages](../packages/app-and-services.md#ln-pkg-007) | Implemented | `packages/workspace` shell adapter |
 | LN-PKG-008 | [packages](../packages/app-and-services.md#ln-pkg-008) | Implemented | api-owned application metadata, notification presentation, optional default-disabled F-Mode, API-bridged scrollbar visibility, and vault-resolved AppShell plugin enablement persistence |

@@ -1,0 +1,1001 @@
+{
+  "schema": 1,
+  "requirements": ["LN-WS-107", "LN-UI-017", "LN-PKG-005", "LN-CAT-118"],
+  "issue": "Published UI0.2.4 declarative CLI custom field keyed host lookup by raw descriptor identity; rendering copies/proxies that descriptor.",
+  "implementation": "Registration-owned private component closure checks current controller entry before passing the host to its private child; all existing helper functions/maps and public signatures/exports retained.",
+  "publication": {
+    "performed": false,
+    "official_npm_ui_0_2_4_still_broken": true,
+    "private_fixed_candidate_not_npm_artifact": true,
+    "patch_changeset_only": true
+  },
+  "scope": {
+    "protected_paths_unchanged_from_current_main": [
+      "packages/api",
+      "packages/language-service",
+      "packages/host-services",
+      "packages/deno-host-services",
+      "package.json",
+      "pnpm-lock.yaml",
+      "pnpm-workspace.yaml",
+      ".github",
+      "scripts/lib/registry-consumer-install.mjs",
+      "scripts/registry-readiness.fixture.mjs"
+    ],
+    "exported_cli_function_headers_unchanged": true,
+    "public_exports_and_four_cli_declarations_byte_identical": true,
+    "native_provider_actions": false,
+    "core_api_language_functions_changed": false
+  },
+  "runs": {
+    "routing_attempt": {
+      "run": "8f6f3206-0fe5-480e-9e4d-373bcf261376",
+      "source": "14cb8f563415bb873cf75adb1566277d67e4c9cd",
+      "parents": ["747a85555ab90dc0eb91efafaac169c233a3b6fb"],
+      "lane": "test",
+      "args": [
+        "--filter=@lapis-notes/ui",
+        "--",
+        "src/lib/cli/cli-settings.test.ts"
+      ],
+      "status": "failed",
+      "exitCode": 1,
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "6ce28bb7c090490d80e03edb2367931e83102e49f286316dd6bb7c0fcece55e6",
+      "container_log_sha256": "b374e9cdf5d706e59352cde1fd235acda07683c036de16527b37a0e1dd710bf1"
+    },
+    "unit_before": {
+      "run": "1d799070-656d-412f-9270-05afc12ae4f5",
+      "source": "4065a7cabd62c2466da748c9b4e50726922abada",
+      "parents": ["747a85555ab90dc0eb91efafaac169c233a3b6fb"],
+      "lane": "test",
+      "args": [
+        "--filter=@lapis-notes/ui",
+        "--task-args",
+        "src/lib/cli/cli-settings.test.ts"
+      ],
+      "status": "failed",
+      "exitCode": 1,
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "68e4462f5a2d9bb4812ac89cda8b2fd8aeff28ca1128f1663715d00f5dae83cd",
+      "container_log_sha256": "5ddf0d1febefb9708867f4ed6ca85729f1f7d710d051b3d376f7f6c040a8f92d"
+    },
+    "browser_before": {
+      "run": "46a752fe-2cc7-4c86-97df-33e1122cce7e",
+      "source": "4065a7cabd62c2466da748c9b4e50726922abada",
+      "parents": ["747a85555ab90dc0eb91efafaac169c233a3b6fb"],
+      "lane": "test:storybook",
+      "args": ["stories/api/CliSettings.stories.ts", "-t", "Registered Owners"],
+      "status": "failed",
+      "exitCode": 1,
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "d06ec92c94eeb87f1b48a05a0c9d6751984cc7e3cb8de74c6eef1b1584046a4f",
+      "container_log_sha256": "1a5c4a3d91dfc9318e667caac13b9daa94440a16153a4ceca5d87cbb5f600a8f"
+    },
+    "unit_after_initial": {
+      "run": "e2164222-59f9-4a31-91c9-bb485cf25cb6",
+      "source": "ca9d3fa1237b1dbd2ca4bfd08d23a45d1f4003b8",
+      "parents": ["747a85555ab90dc0eb91efafaac169c233a3b6fb"],
+      "lane": "test",
+      "args": [
+        "--filter=@lapis-notes/ui",
+        "--task-args",
+        "src/lib/cli/cli-settings.test.ts"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "eaf39ddc15549de797b6c86d5e9996d83913bd61668256227888a58009af6f66",
+      "container_log_sha256": "dc6c52075d17aec12b77af8f86a00484b95cc77dcb64263271a06eb1a05c2cd0"
+    },
+    "fixture_landmark_failure": {
+      "run": "397a6417-d608-4788-bfb9-969be893fb81",
+      "source": "147bed22d8ed3e01c6132e48c2d8bb898503818c",
+      "parents": ["747a85555ab90dc0eb91efafaac169c233a3b6fb"],
+      "lane": "test:storybook",
+      "args": ["stories/api/CliSettings.stories.ts", "-t", "Registered Owners"],
+      "status": "failed",
+      "exitCode": 1,
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "366dcef28dd346c3952b2d5e077c2aea7e4906fcc998266b1dd4c98e37b7e433",
+      "container_log_sha256": "bad95ede9461ff7af28e0fa954951e4160367b4b008c7f17ac96a0f3e2ca39b6"
+    },
+    "browser_after": {
+      "run": "01913f12-70a3-41f2-a8d2-550d71d63c1a",
+      "source": "144f8b2bf383bb7755113c16b7909fa8457563ae",
+      "parents": ["747a85555ab90dc0eb91efafaac169c233a3b6fb"],
+      "lane": "test:storybook",
+      "args": ["stories/api/CliSettings.stories.ts", "-t", "Registered Owners"],
+      "status": "passed",
+      "exitCode": 0,
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "108afdabc7e99d2935a08bb48cca97c8b1ecb8d74d47a536c5836f1dc937f554",
+      "container_log_sha256": "9866e6403ef27c422f4e90591be28f4f58e0f283e69ee0a4c615071050ba7f22"
+    },
+    "private_return_type_failure": {
+      "run": "fdd57fcd-fb55-44c1-a924-bcbf61a74cee",
+      "source": "c35c01d6d12f7e996c99f93aa4fd0ce37c5278b3",
+      "parents": ["747a85555ab90dc0eb91efafaac169c233a3b6fb"],
+      "lane": "ci:packages",
+      "args": ["--filter=@lapis-notes/ui"],
+      "status": "failed",
+      "exitCode": 1,
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "24407b7ad240e9243561c5ee1ed1b11217a8800310d77343f172ac1c4c31da87",
+      "container_log_sha256": "051736171b53db6e6fd583141adcd07966be4055dd8a2bd8a01002b26beff3ba"
+    },
+    "ui_package": {
+      "run": "710972fe-c3f6-4f5f-99dd-7b49f7de43bb",
+      "source": "c5dde3bf3b78c6cd16caad64ba77f5676799aeb6",
+      "parents": ["747a85555ab90dc0eb91efafaac169c233a3b6fb"],
+      "lane": "ci:packages",
+      "args": ["--filter=@lapis-notes/ui"],
+      "status": "passed",
+      "exitCode": 0,
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "1d7af6b3b19e117460731ba2355bc1dd6fd5039930fc5be0cb9edb16301285b8",
+      "container_log_sha256": "cc3ca2fd58d37c43fe9b55e206816e260216fd6cc7b96d09acc1ec65bb64288b"
+    },
+    "cli_family": {
+      "run": "e0ef28b0-908c-40b6-a013-3aaf7953767c",
+      "source": "c5dde3bf3b78c6cd16caad64ba77f5676799aeb6",
+      "parents": ["747a85555ab90dc0eb91efafaac169c233a3b6fb"],
+      "lane": "test:storybook",
+      "args": ["stories/api/CliSettings.stories.ts"],
+      "status": "passed",
+      "exitCode": 0,
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "0148d1894e81b07c1000a1cb579e875c71c6bc0ddf73d8a136337a1fab0518e8",
+      "container_log_sha256": "0c90d2d64425b9eaa0e584c65896b9f14960e08ce5accfadf51b61b3f5a9304b"
+    },
+    "parity_subject_failure": {
+      "run": "3ae69418-6453-4309-90d7-ba8f441cb5bd",
+      "source": "c5dde3bf3b78c6cd16caad64ba77f5676799aeb6",
+      "parents": ["747a85555ab90dc0eb91efafaac169c233a3b6fb"],
+      "lane": "check:all",
+      "args": [],
+      "status": "failed",
+      "exitCode": 1,
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "93c4ec4a6259a91cced79c07fe2a152ce3470047060c2db95cbda229da9173e7",
+      "container_log_sha256": "96ef7d07b99726acf8bb88ad47c9e709bbbb3996198008db3dc131579e6be31f"
+    },
+    "parity_declaration_failure": {
+      "run": "8b2dc088-eafa-4e72-8085-85bbe20aeb47",
+      "source": "c3ace2527cd9885e4989c59aea17d995f40cb193",
+      "parents": ["747a85555ab90dc0eb91efafaac169c233a3b6fb"],
+      "lane": "check:all",
+      "args": [],
+      "status": "failed",
+      "exitCode": 1,
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "16df83aea6e5dca639472fb2cc158e76614338326610b270754ed7b6e3409858",
+      "container_log_sha256": "42d45ba81f5ccfd7df0231f160a584720a680ab4634a912169f529ef1b5c1665"
+    },
+    "check_all": {
+      "run": "6c9860a1-5532-41f3-abfa-321da9474354",
+      "source": "be2b6d071d18b966121dbcab6149c52d55a89ccc",
+      "parents": ["747a85555ab90dc0eb91efafaac169c233a3b6fb"],
+      "lane": "check:all",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "1c6fe4f7795c57f2da1cf87744522ebb52de4a8f8ed14c94eb0727188c10554a",
+      "container_log_sha256": "d5357c6f1a823f967b40b24639775373b7d0ff5a122fa32d21dc9a0c4751f6b2"
+    },
+    "full_catalog": {
+      "run": "a20d310d-9ea2-423d-8453-b6363aee0ce0",
+      "source": "8d9915be23bcd02f759b9858d0f68f1130346f6a",
+      "parents": ["747a85555ab90dc0eb91efafaac169c233a3b6fb"],
+      "lane": "test:storybook",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "38f70022c6a2ef6bb1317b54d1e25de459aa7ed13c76d853075a1cedc99835f2",
+      "container_log_sha256": "be8e67ee6e9ab9fee8b0259e1043a24955b4a6892b953e26c35c68af3b918d73"
+    },
+    "current_main_fixture_types": {
+      "run": "783b2d30-0c93-49d9-a49c-65e13a8d2683",
+      "source": "a8f11e338fbd0a34dd214264e7a48e8e223eaa0b",
+      "parents": ["17be0be028baadb66847e31fd35de7435fd89ae7"],
+      "lane": "check:specification-docs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "6b64b0d3e837741ae73286e1ce12950f73d2d692dde873904a3f692cef4673db",
+      "container_log_sha256": "cf85f8a68754c7f0e8eb79ebd8193480af027c1ede9185290014c59d14283062"
+    },
+    "current_main_release_controls": {
+      "run": "6b6f355e-284d-409a-b23e-4604c369c7ff",
+      "source": "a8f11e338fbd0a34dd214264e7a48e8e223eaa0b",
+      "parents": ["17be0be028baadb66847e31fd35de7435fd89ae7"],
+      "lane": "release:test",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "3857a690e81c1f5e8a8049df6cff1df6bd78e8d99d82b067936ae01ae854e8e7",
+      "container_log_sha256": "89b6dcff8bf4f09a824bf553ea8a7df8715e1193c3202f4f154c8a0d76662611"
+    },
+    "current_main_static": {
+      "run": "0c4c5b81-c254-4eb5-a827-a528a98c6123",
+      "source": "a8f11e338fbd0a34dd214264e7a48e8e223eaa0b",
+      "parents": ["17be0be028baadb66847e31fd35de7435fd89ae7"],
+      "lane": "ci:storybook-static",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "7e82bf731af6d3df770d435046230f13a54f4a97cc643a456ecfbe098cd2fdb0",
+      "container_log_sha256": "45e7d2715b9db17bb31fa379582ccde2b2ffbe48e1bdf6a8353967e53ca94aef"
+    },
+    "current_main_pack": {
+      "run": "b2a39b5d-d0bd-4ef2-8d4b-6be3b32497ad",
+      "source": "a8f11e338fbd0a34dd214264e7a48e8e223eaa0b",
+      "parents": ["17be0be028baadb66847e31fd35de7435fd89ae7"],
+      "lane": "validation:consumer-pack",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "3ae01c0a928ef074114976c6179276a86680ec0cf20d26713543929fde6d53e8",
+      "container_log_sha256": "4415b81359f34bc522466a0d151f3bde142db49a5a7b2e6a27702080e5b975d4"
+    },
+    "canonical_mapping_failure": {
+      "run": "5435bc6a-b0c5-4b6f-b761-32f895a3d3c3",
+      "source": "b2e28ee3ce796662a809e9bc09799d3f4372de34",
+      "parents": ["17be0be028baadb66847e31fd35de7435fd89ae7"],
+      "lane": "spec:check",
+      "args": [],
+      "status": "failed",
+      "exitCode": 1,
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "9bf0644cf73b0a7b987d8cc093c1e2ea1ec2e52168f5aa235d4737302391e336",
+      "container_log_sha256": "3e33f063be0a926eac68516e66cd4e412b8a697866effa72e7fb9e133af3332e"
+    },
+    "canonical_seal": {
+      "run": "ca6c7edd-3dac-43ba-95c8-7c9f7632ac1d",
+      "source": "2a9df83bf1cb3e46ed7920614c21296541a07ab8",
+      "parents": ["17be0be028baadb66847e31fd35de7435fd89ae7"],
+      "lane": "spec:check",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "f37d2c1a341b1b2c97dd69a55fe1829431fbfb58e9bfebcc1af97f7d29c0b767",
+      "container_log_sha256": "0904eb419a4d45ddd7035e6b51b552ee13a089991adb3ceba62f82b03b17af5d"
+    }
+  },
+  "catalog": {
+    "invocations": [
+      {
+        "file": "storybook-1.xml",
+        "tests": 96,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "files": 15,
+        "sha256": "14fa0dd965ab681962cbab3c5284f500624d422640aa2bf72e7d338404d985c3"
+      },
+      {
+        "file": "storybook-2.xml",
+        "tests": 50,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "files": 15,
+        "sha256": "aa1145525f20f47a3c078985e484f1e6076b3c964e8241170c4638477ca579e7"
+      },
+      {
+        "file": "storybook-3.xml",
+        "tests": 41,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "files": 14,
+        "sha256": "d3639d190ea7f5f5897d9a8e65d11a59e4408e017e794ea0e9c1bd77ea638d15"
+      },
+      {
+        "file": "storybook-4.xml",
+        "tests": 53,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "files": 14,
+        "sha256": "cbc3fe543d5746eeef8a138ed46f775ddf91ed0a02fd07a65dd5d006218865ff"
+      }
+    ],
+    "total_passed": 240,
+    "runtime_files": 58,
+    "static_declared_families": 59,
+    "existing_excluded_link_preview_cases": 2,
+    "existing_notes_hosted_browser_quarantine_unchanged": true
+  },
+  "check_all": {
+    "check_tasks": 16,
+    "test_tasks": 16,
+    "build_tasks": 9,
+    "unique_package_tests": 2204,
+    "ui_tests": 19,
+    "api_tests": 1840,
+    "freshness": "UI19 executed fresh in owner package; unchanged tasks may reuse governed cache. Product bytes unchanged across later fixture and documentation updates."
+  },
+  "current_main_release_controls": {
+    "tests": 223,
+    "failed": 0,
+    "skipped": 0
+  },
+  "current_main_static": {
+    "passed": 5,
+    "existing_static_exclusions": 3
+  },
+  "rebase": {
+    "catalog_run": "lapis-notes-validation-a20d310d-9ea2-423d-8453-b6363aee0ce0",
+    "catalog_source": "8d9915be23bcd02f759b9858d0f68f1130346f6a",
+    "before_parent": "747a85555ab90dc0eb91efafaac169c233a3b6fb",
+    "new_parent": "17be0be028baadb66847e31fd35de7435fd89ae7",
+    "own_changed_file_sha256": {
+      ".changeset/quiet-cli-host-binding.md": "5310d8c58327229d82a8c1f1c74859f21ee6f4ee9cc416a6b2d4be886b1723be",
+      "packages/ui/src/lib/cli/CliSettingsField.svelte": "bb673ac046991dca9ac7bca1005a5407947884995171b42909490b3383e3e44b",
+      "packages/ui/src/lib/cli/cli-settings.test.ts": "70aaae49a5491546fabe0733256940cd617b41ad8b9a90db46d01f5da1317604",
+      "packages/ui/src/lib/cli/cli-settings.ts": "68089296c739e1959b565f3f599f0344253fdc33b9929c6e87ed75145dc5a1e8",
+      "spec/src/storybook-catalog/app-owned-fixtures.md": "299c2fba38d6922d6b0438b13ff8418f46d21a1d4afd9545192454734b018ec5",
+      "spec/src/ui-and-styling/core-contract.md": "18f6df7053d57c371fb6d5d06384cbf10482b651bf27a2dc36ff20c3d4cb3a08",
+      "spec/src/workspace-shell/chrome-and-navigation.md": "390b2f3a2946180fb1acfc86cdcae659ca51ca9980ef3c49bf6e99b244349a27",
+      "stories/api/CliSettingsRegistration.stories.ts": "c0e0f0c2935f66bd36fe70c27faa4038c3a6054f56bd9d1ffdcd7fa11341a0c9",
+      "stories/api/CliSettingsRegistrationDemo.svelte": "49e68d107319ca37e866269da0bca356fc7f80b18730e17b887310f385c4a2f6",
+      "stories/catalog/story-parity.json": "925b8e1d54812f3107b2ca98166e1718e9624dec73b9e1aaeba6996ac05810a4"
+    },
+    "incoming_main_file_sha256": {
+      ".github/workflows/lapis-ci.yml": "38070726f2db3e03c6c73043f73d6e28bcfe40edbf654af564caa554ef8d6c35",
+      ".github/workflows/release.yml": "b3a1970db41a657c8de9d35e3b3e162a49e160e6a03336d06150bf0361eebaf2",
+      "scripts/lib/registry-consumer-install.mjs": "09633a44c034eeac2fec11d0c9e953322103c82d1d2bc1e0f441c201f7772bc1",
+      "scripts/registry-readiness.fixture.mjs": "19ceed846cd38c324e56c97cfc4cd13ee3258c723ed9c4b24eab289d3c2a967d",
+      "spec/records/2026-11-18-readiness-diagnostics.md": "bd0694e5c5281818dbdcd8aa407c729344d8acd48617f7e06c21edeecbd56cb0",
+      "spec/src/architecture/build-and-validation.md": "a1efeb847915aba17d2179d36253940a3e470f76e9165baf27fdfaeb9ebf3e5a",
+      "spec/src/backlog.md": "1c2e40cb10d854fb52756d8f63a62d99d1809c9a79595d2c0f6d12fa2bb3f33f",
+      "spec/src/packages/registry-readiness.md": "a624a48979765f2b984958ab8af8ce59487eaf51f01abb1038b3bff1d2e80cc6",
+      "spec/src/spec-governance/validation-and-ci.md": "360c0ffa1f9ac6877382cf64df40382944fb37e10e70b3243a1ce8a1e8954a06",
+      "spec/src/verification/pkg-02.md": "06644de5c140c8eb293899608916b83c45fb1d916bef76c68d5ac04fe881267e"
+    },
+    "all_own_and_incoming_hashes_preserved": true,
+    "after_revision": "a8f11e338fbd0a34dd214264e7a48e8e223eaa0b"
+  },
+  "candidate": {
+    "name": "@lapis-notes/ui",
+    "version": "0.2.4",
+    "path": "/Users/stevejuma/code/lapismd/lapis-notes-retirement-cli-field-host/.local/validation/runs/lapis-notes-validation-b2a39b5d-d0bd-4ef2-8d4b-6be3b32497ad/.release_validation-packages/lapis-notes-ui-0.2.4.tgz",
+    "sha256": "2dafcac8173701265ade22583c517fc582e3c2cbfcbe80fa4cd9f038097a8d5f",
+    "purpose": "temporary private fixed-UI consumer qualification only; official npm UI0.2.4 remains the broken published artifact",
+    "published": false,
+    "source": "a8f11e338fbd0a34dd214264e7a48e8e223eaa0b",
+    "base": "17be0be028baadb66847e31fd35de7435fd89ae7",
+    "producer_run": "b2a39b5d-d0bd-4ef2-8d4b-6be3b32497ad",
+    "public_exports_unchanged": true,
+    "public_declaration_sha256": {
+      "dist/index.d.ts": "9ced5dbfe7507d38731adf16233274436fe2557dc4f82e9077eeadcef1354a85",
+      "dist/cli/index.d.ts": "942d81c57f4692774be79b7e92f747423cdfaee88e10576a2d4eacef9e9babf3",
+      "dist/cli/cli-settings.d.ts": "8a5378ee9731298a7622c11a9b1bcabd47bb7c612d4fc8cc70fa32952536bcc0",
+      "dist/cli/CliSettings.svelte.d.ts": "d469cb99b58f99c19b4c7deaeb43b64111b588d920f7cdd17215ebf104aec373"
+    },
+    "all_helpers_retained": true,
+    "owner_full_catalog": {
+      "run": "a20d310d-9ea2-423d-8453-b6363aee0ce0",
+      "passes": 240,
+      "excluded_preexisting_link_preview_cases": 2
+    },
+    "owner_ui_tests": 19
+  },
+  "callers": {
+    "actual_register_caller": "Desktop src/lib/notes/notes-settings.ts with owning NotesWorkspace teardown",
+    "other_actual_direct_component_consumers": [
+      "Notes API/CLI Settings stories",
+      "Desktop CLI Settings stories"
+    ],
+    "searched_without_registration_imports": [
+      "Notes747 packages/web and frozen packages/desktop-deno",
+      "Server8896e9ee current web tree including preserved unrelated Terminal edits"
+    ],
+    "scope": "No Server edits or Server acceptance claimed."
+  },
+  "remaining": [
+    "Root review/commit/hosted qualification; repaired UI publication and normal-registry final adoption remain separate gates",
+    "Desktop broader consumer lanes continue independently; owner evidence includes original boundary4/4 and affected-family44/44cold mode cases, without claiming publication or normal-registry final adoption."
+  ],
+  "canonical_seal": {
+    "pass": true,
+    "run": "ca6c7edd-3dac-43ba-95c8-7c9f7632ac1d",
+    "initial_missing_packages_mapping_retained": true,
+    "repair": "Non-normative package context plus existing LN-PKG-005 verification evidence; unchanged requirement text and400-line chapter limit."
+  },
+  "desktop_consumer": {
+    "readiness_locator_attempt": {
+      "repository": "lapismd/lapis-desktop",
+      "run": "26efa48e-4354-45b0-9804-3f7f72da2616",
+      "source": "5f61f46fec05f511ce63d260eb110aacdb483c0a",
+      "lane": "test:storybook",
+      "args": ["catalog/plugins/cli/Workspace.stories.ts"],
+      "status": "failed",
+      "exitCode": 1,
+      "image": "sha256:4a9a5a5be3d78e5720d2702eafca56c2349bd3288ba494405d6cc31345b63e1e",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "archives": [
+        {
+          "name": "@lapis-notes/lapis-plugin-tasks",
+          "version": "0.2.0",
+          "path": "package-0.tgz",
+          "sha256": "9ff0dbdec630b0e56fbaa21957349ee22248d80759fa0a3f1a5b3c3a9b898cff",
+          "source": {
+            "repository": "lapismd/lapis-plugin-tasks",
+            "revision": "7e25dc5cce821baca7831827f1711c1f18cbabf1"
+          }
+        },
+        {
+          "name": "@lapis-notes/workspace",
+          "version": "0.4.8",
+          "path": "package-1.tgz",
+          "sha256": "558ecb749a420cbb222a790f19f5527aef9b2d956fcb367e633ca26cc7d60177",
+          "source": {
+            "repository": "lapismd/lapis-notes",
+            "revision": "5ffb33c152404b6880debd1b5fd70762121d6196"
+          }
+        },
+        {
+          "name": "@lapis-notes/file-explorer",
+          "version": "0.2.8",
+          "path": "package-2.tgz",
+          "sha256": "5ab4ba28eb6a839bf64cfbc4031c77bb60b9883069ce9c0a510ecce32be3f342",
+          "source": {
+            "repository": "lapismd/lapis-notes",
+            "revision": "5ffb33c152404b6880debd1b5fd70762121d6196"
+          }
+        },
+        {
+          "name": "@lapis-notes/language-service",
+          "version": "0.1.6",
+          "path": "package-3.tgz",
+          "sha256": "9b371f7c14850d73961f9d2a94aad126c964b7f3800576b38079185e821f28a0",
+          "source": {
+            "repository": "lapismd/lapis-notes",
+            "revision": "5ffb33c152404b6880debd1b5fd70762121d6196"
+          }
+        },
+        {
+          "name": "@lapismd/ai",
+          "version": "0.2.0",
+          "path": "package-4.tgz",
+          "sha256": "071f885c9c0b4efe0722bd3771a632583a7416d62a59f17d2c9f3d9ac9ea3630",
+          "source": {
+            "repository": "lapismd/lapis-ai",
+            "revision": "9a98293c26524c9320acdd9767e34e8ffdd7170c"
+          }
+        }
+      ],
+      "metadata_sha256": "3e28576f00cbdc12213e8d638c02a081addafadff8ec694b6832f618a5e893b6",
+      "container_log_sha256": "e2cd58b6c65b7852fd87008ef3a71f1b96f93eafdbeb22447afc2556e0491ef3",
+      "junit": [
+        {
+          "file": "storybook-1-desktop-light.xml",
+          "tests": 1,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0,
+          "sha256": "3378553ac36e1ca72ebd37a689e0d0dd1b02b8dd39a83d6b73cade62dbaec5f4"
+        }
+      ]
+    },
+    "published_ui_binding_baseline": {
+      "repository": "lapismd/lapis-desktop",
+      "run": "f9f1da25-0bc4-4e97-9f34-1a44d67dae00",
+      "source": "d0a0ea137db888ad80fd471d07ddefd045838bcb",
+      "lane": "test:storybook",
+      "args": ["catalog/plugins/cli/Workspace.stories.ts"],
+      "status": "failed",
+      "exitCode": 1,
+      "image": "sha256:4a9a5a5be3d78e5720d2702eafca56c2349bd3288ba494405d6cc31345b63e1e",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "archives": [
+        {
+          "name": "@lapis-notes/lapis-plugin-tasks",
+          "version": "0.2.0",
+          "path": "package-0.tgz",
+          "sha256": "9ff0dbdec630b0e56fbaa21957349ee22248d80759fa0a3f1a5b3c3a9b898cff",
+          "source": {
+            "repository": "lapismd/lapis-plugin-tasks",
+            "revision": "7e25dc5cce821baca7831827f1711c1f18cbabf1"
+          }
+        },
+        {
+          "name": "@lapis-notes/workspace",
+          "version": "0.4.8",
+          "path": "package-1.tgz",
+          "sha256": "558ecb749a420cbb222a790f19f5527aef9b2d956fcb367e633ca26cc7d60177",
+          "source": {
+            "repository": "lapismd/lapis-notes",
+            "revision": "5ffb33c152404b6880debd1b5fd70762121d6196"
+          }
+        },
+        {
+          "name": "@lapis-notes/file-explorer",
+          "version": "0.2.8",
+          "path": "package-2.tgz",
+          "sha256": "5ab4ba28eb6a839bf64cfbc4031c77bb60b9883069ce9c0a510ecce32be3f342",
+          "source": {
+            "repository": "lapismd/lapis-notes",
+            "revision": "5ffb33c152404b6880debd1b5fd70762121d6196"
+          }
+        },
+        {
+          "name": "@lapis-notes/language-service",
+          "version": "0.1.6",
+          "path": "package-3.tgz",
+          "sha256": "9b371f7c14850d73961f9d2a94aad126c964b7f3800576b38079185e821f28a0",
+          "source": {
+            "repository": "lapismd/lapis-notes",
+            "revision": "5ffb33c152404b6880debd1b5fd70762121d6196"
+          }
+        },
+        {
+          "name": "@lapismd/ai",
+          "version": "0.2.0",
+          "path": "package-4.tgz",
+          "sha256": "071f885c9c0b4efe0722bd3771a632583a7416d62a59f17d2c9f3d9ac9ea3630",
+          "source": {
+            "repository": "lapismd/lapis-ai",
+            "revision": "9a98293c26524c9320acdd9767e34e8ffdd7170c"
+          }
+        }
+      ],
+      "metadata_sha256": "6535efe27cd5ff2b1cf7443ae02f84be2c4e46787bff7c28ca3cfa567ebc5342",
+      "container_log_sha256": "666e5b07b7da148d6bd71bae475b9d28cdac7f19a7902cd81cc40610d81041df",
+      "junit": [
+        {
+          "file": "storybook-1-desktop-light.xml",
+          "tests": 1,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0,
+          "sha256": "dae4d64f30b3f718edb10cb7ecf68f2a33f7d82d3065ee37172528c7307a8f90"
+        }
+      ]
+    },
+    "private_ui_final_navigation_locator_attempt": {
+      "repository": "lapismd/lapis-desktop",
+      "run": "58a3c48c-c3b6-4b87-8266-621784319e9b",
+      "source": "53ee35039ae7b2c15357c02090005e4b7a50f5bd",
+      "lane": "test:storybook",
+      "args": ["catalog/plugins/cli/Workspace.stories.ts"],
+      "status": "failed",
+      "exitCode": 1,
+      "image": "sha256:4a9a5a5be3d78e5720d2702eafca56c2349bd3288ba494405d6cc31345b63e1e",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "archives": [
+        {
+          "name": "@lapis-notes/lapis-plugin-tasks",
+          "version": "0.2.0",
+          "path": "package-0.tgz",
+          "sha256": "9ff0dbdec630b0e56fbaa21957349ee22248d80759fa0a3f1a5b3c3a9b898cff",
+          "source": {
+            "repository": "lapismd/lapis-plugin-tasks",
+            "revision": "7e25dc5cce821baca7831827f1711c1f18cbabf1"
+          }
+        },
+        {
+          "name": "@lapis-notes/workspace",
+          "version": "0.4.8",
+          "path": "package-1.tgz",
+          "sha256": "558ecb749a420cbb222a790f19f5527aef9b2d956fcb367e633ca26cc7d60177",
+          "source": {
+            "repository": "lapismd/lapis-notes",
+            "revision": "5ffb33c152404b6880debd1b5fd70762121d6196"
+          }
+        },
+        {
+          "name": "@lapis-notes/file-explorer",
+          "version": "0.2.8",
+          "path": "package-2.tgz",
+          "sha256": "5ab4ba28eb6a839bf64cfbc4031c77bb60b9883069ce9c0a510ecce32be3f342",
+          "source": {
+            "repository": "lapismd/lapis-notes",
+            "revision": "5ffb33c152404b6880debd1b5fd70762121d6196"
+          }
+        },
+        {
+          "name": "@lapis-notes/language-service",
+          "version": "0.1.6",
+          "path": "package-3.tgz",
+          "sha256": "9b371f7c14850d73961f9d2a94aad126c964b7f3800576b38079185e821f28a0",
+          "source": {
+            "repository": "lapismd/lapis-notes",
+            "revision": "5ffb33c152404b6880debd1b5fd70762121d6196"
+          }
+        },
+        {
+          "name": "@lapismd/ai",
+          "version": "0.2.0",
+          "path": "package-4.tgz",
+          "sha256": "071f885c9c0b4efe0722bd3771a632583a7416d62a59f17d2c9f3d9ac9ea3630",
+          "source": {
+            "repository": "lapismd/lapis-ai",
+            "revision": "9a98293c26524c9320acdd9767e34e8ffdd7170c"
+          }
+        },
+        {
+          "name": "@lapis-notes/ui",
+          "version": "0.2.4",
+          "path": "package-5.tgz",
+          "sha256": "2dafcac8173701265ade22583c517fc582e3c2cbfcbe80fa4cd9f038097a8d5f",
+          "source": {
+            "repository": "lapismd/lapis-notes",
+            "revision": "a8f11e338fbd0a34dd214264e7a48e8e223eaa0b"
+          },
+          "purpose": "temporary private fixed-UI consumer qualification only; official npm UI0.2.4 remains the broken published artifact"
+        }
+      ],
+      "metadata_sha256": "4f34a6b750ebc735be3768a3810be1e81dccefbd651926329771db773a33c02b",
+      "container_log_sha256": "4ff5dd1f44d65021ff3a72eb959a2e9ebef3b7ba874652b0756fa44a90848392",
+      "junit": [
+        {
+          "file": "storybook-1-desktop-light.xml",
+          "tests": 1,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0,
+          "sha256": "78b2d24ff931ac44a0ec174637c1638e0c976b1d57a7fbf0e765e8c501695a43"
+        }
+      ]
+    },
+    "original_boundary_four_modes": {
+      "repository": "lapismd/lapis-desktop",
+      "run": "006af14a-3297-4931-b2c8-8694f54a797b",
+      "source": "662e47aa1bc0aaf06b3d165e7ea4c730ae4885f4",
+      "lane": "test:storybook",
+      "args": ["catalog/plugins/cli/Workspace.stories.ts"],
+      "status": "passed",
+      "exitCode": 0,
+      "image": "sha256:4a9a5a5be3d78e5720d2702eafca56c2349bd3288ba494405d6cc31345b63e1e",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "archives": [
+        {
+          "name": "@lapis-notes/lapis-plugin-tasks",
+          "version": "0.2.0",
+          "path": "package-0.tgz",
+          "sha256": "9ff0dbdec630b0e56fbaa21957349ee22248d80759fa0a3f1a5b3c3a9b898cff",
+          "source": {
+            "repository": "lapismd/lapis-plugin-tasks",
+            "revision": "7e25dc5cce821baca7831827f1711c1f18cbabf1"
+          }
+        },
+        {
+          "name": "@lapis-notes/workspace",
+          "version": "0.4.8",
+          "path": "package-1.tgz",
+          "sha256": "558ecb749a420cbb222a790f19f5527aef9b2d956fcb367e633ca26cc7d60177",
+          "source": {
+            "repository": "lapismd/lapis-notes",
+            "revision": "5ffb33c152404b6880debd1b5fd70762121d6196"
+          }
+        },
+        {
+          "name": "@lapis-notes/file-explorer",
+          "version": "0.2.8",
+          "path": "package-2.tgz",
+          "sha256": "5ab4ba28eb6a839bf64cfbc4031c77bb60b9883069ce9c0a510ecce32be3f342",
+          "source": {
+            "repository": "lapismd/lapis-notes",
+            "revision": "5ffb33c152404b6880debd1b5fd70762121d6196"
+          }
+        },
+        {
+          "name": "@lapis-notes/language-service",
+          "version": "0.1.6",
+          "path": "package-3.tgz",
+          "sha256": "9b371f7c14850d73961f9d2a94aad126c964b7f3800576b38079185e821f28a0",
+          "source": {
+            "repository": "lapismd/lapis-notes",
+            "revision": "5ffb33c152404b6880debd1b5fd70762121d6196"
+          }
+        },
+        {
+          "name": "@lapismd/ai",
+          "version": "0.2.0",
+          "path": "package-4.tgz",
+          "sha256": "071f885c9c0b4efe0722bd3771a632583a7416d62a59f17d2c9f3d9ac9ea3630",
+          "source": {
+            "repository": "lapismd/lapis-ai",
+            "revision": "9a98293c26524c9320acdd9767e34e8ffdd7170c"
+          }
+        },
+        {
+          "name": "@lapis-notes/ui",
+          "version": "0.2.4",
+          "path": "package-5.tgz",
+          "sha256": "2dafcac8173701265ade22583c517fc582e3c2cbfcbe80fa4cd9f038097a8d5f",
+          "source": {
+            "repository": "lapismd/lapis-notes",
+            "revision": "a8f11e338fbd0a34dd214264e7a48e8e223eaa0b"
+          },
+          "purpose": "temporary private fixed-UI consumer qualification only; official npm UI0.2.4 remains the broken published artifact"
+        }
+      ],
+      "metadata_sha256": "af4ae27e40331ad7fc2b794d401ffebeef2250839c3c3e3f5bf8ec79c271b8e9",
+      "container_log_sha256": "8cb0520349fc2ee8efb207c8d136ac46801b4c5385fbb83fbeff72d0b0075a33",
+      "junit": [
+        {
+          "file": "storybook-1-desktop-dark.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "sha256": "dd37d18cf478c00216477371dcde669e79f67f7c6a3e670e18cd983843f3dd25"
+        },
+        {
+          "file": "storybook-1-desktop-light.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "sha256": "0b5faacaa8d8fd5c0cd3f0929b617f49641d72965fc3245fdca18750eedd7878"
+        },
+        {
+          "file": "storybook-1-narrow-dark.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "sha256": "fd899680d65b92424da3d1d205d75433ef9309706044a740aed9e0ff29d43887"
+        },
+        {
+          "file": "storybook-1-narrow-light.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "sha256": "aa93bd2dbad84b15bf7d04b4ede3e4dbabe20353ca28d1add382a79b3c853185"
+        }
+      ]
+    },
+    "notes": [
+      "Initial readiness-locator failure is separate from published UI host-binding regression.",
+      "Published UI baseline1failed and1unhandled host-binding error; later3modes unrun, not passing.",
+      "Private UI first replay clears binding/CLI credential actions but reaches an existing final navigation locator mismatch; retained as failed.",
+      "Authorized actionlocator correction targets the actual Current workspace: Catalog vault trigger, keeping Back to vaults teardown and deadlines; original boundary then4/4cold modes with0unhandled or axe errors.",
+      "API0.6.9 and Profile0.2.6 remain normal npm packages; five previous private archives are unchanged and verified UI alone is added.",
+      "Affected-family and wider consumer qualification are owned separately by Desktop; no repaired publication or normal-registry final adoption claimed."
+    ],
+    "affected_cli_workspace_families": {
+      "run": "3194b375-4d0e-433a-9001-e0ed32186ae8",
+      "source": "7a4225f038387fe6adc8ab4fcee06508b617ebcd",
+      "status": "passed",
+      "lane": "test:storybook",
+      "args": [
+        "catalog/plugins/cli/Settings.stories.ts",
+        "catalog/plugins/Workspace.stories.ts"
+      ],
+      "image": "sha256:4a9a5a5be3d78e5720d2702eafca56c2349bd3288ba494405d6cc31345b63e1e",
+      "resources": {
+        "cpus": 2,
+        "memoryGiB": 12,
+        "shmGiB": 2
+      },
+      "metadata_sha256": "a5c903c51fc19f0dcddffedbd31472742eb303348f167973e417062bc4bac6c3",
+      "container_log_sha256": "d291c472ce06bb2cb6a020eed89f4fc787e365a473db4c8ba37cdd702860c34f",
+      "junit": [
+        {
+          "file": "storybook-1-desktop-dark.xml",
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "sha256": "839f86a4b09593cc70a65e6f4beddd342d665bfe941fcfebc61151a0d3ccc657"
+        },
+        {
+          "file": "storybook-1-desktop-light.xml",
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "sha256": "66f3e4499a55c54d7b843d4607ac2d39d47702843e559ac8b45bb53d5e478ed2"
+        },
+        {
+          "file": "storybook-1-narrow-dark.xml",
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "sha256": "dc25bd69f0d35fa725d2fbe66c01b58cce7b66dd1a22a5fa83019d5f1adceb40"
+        },
+        {
+          "file": "storybook-1-narrow-light.xml",
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "sha256": "303075feb81e660cc3c0efb7df7c5a450debe4bb66b9b2e80e1ab36962b71c4d"
+        }
+      ],
+      "total_passed": 44,
+      "modes": 4,
+      "per_mode": {
+        "notes_workspace": 7,
+        "cli": 4
+      },
+      "unhandled_errors": 0,
+      "axe_errors": 0
+    }
+  },
+  "show_code": {
+    "artifact_source": "a8f11e338fbd0a34dd214264e7a48e8e223eaa0b",
+    "artifact_run": "0c4c5b81-c254-4eb5-a827-a528a98c6123",
+    "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+    "resources": {
+      "cpus": 2,
+      "memoryGiB": 12,
+      "shmGiB": 2
+    },
+    "pass": true,
+    "required": {
+      "registerCliSettings": true,
+      "WorkspaceSettingsController": true,
+      "onDestroy": true,
+      "@lapis-notes/ui/cli": true
+    },
+    "private_fixture_leaked": false,
+    "page_errors": [],
+    "console_errors_retained": [
+      "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "metadata_sha256": "0cc28d481fd09199513705668c0aab37a52e360a3d916ac20223fafac05edd89",
+    "browser_report_sha256": "49f03f0b19d83994e13cbaf2132c5df6c2bf6da27da54c783114e320f5ff7ec8",
+    "screenshot_sha256": "509e454900f95c1ffb0b0d9006e2273f9b10277db5c268da3082d4c9725e66bf",
+    "probe_sha256": "fc7d2795a36894ad395a824234d29263928fa0d9d1d7d09b3e31a30db5cbb8ec",
+    "attempts_retained": [
+      {
+        "attempt": 1,
+        "status": "failed",
+        "metadata_sha256": "7732e018622bbb67b7986d15f584ddafbe731c1fbe1b404c4387b1c369fc9443",
+        "driver_log_sha256": "0c153d3d9165a348a8e92aed0f4b31f21b04e4dd70e1109b991e2eeb76583561",
+        "probe_sha256": "dec1bace0482e67b63af450b85a9c9e7198d5d8dc332ac0369fbf902366fb77f"
+      },
+      {
+        "attempt": 2,
+        "status": "failed",
+        "metadata_sha256": "ba1d002651e258979374feb09182a0c6bd692cbdd48fb00681c61f4bdc72a0ec",
+        "driver_log_sha256": "e8afb4fa1cede8f4b373b7060678fa2d05230b3324fcfe6ee7e83150a9232a7d",
+        "probe_sha256": "e9424c1a9e2f635529ec6386dd229c4723efcf322ed5daffdcb79a750e4bf4c4"
+      },
+      {
+        "attempt": 3,
+        "status": "failed",
+        "metadata_sha256": "482de7a336f40ab6379921a3eed5c0e28283e37e07f681ce3d31feb25ee06f58",
+        "driver_log_sha256": "7ecbb85412510de1f829df9ef3d7c321894596d8386817c232ad40e903d65c23",
+        "probe_sha256": "fa5fd0e5983a31cc9909e647c877e741532b7f2423a679fd5582a7adf101f6cc",
+        "browser_report_sha256": "9badde90df43d67733c6141e029eb3a4bcb39cc3eb3ef49e63201d24342c6db0"
+      },
+      {
+        "attempt": 4,
+        "status": "failed",
+        "metadata_sha256": "2e38addd99ec539a2d2d12808d6e3afc11a04295aa4ae259ff6359e0cb5a8e5e",
+        "driver_log_sha256": "1012bd749bc8d82ea1220c60a7409fce7b35dbc97cd3f680c220d421c22ec6c2",
+        "probe_sha256": "b3d967996429a1622be69a9a820d471b1d0fc7ff3c8c6664241a19b43732f35f",
+        "browser_report_sha256": "7989f4790d4ee096bbec6841d61af440dcb13c9fcecaa6f49f200f03bdf89206",
+        "screenshot_sha256": "8086920b21a2ef64f8d2efc6fb72cd4909fe91f6143765ab68f6695c59180d39"
+      }
+    ],
+    "interpretation": "Explicit public consumer source verified in rendered expanded disclosure; two prebrowser module-discovery failures and two incorrect role-based disclosure probes retained. One console resource404 captured; no page errors. No product source or authored story changed for these probes."
+  }
+}
