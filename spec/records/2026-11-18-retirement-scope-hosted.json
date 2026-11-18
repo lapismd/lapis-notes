@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "pr": 168,
+  "head": "75d5b3b2ad42d0e1134668065901da556b3d2ff3",
+  "base": "6787e8248146edcd75e78228a28738840be8fce4",
+  "merge": "dee1067190baebe5344ea216eac3218c5f69da01",
+  "workflowRun": 44213407128,
+  "sourceDiff": {
+    "markdownFiles": 5,
+    "executableFiles": 0
+  },
+  "initial": {
+    "attempt": 1,
+    "result": "failure",
+    "pwaJob": 134498831551,
+    "aggregateJob": 134508420954,
+    "failure": "offline sync-readiness shell timeout",
+    "timeoutMs": 90000,
+    "webPassed": 13,
+    "buildCommit": "d5f78d4f6589407a014ada4f21e6bdf8c34e881b",
+    "artifact": {
+      "id": 14387966343,
+      "sha256": "c2a56cf5d110cf6fa0ca1c8678c768bb49acb500c292aa0cb0c0dc9ea27e1e12"
+    },
+    "diagnostics": {
+      "id": 14388290913,
+      "sha256": "e78caa566dae78bd172a627d1c6816b093e59add8f9d1fa68095c51ff8cd9ac7"
+    }
+  },
+  "replay": {
+    "result": "pass",
+    "exitCode": 0,
+    "command": "pnpm web:cloudflare:acceptance",
+    "source": "75d5b3b2ad42d0e1134668065901da556b3d2ff3",
+    "image": "sha256:a4ffd16112f050b63d0e53c22ce7f6e8790872c0cdcfb2d8c85d5a6df0bc8345",
+    "sourceTarSha256": "51c44f881ab05cfa6627479f3dc2ca7dd83e6d7078fc7f1df83a0cd995f30fad",
+    "context": "omarchy",
+    "cpus": 2,
+    "memoryGiB": 4,
+    "shmGiB": 2,
+    "sharedVolumes": false,
+    "freshBrowserContext": true,
+    "node": "24.15.0",
+    "pnpm": "10.34.5",
+    "wrangler": "4.156.0",
+    "playwright": "1.61.1",
+    "artifactFiles": 620,
+    "artifactUnchanged": true,
+    "started": "2026-11-18T01:24:18.693Z",
+    "finished": "2026-11-18T01:25:46.968Z"
+  },
+  "retry": {
+    "initialLiveRunRequest": {
+      "accepted": false,
+      "httpStatus": 403
+    },
+    "acceptedTargetedReruns": 1,
+    "unchangedHead": true,
+    "attempt": 2,
+    "pwaJob": 134509729677,
+    "aggregateJob": 134512355867,
+    "result": "success",
+    "successfulJobs": 12,
+    "configuredInteractionSkipped": 1,
+    "allExecutedRequiredChecks": "success",
+    "mergeStateBeforeMerge": "CLEAN",
+    "artifacts": {
+      "pwa": {
+        "id": 14388338456,
+        "sha256": "665e49f1f82f5837a6f555d51e5b5ba84e496c9356c4ffa2cdf9a190695c95cb"
+      },
+      "diagnostics": {
+        "id": 14389297163,
+        "sha256": "7156363191e8709bbe49daf932d5da1f45fb0304f8299d07af882258ec1ada80"
+      }
+    }
+  },
+  "runtimeFixClaimed": false,
+  "gateWaived": false,
+  "remainingIssue": "LN-WEB-092 intermittent offline startup stall",
+  "rawReceipts": ".local/validation/pr168-pwa-replay/ in the existing lapis-notes-retire-shared-ai workspace"
+}
