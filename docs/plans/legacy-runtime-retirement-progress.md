@@ -730,7 +730,9 @@ preparation/admission without removing Language Service. Its fresh complete
 producer artifact and all 2,168 hosted Storybook interaction/accessibility
 executions pass; Linux native build jobs are still pending. Do not infer final
 workflow success before the aggregate finishes. Notes #166's Web-owned icon
-prerequisite is also awaiting final Web/aggregate checks at `ac2abc71`.
+prerequisite passed all 12 executed hosted jobs and 13 Web cases at `ac2abc71`
+and merged at `6787e8248146edcd75e78228a28738840be8fce4`. Its configured interaction
+skip remains explicit in the [hosted receipt](../../spec/records/2026-11-18-web-icon-input-hosted.md).
 
 Resume by verifying the exact hosted heads, landing in dependency order, and
 integrating the E-RETIRE-002 final consumer receipt. Preserve native
