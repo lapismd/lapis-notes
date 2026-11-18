@@ -1,5 +1,8 @@
-import type { WorkspaceSettingsController } from "@lapismd/design-core/workspace/settings";
-import GeneralCliSettingsPage from "./GeneralCliSettingsPage.svelte";
+import type {
+  WorkspaceCustomSetting,
+  WorkspaceSettingsController,
+} from "@lapismd/design-core/workspace/settings";
+import CliSettingsField from "./CliSettingsField.svelte";
 
 export interface CliInstallationStatus {
   state: "not-installed" | "installed" | "broken" | "conflict";
@@ -43,6 +46,14 @@ const hosts = new WeakMap<
   WorkspaceSettingsController,
   { host: CliSettingsHost }
 >();
+const fieldHosts = new WeakMap<WorkspaceCustomSetting, CliSettingsHost>();
+export function cliSettingsFieldHost(
+  field: WorkspaceCustomSetting,
+): CliSettingsHost {
+  const host = fieldHosts.get(field);
+  if (!host) throw new Error("CLI settings field host is not bound");
+  return host;
+}
 export function cliSettingsHost(
   controller: WorkspaceSettingsController,
 ): CliSettingsHost {
@@ -62,12 +73,28 @@ export function registerCliSettings(
   }
   const entry = { host };
   hosts.set(settings, entry);
+  const field: WorkspaceCustomSetting = {
+    id: "cli",
+    title: "Command line interface",
+    description: "Use the lapis command from your terminal.",
+    type: "custom",
+    presentation: "full-width",
+    component: CliSettingsField,
+  };
+  fieldHosts.set(field, host);
   const dispose = settings.registerSection({
     id: "general",
     title: "General",
     navigationGroupId: "options",
     order: 0,
-    page: GeneralCliSettingsPage,
+    fields: [
+      {
+        id: "advanced",
+        title: "Advanced",
+        type: "group",
+        fields: [field],
+      },
+    ],
     searchEntries: [
       {
         id: "cli",
@@ -78,8 +105,12 @@ export function registerCliSettings(
     ],
   });
   return () => {
-    if (hosts.get(settings) !== entry) return;
+    if (hosts.get(settings) !== entry) {
+      fieldHosts.delete(field);
+      return;
+    }
     dispose();
     hosts.delete(settings);
+    fieldHosts.delete(field);
   };
 }

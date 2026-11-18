@@ -194,6 +194,7 @@ override or private renderer styling is introduced.
 
 The public `@lapis-notes/ui/cli` compound supplies General → Advanced CLI
 setup, removal, repair, downloads and optional scoped desktop access. It composes
-Design Core controls and settings contracts without importing the App API.
+Design Core controls and declarative settings contracts without importing the App API.
 Host ports own installation and credentials; no authority enters UI persistence.
-Node tests compile its Svelte registration page through the package test pipeline.
+Node tests compile its Svelte custom field through the package test pipeline and
+verify that the General section has an Advanced group without a custom page.
