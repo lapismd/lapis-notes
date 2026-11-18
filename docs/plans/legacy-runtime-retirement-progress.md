@@ -39,8 +39,10 @@ standard catalog publication `44238334007` are separate fresh observations;
 see the [source-landing receipt](../../spec/records/2026-11-18-retirement-source-landings.md).
 
 Still pending: actual old-external/bundled native startup/data acceptance,
-App Profile native-chat lifecycle/storage acceptance, API package publication
-and consumer adoption, Website cutover and installed-app replacement. No macOS
+App Profile native-chat lifecycle/storage acceptance, released-package consumer
+adoption, Website cutover and installed-app replacement. API `0.6.9`, UI `0.2.4`
+and App Profile `0.2.6` are already published; the publication audit below
+supersedes older publication-pending checkpoints. No macOS
 native case has run. Approval for the explicitly on-demand diagnostic lane is
 still pending; portable or hosted Linux results do not close that gate.
 
@@ -120,18 +122,18 @@ leases isolated.
 
 ## Removal 1: shared AI plugin — in progress
 
-| Substep                                                       | Status                               | Evidence / remaining boundary                                                                                                                                  |
-| ------------------------------------------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Refresh current registration and release entrypoints          | Verified source                      | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller                                                              |
-| Reject retired publication and metadata selectors             | Merged                               | Plugins #154/#155; main `e8f8eb1b`; exact-main CI `44149978818` passed                                                                                         |
-| Disable mutable registry source and block reactivation        | Deployed                             | Registry #181/#183; signed disabled metadata and 18 live GET/HEAD responses verified; HTTP 410 stops fallback                                                  |
-| Remove shared implementation, package and media catalogs      | Merged                               | Plugins #155; 410 interactions, 1,022 package tests, 243 release-tooling tests and 16 artifacts                                                                |
-| Remove Notes duplicate stories/controller probes/dependencies | Merged                               | #157 and #158 / `52cffda1`; 2,194 package tests, 239 cold interactions, 3 inspected tarballs and required hosted CI pass                                       |
-| Remove retired AI from pinned fixture build inputs            | Notes and Desktop main merged        | Notes #165 / `545284a0`; Desktop #48 complete producer, fanout and Linux builds pass; merged through #47 into main `2015c1ea`; actual-head hosted checks pass. |
-| Preserve installed-data/native lifecycle                      | Pending                              | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                                                                         |
-| Update Website and organization metadata                      | Merged                               | Website #1 / `9cbdc233`, exact-main CI `44157445481` passed; .github #15 / `5f81879f`                                                                          |
-| Complete source/public-package/consumer gates                 | Source qualified; acceptance pending | Catalog removals pass; approved legacy-cache provenance guard source-qualified; API release and native/data gates remain open                                  |
-| npm deprecation, signed registry publication and deployment   | Registry and npm complete            | Approved signed candidate is live; All 11 npm versions deprecated; every original tarball SHA-512 verified; no unpublish or installed-app replacement          |
+| Substep                                                       | Status                                 | Evidence / remaining boundary                                                                                                                                           |
+| ------------------------------------------------------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Refresh current registration and release entrypoints          | Verified source                        | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller                                                                       |
+| Reject retired publication and metadata selectors             | Merged                                 | Plugins #154/#155; main `e8f8eb1b`; exact-main CI `44149978818` passed                                                                                                  |
+| Disable mutable registry source and block reactivation        | Deployed                               | Registry #181/#183; signed disabled metadata and 18 live GET/HEAD responses verified; HTTP 410 stops fallback                                                           |
+| Remove shared implementation, package and media catalogs      | Merged                                 | Plugins #155; 410 interactions, 1,022 package tests, 243 release-tooling tests and 16 artifacts                                                                         |
+| Remove Notes duplicate stories/controller probes/dependencies | Merged                                 | #157 and #158 / `52cffda1`; 2,194 package tests, 239 cold interactions, 3 inspected tarballs and required hosted CI pass                                                |
+| Remove retired AI from pinned fixture build inputs            | Notes and Desktop main merged          | Notes #165 / `545284a0`; Desktop #48 complete producer, fanout and Linux builds pass; merged through #47 into main `2015c1ea`; actual-head hosted checks pass.          |
+| Preserve installed-data/native lifecycle                      | Pending                                | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                                                                                  |
+| Update Website and organization metadata                      | Merged                                 | Website #1 / `9cbdc233`, exact-main CI `44157445481` passed; .github #15 / `5f81879f`                                                                                   |
+| Complete source/public-package/consumer gates                 | Published; consumer acceptance pending | Approved provenance guard and peer cleanup are published in API `0.6.9` / UI `0.2.4` / Profile `0.2.6`; Desktop released-cohort and native/data acceptance remain open. |
+| npm deprecation, signed registry publication and deployment   | Registry and npm complete              | Approved signed candidate is live; All 11 npm versions deprecated; every original tarball SHA-512 verified; no unpublish or installed-app replacement                   |
 
 ## Later removals — pending
 
@@ -799,3 +801,36 @@ core API services/functions and future Language Service/Sync wiring intact.
 The detailed read-only host audit identifies portable filesystem error and
 text-codec functions inside the mixed package; they must survive any later
 Deno-only adapter removal. No frozen-host or core implementation changed here.
+
+## Published Notes cohort and remaining consumer intake
+
+The [publication audit](../../spec/records/2026-11-18-retirement-published-notes-cohort.md)
+confirms the approved installer guard and Profile peer cleanup are already
+published from Notes `538bb469`. Release workflow `44232734973` published on
+attempt 1; its initial registry-install verification failure remains retained,
+and attempt 2 passed published-registry consumer build/resolution verification.
+No new publication or tag promotion is required by this checkpoint.
+
+API `0.6.9` / UI `0.2.4` / App Profile `0.2.6` form the released intake candidate.
+API installer/guard and Profile native-chat/build-helper bytes match the qualified
+private cohort. UI includes CLI General/Advanced composition changes, so Desktop
+must prove those settings and disposal through the actual released exports.
+The separate `lapis-desktop-retirement-released-notes-cohort` workspace prepares
+only those three registry inputs. Preserve other package versions, Language
+Service's declaration/archive/projection/build wiring and every Rust pin.
+
+That actual registry intake is now held: the cold Desktop CLI workspace story
+fails rendering General/Advanced with `CLI settings field host is not bound`
+from released UI `0.2.4`. Public guard/schema checks pass 10 cases, installed
+registry identities/integrities pass and production audit has zero findings;
+these do not waive the UI failure. The [intake blocker](../../spec/records/2026-11-18-retirement-ui-field-intake-blocker.md)
+records the exact failure and owner boundary. A private UI binding repair is
+being prepared without changing core API services/functions or public contracts.
+Do not land the consumer candidate or run its broad qualification as if it passed.
+
+Desktop [#54](https://github.com/lapismd/lapis-desktop/pull/54) at `6d381bf0`
+prepares collection of an unchanged native-chat cold-restart test. Portable source
+checks pass; hosted qualification is running and native execution remains unrun.
+It does not cover old shared-plugin data, disablement or Safe Mode by itself.
+Frozen-host removal still waits on preservation prerequisites; terminal stays
+last. Core API services/functions and future capabilities remain untouched.
