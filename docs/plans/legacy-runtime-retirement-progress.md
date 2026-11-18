@@ -11,6 +11,9 @@ Coordination owner: Notes. Implementation authorized 2026-11-17. Follow the
 start obsolete Desktop/Deno host removal while shared AI removal remains in progress. Defer the
 terminal ownership migration and Deno terminal-host retirement until every other
 removal and its required consumer changes have landed.
+The [agent handover](legacy-runtime-retirement-handover.md) is the concise current
+resume point; this longer ledger intentionally retains older checkpoints and
+failed attempts.
 Independent prerequisites may run in parallel under the user's explicit
 authorization; retain one reviewable slice per removal and integrate in dependency
 order. Source commits, consumer qualification and release/deployment are separate gates.
