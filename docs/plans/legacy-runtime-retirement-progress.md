@@ -32,8 +32,11 @@ completed with 18 successful jobs, two configured skips and all eight selected
 gates. It merged into #47's feature branch at
 `2b553332dd97f8ad86106060b7b5c8648cafab5f`, whose tree is identical and retains
 all original heads. Component PRs #49/#51/#52 are now marked merged. Actual
-updated #47 qualification is running as `44232361289`; main landing is pending.
-Earlier or component CI does not replace that actual-head gate.
+updated #47 passed `44232361289` (18 successful jobs, two configured skips)
+and merged into main at `2015c1ead2042b6a9f5f8c52e37d205bdd4773b7`. Its
+merge tree matches checked `2b553332`. Actual-main push CI `44238333976` and
+standard catalog publication `44238334007` are separate fresh observations;
+see the [source-landing receipt](../../spec/records/2026-11-18-retirement-source-landings.md).
 
 Still pending: actual old-external/bundled native startup/data acceptance,
 App Profile native-chat lifecycle/storage acceptance, API package publication
@@ -110,24 +113,25 @@ package publication, website deployment or native macOS execution.
 Desktop consumer [draft #47](https://github.com/lapismd/lapis-desktop/pull/47)
 contains #48 and the combined #53 merge at `2b553332`. Original #49/#51/#52
 heads remain ancestors and GitHub marks them merged. Fresh actual-head workflow
-`44232361289` is running; qualify it before main landing. Native/data and release
-gates remain open. Coordinate Docker browser/build lanes and keep workspace
+`44232361289` passed and #47 merged as main `2015c1ea`. The merge tree is
+identical to the checked feature head. Native/data and release gates remain
+open; fresh actual-main CI is observed separately. Coordinate Docker browser/build lanes and keep workspace
 leases isolated.
 
 ## Removal 1: shared AI plugin — in progress
 
-| Substep                                                       | Status                               | Evidence / remaining boundary                                                                                                                         |
-| ------------------------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Refresh current registration and release entrypoints          | Verified source                      | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller                                                     |
-| Reject retired publication and metadata selectors             | Merged                               | Plugins #154/#155; main `e8f8eb1b`; exact-main CI `44149978818` passed                                                                                |
-| Disable mutable registry source and block reactivation        | Deployed                             | Registry #181/#183; signed disabled metadata and 18 live GET/HEAD responses verified; HTTP 410 stops fallback                                         |
-| Remove shared implementation, package and media catalogs      | Merged                               | Plugins #155; 410 interactions, 1,022 package tests, 243 release-tooling tests and 16 artifacts                                                       |
-| Remove Notes duplicate stories/controller probes/dependencies | Merged                               | #157 and #158 / `52cffda1`; 2,194 package tests, 239 cold interactions, 3 inspected tarballs and required hosted CI pass                              |
-| Remove retired AI from pinned fixture build inputs            | Notes merged; Desktop feature merged | Notes #165 / `545284a0`; Desktop #48 complete producer, fanout and Linux builds pass; merged into #47 at `45d61a6c`, main landing pending.            |
-| Preserve installed-data/native lifecycle                      | Pending                              | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                                                                |
-| Update Website and organization metadata                      | Merged                               | Website #1 / `9cbdc233`, exact-main CI `44157445481` passed; .github #15 / `5f81879f`                                                                 |
-| Complete source/public-package/consumer gates                 | Source qualified; acceptance pending | Catalog removals pass; approved legacy-cache provenance guard source-qualified; API release and native/data gates remain open                         |
-| npm deprecation, signed registry publication and deployment   | Registry and npm complete            | Approved signed candidate is live; All 11 npm versions deprecated; every original tarball SHA-512 verified; no unpublish or installed-app replacement |
+| Substep                                                       | Status                               | Evidence / remaining boundary                                                                                                                                  |
+| ------------------------------------------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Refresh current registration and release entrypoints          | Verified source                      | Desktop selects owned AI or App Profile native chat; neither imports the shared plugin/controller                                                              |
+| Reject retired publication and metadata selectors             | Merged                               | Plugins #154/#155; main `e8f8eb1b`; exact-main CI `44149978818` passed                                                                                         |
+| Disable mutable registry source and block reactivation        | Deployed                             | Registry #181/#183; signed disabled metadata and 18 live GET/HEAD responses verified; HTTP 410 stops fallback                                                  |
+| Remove shared implementation, package and media catalogs      | Merged                               | Plugins #155; 410 interactions, 1,022 package tests, 243 release-tooling tests and 16 artifacts                                                                |
+| Remove Notes duplicate stories/controller probes/dependencies | Merged                               | #157 and #158 / `52cffda1`; 2,194 package tests, 239 cold interactions, 3 inspected tarballs and required hosted CI pass                                       |
+| Remove retired AI from pinned fixture build inputs            | Notes and Desktop main merged        | Notes #165 / `545284a0`; Desktop #48 complete producer, fanout and Linux builds pass; merged through #47 into main `2015c1ea`; actual-head hosted checks pass. |
+| Preserve installed-data/native lifecycle                      | Pending                              | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                                                                         |
+| Update Website and organization metadata                      | Merged                               | Website #1 / `9cbdc233`, exact-main CI `44157445481` passed; .github #15 / `5f81879f`                                                                          |
+| Complete source/public-package/consumer gates                 | Source qualified; acceptance pending | Catalog removals pass; approved legacy-cache provenance guard source-qualified; API release and native/data gates remain open                                  |
+| npm deprecation, signed registry publication and deployment   | Registry and npm complete            | Approved signed candidate is live; All 11 npm versions deprecated; every original tarball SHA-512 verified; no unpublish or installed-app replacement          |
 
 ## Later removals — pending
 
@@ -694,7 +698,7 @@ stylesheet removals are not started; planned services/functions remain protected
 ## Desktop/Deno implementation checkpoint, 2026-11-18
 
 All three following slices are committed, pushed and integrated through #53
-into #47's feature branch. They preserve core API
+through #47 into main `2015c1ea`. They preserve core API
 services/functions, Language Service and its existing eight-package dependency
 inventory. Hosted success and native acceptance are separate from these portable
 source results; no native macOS application or user profile was used.
@@ -729,8 +733,10 @@ configured jobs (`Native bundle` and `Full source qualification`) are skipped.
 The Validate job confirms all eight selected gates, including both Linux builds
 and the complete four-shard interaction/axe matrix. Actual #53 merge `2b553332`
 is byte-identical to checked `9685e1e3`; all original source heads remain
-ancestors. Updated #47 workflow `44232361289` is live and remains a separate
-required gate. Do not reuse the earlier docs-only #53 result.
+ancestors. Updated #47 workflow `44232361289` passed all selected gates and
+merged as main `2015c1ea`, with a byte-identical merge tree. Current-run complete
+archives are verified; catalog gates reuse admitted identical-input Turbo
+results, while #53 retains the cold execution evidence. Do not reuse the earlier docs-only #53 result.
 No native macOS lane, publication, deployment or installed-app replacement is
 qualified by these results. Keep E-RETIRE-007 and generic API/helper/CSS cleanup
 out of scope; terminal remains last.
@@ -753,8 +759,13 @@ interaction skip) and merged at `538bb469`; the merge tree matches checked
   Sync checks, all 326 tests and its build/audit pass. Final canonical and format
   checks pass. Reviewed source `54552e63` is committed/pushed as
   [Plugins #158](https://github.com/lapismd/lapis-plugins/pull/158); hosted run
-  `44234359523` is active, with main landing pending. Public/core/Sync code,
-  manifests, lock and CI are unchanged; no new audit exception is added.
+  `44234359523` passed on attempt 2 after exactly one targeted browser-job
+  retry, with all 410 interactions covered. It merged as main `2bab1ccd`. The
+  original browser setup error, two successful cold diagnostics and unresolved
+  cause are retained; no source/assertion/filter/timeout change or exception was
+  used. Public/core/Sync code, manifests, lock and CI remain unchanged. Fresh
+  actual-main CI `44238530243` and the normal version workflow `44238530347`
+  are observed separately; no package publication is authorized.
 - Community main `4670760c` has no direct Deno launcher/runtime match across
   1,531 tracked source/configuration text files. Its old validator's engine
   metadata and optional compiled Deno backend are not Community runtime registrations; the
@@ -769,3 +780,22 @@ interaction skip) and merged at `538bb469`; the merge tree matches checked
 
 Keep pending native diagnostics and the AI Host audit exception as explicit
 unanswered decisions. Never infer consent from these independent passing lanes.
+
+## Source landings and next prerequisite
+
+[Desktop #47](https://github.com/lapismd/lapis-desktop/pull/47),
+[Plugins #158](https://github.com/lapismd/lapis-plugins/pull/158) and
+[Notes #170](https://github.com/lapismd/lapis-notes/pull/170) are merged. Notes
+#170 passed 12 hosted jobs plus its existing interaction skip and merged as
+`722a2241`, preserving the checked tree. The
+[source-landing receipt](../../spec/records/2026-11-18-retirement-source-landings.md)
+keeps ordinary source qualification distinct from native, full-release,
+publication and installed-app gates.
+
+Next, resolve the already-prepared native diagnostic and AI Host audit decisions
+and the Website preview decision. No approval is inferred. Frozen-host removal
+still waits on preservation prerequisites, and terminal remains last. Leave all
+core API services/functions and future Language Service/Sync wiring intact.
+The detailed read-only host audit identifies portable filesystem error and
+text-codec functions inside the mixed package; they must survive any later
+Deno-only adapter removal. No frozen-host or core implementation changed here.
