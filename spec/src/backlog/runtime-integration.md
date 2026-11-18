@@ -51,8 +51,10 @@ merged at `545284a0`; the source fixture edge is closed.
 Desktop #48's older fixture pin/stale local-build guard repair passed complete
 hosted qualification and merged into #47's feature branch at `45d61a6c`.
 Combined #53 integrates the qualified private UI, historical-fixture preparation
-and Deno-bootstrap slices; fresh combined hosted and actual updated #47
-qualification remain pending. Native/data acceptance is not inferred.
+and Deno-bootstrap slices. Exact `9685e1e3` passed complete hosted run
+`44226223633` (18 successful jobs, two configured skips) and merged into #47 at
+`2b553332`, retaining identical source and original commits. Actual updated #47
+workflow `44232361289` remains pending; native/data acceptance is not inferred.
 The [host-boundary audit](../../records/2026-11-18-retirement-host-boundaries.md)
 retains portable Sync/core functions in mixed `deno-host-services`, active
 Agent Redaction/controller Deno support and the stable Homebrew cutover gate.
