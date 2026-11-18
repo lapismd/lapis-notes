@@ -13,10 +13,18 @@ a failed gate and grants no blind rerun; frozen Deno packages remain excluded.
 
 ## Legacy runtime and package retirement
 
+User scope correction 2026-11-18: retire only Desktop-related legacy code and
+Deno runtime/tooling. Preserve core API services/functions, Language Service and
+future-facing integration even without current callers. Generic API removals are
+excluded. The Desktop Language Service dependency/projection experiment was
+stopped and recoverably parked without commit/push; its existing wiring remains.
+
 LN-WEB-093 removes Web's frozen-host raster input with seven exact output
 hashes preserved. Full Web checks, 40 tests, build and integrated canonical
-qualification pass in the [integration receipt](../../records/2026-11-17-web-icon-input-integration.md);
-hosted landing remains pending. The frozen host itself remains until its
+qualification pass in the [integration receipt](../../records/2026-11-17-web-icon-input-integration.md).
+Notes #166 passed all 12 executed hosted jobs and 13 Web cases and merged at
+`6787e824`; see the [hosted receipt](../../records/2026-11-18-web-icon-input-hosted.md).
+The configured interaction quarantine remains a separate skip. The frozen host itself remains until its
 separate owning removal.
 
 Status: in progress. Plugins source/catalog and Notes launcher/catalog removals
@@ -30,7 +38,7 @@ Its 36 installer cases, 2,202 package tests, full release, three inspected
 tarballs and 239 cold interaction/axe cases pass. Notes #161 passed required
 hosted workflow `44172806383` and merged at `d369ec9d`; API publication/adoption remains gated.
 Sixteen obsolete package/controller/Fake/attach implementation requirements are
-archived with their original evidence. Generic feature ownership and native/data
+archived with their original evidence. Retained Desktop ownership and native/data
 acceptance remain pending. All eleven npm versions are deprecated, and each
 original tarball passes independent SHA-512 verification. Website source is merged;
 its manual deployment is separate. Notes #164's peer cleanup is merged and
@@ -45,7 +53,7 @@ an isolated parallel workspace, with Rust/native pins preserved.
 Notes coordinates the
 [consolidated retirement plan](../../../docs/plans/legacy-runtime-retirement.md)
 for the frozen Deno desktop, shared AI plugin, obsolete host/tooling edges and
-deprecated interfaces. Sibling owners retain their contracts, implementation,
+Deno-specific interface proposals. Core API cleanup is excluded. Sibling owners retain their contracts, implementation,
 qualification and release authority. Preserve Tauri-owned AI, native chat,
 the API file-tools kernel, required Rust services and planned Sync work.
 `nostr-agent-controller`, `community-local` and `nostr-auth` are excluded;

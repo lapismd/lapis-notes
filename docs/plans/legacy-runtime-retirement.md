@@ -1,4 +1,4 @@
-# Lapis legacy runtime and package retirement
+# Lapis Desktop and Deno retirement
 
 Status: implementation started on 2026-11-17 after the user authorized cleanup,
 repository refresh, isolated workspaces and one removal at a time. The original
@@ -13,28 +13,43 @@ Each sibling repository continues to own its implementation, canonical contracts
 qualification and releases. This supporting plan does not redefine current
 requirements or transfer ownership to Notes.
 
-## Scope and decisions
+## Current scope — user correction, 2026-11-18
 
-- Retire the frozen Deno desktop, the shared AI plugin and obsolete integrations;
-  remove unnecessary Deno dependencies and explicitly deprecated first-party APIs.
-- Exclude `nostr-agent-controller`, `community-local` and `nostr-auth`: no code,
-  configuration, runtime migration or acceptance work in those repositories.
-- Preserve standalone `ai-controller` for excluded consumers. Remove its
-  retiring in-scope consumers; do not port the service to Node in this work.
-- Keep the signed static V2 registry. Preserve historical signatures, hashes,
-  archives, provenance, application data and existing installed applications.
-- Preserve Tauri-owned AI and Rust execution. Its renderer-owned and core-owned
-  paths are distinct active paths, not evidence that one can be deleted. Do not
-  change ownership defaults or enable deferred features as cleanup.
-- Migrate callers and persisted data before removing public interfaces. Use
-  appropriate breaking-release semantics rather than indefinite compatibility
-  shims, consumer patches or copied implementations.
-- Defer the `lapis-terminal` ownership migration and Deno terminal-host retirement
-  until all other in-scope removals and their required consumer changes have
-  landed. Retain the existing Rust PTY dependency and its required tooling until
-  that final removal; it does not block independently qualified earlier slices.
+The user narrowed implementation to **Desktop-related legacy code and Deno
+removal only**. Core API services and functions are protected, including services
+that have no current caller but are intended for future use. Lack of present
+usage alone does not authorize removing a core service, export, function,
+dependency or planned integration.
+
+- Retire the frozen Deno desktop and obsolete Desktop-specific integrations,
+  including the separately approved shared-AI distribution retirement.
+- Preserve core API services/functions and future-facing capabilities. In
+  particular, retain Language Service's implementation, API modules, package,
+  Desktop declaration/projection and planned wiring. The proposed E-RETIRE-007
+  dependency removal is stopped and recoverably parked; it is not an active slice.
+- Generic deprecated-API cleanup in Notes API, Design Core, Agent UI, Community,
+  Visual Delta and standalone plugins is outside this plan. Do not remove shared
+  functions, aliases, settings readers or providers merely as cleanup.
+- Preserve standalone `ai-controller` and exclude `nostr-agent-controller`,
+  `community-local` and `nostr-auth` from code/configuration/runtime work.
+- Preserve Tauri-owned AI, App Profile native chat, current Rust services,
+  API file-tools, portable redaction and planned Sync. Only confirmed obsolete
+  Desktop presentation may be removed after checking actual callers and intent.
+- Keep the signed static V2 registry and immutable historical artifacts,
+  signatures, hashes, provenance, installed apps, settings, conversations and
+  memory. Prior explicitly approved AI-specific installer/metadata safeguards
+  remain recorded; this correction authorizes no new core API changes.
+- Deno-specific adapter/tooling cleanup must preserve surviving contracts and
+  future service capability. Any proposed public interface change requires its
+  own concrete review and explicit confirmation before implementation.
+- Keep terminal ownership migration and Deno terminal-host retirement last,
+  after all other **in-scope Desktop/Deno** removals and consumer changes land.
+  Preserve the current Rust PTY dependency and required tooling until then.
 - Keep functional, keyboard, accessibility, packaging and native acceptance.
-  Visual baseline updates are excluded.
+  Visual baseline changes remain excluded; publication/deployment retain gates.
+
+Earlier broad API-removal proposals in historical plan revisions are superseded
+by this decision. Do not reopen them as part of this retirement.
 
 ## Audit basis and limits
 
@@ -64,24 +79,24 @@ The implementation preflight must refresh the chosen source revisions, consumer
 graph, distribution state and concurrent-work inventory. These dated findings
 are not current release or native acceptance receipts.
 
-### Verified usage and disposition
+### Audited usage and current disposition
 
-| Component                                      | Audited usage                                                                                               | Future disposition                                                                      |
-| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `@lapis-notes/ai` in `lapis-plugins`           | Stories, probes, release automation and active registry distribution; absent from current host registration | Retire implementation and its integration/distribution paths                            |
-| Tauri-owned AI                                 | Desktop registers its local plugin; native execution uses public `lapis-ai` transport and Rust services     | Preserve current renderer/core paths and native admission                               |
-| App-profile native chat                        | Notes web registration and Rust-hosted Notes consume it                                                     | Preserve                                                                                |
-| `ai-controller`                                | In-scope consumers are the retiring plugin, old desktop and probes; excluded services still need it         | Remove in-scope edges; preserve standalone service                                      |
-| `ai-host`                                      | Notes API imports the portable file-tools kernel; preserved controller uses execution exports               | Preserve package and required exports; remove obsolete Deno fixtures/configuration only |
-| `terminal-host`                                | Deno CLI/FFI host is obsolete; Server consumes its Deno-free Rust PTY crate                                 | Consolidate Rust crate into `lapis-terminal`, then retire old host                      |
-| Standalone terminal plugin                     | Public host bridge, not a runtime dependency on the Deno terminal-host package                              | Preserve bridge integration; remove stale standalone-host instructions                  |
-| `agent-redaction`                              | Desktop uses portable redaction; no identified in-scope Deno adapter caller                                 | Preserve portable/Node/Rust functionality; remove Deno adapter and validation           |
-| Notes `host-services` and `deno-host-services` | Remaining consumers are old Deno compatibility modules                                                      | Remove with retired desktop                                                             |
-| Private Sync foundation                        | Parked package with intentional previews, fixtures and future-delivery contracts                            | Preserve foundation; remove obsolete Deno review path                                   |
-| Standalone Nostr Sync                          | Experimental source/provenance reference, not current host startup                                          | Preserve experimental work; remove explicitly deprecated provider aliases               |
-| `lapis-community`                              | Active independent application/protocol implementation                                                      | Preserve; replace obsolete renderer-specific in-scope acceptance                        |
-| Nostr Astro renderer                           | Legacy stacks and excluded local cluster still reference it                                                 | Defer source deletion to preserve excluded consumers                                    |
-| Signed static V2 registry                      | Current installer source, publication pipeline and catalog                                                  | Preserve; retire obsolete presentation/reader features                                  |
+| Component                                      | Audited usage                                                                                               | Future disposition                                                                                               |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `@lapis-notes/ai` in `lapis-plugins`           | Stories, probes, release automation and active registry distribution; absent from current host registration | Retire implementation and its integration/distribution paths                                                     |
+| Tauri-owned AI                                 | Desktop registers its local plugin; native execution uses public `lapis-ai` transport and Rust services     | Preserve current renderer/core paths and native admission                                                        |
+| App-profile native chat                        | Notes web registration and Rust-hosted Notes consume it                                                     | Preserve                                                                                                         |
+| `ai-controller`                                | In-scope consumers are the retiring plugin, old desktop and probes; excluded services still need it         | Remove in-scope edges; preserve standalone service                                                               |
+| `ai-host`                                      | Notes API imports the portable file-tools kernel; preserved controller uses execution exports               | Preserve package and required exports; remove obsolete Deno fixtures/configuration only                          |
+| `terminal-host`                                | Deno CLI/FFI host is obsolete; Server consumes its Deno-free Rust PTY crate                                 | Consolidate Rust crate into `lapis-terminal`, then retire old host                                               |
+| Standalone terminal plugin                     | Public host bridge, not a runtime dependency on the Deno terminal-host package                              | Preserve bridge integration; remove stale standalone-host instructions                                           |
+| `agent-redaction`                              | Desktop uses portable redaction; no identified in-scope Deno adapter caller                                 | Preserve portable/Node/Rust and shared APIs; audit only Deno-specific adapters/tooling with public-change gates  |
+| Notes `host-services` and `deno-host-services` | Remaining consumers are old Deno compatibility modules                                                      | Retire only verified Deno-specific host adapters; preserve portable/core service functions and future capability |
+| Private Sync foundation                        | Parked package with intentional previews, fixtures and future-delivery contracts                            | Preserve foundation and future APIs; audit only obsolete Deno host/review tooling                                |
+| Standalone Nostr Sync                          | Experimental source/provenance reference, not current host startup                                          | Preserve experimental work and service/provider APIs; generic alias cleanup excluded                             |
+| `lapis-community`                              | Active independent application/protocol implementation                                                      | Preserve application and APIs; audit only obsolete Deno-dependent acceptance                                     |
+| Nostr Astro renderer                           | Legacy stacks and excluded local cluster still reference it                                                 | Defer source deletion to preserve excluded consumers                                                             |
+| Signed static V2 registry                      | Current installer source, publication pipeline and catalog                                                  | Preserve schemas/readers and pipeline; only approved shared-AI retirement is in scope                            |
 
 The deprecated Nostr renderer checkout and the signed static registry checkout
 both identify `lapismd/plugin-registry`; they are different source states, not
@@ -90,8 +105,8 @@ before any registry change.
 
 No executable Deno dependency was identified in current Rust AI/terminal engines,
 Design Core, Agent UI, Mira, Website, Maintenance, the shared CI image or the
-standalone Docs/Tasks/Notebook/CV plugin sources. Relevant changes there are
-deprecated API consumption or documentation, not runtime migration. The broader
+standalone Docs/Tasks/Notebook/CV plugin sources. The dated audit also identified generic API/documentation work there; that work
+is outside the current scope. The broader
 inventory may have changed since the audit; absence of a startup registration
 alone does not establish that an experimental or externally distributed package
 is obsolete.
@@ -133,75 +148,59 @@ Source anchors:
 
 Owners: Notes, Desktop, host packages, Plugins and Homebrew tap.
 
-Terminal-host retirement is deferred to slice 4. Remove only tooling no surviving
+Terminal-host retirement is deferred to slice 3. Remove only tooling no surviving
 consumer needs; preserve terminal-specific paths and any shared Deno tooling
 still required by that deferred slice.
 
 - Relocate the PWA icon asset before deleting its old desktop source. Remove
-  the frozen desktop, Deno compatibility services, unused portable host-services,
-  runtime configuration, native-library packaging, telemetry launchers and old
-  release tooling once surviving consumers are disconnected.
-- Remove retired Deno runtime identities, defaults, fallback branches and
-  generated protocol members. Remove the unused Node-server identity after
-  confirming the hosted implementation remains Rust. Preserve browser storage,
-  public native bridges, Rust providers and shared semantic fixtures; regenerate
-  Server bindings from their owner rather than editing generated files by hand.
+  the frozen desktop, Deno-only host adapters, runtime configuration,
+  native-library packaging, telemetry launchers and old release tooling once
+  surviving consumers are disconnected. Preserve portable/shared core service
+  functions and future-facing capabilities; do not delete them transitively
+  because their current host caller is retired.
+- Disconnect obsolete Desktop/Deno runtime wiring at its owning host boundary.
+  Preserve core API identities, defaults, protocol/schema members, public native
+  bridges, browser storage and Rust providers. A named Deno-specific public
+  contract change requires separate explicit approval; generated bindings, if
+  affected by an approved change, must be regenerated by their owner.
 - Remove Deno installation from Notes/Plugins CI actions, validation images and
   tool inventories after their obsolete consumers are gone. Remove Desktop's
   obsolete Deno fallback for building spec-validator.
 - Remove unused Deno fixtures/configuration in `ai-host` without changing the
   preserved controller's execution contracts. Keep the API's file-tools kernel
   and the archive/build dependency edges needed to validate that kernel.
-- Remove redaction's Deno export, adapter tests and CI installation while
-  preserving active portable, Node and Rust adapters.
+- Audit obsolete redaction Deno adapters/tests and CI installation while
+  preserving portable, Node, Rust and shared service/function contracts. Any
+  Deno-specific public export removal needs its separate explicit review.
 - Retire Notes-owned Deno desktop release production and Homebrew
   generation/smoke paths. Disable legacy Deno distribution without fabricating
   Tauri manifests, artifact URLs or checksums. A Tauri distribution replacement
   requires actual qualified release artifacts. Preserve installed apps and data.
 
-## Slice 3: migrate and remove deprecated interfaces
+## Protected core services and interfaces
 
-Perform caller migration before removing public exports. Update each owner's
-canonical contract and verification with the implementation, not through this
-plan-only commit. Choose breaking-release semantics appropriate to that package.
+No generic core API/service/function removal is scheduled. Preserve both active
+and planned services even where current startup has no caller. The API language
+manager/editor/worker contracts and the separate Language Service provider are
+not Deno-host deletion targets. Preserve their package/build inputs and future
+integration; do not infer deprecation from dependency or module graphs.
 
-| Owner           | Caller-aware cleanup                                                                                                                                                                                                                                                                                     |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Notes API       | Remove unused Markdown rendering/registration aliases after migrating remaining `registerCorePlugins` stories and examples. Remove database-mode summaries and old task-row fields; update Server bindings and fixtures.                                                                                 |
-| Design Core     | Migrate real variant-helper consumers in components/examples and update generators before deleting helpers. Remove unused catalog helpers, generator aliases and old Visual Delta forwarding modules. Remove custom-field `update` props, preserving the distinct active settings-controller update API. |
-| Agent UI        | Remove deprecated transcript-option fallbacks and composer `sendError`; update fixtures/docs. Preserve active composer-state fields also named `composerStatus`.                                                                                                                                         |
-| Community       | Remove old commit-error/review callback fallbacks and `scopeRoom`, retaining current callbacks and scoped search behavior.                                                                                                                                                                               |
-| Plugins/Desktop | Migrate old AI tool settings before dropping readers. Remove Bases' unused serialization alias, Docs' deprecated exported helper/test, and only Sync's deprecated crypto-provider signing alias.                                                                                                         |
-| Visual Delta    | Migrate internal callers and Design Core's viewport test before removing redundant exports and response fields. Preserve capture provenance and required historical-baseline recognition.                                                                                                                |
+Keep registry schemas/readers, generic helpers, variant utilities, composer
+fields, callback aliases, provider aliases and persisted-setting readers outside
+this retirement. They may only be reconsidered through separately authorized
+work. Historical broad cleanup lists are not implementation authority.
 
-Mira's independent `buttonVariants`, CV Roles' local Markdown compiler, standard
-Nostr signing methods, deprecation diagnostic tags and registry statuses are
-active concepts, not targets of a text-match deletion. Handle vendored WordCanvas
-compatibility through its vendor/upstream boundary, not blanket first-party API
-removal. Preserve signed Sync protocol fixtures and planned capabilities.
+The existing Deno desktop/service wrappers may be retired at their owning host
+boundary after verifying all consumers, without deleting shared/core services
+or changing their public functions. Record any required Deno-specific public
+interface proposal separately for explicit review.
 
-Migrate persisted settings explicitly. Rebuild disposable task projections from
-authoritative notes before dropping old row readers. Preserve note content and
-avoid rewriting immutable signed records.
-
-### Registry and Community cleanup
-
-- Extract version-neutral schemas still used by V2 before deleting V1
-  readers/exports. Convert mutable source entries and migrate saved official
-  registry URLs; do not reinterpret signed metadata without verification.
-- Remove unused README/Markdown rendering helpers and V1 environment/configuration
-  fallbacks. Preserve immutable signed V1 archives, unrelated version-1
-  release/trust formats, signatures, download delivery and statistics.
-- Replace in-scope renderer-dependent Community acceptance with native
-  Community/relay acceptance. Leave the excluded cluster and its renderer
-  prerequisite intact. This slice does not delete that renderer's source.
-
-## Slice 4: consolidate native terminal ownership
+## Slice 3: consolidate native terminal ownership
 
 Owners: Terminal Host, Lapis Terminal, Server and terminal plugin.
 
-Start only after slices 1–3 and their required consumer changes have landed. This
-is the final removal slice, followed by the whole-plan qualification in slice 5.
+Start only after slices 1–2 and their required consumer changes have landed. This
+is the final removal slice, followed by whole-plan qualification in slice 4.
 Until then, preserve the existing Rust PTY crate location, Server dependency and
 required terminal-host tooling; record those retained edges explicitly.
 
@@ -218,7 +217,7 @@ required terminal-host tooling; record those retained edges explicitly.
   stale advice to start `lapis-terminal-host`; do not create a new standalone
   service as part of this retirement.
 
-## Slice 5: final qualification and dependency cleanup
+## Slice 4: final qualification and dependency cleanup
 
 Before implementation, refresh exact source revisions, remote/package state and
 concurrent work. Read each owner's tracked agent guide. Stop an overlapping slice
@@ -236,7 +235,7 @@ distinct; compilation, mocks and screenshots do not establish native acceptance.
 
 Qualify and land each earlier slice at its own boundary without waiting for the
 terminal migration. Record terminal-related Deno/tooling exceptions as pending,
-then close them and run the complete Deno-absent acceptance after slice 4.
+then close them and run the complete in-scope Deno-absent acceptance after slice 3.
 
 Required acceptance scenarios:
 
@@ -246,26 +245,30 @@ Required acceptance scenarios:
   and release-plan/metadata reactivation rejection; signed-history preservation.
 - Terminal byte fidelity, Unicode, resize, output cursors, reconnect, confinement,
   exit and owned process cleanup in supported Desktop/Server surfaces.
-- V2 registry install/update and tampering/signature failures after source/URL
-  migration, with immutable archived artifacts still available as intended.
+- V2 registry install/update and tampering/signature failures for the approved
+  shared-AI retirement, with immutable archived artifacts still available.
+  Generic registry schema/reader migration is excluded.
 - Packed public exports and affected application startup/build/test paths with
   Deno and standalone controller/terminal executables absent from PATH and without
   a populated Deno cache. This does not qualify or alter the excluded services.
 - Fail-closed checks for retired imports, registrations, launchers and publication
   selectors, with narrow exceptions for history, provenance and rejection tests.
 
-Deliver replacement contracts first, migrate consumers second, remove interfaces
-third, then prune toolchains and refresh documentation, inventories and lockfiles.
+Disconnect retiring Desktop/Deno consumers, preserve shared service contracts,
+then remove the owning obsolete hosts/adapters and prune unneeded toolchains.
+Refresh documentation, inventories and lockfiles without generic API cleanup.
 Commit verified slices separately with Jujutsu. Publication/deployment retain
 their governing release gates; do not infer permission from this saved plan.
 
 ## Completion criteria
 
-Implementation is complete when retired implementations are unreachable from
-supported Lapis application, catalog, build and release entrypoints, required
+Implementation is complete when in-scope retired Desktop/Deno implementations
+are unreachable from supported application, catalog, build and release entrypoints, required
 functional/accessibility/package/native lanes pass, and every retained runtime
 edge has an explicit owner and reason. The preserved controller and excluded
-repositories remain a separate service boundary. Do not claim a Deno-free entire
+repositories remain a separate service boundary. Core API services/functions
+and planned Language Service wiring remain intact; their lack of current callers
+is not incomplete retirement work. Do not claim a Deno-free entire
 workspace, completion of deferred Sync/native work, or visual approval.
 
 Implementation and qualification status are tracked in the progress record;
