@@ -36,7 +36,12 @@ verified across all retained versions. A reproduced legacy cached-catalog path
 without a download endpoint requires the approved LN-PLUG-137 provenance guard.
 Its 36 installer cases, 2,202 package tests, full release, three inspected
 tarballs and 239 cold interaction/axe cases pass. Notes #161 passed required
-hosted workflow `44172806383` and merged at `d369ec9d`; API publication/adoption remains gated.
+hosted workflow `44172806383` and merged at `d369ec9d`. API `0.6.9`, UI `0.2.4`
+and App Profile `0.2.6` are now published from `538bb469`; the approved guard and
+peer cleanup are present in the verified artifacts. Publication and subsequent
+published-registry verification passed in separate attempts of release workflow
+`44232734973`. Desktop released-cohort adoption and native/data acceptance remain
+pending; see the [publication audit](../../records/2026-11-18-retirement-published-notes-cohort.md).
 Sixteen obsolete package/controller/Fake/attach implementation requirements are
 archived with their original evidence. Retained Desktop ownership and native/data
 acceptance remain pending. All eleven npm versions are deprecated, and each
