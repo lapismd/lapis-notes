@@ -2,7 +2,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 export const NOTES_READINESS_SOURCE =
-  "69a81e05ca32dc5b7024ef2cd0711860b1813926";
+  "89f3ede90d31058c59c771c86e433cee2bbd4407";
 export const REGISTRY_READINESS_BUDGET_MS = 110_000;
 export const REGISTRY_INSTALL_RETRY_DELAYS_MS = [
   5000, 10000, 20000, 30000, 30000,

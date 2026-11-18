@@ -142,7 +142,7 @@ jobs:
         run: node scripts/report-turbo-cache.mjs --github-summary
       - run: pnpm test:local-plugin-consumer
       - name: Prepare the source-pinned readiness regression runtime
-        uses: lapismd/lapis-ci/actions/setup-registry-readiness@69a81e05ca32dc5b7024ef2cd0711860b1813926
+        uses: lapismd/lapis-ci/actions/setup-registry-readiness@89f3ede90d31058c59c771c86e433cee2bbd4407
       - run: pnpm release:test
       - run: pnpm test:spec-validation
       - run: pnpm test:retired-ai-tooling

@@ -136,7 +136,7 @@ jobs:
           name: lapis-notes-release-${{ github.sha }}
           path: .release
       - name: Prepare the source-pinned Notes registry readiness policy
-        uses: lapismd/lapis-ci/actions/setup-registry-readiness@69a81e05ca32dc5b7024ef2cd0711860b1813926
+        uses: lapismd/lapis-ci/actions/setup-registry-readiness@89f3ede90d31058c59c771c86e433cee2bbd4407
       - run: pnpm release:verify
 
   notes:

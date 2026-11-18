@@ -9,6 +9,11 @@ original acceptance boundary. Historical receipts do not schedule current work.
 
 ## Outstanding topics
 
+- Complete hosted qualification of the source89f3ede9 readiness diagnostic
+  intake under LN-PKG-196; preserve exact installation classification and
+  unchanged publication/recovery authority. Local source evidence lives in
+  `spec/records/2026-11-18-readiness-diagnostics.md`.
+
 - Complete Desktop intake of LN-PKG-199's verified merged-source archives.
   Owner hosted qualification is complete and the installed production audit is
   clean; apply the approved exact development exception and finish consumer

@@ -17,7 +17,9 @@ const hashes = {
   "registry-install-adapters.mjs":
     "4fe144e96ee430da4e500ab1f4798e94fd805b99c778e3c3aa8b72a42b5e233a",
   "registry-install-process.mjs":
-    "7fd5384129a1fd38196bd49b868eb63e4b337a061924988d7baca8d95934cc02",
+    "ca445f151fc65fccab0a0a1dc31aa640f6ee52cfad5c4cb78e6d8f7abd350c88",
+  "registry-install-diagnostics.mjs":
+    "db5b913d442c4499b6998a9753991bd009766bcc443b8ed84ec38f359aba29e8",
 };
 let modulePath = process.env.LAPIS_REGISTRY_READINESS_MODULE;
 let owned;

@@ -38,9 +38,18 @@ root pnpm10 pin and approved minimal consumer dependency-build policy. The
 shared pnpm profile preserves that policy; it does not blanket-enable scripts.
 The duplicate metadata/retry and process engines are removed from Notes.
 
-Local test fixtures use the same three public shared files, bound to immutable
-source69a81e05 and their SHA256 values, in owned temporary directories. Provided
+Local test fixtures use the same four public shared files, bound to immutable
+source89f3ede9 and their SHA256 values, in owned temporary directories. Provided
 CI setup is verified against those hashes; unavailable or altered evidence
 fails. This test-only fixture staging is not a production download fallback or
 a vendored implementation. The [shared-source adoption record](../../records/2026-11-16-shared-registry-readiness.md)
 keeps source checks, retained consumer acceptance and deployment distinct.
+
+The qualified diagnostics module is part of that complete hashed import closure.
+It renders at most four typed terminal error records with redacted URLs, without
+arbitrary stdout, messages, environment, headers, local paths or stack content.
+Original bounded stdout/stderr remain available to the unchanged strict retry
+classifier but are not enumerated in ordinary error serialization. This improves
+failure evidence without broadening retry, deadline or publication authority.
+[The diagnostics intake record](../../records/2026-11-18-readiness-diagnostics.md)
+retains the missing-module regression and separate hosted acceptance boundary.
