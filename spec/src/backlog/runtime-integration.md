@@ -13,6 +13,12 @@ a failed gate and grants no blind rerun; frozen Deno packages remain excluded.
 
 ## Legacy runtime and package retirement
 
+User scope correction 2026-11-18: retire only Desktop-related legacy code and
+Deno runtime/tooling. Preserve core API services/functions, Language Service and
+future-facing integration even without current callers. Generic API removals are
+excluded. The Desktop Language Service dependency/projection experiment was
+stopped and recoverably parked without commit/push; its existing wiring remains.
+
 LN-WEB-093 removes Web's frozen-host raster input with seven exact output
 hashes preserved. Full Web checks, 40 tests, build and integrated canonical
 qualification pass in the [integration receipt](../../records/2026-11-17-web-icon-input-integration.md);
