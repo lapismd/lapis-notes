@@ -1,0 +1,19 @@
+{
+  "notesBase": "5ffb33c152404b6880debd1b5fd70762121d6196",
+  "webIconSource": "01d15f0372b14bf21fd2696c27a3b7c9ed0b859c",
+  "results": [
+    {
+      "command": "pnpm --filter @lapis-notes/web check",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm --filter @lapis-notes/web test",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm --filter @lapis-notes/web build",
+      "exitCode": 0
+    }
+  ],
+  "ok": true
+}

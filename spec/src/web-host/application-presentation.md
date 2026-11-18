@@ -29,6 +29,12 @@ vault/profile data stays isolated; Linux delivery remains a separate gate.
 
 **Requirement.** Private `@lapis-notes/web` version `2026.6.3` MUST retain the legacy PWA identity, manifest, icons, update prompt, window-controls overlay, and `web+lapis` protocol handler.
 
+## LN-WEB-093 — Independent Web icon build inputs
+
+<a id="ln-web-093"></a>
+
+**Requirement.** Web icon generation MUST use Web-owned raster artwork and the API-owned SVG logo without reading the frozen Deno desktop host. Relocating those inputs MUST preserve the exact generated icon bytes required by LN-WEB-001. A cold generator test MUST reproduce every public icon with the frozen host absent.
+
 ## LN-WEB-030 — WASM response headers
 
 <a id="ln-web-030"></a>

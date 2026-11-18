@@ -23,9 +23,10 @@ All six exact-main archive hashes match the source-qualified cohort. Desktop's
 794 governance/renderer, 748 AI and 290 Rust cases pass (two existing Rust ignores),
 as do types, strict Clippy, renderer and static catalog builds. Its actual
 installed production graph is clean; the approved exact development-only
-Picomatch exception expires 2026-11-30. Complete catalog, canonical and hosted
-consumer intake remain in progress, without package publication or native/data
-acceptance being inferred.
+Picomatch exception expires 2026-11-30. Complete local catalog passes 2168 cases across all 16 viewport/theme variants,
+and final public admission/canonical checks pass (E-RETIRE-002). Fresh hosted
+consumer/artifact intake remains in progress, without package publication or
+native/data acceptance being inferred.
 
 A deeper pipeline audit found Notes' signed registry fixture still building the
 old pre-retirement Plugins checkout. The current slice moves it to verified
@@ -34,10 +35,34 @@ retaining upstream audit/artifact checks. Its new regression changes one failure
 to 197 passing release-tool cases. Real fixture qualification passes 18 catalog
 signatures, 16 signed bundles and all 13 cold Web cases after replacing an
 obsolete AI test expectation. The [fixture receipt](../../spec/records/2026-11-17-retired-ai-registry-fixture.md)
-preserves the initial 12-pass/1-failure run and environmental failures. Hosted
-exact-head qualification remains pending. Next also address Desktop's older Plugins fixture input and guard
+preserves the initial 12-pass/1-failure run and environmental failures. Notes #165 passed required hosted workflow `44198935057` and merged at
+`545284a05f418b8d8b882c797b48878cf820bab1`; the [hosted receipt](../../spec/records/2026-11-17-retired-ai-fixture-hosted.md)
+retains the successful producer and 13 Web cases. Next also address Desktop's older Plugins fixture input and guard
 its on-demand local plugin build against stale source; those are distinct from
 the preserved Rust-owned `@lapismd/ai` package.
+The parallel checkpoints are now reviewable: Notes fixture [#165](https://github.com/lapismd/lapis-notes/pull/165),
+Web icon prerequisite [#166](https://github.com/lapismd/lapis-notes/pull/166),
+Desktop consumer [#47](https://github.com/lapismd/lapis-desktop/pull/47),
+fixture admission [#48](https://github.com/lapismd/lapis-desktop/pull/48) and
+prepared native preservation [#49](https://github.com/lapismd/lapis-desktop/pull/49).
+Notes #165 is merged. #166's first queued event retained a deleted base name
+after retarget and failed spec-first VCS discovery; a fresh synchronized candidate
+retains all required checks. Desktop PRs remain drafts. #49 prepares four new cases but executes zero native
+cases; original signed-artifact and App Profile native-chat preservation remain
+separate. #48's fresh artifact audit found Language Service packing before its
+compiled output was built. Fix the Desktop producer and regenerate/verify the
+artifact before treating either Desktop intake as ready; E-RETIRE-005 records
+that follow-up. Existing local source qualification used independently verified
+complete archives and does not excuse the hosted producer defect.
+
+A separate `retirement-qualification` Desktop workspace from `351811a9` runs
+final consumer/canonical checks while the original catalog worker completes.
+A separate session-UI audit has proven seven private files unreachable and is
+qualifying their removal without deleting active stores, cards or saved-session
+types. Its later E-RETIRE-006 receipt must retain the before/after caller audit
+and directly affected checks. This is still within shared-AI cleanup; it does
+not authorize broad native AI deletion or advance terminal retirement.
+
 The tables below describe current status; older receipts are dated checkpoints.
 
 ## Preparation completed
@@ -85,17 +110,20 @@ Notes signed-fixture/Web slice and Desktop's current consumer checkpoint;
 independent workers own the following isolated prerequisites. None authorizes
 package publication, website deployment or native macOS execution.
 
-| Workstream                   | Workspace / JJ workspace name                                       | Status and integration boundary                                                                                                                               |
-| ---------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Desktop fixture admission    | `lapis-desktop-retirement-fixtures` / `retirement-fixtures`         | Guard install/build against retired source and advance only hosted Plugins input; retain Rust/native pins. E-RETIRE-003.                                      |
-| Native preservation coverage | `lapis-desktop-retirement-preservation` / `retirement-preservation` | Prepare production-boundary legacy-copy, disablement, Safe Mode and cold-reopen cases. Actual native execution remains unrun/pending. E-RETIRE-004.           |
-| Web icon input               | `lapis-notes-retirement-web-icons` / `retirement-web-icons`         | Remove frozen-host asset input with exact seven-output byte equivalence. Retain frozen host until owning removal; combined package gates pending. LN-WEB-093. |
+| Workstream                   | Workspace / JJ workspace name                                       | Status and integration boundary                                                                                                                                                                                                         |
+| ---------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Desktop fixture admission    | `lapis-desktop-retirement-fixtures` / `retirement-fixtures`         | Guard install/build against retired source and advance only hosted Plugins input; retain Rust/native pins. E-RETIRE-003.                                                                                                                |
+| Native preservation coverage | `lapis-desktop-retirement-preservation` / `retirement-preservation` | Prepare production-boundary legacy-copy, disablement, Safe Mode and cold-reopen cases. Actual native execution remains unrun/pending. E-RETIRE-004.                                                                                     |
+| Web icon input               | `lapis-notes-retirement-web-icons` / `retirement-web-icons`         | Remove frozen-host asset input with exact seven-output byte equivalence. Retain frozen host until owning removal; seven identical outputs, full Web checks/40 tests/build and integrated spec pass; hosted landing pending. LN-WEB-093. |
 
 Desktop checkpoint `351811a99485cf30c946641c8737200d903657ef` is pushed as
 [draft #47](https://github.com/lapismd/lapis-desktop/pull/47); required hosted
 workflow `44197829697` is running. Source qualification is recorded in immutable
 E-RETIRE-001. Its final qualification will append E-RETIRE-002, without rewriting
-the earlier pending receipt. Do not reuse older full CI artifacts after fixture
+the earlier pending receipt. Notes fixture source is pushed as [PR #165](https://github.com/lapismd/lapis-notes/pull/165).
+Desktop fixture admission is pushed as stacked [draft #48](https://github.com/lapismd/lapis-desktop/pull/48);
+29 directly affected Docker governance cases pass and its repaired producer now builds/verifies all seven plugin payloads and signed
+archives; fresh updated-head artifact/fanout qualification remains pending. Do not reuse older full CI artifacts after fixture
 source identity changes. Coordinate Docker browser/build lanes; a second runner
 in the same workspace correctly fails its exclusive lease instead of overlapping.
 
@@ -108,7 +136,7 @@ in the same workspace correctly fails its exclusive lease instead of overlapping
 | Disable mutable registry source and block reactivation        | Deployed                             | Registry #181/#183; signed disabled metadata and 18 live GET/HEAD responses verified; HTTP 410 stops fallback                                         |
 | Remove shared implementation, package and media catalogs      | Merged                               | Plugins #155; 410 interactions, 1,022 package tests, 243 release-tooling tests and 16 artifacts                                                       |
 | Remove Notes duplicate stories/controller probes/dependencies | Merged                               | #157 and #158 / `52cffda1`; 2,194 package tests, 239 cold interactions, 3 inspected tarballs and required hosted CI pass                              |
-| Remove retired AI from pinned fixture build inputs            | In progress                          | Notes fixture still used pre-removal Plugins; source guard and pin repair under qualification. Desktop fixture/source-build edges remain pending.     |
+| Remove retired AI from pinned fixture build inputs            | Notes merged; Desktop pending        | Notes #165 / `545284a0` closes its signed fixture edge; Desktop #48 guard and actual producer pass, fresh hosted artifact/fanout remain pending.      |
 | Preserve installed-data/native lifecycle                      | Pending                              | External versus bundled provenance; settings/chat/memory; Safe Mode; cold close/reopen                                                                |
 | Update Website and organization metadata                      | Merged                               | Website #1 / `9cbdc233`, exact-main CI `44157445481` passed; .github #15 / `5f81879f`                                                                 |
 | Complete source/public-package/consumer gates                 | Source qualified; acceptance pending | Catalog removals pass; approved legacy-cache provenance guard source-qualified; API release and native/data gates remain open                         |

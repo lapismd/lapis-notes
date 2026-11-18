@@ -13,6 +13,12 @@ a failed gate and grants no blind rerun; frozen Deno packages remain excluded.
 
 ## Legacy runtime and package retirement
 
+LN-WEB-093 removes Web's frozen-host raster input with seven exact output
+hashes preserved. Full Web checks, 40 tests, build and integrated canonical
+qualification pass in the [integration receipt](../../records/2026-11-17-web-icon-input-integration.md);
+hosted landing remains pending. The frozen host itself remains until its
+separate owning removal.
+
 Status: in progress. Plugins source/catalog and Notes launcher/catalog removals
 are merged and source-qualified; Notes #158 passed required hosted CI after
 2,194 package tests and 239 cold interactions. Approved registry signing and
@@ -32,7 +38,8 @@ its exact six-package cohort is qualified in Desktop source checks; complete
 catalog/hosted and actual native/data acceptance remain open. LN-CAT-124 removes
 the CI registry fixture's pre-retirement Plugins source input. Its guarded
 post-removal producer, 18 signed catalog documents, 16 signed bundles and all
-13 cold Web cases pass; hosted exact-head qualification remains pending.
+13 cold Web cases pass. Notes #165 passed hosted workflow `44198935057` and
+merged at `545284a0`; the source fixture edge is closed.
 Desktop's older fixture pin and stale local-build guard are being repaired in
 an isolated parallel workspace, with Rust/native pins preserved.
 Notes coordinates the
@@ -257,3 +264,12 @@ merging the consumer. Production deployment and the frozen
 Deno native gate remain separate. Desktop owns its pending compatible archive
 intake and production-root responsiveness acceptance; preserve its concurrent
 dependency work. Visual review remains pending without baseline changes.
+
+## Queued pull request base references
+
+Notes governance currently resolves the event base through a mutable remote
+branch name. A queued stacked PR retargeted after its base is merged/deleted
+can fail SPEC-FIRST-VCS despite unchanged base-tree bytes. Preserve the original
+failed attempt and qualify a fresh synchronize event against current main.
+A future source fix should resolve/fetch immutable event SHAs with regression
+coverage; no required gate is waived. See the [retirement hosted receipt](../../records/2026-11-17-retired-ai-fixture-hosted.md).
