@@ -18,12 +18,15 @@ Independent prerequisites may run in parallel under the user's explicit
 authorization; retain one reviewable slice per removal and integrate in dependency
 order. Source commits, consumer qualification and release/deployment are separate gates.
 
-Current resume: shared-AI source, Notes launcher/catalog and signed fixture,
-registry HTTP 410 and all eleven npm deprecations have landed. Notes #166's Web
-icon prerequisite, #168's scope correction and #169's verified host-boundary
-plan are merged. Their hosted receipts preserve configured skips and the unrelated offline startup stall; #168's
-[exact-artifact replay and hosted retry](../../spec/records/2026-11-18-retirement-scope-hosted.md)
-passed without changing product code, assertions or timeouts.
+Current resume (2026-11-18): Desktop #55 merged public UI 0.2.5 / API 0.6.9 /
+App Profile 0.2.6 at `9769c7fe`. Follow-up Desktop #56 (`sqkuovow` /
+`442b15c4`) seals E-RETIRE-014 with unpublished-projection removal, CLI
+Workspace acceptance and public-UI Docker gates; land #56 and verify exact-main
+CI next. Shared-AI source, Notes launcher/catalog and signed fixture, registry
+HTTP 410 and all eleven npm deprecations have landed. Notes #166/#168/#169 and
+handover docs #176/#178 are merged. Native/data preservation, Deno desktop
+removal, AI Host fixture, Website production and terminal Deno remain later
+gates.
 
 Desktop #48's complete fixture producer/admission repair has merged into #47's
 feature branch at `45d61a6c95d980892be8bb6a32f612137c1bb529`, not main.
@@ -41,13 +44,13 @@ merge tree matches checked `2b553332`. Actual-main push CI `44238333976` and
 standard catalog publication `44238334007` are separate fresh observations;
 see the [source-landing receipt](../../spec/records/2026-11-18-retirement-source-landings.md).
 
-Still pending: actual old-external/bundled native startup/data acceptance,
-App Profile native-chat lifecycle/storage acceptance, released-package consumer
-adoption, Website cutover and installed-app replacement. API `0.6.9`, UI `0.2.4`
-and App Profile `0.2.6` are already published; the publication audit below
-supersedes older publication-pending checkpoints. No macOS
-native case has run. Approval for the explicitly on-demand diagnostic lane is
-still pending; portable or hosted Linux results do not close that gate.
+Still pending after Desktop #56 lands and exact-main CI passes: actual
+old-external/bundled native startup/data acceptance, App Profile native-chat
+lifecycle/storage acceptance, Website cutover and installed-app replacement.
+API `0.6.9`, UI `0.2.5` and App Profile `0.2.6` are already published; the
+publication audit below supersedes older publication-pending checkpoints. No
+macOS native case has run. Approval for the explicitly on-demand diagnostic lane
+is still pending; portable or hosted Linux results do not close that gate.
 
 The [verified host-boundary audit](../../spec/records/2026-11-18-retirement-host-boundaries.md)
 retains portable Sync/core functions in the mixed `deno-host-services` package
