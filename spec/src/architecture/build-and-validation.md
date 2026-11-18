@@ -2,6 +2,11 @@
 
 LN-WEB-093 moves only the Web raster build input into the Web package. Its cold generator test runs before the Web unit suite and compares all seven public icons byte-for-byte without the frozen Deno host.
 
+CI regression and post-publication verification use the same immutable Lapis CI
+readiness89f3ede9 source. The test fixture verifies the complete four-module
+SHA256 closure, including safe terminal diagnostics; unchanged owner budgets,
+retry classification and actual package-consumer acceptance remain required.
+
 The ordinary check runs the offline `check:dependency-intake` lane before
 specification validation. LN-PKG-200 binds all seven Core dependency areas to
 their actual manifest and lock facts, including trusted dependency-bot PRs.
