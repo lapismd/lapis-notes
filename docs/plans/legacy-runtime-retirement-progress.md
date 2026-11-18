@@ -819,6 +819,15 @@ The separate `lapis-desktop-retirement-released-notes-cohort` workspace prepares
 only those three registry inputs. Preserve other package versions, Language
 Service's declaration/archive/projection/build wiring and every Rust pin.
 
+That actual registry intake is now held: the cold Desktop CLI workspace story
+fails rendering General/Advanced with `CLI settings field host is not bound`
+from released UI `0.2.4`. Public guard/schema checks pass 10 cases, installed
+registry identities/integrities pass and production audit has zero findings;
+these do not waive the UI failure. The [intake blocker](../../spec/records/2026-11-18-retirement-ui-field-intake-blocker.md)
+records the exact failure and owner boundary. A private UI binding repair is
+being prepared without changing core API services/functions or public contracts.
+Do not land the consumer candidate or run its broad qualification as if it passed.
+
 Desktop [#54](https://github.com/lapismd/lapis-desktop/pull/54) at `6d381bf0`
 prepares collection of an unchanged native-chat cold-restart test. Portable source
 checks pass; hosted qualification is running and native execution remains unrun.

@@ -42,6 +42,10 @@ peer cleanup are present in the verified artifacts. Publication and subsequent
 published-registry verification passed in separate attempts of release workflow
 `44232734973`. Desktop released-cohort adoption and native/data acceptance remain
 pending; see the [publication audit](../../records/2026-11-18-retirement-published-notes-cohort.md).
+Actual Desktop intake is held by released UI `0.2.4` failing the declarative CLI
+settings render. The owning private UI binding repair must preserve public
+interfaces and all core API services/functions; see the
+[intake blocker](../../records/2026-11-18-retirement-ui-field-intake-blocker.md).
 Sixteen obsolete package/controller/Fake/attach implementation requirements are
 archived with their original evidence. Retained Desktop ownership and native/data
 acceptance remain pending. All eleven npm versions are deprecated, and each
