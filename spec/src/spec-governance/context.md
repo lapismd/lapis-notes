@@ -100,34 +100,33 @@ not installed or when an embedding model is unavailable.
 
 ## Change map
 
-The table names the owning topic families. `spec-validator.config.mjs` maps protected paths to the defining topic pages in those families, excluding landing pages and explanatory context. Deno packaging and packaged smoke follow the same family map as renderer and native host sources.
+The table names the owning topic families. `spec-validator.config.mjs` maps protected paths to the defining topic pages in those families, excluding landing pages and explanatory context. Retained Deno host-service kernels use their dedicated Packages, Architecture, and Node Server mapping.
 
-| Protected area                                                                 | Required chapter                                                                                                                             |
-| ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `packages/api` source or manifest                                              | `packages/` topic pages, `architecture/` topic pages                                                                                         |
-| `packages/api/src/lib/file-tools`                                              | `packages/` topic pages, `architecture/` topic pages, `plugins/ai/`                                                                          |
-| API plugin lifecycle and workspace managed-plugin bridge                       | `plugin-model/` topic pages, `packages/` topic pages, `architecture/` topic pages                                                            |
-| `packages/ui` source or manifest                                               | `packages/` topic pages, `ui-and-styling/` topic pages                                                                                       |
-| `packages/workspace` source or manifest                                        | `packages/` topic pages, `architecture/` topic pages, `workspace-shell/` topic pages                                                         |
-| `packages/desktop-deno` package                                                | `desktop-deno-host/` topic pages, `packages/` topic pages, `architecture/` topic pages                                                       |
-| `packages/deno-host-services`                                                  | `server-node-host/` topic pages, `desktop-deno-host/` topic pages, `packages/` topic pages, `architecture/` topic pages                      |
-| `packages/server-node`                                                         | `server-node-host/` topic pages, `packages/` topic pages, `architecture/` topic pages, `app-database/` topic pages                           |
-| `packages/api/src/lib/storage` except `desktop-native.ts`                      | `app-database/` topic pages, `packages/` topic pages, `architecture/` topic pages                                                            |
-| `packages/api/src/lib/storage/desktop-native.ts`                               | `desktop-deno-host/` topic pages, `packages/` topic pages, `architecture/` topic pages                                                       |
-| `packages/ai-host` cutover remnants                                            | `plugins/ai/`, `packages/` topic pages, `architecture/` topic pages, `desktop-deno-host/` topic pages, `web-host/` topic pages               |
-| Focused AI Storybook stories                                                   | `plugins/ai/`, `storybook-catalog/` topic pages                                                                                              |
-| `packages/web`                                                                 | `server-node-host/` topic pages, `web-host/` topic pages, `packages/` topic pages, `architecture/` topic pages                               |
-| Focused real-App Graph Storybook stories                                       | `graph-plugin.md`, `storybook-catalog/` topic pages                                                                                          |
-| Native Markdown runtime source or language-service manifest                    | `desktop-deno-host/` topic pages, `packages/` topic pages, `workspace-shell/panels/problems.md`                                              |
-| Extracted plugin npm ranges and local tarball acceptance                       | `packages/` topic pages, `plugin-model/` topic pages, `architecture/` topic pages, `desktop-deno-host/` topic pages, `web-host/` topic pages |
-| Focused or real-App Bases Storybook stories                                    | `bases-plugin.md`, `storybook-catalog/` topic pages                                                                                          |
-| Shared Markdown panel shell source                                             | `workspace-shell/panels.md`                                                                                                                  |
-| Individual Markdown panel source                                               | Its owning `markdown-plugin/panels/<panel>.md` page                                                                                          |
-| Reusable Problems UI, diagnostic adapters, lint hover, or diagnostic providers | `workspace-shell/panels/problems.md`                                                                                                         |
-| Storybook infrastructure and catalog metadata                                  | `storybook-catalog/` topic pages                                                                                                             |
-| Root architecture / workspace / turbo manifests                                | `architecture/` topic pages, `packages/` topic pages                                                                                         |
-| Governance scripts, QMD config/ignore rules, `AGENTS.md`, `spec/book.toml`     | `spec-governance/` topic pages                                                                                                               |
-| Local release-candidate installer and support module                           | `packages/` topic pages, `spec-governance/` topic pages                                                                                      |
+| Protected area                                                                 | Required chapter                                                                                                   |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `packages/api` source or manifest                                              | `packages/` topic pages, `architecture/` topic pages                                                               |
+| `packages/api/src/lib/file-tools`                                              | `packages/` topic pages, `architecture/` topic pages, `plugins/ai/`                                                |
+| API plugin lifecycle and workspace managed-plugin bridge                       | `plugin-model/` topic pages, `packages/` topic pages, `architecture/` topic pages                                  |
+| `packages/ui` source or manifest                                               | `packages/` topic pages, `ui-and-styling/` topic pages                                                             |
+| `packages/workspace` source or manifest                                        | `packages/` topic pages, `architecture/` topic pages, `workspace-shell/` topic pages                               |
+| `packages/deno-host-services`                                                  | `server-node-host/` topic pages, `packages/` topic pages, `architecture/` topic pages                              |
+| `packages/server-node`                                                         | `server-node-host/` topic pages, `packages/` topic pages, `architecture/` topic pages, `app-database/` topic pages |
+| `packages/api/src/lib/storage` except `desktop-native.ts`                      | `app-database/` topic pages, `packages/` topic pages, `architecture/` topic pages                                  |
+| `packages/api/src/lib/storage/desktop-native.ts`                               | `packages/` topic pages                                                                                            |
+| `packages/ai-host` cutover remnants                                            | `plugins/ai/`, `packages/` topic pages, `architecture/` topic pages, `web-host/` topic pages                       |
+| Focused AI Storybook stories                                                   | `plugins/ai/`, `storybook-catalog/` topic pages                                                                    |
+| `packages/web`                                                                 | `server-node-host/` topic pages, `web-host/` topic pages, `packages/` topic pages, `architecture/` topic pages     |
+| Focused real-App Graph Storybook stories                                       | `graph-plugin.md`, `storybook-catalog/` topic pages                                                                |
+| Native Markdown runtime source or language-service manifest                    | `packages/` topic pages, `workspace-shell/panels/problems.md`                                                      |
+| Extracted plugin npm ranges and local tarball acceptance                       | `packages/` topic pages, `plugin-model/` topic pages, `architecture/` topic pages, `web-host/` topic pages         |
+| Focused or real-App Bases Storybook stories                                    | `bases-plugin.md`, `storybook-catalog/` topic pages                                                                |
+| Shared Markdown panel shell source                                             | `workspace-shell/panels.md`                                                                                        |
+| Individual Markdown panel source                                               | Its owning `markdown-plugin/panels/<panel>.md` page                                                                |
+| Reusable Problems UI, diagnostic adapters, lint hover, or diagnostic providers | `workspace-shell/panels/problems.md`                                                                               |
+| Storybook infrastructure and catalog metadata                                  | `storybook-catalog/` topic pages                                                                                   |
+| Root architecture / workspace / turbo manifests                                | `architecture/` topic pages, `packages/` topic pages                                                               |
+| Governance scripts, QMD config/ignore rules, `AGENTS.md`, `spec/book.toml`     | `spec-governance/` topic pages                                                                                     |
+| Local release-candidate installer and support module                           | `packages/` topic pages, `spec-governance/` topic pages                                                            |
 
 ## Agent workflow
 
@@ -182,8 +181,6 @@ titles repeat, and cached actions for a diagnostic must belong to that
 diagnostic with at most one action per title.
 
 - Desktop build output follows the same generated-artifact rule as Storybook and the specification book.
-
-- `packages/desktop-deno/dist/` and `packages/desktop-deno/release/` stay ignored, while package source, acceptance tests, icons, and entitlements remain reviewable inputs.
 
 - Ignored package-local desktop development symlinks for source imports are generated bootstrap state, not tracked source.
 

@@ -66,5 +66,5 @@ The source-owned opt-in retains these controls:
 
 - The schema2 policy names every active Core importer and mapped chapter; source review is required to extend that scope. Root, API, UI, Workspace, Web, Profile and File Explorer retain their distinct declared and peer ranges.
 - The verifier checks current manifests, catalog routing, lock specifiers, one released registry identity and SHA512 integrity independently of the coordinator renderer. Missing importers, malformed or ambiguous sections and mismatched rows or fingerprints fail without writes.
-- The shared coordinator alone prepares bounded slots after immutable-source admission; authored contracts, release intent, frozen Deno boundaries and functional, audit and exact-main specification gates remain binding.
+- The shared coordinator alone prepares bounded slots after immutable-source admission; authored contracts, release intent, retired-host guards and functional, audit and exact-main specification gates remain binding.
 - Current dependency facts never assert publication, browser acceptance or installed-host adoption. The normal check runs before specification exemptions and canonical aggregate checks retain it as a functional lane.

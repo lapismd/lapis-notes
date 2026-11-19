@@ -102,7 +102,7 @@ same provider and changes the surviving marker to `DB Owner`. Closing or
 switching sessions drains metadata and workspace persistence before releasing
 database requests, embedding workers, channels, and locks. Transformers.js is
 constructed lazily inside the owner tab's dedicated embedding worker, while
-the Deno desktop owner uses the same portable WASM setting in its renderer
+native consumers use the same portable WASM setting in their renderer
 provider in main.
 
 For LN-WEB-004, App Profile acceptance compiles the installed public Svelte dependency graph through Vite. Temporary packed validation uses matching framework peers so external plugin constructors retain one API class identity; registry manifests and lockfiles remain unchanged.

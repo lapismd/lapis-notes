@@ -28,12 +28,12 @@ occurrence state.
 
 - The token field uses password presentation on that host Settings surface.
 
-- Desktop terminal vault cwd binding (LN-DENO-028) and web `--workspace` Settings copy (LN-WEB-037) also MUST NOT change Word Count ownership.
+- Web `--workspace` Settings copy (LN-WEB-037) also MUST NOT change Word Count ownership.
 
 - Web vault copy progress (LN-WEB-042, LN-WEB-043) and App rebuild-cache commands (LN-PKG-097, LN-PKG-098) also MUST NOT change Word Count ownership.
 
-- Desktop and web Tasks index-only load (LN-DENO-006, LN-WEB-044) also MUST NOT change Word Count ownership.
+- Web Tasks index-only load (LN-WEB-044) also MUST NOT change Word Count ownership.
 
 - Browser vault transfer error reporting through session-owned notifications also MUST NOT change Word Count ownership.
 
-- Deno WASM database revisions and direct-SQL metadata startup are host infrastructure and MUST NOT change Word Count registration, active-editor counting, or status-bar ownership.
+- WASM database revisions and direct-SQL metadata startup are host infrastructure and MUST NOT change Word Count registration, active-editor counting, or status-bar ownership.

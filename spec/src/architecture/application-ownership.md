@@ -81,23 +81,11 @@ the global writer guard and releasing views, plugins or the vault session.
 
 **Requirement.** `@lapis-notes/ai` MUST render assistant chat Markdown through `@lapis-notes/markdown/embed`. That helper MUST apply the App's default Mira editor extensions. AI MUST NOT add a plugin-local Markdown renderer. Chat MUST keep the embed preview surface transparent and MUST NOT nest a vertical scroller inside the bubble.
 
-## LN-ARCH-068 — Deno: supervise the standalone lapis-ai-controller service and expose
-
-<a id="ln-arch-068"></a>
-
-**Requirement.** Deno MUST supervise the standalone `lapis-ai-controller` service and expose its authenticated connection through native IPC. The AI plugin MUST consume the shared controller client. Lapis MUST retain vault storage, App authorization, tool execution and host shutdown ownership.
-
-## LN-ARCH-070 — Deno single-instance ownership: use an exclusive application-data lock and authenticated
-
-<a id="ln-arch-070"></a>
-
-**Requirement.** Deno single-instance ownership MUST use an exclusive application-data lock and authenticated local handoff. The native host MUST retain URL arguments until a subscribed renderer takes them; only the ready App URL registry MAY interpret their application action.
-
 ## LN-ARCH-074 — Core startup, MetadataCache, and Search: emit transport-neutral spans, measurements, and lifecycle events
 
 <a id="ln-arch-074"></a>
 
-**Requirement.** Core startup, MetadataCache, and Search MAY emit transport-neutral spans, measurements, and lifecycle events through the App telemetry contract. Normal hosts MUST retain `NoopTelemetryService`; exporters, structured-log relays, service identities, and shutdown flushing MUST remain private to explicitly enabled Deno desktop development. Embedded AI and terminal boundaries MUST remain instrumentation scopes of the desktop service rather than separate services.
+**Requirement.** Core startup, MetadataCache, and Search MAY emit transport-neutral spans, measurements, and lifecycle events through the App telemetry contract. Normal hosts MUST retain `NoopTelemetryService`; exporters, structured-log relays, service identities, and shutdown flushing MUST remain private to explicitly enabled host integrations.
 
 ## LN-ARCH-083 — App: own AI memory services, durable vault records
 

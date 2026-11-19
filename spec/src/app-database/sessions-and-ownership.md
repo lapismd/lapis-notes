@@ -139,11 +139,11 @@ the Deno-free container build and CI acceptance.
 **Requirement.** Direct Turso close MUST drain accepted mutations and retain its connection until the driver closes successfully. Concurrent close calls MUST share completion. A failed close MUST remain observable and permit retry against the same owned driver without reopening it.
 
 LN-PKG-177 exposes optional watch registration readiness before initial
-reconciliation. Array adapters preserve it; the frozen Deno host is unchanged.
+reconciliation. Array adapters preserve it across retained hosts.
 
 LN-PKG-178 and LN-PKG-179 add opt-in exclusive creation and source-owned new-file
 intent. Existing low-level overwrite behavior and unsupported legacy hosts stay
-explicit; Deno host source remains frozen. Admission spans creation projection.
+explicit. Admission spans creation projection.
 
 ## Native Task service observation
 

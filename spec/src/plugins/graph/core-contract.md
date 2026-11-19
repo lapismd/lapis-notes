@@ -14,7 +14,7 @@ the current geometry instead of a rectangle captured before that focus change.
 
 <a id="ln-graph-002"></a>
 
-**Requirement.** Graph MUST be an optional bundled plugin enabled by default in Deno desktop, web, editor-demo, workspace-shell, and audited Storybook hosts. A fresh default layout MUST NOT create either Graph leaf.
+**Requirement.** Graph MUST be an optional bundled plugin enabled by default in Web, editor-demo, workspace-shell, and audited Storybook hosts. A fresh default layout MUST NOT create either Graph leaf.
 
 ## LN-GRAPH-003 — Global Graph: register open-graph-view through ViewAccess.command and create
 

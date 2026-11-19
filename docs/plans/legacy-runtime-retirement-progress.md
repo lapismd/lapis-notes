@@ -3,14 +3,13 @@
 Current scope (user correction, 2026-11-18): **Desktop-related legacy code and
 Deno removal only**. Leave core API services/functions and future-facing service
 wiring intact. Generic API cleanup is excluded. Language Service is intentionally
-retained, including its Desktop dependency/projection; no current caller is not
+retained, including its compatibility declarations; no current caller is not
 removal authority. E-RETIRE-007 is stopped, uncommitted and unpublished.
 
 Coordination owner: Notes. Implementation authorized 2026-11-17. Follow the
-[agreed plan](legacy-runtime-retirement.md). Work one removal at a time; do not
-start obsolete Desktop/Deno host removal while shared AI removal remains in progress. Defer the
-terminal ownership migration and Deno terminal-host retirement until every other
-removal and its required consumer changes have landed.
+[agreed plan](legacy-runtime-retirement.md). Work one removal at a time. The
+frozen Notes Deno host is the active slice after shared-AI preservation landed.
+Retire terminal Deno surfaces last and do not move either Rust implementation.
 The [agent handover](legacy-runtime-retirement-handover.md) is the concise current
 resume point; this longer ledger intentionally retains older checkpoints and
 failed attempts.
@@ -18,15 +17,16 @@ Independent prerequisites may run in parallel under the user's explicit
 authorization; retain one reviewable slice per removal and integrate in dependency
 order. Source commits, consumer qualification and release/deployment are separate gates.
 
-Current resume (2026-11-18): Desktop #55 merged public UI 0.2.5 / API 0.6.9 /
-App Profile 0.2.6 at `9769c7fe`. Follow-up Desktop #56 (`sqkuovow` /
-`442b15c4`) seals E-RETIRE-014 with unpublished-projection removal, CLI
-Workspace acceptance and public-UI Docker gates; land #56 and verify exact-main
-CI next. Shared-AI source, Notes launcher/catalog and signed fixture, registry
-HTTP 410 and all eleven npm deprecations have landed. Notes #166/#168/#169 and
-handover docs #176/#178 are merged. Native/data preservation, Deno desktop
-removal, AI Host fixture, Website production and terminal Deno remain later
-gates.
+Current resume (2026-11-19): Desktop preservation #58 merged at
+`769cc6135af1305cf92ef20e2a41b7eeb2870f7f`; exact-head CI `44482302141`,
+exact-main CI `44488080528` and exact-main Pages `44488080625` pass.
+E-RETIRE-015 is sealed and the user accepted two unchanged native diagnostics
+as non-blocking. AI Host #6 merged at
+`dcc42f3791282d4dd9138347614c2b93e09af245`; exact-main run `44434123912`
+passes. The active Notes workspace removes the frozen Deno host while
+preserving `deno-host-services`, Language/core/Sync and API compatibility.
+Shared-AI current spec authority, terminal plugin guidance, terminal-host
+in-place Rust-only conversion, Website production and final audit remain.
 
 Desktop #48's complete fixture producer/admission repair has merged into #47's
 feature branch at `45d61a6c95d980892be8bb6a32f612137c1bb529`, not main.
@@ -61,9 +61,9 @@ version/path, expiring exception proposal awaits approval; earlier Desktop and
 Plugins exceptions do not authorize AI Host. Production audit has zero findings.
 Do not apply the policy, commit or push that candidate before its gate qualifies.
 
-No blanket host deletion starts before shared-AI preservation acceptance. Generic
-helpers, CSS, APIs and future-facing services remain excluded. E-RETIRE-007 stays
-parked; terminal ownership migration remains last.
+Generic helpers, CSS, APIs and future-facing services remain excluded.
+E-RETIRE-007 stays parked; terminal Deno retirement remains last and moves no
+Rust code.
 
 The tables below describe current status; older receipts are dated checkpoints.
 
@@ -143,19 +143,17 @@ leases isolated.
 
 ## Later removals — pending
 
-1. Remove frozen Deno desktop/services and obsolete runtime/tooling paths,
-   preserving tooling still needed by the deferred terminal work.
-2. Preserve core API services/functions, generic interfaces and registry compatibility; generic API cleanup is excluded.
-3. Qualify and land all non-terminal removals and their required consumer changes.
-4. As the final removal, consolidate the Rust PTY service into `lapis-terminal`,
-   update and qualify Server consumers, then retire the Deno terminal host.
+1. Land the active frozen Notes Deno desktop and release-edge removal.
+2. Retire the already-absent shared-AI current spec authority without touching
+   Tauri AI, API file-tools or history.
+3. Update standalone Terminal plugin guidance.
+4. Convert `terminal-host` in place to Rust-only, preserving its Cargo files,
+   Rust service crate, Server pin, artifacts and history.
 5. Complete whole-plan Deno-absent package/host qualification and final
    dependency/inventory cleanup.
 
-This order follows the user's revised sequencing request. Until step 4, retain the
-current Rust PTY crate location, Server pin and required terminal-host tooling.
-Track these as deferred edges; they do not block independently qualified earlier
-slices or establish that the overall Deno retirement is complete.
+This order follows the user's revised sequencing and no-move decisions. Retain
+both Rust implementations in their current repositories throughout.
 
 Preserve standalone `ai-controller` for excluded `nostr-agent-controller`,
 `community-local`, `nostr-auth`; preserve API file-tools, active native AI and
@@ -165,7 +163,7 @@ planned Sync. Never delete data or uninstall solely by plugin ID `ai`.
 
 Start with `jj --no-pager st` in each workspace. Read tracked owner guidance,
 refresh remote refs without overwriting concurrent work, inspect source commits
-and the latest evidence below, and continue the first pending shared-AI substep.
+and the latest evidence below, and continue the active Notes frozen-host slice.
 The ignored validation configs use the existing `omarchy` Docker context and
 registry-only installs; no dirty sibling sources are transferred.
 Spec-validator latest npm version was checked as `0.2.1`; Notes and Plugins
@@ -840,3 +838,57 @@ checks pass; hosted qualification is running and native execution remains unrun.
 It does not cover old shared-plugin data, disablement or Safe Mode by itself.
 Frozen-host removal still waits on preservation prerequisites; terminal stays
 last. Core API services/functions and future capabilities remain untouched.
+
+## Frozen Notes Deno desktop removal checkpoint, 2026-11-19
+
+Desktop preservation prerequisite [#58](https://github.com/lapismd/lapis-desktop/pull/58)
+is merged and sealed. The active Notes change `rtkxrrpp` is based on
+`aca52edd7497e6ba7bd39c91507b9e8f87f5170f`. Its full product-check snapshot is
+`9cfb40d1fe27a415b6393dde87960d6f5b10a7a6`. A subsequent specification-only
+authority scrub at `41427855` passes the complete seven-lane specification
+check. The final current-contract audit at `2767a7b5` removes the remaining
+supported-host wording for the retired consumer and passes the same complete
+specification gate; no executable source differs between those snapshots.
+
+The candidate removes exactly 176 tracked files under
+`packages/desktop-deno/**`, the obsolete desktop release implementation and its
+test, package/workspace/release/cache edges, and frozen-host-only Deno imports.
+It removes the eight retired host chapters, `LN-DENO-001` through
+`LN-DENO-094`, `LN-ARCH-081`, their current verification authority and matching
+Storybook mirrors. The historical archive preserves their disposition and
+repository history preserves exact source bytes.
+
+The retained root Deno workspace, `packages/deno-host-services/**`, Language
+Service, Sync, core API functions, native compatibility contracts, standalone
+controller, Tauri/native AI, user data and historical artifacts remain intact.
+Terminal ownership is unchanged: Desktop Rust packages stay in
+`lapis-terminal`; Server's Rust service, Cargo manifests and lock stay in
+`terminal-host`. No Rust code is moved.
+
+Qualification on the exact source snapshot passes:
+
+- focused release anti-resurrection regression: 4/4, after the original
+  candidate failed only for the three expected restored paths;
+- combined focused Node release tests: 29/29; release-version tests: 25/25;
+- Web: PWA icon regression 1/1, Vitest 39/39, production build of 13,562
+  modules and 617 precache entries;
+- retained Deno host services: nine production-entry type checks and 90/90
+  tests after building the existing Language Service;
+- package/release snapshot: package boundaries 4/4, local plugin consumer 9/9,
+  release controls 219/219; a frozen install leaves the narrow regenerated
+  pnpm lock SHA-256 unchanged;
+- specification: 11 validators, 187 chapters and 1,470 current requirements;
+  all seven aggregate lanes pass, 68/68 validator tests pass, and exact-base
+  spec-first passes 186 protected files mapped to 72 canonical chapters. A
+  preceding bare local `pnpm spec:first` attempt supplied `--head` without its
+  required `--base` and exited before validation; the explicit-base rerun is
+  the qualifying result;
+- root `check`: 16/16 Turbo tasks; root `test`: 16/16 tasks, including 1,840
+  API tests; root `build`: 9/9 tasks.
+
+The accepted native transcript-backup and raw development-WebView diagnostic
+failures remain non-blocking historical preservation evidence; this source
+slice neither changes nor reclassifies them. Pending gates are commit/push,
+Notes pull request review, exact-head hosted CI, merge, fresh exact-main CI and
+tracker receipt updates. Shared-AI current-spec retirement and terminal cleanup
+remain later isolated removals.

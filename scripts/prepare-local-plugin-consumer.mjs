@@ -38,7 +38,6 @@ const generatedConsumerCaches = [
   path.join(repositoryRoot, "node_modules/.cache/storybook"),
   path.join(repositoryRoot, "node_modules/.vite"),
   path.join(repositoryRoot, "packages/app-profile/node_modules/.vite"),
-  path.join(repositoryRoot, "packages/desktop-deno/node_modules/.vite"),
   path.join(repositoryRoot, "packages/web/node_modules/.vite"),
 ];
 const requiredPackages = new Set([

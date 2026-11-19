@@ -30,7 +30,7 @@ Plugin Management acceptance follows the same selected-value names for platform,
 channel and sort controls, and retains the real filtering and result ordering.
 
 `Workspace/Desktop Vault Launcher` and `Workspace/Desktop Startup` verify the
-public components shared by the Deno and Tauri hosts (LN-PKG-171). Their plays
+public components consumed by native desktop hosts (LN-PKG-171). Their plays
 cover native-action callbacks, recent-project search, supported profile actions,
 appearance persistence, startup and recovery accessibility. Public consumer
 examples accompany both families; visual capture and approval remain pending.

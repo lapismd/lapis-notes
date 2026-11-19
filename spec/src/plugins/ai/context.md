@@ -21,9 +21,9 @@ package, Fake runtime class, controller process or attach settings.
   result-view registries, plus Vault-backed file tools using the portable
   `@lapismd/ai-host/file-tools` kernel. Search and other domain plugins own their
   contributions. Removing the shared AI package does not remove those contracts.
-- The standalone controller remains for excluded consumers. Frozen Deno-host
-  requirements remain scoped to that deferred host, rather than to Tauri's
-  native implementation.
+- The standalone controller remains for the explicitly excluded consumers. Its
+  current contracts belong to that service and do not authorize restoring the
+  retired Notes host or replacing Tauri's native implementation.
 
 ## Data and acceptance boundaries
 

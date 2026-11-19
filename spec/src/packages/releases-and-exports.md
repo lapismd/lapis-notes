@@ -187,18 +187,6 @@ unfiltered finding, dependency path, scope limitation, and removal procedure.
 
 **Requirement.** `@lapis-notes/graph` MUST live in the sibling `lapis-plugins` monorepo as an independently versioned installable plugin. It MUST expose its plugin, controls overlay, embed, renderer, views, settings, types, and styles through public package exports, depend on API and Design Core rather than `@lapis-notes/ui`, and retain runtime id `lapis-graph`.
 
-## LN-PKG-123 — @lapis-notes/desktop-deno: generate its macOS development WebView and CEF
-
-<a id="ln-pkg-123"></a>
-
-**Requirement.** `@lapis-notes/desktop-deno` MUST generate its macOS development WebView and CEF hosts under ignored `release/dev-laufey`. Reuse MUST require a matching Deno version, backend, application name, and identifier, repairing an invalid signature before reuse. The launcher MUST ad-hoc sign after identity patching and Deno runtime insertion, accept an unchanged runtime only while its deep strict signature remains valid, then pass the generated parent through `LAUFEY_DEV_DIR`; Linux and packaged output retain their existing paths.
-
-## LN-PKG-124 — @lapis-notes/desktop-deno: privately own session-scoped startup recovery persistence
-
-<a id="ln-pkg-124"></a>
-
-**Requirement.** `@lapis-notes/desktop-deno` MUST privately own session-scoped startup recovery persistence and presentation while reusing the public API `AppSafeModeState` and Design Core startup surface. It MUST retain saved vault profiles after recoverable open failures, preserve native filesystem failure classes, and avoid adding public package exports or desktop-only canonical vault settings.
-
 ## LN-PKG-129 — Independent Lapis package releases
 
 <a id="ln-pkg-129"></a>
@@ -314,12 +302,6 @@ The lapis-server repository owns server acceptance. Package qualification suppli
 
 **Requirement.** Root Docker visual staging MUST update sibling dependency overrides in `pnpm-workspace.yaml`, regenerate the matching lockfile, and restore the root manifest, workspace configuration, and original lockfile before a frozen relink after capture. It MUST NOT depend on the retired manifest-level `pnpm.overrides` shape.
 
-## LN-PKG-093 — Public @lapismd/terminal-host: live in the terminal-host repository, version independently
-
-<a id="ln-pkg-093"></a>
-
-**Requirement.** Public `@lapismd/terminal-host` MUST live in the `terminal-host` repository, version independently, and expose build, check, test, Deno embed, and CLI entries. Lapis hosts MUST consume it through published npm semver ranges. Deno desktop MUST pass the vault path, optional `cwd`, optional absolute `shell`, and a packaged verified native-library path.
-
 ## LN-PKG-161 — Complete web acceptance in CI
 
 <a id="ln-pkg-161"></a>
@@ -337,15 +319,7 @@ explicitly re-selects Docker because the image harness fails closed without it.
 
 <a id="ln-pkg-162"></a>
 
-**Requirement.** This Notes repository's pull-request and reusable CI MUST NOT build, package, or publish the desktop application. Desktop packaging and cold packaged acceptance belong to the lapis-desktop repository. Server acceptance belongs to the lapis-server repository.
-
-Notes CI does not select `@lapis-notes/desktop-deno` or the retired `@lapis-notes/server-deno` package.
-
-## LN-PKG-163 — Portable terminal dependency during desktop packaging
-
-<a id="ln-pkg-163"></a>
-
-**Requirement.** Desktop packaging MUST read native artifact metadata from the public npm Terminal Host export and resolve its Deno runtime through the public npm Deno entry. A clean checkout MUST NOT require a sibling Terminal Host checkout. Native downloads MUST retain checksum verification.
+**Requirement.** This Notes repository's source, pull-request CI, reusable CI, and release tooling MUST NOT contain, build, package, or publish the retired Deno desktop application. The fail-closed desktop retirement checker MUST reject restoration of its package, release implementation, release test, or workflow. Desktop packaging and cold packaged acceptance belong to the lapis-desktop repository; Server acceptance belongs to the lapis-server repository.
 
 ## LN-PKG-164 — Complete version changelogs
 
@@ -354,20 +328,6 @@ Notes CI does not select `@lapis-notes/desktop-deno` or the retired `@lapis-note
 **Requirement.** Version preparation MUST preflight each public changelog formatter and reject a package whose current version has no non-empty changelog section before and after Changesets runs. Markdown formatting MUST NOT require optional code-only formatter plugins.
 
 ## Approved registry consumer snapshot — 2026-10-14
-
-Desktop application releases use the separate `desktop-v<version>` tag namespace
-and the private desktop package version. The source-owned packaging pipeline
-produces three native candidates (macOS ARM64 and Linux ARM64/x86-64), qualifies their actual Homebrew installations,
-and publishes immutable archives with a source-bound manifest. Manual dispatch
-remains validation-only; native jobs select and verify the pinned Node and Deno
-toolchain after Homebrew setup modifies PATH. The Homebrew tap
-executes Linux runtime preflight from the absolute staged bundle and
-consumes that contract rather than rebuilding the application or substituting
-local npm dependencies; see LN-DENO-079 through LN-DENO-083. npm Changesets and
-desktop releases retain independent version and publication flows.
-The first tagged desktop release is `2026.31.5`; its three verified archives and
-manifest bind source commit `9fed4f1577a6beb27168d0b83b9ea42408d4f1b1`.
-See the [release record](../../records/2026-10-14-homebrew-desktop-release.md).
 
 Server-host browser qualification uses the client built from these public
 package boundaries. Its restart test retains the test network namespace while

@@ -92,12 +92,6 @@ Successful profile URL navigation dismisses owning Settings under
 
 **Requirement.** `@lapis-notes/api` MUST publicly export search-document provider types and the registry used by separately versioned first-party plugins without requiring an import from `@lapis-notes/search`.
 
-## LN-PKG-126 — @lapis-notes/ai: own cross-agent transcript projection, binding cursor reduction
-
-<a id="ln-pkg-126"></a>
-
-**Requirement.** `@lapis-notes/ai` MUST own cross-agent transcript projection, binding cursor reduction, switch/configuration audit records, and optional background handoff summaries. `@lapismd/ai-host` and desktop adapters MAY configure or resume native sessions through versioned transport methods, but MUST NOT copy opaque runtime state, author handoff transcript messages, select durable binding state, or become conversation authority.
-
 ## LN-PKG-083 — Independent Word Count package ownership
 
 <a id="ln-pkg-083"></a>

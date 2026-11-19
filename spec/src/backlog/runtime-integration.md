@@ -9,7 +9,8 @@ Owning-source checks and real retained consumer acceptance pass for the changed
 adapter. Hosted current-head qualification and production verification remain
 separate open gates. Tasks/Docs/Mira reuse retains each
 publisher's existing identity, signing and provenance checks. Exhaustion stays
-a failed gate and grants no blind rerun; frozen Deno packages remain excluded.
+a failed gate and grants no blind rerun; retired Deno desktop packages remain
+excluded by the fail-closed source guard.
 
 ## Legacy runtime and package retirement
 
@@ -24,8 +25,9 @@ hashes preserved. Full Web checks, 40 tests, build and integrated canonical
 qualification pass in the [integration receipt](../../records/2026-11-17-web-icon-input-integration.md).
 Notes #166 passed all 12 executed hosted jobs and 13 Web cases and merged at
 `6787e824`; see the [hosted receipt](../../records/2026-11-18-web-icon-input-hosted.md).
-The configured interaction quarantine remains a separate skip. The frozen host itself remains until its
-separate owning removal.
+The configured interaction quarantine remains a separate skip. The frozen Notes
+Deno host and its release implementation are now removed; repository history
+and immutable release evidence preserve the retired artifacts.
 
 Status: in progress. Plugins source/catalog and Notes launcher/catalog removals
 are merged and source-qualified; Notes #158 passed required hosted CI after
@@ -40,15 +42,15 @@ hosted workflow `44172806383` and merged at `d369ec9d`. API `0.6.9`, UI `0.2.4`
 and App Profile `0.2.6` are now published from `538bb469`; the approved guard and
 peer cleanup are present in the verified artifacts. Publication and subsequent
 published-registry verification passed in separate attempts of release workflow
-`44232734973`. Desktop released-cohort adoption and native/data acceptance remain
-pending; see the [publication audit](../../records/2026-11-18-retirement-published-notes-cohort.md).
-Actual Desktop intake is held by released UI `0.2.4` failing the declarative CLI
-settings render. The owning private UI binding repair must preserve public
-interfaces and all core API services/functions; see the
-[intake blocker](../../records/2026-11-18-retirement-ui-field-intake-blocker.md).
+`44232734973`. Desktop released-cohort adoption and native/data acceptance
+completed through Desktop preservation PR #58. Its reviewed head
+`dedc658288435b4d60e3ebbfbf1a4d430354f1ad`, merged main
+`769cc6135af1305cf92ef20e2a41b7eeb2870f7f`, exact-head CI `44482302141`,
+exact-main CI `44488080528`, and exact-main Pages `44488080625` seal
+E-RETIRE-015. The two unchanged out-of-scope native failures were explicitly
+accepted as non-blocking.
 Sixteen obsolete package/controller/Fake/attach implementation requirements are
-archived with their original evidence. Retained Desktop ownership and native/data
-acceptance remain pending. All eleven npm versions are deprecated, and each
+archived with their original evidence. All eleven npm versions are deprecated, and each
 original tarball passes independent SHA-512 verification. Website source is merged;
 its manual deployment is separate. Notes #164's peer cleanup is merged and
 its exact six-package cohort is qualified in Desktop source checks; complete
@@ -73,11 +75,14 @@ targeted retry without changing assertions or adding an exception.
 The [host-boundary audit](../../records/2026-11-18-retirement-host-boundaries.md)
 retains portable Sync/core functions in mixed `deno-host-services`, active
 Agent Redaction/controller Deno support and the stable Homebrew cutover gate.
-Do not delete whole service packages or core/public functions. Terminal remains
-last; only obsolete host portions and unnecessary runtime tooling are targets.
+Do not delete whole service packages or core/public functions. Terminal work
+must not move code: Desktop's published Rust terminal packages remain in
+`lapis-terminal`, while Server's private `lapis-terminal-service` crate remains
+in `terminal-host`. Only obsolete Deno/npm/CLI/WebSocket/release surfaces are
+retirement targets; Cargo manifests, the Rust crate, Server pin and history stay.
 Notes coordinates the
 [consolidated retirement plan](../../../docs/plans/legacy-runtime-retirement.md)
-for the frozen Deno desktop, shared AI plugin, obsolete host/tooling edges and
+for the retired Deno desktop, shared AI plugin, obsolete host/tooling edges and
 Deno-specific interface proposals. Core API cleanup is excluded. Sibling owners retain their contracts, implementation,
 qualification and release authority. Preserve Tauri-owned AI, native chat,
 the API file-tools kernel, required Rust services and planned Sync work.
@@ -86,7 +91,9 @@ standalone `ai-controller` is preserved for those consumers. The 2026-11-15
 audit remains dated evidence. Current bases, preparation results, verified
 substeps and pending acceptance are recorded in the
 [progress and resume record](../../../docs/plans/legacy-runtime-retirement-progress.md).
-Source preparation does not qualify product or release gates.
+Source preparation does not qualify product or release gates. Current shared-AI
+specification pages and verification rows remain a separate spec-only retirement
+slice; they do not authorize removal of core services or Tauri-owned AI.
 
 ## Generated version PR authentication
 

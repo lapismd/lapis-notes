@@ -59,7 +59,8 @@ Its retry/process implementation is owned by immutable shared Lapis CI source
 under [LN-PKG-196](../packages/registry-readiness.md#ln-pkg-196), with Notes keeping
 the consumer's own package-manager, budget and approved build policy. Root
 specification tooling resolves the Deno-free validator0.2.1 patch from npm;
-frozen Deno packages and their lifecycle remain outside this adoption.
+retained Deno host-service packages and their runtime remain outside this
+adoption.
 
 Notes declares its own Prettier and JSDoc formatter development dependencies;
 Design Core's authoring tools are no longer supplied as runtime dependencies.
@@ -226,12 +227,6 @@ API, UI and File Explorer admit that released line through portable ranges.
 
 **Requirement.** Design Core MUST own reusable diagnostics state and Problems presentation. Lapis API MUST adapt that contract to plugins, vault navigation, and language services; provider packages MUST remain independent of Design Core and workspace layout.
 
-## LN-ARCH-028 — Deno desktop host: remain a consumer of @lapis-notes/api and @lapis-notes/workspace
-
-<a id="ln-arch-028"></a>
-
-**Requirement.** The Deno desktop host MUST remain a consumer of `@lapis-notes/api` and `@lapis-notes/workspace`. Native lifecycle, vault discovery and selection, session boot, and bounded bindings belong to the host; the workspace package MAY forward generic navigation presentation while rendering and persisted layout compatibility remain in their owning packages.
-
 ## LN-ARCH-041 — External-plugin dependency closure, including the public workspace: cross repository boundaries through published package exports
 
 <a id="ln-arch-041"></a>
@@ -278,23 +273,11 @@ temporary acceptance of the unpatched QMD development advisory.
 
 **Requirement.** API MUST retain the shared CodeMirror autocomplete extension while UI owns its completion-popover stylesheet and application hosts load that public stylesheet after Design Core paint. Bases owns only its inline query-editor surface and focus treatment and MUST NOT gain a runtime dependency on the pruned UI package.
 
-## LN-ARCH-067 — Deno desktop host: remain a consumer of @lapis-notes/api, @lapis-notes/workspace,
-
-<a id="ln-arch-067"></a>
-
-**Requirement.** The Deno desktop host MUST remain a consumer of `@lapis-notes/api`, `@lapis-notes/workspace`, and public host packages. Native window, bindings, services, vault discovery, session boot, and local distribution orchestration belong to the host. Language diagnostics MUST remain plugin-owned over the public native boundary without a duplicate host provider; terminal execution and verified asset metadata MUST use public boundaries while watching and HTTP delivery remain Deno-owned.
-
-## LN-ARCH-072 — Local observability: remain owned by the Deno desktop host
-
-<a id="ln-arch-072"></a>
-
-**Requirement.** Local observability MUST remain owned by the Deno desktop host and use the API telemetry boundary. Telemetry development launch MUST require an available loopback collector and MUST NOT require a first-party plugin, product setting, remote collector, or telemetry-enabled production package.
-
 ## LN-ARCH-073 — API: expose its transport-neutral telemetry contract
 
 <a id="ln-arch-073"></a>
 
-**Requirement.** API MUST expose its transport-neutral telemetry contract through a narrow package entry. The Deno desktop renderer and native host MAY supply local exporters and propagation, but plugins and portable packages MUST remain exporter-neutral.
+**Requirement.** API MUST expose its transport-neutral telemetry contract through a narrow package entry. Concrete hosts MAY supply local exporters and propagation, but plugins and portable packages MUST remain exporter-neutral.
 
 ## LN-ARCH-085 — Source Editor package: own host-neutral text, JSON, and YAML file
 

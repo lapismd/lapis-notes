@@ -88,8 +88,8 @@ Reconciliation retains these boundaries:
   fences.
 
 Host adoption and real two-client browser/native acceptance are separate from
-source qualification. Existing Deno hosts remain frozen. Signing and final
-distribution remain deferred.
+source qualification. Retired host source has no current authority. Signing and
+final distribution remain deferred.
 
 ## LN-CORE-026 — Operation-scoped noninteractive state
 

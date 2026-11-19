@@ -151,8 +151,8 @@ versioned database with atomic conditional metadata writes (LN-ARCH-115).
 `SyncHostSecurityProvider` creates runtime-scoped capabilities and revokes them.
 The public host controller's `dispose()` drains this custody after invalidation
 (LN-ARCH-117/LN-ARCH-118).
-Desktop composes this provider for `sync` with native profile admission, JSON
-security RPC and dedicated wrapped-key storage (LN-DENO-079 through LN-DENO-081).
+Native consumers compose this provider for `sync` with profile admission,
+security RPC and dedicated wrapped-key storage.
 
 The optional native Sync port remains App/session-owned. A plugin activation
 selects the exact Lapis Server provider through a revocable lease; the API
@@ -295,7 +295,7 @@ application policy. Native consumer adoption remains separately outstanding.
 
 <a id="ln-pkg-148"></a>
 
-**Requirement.** `@lapis-notes/api` MAY advertise a transport-neutral `nostr-signer` native capability but MUST NOT implement OS credential storage or Nostr cryptography. The private Deno desktop host MUST own its keychain, NIP-46, native signing service, renderer broker, and direct `nostr-tools` runtime dependency.
+**Requirement.** `@lapis-notes/api` MAY advertise a transport-neutral `nostr-signer` native capability but MUST NOT implement OS credential storage, Nostr cryptography, native signer transport, or renderer-to-host credential brokering. Concrete hosts MUST own those facilities and their runtime dependencies.
 
 This native-signer boundary concerns the `nostr-signer` capability. Separately,
 the purpose-scoped Sync security contract follows LN-ARCH-092/LN-ARCH-093 and
@@ -309,7 +309,7 @@ key bytes.
 
 <a id="ln-pkg-080"></a>
 
-**Requirement.** `@lapis-notes/api` MUST own transport-neutral app-tool contracts, lifecycle, and Vault-backed file-tool wrappers. Search MUST own `notes_search` and Markdown MUST own `notes_list`. AI MUST own snapshots and policy. `@lapismd/ai-host` plus Deno desktop MUST own live MCP transport without becoming durable tool, note-content, or conversation authorities.
+**Requirement.** `@lapis-notes/api` MUST own transport-neutral app-tool contracts, lifecycle, and Vault-backed file-tool wrappers. Search MUST own `notes_search` and Markdown MUST own `notes_list`. Concrete AI hosts MUST own live transport without becoming durable tool or note-content authorities.
 
 Under LN-CORE-003/004/006, an explicitly owned `VaultSession.backgroundIndexing`
 port selects the existing native metadata owner. The retained MetadataCache

@@ -12,7 +12,8 @@
 
 - Storybook manager-only dependencies, including the shared theme toolbar icons, remain root development tooling and do not enter the runtime package graph.
 
-- Web and Deno own their Vite renderer interop policy.
+- Web owns its Vite renderer interop policy; native application hosts own their
+  separate renderer integration.
 
 - Registry package source continues through the appropriate Svelte transform, while deep Mira modules and their transitive CommonJS dependencies are pre-bundled before a native browser module loader sees them.
 

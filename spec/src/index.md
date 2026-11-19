@@ -1,6 +1,6 @@
 # Lapis Notes specification
 
-This is the canonical contract for the Lapis Notes runtime, retained UI, workspace adapter, application profile, and Deno and browser hosts. Extracted plugins are owned by the sibling `lapis-plugins` repository and consumed through public packages.
+This is the canonical contract for the Lapis Notes runtime, retained UI, workspace adapter, application profile, browser hosts, and portable host services. Extracted plugins are owned by the sibling `lapis-plugins` repository and consumed through public packages.
 
 ## Reading order
 

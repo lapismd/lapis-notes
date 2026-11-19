@@ -62,11 +62,11 @@ Compare and restore verify:
 
 **Requirement.** Storybook MUST demonstrate the real History panel in all six governed placements and a compare story covering FileDiff, MergeEditor, select-for-compare, restore, and History-leaf preservation. Docs source MUST use public `@lapis-notes/history` imports. New visuals MUST stay `visual-pending`.
 
-## LN-HIST-007 — Deno desktop, web, editor-demo, and audited Storybook: register History as enabledByDefault: true and load
+## LN-HIST-007 — Web, editor-demo, and audited Storybook: register History as enabledByDefault: true and load
 
 <a id="ln-hist-007"></a>
 
-**Requirement.** Deno desktop, web, editor-demo, and audited Storybook hosts MUST register History as `enabledByDefault: true` and load it before metadata and layout restoration.
+**Requirement.** Web, editor-demo, and audited Storybook hosts MUST register History as `enabledByDefault: true` and load it before metadata and layout restoration.
 
 ## LN-HIST-008 — Timeline context menu: offer Select for compare and Compare
 

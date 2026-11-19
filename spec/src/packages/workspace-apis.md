@@ -39,7 +39,7 @@ existing projection completes, with disposal fencing the pending attachment.
 
 <a id="ln-pkg-171"></a>
 
-**Requirement.** `@lapis-notes/workspace` MUST export the existing desktop vault chooser and branded startup components for Deno and Tauri consumers. The chooser MUST retain the Deno layout, labels, recent-project search, appearance controls and drag exclusions through native CSS and public Design Core primitives. Hosts MUST inject profile storage and actions; unavailable profile operations MUST remain absent. Vault selection and session ownership MUST remain host-owned.
+**Requirement.** `@lapis-notes/workspace` MUST export the existing desktop vault chooser and branded startup components for native desktop consumers. The chooser MUST retain its established layout, labels, recent-project search, appearance controls and drag exclusions through native CSS and public Design Core primitives. Hosts MUST inject profile storage and actions; unavailable profile operations MUST remain absent. Vault selection and session ownership MUST remain host-owned.
 
 ## LN-PKG-175 — Shared desktop recovery presentation
 

@@ -1,8 +1,8 @@
 # Workspace Shell / Context
 
-The host maps full native window-control clearance to the Design Core overlay
-inset independently of ribbon width (LN-DENO-044). Maximized groups restore
-ordinary chrome geometry when focus mode ends. Settings headings inherit
+Native hosts map window-control clearance to the Design Core overlay inset
+independently of ribbon width. Maximized groups restore ordinary chrome
+geometry when focus mode ends. Settings headings inherit
 Design Core bold defaults; Workspace bounds large verified registry media and
 its lightbox without changing standard Button geometry (LN-PLUG-096/097).
 
@@ -29,7 +29,7 @@ LN-PLUG-078 while the host owns any consent or profile-creation surface.
 
 - This overview retains controller, persistence, and application-host responsibilities.
 
-- Deno desktop is the native consumer and constructs `App` with an API `VaultSession` before mounting the shell.
+- Native consumers construct `App` with an API `VaultSession` before mounting the shell.
 
 - Language-service apply paths for serializable command actions live on the Problems panel chapter.
 

@@ -333,6 +333,10 @@ runtime.
 
 **Requirement.** Specification Docs MUST derive chapter hierarchy, breadcrumbs, and previous/next navigation from SUMMARY. Every indexed canonical page MUST have exactly one metadata-only mirror and one unique built Docs route.
 
+Retired chapters are removed from SUMMARY and their generated mirrors together;
+the synchronization gate rejects any stale mirror that would resurrect removed
+current authority in the Storybook sidebar.
+
 The host compatibility story retains signed snapshot discovery and real PluginBrowser
 installation state under LN-PLUG-113. Its independent visual path is
 `workspace/plugins/desktop-only-ai`; review and capture remain

@@ -18,8 +18,8 @@
 
 **Requirement.** Word Count MUST update `app.statusBar` with optional segments and a reading-time command. Clicking the status item MUST show reading time. It MUST NOT use compatibility status DOM.
 
-## LN-WC-004 — Deno desktop, web, editor-demo, and audited Storybook: register Word Count as enabledByDefault: true
+## LN-WC-004 — Web, editor-demo, and audited Storybook: register Word Count as enabledByDefault: true
 
 <a id="ln-wc-004"></a>
 
-**Requirement.** Deno desktop, web, editor-demo, and audited Storybook hosts MUST register Word Count as `enabledByDefault: true` and load it before metadata and layout restoration.
+**Requirement.** Web, editor-demo, and audited Storybook hosts MUST register Word Count as `enabledByDefault: true` and load it before metadata and layout restoration.

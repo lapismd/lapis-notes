@@ -44,9 +44,10 @@ dependency or planned integration.
 - Deno-specific adapter/tooling cleanup must preserve surviving contracts and
   future service capability. Any proposed public interface change requires its
   own concrete review and explicit confirmation before implementation.
-- Keep terminal ownership migration and Deno terminal-host retirement last,
-  after all other **in-scope Desktop/Deno** removals and consumer changes land.
-  Preserve the current Rust PTY dependency and required tooling until then.
+- Keep Deno terminal-host retirement last, after all other **in-scope
+  Desktop/Deno** removals and consumer changes land. Do not move either Rust
+  implementation: Desktop packages stay in `lapis-terminal`, while Server's
+  private Rust service and pin stay in `terminal-host`.
 - Keep functional, keyboard, accessibility, packaging and native acceptance.
   Visual baseline changes remain excluded; publication/deployment retain gates.
 
@@ -90,7 +91,7 @@ are not current release or native acceptance receipts.
 | App-profile native chat                        | Notes web registration and Rust-hosted Notes consume it                                                             | Preserve                                                                                                                   |
 | `ai-controller`                                | In-scope consumers are the retiring plugin, old desktop and probes; excluded services still need it                 | Remove in-scope edges; preserve standalone service                                                                         |
 | `ai-host`                                      | Notes API imports the portable file-tools kernel; preserved controller uses execution exports                       | Preserve package, required exports and retained Deno configuration; remove only verified private orphan fixture            |
-| `terminal-host`                                | Deno CLI/FFI host is obsolete; Server consumes its Deno-free Rust PTY crate                                         | Consolidate Rust crate into `lapis-terminal`, then retire old host                                                         |
+| `terminal-host`                                | Deno CLI/FFI/npm/WebSocket host is obsolete; Server consumes its Deno-free Rust PTY crate                           | Convert in place to Rust-only; preserve Cargo manifests, crate, Server pin, history and artifacts                          |
 | Standalone terminal plugin                     | Public host bridge, not a runtime dependency on the Deno terminal-host package                                      | Preserve bridge integration; remove stale standalone-host instructions                                                     |
 | `agent-redaction`                              | Published Deno facade and two built-export acceptance cases; preserved controller uses Node exports inside Deno     | Retain facade, acceptance and Deno CI while controller compatibility remains required; preserve portable/Node/Rust APIs    |
 | Notes `host-services` and `deno-host-services` | Mixed package: obsolete Deno host adapters plus portable service reexports and intentional Node/native Sync kernels | Remove only proven obsolete host portions; retain both packages and all portable/core/Sync functions and future capability |
@@ -193,8 +194,8 @@ After shared-AI preservation acceptance, take one host removal at a time:
 
 1. Remove the frozen `packages/desktop-deno` host and its host-owned launch,
    controller-consumer, packaging and release edges after checking surviving
-   callers. It is already excluded from the pnpm workspace. Preserve the active
-   `check-desktop-release-workflow.mjs` anti-resurrection guard.
+   callers. Preserve the active `check-desktop-release-workflow.mjs`
+   anti-resurrection guard.
 2. Retire only obsolete Deno-specific portions of the still-included
    `packages/deno-host-services`. Its file-watch, plugin-assets, vault-fs and
    vault-resources paths need per-function consumer review. Do not delete the
@@ -235,27 +236,28 @@ boundary after verifying all consumers, without deleting shared/core services
 or changing their public functions. Record any required Deno-specific public
 interface proposal separately for explicit review.
 
-## Slice 3: consolidate native terminal ownership
+## Slice 3: retire Deno terminal surfaces in place
 
 Owners: Terminal Host, Lapis Terminal, Server and terminal plugin.
 
 Start only after slices 1–2 and their required consumer changes have landed. This
 is the final removal slice, followed by whole-plan qualification in slice 4.
-Until then, preserve the existing Rust PTY crate location, Server dependency and
-required terminal-host tooling; record those retained edges explicitly.
+Preserve both existing Rust implementations in their current repositories and
+record the retained Server dependency explicitly.
 
-- Relocate the existing Deno-free Rust PTY service crate into `lapis-terminal`,
-  retaining its API behavior and regression tests; update Server's pinned
-  dependency. Preserve raw bytes, cursors, truncation, exit reporting,
-  confinement and shutdown. Do not replace Server's raw protocol with parsed
+- Keep Desktop's published Rust terminal packages in `lapis-terminal`. Keep the
+  Deno-free Rust PTY service crate, `Cargo.toml`, `Cargo.lock` and Server's pin in
+  `terminal-host`. Preserve raw bytes, cursors, truncation, exit reporting,
+  confinement and shutdown; do not replace Server's raw protocol with parsed
   terminal frames.
 - Keep authentication, vault admission and resource ownership in the host.
   Preserve the terminal plugin's public bridge and current hosted-terminal
   integration. Reconcile concurrent Server work instead of recreating its adapter.
-- After consumer acceptance, retire the Deno CLI, FFI/native-library downloads,
-  standalone WebSocket host and corresponding install/publish machinery. Remove
-  stale advice to start `lapis-terminal-host`; do not create a new standalone
-  service as part of this retirement.
+- After consumer acceptance, retire only the Deno CLI, npm package, FFI
+  download/bootstrap, standalone WebSocket host and corresponding release
+  machinery. Add Rust-only CI and a fail-closed retired-Deno source audit.
+  Remove stale advice to start `lapis-terminal-host`; do not move or recreate
+  the preserved Rust service.
 
 ## Slice 4: final qualification and dependency cleanup
 
@@ -274,7 +276,7 @@ at least one cold startup/teardown run. Keep source, consumer and native evidenc
 distinct; compilation, mocks and screenshots do not establish native acceptance.
 
 Qualify and land each earlier slice at its own boundary without waiting for the
-terminal migration. Record terminal-related Deno/tooling exceptions as pending,
+terminal retirement. Record terminal-related Deno/tooling exceptions as pending,
 then close obsolete terminal edges and run the in-scope Deno-absent acceptance
 after slice 3. Retained controller/redaction compatibility remains explicitly
 inventoried; this acceptance does not require retiring that supported service.

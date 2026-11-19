@@ -7,7 +7,7 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 
 - This is a pnpm + Turbo monorepo for a focused Lapis Notes slice.
 - Current packages include the API/runtime kernel, retained UI, workspace shell,
-  frozen Deno desktop host, web host, portable host services,
+  web host, portable host services,
   internal language service, reusable File Explorer, and the published Lapis Notes
   application profile.
 - AI, Bases, Bookmarks, Graph, History, Markdown, Markdown Lint, Search, Source

@@ -183,7 +183,6 @@ export default defineConfig(headingRequirements(), {
         {
           pattern: "^packages/api/src/lib/storage/desktop-native\\.ts$",
           chapterPatterns: [
-            "^spec/src/desktop\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
             "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
           ],
         },
@@ -233,7 +232,6 @@ export default defineConfig(headingRequirements(), {
             "^spec/src/plugin\\-model/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02)\\.md$)[^/]+\\.md$",
             "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
             "^spec/src/web\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
-            "^spec/src/desktop\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
           ],
         },
         {
@@ -253,24 +251,8 @@ export default defineConfig(headingRequirements(), {
           ],
         },
         {
-          pattern: "^packages/desktop-electron/",
-          chapterPatterns: [
-            "^spec/src/desktop\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
-            "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
-            "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
-            "^spec/src/plugin\\-model/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02)\\.md$)[^/]+\\.md$",
-            "^spec/src/workspace\\-shell/(?!(?:index|context(?:-\\d+)?|context|panels)\\.md$)[^/]+\\.md$",
-            "^spec/src/plugins/ai/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
-            "^spec/src/plugins/markdown/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
-          ],
-        },
-        {
           pattern: "^packages/desktop-deno/",
-          chapterPatterns: [
-            "^spec/src/desktop\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
-            "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
-            "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
-          ],
+          chapters: ["spec/src/packages/releases-and-exports.md"],
         },
         {
           pattern: "^packages/host-services/",
@@ -280,7 +262,6 @@ export default defineConfig(headingRequirements(), {
           pattern: "^packages/deno-host-services/",
           chapterPatterns: [
             "^spec/src/server\\-node\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
-            "^spec/src/desktop\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
             "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
             "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
           ],
@@ -302,13 +283,6 @@ export default defineConfig(headingRequirements(), {
             "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
             "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
             "^spec/src/plugin\\-model/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02)\\.md$)[^/]+\\.md$",
-          ],
-        },
-        {
-          pattern:
-            "^packages/language-service/(?:src/markdownlint/|package\\.json$)",
-          chapterPatterns: [
-            "^spec/src/desktop\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
           ],
         },
         {
@@ -367,7 +341,6 @@ export default defineConfig(headingRequirements(), {
             "^spec/src/plugins/ai/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
             "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
             "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
-            "^spec/src/desktop\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
             "^spec/src/web\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
           ],
         },

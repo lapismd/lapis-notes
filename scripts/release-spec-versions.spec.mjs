@@ -78,7 +78,7 @@ test("version preparation carries current facts into its owning verification evi
   assert(evidence.includes('"@lapis-notes/app-profile": "0.2.4"'));
 });
 
-test("real Profile0.2.4 version delta changes four missing mappings to none", async (t) => {
+test("real Profile0.2.4 version delta changes three missing mappings to none", async (t) => {
   const root = await fixture(t),
     files = [
       ...releaseFiles("app-profile"),
@@ -88,14 +88,13 @@ test("real Profile0.2.4 version delta changes four missing mappings to none", as
   assert.equal(
     classifySpecFirstChanges(files, config.validators.specFirst).missingChapters
       .length,
-    4,
+    3,
   );
   await change(root, profile, (p) => (p.version = "0.2.4"));
   const before = await pages(root),
     changed = await syncVersionSpec({ root, write: true });
   assert.deepEqual(changed, [
     "spec/src/packages/release-canonical-intake.md",
-    "spec/src/desktop-deno-host/startup-and-lifecycle.md",
     "spec/src/plugin-model/application-services.md",
     "spec/src/web-host/startup-and-plugins.md",
     "spec/src/verification/pkg-02.md",

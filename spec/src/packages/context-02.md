@@ -100,7 +100,7 @@
 
 - The standalone `lapis-ai-controller` owns orchestration and its authenticated service protocol.
 
-- Frozen Deno desktop supervises it; development Storybook can attach with a URL and token. Web AI and Terminal are retired desktop-only features under LN-PLUG-113.
+- Development Storybook can attach to an explicitly supplied URL and token. Web AI and Terminal remain retired host features under LN-PLUG-113.
 
 - The AI plugin uses the controller SDK for events, recovery and tool callbacks.
 
@@ -110,7 +110,7 @@
 
 - When the selected runtime is not Fake and no host is connected, chat tells the user to start the local server and set URL, port, and token.
 
-- Deno desktop, web, and root Storybook consume the package through published npm semver ranges.
+- Web and root Storybook consume the package through published npm semver ranges.
 
 - The sibling `@lapis-notes/lapis-plugin-cv-roles` package owns role workflows plus CV YAML file views and browser preview.
 
@@ -122,7 +122,8 @@
 
 - Other extracted plugins and notebook remain out of scope until separately specified.
 
-- Desktop and web hosts are authorized by their canonical host chapters.
+- Web is authorized by its canonical host chapter; Desktop integration belongs
+  to the sibling `lapis-desktop` repository.
 
 - Storybook exercises those registered panel views through the separate `@lapis-notes/workspace` shell adapter; movable-surface fixtures remain consumer verification and do not move workspace rendering ownership into the markdown package.
 
@@ -150,27 +151,7 @@
 
 - Consumers must not reconstruct the portable Mira feature stack from internal source modules.
 
-- The private Deno desktop package consumes API, workspace, Design Core, the internal language service, and Markdownlint while building its bundled renderer and native graph.
-
-- It supplies API sessions with a native Turso AppDatabase provider over the bounded desktop bridge, embeds public Deno host packages, and materializes checksum-verified PTY libraries for the selected macOS or Linux target.
-
-- Its private platform metadata also identifies the selected renderer engine before application mount so Design Core may select the system-WebView compatibility path deterministically.
-
 - The API manifest declares `dist/enhance.js` and its source counterpart as side effects so a production consumer cannot tree-shake the compatibility DOM initialization required before constructing `App`.
-
-- Its desktop stylesheet maps ribbon-on and ribbon-off macOS traffic-light measurements to Design Core's window-controls token.
-
-- It does not target the sidebar reopen button directly; top and stacked main-pane headers consume the generic token, while the open left sidebar keeps its dedicated tab-strip inset.
-
-- The package's macOS-only native adapter owns the traffic-light centreline correction and leaves the open left-sidebar header layout untouched.
-
-- The package's native host owns a dedicated, single-instance About child window that mounts Design Core's public About surface from a separate Vite entry without creating application or vault state.
-
-- Its macOS adapter closes every exact-title About shell on AppKit's main thread for both native and renderer dismissal while preserving the main window.
-
-- Its pnpm development launcher passes the checked-in visible-background Lapis fallback icon to `deno desktop`; deterministic package-local generation retains separate light and dark rounded-tile variants.
-
-- A private renderer/native binding keeps the macOS Dock icon aligned with the operating-system colour scheme, while distribution remains responsible for final bundle metadata and signing.
 
 The private web package consumes the public API, current core plugins,
 workspace, and Design Core presentation. It owns browser vault selection,
@@ -182,7 +163,8 @@ first frees listeners on Vite port 4174.
 
 - Its launcher imports shadcn presentation from Design Core and profile/search helpers from public Lapis exports.
 
-- Desktop, web, and server “View all” palettes compose Command View for searchable vault selection.
+- Application-host “View all” palettes compose Command View for searchable
+  vault selection.
 
 - The server Web host also owns the hidden-and-inert live-session overlay used by its return control.
 
@@ -190,17 +172,9 @@ first frees listeners on Vite port 4174.
 
 - The renderer consumes Design Core's public `styles.css` and Lapis theme export instead of reconstructing workspace CSS.
 
-- The desktop-only Vite Tailwind pass is limited to compiling the intaken launcher composition and does not move native selection or session policy into a shared package.
-
-- Scoped desktop CSS owns launcher overlay geometry and class-selected native window-control clearance.
-
 - Session boot consumes public `@lapismd/design-core/workspace/startup` and the shared drag-region stylesheet rather than a host-owned loading stub or `-webkit-app-region` override.
 
 - Hosts also use that startup surface while resolving a saved current profile so the branded chooser cannot flash first.
-
-- The desktop adapter supplies the package-local Lapis logo as the visible loading visual while preserving the startup region's accessible title.
-
-- Manage Vaults and desktop Open Vault… overlay the chooser over a retained session; Close returns without disposing.
 
 - The plugins task reports the current plugin name.
 
@@ -234,41 +208,13 @@ escapes unsafe values, and round-trips the decoded literal without changing
 leading-regex syntax. Search uses that public boundary for tag, path, and
 filename completion insertion.
 
-- `@lapis-notes/language-service/markdownlint/runtime` is the public boundary for Deno desktop diagnostics and code actions.
-
-- The Deno package maps that public specifier into its compiled native graph and uses cache-backed npm resolution so the packaged app embeds Markdownlint instead of depending on a pnpm symlink tree.
-
-- Deno serves verified plugin metadata through a same-origin HTTP route owned by its native host and does not import a community plugin from an unchecked filesystem URL.
-
-- The Deno package consumes the public `@lapismd/ai-controller/managed` process client and supplies a private database per canonical vault workspace.
-
-- Native IPC returns the connection descriptor.
-
-- The renderer uses the controller SDK directly; App tools execute in their owning App and retain Lapis approval policy.
-
-- The bundled AI package selects both default Codex and Cursor catalogs through its ACP model provider.
-
-- The Deno package owns deferred discovery execution and catalog event delivery; the plugin owns request correlation and presentation.
-
-- The optional native Codex process catalog remains an explicit AI adapter and is not the default Codex ACP discovery route (LN-AI-175, LN-DENO-056).
-
-- The same private host owns Deno application-menu projection, validated external URL launch commands, local collector preflight, and the bounded close coordinator.
-
-- On macOS it routes both the adopted bootstrap and visible-window close sources through that coordinator and releases a private same-origin renderer close signal on the next event-loop turn.
-
-- The renderer replaces the workspace with its opaque branded status surface without using post-close native window close or hide.
+- `@lapis-notes/language-service/markdownlint/runtime` is the public boundary
+  for native diagnostics and code actions. Concrete hosts own their adapter and
+  process lifecycle.
 
 - It continues to own `App`, workspace, plugin, database, and vault-session disposal, bounds best-effort telemetry flushing to one second, and acknowledges native close only after that shared teardown completes.
 
 - Its boot document provides only a branded loading state until the renderer clears it or reports a startup failure through the existing status element.
-
-The Deno host also owns one application-data lock and a bearer-authenticated
-loopback activation endpoint. Its distribution metadata declares application
-URL schemes, while the shared App URL registry remains the only interpreter of
-delivered `lapis` and `lapis-notes` URLs.
-Distribution scripts qualify stable artifact names by package version, platform,
-and architecture; reuse the Lapis application icons; and select signing
-credentials only through OS keychain or agent-backed identities.
 
 ## `@lapis-notes/workspace` (shell integration)
 
@@ -299,7 +245,8 @@ Confirm-dialog keeps the Design Core `dialog` host identity and only adds
 
 - `@lapis-notes/api` owns the generic secure-sync host contracts and their Memory/Turso/browser/native provider forwarding.
 
-- Web and Deno packages own browser persistence, WebAuthn/passphrase, and OS-credential adapters.
+- Web owns browser persistence and WebAuthn/passphrase adapters; native hosts own
+  their OS-credential adapters.
 
 - The external `@lapis-notes/lapis-plugin-nostr-sync` package consumes those public capabilities and continues to own Nostr, Blossom, revision, and UI policy; no sync protocol implementation moves into this package graph.
 

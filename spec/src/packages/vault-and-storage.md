@@ -170,7 +170,10 @@ original local draft, including when the next decision keeps that draft.
 
 The native codec regression verifies the complete 256 KiB payload with exact byte comparison rather than generic deep property traversal. Prototype, length, canonical frames, invalid input and portable-fallback checks remain enforced under the existing five-second test budget.
 
-The desktop's native RPC codec remains host-owned and preserves the same bounded JSON frames across Node and portable hosts under LN-DENO-088. The [Sync release record](../../records/2026-10-14-sync-host-release.md) retains cross-runtime codec and payload-isolation evidence; public exports are unchanged.
+Native RPC codecs remain host-owned and preserve the same bounded JSON frames
+across Node and portable hosts. The [Sync release record](../../records/2026-10-14-sync-host-release.md)
+retains cross-runtime codec and payload-isolation evidence; public exports are
+unchanged.
 
 Development Docs acceptance uses installed package exports after its Turbo
 build prerequisites; the [portable startup contract](../storybook-catalog/build-and-process.md#ln-cat-117)
@@ -206,11 +209,11 @@ keeps sibling release preparation outside standalone CI.
 
 **Requirement.** `@lapis-notes/api` `Vault.getFilesByGlob` MUST return current vault files matching the shared editor-association glob dialect without adapter I/O. Exact case-sensitive filenames MUST use an indexed lookup, while filename and path globs MUST remain deterministic across vault lifecycle changes.
 
-## LN-PKG-073 — Root web and desktop build scripts: select each host plus its dependency closure
+## LN-PKG-073 — Root Web build scripts: select the host and its dependency closure
 
 <a id="ln-pkg-073"></a>
 
-**Requirement.** Root web and desktop build scripts MUST select each host plus its dependency closure through Turbo. Host test and distribution preflights MUST invoke those root cached builds rather than rebuilding the host directly.
+**Requirement.** Root Web build scripts MUST select the host plus its dependency closure through Turbo. Web test and distribution preflights MUST invoke those root cached builds rather than rebuilding the host directly.
 
 ## LN-PKG-019 — Public Lapis FileEmbed wrapper: add optional editable and bindable editing inputs
 
@@ -247,12 +250,6 @@ keeps sibling release preparation outside standalone CI.
 <a id="ln-pkg-109"></a>
 
 **Requirement.** First-party metadata consumers MUST use async indexed queries and revision-aware refresh. A source audit MUST reject first-party enumeration of synchronous `fileCache`, `metadataCache`, `resolvedLinks`, `unresolvedLinks`, or `getAllItems`.
-
-## LN-PKG-111 — @lapis-notes/desktop-deno: the sole private native desktop package at
-
-<a id="ln-pkg-111"></a>
-
-**Requirement.** `@lapis-notes/desktop-deno` MUST be the sole private native desktop package at `packages/desktop-deno`, retain version `2026.31.5`, and expose common build, check, test, CEF debug, icon-generation, current-platform, and explicit macOS/Linux distribution scripts. Root desktop scripts MUST select it without a `-deno` suffix, and no Windows distribution target is supported. Packaged smoke MUST assert native Turso, the shared four-plugin profile, configured-plugin persistence, and structured renderer-ready close acceptance, while vault resources MUST stay on the contained loopback route.
 
 ## LN-PKG-118 — @lapis-notes/api: expose backward-compatible indexed-metadata domain projections, ordered path-only
 
@@ -340,7 +337,7 @@ compatible. Client engines must supply their captured fences before activation.
 
 <a id="ln-pkg-040"></a>
 
-**Requirement.** `@lapis-notes/language-service` MUST export `./markdownlint/runtime` for native Markdown services. The Deno desktop host MUST consume that public specifier instead of copying the runtime or importing a private implementation path. `@lapis-notes/markdown-lint` MUST remain the sole renderer provider and pass vault rules through the native adapter.
+**Requirement.** `@lapis-notes/language-service` MUST export `./markdownlint/runtime` for native Markdown services. `@lapis-notes/markdown-lint` MUST remain the sole renderer provider and pass vault rules through the host-owned native adapter without importing a private Language Service implementation path.
 
 ## LN-PKG-042 — @lapis-notes/workspace: forward Design Core's generic workspace-navigation contract
 
@@ -352,7 +349,7 @@ compatible. Client engines must supply their captured fences before activation.
 
 <a id="ln-pkg-074"></a>
 
-**Requirement.** `@lapis-notes/ai` MUST own conversations, projection, Explorer-style history presentation, bindings, handoff, and replay provenance. Its history view MAY compose public Design Core search, sidebar-tree, disclosure, menu, badge, and switch primitives but MUST keep that search chrome centered and retain scope selection, filesystem/index merging, conversation actions, and workspace-view registration in AI. API MUST expose generic path, durability, search, highlighting, and native-event primitives through narrow entries. `@lapismd/ai-host` and Deno desktop MUST remain non-authoritative execution transports with only live native state and bounded replay.
+**Requirement.** `@lapis-notes/ai` MUST own conversations, projection, Explorer-style history presentation, bindings, handoff, and replay provenance. Its history view MAY compose public Design Core search, sidebar-tree, disclosure, menu, badge, and switch primitives but MUST keep that search chrome centered and retain scope selection, filesystem/index merging, conversation actions, and workspace-view registration in AI. API MUST expose generic path, durability, search, highlighting, and native-event primitives through narrow entries. Execution transports MUST remain non-authoritative with only live native state and bounded replay.
 
 ## LN-PKG-077 — @lapis-notes/ai: own asynchronous chat preparation and conversation-location tab
 
