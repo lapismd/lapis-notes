@@ -1,5 +1,15 @@
 # @lapis-notes/ui
 
+## 0.2.7
+
+### Patch Changes
+
+- [#186](https://github.com/lapismd/lapis-notes/pull/186)
+  [`46e024b`](https://github.com/lapismd/lapis-notes/commit/46e024b7aa84aa507930f35e463aaf960257553e)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Align CLI settings with
+  the declarative app settings surface, including platform-aware downloads,
+  semantic status and actions, and full-width failure alerts.
+
 ## 0.2.6
 
 ### Patch Changes
