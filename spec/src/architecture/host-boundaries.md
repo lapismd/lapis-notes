@@ -40,31 +40,19 @@ Uint8Array prototype and length checks. Native, Buffer and portable fallback
 paths keep their canonical frame assertions and the existing test deadline;
 only assertion overhead changes.
 
-Desktop RPC codec acceleration retains the bounded, canonical frames under
-LN-DENO-088. Node-decoded byte views own their payload storage; private codec
-selection does not change host authority, wire formats or plugin access.
+Native RPC codec acceleration retains bounded canonical frames. Node-decoded
+byte views own their payload storage; private codec selection does not change
+host authority, wire formats or plugin access.
 
 Static registry archive transport follows the API-owned signed delivery and
 origin-fallback contract in [LN-PLUG-110 and LN-PLUG-111](../plugin-model/distribution-and-registry-01.md#ln-plug-110).
 Web, server and native hosts share archive verification; a registry delivery
 endpoint cannot change the selected release or grant additional plugin trust.
 
-Desktop distribution follows LN-DENO-079 through LN-DENO-083. Lapis Notes owns
-bundle construction, permissions, native launchers and runtime acceptance. The
-Homebrew tap owns installation paths and desktop integration while consuming
-the released source-bound archive contract. Core installation acceptance uses
-an explicit native/renderer test scope; normal startup and full controller
-acceptance retain their existing ownership and lifecycle boundaries.
-The first release qualifies macOS ARM64 and Linux ARM64/x86-64. Intel macOS
-remains deferred because the pinned Turso database lacks a published native
-addon for that platform; the tap rejects that unsupported architecture.
-Release `2026.31.5` verifies those host boundaries through tagged native
-qualification; evidence is retained in the [release record](../../records/2026-10-14-homebrew-desktop-release.md).
-
-Desktop routes new Sync security through the per-plugin provider boundary into
-an admitted native profile/runtime session (LN-DENO-086 through LN-DENO-088).
-The native host owns wrapping material, durable key storage and serialized
-operations; renderer/plugin code receives scoped crypto results.
+Native Sync security routes through the per-plugin provider boundary into an
+admitted native profile/runtime session. The native host owns wrapping
+material, durable key storage and serialized operations; renderer/plugin code
+receives scoped crypto results.
 
 Memory-backed application hosts advertise the existing conditional text-write capability. Comparing the exact snapshot and mutating it occurs before yielding, so competing writes cannot silently overwrite each other. Native host policy and persistence remain separate.
 
@@ -91,12 +79,6 @@ Memory-backed application hosts advertise the existing conditional text-write ca
 <a id="ln-arch-024"></a>
 
 **Requirement.** The API workspace-host bridge MUST translate compatibility view actions and pane-menu contributions into design-core view chrome. Translated view-menu sections MUST precede generic pane actions; the workspace shell MUST NOT duplicate plugin controls.
-
-## LN-ARCH-029 — Deno native and renderer code: communicate through the typed native desktop bridge
-
-<a id="ln-arch-029"></a>
-
-**Requirement.** Deno native and renderer code MUST communicate through the typed native desktop bridge. The renderer MUST NOT receive unrestricted Deno APIs or raw host objects.
 
 ## LN-ARCH-030 — Production application hosts: load Design Core's public runtime stylesheet
 
@@ -146,12 +128,6 @@ Memory-backed application hosts advertise the existing conditional text-write ca
 
 **Requirement.** The API workspace host MUST project compatibility ribbon and status contributions into Design Core registries while plugins retain command and lifecycle ownership.
 
-## LN-ARCH-057 — Real-agent diagnostics: use explicit developer-invoked supervisors around the production
-
-<a id="ln-arch-057"></a>
-
-**Requirement.** Real-agent diagnostics MUST use explicit developer-invoked supervisors around the production host boundaries. Storybook MUST remain passive, an attached loopback token MUST exist only in the supervised child environment, and Deno desktop MUST use one seeded folder as both portable vault source and native agent workspace.
-
 ## LN-ARCH-061 — Native Explorer copy, open, and reveal extras: remain File Explorer consumer work over Design
 
 <a id="ln-arch-061"></a>
@@ -175,18 +151,6 @@ Memory-backed application hosts advertise the existing conditional text-write ca
 <a id="ln-arch-066"></a>
 
 **Requirement.** API-owned workspace leaves MUST split through API leaf duplication before Design Core renders the new pane. Design Core MAY own generic tab splitting, but Lapis-hosted imperative views MUST NOT create orphan design tabs without live `WorkspaceLeaf` containers, host layout projection, or translated split directions.
-
-## LN-ARCH-069 — Deno native close, menu, and external-navigation policy: remain host-owned while session persistence and disposal
-
-<a id="ln-arch-069"></a>
-
-**Requirement.** Deno native close, menu, and external-navigation policy MUST remain host-owned while session persistence and disposal remain renderer-owned. On macOS, bootstrap and visible-window close events MUST share one coordinator and private same-origin signal. The renderer MUST show an opaque branded close surface, complete shared teardown, and acknowledge through a bounded native binding. Unavailable telemetry MUST NOT delay that acknowledgement beyond one second.
-
-## LN-ARCH-081 — Desktop product identity has two host-owned layers: derive an ignored host bundle through Deno's
-
-<a id="ln-arch-081"></a>
-
-**Requirement.** Desktop product identity has two host-owned layers: the renderer boot document owns branded startup content, while the native bundle owns the macOS application and menu name. Development MAY derive an ignored host bundle through Deno's supported local-host boundary and reuse an unchanged runtime only after deep strict signature verification, but MUST NOT mutate shared runtime caches or move identity policy into plugins.
 
 ## LN-ARCH-091 — Filesystem content: remain authoritative while API owns reusable sync-host
 
@@ -222,11 +186,11 @@ workspace-root module lookup. Their source file lists exclude deployment secrets
 
 **Requirement.** Nostr private keys and NIP-46 client credentials MUST remain host-owned. API MUST expose only plugin-scoped account selection, profile-creation ceremony, public-key lookup, exact-template event signing, NIP-44 encrypt/decrypt, remote-signer connection, and close operations. A plugin MUST receive opaque account IDs rather than secret key or keychain access, and a host without a signer MUST fail closed.
 
-## LN-ARCH-101 — Public plugin-facing Nostr signer facade: terminate at a host-owned broker. On Deno
+## LN-ARCH-101 — Public plugin-facing Nostr signer facade: terminate at a host-owned broker
 
 <a id="ln-arch-101"></a>
 
-**Requirement.** The public plugin-facing Nostr signer facade MUST terminate at a host-owned broker. On Deno desktop, the broker MUST use a renderer-private native session capability and native signing commands so keychain values never cross into renderer or plugin code. Only the first-party `community` plugin identity may use that native session; additional plugins require an explicit host policy change.
+**Requirement.** The public plugin-facing Nostr signer facade MUST terminate at a host-owned broker and use a renderer-private native session capability so credential values never cross into renderer or plugin code. Only explicitly authorized first-party plugin identities MAY use that native session; additional plugins require an explicit host policy change.
 
 ## LN-ARCH-104 — Encrypted local sync state purpose
 
@@ -376,7 +340,7 @@ under LN-PKG-176. DirectoryWatcher owns generation retirement; hosts own native
 resources and session release. This introduces no ambient App state or provider.
 
 LN-PKG-177 exposes optional watch registration readiness before initial
-reconciliation. Array adapters preserve it; the frozen Deno host is unchanged.
+reconciliation. Array adapters preserve it across retained hosts.
 
 LN-WS-096 projects notices from the explicit App into the existing shared
 notification UI and removes that subscription on host disposal. Explorer passes
@@ -384,7 +348,8 @@ its owned App to Notice; native error handling keeps the existing presentation.
 
 LN-PKG-178 and LN-PKG-179 add opt-in exclusive creation and source-owned new-file
 intent. Existing low-level overwrite behavior and unsupported legacy hosts stay
-explicit; Deno host source remains frozen. Admission spans creation projection.
+explicit; retired host source has no current authority. Admission spans creation
+projection.
 
 Native Search App replacement reconciles the current App-owned plugin registry
 before metadata startup completes. An omitted or disabled Search declaration

@@ -33,7 +33,7 @@ vault/profile data stays isolated; Linux delivery remains a separate gate.
 
 <a id="ln-web-093"></a>
 
-**Requirement.** Web icon generation MUST use Web-owned raster artwork and the API-owned SVG logo without reading the frozen Deno desktop host. Relocating those inputs MUST preserve the exact generated icon bytes required by LN-WEB-001. A cold generator test MUST reproduce every public icon with the frozen host absent.
+**Requirement.** Web icon generation MUST use Web-owned raster artwork and the API-owned SVG logo without reading or restoring the retired Deno desktop source path. Relocating those inputs MUST preserve the exact generated icon bytes required by LN-WEB-001. A cold generator test MUST reproduce every public icon with the retired host absent.
 
 ## LN-WEB-030 — WASM response headers
 

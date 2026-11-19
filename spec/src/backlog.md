@@ -1,6 +1,6 @@
 # Backlog
 
-- Complete hosted LN-PKG-200 framework-intake qualification and separate coordinator activation/replay; preserve the frozen Deno boundary and all current source gates.
+- Complete hosted LN-PKG-200 framework-intake qualification and separate coordinator activation/replay; preserve the retired-host anti-resurrection guard and all current source gates.
 
 This is the entry point for outstanding Notes work. Current behavior belongs to
 its feature chapter; verification tables own requirement status and evidence.

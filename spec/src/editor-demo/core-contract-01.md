@@ -127,7 +127,7 @@ component; it does not implement a second creation or persistence path.
 
 <a id="ln-ed-019"></a>
 
-**Requirement.** The application-profile integration demo MUST register exactly Source Editor, Markdown, reusable File Explorer, and Search in the same order as Web and Deno. Extracted plugin component and workspace stories MUST live in the sibling `lapis-plugins` Storybook; Lapis Notes MAY retain only framework and management integration fixtures.
+**Requirement.** The application-profile integration demo MUST register exactly Source Editor, Markdown, reusable File Explorer, and Search in the same order as the application profile and Web host. Extracted plugin component and workspace stories MUST live in the sibling `lapis-plugins` Storybook; Lapis Notes MAY retain only framework and management integration fixtures.
 
 Unchanged contract: File Explorer passes the selected file-view icon through published Design Core `getIcon` and `registerWorkspaceIcon`. `ExplorerControllerOptions` does not declare `iconResolver`.
 
@@ -384,6 +384,7 @@ the editor demo receives no separate notification component or persistence.
 
 LN-PKG-178 and LN-PKG-179 add opt-in exclusive creation and source-owned new-file
 intent. Existing low-level overwrite behavior and unsupported legacy hosts stay
-explicit; Deno host source remains frozen. Admission spans creation projection.
+explicit; retired host source has no current authority. Admission spans creation
+projection.
 
 The reusable Explorer now connects the existing external-file drop callback to App-owned FileManager creation under LN-EXP-010/011/012. The editor demo consumes this same public package and component. Native byte, failure, rendering and restart qualification remains separate from deferred complete Storybook/axe and web lanes.

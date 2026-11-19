@@ -373,12 +373,6 @@ mean the prepared entrance animation has painted the viewer.
 
 **Requirement.** New installs MUST prefer HTTP entries over duplicate Nostr entries; explicit registry selection MUST resolve that source, with caches isolated by source identity and URL. Installed plugins MUST retain their source for updates and revocations. Disabled or unavailable sources MUST NOT trigger source switching or clear known revocations. The built-in official V1 URL MAY migrate to V2 with unchanged identity and pinned keys.
 
-## LN-PLUG-094 — Desktop development: remain HTTP-only unless Nostr is explicitly configured
-
-<a id="ln-plug-094"></a>
-
-**Requirement.** Desktop development MUST remain HTTP-only unless Nostr is explicitly configured or local fixture use is opted into. Incidental fixture files MUST NOT enable the relay registry.
-
 Notebook declares the public Design Core ToggleGroup density control in its shared dependency manifest. The host catalog and generated import map expose that exact public module; undeclared and private imports remain rejected.
 
 Notebook canvas qualification preserves fail-closed declared module auditing, the shared renderer, and the existing verification/signature boundary. UI approval permits full local qualification, not publication or registry dispatch.

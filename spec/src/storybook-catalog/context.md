@@ -26,8 +26,8 @@ LN-CAT-123. Current native AI/transcript and installed-data acceptance remain
 host responsibilities; the owning Plugins catalog retains Search tool-result
 coverage independently of shared AI.
 
-The Specification sidebar follows SUMMARY order, including Deno Desktop Host,
-Deno Desktop Parity Blockers, Web Host, and Node Server Host in their canonical
+The Specification sidebar follows SUMMARY order, including Web Host and Node
+Server Host in their canonical
 positions. Those pages are metadata-only raw-import mirrors.
 
 ## Show Code source contract

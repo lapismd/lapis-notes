@@ -5,7 +5,7 @@
 [![Storybook](https://img.shields.io/badge/storybook-live-ff4785?logo=storybook&logoColor=white)](https://lapismd.github.io/lapis-notes/)
 
 Lapis Notes monorepo for the application shell, reusable framework packages,
-an app-owned plugin profile, frozen Deno desktop host, Node server host, web host, spec-first governance,
+an app-owned plugin profile, Node server host, web host, spec-first governance,
 and Storybook acceptance.
 
 ## Public packages
@@ -61,7 +61,7 @@ pnpm install
 ```
 
 Requires Node 22+, pnpm 10, and [mdBook](https://rust-lang.github.io/mdBook/)
-for `pnpm spec:build`. Desktop work also requires Deno 2.9.5. Published
+for `pnpm spec:build`. Retained Deno host-service work requires Deno 2.9.5. Published
 `@lapismd/*` and `@lapis-notes/*` dependencies resolve from npm semver ranges.
 Keep adjacent source checkouts only when actively fixing those packages; after
 release, update this repository to the published registry version.

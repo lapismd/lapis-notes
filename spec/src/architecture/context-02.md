@@ -70,7 +70,7 @@ public API barrel and browser graph.
 
 - Filter controls consume Design Core's public Popover width token and Accordion indicator position while Bases owns the legacy 45svw geometry, opaque panel surface, and on-accent indicator paint.
 
-- Deno desktop, web, and the root real-App catalog consume its package exports and share the Search, Bases, external-Roles boot order without a consumer copy.
+- Web and the root real-App catalog consume its package exports and share the Search, Bases, external-Roles boot order without a consumer copy.
 
 - Overlapping shadcn and forms controls used by `@lapis-notes/api` import from `@lapismd/design-core`.
 
@@ -108,39 +108,13 @@ public API barrel and browser graph.
 
 - Every workspace package exposes the common `build`, `check`, and `test` contract, so the shell participates in the same Turbo verification graph as the kernel and retained UI surface.
 
-- The desktop renderer bundles its workspace consumers, while the Deno host retains native lifecycle and service dependencies.
-
 - Native commands cross an explicit binding allowlist.
 
 - Renderer shutdown is acknowledged before window destruction so the API-owned session can persist and dispose without moving ownership into native code or workspace.
 
-- Before shared UI mounts, the renderer projects the native host's selected webview or CEF backend into the document engine marker so compatibility behavior does not depend on Laufey's user-agent shape.
-
-- Deno desktop composes a host-supplied native Turso provider through an allowlisted AppDatabase bridge, while web composes the API-owned WASM provider in the renderer behind the same session boundary.
+- Web composes the API-owned WASM provider in the renderer behind the shared session boundary; native consumers supply their own provider adapter.
 
 - Web WASM database imports use the driver's host-bundler entry so Vite serves worker and WASM assets without pulling the prebuilt worker-inline module through Rollup.
-
-- The Deno host also supplies native window-control geometry as a public Design Core workspace token.
-
-- Design Core decides which leading main-pane header uses that input when the left sidebar is closed; the host retains ribbon and macOS traffic-light measurements plus the separate open-sidebar tab-bar inset.
-
-- The macOS host also lowers the three native standard window buttons through a platform-isolated adapter so they share the open left-sidebar header's centreline; renderer controls and shared Design Core geometry remain untouched.
-
-- Its application menu owns a single reusable native About window, whose dedicated renderer composes Design Core's public About surface without creating a vault, plugin runtime, or second application session.
-
-- The host completely closes that secondary native window for renderer and native dismissals before a later menu action creates a fresh instance.
-
-- The pnpm development launcher passes the tracked visible-background Lapis icon to Deno while production retains signed bundle metadata.
-
-- The desktop package owns deterministic light and dark rounded-tile variants.
-
-- On macOS, the main renderer forwards only the operating-system colour-scheme state through a private binding and the native host updates AppKit's application icon when that state changes; no vault, plugin, or application setting owns Dock identity.
-
-- Before the renderer mounts, its boot document presents the Lapis mark and application-specific loading copy.
-
-- During macOS development, the launcher derives a package-local WebView or CEF host from the pinned Deno toolchain, applies the same bundle name and identifier used by packaged output, and asks Deno to launch that ignored host.
-
-- The shared Laufey cache remains immutable.
 
 - The web consumer owns its launcher and PWA lifecycle.
 
@@ -150,25 +124,15 @@ public API barrel and browser graph.
 
 - The launcher can copy a picked local folder into a new OPFS vault, and an open OPFS session can import into or export that vault through host Settings and commands (LN-WEB-038, LN-WEB-039, LN-WEB-040, LN-WEB-041, LN-WEB-042, LN-WEB-043).
 
-- The branded vault launcher is a renderer-side desktop consumer: it chooses a native profile, then delegates storage and workspace lifecycle to API sessions.
-
-- While a host resolves a saved current profile, it hosts Design Core `WorkspaceStartup` and MUST NOT paint that chooser.
-
-- Manage Vaults and desktop Open Vault… overlay the chooser over a retained session; Close returns without disposing.
-
-- If saved-vault restore fails, the desktop host retains that profile and presents the native failure instead of silently deleting the recovery route.
-
-- Deno filesystem bindings preserve missing, permission, wrong-type, busy, and existence classifications so a protected folder is not misreported as absent.
-
 - Startup failure details retain the complete stack and local absolute target for copying.
 
 - Recovery choices are session-scoped `AppSafeModeState`: optional core plugins and layout restoration can be disabled before startup, a broken saved layout can be removed explicitly, and a recovered shell shows a Safe Mode banner with generated-index rebuild and normal-restart actions.
 
 - These controls do not add canonical vault settings or unavailable community/notebook policy.
 
-- After that selection, desktop and web session boot render Design Core `WorkspaceStartup` for vault, configuration, plugin, and layout progress instead of a host-owned placeholder.
-
-- The desktop host supplies its package-local Lapis logo in place of the visible loading title while keeping that title as the region's accessible name.
+- Application session boot renders Design Core `WorkspaceStartup` for vault,
+  configuration, plugin, and layout progress instead of a host-owned
+  placeholder.
 
 - The plugins task reports the current plugin name.
 
@@ -188,21 +152,14 @@ public API barrel and browser graph.
 
 - Native window-drag regions stay in Design Core chrome CSS; hosts do not re-declare `-webkit-app-region`.
 
-- Desktop, web, and server “View all” palettes keep host-owned Dialog chrome and compose Command View for searchable vault selection.
+- Application hosts keep host-owned Dialog chrome and compose Command View for
+  searchable vault selection.
 
 - A live server workspace stays mounted behind its managed-vault chooser so the named return control can restore that session without reconstructing plugin or workspace state.
 
-- The ready-shell vault menu follows the same boundary: Design Core presents the generic menu, the workspace package forwards its contract, and the desktop consumer supplies profiles plus serialized switch and management callbacks.
-
-- Generated renderer and main outputs are Turbo cache outputs and remain untracked; checked-in build resources are limited to deterministic icon variants, their macOS fallback, and entitlements.
-
-- The production renderer imports Design Core's public stylesheet and Lapis theme plus the Lapis UI alias sheet before mounting either the launcher or workspace.
-
-- Its Vite pipeline compiles the desktop launcher's utility classes; reusable workspace paint remains supplied by the public Design Core stylesheet rather than Storybook-only configuration.
-
-- Native window-control clearance is applied by host CSS against Design Core's semantic shell attributes.
-
-- The development server permits the resolved Design Core package root for imported assets while retaining package-export resolution and the default Lapis workspace boundary.
+- The ready-shell vault menu follows the same boundary: Design Core presents
+  the generic menu, the workspace package forwards its contract, and the host
+  consumer supplies profiles plus serialized switch and management callbacks.
 
 - The controller configuration adapter lives in api beside the compatibility workspace.
 
@@ -232,19 +189,17 @@ public API barrel and browser graph.
 
 - Generic orchestration lives in the standalone `lapis-ai-controller` service.
 
-- Deno desktop supervises it; web and Storybook attach to it.
+- Web and Storybook retain their explicit host integrations.
 
 - The shared SDK owns transport and recovery, while `@lapismd/ai-host` supplies provider mechanics.
 
 - User-global agent command storage is a host capability, so renderer bundles must not statically pull the AI plugin's Node-only command-store module into the browser graph.
 
-- The same desktop bridge advertises `terminal-runtime`.
+- Current Desktop terminal execution is owned by the Rust application in the
+  `lapis-terminal` repository; Notes does not embed or launch a terminal host.
 
-- Deno desktop embeds public `@lapismd/terminal-host/deno` in-process, supplies a verified Sigma native library, and binds each session workspace to the create payload vault path, otherwise `terminal.cwd`, otherwise the home directory.
-
-- Terminal server Settings tell the user to start `lapis-terminal-host serve --workspace` on the vault or a parent of `terminal.cwd`.
-
-- The web host attaches or replaces that WebSocket after configuration load from persisted Settings or env-prefilled URL and token, without overwriting a native desktop bridge.
+- The web host does not attach a terminal-host WebSocket or expose its retired
+  Settings fields.
 
 - The token Settings field stays masked until revealed.
 

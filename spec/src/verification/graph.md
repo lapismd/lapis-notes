@@ -4,7 +4,7 @@
 | ID | Chapter | Status | Evidence |
 | --- | --- | --- | --- |
 | LN-GRAPH-001 | [graph-plugin](../plugins/graph/core-contract.md#ln-graph-001) | Implemented | Manifest, package exports, plugin tests, and settings tests preserve package, runtime, view, command, and persisted settings identities |
-| LN-GRAPH-002 | [graph-plugin](../plugins/graph/core-contract.md#ln-graph-002) | Implemented | Desktop, web, workspace-shell, and editor-demo registrations enable Graph by default after Search without seeding a Graph leaf |
+| LN-GRAPH-002 | [graph-plugin](../plugins/graph/core-contract.md#ln-graph-002) | Implemented | Web, Workspace Shell, editor-demo, and audited Storybook registrations enable Graph by default after Search without seeding a Graph leaf. |
 | LN-GRAPH-003 | [graph-plugin](../plugins/graph/core-contract.md#ln-graph-003) | Implemented | View registration tests and Storybook plays cover command-access global and local openers, existing-leaf reuse, and main versus right-sidebar destinations |
 | LN-GRAPH-004 | [graph-plugin](../plugins/graph/core-contract.md#ln-graph-004) | Implemented | Graph data tests assert 256-row indexed paging and bounded metadata/link queries; the first-party metadata audit rejects compatibility cache enumeration |
 | LN-GRAPH-005 | [graph-plugin](../plugins/graph/core-contract.md#ln-graph-005) | Implemented | Indexed graph tests cover note, tag, attachment, unresolved nodes and link, embed, and membership edges, while copied filter/group tests preserve graph semantics |

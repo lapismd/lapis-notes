@@ -46,8 +46,8 @@ Public packages that consume Design Core keep their portable semver ranges and
 the workspace lockfile on the repository's current supported npm release.
 
 The API package owns `AppDatabase` contracts and transport-neutral
-metadata/revision types. The Deno desktop host owns native connections and
-bounded bindings; domain persistence remains API-owned.
+metadata/revision types. Concrete native hosts own connections and bounded
+bindings; domain persistence remains API-owned.
 
 The API package also owns the transport-neutral Nostr signer facade described
 by LN-ARCH-099 and LN-PLUG-078. Platform hosts supply custody and consent
@@ -78,11 +78,12 @@ Domain plugins consume only the API contract.
 
 - The tasks projection `planKind` values are `anytime`, `morning`, `afternoon`, `evening`, and `time`.
 
-- `NativeDesktopRuntime` names only `deno-desktop`; the production hosts are Deno desktop and web.
+- `NativeDesktopRuntime` retains `deno-desktop` only as a compatibility name;
+  the production Notes host is Web.
 
 - Notes CI does not select `@lapis-notes/desktop-deno` or `@lapis-notes/server-deno`. Desktop packaging stays in lapis-desktop, and server-deno stays retired.
 
-- The Web and Deno packages share the same renderer dependency-optimization boundary for registry-installed plugins.
+- Browser hosts share the renderer dependency-optimization boundary for registry-installed plugins.
 
 - They also own plugin import-map proxy entries for declared shared API modules, so installed browser ESM plugins consume the same `@lapis-notes/api` and workspace-host runtime as the application.
 
@@ -90,27 +91,12 @@ Domain plugins consume only the API contract.
 
 - The local release-candidate installer preserves the committed registry lockfile, reuses a matching verified install, and invalidates generated Vite and Storybook caches when its package fingerprint changes.
 
-- The desktop development script is a pnpm entrypoint that starts the Deno desktop host, so its Deno arguments must stay consistent with the package-local `deno.json` imports rather than imposing a root-level package-manager policy.
-
-- It may discover the sibling Community fixture's public relay, curator, and loopback manifest and asset values for local registry debugging, then statically embed them in the renderer, but it never imports fixture signer secrets.
-
-- The Deno package also owns the initial HTML boot surface displayed before the renderer mounts.
-
-- It uses the package-local Lapis logo without visible loading copy, retains an accessible status name, and must not move workspace startup policy out of the application packages.
-
-- It also owns the native console threshold.
-
-- `LAPIS_DENO_LOG_LEVEL=debug` enables command-name-only bridge traces; the default `info` level suppresses that routine traffic while retaining lifecycle, warning, and failure diagnostics.
-
-- The package development launcher MUST pass Deno's quiet flag, omit native inspection by default, and reject it in telemetry mode so inspector-only binding diagnostics cannot expose arguments or return values outside that threshold.
-
 `@lapis-notes/ai` may offer a Node-backed user-agents command store only through
 a runtime-only module boundary. Browser and renderer builds consume the portable
 memory path unless a host capability supplies the user-agents directory, and
 MUST NOT statically bundle Node file-system modules through the plugin's public
 entrypoints.
 
-The native filesystem adapter restores binding error codes under LN-DENO-077.
 The API owns startup fingerprint deletion recovery under LN-DB-054. Missing
 files do not abort identity reconciliation; unrelated read errors remain failures.
 
@@ -180,12 +166,6 @@ error types. Neither entry exports a Node server or tRPC implementation.
 
 - The API package delegates reusable diagnostic state and presentation to Design Core while exporting only Lapis-owned structural types and lifecycle helpers.
 
-- Desktop Deno owns a worker boundary around its native Turso handle so database execution cannot starve the package's window and agent transports (LN-DENO-059).
-
-- Its shared dynamic compile inputs keep the worker entry embedded in both development and distribution hosts (LN-DENO-062).
-
-- Its private event transport retains monotonic replay and current ACP terminal state; AI consumes that state only to recover live presentation and remains the sole durable transcript owner (LN-DENO-060, LN-DENO-061, LN-AI-177).
-
 - Live Problems totals therefore use Design Core's structured, ephemeral view badge and never enter Lapis layout state or package-owned panel markup.
 
 - API projection treats Problems as host-owned even before the view is registered, so `loadLayout` restores a persisted leaf or leftover ghost placeholder as `workspace:problems` and later API commits do not replace it with an empty missing-view surface.
@@ -240,7 +220,7 @@ error types. Neither entry exports a Node server or tRPC implementation.
 
 - AI coordinates each registry snapshot with one preallocated native binding and projects its events into the existing transcript.
 
-- Deno desktop and the shared controller continue to transport opaque bridge identifiers rather than importing note-tool implementations.
+- Host integrations and shared controllers transport opaque bridge identifiers rather than importing note-tool implementations.
 
 - The bridge coordinator accepts only protocol-v3 hosts that advertise the owned `stdio-mcp` or `http-mcp` application-tool transport.
 
@@ -258,9 +238,8 @@ error types. Neither entry exports a Node server or tRPC implementation.
 
 - Sibling `@lapismd/ai-host` remains the transport library and MCP stdio shim.
 
-- First-party desktop no longer embeds ACP startup; it exposes only an authenticated `lapis-ai-controller` connection (LN-DENO-055, LN-PKG-125).
-
-- Leftover embed helpers MAY still advertise deferred ACP start for compatibility adapters.
+- Compatibility adapters MAY still advertise deferred ACP start where their
+  owning host explicitly supports it.
 
 - The public Search panel keeps database snippet text paired with its highlight ranges.
 

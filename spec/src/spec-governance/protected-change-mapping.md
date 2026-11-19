@@ -92,11 +92,11 @@ portable test-server startup contract.
 
 **Requirement.** The spec-first map MUST route AI package sources to AI Plugin, Packages, and Architecture. Focused AI stories MUST route to AI Plugin and Storybook Catalog instead of receiving the ordinary story exemption.
 
-## LN-GOV-033 — Spec-first map: route packages/api/src/lib/storage/desktop-native.ts to Desktop Host, Deno Desktop
+## LN-GOV-033 — Spec-first map: route packages/api/src/lib/storage/desktop-native.ts to Packages
 
 <a id="ln-gov-033"></a>
 
-**Requirement.** The spec-first map MUST route `packages/api/src/lib/storage/desktop-native.ts` to Desktop Host, Deno Desktop Host, and Packages. It MUST NOT treat that file as an App Database change.
+**Requirement.** The spec-first map MUST route `packages/api/src/lib/storage/desktop-native.ts` to Packages. It MUST NOT treat that compatibility adapter as an App Database implementation change.
 
 ## LN-GOV-034 — AGENTS.md: require published LapisMD packages to resolve
 
@@ -108,7 +108,7 @@ portable test-server startup contract.
 
 <a id="ln-gov-035"></a>
 
-**Requirement.** AI Host package implementation MUST be governed by the sibling `ai-host` repository's standalone specification. The Lapis spec-first map MAY keep a `packages/ai-host` cutover route to AI Plugin, Packages, Architecture, Desktop Host, and Web Host so the removed in-tree path stays classified.
+**Requirement.** AI Host package implementation MUST be governed by the sibling `ai-host` repository's standalone specification. The Lapis spec-first map MAY keep a `packages/ai-host` cutover route to AI Plugin, Packages, Architecture, and Web Host so the removed in-tree path stays classified.
 
 ## LN-GOV-038 — Storybook structure audit
 
@@ -130,11 +130,11 @@ portable test-server startup contract.
 
 The release caller token grant, including `actions: write` for reusable CI, is recorded on [LN-PKG-140](../packages/releases-and-exports.md#ln-pkg-140). Idempotent npm publication, missing GitHub releases, and the short registry retry are recorded on [LN-PKG-130](../packages/releases-and-exports.md#ln-pkg-130) and [LN-PKG-141](../packages/releases-and-exports.md#ln-pkg-141). This routing requirement is unchanged.
 
-## LN-GOV-042 — Spec-first map: route app-profile, Web, Deno, and plugin-management Workspace
+## LN-GOV-042 — Spec-first map: route app-profile, Web, and plugin-management Workspace
 
 <a id="ln-gov-042"></a>
 
-**Requirement.** The spec-first map MUST route app-profile, Web, Deno, and plugin-management Workspace changes to Plugin Model plus their package and host chapters. Extracted plugin behavior and Storybook source MUST be governed by the sibling `lapis-plugins` specification.
+**Requirement.** The spec-first map MUST route app-profile, Web, and plugin-management Workspace changes to Plugin Model plus their package and host chapters. Extracted plugin behavior and Storybook source MUST be governed by the sibling `lapis-plugins` specification.
 
 ## LN-GOV-044 — Spec-first map: route CI images, dependency-context helpers, signed Turbo
 
@@ -154,7 +154,7 @@ overlay teardown fix; test-signed fixtures never authorize public assets.
 
 <a id="ln-gov-045"></a>
 
-**Requirement.** The spec-first map MUST route Deno host-service kernels to Node Server Host, Desktop Host, Packages, and Architecture. Server package and server-mode Web changes MUST additionally route through Node Server Host. Runtime-independent `host-services` kernels MUST route to Architecture.
+**Requirement.** The spec-first map MUST route retained Deno host-service kernels to Node Server Host, Packages, and Architecture. Server package and server-mode Web changes MUST additionally route through Node Server Host. Runtime-independent `host-services` kernels MUST route to Architecture.
 
 ## LN-GOV-046 — Dependency-image pin automation: update the verified digest, lockfile tag,
 

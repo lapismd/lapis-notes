@@ -34,7 +34,7 @@ API-owned selection that the persisted layout must restore. Statically shipped p
 core manager even when their source is maintained in a separate repository.
 First-party plugin surfaces compose Design Core public parts for shared chrome;
 plugin projection and search-document registrations stay plugin-scoped even
-when Deno desktop persists their generated rows through the native AppDatabase
+when a native host persists their generated rows through the AppDatabase
 bridge.
 
 Search checkpoint validation uses the public metadata reconciliation fingerprint

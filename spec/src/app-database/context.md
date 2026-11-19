@@ -2,9 +2,9 @@
 
 `AppDatabase` is the stable generated-state boundary. Providers choose a local
 engine and transport without exposing either choice to Search, Markdown, or the
-workspace shell. `deno-desktop` sessions select a native Turso database owned
-by the Deno host and expose only the typed AppDatabase method catalogue to the
-renderer.
+workspace shell. The retained `deno-desktop` compatibility runtime name maps
+only to the typed AppDatabase method catalogue; it does not imply a current
+Notes host implementation.
 
 The direct-SQL runtime implements row-scoped normalized Turso writes, typed
 metadata indexes, durable revisions, native/browser change relays, bounded
@@ -16,7 +16,6 @@ warm reconciliation, and the native plus WASM/OPFS large-vault gates.
 App / plugins
      ↓ AppDatabase
 AppDatabaseProvider
-     ├─ Deno desktop renderer → bounded bridge → native Turso
      ├─ Node server client → typed tRPC bridge → native Turso
      ├─ browser owner worker → Turso WASM + OPFS
      └─ browser proxy → BroadcastChannel RPC → owner
@@ -72,7 +71,7 @@ across explicitly injected Memory fixtures and direct Turso.
 Memory-derived state follows that same provider contract. The in-memory and
 direct-Turso implementations expose source checkpoints, normalized candidates
 with exact origins, salted daily recall aggregates, and renewable jobs through
-typed methods. Browser proxies and the Deno renderer forward only those methods
+typed methods. Browser and native proxies forward only those methods
 through their fixed allowlists. Every mutation emits the `memory` change domain;
 clearing the memory tables is an explicit derived-state operation and does not
 touch transcripts, curated Markdown, Search documents owned by other providers,
@@ -92,16 +91,11 @@ A completed memory job is terminal and
 cannot be reclaimed as a new lease, while expired running jobs remain eligible
 for owner takeover.
 
-The Deno desktop renderer selects the same provider contract over a host-owned
-native Turso handle. The host executes that handle in a dedicated worker so
-native driver steps cannot block window, ACP, or renderer-event work
-(LN-DENO-059). The bridge materializes the AppDatabase method surface in
-the renderer, forwards only allowlisted calls and typed arguments, and relays
-post-commit change sets without exposing raw storage. The WASM provider remains
-the browser-compatible path and imports the driver's host-bundler entry so web
+The WASM provider remains the browser-compatible path and imports the driver's
+host-bundler entry so web
 builds serve driver-owned worker and WASM assets without inlining the package's
 prebuilt worker module. Session disposal drains metadata-cache work and cancels
-delayed writes before closing the owning Turso handle.
+delayed writes before closing the owning provider.
 
 The browser coordinator opens that WASM provider only in the elected owner.
 Proxy tabs obtain the owner's probed descriptor and delegate through a bounded

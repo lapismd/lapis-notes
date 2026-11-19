@@ -10,7 +10,7 @@ contributions do not create a second Problems collection or cache.
 The Problems view is a reusable workspace panel. Design Core owns the generic
 diagnostic model, collection lifecycle, and presentation; Lapis adapts vault,
 language-service, navigation, and plugin behavior at its public API boundary.
-The experimental Deno desktop spike does not add a language-service sidecar.
+Native host integration does not add a language-service sidecar.
 Nostr signer denial and unavailability remain direct operation errors under
 LN-ARCH-099; they do not expose credentials through diagnostic records.
 
@@ -80,7 +80,7 @@ disposal of another collection without changing the note.
 
 - That shim reports standards-mode `compatMode` so shared worker chunks cannot treat the worker as quirks.
 
-The Deno desktop consumer uses the same provider-neutral diagnostics and actions
+Native consumers use the same provider-neutral diagnostics and actions
 through `@lapis-notes/language-service/markdownlint/runtime`. Its child process
 accepts Markdown documents only, exposes capability probing, update,
 diagnostics, and code actions, and uses bounded request timeouts plus restart

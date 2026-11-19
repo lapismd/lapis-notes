@@ -50,7 +50,7 @@ hosts. Core owns paint, public style exports and bundled fonts; the UI theme
 remains alias-only. The intake changes no component markup, shell geometry,
 close guard, asynchronous plugin flush or centered bottom-panel contract.
 Root tooling and App Profile retain their separately held `^0.13.3` selection;
-File Explorer's compatibility range and the frozen Deno host remain unchanged.
+File Explorer's compatibility range remains unchanged.
 
 UI 0.1.3 is the prepared packaging patch for the retained runtime dependency
 declarations. Its CSS, tokens, component markup and public exports are unchanged.

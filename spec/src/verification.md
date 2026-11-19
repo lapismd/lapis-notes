@@ -14,7 +14,6 @@ Each requirement has exactly one row across these area tables. Status and eviden
 - [CAT — Part 2](./verification/cat-02.md)
 - [CV](./verification/cv.md)
 - [DB](./verification/db.md)
-- [DENO](./verification/deno.md)
 - [ED](./verification/ed.md)
 - [EXP](./verification/exp.md)
 - [GOV](./verification/gov.md)

@@ -55,12 +55,6 @@ Geometry, match text, counts and open behavior retain their existing assertions.
 
 **Requirement.** The sibling `lapis-plugins` Storybook MUST demonstrate the real Search plugin in all governed panel placements over an indexed in-memory vault and verify query, facet, highlight, and navigation behavior. Lapis Notes Storybook MUST retain only profile and plugin-management integration coverage.
 
-## LN-SRCH-009 — Deno desktop: load Search before metadata and layout restoration
-
-<a id="ln-srch-009"></a>
-
-**Requirement.** Deno desktop MUST load Search before metadata and layout restoration so a persisted `search` leaf restores as available and uses the app database search boundary.
-
 ## LN-SRCH-010 — Search panel styling: use native CSS and public Design Core
 
 <a id="ln-srch-010"></a>

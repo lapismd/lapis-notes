@@ -166,9 +166,6 @@ importers:
       '@lapismd/storybook-addon-visual-delta':
         specifier: 0.1.5
         version: 0.1.5(playwright@1.61.1)(react@19.2.8)(storybook@10.6.7(@types/react@19.2.18)(prettier@3.3.3)(react@19.2.8))(svelte@5.56.10)(vite@7.3.8(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(tsx@4.23.9)(yaml@2.9.0))
-      '@lapismd/terminal-host':
-        specifier: ^0.1.0
-        version: 0.1.0
       '@lezer/common':
         specifier: ^1.5.2
         version: 1.5.2
@@ -2673,11 +2670,6 @@ packages:
         optional: true
       vite:
         optional: true
-
-  '@lapismd/terminal-host@0.1.0':
-    resolution: {integrity: sha512-MLXUN2/116AX5NyvbPfG1luJspqQQAhI6n0vrEDI365mz6e3RATBvf8cvPs3Wy/DeFpNfZoOFOOD9BBt8OHvOA==}
-    engines: {deno: '>=2.9.5', node: '>=22'}
-    hasBin: true
 
   '@lezer/common@1.5.2':
     resolution: {integrity: sha512-sxQE460fPZyU3sdc8lafxiPwJHBzZRy/udNFynGQky1SePYBdhkBl1kOagA9uT3pxR8K09bOrmTUqA9wb/PjSQ==}
@@ -10812,8 +10804,6 @@ snapshots:
       playwright: 1.61.1
       svelte: 5.56.10
       vite: 7.3.8(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(tsx@4.23.9)(yaml@2.9.0)
-
-  '@lapismd/terminal-host@0.1.0': {}
 
   '@lezer/common@1.5.2': {}
 

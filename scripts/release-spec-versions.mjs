@@ -14,7 +14,6 @@ export const versionVerificationPage = "spec/src/verification/pkg-02.md";
 export const versionSpecChapters = [
   "spec/src/packages/release-canonical-intake.md",
   "spec/src/architecture/dependency-boundaries.md",
-  "spec/src/desktop-deno-host/startup-and-lifecycle.md",
   "spec/src/plugin-model/application-services.md",
   "spec/src/web-host/startup-and-plugins.md",
   "spec/src/ui-and-styling/core-contract.md",
