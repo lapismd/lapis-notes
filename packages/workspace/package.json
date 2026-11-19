@@ -1,6 +1,6 @@
 {
   "name": "@lapis-notes/workspace",
-  "version": "0.4.8",
+  "version": "0.4.9",
   "description": "Lapis Notes workspace shell backed by design-core",
   "license": "Apache-2.0",
   "repository": {
@@ -46,8 +46,8 @@
     }
   },
   "dependencies": {
-    "@lapis-notes/api": "^0.6.8",
-    "@lapis-notes/ui": "^0.2.3",
+    "@lapis-notes/api": "^0.6.10",
+    "@lapis-notes/ui": "^0.2.6",
     "@lapismd/design-core": "^0.13.6",
     "@lucide/svelte": "^0.523.0"
   },

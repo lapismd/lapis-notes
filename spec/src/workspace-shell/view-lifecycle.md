@@ -8,7 +8,7 @@ Source package versions only; publication and host adoption remain separate.
 {
   "schemaVersion": 1,
   "packages": {
-    "@lapis-notes/workspace": "0.4.8"
+    "@lapis-notes/workspace": "0.4.9"
   }
 }
 ```
