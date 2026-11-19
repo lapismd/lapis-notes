@@ -52,22 +52,6 @@ Import and export command failures use that same explicit App notification
 manager. They do not construct compatibility Notices, so typed web builds and
 multi-session ownership keep the reporting attached to the active session.
 
-- When live AI attach is configured, the shared bridge supplies provider model catalogs and runtime events over the authenticated host connection.
-
-- Closing that connection rejects pending commands and terminates active chats with a visible error.
-
-- The public `@lapismd/ai-host` process host uses the maintained ACP adapter supplied by its acpx release and tolerates sessions without a separate thinking option; the host also treats unsupported backend closure of disposable model sessions as successful local cleanup.
-
-- The web host does not maintain a second provider protocol.
-
-- For application tools, that same authenticated connection carries generic bridge open, result, close, call, and cancellation frames.
-
-- The executor keeps the loopback broker and stdio shim local, revokes authorization on disconnect, and requires a fresh bridge before a resumed native binding can expose tools.
-
-- Disconnect handling emits cancellation for every active bridged call before clearing connection state.
-
-- ACP sessions also receive a visible closed-runtime event so controller retry creates a new binding instead of reusing stale bridge authorization.
-
 - `@lapis-notes/web` owns the branded browser launcher and restores only OPFS or File System Access profiles.
 
 - While a saved current profile is resolving, the host paints Design Core `WorkspaceStartup` instead of the chooser.

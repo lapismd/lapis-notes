@@ -266,12 +266,6 @@ Unchanged contract: File Explorer passes the selected file-view icon through pub
 
 **Requirement.** Design Core MUST own the reusable structured-query input, completion presentation, colour popover, and sortable-row interaction. API MUST own the shared vault syntax/completion model. Graph MUST depend only on those public contracts, AppDatabase path-only membership, and the public Markdown read-only embed while retaining viewport-clamped settings-panel composition with guttered handles, divider-free idle rows, rounded whole-row focus paint with an outer trailing gap, and visible padding-owned row actions with an internal trailing gutter; it MUST NOT import Search-plugin internals or duplicate Markdown rendering.
 
-## LN-ARCH-086 — AI: own the read-only .jsonl file association because
-
-<a id="ln-arch-086"></a>
-
-**Requirement.** AI MUST own the read-only `.jsonl` file association because it owns the portable transcript and agent record schemas. The view MUST cross only public API file-view, Design Core chat, and Markdown embed boundaries; it MUST NOT transfer append-only persistence authority to workspace presentation, add a file command, or make Source Editor interpret AI records.
-
 ## LN-ARCH-088 — Workspace-owned plugin management: compose public Design Core SearchFilterBar, FilterCommandPicker, Resizable
 
 <a id="ln-arch-088"></a>

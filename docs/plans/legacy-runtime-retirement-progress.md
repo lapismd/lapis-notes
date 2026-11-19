@@ -8,7 +8,7 @@ removal authority. E-RETIRE-007 is stopped, uncommitted and unpublished.
 
 Coordination owner: Notes. Implementation authorized 2026-11-17. Follow the
 [agreed plan](legacy-runtime-retirement.md). Work one removal at a time. The
-frozen Notes Deno host is the active slice after shared-AI preservation landed.
+shared-AI current-spec authority is the active slice after the frozen Notes Deno host landed.
 Retire terminal Deno surfaces last and do not move either Rust implementation.
 The [agent handover](legacy-runtime-retirement-handover.md) is the concise current
 resume point; this longer ledger intentionally retains older checkpoints and
@@ -23,10 +23,13 @@ exact-main CI `44488080528` and exact-main Pages `44488080625` pass.
 E-RETIRE-015 is sealed and the user accepted two unchanged native diagnostics
 as non-blocking. AI Host #6 merged at
 `dcc42f3791282d4dd9138347614c2b93e09af245`; exact-main run `44434123912`
-passes. The active Notes workspace removes the frozen Deno host while
-preserving `deno-host-services`, Language/core/Sync and API compatibility.
-Shared-AI current spec authority, terminal plugin guidance, terminal-host
-in-place Rust-only conversion, Website production and final audit remain.
+passes. Notes #180 removed the frozen Deno host and merged as
+`d2d0c9a4d2036f78094b52b681751d776e7e8d1c`; Release, PWA, dependency-image
+publication and Storybook Pages exact-main workflows all pass. The active Notes
+workspace retires obsolete shared-AI current specification authority while
+preserving App-owned memory/transcript contracts, generic API services, Native
+Chat and Tauri AI. Terminal plugin guidance, terminal-host in-place Rust-only
+conversion, Website production and final audit remain.
 
 Desktop #48's complete fixture producer/admission repair has merged into #47's
 feature branch at `45d61a6c95d980892be8bb6a32f612137c1bb529`, not main.
@@ -141,15 +144,14 @@ leases isolated.
 | Complete source/public-package/consumer gates                 | Published; consumer acceptance pending | Approved provenance guard and peer cleanup are published in API `0.6.9` / UI `0.2.4` / Profile `0.2.6`; Desktop released-cohort and native/data acceptance remain open. |
 | npm deprecation, signed registry publication and deployment   | Registry and npm complete              | Approved signed candidate is live; All 11 npm versions deprecated; every original tarball SHA-512 verified; no unpublish or installed-app replacement                   |
 
-## Later removals — pending
+## Remaining removals — pending
 
-1. Land the active frozen Notes Deno desktop and release-edge removal.
-2. Retire the already-absent shared-AI current spec authority without touching
+1. Retire the already-absent shared-AI current spec authority without touching
    Tauri AI, API file-tools or history.
-3. Update standalone Terminal plugin guidance.
-4. Convert `terminal-host` in place to Rust-only, preserving its Cargo files,
+2. Update standalone Terminal plugin guidance.
+3. Convert `terminal-host` in place to Rust-only, preserving its Cargo files,
    Rust service crate, Server pin, artifacts and history.
-5. Complete whole-plan Deno-absent package/host qualification and final
+4. Complete whole-plan Deno-absent package/host qualification and final
    dependency/inventory cleanup.
 
 This order follows the user's revised sequencing and no-move decisions. Retain
@@ -888,7 +890,46 @@ Qualification on the exact source snapshot passes:
 
 The accepted native transcript-backup and raw development-WebView diagnostic
 failures remain non-blocking historical preservation evidence; this source
-slice neither changes nor reclassifies them. Pending gates are commit/push,
-Notes pull request review, exact-head hosted CI, merge, fresh exact-main CI and
-tracker receipt updates. Shared-AI current-spec retirement and terminal cleanup
-remain later isolated removals.
+slice neither changes nor reclassifies them. Notes #180 reviewed
+`4f3323387402506c9c68cd7399530e0b450af6d3`, merged as
+`d2d0c9a4d2036f78094b52b681751d776e7e8d1c`, and passed exact-main Release
+`44507599858`, PWA `44507598842`, dependency-image `44507598888` and Storybook
+Pages `44507598925`. No accepted-failure exception was required.
+
+## Shared-AI current specification retirement checkpoint, 2026-11-19
+
+The fresh `lapis-notes-retirement-shared-ai-spec` workspace is based on exact
+Notes main `d2d0c9a4d2036f78094b52b681751d776e7e8d1c`. The candidate removes all
+11 current `spec/src/plugins/ai/**` chapters, 177 `LN-AI-*` requirements, two
+verification pages and 13 generated Storybook mirrors. Fourteen additional
+requirements that existed only for the retired shared plugin are removed;
+mixed API/Search/host requirements are narrowed to their surviving generic
+ownership.
+
+The archive already preserves every removed requirement and repository history
+preserves exact source bytes, so no duplicate code or specification copy is
+created. `LN-ARCH-083/084`, `LN-DB-040–044`, API file-tools, skill/slash/tool and
+result-view registries, Native Chat, native/Tauri AI, installer provenance,
+saved data and all core services remain current. Generic third-party plugins
+named `ai` remain valid because retirement classification uses signed provenance
+rather than plugin ID.
+
+Final local qualification passes on the complete candidate:
+
+- the Storybook specification-index regression passes 5/5, both retired-AI
+  fail-closed audits pass, and direct validation reports 11 validators, 174
+  chapters, 1,279 requirements and zero findings;
+- validator tests pass 68/68; specification-document and mdBook builds pass;
+- exact-base spec-first maps three protected files to 56 canonical chapters;
+- the seven-lane aggregate `spec:check` passes at
+  `.local/validation/runs/lapis-notes-validation-31668340-968f-4476-b53b-6d21bbb9be7e`;
+- the static Storybook build passes all six Turbo tasks and renders all 174
+  specification chapters at
+  `.local/validation/runs/lapis-notes-validation-9d5dea78-974f-4ece-bfde-65aa98a2954a`;
+- the final changed-path audit finds 76 documentation, generated-mirror,
+  configuration and regression files with no `packages/**` product change.
+
+The Docker wrapper intentionally serializes validation per workspace. An
+initial parallel attempt let `spec:build` pass while three siblings collided on
+the same lease container; each collided lane was rerun serially and passed. The
+lease collision is orchestration evidence, not an accepted product failure.

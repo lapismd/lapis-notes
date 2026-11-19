@@ -54,7 +54,7 @@ state from their owning registered view rather than ambient host state.
 
 - Markdown now owns only `notes_list`; bounded reads and mutating file edits belong to API file tools.
 
-- The list description prefers vault browsing over host-cwd walking (LN-AI-108).
+- The list description identifies scoped vault browsing rather than host-cwd walking (LN-MD-093).
 
 - Their narrow package entry likewise exports no panel component, placement metadata, workspace controller, or view command.
 

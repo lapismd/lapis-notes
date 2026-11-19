@@ -81,7 +81,7 @@ cannot disappear when the host registers the public plugin Settings pages.
 
 <a id="ln-plug-019"></a>
 
-**Requirement.** `Plugin.registerAgentTool` MUST register a transport-neutral tool under the owning plugin ID, reject invalid or duplicate active names, and dispose it with the plugin lifecycle. Community renderer registration MUST remain inert for agents until the user enables that tool in AI settings.
+**Requirement.** `Plugin.registerAgentTool` MUST register a transport-neutral tool under the owning plugin ID, reject invalid or duplicate active names, and dispose it with the plugin lifecycle. Community renderer registration MUST remain inert for agents until a concrete AI consumer explicitly enables that tool.
 
 ## LN-PLUG-027 — App: expose an API-owned daily-document provider registry, resolution
 

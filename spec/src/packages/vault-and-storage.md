@@ -345,18 +345,6 @@ compatible. Client engines must supply their captured fences before activation.
 
 **Requirement.** `@lapis-notes/workspace` MAY forward Design Core's generic workspace-navigation contract to its shell surface, but profile discovery, vault labels, selection, management, persistence, and lifecycle policy MUST remain consumer-owned.
 
-## LN-PKG-074 — @lapis-notes/ai: own conversations, projection, Explorer-style history presentation, bindings
-
-<a id="ln-pkg-074"></a>
-
-**Requirement.** `@lapis-notes/ai` MUST own conversations, projection, Explorer-style history presentation, bindings, handoff, and replay provenance. Its history view MAY compose public Design Core search, sidebar-tree, disclosure, menu, badge, and switch primitives but MUST keep that search chrome centered and retain scope selection, filesystem/index merging, conversation actions, and workspace-view registration in AI. API MUST expose generic path, durability, search, highlighting, and native-event primitives through narrow entries. Execution transports MUST remain non-authoritative with only live native state and bounded replay.
-
-## LN-PKG-077 — @lapis-notes/ai: own asynchronous chat preparation and conversation-location tab
-
-<a id="ln-pkg-077"></a>
-
-**Requirement.** `@lapis-notes/ai` MUST own asynchronous chat preparation and conversation-location tab reuse. `@lapis-notes/api` MUST remain limited to generic main-tab creation, sidebar-leaf registration, activation, and reveal contracts; workspace packages MUST NOT acquire AI-specific navigation policy. AI MUST project folder scope breadcrumbs through the public View chrome hooks.
-
 ## LN-PKG-159 — Local test task routing
 
 <a id="ln-pkg-159"></a>

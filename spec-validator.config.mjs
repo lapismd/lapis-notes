@@ -171,7 +171,6 @@ export default defineConfig(headingRequirements(), {
           chapterPatterns: [
             "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
             "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
-            "^spec/src/plugins/ai/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
           ],
         },
         {
@@ -338,17 +337,9 @@ export default defineConfig(headingRequirements(), {
         {
           pattern: "^packages/ai-host/",
           chapterPatterns: [
-            "^spec/src/plugins/ai/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
             "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
             "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
             "^spec/src/web\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
-          ],
-        },
-        {
-          pattern: "^stories/plugins/ai/",
-          chapterPatterns: [
-            "^spec/src/plugins/ai/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
-            "^spec/src/storybook\\-catalog/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
           ],
         },
         {

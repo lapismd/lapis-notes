@@ -66,8 +66,6 @@ without owning vault folders, filename formats, or daily-note identity.
 
 - Its exact specification mirrors and post-build index acceptance do not add a runtime dependency or move plugin ownership into the catalog host.
 
-- Composer agent and model defaults persist in AI plugin data; workspace dock selection persists through the existing 1000 ms writer.
-
 - App-backed browser acceptance serializes story files because compatibility leases, portalled overlays, and worker-backed plugin resources share one browser realm; each story still owns and disposes its own App.
 
 - Root package validation uses one bounded Turbo graph with signed organization remote caching.
@@ -120,8 +118,8 @@ tabs and native renderers forward only the allowlisted methods. This transport
 parity does not transfer memory ownership to the database owner, browser tab,
 desktop worker, ACP session, or processing model.
 
-AI constructs the native service, record store, ingestion coordinator, and idle
-scheduler once per App. Conversation sessions receive only provider-neutral
+A concrete native AI consumer constructs the service, record store, ingestion
+coordinator, and idle scheduler once per App. Conversation sessions receive only provider-neutral
 context blocks and read-effect App tools. The optional consolidator is a
 separately configured one-shot processor behind `MemoryConsolidationProvider`;
 its restricted host session has no workspace or tool surface. Consequently an
@@ -147,37 +145,15 @@ capturing it during workspace construction.
 
 - API stores plugin registrations.
 
-- AI discovers vault and folder skills under `.agents/skills`, snapshots them per binding, and routes composer commands from reserved host names and `.agents/commands` Markdown, including `/help`, `/scope`, `/context`, `/status`, and `/agent`.
-
-- Local slash notices stay start-aligned with authored line breaks and show the composer working indicator while they prepare.
-
-- The slash menu lists the same catalog commands, ranks Fuse name matches before description hits, and submits argument-free picks immediately.
-
-- `/skills` and `/context` hydrate a missing binding snapshot from current discovery.
-
-- AI ships bundled `research` and `lapis-notes` skills.
-
-- An active skill file MUST NOT scope a new conversation to `.agents`.
-
 - Search owns composer `/search` as a `notes_search` tool-dispatch command.
-
-- The chat shows that invoke as a `ToolCalls` transcript item.
-
-- Live ACP session start appends a path-free `available_skills` manifest and a generated `sessionBootstrap` through the host, including when the open conversation still sits under a skill folder.
-
-- The AI catalog lists live tools, commands, and skills by owner in an explorer-aligned tree with filter and expand-all chrome.
 
 - Mira editor slash commands remain a Markdown concern.
 
 - The application tool registry follows the same explicit ownership boundary.
 
-- It stores plugin-owned, transport-neutral callbacks on the owning App while AI derives binding-local policy snapshots and AI Host adapts descriptors to MCP.
-
-- AI names process-backed integrations `McpServerContribution` and carries them on `AgentRequest.mcpServers`, leaving the reserved `lapis-tools` identity for the app-owned bridge.
+- It stores plugin-owned, transport-neutral callbacks on the owning App while concrete consumers own policy snapshots and transport adaptation.
 
 - API constructs immutable tool scopes from trusted conversation directories; scope resolution rejects absolute, traversal, non-portable, and sibling-prefix paths instead of normalizing them into a different target.
-
-- AI persists the master application-tool switch and per-tool enablement by tool name; invocation grants and binding-local descriptor snapshots are runtime state.
 
 - Search owns `notes_search` and applies conversation scope through the generic database path-prefix option before result ranking and limits.
 
@@ -185,32 +161,9 @@ capturing it during workspace construction.
 
 - API owns Vault-backed `read`, `write`, `edit`, and `apply_patch` wrappers over the portable `@lapismd/ai-host/file-tools` kernel.
 
-- Those bundled descriptions steer agents to the vault tools instead of host-cwd shell search (LN-AI-108).
+- Their descriptions identify vault or index behavior so concrete AI consumers can present the tools without acquiring note-content authority.
 
-- The first-party live transport is host-advertised and owned by `@lapismd/ai-controller`.
-
-- Web and Storybook integrations use explicit authenticated endpoints without
-  importing note-tool implementations.
-
-- Both carry only generic bridge commands and events and never acquire registry, policy, or transcript authority.
-
-- The AI controller allocates the binding identity before runtime start, opens the binding-local bridge from that identity, and commits that same identity only after startup succeeds.
-
-- Replacing an agent closes the old bridge and its approval grants before a fresh snapshot is opened for the next binding.
-
-- Runtime Allow always and Deny always decisions persist on conversation metadata so later matching permission requests stay silent; application-tool write grants remain memory-only (LN-AI-156, LN-AI-088).
-
-- Permission and question option buttons use Design Core's public `feedback-option` part (LN-AI-157).
-
-- Any visible runtime or host error removes the composer working indicator while the controller clears its owned busy state and remains retryable (LN-AI-052).
-
-- Portable AI conversation files project into Search per affected conversation; ordinary turn persistence neither rebuilds the global index nor rewrites an unchanged full-text row (LN-AI-176).
-
-- API owns result-view registration so Search can render `notes_search` hits and AI can render `/skills` and `/tools` inventories (LN-PKG-100, LN-AI-158, LN-AI-159).
-
-- The explicit real-agent probe composes these same owner boundaries through narrow package entries: Search and Markdown supply list/search callbacks, API supplies Vault file tools, AI supplies the binding coordinator, and AI Host supplies the authenticated MCP transport.
-
-- Its volatile App-tool vault cannot mutate the durable seeded workspace.
+- API owns result-view registration, and Search registers the `notes_search` result view through that public boundary (LN-PKG-100).
 
 Vault glob discovery remains an API-owned in-memory file-tree concern. It may
 maintain filename indexes for enumeration, but it does not move arbitrary

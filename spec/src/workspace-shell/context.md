@@ -35,13 +35,13 @@ LN-PLUG-078 while the host owns any consent or profile-creation surface.
 
 - Workspace `Plugin.addCommand` remains the Actions tab.
 
-- File Explorer and AI register Files and Agents palette providers.
+- File Explorer registers the Files palette provider; other concrete consumers may register their own provider through the generic API.
 
 - `app:go-to-file` lands on Files.
 
-- AI composer slash commands are a separate Plugin API (LN-PLUG-023).
+- Composer slash commands are a separate transport-neutral Plugin API (LN-PLUG-023).
 
-- Transcript result views are a separate Plugin API (LN-PLUG-024) and MUST NOT add palette commands.
+- Agent result views are a separate transport-neutral Plugin API (LN-PLUG-024) and MUST NOT add palette commands.
 
 - Plugins register namespaced AppDatabase projections through `registerIndexProjection`.
 

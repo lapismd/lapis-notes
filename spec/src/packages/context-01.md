@@ -64,8 +64,6 @@ Domain plugins consume only the API contract.
 
 - Repository-only Storybook taxonomy, mirror, and built-index checks remain development tooling at the root and are excluded from publishable package runtime closures.
 
-- AI model menus consume structured host catalog labels while `@lapis-notes/ai` still has no runtime `@lapismd/ai-host` dependency.
-
 - The external Roles package remains a production host dependency only and does not enter the root Storybook development closure.
 
 - CI prepares package outputs once, then fans out quality, unit, static Storybook, interaction/accessibility, and release-candidate work in independent blocking jobs.
@@ -90,12 +88,6 @@ Domain plugins consume only the API contract.
 - Deep Mira modules and their transitive CommonJS dependencies cross that boundary as one package-level pre-bundle.
 
 - The local release-candidate installer preserves the committed registry lockfile, reuses a matching verified install, and invalidates generated Vite and Storybook caches when its package fingerprint changes.
-
-`@lapis-notes/ai` may offer a Node-backed user-agents command store only through
-a runtime-only module boundary. Browser and renderer builds consume the portable
-memory path unless a host capability supplies the user-agents directory, and
-MUST NOT statically bundle Node file-system modules through the plugin's public
-entrypoints.
 
 The API owns startup fingerprint deletion recovery under LN-DB-054. Missing
 files do not abort identity reconciliation; unrelated read errors remain failures.
@@ -158,10 +150,6 @@ error types. Neither entry exports a Node server or tRPC implementation.
 
 - The API workspace records file recents on `file-open` and registers `app:go-to-file` so landing and empty-view actions open that tab.
 
-- `@lapis-notes/ai` registers an Agents provider that groups conversations by date without adding one command per chat.
-
-- It coalesces source-file events per portable conversation and incrementally maintains only the affected derived Search document (LN-AI-176).
-
 - `@lapis-notes/markdown` File Properties uses Mira `valueSuggestions` and the existing Lapis file adapter for wikilink pills without forking pill-list editing.
 
 - The API package delegates reusable diagnostic state and presentation to Design Core while exporting only Lapis-owned structural types and lifecycle helpers.
@@ -186,7 +174,7 @@ error types. Neither entry exports a Node server or tRPC implementation.
 
 - API owns Vault-backed `read`, `write`, `edit`, and `apply_patch` wrappers over the portable file-tools kernel.
 
-- Markdown and Search expose narrow `./agent-tools` entries for their portable factories, while AI's existing `./runtimes` entry exposes the host and desktop bridge coordinator needed by the explicit real-agent diagnostic.
+- Markdown and Search expose narrow `./agent-tools` entries for their portable factories.
 
 - These entries do not make the MCP SDK a dependency of either domain package.
 
@@ -194,23 +182,7 @@ error types. Neither entry exports a Node server or tRPC implementation.
 
 - The API agent-skills surface exports only skill-source and composer slash-command registration.
 
-- AI owns discovery of `.agents` skill and command Markdown, snapshots, skill tools, and routing, including reserved `/help`, `/scope`, `/context`, `/status`, and `/agent`.
-
-- Local slash notices stay start-aligned with authored line breaks and show the composer working indicator while they prepare.
-
-- The slash menu lists the same catalog commands, ranks Fuse name matches before description hits, and submits argument-free picks immediately.
-
-- `/skills` and `/context` hydrate a missing binding snapshot from current discovery.
-
-- AI ships bundled `research` and `lapis-notes` skills.
-
-- An active skill file MUST NOT scope a new conversation to `.agents`.
-
 - Search owns composer `/search` as a `notes_search` tool-dispatch command and shows that invoke as a `ToolCalls` transcript item.
-
-- Live first-party session start appends a path-free `available_skills` manifest and a generated `sessionBootstrap` through host session setup, including skill-folder chats.
-
-- The AI catalog lists live tools, commands, and skills by owner in an explorer-aligned tree.
 
 - Neither surface imports MCP, ACP, acpx, or vendor runtime types.
 
@@ -218,23 +190,11 @@ error types. Neither entry exports a Node server or tRPC implementation.
 
 - It does not import or re-export MCP, ACP, acpx, or vendor runtime types.
 
-- AI coordinates each registry snapshot with one preallocated native binding and projects its events into the existing transcript.
-
-- Host integrations and shared controllers transport opaque bridge identifiers rather than importing note-tool implementations.
-
-- The bridge coordinator accepts only protocol-v3 hosts that advertise the owned `stdio-mcp` or `http-mcp` application-tool transport.
-
 - Its execution-scope helper validates vault-relative portable paths and exposes only fixed-directory containment and resolution to portable tool callbacks.
-
-- AI policy imports these contracts through the narrow `@lapis-notes/api/agent-tools` subpath so its non-UI tests and host adapters do not load API presentation code.
-
-- The AI package keeps external MCP server processes in a distinct, deterministic `McpServerContribution` registry that rejects duplicate names and the reserved `lapis-tools` bridge identity.
-
-- It owns the master application-tool switch and per-tool enablement settings and applies those choices only while constructing a new native binding snapshot.
 
 - The Search package owns `notes_search`; API owns the generic pre-limit `pathPrefix` database option used consistently by memory, Turso, desktop, and browser-coordinated implementations.
 
-- Bundled tool descriptions tell the agent to prefer those vault tools over host-cwd shell lookup (LN-AI-108).
+- Tool descriptions identify vault and index behavior so consumers do not substitute host-cwd lookup for note access.
 
 - Sibling `@lapismd/ai-host` remains the transport library and MCP stdio shim.
 

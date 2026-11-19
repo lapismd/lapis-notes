@@ -14,9 +14,7 @@ the real filter interaction and selected-state assertions.
 Search placement acceptance reads the full-path caption as file identity and
 asserts the released accessible name, filename, count, vault path and match count. Copy
 controls use `Copy search results: <count> results` and show the result
-count as their visible label. AI's Search Tool Hits scenario selects the
-complete filename/path label and still proves exact file navigation with chat
-retained.
+count as their visible label.
 
 API Date Setting acceptance also asserts full date-picker names, including
 `Choose date: Pick date` and the retained legacy date value. Selected values

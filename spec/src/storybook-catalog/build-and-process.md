@@ -24,12 +24,6 @@
 
 **Requirement.** The focused Bases Editable Cells story MUST open Sort and Filter in the same viewport and assert their computed outer widths match within sub-pixel tolerance.
 
-## LN-CAT-066 — Storybook Vite: resolve @lapis-notes/ai/runtimes through the installed plugin package
-
-<a id="ln-cat-066"></a>
-
-**Requirement.** Storybook Vite MUST resolve `@lapis-notes/ai/runtimes` through the installed plugin package export.
-
 ## LN-CAT-116 — Generated-output watcher exclusions
 
 <a id="ln-cat-116"></a>

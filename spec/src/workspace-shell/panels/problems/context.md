@@ -18,8 +18,8 @@ The Lapis façade, plugin-owned disposal, open-document bridge, cached actions,
 navigation adapter, diagnostics-only Markdown composition, and default
 Markdownlint provider are implemented.
 
-Skill parse and discovery diagnostics stay in the AI plugin and do not enter
-Problems collections. `registerIndexProjection` does not add Problems
+Skill parse and discovery diagnostics stay with the concrete AI surface that
+performs them and do not enter generic Problems collections. `registerIndexProjection` does not add Problems
 diagnostics or language-service apply paths.
 
 `Plugin.registerAgentTool` and `Plugin.registerAgentResultView` are independent

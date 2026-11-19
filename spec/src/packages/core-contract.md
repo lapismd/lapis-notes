@@ -159,11 +159,11 @@ install the UI package's development dependencies.
 
 **Requirement.** The API host catalogue MUST expose declared Svelte browser runtime contracts under compiler-versioned specifiers. API and host builds MUST use that exact Svelte peer version. Hosts MUST provide those entries through their own module graph. Raw private imports and unavailable ABI versions MUST remain rejected.
 
-## LN-PKG-096 — @lapis-notes/api: own skill-source and composer slash-command registration. @lapis-notes/ai
+## LN-PKG-096 — @lapis-notes/api: own transport-neutral skill-source and composer slash-command registration
 
 <a id="ln-pkg-096"></a>
 
-**Requirement.** `@lapis-notes/api` MUST own skill-source and composer slash-command registration. `@lapis-notes/ai` MUST own discovery, snapshots, skill tools, and the composer router. Those APIs MUST NOT expose MCP, ACP, or vendor runtime types.
+**Requirement.** `@lapis-notes/api` MUST own skill-source and composer slash-command registration. Those APIs MUST remain transport-neutral and MUST NOT expose MCP, ACP, or vendor runtime types. Concrete AI consumers MAY own discovery, snapshots, skill tools, and composer routing without moving that policy into API.
 
 ## LN-PKG-165 — Public application state paths
 

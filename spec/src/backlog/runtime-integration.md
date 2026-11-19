@@ -91,9 +91,10 @@ standalone `ai-controller` is preserved for those consumers. The 2026-11-15
 audit remains dated evidence. Current bases, preparation results, verified
 substeps and pending acceptance are recorded in the
 [progress and resume record](../../../docs/plans/legacy-runtime-retirement-progress.md).
-Source preparation does not qualify product or release gates. Current shared-AI
-specification pages and verification rows remain a separate spec-only retirement
-slice; they do not authorize removal of core services or Tauri-owned AI.
+Source preparation does not qualify product or release gates. The shared-AI
+specification pages and verification rows are retired from current authority;
+the App-owned memory/transcript contracts, core API services, Native Chat and
+Tauri-owned AI remain explicitly preserved.
 
 ## Generated version PR authentication
 

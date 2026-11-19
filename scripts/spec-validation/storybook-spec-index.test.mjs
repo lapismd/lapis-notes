@@ -11,14 +11,14 @@ const summary = `# Summary
 
 - [Introduction](./index.md)
 - [Plugins](./plugins/index.md)
-  - [Plugins / AI](./plugins/ai/index.md)
+  - [Plugins / Bases](./plugins/bases/index.md)
 `;
 
 test("derives exact specification titles from SUMMARY order", () => {
   assert.deepEqual(expectedSpecificationTitles(summary), [
     "Specification/Introduction",
     "Specification/Plugins",
-    "Specification/Plugins/AI",
+    "Specification/Plugins/Bases",
   ]);
 });
 
@@ -29,7 +29,7 @@ test("reports source chapters missing from a built Storybook index", () => {
       plugins: { title: "Specification/Plugins" },
     },
   });
-  assert.deepEqual(result.missing, ["Specification/Plugins/AI"]);
+  assert.deepEqual(result.missing, ["Specification/Plugins/Bases"]);
 });
 
 test("accepts a complete built index", () => {

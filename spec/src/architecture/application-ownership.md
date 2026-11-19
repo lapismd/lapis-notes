@@ -63,23 +63,11 @@ the global writer guard and releasing views, plugins or the vault session.
 
 **Requirement.** App-linked runtime objects MUST resolve App through explicit injection, workspace ownership, or Svelte context. `globalThis.app` MAY remain only as a host-installed compatibility fallback, and constructing an App MUST NOT mutate global state.
 
-## LN-ARCH-056 — AI History: remain an AI-owned, placement-neutral Explorer-style tree composed
-
-<a id="ln-arch-056"></a>
-
-**Requirement.** AI History MUST remain an AI-owned, placement-neutral Explorer-style tree composed from public shared primitives. Its SearchFilterBar search field and trailing actions MUST stay centered in the panel. Host replay and native agent state MUST remain bounded, non-canonical, and safe to lose without automatically repeating a side-effecting turn. Chrome actions MUST keep a visible hover fill, and New chat MUST use the dimmed folder-context path.
-
 ## LN-ARCH-060 — API: own the transport-neutral application tool registry, domain
 
 <a id="ln-arch-060"></a>
 
-**Requirement.** API MUST own the transport-neutral application tool registry, domain plugins MUST own their tool implementations, AI MUST own policy and approvals, and `@lapismd/ai-host` MUST own MCP transport. API, Search, Markdown, and portable AI code MUST NOT import MCP, ACP, acpx, or vendor agent SDKs. Authenticated remote transport MUST leave execution and note content in the owning App.
-
-## LN-ARCH-063 — @lapis-notes/ai: render assistant chat Markdown through @lapis-notes/markdown/embed. That
-
-<a id="ln-arch-063"></a>
-
-**Requirement.** `@lapis-notes/ai` MUST render assistant chat Markdown through `@lapis-notes/markdown/embed`. That helper MUST apply the App's default Mira editor extensions. AI MUST NOT add a plugin-local Markdown renderer. Chat MUST keep the embed preview surface transparent and MUST NOT nest a vertical scroller inside the bubble.
+**Requirement.** API MUST own the transport-neutral application tool registry, and domain plugins MUST own their tool implementations. Concrete AI consumers MUST own policy and approvals, while `@lapismd/ai-host` owns MCP transport. API, Search, and Markdown MUST NOT import MCP, ACP, acpx, or vendor agent SDKs. Authenticated remote transport MUST leave execution and note content in the owning App.
 
 ## LN-ARCH-074 — Core startup, MetadataCache, and Search: emit transport-neutral spans, measurements, and lifecycle events
 

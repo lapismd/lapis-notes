@@ -86,12 +86,6 @@ portable test-server startup contract.
 
 **Requirement.** The spec-first map MUST route Bases package sources to Bases Plugin, Packages, and Architecture. Focused and real-App Bases stories MUST route to Bases Plugin and Storybook Catalog instead of receiving the ordinary story exemption.
 
-## LN-GOV-032 — Spec-first map: route AI package sources to AI Plugin
-
-<a id="ln-gov-032"></a>
-
-**Requirement.** The spec-first map MUST route AI package sources to AI Plugin, Packages, and Architecture. Focused AI stories MUST route to AI Plugin and Storybook Catalog instead of receiving the ordinary story exemption.
-
 ## LN-GOV-033 — Spec-first map: route packages/api/src/lib/storage/desktop-native.ts to Packages
 
 <a id="ln-gov-033"></a>
@@ -108,13 +102,13 @@ portable test-server startup contract.
 
 <a id="ln-gov-035"></a>
 
-**Requirement.** AI Host package implementation MUST be governed by the sibling `ai-host` repository's standalone specification. The Lapis spec-first map MAY keep a `packages/ai-host` cutover route to AI Plugin, Packages, Architecture, and Web Host so the removed in-tree path stays classified.
+**Requirement.** AI Host package implementation MUST be governed by the sibling `ai-host` repository's standalone specification. The Lapis spec-first map MAY keep a `packages/ai-host` cutover route to Packages, Architecture, and Web Host so the removed in-tree path stays classified.
 
 ## LN-GOV-038 — Storybook structure audit
 
 <a id="ln-gov-038"></a>
 
-**Requirement.** The repository MUST run a local Storybook structure audit that maps command views to canonical panel stories and rejects stale mappings, missing placements, non-fullscreen panel geometry, legacy plugin paths, external Roles/CV catalog coupling, incomplete or scrolling shells, incomplete persisted Workspace plugin inventory, incomplete AI state coverage, and a non-first Specification menu.
+**Requirement.** The repository MUST run a local Storybook structure audit that maps command views to canonical panel stories and rejects stale mappings, missing placements, non-fullscreen panel geometry, legacy plugin paths, external Roles/CV catalog coupling, incomplete or scrolling shells, incomplete persisted Workspace plugin inventory, and a non-first Specification menu.
 
 ## LN-GOV-040 — Spec-first map: route the production Source Editor package
 
