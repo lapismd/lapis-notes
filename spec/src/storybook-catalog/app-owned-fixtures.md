@@ -181,3 +181,17 @@ authorization to merge red required checks. Remaining cases stay enabled.
 <a id="ln-cat-125"></a>
 
 **Requirement.** Web registry acceptance MUST exercise category, filter and detail navigation with an active fixture plugin and assert that the retired shared-AI category is absent. It MUST retain verified installation, Settings state, single-view ownership, saved navigation and cold-reload persistence assertions without requiring the retired plugin.
+
+## LN-CAT-126 — Retired terminal-host Storybook inputs
+
+<a id="ln-cat-126"></a>
+
+**Requirement.** Notes Storybook and its Turbo wrapper MUST NOT inject, pass through, or treat the retired terminal-host URL, terminal-host token, or packaged-Deno executable as live acceptance inputs. Current external Storybook configuration MUST retain its existing cache boundary. This retirement MUST NOT move terminal implementation code or alter the separately owned Rust terminal runtime.
+
+### Acceptance details
+
+Acceptance requires all of the following:
+
+- Storybook Vite configuration MUST NOT define the retired terminal-host URL or token.
+- Turbo global passthrough MUST NOT include the retired terminal-host URL, terminal-host token, or packaged-Deno executable.
+- The bounded Storybook runner MUST ignore all three retired variables while retaining live cache isolation for current external Storybook configuration.
