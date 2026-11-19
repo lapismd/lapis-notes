@@ -378,25 +378,31 @@ test("the bounded runner preserves test arguments and separates forced/live cach
     }).args,
     ["test:storybook:run"],
   );
+  for (const key of [
+    "LAPIS_TERMINAL_HOST_URL",
+    "LAPIS_TERMINAL_HOST_TOKEN",
+    "LAPIS_DENO_PACKAGED_EXECUTABLE",
+  ]) {
+    const retired = resolveTurboArguments(
+      ["test:storybook:run", "--task-args"],
+      { [key]: "retired" },
+    );
+    assert.equal(retired.live, false, key);
+    assert.ok(!retired.args.includes("--cache=local:,remote:"), key);
+  }
   assert.equal(
     resolveTurboArguments(
       ["test:spec-validation:storybook-structure:run", "--task-args"],
-      { LAPIS_TERMINAL_HOST_URL: "live" },
+      { SPECIFICATION_BASE_URL: "live" },
     ).live,
     false,
     "source-only audits do not consume live Storybook services",
   );
-  for (const key of [
-    "LAPIS_TERMINAL_HOST_URL",
-    "LAPIS_TERMINAL_HOST_TOKEN",
-    "SPECIFICATION_BASE_URL",
-  ]) {
-    const live = resolveTurboArguments(["test:storybook:run", "--task-args"], {
-      [key]: "live",
-    });
-    assert.equal(live.live, true, key);
-    assert.ok(live.args.includes("--cache=local:,remote:"), key);
-  }
+  const live = resolveTurboArguments(["test:storybook:run", "--task-args"], {
+    SPECIFICATION_BASE_URL: "live",
+  });
+  assert.equal(live.live, true);
+  assert.ok(live.args.includes("--cache=local:,remote:"));
 });
 
 test("local public test routing hits cache, invalidates inputs, and reruns failures and forced/live acceptance", async (t) => {

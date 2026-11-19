@@ -142,7 +142,7 @@ overlay teardown fix; test-signed fixtures never authorize public assets.
 
 <a id="ln-gov-044"></a>
 
-**Requirement.** The spec-first map MUST route CI images, dependency-context helpers, signed Turbo cache configuration, local container runners, workflow orchestration, release packing, and environment examples to Architecture, Packages, and Specification Governance. Environment examples MUST document only public Nostr registry transport and trust configuration, never signer secrets. Storybook runtime-warning guards MUST remain mapped to Storybook Catalog.
+**Requirement.** The spec-first map MUST route CI images, dependency-context helpers, signed Turbo cache configuration, local container runners, workflow orchestration, release packing, and environment examples to Architecture, Packages, and Specification Governance. Signed Turbo and Storybook configuration MUST omit retired terminal-host and packaged-Deno inputs. Environment examples MUST document only public Nostr registry transport and trust configuration, never signer secrets. Storybook runtime-warning guards MUST remain mapped to Storybook Catalog.
 
 ## LN-GOV-045 — Spec-first map: route Deno host-service kernels to Node Server
 

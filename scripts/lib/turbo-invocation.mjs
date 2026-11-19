@@ -1,8 +1,4 @@
-const liveStorybookKeys = [
-  "LAPIS_TERMINAL_HOST_URL",
-  "LAPIS_TERMINAL_HOST_TOKEN",
-  "SPECIFICATION_BASE_URL",
-];
+const liveStorybookKeys = ["SPECIFICATION_BASE_URL"];
 
 export function isStorybookTask(argv) {
   return argv.some((arg) =>
