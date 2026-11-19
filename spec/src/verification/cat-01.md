@@ -35,7 +35,7 @@
 | LN-CAT-030 | [storybook-catalog](../storybook-catalog/documentation-and-navigation.md#ln-cat-030) | Implemented | app-backed panel Docs use isolated 700px padding-free shell canvases |
 | LN-CAT-031 | [storybook-catalog](../storybook-catalog/documentation-and-navigation.md#ln-cat-031) | Implemented | file panels retain one minimal note while Tags remains document-free |
 | LN-CAT-032 | [storybook-catalog](../storybook-catalog/documentation-and-navigation.md#ln-cat-032) | Implemented | specialist-panel plays verify one panel, placement, paint, grouping chrome, source, and interaction |
-| LN-CAT-033 | [storybook-catalog](../storybook-catalog/plugin-scenarios.md#ln-cat-033) | Implemented | Direct Lucide plugin filter entries are prebundled. Cold responsive lane passes 3/3 without a dependency reload; the shared WorkspaceSidebarToggle requires no new dependency configuration. |
+| LN-CAT-033 | [storybook-catalog](../storybook-catalog/plugin-scenarios.md#ln-cat-033) | Implemented | Direct Lucide story entries are prebundled. Cold CLI interaction shards pass 240/240 without a dependency reload; the shared WorkspaceSidebarToggle requires no new dependency configuration. |
 | LN-CAT-034 | [storybook-catalog](../storybook-catalog/plugin-scenarios.md#ln-cat-034) | Implemented | flat dual-panel comparison stories are absent from the catalog |
 | LN-CAT-035 | [storybook-catalog](../storybook-catalog/plugin-scenarios.md#ln-cat-035) | Implemented | movable-panel stories retain independent visual-pending metadata while capture remains explicitly deferred |
 | LN-CAT-036 | [storybook-catalog](../storybook-catalog/plugin-scenarios.md#ln-cat-036) | Implemented | bottom and sidebar group placements use real group chrome |
