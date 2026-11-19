@@ -71,7 +71,7 @@ on unload.
 
 <a id="ln-pkg-004"></a>
 
-**Requirement.** Notebook and remaining unlisted plugin packages MUST NOT be added until specified and tracked in the owning canonical backlog topic. The production Notes host is Web; Desktop owns its Rust-hosted integration in `lapis-desktop`. Authorized plugins are Source Editor, Markdown, Markdownlint, Spell Check, File Explorer, Bookmarks, Search, Graph, Bases, AI, History, Word Count, Roles, Tasks, Docs, Terminal, PDF, and CSV. PDF and CSV are specified in `lapis-plugins/spec/src/plugins/pdf/index.md` and `lapis-plugins/spec/src/plugins/csv/index.md`, and both stay in that repository.
+**Requirement.** Notebook and remaining unlisted plugin packages MUST NOT be added until specified and tracked in the owning canonical backlog topic. The production Notes host is Web; Desktop owns its Rust-hosted integration in `lapis-desktop`. Authorized plugins are Source Editor, Markdown, Markdownlint, Spell Check, File Explorer, Bookmarks, Search, Graph, Bases, History, Word Count, Roles, Tasks, Docs, Terminal, PDF, and CSV. PDF and CSV are specified in `lapis-plugins/spec/src/plugins/pdf/index.md` and `lapis-plugins/spec/src/plugins/csv/index.md`, and both stay in that repository.
 
 ## LN-PKG-011 — Development-only CodeMirror language dependencies
 
@@ -211,12 +211,6 @@ on unload.
 
 **Requirement.** `@lapis-notes/source-editor` MUST live in the sibling `lapis-plugins` monorepo and remain an enabled-by-default member of the Lapis Notes static profile. It MUST own the shared Editor settings plus text, JSON, and YAML source associations through API and Design Core public contracts, while Markdown associations remain owned by `@lapis-notes/markdown`.
 
-## LN-PKG-128 — Read-only AI transcript file view
-
-<a id="ln-pkg-128"></a>
-
-**Requirement.** `@lapis-notes/ai` MUST own the `ai-jsonl` read-only file view and `.jsonl` default association. It MUST reuse API file-view registration, Design Core chat primitives, the public Markdown embed, and AI-owned durable record validation/projection without moving append-only transcript authority into the view or adding a Source Editor override.
-
 ## LN-PKG-037 — Inline View Problem styling
 
 <a id="ln-pkg-037"></a>
@@ -233,13 +227,7 @@ on unload.
 
 <a id="ln-pkg-076"></a>
 
-**Requirement.** `@lapis-notes/api/desktop-native` MUST expose the native bridge and capability contract without evaluating the Svelte component barrel. Node-side AI runtime adapters and real-host diagnostics MUST consume that narrow entry.
-
-## LN-PKG-095 — Public Markdown dependency for AI embeds
-
-<a id="ln-pkg-095"></a>
-
-**Requirement.** `@lapis-notes/ai` MUST depend on `@lapis-notes/markdown` only for the public embed preview. It MUST NOT depend on `@lapismd/mira` or `@lapismd/mira-editor`. Chat styles MUST keep that embed preview surface transparent and MUST NOT nest a vertical scroller inside the bubble.
+**Requirement.** `@lapis-notes/api/desktop-native` MUST expose the native bridge and capability contract without evaluating the Svelte component barrel. Native consumers and real-host diagnostics MUST consume that narrow entry rather than the presentation barrel.
 
 ## LN-PKG-102 — Independent Docs plugin ownership
 

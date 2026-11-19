@@ -23,7 +23,7 @@ and public package boundary as production hosts. The provider establishes the
 effective Mira `obsidian` theme before it mounts preview or live-edit content.
 
 Public `MarkdownEmbed` applies the enabled Markdown plugin's App Mira
-extensions so string previews, including AI chat, match editor settings.
+extensions so embedded Markdown previews match editor settings.
 Markdown metadata extraction now preserves nested YAML maps used by later
 task projections.
 The real Editor Settings and Markdown Frontmatter scenarios also verify the
@@ -112,7 +112,7 @@ and controller restarts within one story instance but resets on remount.
 
 - Markdown `notes_list` and API file tools reuse the same Vault contract but remain outside editor surface state: list and read calls do not open a leaf, and approved `edit` / `write` / `apply_patch` writes go through Vault without routing through the demo editor controller.
 
-- Their MCP descriptions steer agents to those vault tools instead of host-cwd shell commands (LN-AI-108).
+- Their descriptions identify vault behavior so consumers do not substitute host-cwd shell commands for note access (LN-PKG-080, LN-MD-093, LN-SRCH-039).
 
 - Markdown metadata parse runs in a worker.
 

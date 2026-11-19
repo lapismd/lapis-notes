@@ -48,69 +48,9 @@
 
 - Single-line editors use the compact row content height at the cell start while wrapped tag and multivalue editors expand downward from the same origin.
 
-- The shared `@lapis-notes/ai` package and its Notes catalog are retired. Current native AI is owned by Desktop and App Profile; Notes API file-tools remain active. Historical provider/presentation contracts require a caller-aware ownership audit before their remaining authority is retired.
+- The shared `@lapis-notes/ai` package and its Notes catalog are retired. Current native AI is owned by Desktop and App Profile; Notes retains generic API file-tools, registries, data contracts, and the installer provenance guard.
 
-- It also owns an ungrouped History sidebar leaf, a movable Catalog command leaf, and an Open Chat left-ribbon action that reuses the opening command.
-
-- Its paperclip attach picker keeps host Popover chrome—visible border, shadow, and stacking above an open composer drawer—and composes Command View for the searchable file list.
-
-- The composer overflow menu sits after History and attach, sizes to its labels so they stay fully visible at the model-menu type size (LN-AI-123), archives or restores in place, deletes through vault trash, and offers New Chat (LN-AI-109).
-
-- The first submitted user message stays in the transcript while session start is still pending (LN-AI-120).
-
-- Thinking stays expanded only while it streams and collapses when later transcript data arrives (LN-AI-131).
-
-- Stop settles leftover spinners immediately and posts a cancelled system notice after cancel confirms (LN-AI-132).
-
-- The notice reads `Agent turn cancelled`.
-
-- An unreadable open conversation is reported and released so the next send starts a replacement chat (LN-AI-124).
-
-- Runtime Allow always and Deny always decisions persist on conversation metadata (LN-AI-156).
-
-- Application-tool names and arguments stay visible when ACP only reports a generic `tool call` title (LN-AI-125).
-
-- Assistant MarkdownEmbed content grows with the transcript instead of a nested scroller (LN-AI-122).
-
-- Drawer attachment chips use Design Core's public `attachment-chip` parts instead of plugin-local paint.
-
-- Permission and question option buttons use the public `feedback-option` part (LN-AI-157).
-
-- An unpinned idle chat follows the active-file folder and shows a faded centered scope control.
-
-- Its searchable folder Command View includes Vault root and routes explicit selection through the existing zero, one, or many conversation transition while revealing the same path in Explorer.
-
-- Pinning still prevents automatic active-file follow (LN-AI-160, LN-AI-161, LN-AI-162, LN-AI-163, LN-AI-178).
-
-- AI History chrome keeps a visible hover on search actions, a dimmed creation-folder path, and New chat in that Explorer or History-tree folder (LN-AI-165, LN-AI-166, LN-AI-167, LN-AI-168).
-
-- History folder counts share one trailing edge across depths (LN-AI-169).
-
-- API owns result-view registration; Search owns the `notes_search` view; AI owns lookup and `/skills` `/tools` inventories (LN-PKG-100).
-
-- The root export stays plugin-safe; ACP and native Codex adapters publish only on `./runtimes`.
-
-- Cursor uses the same ACP adapter through a known agent name.
-
-- Domain plugins register tools.
-
-- The package does not declare an acpx dependency.
-
-- Public `@lapismd/ai-host` owns ACP and process transport mechanics.
-
-- The standalone `lapis-ai-controller` owns orchestration and its authenticated service protocol.
-
-- Development Storybook can attach to an explicitly supplied URL and token. Web AI and Terminal remain retired host features under LN-PLUG-113.
-
-- The AI plugin uses the controller SDK for events, recovery and tool callbacks.
-
-- Web no longer exposes runtime connection Settings and removes dedicated obsolete tokens after loading configuration.
-
-- Retained conversations and plugin settings survive the Web retirement; no service attachment is attempted.
-
-- When the selected runtime is not Fake and no host is connected, chat tells the user to start the local server and set URL, port, and token.
-
-- Web and root Storybook consume the package through published npm semver ranges.
+- Web and Storybook do not attach the retired controller integration or expose its runtime connection settings. The standalone controller and AI Host remain separately owned for their surviving consumers.
 
 - The sibling `@lapis-notes/lapis-plugin-cv-roles` package owns role workflows plus CV YAML file views and browser preview.
 

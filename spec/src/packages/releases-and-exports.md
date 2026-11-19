@@ -78,12 +78,6 @@ Unchanged contract: File Explorer passes the selected file-view icon through pub
 
 **Requirement.** `@lapis-notes/workspace` MUST be a public, pack-tested package with portable semver dependencies. Colocated first-party consumers MAY exercise matching workspace source during development, but their publishable manifests MUST remain registry-compatible.
 
-## LN-PKG-063 — @lapis-notes/ai: live in the sibling lapis-plugins monorepo, expose
-
-<a id="ln-pkg-063"></a>
-
-**Requirement.** `@lapis-notes/ai` MUST live in the sibling `lapis-plugins` monorepo, expose build, check, test, publint, npm-package, and `.lapis-plugin` contracts, and publish only its governed public surface. It MUST depend on API and Design Core, MUST NOT depend on `@lapis-notes/ui`, and MUST keep provider-specific types behind plugin-owned runtime-neutral contracts.
-
 ## LN-PKG-064 — Root local-development configuration: keep published external LapisMD packages on portable
 
 <a id="ln-pkg-064"></a>
@@ -169,12 +163,6 @@ unfiltered finding, dependency path, scope limitation, and removal procedure.
 
 **Requirement.** MetadataCache and Search MUST persist separate versioned reconciliation checkpoints in `app_meta` and skip full warm scans when their streaming manifest fingerprints match. Database readiness MUST precede reconciliation, and Search MUST begin its single startup reconciliation only after MetadataCache load completes and configured providers have registered. Non-provider vault events MUST NOT invalidate Search. Failed, cancelled, or undrained work MUST NOT advance a checkpoint.
 
-## LN-PKG-113 — @lapis-notes/ai: serve empty-query Agents palette rows from portable
-
-<a id="ln-pkg-113"></a>
-
-**Requirement.** `@lapis-notes/ai` MUST serve empty-query Agents palette rows from portable conversation files without enumerating or rebuilding the global Search store. Workspace layout readiness MUST NOT trigger AI conversation-index repair. Normalized no-op settings updates MUST NOT rewrite plugin data and invalidate warm-start manifests.
-
 ## LN-PKG-116 — MetadataCache: instrument database-ready load, checkpoint hit or miss
 
 <a id="ln-pkg-116"></a>
@@ -209,13 +197,13 @@ unfiltered finding, dependency path, scope limitation, and removal procedure.
 
 <a id="ln-pkg-133"></a>
 
-**Requirement.** The sibling `lapis-plugins` repository MUST own source, behavior specifications, tests, release tooling, and one repository-level Storybook for AI, Bases, Bookmarks, Graph, History, Markdown, Markdown Lint, Search, Source Editor, Spellcheck, and Word Count. Lapis Notes MUST retain only framework, application-profile, host, and install-management integration contracts for those packages.
+**Requirement.** The sibling `lapis-plugins` repository MUST own source, behavior specifications, tests, release tooling, and one repository-level Storybook for Bases, Bookmarks, Graph, History, Markdown, Markdown Lint, Search, Source Editor, Spellcheck, and Word Count. Lapis Notes MUST retain only framework, application-profile, host, and install-management integration contracts for those packages.
 
 ## LN-PKG-134 — Lapis manifests and lockfile: consume extracted plugins through registry semver ranges
 
 <a id="ln-pkg-134"></a>
 
-**Requirement.** Lapis manifests and lockfile MUST consume extracted plugins through registry semver ranges and bind their API peer to the colocated framework. A git-ignored hook MAY redirect only those ranges to checksum-verified sibling tarballs without changing host ranges or lockfile; its stamp MUST distinguish a local `file:` package from the same registry version. Local preparation MUST preserve an existing hook so other source-package overrides remain composable. Web, desktop, Storybook, and AI development entrypoints MUST prepare that package-boundary install before launch.
+**Requirement.** Lapis manifests and lockfile MUST consume extracted plugins through registry semver ranges and bind their API peer to the colocated framework. A git-ignored hook MAY redirect only those ranges to checksum-verified sibling tarballs without changing host ranges or lockfile; its stamp MUST distinguish a local `file:` package from the same registry version. Local preparation MUST preserve an existing hook so other source-package overrides remain composable. Web, desktop, and Storybook development entrypoints MUST prepare that package-boundary install before launch.
 
 ## LN-PKG-135 — @lapis-notes/language-service browser providers: construct workers from package-stable emitted JavaScript URLs
 
@@ -294,7 +282,7 @@ The lapis-server repository owns server acceptance. Package qualification suppli
 
 <a id="ln-pkg-094"></a>
 
-**Requirement.** `@lapis-notes/api` MAY depend on `@lapismd/ai-host` through its published npm semver range and MUST import only `@lapismd/ai-host/file-tools`. `@lapis-notes/ai`, Search, and Markdown MUST NOT depend on `@lapismd/ai-host`.
+**Requirement.** `@lapis-notes/api` MAY depend on `@lapismd/ai-host` through its published npm semver range and MUST import only `@lapismd/ai-host/file-tools`. Search and Markdown MUST NOT depend on `@lapismd/ai-host`.
 
 ## LN-PKG-081 — Root Docker visual staging: update sibling dependency overrides in pnpm-workspace.yaml, regenerate
 
@@ -342,8 +330,8 @@ Recovery reports persist as JSON files in the test output directory and attach
 by path. Both Web Playwright configurations preserve passing test output so the
 always-run CI artifact upload can retain successful recovery evidence.
 
-The shared application profile and root catalog consume the approved plugin
-batch through npm ranges: AI 0.1.5; Bases, Bookmarks, Graph, Search and Spellcheck
+The shared application profile and root catalog consume the approved retained
+plugin batch through npm ranges: Bases, Bookmarks, Graph, Search and Spellcheck
 0.1.3; History 0.1.4; Markdown 0.1.6; Markdown Lint, Source Editor and Word Count
 0.1.2. Slides 0.1.0 remains available through installed-plugin management rather
 than the static profile. The tracked lockfile resolves public npm packages;

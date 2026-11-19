@@ -4,8 +4,6 @@ Each requirement has exactly one row across these area tables. Status and eviden
 
 ## Areas
 
-- [AI — Part 1](./verification/ai-01.md)
-- [AI — Part 2](./verification/ai-02.md)
 - [ARCH — Part 1](./verification/arch-01.md)
 - [ARCH — Part 2](./verification/arch-02.md)
 - [BASE](./verification/base.md)

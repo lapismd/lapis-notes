@@ -114,7 +114,7 @@ remain the only mutation boundary.
 
 <a id="ln-pkg-100"></a>
 
-**Requirement.** `@lapis-notes/api` MUST own the agent result-view registry. Search MUST own the `notes_search` view. AI MUST own lookup, CodeBlock fallback, and `/skills` `/tools` inventories. AI MUST NOT import Search internals, and Search MUST NOT import AI internals.
+**Requirement.** `@lapis-notes/api` MUST own the agent result-view registry, and Search MUST own the `notes_search` view. Result consumers MUST use the public registry rather than importing Search internals, and Search MUST NOT import a concrete AI implementation.
 
 ## LN-PKG-092 — @lapis-notes/lapis-plugin-terminal: live in the sibling lapis-plugin-terminal repository, version
 

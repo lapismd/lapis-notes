@@ -59,67 +59,7 @@ processable metadata file (LN-DB-035, LN-PLUG-030).
 
 - The explicit Focus active file action may zoom and center the active note, but it does not participate in Global Graph startup.
 
-- AI composer drawer chips use the public `attachment-chip` contract instead of plugin-local paint.
-
-- Bundled AI MUST remain a Lapis plugin and MUST NOT gain a runtime dependency on sibling `@lapismd/ai-host`.
-
-- Assistant chat Markdown uses the public Markdown embed helper rather than a second renderer and grows with the transcript instead of a nested scroller (LN-AI-122).
-
-- Folder-scoped chats project path breadcrumbs through the same View chrome hooks as History.
-
-- A busy chat Stop control cancels the active agent turn, including a send that is still preparing a session.
-
-- The same enabled AI plugin owns one memory service per App.
-
-- It registers provider-neutral read tools, consumes durable conversation checkpoints, writes curated vault records through its own store, and schedules derived ingestion and consolidation work.
-
-- AppDatabase and native hosts provide generic storage and transport only; disabling or switching an ACP binding does not transfer or delete this plugin-owned memory lifecycle (LN-AI-179, LN-ARCH-083).
-
-- For a native host that advertises deferred ACP start, the AI runtime adapter reserves the session and subscribes before start; other hosts retain the awaited start path (LN-AI-172).
-
-- For a native host that advertises deferred model discovery, the model provider subscribes before sending its request and resolves the matching catalog event; other hosts retain the awaited catalog path.
-
-- Both default Codex and Cursor providers use this agent-scoped ACP route; the separately exported native Codex process provider remains explicit rather than replacing Codex ACP discovery (LN-AI-173, LN-AI-175).
-
-- Tool details unwrap envelope fields such as `output` and choose `json`, `bash`, or `plaintext` for the Design Core `CodeBlock` (LN-AI-133).
-
-- Thinking stays expanded only while it streams and collapses when later transcript data arrives (LN-AI-131).
-
-- Stop settles leftover spinners immediately and posts a cancelled system notice after cancel confirms (LN-AI-132).
-
-- The notice reads `Agent turn cancelled`.
-
-- Visible runtime and host errors remove the working indicator and leave the chat able to retry (LN-AI-052).
-
-- An unreadable open conversation is reported and released so the next send starts a replacement chat (LN-AI-124).
-
-- Runtime Allow always and Deny always decisions persist on conversation metadata (LN-AI-156).
-
-- An unpinned idle chat follows the active-file folder and shows a faded centered scope control.
-
-- The host supplies its visible-folder catalogue; the control adds Vault root, reuses the existing conversation transition, and reveals an explicitly selected scope through Explorer's public command.
-
-- Pinning still prevents automatic active-file follow (LN-AI-160, LN-AI-161, LN-AI-162, LN-AI-163, LN-AI-178).
-
-- File Explorer publishes `selectedPath` and a workspace selection-change event so AI History can follow folder context without importing Explorer internals (LN-EXP-005, LN-AI-165, LN-AI-166, LN-AI-167, LN-AI-168).
-
-- History folder counts share one trailing edge across depths (LN-AI-169).
-
-- The retired shared AI renderer and its optional Node user-agent store are historical. Desktop uses its admitted native user-command store; current renderer ownership remains with Desktop.
-
-- Permission and question option buttons use the public `feedback-option` part (LN-AI-157).
-
 - Plugins contribute tool and command result views through the API registry (LN-PLUG-024).
-
-- Application-tool names and arguments stay visible when ACP only reports a generic `tool call` title (LN-AI-125).
-
-- The composer overflow menu sits after History and attach, sizes to its labels so they stay fully visible at the model-menu type size (LN-AI-123), archives or restores in place, deletes through vault trash, and offers New Chat (LN-AI-109).
-
-- AI History opens as a single sidebar leaf rather than a default sidebar group.
-
-- The AI catalog opens as a single left-sidebar leaf of live tools, commands, and skills in an explorer-aligned tree.
-
-- Opening a vault skill file MUST NOT scope a new chat to `.agents`.
 
 - Load and enable failures publish workspace-wide Problems rows and clear after a later successful enable (LN-WS-078).
 
@@ -130,18 +70,6 @@ processable metadata file (LN-DB-035, LN-PLUG-030).
 - They do not add plugin commands or a `file-menu` dispatch until a listener exists.
 
 - Show hidden files uses a File Explorer setting, toolbar preference, and palette toggle command.
-
-- AI contributes an Open Chat left-ribbon action through `addRibbonIcon`, so it appears only while the plugin is enabled and reuses the existing chat command.
-
-- The same plugin registers a file-only `ai-jsonl` view as the default `.jsonl` association.
-
-- It previews portable transcripts with the established chat projection, agent bindings as readable events, and unknown JSONL as structured line records.
-
-- This association adds no palette opener and remains read-only so the view cannot become append-only conversation authority.
-
-- When AI is installed, Web exposes the same plugin-owned ribbon action.
-
-- Host Settings own the agent-server URL and token; the plugin owns the start-server unavailable copy when a live runtime is selected without a connected host.
 
 - A vault without workspace.json seeds File Explorer, Search, then Bookmarks on the left and Outline, File Properties, then Tags on the right when those plugins loaded.
 
@@ -167,15 +95,7 @@ processable metadata file (LN-DB-035, LN-PLUG-030).
 
 Workspace palette providers may define their own query-empty result policy.
 File Explorer's Files provider exposes a bounded recent-file or lexical-path
-starter set until the user types, while
-AI-owned conversation rows reach the palette only through an Agents provider.
-Its empty-query recents come from portable conversation files so one derived
-index query cannot delay the All palette's commands and Files rows.
-Its generated full-text projection coalesces source events by conversation and
-does not use an application-wide Search rebuild as a write hook (LN-AI-176).
-Desktop AI may reconcile a retained native terminal event after event-stream
-interruption, but it never resends the prompt or moves transcript authority
-into the host (LN-AI-177).
+starter set until the user types.
 Plugin settings adapters must also treat normalized no-op updates as read-only
 so startup materialization does not invalidate generated-state checkpoints.
 
@@ -183,21 +103,7 @@ so startup materialization does not invalidate generated-state checkpoints.
 
 - They stay off the workspace command palette and off Mira editor slash registration.
 
-- AI conversations reach the palette only through an Agents provider, not `addCommand` per chat.
-
-- AI discovers folder, vault, and user-global command Markdown separately from plugin registrations.
-
-- Disposing a slash-command registration removes it from later composer resolution; reserved application names such as `/help`, `/scope`, `/context`, `/status`, and `/agent` remain app-owned.
-
-- Their local notices stay start-aligned with authored line breaks.
-
-- The slash menu lists those catalog commands, ranks Fuse name matches before description hits, and submits argument-free picks immediately.
-
-- `/skills` and `/context` hydrate a missing binding snapshot from current discovery.
-
 - Search owns composer `/search` and disposes it on unload.
-
-- The chat shows that invoke as a `ToolCalls` transcript item.
 
 - Application tool registration follows existing plugin contribution lifecycle: the helper supplies immutable runtime owner metadata, the App registry rejects conflicting names, and unload disposes the exact registration.
 
@@ -205,21 +111,15 @@ so startup materialization does not invalidate generated-state checkpoints.
 
 - Developer diagnostics may register the bundled factories directly against a volatile registry, but production plugins continue to own registration and automatic disposal through `Plugin.registerAgentTool`.
 
-- Search continues to own `notes_search` through that same registration path so live ACP sessions receive it in the application-tool snapshot.
-
-- This callback registry is separate from AI's external `McpServerContribution` registry; plugins cannot claim the reserved `lapis-tools` MCP server name through that process-backed integration surface.
-
-- Protocol-v3 hosts may carry that reserved bridge through their advertised authenticated stdio or Streamable HTTP MCP transport; plugins do not select the transport.
-
-- AI snapshots the exact active registration IDs for a new binding, and later plugin unload or replacement makes those snapshotted callbacks unavailable instead of transferring authority to a newly registered callback.
+- Search continues to own `notes_search` through that same registration path so concrete consumers receive the public transport-neutral tool.
 
 - Bundled domain plugins register their tools through that same lifecycle helper and capture their own services rather than receiving execution services in the host-created invocation context.
 
 - Markdown registers `notes_list` during plugin load.
 
-- AI registers the API Vault-backed `read`, `write`, `edit`, and `apply_patch` tools during its own load, so ordinary plugin unload disposes them before any stale binding can invoke their captured Vault.
+- API owns the Vault-backed `read`, `write`, `edit`, and `apply_patch` wrappers and keeps them independent of a concrete AI consumer.
 
-- Those advertised descriptions steer agents to the vault tools instead of host-cwd shell commands (LN-AI-108).
+- Their descriptions identify vault behavior so consumers do not substitute host-cwd shell commands for note access (LN-PKG-080, LN-ARCH-062).
 
 ## Distribution and provenance
 
@@ -298,12 +198,6 @@ installed-plugin path. Those states are not interchangeable.
 
 - Command-backed openers reuse an exact compatible leaf when one exists.
 
-- A conversation opener may claim an unbound main-area AI leaf before creating a new tab, and it never replaces the dedicated history leaf.
-
-- That history leaf keeps Design Core SearchFilterBar chrome centered in the panel.
-
-- The Catalog opener reveals or creates the documented left-sidebar leaf.
-
 - Code plugins that omit query-native metadata access receive a snapshot lease for their enabled lifetime.
 
 - Query-native first-party plugins declare the database contract and remain on bounded per-file, facet, page, and link APIs.
@@ -311,10 +205,5 @@ installed-plugin path. Those states are not interchangeable.
 - Storybook's first-party real-App fixtures follow the query-native path and MUST NOT acquire a compatibility lease merely to seed or assert persisted metadata.
 
 - Search completion remains plugin-owned presentation over API-owned grammar: facet labels expose their original tag values, while their separate apply text uses the API formatter so slash and quoted space tags are executable queries rather than display-only suggestions.
-
-The AI plugin owns its shared-controller client connections and closes them on
-unload. It registers App-scoped tool and context endpoints; the service requests
-fresh context only when a turn reaches execution. Markdown transcripts and memory
-records remain vault-owned, with shared memory policy in the controller package.
 
 For LN-PLUG-092, App Profile acceptance resolves the public packed plugin and framework exports through Vite, including dependency modules that need Svelte transformation. Local packed validation keeps one API class identity across its dependency peers and does not bypass the public graph with source aliases.

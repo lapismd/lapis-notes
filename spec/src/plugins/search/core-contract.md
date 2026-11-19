@@ -4,7 +4,6 @@ Consumer placement acceptance identifies results through the full-path caption
 and its real vault file. The released Search package exposes the accessible
 name as filename, count, vault path and match count. Its result-copy control uses
 `Copy search results: <count> results` and shows the visible result count.
-AI tool-result acceptance uses the released `Open <filename> <path>` label.
 Geometry, match text, counts and open behavior retain their existing assertions.
 
 ## LN-SRCH-001 — Search: owned by the sibling lapis-plugins repository, retain

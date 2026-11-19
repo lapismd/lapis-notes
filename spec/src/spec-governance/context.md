@@ -38,7 +38,7 @@ cache configuration, local container parity, and parallel workflow
 orchestration so infrastructure changes remain traceable to architecture and
 package policy.
 
-The Storybook structure audit treats AI, Bases, and History as required
+The Storybook structure audit treats Bases and History as required
 plugin Shell families and maps both Graph panel families through the shared
 command catalog. Its persisted Workspace inventory check requires the ten
 audited enabled plugin IDs, including Graph, History, and Word Count, in both
@@ -105,7 +105,7 @@ The table names the owning topic families. `spec-validator.config.mjs` maps prot
 | Protected area                                                                 | Required chapter                                                                                                   |
 | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
 | `packages/api` source or manifest                                              | `packages/` topic pages, `architecture/` topic pages                                                               |
-| `packages/api/src/lib/file-tools`                                              | `packages/` topic pages, `architecture/` topic pages, `plugins/ai/`                                                |
+| `packages/api/src/lib/file-tools`                                              | `packages/` topic pages, `architecture/` topic pages                                                               |
 | API plugin lifecycle and workspace managed-plugin bridge                       | `plugin-model/` topic pages, `packages/` topic pages, `architecture/` topic pages                                  |
 | `packages/ui` source or manifest                                               | `packages/` topic pages, `ui-and-styling/` topic pages                                                             |
 | `packages/workspace` source or manifest                                        | `packages/` topic pages, `architecture/` topic pages, `workspace-shell/` topic pages                               |
@@ -113,8 +113,7 @@ The table names the owning topic families. `spec-validator.config.mjs` maps prot
 | `packages/server-node`                                                         | `server-node-host/` topic pages, `packages/` topic pages, `architecture/` topic pages, `app-database/` topic pages |
 | `packages/api/src/lib/storage` except `desktop-native.ts`                      | `app-database/` topic pages, `packages/` topic pages, `architecture/` topic pages                                  |
 | `packages/api/src/lib/storage/desktop-native.ts`                               | `packages/` topic pages                                                                                            |
-| `packages/ai-host` cutover remnants                                            | `plugins/ai/`, `packages/` topic pages, `architecture/` topic pages, `web-host/` topic pages                       |
-| Focused AI Storybook stories                                                   | `plugins/ai/`, `storybook-catalog/` topic pages                                                                    |
+| `packages/ai-host` cutover remnants                                            | `packages/` topic pages, `architecture/` topic pages, `web-host/` topic pages                                      |
 | `packages/web`                                                                 | `server-node-host/` topic pages, `web-host/` topic pages, `packages/` topic pages, `architecture/` topic pages     |
 | Focused real-App Graph Storybook stories                                       | `graph-plugin.md`, `storybook-catalog/` topic pages                                                                |
 | Native Markdown runtime source or language-service manifest                    | `packages/` topic pages, `workspace-shell/panels/problems.md`                                                      |

@@ -144,7 +144,7 @@ Memory-backed application hosts advertise the existing conditional text-write ca
 
 <a id="ln-arch-064"></a>
 
-**Requirement.** API MUST own transport-neutral skill-source and composer slash-command registries. AI MUST own discovery, snapshots, routing, and `AppToolHost` invocation. Composer slash commands MUST remain distinct from workspace `addCommand` and from Mira editor slash commands.
+**Requirement.** API MUST own transport-neutral skill-source and composer slash-command registries. A concrete AI consumer MAY own discovery, snapshots, routing, and application-tool invocation without moving those policies into API. Composer slash commands MUST remain distinct from workspace `addCommand` and from Mira editor slash commands.
 
 ## LN-ARCH-066 — API-owned workspace leaves: split through API leaf duplication before Design
 

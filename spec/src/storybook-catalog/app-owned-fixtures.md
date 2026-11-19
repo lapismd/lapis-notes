@@ -162,7 +162,7 @@ authorization to merge red required checks. Remaining cases stay enabled.
 
 <a id="ln-cat-122"></a>
 
-**Requirement.** Notes tooling MUST NOT seed, start or probe the retired shared-AI controller integration. Normal checks, canonical specification checks and CI MUST reject reintroduced launcher files or root commands. The preserved standalone controller and frozen desktop remain separately owned pending their scoped consumer retirement.
+**Requirement.** Notes tooling MUST NOT seed, start or probe the retired shared-AI controller integration. Normal checks, canonical specification checks and CI MUST reject reintroduced launcher files or root commands. The preserved standalone controller remains separately owned for its surviving consumers; the frozen Notes desktop host is retired.
 
 ## LN-CAT-123 — Retired shared-AI catalog and dependencies
 

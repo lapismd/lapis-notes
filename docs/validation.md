@@ -16,7 +16,7 @@ pnpm validation:images
 pnpm validation:smoke
 pnpm validation:check
 pnpm check:storybook-parity
-pnpm test:storybook -- stories/plugins/ai/AiLiveHost.stories.ts
+pnpm test:storybook -- stories/workspace/PluginManagement.stories.ts
 ```
 
 Images are fingerprinted by the pinned Docker recipe, tool installer, target

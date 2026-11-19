@@ -227,12 +227,6 @@ cleanup; a cleanup failure propagates through the existing plugin failure state
 
 **Requirement.** A plugin-owned presentation-settings migration MUST be versioned, idempotent, and limited to fields whose semantics changed. It MAY remove superseded rule labels or activation flags when the canonical rule shape becomes always-active, but MUST preserve ids, queries, colours, order, and unrelated settings and MUST NOT read another application's configuration as a migration source.
 
-## LN-PLUG-038 — Plugin-owned AI conversation operations
-
-<a id="ln-plug-038"></a>
-
-**Requirement.** AI agent changes MUST remain plugin-owned conversation operations. The plugin MUST persist portable switch/configuration evidence only after the receiving session accepts its first prompt, MUST resume prior bindings by verified transcript cursor when possible, and MUST fall back to a replacement binding with bounded typed transcript projection when native resume or configuration is unavailable. Runtime adapters MUST remain provider-neutral above their transport boundary.
-
 ## LN-PLUG-045 — Design Core custom settings-page search: accept page-owned dynamic entries and a reveal
 
 <a id="ln-plug-045"></a>

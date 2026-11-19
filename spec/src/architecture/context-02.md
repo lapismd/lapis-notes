@@ -177,95 +177,15 @@ public API barrel and browser graph.
 
 - The API continues to expose the generic editor extension registry and source view, not a bundled language policy.
 
-- `@lapis-notes/ai` is an authorized bundled plugin.
+- The retired shared `@lapis-notes/ai` package and its Notes catalog are not current application authority. Desktop and App Profile own current native AI presentation; Notes retains generic API file-tools, registries, and data contracts.
 
-- It contributes an Open Chat left-ribbon action that reuses the same reveal path as its opening command.
-
-- The desktop native bridge advertises an `agent-runtime` capability for process-backed ACP and Codex sessions while the reserved `model` capability stays unavailable.
-
-- The plugin obtains live runtimes from that host factory and keeps adapters off the root export.
-
-- Cursor uses the same ACP runtime as Codex through the selected agent name.
-
-- Generic orchestration lives in the standalone `lapis-ai-controller` service.
-
-- Web and Storybook retain their explicit host integrations.
-
-- The shared SDK owns transport and recovery, while `@lapismd/ai-host` supplies provider mechanics.
-
-- User-global agent command storage is a host capability, so renderer bundles must not statically pull the AI plugin's Node-only command-store module into the browser graph.
+- The standalone `lapis-ai-controller` and `@lapismd/ai-host` remain sibling services with their own consumers and specifications; Notes does not attach them through Web or Storybook.
 
 - Current Desktop terminal execution is owned by the Rust application in the
   `lapis-terminal` repository; Notes does not embed or launch a terminal host.
 
 - The web host does not attach a terminal-host WebSocket or expose its retired
   Settings fields.
-
-- The token Settings field stays masked until revealed.
-
-- Chat shows a start-server message when a live runtime is selected and no host is connected.
-
-- Chat sessions persist runtime, provider, model, and thinking context through plugin data.
-
-- Default Codex and Cursor model listing uses the selected agent through an agent-scoped disposable ACP session.
-
-- A native host advertising deferred model discovery returns a request id before delivering that catalog through its runtime event stream, so neither default catalog starts a renderer-owned process.
-
-- The separately exported native Codex adapter retains its process-host catalog for explicit native surfaces only.
-
-- Cleanup falls back to local session closure when the agent does not advertise `session/close`, without discarding a successful catalog.
-
-- The host consumes the maintained ACP adapter supplied by its acpx release and applies optional thinking controls only when the created session advertises them.
-
-- Native Codex and ACP normalize thinking, tool, permission, user-input, and error events before the shared controller renders them.
-
-- Adjacent tool items share one collapsed Design Core `ToolCalls` group, and tool details unwrap envelope payloads into `json`, `bash`, or `plaintext` `CodeBlock` language (LN-AI-133).
-
-- A busy composer Stop control cancels the active turn immediately, without waiting for the runtime cancel to settle, and stays fully opaque while input remains disabled.
-
-- Stop also drops a still-preparing first send so it cannot start after busy clears.
-
-- The first user message stays visible while conversation create and session start finish (LN-AI-106, LN-AI-120).
-
-- Thinking stays expanded only while it streams and collapses when later transcript data arrives (LN-AI-131).
-
-- Stop settles leftover spinners immediately and posts a cancelled system notice after cancel confirms (LN-AI-132).
-
-- The notice reads `Agent turn cancelled`.
-
-- An unreadable open conversation is reported and released so the next send starts a replacement chat (LN-AI-124).
-
-- Runtime Allow always and Deny always decisions persist on conversation metadata (LN-AI-156).
-
-- Permission and question option buttons use Design Core's public `feedback-option` part (LN-AI-157).
-
-- Registered result views render tool detail and `/skills` `/tools` inventories (LN-AI-158, LN-AI-159).
-
-- An unpinned idle chat follows the active-file folder and shows a faded centered scope control.
-
-- Its folder Command View includes Vault root and reveals an explicitly selected scope in Explorer before applying the same zero, one, or many conversation transition.
-
-- Pinning still prevents automatic active-file follow (LN-AI-160, LN-AI-161, LN-AI-162, LN-AI-163, LN-AI-178).
-
-- AI History chrome keeps a visible hover on search actions, a dimmed creation-folder path, and New chat in that Explorer or History-tree folder (LN-AI-165, LN-AI-166, LN-AI-167, LN-AI-168).
-
-- History folder counts share one trailing edge across depths (LN-AI-169).
-
-- Application-tool names and arguments stay visible when ACP only reports a generic `tool call` title (LN-AI-125).
-
-- Assistant MarkdownEmbed content grows with the transcript instead of a nested scroller (LN-AI-122).
-
-- The composer overflow menu sits after History and attach, sizes to its labels so they stay fully visible at the model-menu type size (LN-AI-123), archives or restores in place, deletes through vault trash, and offers New Chat (LN-AI-109).
-
-- AI History opens as an ungrouped right sidebar leaf and keeps that leaf while a conversation opens in the main area.
-
-- Portable conversation bindings and transcript entries are stored beneath the captured vault scope; plugin data remains settings-only.
-
-- Runtime-neutral pending interactions are presented through Design Core's Composer Drawer; provider request objects and secret answers never enter persisted chat data.
-
-- The paperclip attach picker uses that same drawer surface: host Popover chrome stays above the open drawer while Command View owns the searchable file list.
-
-- Attachment chips keep Design Core's public drawer chip and remove parts.
 
 ## Tooling policy
 ```

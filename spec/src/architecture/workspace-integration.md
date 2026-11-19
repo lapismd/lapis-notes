@@ -70,23 +70,11 @@ entries, with no duplicate persistence or direct App Shell implementation.
 
 **Requirement.** File-opening navigation MUST capture the initiating leaf state before constructing a target view that may eagerly attach itself. Back MUST restore the initiating view rather than an incomplete target-view state and MUST discard the previous file-view root before mounting it.
 
-## LN-ARCH-055 — Folder-contained AI conversation files: the portable source of truth and use
-
-<a id="ln-arch-055"></a>
-
-**Requirement.** Folder-contained AI conversation files MUST be the portable source of truth and use API-owned vault durability. Chat and folder-aware history MUST remain separate views joined by a non-authoritative scope-and-ID hint that follows live folder moves in memory. The selected history scope and empty-query Agents palette MUST read portable source while the provider-filtered AppDatabase projection remains disposable and limited to cross-scope discovery and full-text previews. Workspace layout readiness MUST NOT trigger an unconditional global Search-index rebuild.
-
-## LN-ARCH-058 — AI chat view construction: remain synchronous and presentation-first while conversation, catalog
-
-<a id="ln-arch-058"></a>
-
-**Requirement.** AI chat view construction MUST remain synchronous and presentation-first while conversation, catalog, and runtime preparation continue behind the mounted surface. Conversation history MUST use generic workspace leaf activation to preserve its sidebar view and route location-keyed conversations into reusable main-area tabs. The chat view MUST project scope path breadcrumbs through the generic view chrome contract.
-
 ## LN-ARCH-059 — View-access metadata composition
 
 <a id="ln-arch-059"></a>
 
-**Requirement.** API MUST compose generic view access metadata into the existing plugin command lifecycle and project active API commands into the Design Core Actions tab. File Explorer and AI MUST register Files and Agents palette providers. The Files provider MUST expose a bounded recent-file or lexical-path starter set and typed path queries. First-party plugins retain placement, reuse, activation, and reveal policy for their own views.
+**Requirement.** API MUST compose generic view access metadata into the existing plugin command lifecycle and project active API commands into the Design Core Actions tab. File Explorer MUST register the Files palette provider with a bounded recent-file or lexical-path starter set and typed path queries. First-party plugins retain placement, reuse, activation, and reveal policy for their own views.
 
 ## LN-ARCH-076 — Graph: own one application-plugin-scoped canonical-data coordinator above view
 
