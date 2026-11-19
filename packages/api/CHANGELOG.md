@@ -1,5 +1,19 @@
 # @lapis-notes/api
 
+## 0.6.10
+
+### Patch Changes
+
+- [#184](https://github.com/lapismd/lapis-notes/pull/184)
+  [`daef091`](https://github.com/lapismd/lapis-notes/commit/daef0915b7c5c88da7b8997097a5dee896f72bdf)
+  Thanks
+  [@lapismd-dependency-bot](https://github.com/apps/lapismd-dependency-bot)! -
+  Refresh first-party Lapis dependencies to the published versions recorded in
+  this pull request.
+- Updated dependencies
+  [[`daef091`](https://github.com/lapismd/lapis-notes/commit/daef0915b7c5c88da7b8997097a5dee896f72bdf)]:
+  - @lapis-notes/ui@0.2.6
+
 ## 0.6.9
 
 ### Patch Changes

@@ -8,12 +8,12 @@ Source package versions only; publication and host adoption remain separate.
 {
   "schemaVersion": 1,
   "packages": {
-    "@lapis-notes/api": "0.6.9",
-    "@lapis-notes/app-profile": "0.2.6",
+    "@lapis-notes/api": "0.6.10",
+    "@lapis-notes/app-profile": "0.2.7",
     "@lapis-notes/file-explorer": "0.2.8",
     "@lapis-notes/language-service": "0.1.6",
-    "@lapis-notes/ui": "0.2.5",
-    "@lapis-notes/workspace": "0.4.8"
+    "@lapis-notes/ui": "0.2.6",
+    "@lapis-notes/workspace": "0.4.9"
   }
 }
 ```
