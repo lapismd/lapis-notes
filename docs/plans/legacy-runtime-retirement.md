@@ -1,10 +1,10 @@
 # Lapis Desktop and Deno retirement
 
-Status: implementation started on 2026-11-17 after the user authorized cleanup,
-repository refresh, isolated workspaces and one removal at a time. The original
-plan-only commit remains preserved. Follow the [progress and resume record](legacy-runtime-retirement-progress.md)
-for completed substeps, exact evidence and pending work. Publication, deployment,
-npm deprecation and installed-application replacement retain their release gates.
+Status: all in-scope source-retirement slices landed on 2026-11-19. Final
+exact-main observation and documentation closure are tracked in the
+[progress and resume record](legacy-runtime-retirement-progress.md). The original
+plan-only commit remains preserved. Publication, deployment, npm deprecation and
+installed-application replacement retain their separate release gates.
 For a takeover-oriented snapshot, ordered task tracker and exact local/GitHub
 resume points, use the [agent handover](legacy-runtime-retirement-handover.md).
 
@@ -44,15 +44,37 @@ dependency or planned integration.
 - Deno-specific adapter/tooling cleanup must preserve surviving contracts and
   future service capability. Any proposed public interface change requires its
   own concrete review and explicit confirmation before implementation.
-- Keep Deno terminal-host retirement last, after all other **in-scope
-  Desktop/Deno** removals and consumer changes land. Do not move either Rust
-  implementation: Desktop packages stay in `lapis-terminal`, while Server's
-  private Rust service and pin stay in `terminal-host`.
+- Deno terminal-host retirement was completed last, after all other **in-scope
+  Desktop/Deno** removals and consumer changes landed. Neither Rust
+  implementation moved: Desktop packages remain in `lapis-terminal`, while
+  Server's private Rust service and pin remain in `terminal-host`.
 - Keep functional, keyboard, accessibility, packaging and native acceptance.
   Visual baseline changes remain excluded; publication/deployment retain gates.
 
 Earlier broad API-removal proposals in historical plan revisions are superseded
 by this decision. Do not reopen them as part of this retirement.
+
+## Implementation outcome — 2026-11-19
+
+The scoped retirement is implemented without moving terminal code. Shared AI
+source and distribution authority, the frozen Notes Deno desktop, its obsolete
+release/tooling edges, stale Desktop fixtures and specification claims, the AI
+Host orphan fixture, obsolete live-Deno Sync review tooling, terminal guidance
+and Terminal Host's Deno/npm/CLI/WebSocket/release surfaces are retired.
+
+Terminal Host is Rust-only in place. Its Cargo manifests and service crate stay
+in `terminal-host`; Desktop Rust packages stay in `lapis-terminal`; Server keeps
+its exact Rust pin. Notes retains `packages/deno-host-services`, Language
+Service, Sync/core kernels and `deno-desktop` compatibility contracts. AI Host,
+Agent Redaction and the standalone controller retain their supported Deno
+compatibility. Historical, provenance and fail-closed negative references remain
+intentionally.
+
+The final audit found no other actionable executable Desktop/Deno residue. The
+only outstanding choices are separately gated: tracked `.cursor` guidance,
+`@lapismd/terminal-host@0.1.0` npm deprecation metadata, registry #185's
+deployment-triggering status-record merge, Website production and a future
+qualified stable Tauri/Homebrew cutover. None is inferred from source completion.
 
 ## Audit basis and limits
 
@@ -151,9 +173,9 @@ Source anchors:
 
 Owners: Notes, Desktop, host packages, Plugins and Homebrew tap.
 
-Terminal-host retirement is deferred to slice 3. Remove only tooling no surviving
-consumer needs; preserve terminal-specific paths and any shared Deno tooling
-still required by that deferred slice.
+Terminal-host retirement was deferred to slice 3 and completed there. Only
+tooling with no surviving consumer was removed; terminal-specific Rust paths and
+shared Deno tooling required by retained services were preserved.
 
 - The PWA icon prerequisite is landed in Notes #166: Web owns its asset and
   reproduces all seven outputs byte-for-byte. Remove
@@ -196,16 +218,14 @@ After shared-AI preservation acceptance, take one host removal at a time:
    controller-consumer, packaging and release edges after checking surviving
    callers. Preserve the active `check-desktop-release-workflow.mjs`
    anti-resurrection guard.
-2. Retire only obsolete Deno-specific portions of the still-included
-   `packages/deno-host-services`. Its file-watch, plugin-assets, vault-fs and
-   vault-resources paths need per-function consumer review. Do not delete the
-   package, portable wrappers, validation helpers, Sync repository/vault/security
-   kernels, journals, leases or local-provider APIs. The local provider explicitly
-   supports admitted desktop/server hosts; its future capability is protected.
-3. Remove now-unneeded runtime/CI/image inputs only after surviving checks no
-   longer execute Deno. Notes currently installs and executes Deno 2.9.7, and
-   this package's check/build lanes invoke `deno check`; deferred terminal work
-   and retained controller/redaction support remain separate inventory entries.
+2. The per-function audit retained `packages/deno-host-services` in full. Its
+   file-watch, plugin-assets, vault-fs, vault-resources, portable wrappers,
+   validation helpers, Sync kernels, journals, leases and local-provider APIs
+   are protected core or future-facing contracts, not retirement residue.
+3. Remove only runtime/CI/image inputs owned solely by retired consumers. Notes
+   removed the obsolete packaged-Deno and terminal-host Storybook inputs while
+   retaining Deno checks required by supported kernels. Controller and Redaction
+   compatibility remain separate active inventory entries.
 4. Retire stable Homebrew generation/smoke/distribution only at the approved real
    Tauri stable cutover. The tap's current smoke checks out immutable historical
    Notes source, so deletion from current Notes does not require rewriting that
@@ -236,7 +256,7 @@ boundary after verifying all consumers, without deleting shared/core services
 or changing their public functions. Record any required Deno-specific public
 interface proposal separately for explicit review.
 
-## Slice 3: retire Deno terminal surfaces in place
+## Slice 3: retire Deno terminal surfaces in place — completed
 
 Owners: Terminal Host, Lapis Terminal, Server and terminal plugin.
 
@@ -253,13 +273,18 @@ record the retained Server dependency explicitly.
 - Keep authentication, vault admission and resource ownership in the host.
   Preserve the terminal plugin's public bridge and current hosted-terminal
   integration. Reconcile concurrent Server work instead of recreating its adapter.
-- After consumer acceptance, retire only the Deno CLI, npm package, FFI
+- After consumer acceptance, retire only the Deno CLI, npm package source, FFI
   download/bootstrap, standalone WebSocket host and corresponding release
   machinery. Add Rust-only CI and a fail-closed retired-Deno source audit.
   Remove stale advice to start `lapis-terminal-host`; do not move or recreate
   the preserved Rust service.
 
-## Slice 4: final qualification and dependency cleanup
+Terminal Host #4 and Terminal Plugin #4 completed this slice. The Rust service,
+Cargo manifests/lock, Server pin, plugin bridge, history and artifacts remain.
+Only npm deprecation of the historical `@lapismd/terminal-host@0.1.0` metadata is
+an unapproved separate decision; its tarball must never be unpublished.
+
+## Slice 4: final qualification and dependency cleanup — completed
 
 Before implementation, refresh exact source revisions, remote/package state and
 concurrent work. Read each owner's tracked agent guide. Stop an overlapping slice
@@ -315,5 +340,7 @@ and planned Language Service wiring remain intact; their lack of current callers
 is not incomplete retirement work. Do not claim a Deno-free entire
 workspace, completion of deferred Sync/native work, or visual approval.
 
-Implementation and qualification status are tracked in the progress record;
-unchecked work and release gates remain pending.
+The authorized source programme meets these criteria. Exact PR, merge and
+fresh-main receipts are tracked in the progress record and handover. Separately
+gated release and deployment choices must not be used to reopen protected core
+services or move terminal code.

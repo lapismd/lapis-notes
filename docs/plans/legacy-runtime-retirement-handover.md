@@ -1,14 +1,16 @@
 # Desktop and Deno retirement agent handover
 
-Snapshot: 2026-11-19 after the frozen Notes host landed and at the active
-shared-AI specification-authority removal. Coordination owner:
-`lapismd/lapis-notes`.
+Snapshot: 2026-11-19 at final hosted qualification and documentation closure.
+Coordination owner: `lapismd/lapis-notes`.
 
-This is the takeover entry point. The [canonical plan](legacy-runtime-retirement.md) owns scope and ordering; the [progress ledger](legacy-runtime-retirement-progress.md) preserves dated attempts and evidence. The live GitHub tracker is [lapis-notes issue #177](https://github.com/lapismd/lapis-notes/issues/177).
+This is the takeover entry point. The [canonical plan](legacy-runtime-retirement.md)
+owns scope; the [progress ledger](legacy-runtime-retirement-progress.md) preserves
+dated attempts and exact evidence. The live tracker is
+[lapis-notes issue #177](https://github.com/lapismd/lapis-notes/issues/177).
 
 ## Scope that must not drift
 
-- Remove only deprecated Desktop code and unnecessary Deno runtime/tooling.
+- Retire only deprecated Desktop code and unnecessary Deno runtime/tooling.
 - Preserve every core API service/function and future-facing capability,
   including Language Service, Sync and `packages/deno-host-services/**`.
 - Keep E-RETIRE-007 parked. Lack of a current caller is not removal authority.
@@ -18,114 +20,114 @@ This is the takeover entry point. The [canonical plan](legacy-runtime-retirement
 - Do not move terminal code. Desktop Rust packages stay in `lapis-terminal`;
   Server's private Rust service, Cargo manifests/lock and pin stay in
   `terminal-host`.
-- Use isolated JJ workspaces, one reviewable removal per change and owner checks.
-  Keep source, consumer, native, publication, deployment and installed-product
+- Keep source, consumer, native, publication, deployment and installed-product
   gates separate.
 
-## Completed foundations
+## Completed implementation
 
 - Shared `@lapis-notes/ai` source, package, catalogs, Notes probes and fixture
-  inputs are removed; registry HTTP 410, provenance rejection and all eleven npm
-  deprecations are live without unpublishing artifacts or deleting user data.
+  inputs are removed. Registry HTTP 410, installer provenance rejection and all
+  eleven npm deprecations are live. Historical artifacts, hashes and user data
+  remain.
 - Notes API 0.6.9, UI 0.2.5 and App Profile 0.2.6 are published and adopted.
-- AI Host [#6](https://github.com/lapismd/ai-host/pull/6) removed only the orphan
-  private Deno fixture. Merge `dcc42f3791282d4dd9138347614c2b93e09af245`;
-  exact-main run
-  [44434123912](https://github.com/lapismd/ai-host/actions/runs/44434123912)
-  passed.
-- Desktop preservation [#58](https://github.com/lapismd/lapis-desktop/pull/58)
-  sealed E-RETIRE-015. Reviewed head
-  `dedc658288435b4d60e3ebbfbf1a4d430354f1ad`; merge/current main
-  `769cc6135af1305cf92ef20e2a41b7eeb2870f7f`; exact-head CI
-  [44482302141](https://github.com/lapismd/lapis-desktop/actions/runs/44482302141),
-  exact-main CI
-  [44488080528](https://github.com/lapismd/lapis-desktop/actions/runs/44488080528)
-  and exact-main Pages
-  [44488080625](https://github.com/lapismd/lapis-desktop/actions/runs/44488080625)
-  passed.
-- The user accepted two unchanged, out-of-scope native failures as non-blocking:
-  the transcript backup status never reaches `Vault history: Saved locally`,
-  and a raw development-WebView diagnostic exits `SIGABRT`.
-- Frozen Notes host [#180](https://github.com/lapismd/lapis-notes/pull/180)
-  removed the obsolete Deno desktop package and current host authority.
-  Reviewed head `4f3323387402506c9c68cd7399530e0b450af6d3`; merge/current main
-  `d2d0c9a4d2036f78094b52b681751d776e7e8d1c`. Fresh-main Release
-  [44507599858](https://github.com/lapismd/lapis-notes/actions/runs/44507599858),
-  PWA [44507598842](https://github.com/lapismd/lapis-notes/actions/runs/44507598842),
-  dependency-image
-  [44507598888](https://github.com/lapismd/lapis-notes/actions/runs/44507598888)
-  and Storybook Pages
-  [44507598925](https://github.com/lapismd/lapis-notes/actions/runs/44507598925)
-  all passed. The PWA and Storybook deployments completed.
+  Desktop preservation [#58](https://github.com/lapismd/lapis-desktop/pull/58)
+  sealed old-external/bundled AI data, Safe Mode, restart and native-chat
+  boundaries. The user accepted the unchanged transcript-backup status and raw
+  development-WebView `SIGABRT` diagnostics as non-blocking.
+- AI Host [#6](https://github.com/lapismd/ai-host/pull/6) removed only its orphan
+  private Deno fixture. Active execution, controller, MCP and file-tools support
+  remains.
+- Notes [#180](https://github.com/lapismd/lapis-notes/pull/180) removed the frozen
+  Deno desktop host and release authority. Notes
+  [#181](https://github.com/lapismd/lapis-notes/pull/181) retired the shared-AI
+  current specification while preserving App-owned memory/transcript, database,
+  file-tools, Native Chat and Tauri/native-AI contracts.
+- Terminal plugin [#4](https://github.com/lapismd/lapis-plugin-terminal/pull/4)
+  replaced stale standalone-host guidance while retaining the public bridge and
+  negative dependency guards. Terminal Host
+  [#4](https://github.com/lapismd/terminal-host/pull/4) converted the repository
+  in place to Rust-only. Its Cargo manifests, five Rust source/test files, Server
+  pin, history and artifacts remain; no code moved.
+- Plugins [#164](https://github.com/lapismd/lapis-plugins/pull/164) retired old
+  Deno Desktop specification claims. Plugins
+  [#165](https://github.com/lapismd/lapis-plugins/pull/165) removed only the
+  obsolete live-Deno Sync review driver and bridge while preserving Sync, browser
+  review and Node/Deno engine portability. Follow-up
+  [#166](https://github.com/lapismd/lapis-plugins/pull/166) removed stale package
+  and catalog instructions to start the deleted Notes Deno server and extended
+  the fail-closed audit without changing the Sync engine or future Rust/Tauri
+  contracts. Final follow-up
+  [#167](https://github.com/lapismd/lapis-plugins/pull/167) relabelled two
+  remaining historical "frozen Desktop" phrases and extended the same guard.
+  Reviewed heads `393dc4e2`, `afa3155c` and `7450fe0a`; current main `7fdfea4d`.
+- Desktop [#59](https://github.com/lapismd/lapis-desktop/pull/59) removed the final
+  visible retired shared-AI fixture commands and corrected current/backlog
+  ownership wording. Reviewed head `e66a5f61`; main `5f7c785a`. No product or
+  Rust implementation moved.
+- Notes [#182](https://github.com/lapismd/lapis-notes/pull/182) removed the stale
+  `LAPIS_TERMINAL_HOST_URL`, `LAPIS_TERMINAL_HOST_TOKEN` and
+  `LAPIS_DENO_PACKAGED_EXECUTABLE` Storybook/Turbo/cache inputs without changing
+  either Rust terminal implementation or protected core/future services.
+  Reviewed head `f0e248e2`; main `0a6cdeac`.
+- Website guidance and organization listings describe bundled/native AI. The
+  Website preview is qualified; production deployment remains a separate gate.
 
-## Active slice: retire shared-AI current authority
+## Final residue classification
 
-Workspace:
-`/Users/stevejuma/code/lapismd/lapis-notes-retirement-shared-ai-spec`
+| Owner / reference                 | Classification                                                                                                                                                                                                                |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Desktop                           | Only fail-closed negative audits and historical/evidence references remain after #59. Tauri/native AI is the supported implementation.                                                                                        |
+| Plugins                           | Anti-resurrection guards, tests and preserved Sync context remain after #166/#167. Sync engine portability is intentional.                                                                                                    |
+| Notes                             | `packages/deno-host-services`, Language Service, Sync/core kernels, the `deno-desktop` compatibility discriminant and fixtures are protected retained contracts. The retired terminal environment inputs are removed by #182. |
+| AI Host and Agent Redaction       | Active supported Deno compatibility remains; it is not Desktop-host residue.                                                                                                                                                  |
+| Terminal Host and terminal plugin | README/changelog history and fail-closed negative guards remain. Rust implementations and the public bridge stay in their original repositories.                                                                              |
+| Server                            | The generated compatibility discriminant and exact Rust `terminal-host` crate pin are active retained contracts.                                                                                                              |
+| Registry and Website              | Historical snapshots, disabled signed metadata, provenance rejection and negative guards remain intentionally.                                                                                                                |
+| Other audited Lapis repositories  | `lapis-community`, `lapis-terminal`, `lapis-ai`, Mira, Agent UI and Docs/Tasks/Notebook plugins have no actionable executable residue. `lapis-ci` only detects generic `deno.json` version inputs.                            |
 
-Base: exact Notes main `d2d0c9a4d2036f78094b52b681751d776e7e8d1c`.
-JJ change: `nlxuqmxn`.
+## Final qualification
 
-The candidate removes the 11 obsolete `spec/src/plugins/ai/**` chapters,
-`LN-AI-*` current authority, the two AI verification pages and their generated
-Storybook mirrors. It also removes requirements that existed only for the
-retired shared plugin and narrows mixed requirements to their surviving
-contracts.
+- [x] Notes main `0a6cdeac` passed exact-main Release
+      [44535872665](https://github.com/lapismd/lapis-notes/actions/runs/44535872665),
+      PWA [44535872467](https://github.com/lapismd/lapis-notes/actions/runs/44535872467)
+      and Storybook Pages
+      [44535872359](https://github.com/lapismd/lapis-notes/actions/runs/44535872359).
+      Release attempt 2 passed after the first attempt's isolated offline-reload
+      timeout; the exact rerun left no persistent source failure.
+- [x] Plugins main `7fdfea4d` passed exact-main CI
+      [44539526699](https://github.com/lapismd/lapis-plugins/actions/runs/44539526699)
+      and Version [44539526827](https://github.com/lapismd/lapis-plugins/actions/runs/44539526827).
+      The preceding #166 main CI
+      [44537056688](https://github.com/lapismd/lapis-plugins/actions/runs/44537056688)
+      and Version [44537056501](https://github.com/lapismd/lapis-plugins/actions/runs/44537056501)
+      pass.
+- [x] Desktop main `5f7c785a` passed exact-main CI
+      [44534936367](https://github.com/lapismd/lapis-desktop/actions/runs/44534936367)
+      and Pages
+      [44534936413](https://github.com/lapismd/lapis-desktop/actions/runs/44534936413).
+      CI completed with 18 successful jobs; Native bundle and Full source
+      qualification were the two configured skips.
+- [ ] Land this documentation-only closure, update issue #177 and then retire
+      only clean, integrated temporary workspaces through the recoverable
+      bootstrap cleanup.
 
-Preserved authority includes App-owned memory and transcript contracts, API
-file tools, skill/slash/tool/result-view registries, Native Chat, Tauri/native
-AI, the registry provenance guard, saved settings/conversations/memory/data and
-third-party fixtures whose plugin ID happens to be `ai`. Classification remains
-provenance-based and never plugin-ID-only.
+## Separate decisions, not inferred
 
-Completed local qualification:
-
-- The Storybook spec-index regression passes 5/5.
-- `pnpm check:retired-ai-tooling` passes.
-- Direct validator output reports 11 validators, 174 chapters, 1,279
-  requirements and zero findings.
-- Specification validation passes all seven aggregate lanes. The final run is
-  `.local/validation/runs/lapis-notes-validation-31668340-968f-4476-b53b-6d21bbb9be7e`.
-- The 68 validator tests pass; mdBook, specification-document checks and
-  exact-base spec-first all pass. The spec-first run maps three protected files
-  to 56 canonical chapters.
-- Static Storybook builds successfully and renders all 174 current
-  specification chapters. Final run:
-  `.local/validation/runs/lapis-notes-validation-9d5dea78-974f-4ece-bfde-65aa98a2954a`.
-- The complete changed-path audit finds no `packages/**` product change. Every
-  retained App/database/file-tool/native-AI/provenance requirement checked by
-  the retirement boundary remains current.
-- Host QMD has a Node ABI mismatch and correctly degrades to the documented
-  `rg` fallback; do not claim semantic retrieval passed.
-
-Remote gates still required:
-
-- [ ] Commit unsigned, push an isolated bookmark, open/qualify/land the PR.
-- [ ] Verify fresh exact-main workflows and update issue #177 with exact
-      local, hosted and merge receipts.
-
-## Remaining order after shared-AI authority lands
-
-1. Update the standalone Terminal plugin's unavailable guidance so it no longer
-   directs users to start `lapis-terminal-host`.
-2. Convert `terminal-host` in place to Rust-only. Preserve `Cargo.toml`,
-   `Cargo.lock`, `crates/lapis-terminal-service/**`, Server's exact pin,
-   history and artifacts. Remove only Deno/npm/CLI/WebSocket/download/release
-   surfaces; add Rust-only CI and a retired-Deno source audit.
-   Do not relocate or rewrite the Rust service, and do not change Server's pin.
-3. Treat npm deprecation of `@lapismd/terminal-host@0.1.0` as a separate
-   explicit metadata gate. Never unpublish its tarball.
-4. Re-scan all in-scope repositories, classify executable references versus
-   history/negative guards/preserved adapters, close current specs and update
-   issue #177.
-
-Website production deployment remains an independent unchecked decision; the
-approved preview did not authorize production.
+- Tracked `.cursor/rules/rebuild-plugin-dist.mdc` still positively names the
+  retired shared AI package. Workspace policy requires explicit authorization
+  before editing tracked editor/loader configuration.
+- npm deprecation of `@lapismd/terminal-host@0.1.0` is metadata-only but still
+  requires an explicit decision. Never unpublish its tarball.
+- Registry [#185](https://github.com/lapismd/plugin-registry/pull/185) records
+  the completed retirement status, but merging it triggers the protected
+  production deployment and remains an explicit decision.
+- Website production deployment is not authorized by the approved preview.
+- The stable Homebrew cask remains the historical Deno Notes release until a
+  separately approved, fully qualified Tauri stable cutover exists.
 
 ## Handover discipline
 
 Read each repository's tracked `AGENTS.md`, inspect `jj --no-pager st`, fetch
-current remote state and search the owning specification before editing. Work
-one removal at a time. Do not infer completion from a prepared workspace,
-focused replay, merged source PR, published package or hosted preview. Update
-issue #177 and this snapshot after every landed slice.
+current remote state and search the owning specification before editing. Do not
+infer a separate release/deployment decision from source completion. Update
+issue #177 and this snapshot after every remaining gate.

@@ -29,13 +29,14 @@ The configured interaction quarantine remains a separate skip. The frozen Notes
 Deno host and its release implementation are now removed; repository history
 and immutable release evidence preserve the retired artifacts.
 
-Status: in progress. Plugins source/catalog and Notes launcher/catalog removals
-are merged and source-qualified; Notes #158 passed required hosted CI after
-2,194 package tests and 239 cold interactions. Approved registry signing and
-production deployment are complete. Live signed metadata, saved links and UI
-reject shared AI; registry #183's approved HTTP 410 behavior is deployed and
-verified across all retained versions. A reproduced legacy cached-catalog path
-without a download endpoint requires the approved LN-PLUG-137 provenance guard.
+Status: scoped source retirement complete. Plugins source/catalog and Notes
+launcher/catalog removals are merged and source-qualified; Notes #158 passed
+required hosted CI after 2,194 package tests and 239 cold interactions. Approved
+registry signing and production deployment are complete. Live signed metadata,
+saved links and UI reject shared AI; registry #183's approved HTTP 410 behavior
+is deployed and verified across all retained versions. A reproduced legacy
+cached-catalog path without a download endpoint requires the approved LN-PLUG-137
+provenance guard.
 Its 36 installer cases, 2,202 package tests, full release, three inspected
 tarballs and 239 cold interaction/axe cases pass. Notes #161 passed required
 hosted workflow `44172806383` and merged at `d369ec9d`. API `0.6.9`, UI `0.2.4`
@@ -53,8 +54,8 @@ Sixteen obsolete package/controller/Fake/attach implementation requirements are
 archived with their original evidence. All eleven npm versions are deprecated, and each
 original tarball passes independent SHA-512 verification. Website source is merged;
 its manual deployment is separate. Notes #164's peer cleanup is merged and
-its exact six-package cohort is qualified in Desktop source checks; complete
-catalog/hosted and actual native/data acceptance remain open. LN-CAT-124 removes
+its exact six-package cohort completed Desktop catalog, hosted and native/data
+acceptance through Desktop #58. LN-CAT-124 removes
 the CI registry fixture's pre-retirement Plugins source input. Its guarded
 post-removal producer, 18 signed catalog documents, 16 signed bundles and all
 13 cold Web cases pass. Notes #165 passed hosted workflow `44198935057` and
@@ -95,6 +96,25 @@ Source preparation does not qualify product or release gates. The shared-AI
 specification pages and verification rows are retired from current authority;
 the App-owned memory/transcript contracts, core API services, Native Chat and
 Tauri-owned AI remain explicitly preserved.
+
+Final owner slices are landed: Terminal plugin #4 corrects unavailable guidance;
+Terminal Host #4 is Rust-only in place with all Rust/Cargo sources retained;
+Plugins #164/#165 retire obsolete Deno Desktop claims and live-Deno Sync review
+tooling; Plugins #166 removes stale package/catalog instructions for the deleted
+Notes Deno server; Plugins #167 corrects the final historical frozen/current
+wording and extends the same anti-resurrection guard. Desktop #59 closes active
+shared-AI/Desktop wording and fixture residue; Notes #180/#181/#182 retire the
+frozen host, shared-AI current authority and three stale terminal environment
+inputs. The consolidated audit finds no other actionable executable Desktop/Deno
+residue. Retained Deno references belong to protected core/Sync compatibility,
+supported AI/controller/redaction adapters, history, provenance or fail-closed
+guards.
+
+Website production, tracked `.cursor` guidance, npm deprecation metadata for
+`@lapismd/terminal-host@0.1.0`, registry #185's deployment-triggering
+status-record merge and a future stable Tauri/Homebrew cutover remain separately
+gated decisions, not backlog evidence that scoped source retirement is
+incomplete.
 
 ## Generated version PR authentication
 

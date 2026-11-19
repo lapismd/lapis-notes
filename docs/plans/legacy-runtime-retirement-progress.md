@@ -7,9 +7,9 @@ retained, including its compatibility declarations; no current caller is not
 removal authority. E-RETIRE-007 is stopped, uncommitted and unpublished.
 
 Coordination owner: Notes. Implementation authorized 2026-11-17. Follow the
-[agreed plan](legacy-runtime-retirement.md). Work one removal at a time. The
-shared-AI current-spec authority is the active slice after the frozen Notes Deno host landed.
-Retire terminal Deno surfaces last and do not move either Rust implementation.
+[agreed plan](legacy-runtime-retirement.md). Work one removal at a time. All
+in-scope source-removal slices are landed or in their final hosted gate. No Rust
+terminal implementation moved.
 The [agent handover](legacy-runtime-retirement-handover.md) is the concise current
 resume point; this longer ledger intentionally retains older checkpoints and
 failed attempts.
@@ -17,19 +17,25 @@ Independent prerequisites may run in parallel under the user's explicit
 authorization; retain one reviewable slice per removal and integrate in dependency
 order. Source commits, consumer qualification and release/deployment are separate gates.
 
-Current resume (2026-11-19): Desktop preservation #58 merged at
-`769cc6135af1305cf92ef20e2a41b7eeb2870f7f`; exact-head CI `44482302141`,
-exact-main CI `44488080528` and exact-main Pages `44488080625` pass.
-E-RETIRE-015 is sealed and the user accepted two unchanged native diagnostics
-as non-blocking. AI Host #6 merged at
-`dcc42f3791282d4dd9138347614c2b93e09af245`; exact-main run `44434123912`
-passes. Notes #180 removed the frozen Deno host and merged as
-`d2d0c9a4d2036f78094b52b681751d776e7e8d1c`; Release, PWA, dependency-image
-publication and Storybook Pages exact-main workflows all pass. The active Notes
-workspace retires obsolete shared-AI current specification authority while
-preserving App-owned memory/transcript contracts, generic API services, Native
-Chat and Tauri AI. Terminal plugin guidance, terminal-host in-place Rust-only
-conversion, Website production and final audit remain.
+Current resume (2026-11-19): shared-AI distribution/source/specification,
+Desktop preservation and final residue, the frozen Notes Deno host, the AI Host
+orphan fixture, obsolete Plugins Deno Desktop/Sync-review claims, terminal
+guidance and Terminal Host's obsolete Deno/npm/CLI/WebSocket/release surfaces are
+retired. Terminal Host is Rust-only in place; Desktop and Server Rust
+implementations remain in their original repositories. Notes #182 is the final
+executable-input slice and removes only three stale Storybook/Turbo/cache
+environment inputs. The final consolidated audit finds no other actionable
+Desktop/Deno executable residue.
+
+Desktop #59 reviewed `e66a5f615271670c2dc741cba8b37fc33c09acca`
+and merged as `5f7c785af2856c5738a9552bdd91620614817efb`.
+Plugins #165 reviewed `393dc4e2eaf1b4f5db1ca442d8adf4aaf87a11cd`
+and merged as `79a943675716bfb885798af84f92da9a74415f33`.
+Their fresh-main hosted workflows are recorded in the final checkpoint below.
+The user accepted the unchanged transcript-backup status and raw development
+WebView `SIGABRT` diagnostics as non-blocking. Core API services/functions,
+Language Service, Sync, mixed `deno-host-services`, active AI/controller/redaction
+compatibility, historical artifacts and user data remain protected.
 
 Desktop #48's complete fixture producer/admission repair has merged into #47's
 feature branch at `45d61a6c95d980892be8bb6a32f612137c1bb529`, not main.
@@ -47,26 +53,11 @@ merge tree matches checked `2b553332`. Actual-main push CI `44238333976` and
 standard catalog publication `44238334007` are separate fresh observations;
 see the [source-landing receipt](../../spec/records/2026-11-18-retirement-source-landings.md).
 
-Still pending after Desktop #56 lands and exact-main CI passes: actual
-old-external/bundled native startup/data acceptance, App Profile native-chat
-lifecycle/storage acceptance, Website cutover and installed-app replacement.
-API `0.6.9`, UI `0.2.5` and App Profile `0.2.6` are already published; the
-publication audit below supersedes older publication-pending checkpoints. No
-macOS native case has run. Approval for the explicitly on-demand diagnostic lane
-is still pending; portable or hosted Linux results do not close that gate.
-
-The [verified host-boundary audit](../../spec/records/2026-11-18-retirement-host-boundaries.md)
-retains portable Sync/core functions in the mixed `deno-host-services` package
-and active Agent Redaction/controller Deno compatibility. AI Host's single
-private orphan fixture removal is prepared but uncommitted: its ordinary check
-still fails on two pre-existing development audit findings. A separate exact
-version/path, expiring exception proposal awaits approval; earlier Desktop and
-Plugins exceptions do not authorize AI Host. Production audit has zero findings.
-Do not apply the policy, commit or push that candidate before its gate qualifies.
-
-Generic helpers, CSS, APIs and future-facing services remain excluded.
-E-RETIRE-007 stays parked; terminal Deno retirement remains last and moves no
-Rust code.
+Separately gated decisions remain outside source completion: Website production
+deployment, npm deprecation metadata for `@lapismd/terminal-host@0.1.0`, tracked
+`.cursor` guidance cleanup, and a future stable Tauri/Homebrew cutover. Generic
+helpers, CSS, APIs and future-facing services remain excluded. E-RETIRE-007 stays
+parked.
 
 The tables below describe current status; older receipts are dated checkpoints.
 
@@ -933,3 +924,85 @@ The Docker wrapper intentionally serializes validation per workspace. An
 initial parallel attempt let `spec:build` pass while three siblings collided on
 the same lease container; each collided lane was rerun serially and passed. The
 lease collision is orchestration evidence, not an accepted product failure.
+
+## Final owner-slice and residue closure checkpoint, 2026-11-19
+
+The remaining owner slices landed without moving implementation code:
+
+| Owner slice                                | Reviewed head                              | Main result                                |
+| ------------------------------------------ | ------------------------------------------ | ------------------------------------------ |
+| Notes frozen Deno host #180                | `4f3323387402506c9c68cd7399530e0b450af6d3` | `d2d0c9a4d2036f78094b52b681751d776e7e8d1c` |
+| Notes shared-AI current authority #181     | `1ea031fd944a815cda899acbf3b6c6d5174e44b8` | `54ac10c347d10fdf716ac4cf07ba8577765256e3` |
+| AI Host orphan fixture #6                  | `0c7f3c1c38b496e7b8c895a622f6b148cf37090c` | `dcc42f3791282d4dd9138347614c2b93e09af245` |
+| Terminal plugin guidance #4                | `8f9da2f733518e77112a93913bab809efff16f06` | `3d8be40bc28765aa54dc8432d4349a40d158e3ca` |
+| Terminal Host Rust-only conversion #4      | `5bc1eff4a047691f064b893e96a18c5c8f51e457` | `164ceed90be353607f28fdb8151cd663c2863286` |
+| Plugins Deno Desktop claim cleanup #164    | `c7faee1f85dc7737882758bb77352485210dce56` | `b0af5f0689ef974c1ae3b031cc6326ccb4a462a0` |
+| Plugins live-Deno Sync review cleanup #165 | `393dc4e2eaf1b4f5db1ca442d8adf4aaf87a11cd` | `79a943675716bfb885798af84f92da9a74415f33` |
+| Plugins retired Sync guidance #166         | `afa3155c05e1fa4ece497e3a5f6a7def764b940c` | `c461b2e6b8873d0c97256bd656fcf3fa389ef372` |
+| Plugins final historical wording #167      | `7450fe0ab5a10cfddb3a41cddc73bc89a05f2fb4` | `7fdfea4d4208aaf4aad0289ba8f3b1c7062a3fbc` |
+| Desktop final residue #59                  | `e66a5f615271670c2dc741cba8b37fc33c09acca` | `5f7c785af2856c5738a9552bdd91620614817efb` |
+| Notes terminal environment inputs #182     | `f0e248e271b981096b3fdf3ebf707feaa9625b7e` | `0a6cdeac2414d397adf6a1f7e6c4713ebe36ac6b` |
+
+Fresh-main Plugins CI `44537056688` and Version `44537056501` pass at
+`c461b2e6`; final #167 main CI `44539526699` and Version `44539526827` also
+pass at `7fdfea4d`. Desktop Pages `44534936413` passes at `5f7c785a`; CI
+`44534936367` passes with 18 successful jobs and the configured Native bundle
+and Full source qualification skips. Notes Storybook Pages `44535872359`, PWA
+`44535872467` and Release `44535872665` pass at `0a6cdeac`. Release attempt 2
+passed after the first attempt's isolated offline-reload timeout, leaving no
+persistent source failure. All exact-main observations required for closure are
+complete.
+
+The consolidated tracked-source scan classifies remaining references as follows:
+
+- Desktop retains only fail-closed source audits and historical/evidence text;
+  Tauri/native AI is the supported implementation.
+- Plugins retains anti-resurrection guards/tests and intentional Sync engine
+  portability. The obsolete live-Deno review driver/bridge and instructions to
+  start the deleted Notes Deno server are gone. Final historical context labels
+  the old Desktop as retired rather than frozen/current.
+- Notes retains protected `deno-host-services`, Language Service, Sync/core
+  kernels, `deno-desktop` compatibility discriminants/fixtures and negative
+  release guards. Three stale terminal environment inputs are gone.
+- AI Host, Agent Redaction and the standalone controller retain active supported
+  Deno compatibility outside the retired Desktop-host boundary.
+- Terminal Host and the terminal plugin retain history and negative guards;
+  their Rust service/public bridge stay in their original repositories. Server's
+  generated compatibility discriminant and exact crate pin remain active.
+- Registry and Website matches are historical snapshots, disabled signed
+  metadata, provenance rejection or negative guards.
+- `lapis-community`, `lapis-terminal`, `lapis-ai`, Mira, Agent UI and the
+  Docs/Tasks/Notebook plugins have no actionable executable residue. `lapis-ci`
+  only performs generic version-runtime detection for repositories with a
+  `deno.json` input.
+
+The accepted transcript-backup and raw development-WebView diagnostics remain
+unchanged and non-blocking. Notes exact-main PWA at `54ac10c3` previously failed
+only its final live Word Count fetch; a smoke-only replay of the immutable
+deployed artifact passed without a source, artifact or deployment change. No
+other failure is accepted for closure.
+
+The first Notes `0a6cdeac` Release attempt `44535872665` later timed out only on
+the local offline-reload shell wait in `web-cloudflare`: the service worker was
+activated and controlling, all 609 precache entries and three plugin-cache
+entries were present, and there were no failed requests, responses, console
+errors or page errors. The exact-head PR run had already passed both Web lanes on
+the identical Git tree `90c421d4`. Parallel exact-main PWA `44535872467` passed
+the same artifact acceptance. Downloaded PWA and Release artifacts each contain
+620 files and differ only in Wrangler's generated README timestamp; every
+executable asset is identical. The exact failed-job rerun passed and is the final
+hosted receipt; no source repair was required.
+
+Closure documentation qualification uses `@lapismd/spec-validator@0.2.1`. Host
+QMD doctor reports the known Node ABI 147 mismatch and search degrades to the
+documented `rg` fallback. Prettier passes for all four changed documents. The
+seven-lane `pnpm spec:check` passes, including 11 validators, canonical dependency
+intake, 174 Storybook specification mirrors, mdBook, exact-base spec-first,
+App-ownership and metadata-query audits, and 68/68 validator tests. Receipt:
+`.local/validation/runs/lapis-notes-validation-4b4d5326-2d04-416e-9446-d44782163c2e`.
+
+Separately gated decisions remain: tracked `.cursor` guidance cleanup,
+`@lapismd/terminal-host@0.1.0` npm deprecation metadata, registry #185's
+deployment-triggering status-record merge, Website production and a future stable
+Tauri/Homebrew cutover. The stable cask and historical artifacts remain intact.
+None is inferred from scoped source completion.
