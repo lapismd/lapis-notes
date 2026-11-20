@@ -66,6 +66,32 @@ The deferred host attachment in LN-WS-006/064 preserves plugin-owned view
 creation, load and unload. Closing a host cancels its pending attachment; it
 does not construct a replacement view, reactivate a plugin or admit a service.
 
+## LN-PLUG-138 — Responsive plugin startup progress
+
+<a id="ln-plug-138"></a>
+
+**Requirement.** Plugin startup MUST report each installed folder before discovery
+and each selected runtime or indexed extension before enablement. Reporting MUST
+preserve existing plugin selection and admission.
+
+## LN-PLUG-139 — Startup progress rendering opportunity
+
+<a id="ln-plug-139"></a>
+
+**Requirement.** When a progress observer is supplied, loading MUST yield after
+each report so the host can render its status before more plugin work starts.
+Waiting for an animation frame MUST remain bounded if the document stops
+receiving frames. Loading without a progress observer MUST NOT wait for frames.
+
+## LN-PLUG-140 — Plugin progress batch identity
+
+<a id="ln-plug-140"></a>
+
+**Requirement.** Plugin progress reports MUST identify the plugin, use folder
+names before manifest discovery, and scope zero-based positions and totals to
+their current batch. Discovery reports MUST identify their phase. Existing
+runtime activation reports MUST retain their fields and values.
+
 ## LN-PLUG-127 — Deferred ribbon discovery
 
 <a id="ln-plug-127"></a>

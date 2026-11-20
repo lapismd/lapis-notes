@@ -2,6 +2,10 @@
 
 Published workspace-session composition under LN-PKG-132 retains explicit App ownership, layout persistence and disposal order. Explicit failed-startup retry under LN-PKG-191 shares active or completed startup without rebuilding the shell.
 
+During plugin startup, LN-PLUG-138–140 report the current discovery folder or
+activation name and yields before continuing. The existing startup status
+renders that detail while layout restoration remains gated on plugin readiness.
+
 Foreground App file navigation joins the same projection-aware reveal as
 explicit view navigation. LN-WS-005 retains its original revision fence;
 opening a note preserves a non-file tab and selects its intended main tab.

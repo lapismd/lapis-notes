@@ -1,5 +1,10 @@
 # Packages / App and services
 
+The public API's LN-PLUG-138–140 progress reports retain activation compatibility
+and add a discovery phase with folder identities. Position and total describe
+the current batch. Shared App Profile sessions keep their existing callback
+and startup/retry ownership.
+
 LN-CAT-124 advances the CI-only signed registry fixture to Plugins' verified
 post-shared-AI source. Its package build and packing inputs omit retired AI;
 ephemeral fixture keys remain separate from production signing authority.
