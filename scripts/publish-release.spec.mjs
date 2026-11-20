@@ -35,7 +35,7 @@ async function manifestFixture(bootstrapRequired = false) {
           name: "@lapis-notes/ui",
           directory: "ui",
           version: "0.1.0",
-          tag: "next",
+          tag: "latest",
           dependencies: [],
           registryEmpty: bootstrapRequired,
           shouldPublish: !bootstrapRequired,
@@ -104,7 +104,7 @@ test("skips an npm version that already exists", async () => {
   }
 });
 
-test("publishes a new version with provenance and the next tag", async () => {
+test("publishes a new stable version with provenance and the latest tag", async () => {
   const fixture = await manifestFixture(false);
   const calls = [];
   try {
@@ -125,7 +125,7 @@ test("publishes a new version with provenance and the next tag", async () => {
           ".release/tarballs/lapis-notes-ui-0.1.0.tgz",
         ),
         "--tag",
-        "next",
+        "latest",
         "--access",
         "public",
         "--provenance",

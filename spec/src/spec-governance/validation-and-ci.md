@@ -69,14 +69,14 @@ The source-owned caller retains these controls:
 
 <a id="ln-gov-054"></a>
 
-**Requirement.** Generated version PRs MUST use the existing dependency App scoped to this repository from a trusted-main job. Its workflow token MUST remain read-only, checkout credentials MUST NOT persist, and missing App credentials MUST fail without a workflow-token fallback. Version preparation MUST retain the existing recipe and MUST NOT publish packages or create GitHub releases.
+**Requirement.** Generated version PRs MUST use the existing dependency App scoped to this repository from a trusted-main job. Its workflow token MUST remain read-only, checkout credentials MUST NOT persist, and missing App credentials MUST fail without a workflow-token fallback. Version preparation MUST retain the existing recipe, preserve the stable `latest` and no-`next` policy, and MUST NOT publish packages or create GitHub releases.
 
 ### Acceptance details
 
 The authentication boundary retains these controls:
 
 - The job MUST request only contents/packages reads for its workflow token, and the App token MUST request only this repository's contents/PR writes.
-- The version command MUST remain `pnpm release:version` using the GitHub API commit mode; publication, verification, notification and protected release gates MUST retain their authority.
+- The version command MUST remain `pnpm release:version` using the GitHub API commit mode; publication, verification, notification, stable distribution-tag policy and protected release gates MUST retain their authority.
 - Workflow validation MUST reject credential fallback, missing main restriction, persistent checkout credentials, altered token scope and publication during version preparation.
 
 Application composition validation traces the shared App Profile public export

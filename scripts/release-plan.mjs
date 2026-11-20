@@ -211,7 +211,7 @@ export function planReleaseCandidates(records, states, options = {}) {
       version: record.version,
       registryEmpty: Boolean(state.registryEmpty),
       dependencies: [...record.internalDependencies],
-      tag: options.tag ?? "next",
+      tag: options.tag ?? "latest",
     };
     selected.push(candidate);
     selectedNames.add(record.name);

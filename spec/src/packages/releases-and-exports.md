@@ -187,6 +187,12 @@ unfiltered finding, dependency path, scope limitation, and removal procedure.
 
 **Requirement.** The release workflow MUST keep Changesets version PR creation, a verified tarball manifest, the unregistered-package manual-publish stop, npm OIDC provenance publishing through the `npm-production` environment, and package-scoped GitHub releases from that manifest. It MUST skip an existing npm version or GitHub release and MUST keep a published version selected until that release exists. A partial manifest MAY omit published internal dependencies but MUST preserve dependency order among selected packages. Jobs MUST use Node 24 and current Node 24-based action majors.
 
+## LN-PKG-201 — Stable npm distribution tags
+
+<a id="ln-pkg-201"></a>
+
+**Requirement.** Stable publication MUST move `latest` to the newly published highest stable version. Stable packages MUST NOT create or retain a `next` distribution tag.
+
 ## LN-PKG-131 — Public package checks: reject missing README, changelog, license, repository, homepage
 
 <a id="ln-pkg-131"></a>

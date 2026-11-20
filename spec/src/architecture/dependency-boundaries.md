@@ -289,7 +289,7 @@ temporary acceptance of the unpatched QMD development advisory.
 
 <a id="ln-arch-087"></a>
 
-**Requirement.** Public package release workflows MUST remain distribution infrastructure for `@lapis-notes/ui`, `@lapis-notes/api`, `@lapis-notes/language-service`, `@lapis-notes/file-explorer`, `@lapis-notes/workspace`, and `@lapis-notes/app-profile`, in dependency order. They MUST NOT move host boot, application-owned static profiles, vault selection, persistence, desktop native bindings, web routing, or installed-plugin policy into framework packages. Shared application profile and session policy MUST remain in App Profile, with platform policy injected by each host.
+**Requirement.** Public package release workflows MUST remain distribution infrastructure for `@lapis-notes/ui`, `@lapis-notes/api`, `@lapis-notes/language-service`, `@lapis-notes/file-explorer`, `@lapis-notes/workspace`, and `@lapis-notes/app-profile`, in dependency order. Stable publication MUST move `latest` to the highest stable version and MUST NOT create or retain `next`. They MUST NOT move host boot, application profiles, vault selection, persistence, native bindings, routing, or installed-plugin policy into framework packages. Host policy MUST remain outside those packages.
 
 The release caller grants every token permission requested by reusable CI, including `actions: write`, under [LN-PKG-140](../packages/releases-and-exports.md#ln-pkg-140). Repeated publication skips an npm version that already exists and keeps a published version selected until its GitHub release exists, under [LN-PKG-130](../packages/releases-and-exports.md#ln-pkg-130). That grant does not move host policy into the public packages.
 
