@@ -1,5 +1,15 @@
 # @lapis-notes/api
 
+## 0.6.12
+
+### Patch Changes
+
+- [#190](https://github.com/lapismd/lapis-notes/pull/190)
+  [`47cdeda`](https://github.com/lapismd/lapis-notes/commit/47cdedab23b16ed0cc5678565b2c8ee9d44c827e)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Keep shell startup
+  responsive by reporting installed-plugin discovery and indexed-extension
+  enablement, and yielding for startup status painting before each plugin loads.
+
 ## 0.6.11
 
 ### Patch Changes

@@ -33,7 +33,7 @@ Source package versions only; publication and host adoption remain separate.
 {
   "schemaVersion": 1,
   "packages": {
-    "@lapis-notes/api": "0.6.11",
+    "@lapis-notes/api": "0.6.12",
     "@lapis-notes/file-explorer": "0.2.8",
     "@lapis-notes/workspace": "0.4.10"
   }
