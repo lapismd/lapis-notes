@@ -48,7 +48,7 @@
     "@lapis-notes/source-editor": "^0.1.12",
     "@lapis-notes/workspace": "^0.4.9",
     "@lapismd/agent-ui": "^0.2.8",
-    "@lapismd/design-core": "^0.13.6",
+    "@lapismd/design-core": "^0.13.7",
     "@lapis-notes/history": "^0.5.1",
     "@lapismd/jj-history": "^0.1.0"
   },
