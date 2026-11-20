@@ -46,6 +46,24 @@ export const Ready: Story = {
     await expectReady(canvasElement);
   },
 };
+export const PluginStartupProgress: Story = {
+  args: { probePluginProgress: true },
+  play: async ({ canvasElement }) => {
+    const fixture = canvasElement.querySelector("[data-startup-observations]")!;
+    await waitFor(() =>
+      expect(
+        JSON.parse(fixture.getAttribute("data-startup-observations")!),
+      ).toHaveLength(2),
+    );
+    expect(
+      JSON.parse(fixture.getAttribute("data-startup-observations")!),
+    ).toEqual([
+      "Loading First progress probe",
+      "Loading Second progress probe",
+    ]);
+    await expectReady(canvasElement);
+  },
+};
 export const HostReadiness: Story = {
   args: { holdReady: true },
   play: async ({ canvasElement }) => {

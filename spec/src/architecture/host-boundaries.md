@@ -1,5 +1,9 @@
 # Architecture / Host boundaries
 
+LN-PLUG-138 keeps discovery and enablement progress in the shared API loader.
+Hosts project reports into their existing startup UI; no Server, Desktop or Web
+adapter owns a duplicate loader or bypasses plugin admission.
+
 The published application profile uses the built API cohort under LN-PKG-132. Conditional byte writes under LN-PKG-192 belong to portable storage; native skill installation remains owned by the admitted native service.
 
 Required native-service admission uses the host's existing capability registry

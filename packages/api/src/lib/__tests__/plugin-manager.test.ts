@@ -1208,6 +1208,7 @@ describe("PluginManager", () => {
   it("reports enable progress for each activated core plugin", async () => {
     const { app } = createTestApp();
     await app.vault.load();
+    const renderedNames: string[] = [];
 
     class FirstCorePlugin extends Plugin {
       constructor(app: App) {
@@ -1221,7 +1222,9 @@ describe("PluginManager", () => {
         });
       }
 
-      onload() {}
+      onload() {
+        expect(renderedNames.at(-1)).toBe("First Core");
+      }
     }
 
     class SecondCorePlugin extends Plugin {
@@ -1236,7 +1239,9 @@ describe("PluginManager", () => {
         });
       }
 
-      onload() {}
+      onload() {
+        expect(renderedNames.at(-1)).toBe("Second Core");
+      }
     }
 
     app.plugins.registerCorePlugins([FirstCorePlugin, SecondCorePlugin]);
@@ -1244,6 +1249,7 @@ describe("PluginManager", () => {
     await app.plugins.loadPlugins({
       onProgress: (event) => {
         progress.push(event);
+        setTimeout(() => renderedNames.push(event.name), 0);
       },
     });
 
@@ -1253,6 +1259,106 @@ describe("PluginManager", () => {
     ]);
     expect(app.plugins.plugins.get("first-core")?.enabled).toBe(true);
     expect(app.plugins.plugins.get("second-core")?.enabled).toBe(true);
+  });
+
+  it("reports discovery progress before reading installed plugins", async () => {
+    const { app } = createTestApp();
+    await app.vault.load();
+    await app.vault.mkpath("/.lapis/plugins/slow-plugin");
+    const progress: PluginLoadProgress[] = [];
+    const renderedNames: string[] = [];
+    const namesBeforeReading: (string | undefined)[] = [];
+    const loadPlugin = vi
+      .spyOn(app.plugins, "loadPlugin")
+      .mockImplementation(async () => {
+        namesBeforeReading.push(renderedNames.at(-1));
+        return null;
+      });
+    await app.plugins.loadPlugins({
+      onProgress: (event) => {
+        progress.push(event);
+        setTimeout(() => renderedNames.push(event.name), 0);
+      },
+    });
+    expect(loadPlugin).toHaveBeenCalledWith("/.lapis/plugins/slow-plugin");
+    expect(progress).toEqual([
+      {
+        id: "slow-plugin",
+        name: "slow-plugin",
+        index: 0,
+        total: 1,
+        phase: "discovery",
+      },
+    ]);
+    expect(renderedNames).toEqual(["slow-plugin"]);
+    expect(namesBeforeReading).toEqual(["slow-plugin"]);
+  });
+
+  it("reports progress for configured indexed system extensions", async () => {
+    const { app } = createTestApp();
+    await app.vault.load();
+    app.plugins.registerSystemExtensions([
+      {
+        manifest: {
+          id: "indexed-core",
+          name: "Indexed Core",
+          version: "1.0.0",
+          lapis: { manifestVersion: 1, source: "system", locked: true },
+        },
+      },
+      {
+        manifest: {
+          id: "disabled-indexed-core",
+          name: "Disabled Indexed Core",
+          version: "1.0.0",
+          lapis: {
+            manifestVersion: 1,
+            source: "system",
+            enabledByDefault: false,
+          },
+        },
+      },
+    ]);
+    const progress: PluginLoadProgress[] = [];
+    await app.plugins.loadPlugins({
+      onProgress: (event) => {
+        progress.push(event);
+      },
+    });
+    expect(progress).toEqual([
+      { id: "indexed-core", name: "Indexed Core", index: 0, total: 1 },
+    ]);
+    expect(app.plugins.getLapisExtension("indexed-core")?.enabled).toBe(true);
+  });
+
+  it("finishes progress when a visible page stops delivering animation frames", async () => {
+    const { app } = createTestApp();
+    await app.vault.load();
+    app.plugins.registerSystemExtensions([
+      {
+        manifest: {
+          id: "suspended-frame-core",
+          name: "Suspended frame core",
+          version: "1.0.0",
+          lapis: { manifestVersion: 1, source: "system", locked: true },
+        },
+      },
+    ]);
+    vi.stubGlobal("document", { ...document, visibilityState: "visible" });
+    const requestFrame = vi.fn(() => 42);
+    const cancelFrame = vi.fn();
+    vi.stubGlobal("requestAnimationFrame", requestFrame);
+    vi.stubGlobal("cancelAnimationFrame", cancelFrame);
+    try {
+      await app.plugins.loadPlugins({ onProgress: () => {} });
+      expect(requestFrame).toHaveBeenCalledOnce();
+      expect(cancelFrame).toHaveBeenCalledWith(42);
+      expect(
+        app.plugins.getLapisExtension("suspended-frame-core")?.enabled,
+      ).toBe(true);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it("registers readonly application-owned static plugin profiles", async () => {

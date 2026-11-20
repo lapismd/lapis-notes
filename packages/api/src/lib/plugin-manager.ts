@@ -181,6 +181,12 @@ export interface PluginDataAliasMigration {
 export interface PluginLoadProgress {
   id: string;
   name: string;
+  /**
+   * Discovery uses folder names before manifests are read; omitted for
+   * activation.
+   */
+  phase?: "discovery";
+  /** Zero-based position and size of the current discovery or activation batch. */
   index: number;
   total: number;
 }
@@ -1282,11 +1288,18 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
             "plugins.discovered_folder_count",
             pluginFolders.folders.length,
           );
-          for (const folder of pluginFolders.folders) {
-            const registeredPlugin = this.plugins.get(folder);
-            if (registeredPlugin) {
-              continue;
-            }
+          const folders = pluginFolders.folders.filter(
+            (folder) => !this.plugins.has(folder),
+          );
+          for (const [index, folder] of folders.entries()) {
+            if (this.plugins.has(folder)) continue;
+            await this.reportLoadProgress(options, {
+              id: folder,
+              name: folder,
+              phase: "discovery",
+              index,
+              total: folders.length,
+            });
             await this.loadPlugin(joinPath(this.pluginsPath, folder));
           }
         } catch (error) {
@@ -1338,7 +1351,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         span.setAttribute("plugins.activation_count", activationOrder.length);
         for (const [index, pluginId] of activationOrder.entries()) {
           const plugin = this.plugins.get(pluginId);
-          options.onProgress?.({
+          await this.reportLoadProgress(options, {
             id: pluginId,
             name: plugin?.manifest.name ?? pluginId,
             index,
@@ -1349,6 +1362,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         await this.enableConfiguredIndexedExtensions({
           communityPluginsEnabled,
           optionalCorePluginsEnabled,
+          onProgress: options.onProgress,
         });
         await this.activateIndexedExtensionsForWorkspace();
         this.#loaded = true;
@@ -1361,6 +1375,33 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         slowThresholdMs: 500,
       },
     );
+  }
+
+  private async reportLoadProgress(
+    options: Pick<PluginLoadOptions, "onProgress">,
+    progress: PluginLoadProgress,
+  ): Promise<void> {
+    if (!options.onProgress) return;
+    options.onProgress(progress);
+    // Resolved plugin promises can starve rendering. Resume after a frame and
+    // its paint, with a bounded fallback if the page becomes hidden meanwhile.
+    await new Promise<void>((resolve) => {
+      if (
+        typeof document === "undefined" ||
+        document.visibilityState !== "visible"
+      ) {
+        setTimeout(resolve, 0);
+        return;
+      }
+      let frame: number;
+      const finish = () => {
+        clearTimeout(fallback);
+        cancelAnimationFrame(frame);
+        resolve();
+      };
+      const fallback = setTimeout(finish, 100);
+      frame = requestAnimationFrame(() => setTimeout(finish, 0));
+    });
   }
 
   get enabledPlugins(): string[] {
@@ -1785,32 +1826,35 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
   private async enableConfiguredIndexedExtensions(options: {
     communityPluginsEnabled: boolean;
     optionalCorePluginsEnabled: boolean;
+    onProgress?: PluginLoadOptions["onProgress"];
   }): Promise<void> {
+    const shouldEnable = (extension: LapisIndexedExtension): boolean => {
+      if (this.plugins.has(extension.pluginId)) return false;
+      if (extension.source === "community")
+        return (
+          options.communityPluginsEnabled &&
+          this.#configuredCommunityPlugins.has(extension.pluginId)
+        );
+      if (extension.source === "official")
+        return (
+          options.optionalCorePluginsEnabled &&
+          this.#configuredCommunityPlugins.has(extension.pluginId)
+        );
+      return extension.locked || this.isCorePluginEnabled(extension.pluginId);
+    };
+    const total = [...this.#lapisExtensionIndex.values()].filter(
+      shouldEnable,
+    ).length;
+    let index = 0;
     for (const indexedExtension of this.#lapisExtensionIndex.values()) {
-      if (this.plugins.has(indexedExtension.pluginId)) {
-        continue;
-      }
-
-      if (indexedExtension.source === "community") {
-        if (
-          !options.communityPluginsEnabled ||
-          !this.#configuredCommunityPlugins.has(indexedExtension.pluginId)
-        ) {
-          continue;
-        }
-      } else if (indexedExtension.source === "official") {
-        if (
-          !options.optionalCorePluginsEnabled ||
-          !this.#configuredCommunityPlugins.has(indexedExtension.pluginId)
-        ) {
-          continue;
-        }
-      } else if (
-        !indexedExtension.locked &&
-        !this.isCorePluginEnabled(indexedExtension.pluginId)
-      ) {
-        continue;
-      }
+      if (!shouldEnable(indexedExtension)) continue;
+      await this.reportLoadProgress(options, {
+        id: indexedExtension.pluginId,
+        name: indexedExtension.name ?? indexedExtension.pluginId,
+        index,
+        total: Math.max(total, index + 1),
+      });
+      index++;
 
       if (this.shouldDeferIndexedExtensionActivation(indexedExtension)) {
         this.enableDeferredIndexedExtension(indexedExtension.pluginId);

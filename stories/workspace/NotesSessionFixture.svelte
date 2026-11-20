@@ -16,6 +16,8 @@
     createVaultSession,
     MemoryAppDatabase,
     MemoryVaultAdapter,
+    Plugin,
+    type App,
     type VaultSession,
     type VaultProfile,
   } from "@lapis-notes/api";
@@ -29,10 +31,12 @@
     failOnce = false,
     nativeRepository = false,
     holdReady = false,
+    probePluginProgress = false,
   }: {
     failOnce?: boolean;
     nativeRepository?: boolean;
     holdReady?: boolean;
+    probePluginProgress?: boolean;
   } = $props();
   const unselectedReader = async (): Promise<never> => {
     throw new Error("The catalog has not selected a native history read");
@@ -48,12 +52,27 @@
   let component: NotesWorkspaceSessionHandle | undefined = $state();
   let attempts = 0;
   let hostReadyPending = $state(false);
+  let root: HTMLDivElement;
+  let paintedStatus = "";
+  let startupObservations = $state<string[]>([]);
   let releaseReady = () => {};
   const hostReady = new Promise<void>((resolve) => {
     releaseReady = resolve;
   });
   const ready = $derived(!!session);
   onMount(() => {
+    let frame = 0;
+    let stopped = false;
+    const observeFrame = () => {
+      paintedStatus =
+        root.querySelector('[data-ui-part="message"]')?.textContent?.trim() ?? "";
+      if (!stopped) frame = requestAnimationFrame(observeFrame);
+    };
+    const stopFrames = () => {
+      stopped = true;
+      cancelAnimationFrame(frame);
+    };
+    if (probePluginProgress) frame = requestAnimationFrame(observeFrame);
     const adapter = new MemoryVaultAdapter({
       "Welcome.md": "# Shared Notes session\n\nA real Notes workspace.\n",
     });
@@ -65,14 +84,39 @@
       session = value;
     });
     disposers.add(async () => {
+      stopFrames();
       releaseReady();
       readyGates.delete(releaseReady);
       await component?.dispose(false);
     });
+    return stopFrames;
   });
+
+  function progressProbe(id: string, name: string) {
+    return class extends Plugin {
+      constructor(app: App) {
+        super(app, {
+          id,
+          name,
+          version: "1.0.0",
+          minAppVersion: "0.0.0",
+          description: "",
+          author: "test",
+        });
+      }
+      onload() {
+        startupObservations.push(paintedStatus);
+      }
+    };
+  }
 </script>
 
-<div class="notes-session-fixture" data-session-host-pending={hostReadyPending}>
+<div
+  bind:this={root}
+  class="notes-session-fixture"
+  data-session-host-pending={hostReadyPending}
+  data-startup-observations={JSON.stringify(startupObservations)}
+>
   {#if ready && session}
     <NotesWorkspaceSession
       bind:this={
@@ -110,9 +154,14 @@
         if (file) await app.openFile(file);
       }}
       host={{
-        configure: async () => {
+        configure: async (app) => {
           if (failOnce && attempts++ === 0)
             throw new Error("Fixture configuration failure");
+          if (probePluginProgress)
+            app.plugins.registerStaticPlugins([
+              progressProbe("progress-first", "First progress probe"),
+              progressProbe("progress-second", "Second progress probe"),
+            ]);
         },
       }}
     />

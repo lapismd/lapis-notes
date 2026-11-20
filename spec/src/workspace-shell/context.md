@@ -137,6 +137,10 @@ local buttons, focus state, compact action geometry, or paint overrides.
 
 - Desktop and web hosts report the current plugin name on the plugins startup task through `PluginLoadOptions.onProgress`.
 
+- LN-PLUG-138–140 keep that shared status responsive during discovery and runtime
+  or indexed-extension enablement. The API yields after each report so Server,
+  Desktop and Web can render their existing startup details before more work.
+
 - Metadata cache load starts after layout restoration and does not block shell mount.
 
 - While that cache load, rebuild, or vault reconcile is running, the host projects Lapis progress into Design Core so the notifications status item is the single busy surface.

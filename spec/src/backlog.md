@@ -1,5 +1,10 @@
 # Backlog
 
+- Publish and adopt the LN-PLUG-138–140 API patch in Server/Desktop/Web.
+  [Source qualification](../records/2026-11-20-plugin-startup-progress.md) passes
+  full checks, tests, builds, cold interactions and public archive verification;
+  installed-host and native acceptance remain separate gates.
+
 - Complete hosted LN-PKG-200 framework-intake qualification and separate coordinator activation/replay; preserve the retired-host anti-resurrection guard and all current source gates.
 
 This is the entry point for outstanding Notes work. Current behavior belongs to
