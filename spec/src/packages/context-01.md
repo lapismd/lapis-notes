@@ -37,7 +37,8 @@ Workspace media presentation remains consumer-owned under LN-PLUG-092.
 The current public framework releases are API `0.2.1`, UI `0.1.5`, File Explorer
 `0.2.0`, and Workspace `0.3.1`. API, UI, and Workspace completed the approved
 October 30 release through Changesets PR #45 and the protected npm workflow.
-Their `next` tags select the released versions; `latest` remains unchanged.
+Their `latest` tags select the highest released stable versions; the retired
+`next` channel is not part of the stable publication contract.
 [Release evidence](../../records/2026-10-30-framework-release.md) binds registry
 bytes, provenance, and consumer verification to the qualified source. Desktop
 adoption and its native acceptance remain separate consumer gates.

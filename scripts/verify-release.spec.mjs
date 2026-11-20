@@ -57,7 +57,7 @@ function fixture(t, options = {}) {
         name: "@lapis-notes/ui",
         directory: "ui",
         version: "0.1.0",
-        tag: "next",
+        tag: "latest",
         dependencies: [],
         registryEmpty: false,
         shouldPublish: false,

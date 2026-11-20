@@ -64,7 +64,7 @@ exact version and inspect the tarball entry in `.release/release-manifest.json`.
 Publish only the reviewed tarball, one package at a time, in graph order:
 
 ```sh
-npm publish .release/tarballs/<package>.tgz --tag next --access public --registry https://registry.npmjs.org
+npm publish .release/tarballs/<package>.tgz --tag latest --access public --registry https://registry.npmjs.org
 ```
 
 After each manual publish, run the plan again to confirm that package is now
@@ -114,8 +114,10 @@ approved. The publish, registry verification, and GitHub release jobs reuse the
 same candidate checksums and source commit. A repeated manual dispatch skips
 npm versions and GitHub releases that already exist. Verification retries a
 pending registry install for under two minutes, and a published version remains
-selected until its package release exists. Publication keeps provenance and the
-`next` dist-tag, and it does not move `latest`.
+selected until its package release exists. Publication keeps provenance,
+publishes stable versions with the `latest` dist-tag, and moves `latest` to the
+newly published highest version. Stable package publication MUST NOT create or
+retain a `next` dist-tag.
 
 ## Storybook Pages
 

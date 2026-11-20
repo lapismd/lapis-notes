@@ -29,8 +29,12 @@ export function buildReleaseManifest({
   tarballs,
   generatedAt = new Date().toISOString(),
 }) {
-  const tarballByName = new Map(tarballs.map((tarball) => [tarball.name, tarball]));
-  const selectedNames = new Set(plan.selected.map((candidate) => candidate.name));
+  const tarballByName = new Map(
+    tarballs.map((tarball) => [tarball.name, tarball]),
+  );
+  const selectedNames = new Set(
+    plan.selected.map((candidate) => candidate.name),
+  );
 
   return {
     schemaVersion: 1,
@@ -51,7 +55,7 @@ export function buildReleaseManifest({
           name: record.name,
           directory: record.directory,
           version: record.version,
-          tag: "next",
+          tag: "latest",
           dependencies: [...record.internalDependencies],
           registryEmpty: Boolean(
             plan.selected.find((candidate) => candidate.name === record.name)
@@ -68,7 +72,9 @@ export function buildReleaseManifest({
   };
 }
 
-export function loadReleaseManifest(manifestPath = defaultReleaseManifestPath()) {
+export function loadReleaseManifest(
+  manifestPath = defaultReleaseManifestPath(),
+) {
   return JSON.parse(readFileSync(manifestPath, "utf8"));
 }
 
@@ -97,11 +103,15 @@ export function validateReleaseManifest(
   }
 
   const packageRecords = readPublicPackages(repoRoot);
-  const recordByName = new Map(packageRecords.map((record) => [record.name, record]));
+  const recordByName = new Map(
+    packageRecords.map((record) => [record.name, record]),
+  );
   const manifestRecords = manifest.packages.map((entry) => {
     const definition = recordByName.get(entry.name);
     if (!definition) {
-      throw new Error(`Release manifest includes unknown package ${entry.name}`);
+      throw new Error(
+        `Release manifest includes unknown package ${entry.name}`,
+      );
     }
     return {
       ...definition,
@@ -122,11 +132,15 @@ export function validateReleaseManifest(
     if (!semver.valid(entry.version)) {
       throw new Error(`${entry.name} release version is not valid semver`);
     }
-    if (entry.tag !== "next") {
-      throw new Error(`${entry.name} must publish the bootstrap candidate with the next tag`);
+    if (entry.tag !== "latest") {
+      throw new Error(
+        `${entry.name} must publish the stable release with the latest tag`,
+      );
     }
     if (typeof entry.registryEmpty !== "boolean") {
-      throw new Error(`${entry.name} must record whether the npm package was empty`);
+      throw new Error(
+        `${entry.name} must record whether the npm package was empty`,
+      );
     }
     if (typeof entry.shouldPublish !== "boolean") {
       throw new Error(`${entry.name} must record shouldPublish`);
@@ -146,10 +160,14 @@ export function validateReleaseManifest(
     if (requireTarballs) {
       const tarballPath = path.resolve(manifestDir, entry.tarball);
       if (!existsSync(tarballPath)) {
-        throw new Error(`${entry.name} tarball does not exist at ${tarballPath}`);
+        throw new Error(
+          `${entry.name} tarball does not exist at ${tarballPath}`,
+        );
       }
       if (statSync(tarballPath).size !== entry.size) {
-        throw new Error(`${entry.name} tarball size changed after manifest creation`);
+        throw new Error(
+          `${entry.name} tarball size changed after manifest creation`,
+        );
       }
     }
   }
