@@ -25,17 +25,17 @@ Current registry dependency coordinates; qualification remains separate.
 <!-- prettier-ignore -->
 | Manifest | Dependency | Range | Locked version |
 | --- | --- | --- | --- |
-| `package.json` (devDependencies) | `@lapismd/design-core` | `^0.13.6` | `0.13.6` |
-| `packages/api/package.json` (dependencies) | `@lapismd/design-core` | `^0.13.6` | `0.13.6` |
+| `package.json` (devDependencies) | `@lapismd/design-core` | `^0.13.7` | `0.13.7` |
+| `packages/api/package.json` (dependencies) | `@lapismd/design-core` | `^0.13.7` | `0.13.7` |
 | `packages/api/package.json` (peerDependencies) | `@lapismd/design-core` | `^0.8.0 \|\| ^0.9.0 \|\| ^0.10.0 \|\| ^0.12.0 \|\| ^0.13.0` | Peer support |
-| `packages/app-profile/package.json` (dependencies) | `@lapismd/design-core` | `^0.13.6` | `0.13.6` |
-| `packages/file-explorer/package.json` (dependencies) | `@lapismd/design-core` | `^0.7.0 \|\| ^0.8.0 \|\| ^0.9.0 \|\| ^0.10.0 \|\| ^0.12.0 \|\| ^0.13.0` | `0.13.6` |
-| `packages/ui/package.json` (dependencies) | `@lapismd/design-core` | `^0.13.6` | `0.13.6` |
+| `packages/app-profile/package.json` (dependencies) | `@lapismd/design-core` | `^0.13.7` | `0.13.7` |
+| `packages/file-explorer/package.json` (dependencies) | `@lapismd/design-core` | `^0.7.0 \|\| ^0.8.0 \|\| ^0.9.0 \|\| ^0.10.0 \|\| ^0.12.0 \|\| ^0.13.0` | `0.13.7` |
+| `packages/ui/package.json` (dependencies) | `@lapismd/design-core` | `^0.13.7` | `0.13.7` |
 | `packages/ui/package.json` (peerDependencies) | `@lapismd/design-core` | `^0.7.0 \|\| ^0.8.0 \|\| ^0.9.0 \|\| ^0.10.0 \|\| ^0.12.0 \|\| ^0.13.0` | Peer support |
-| `packages/web/package.json` (dependencies) | `@lapismd/design-core` | `^0.13.6` | `0.13.6` |
-| `packages/workspace/package.json` (dependencies) | `@lapismd/design-core` | `^0.13.6` | `0.13.6` |
+| `packages/web/package.json` (dependencies) | `@lapismd/design-core` | `^0.13.7` | `0.13.7` |
+| `packages/workspace/package.json` (dependencies) | `@lapismd/design-core` | `^0.13.7` | `0.13.7` |
 
-Manifest, peer and integrity facts SHA256: `b7dc009c8b45eb05c91d3b123bb25b20d152bc61f0299c98dbdcad9e7f34d8e7`.
+Manifest, peer and integrity facts SHA256: `5dee5973d840b6737b39d0845655ae63ecbc0321f794f1003dae9377314b39d2`.
 
 <!-- dependency-intake:framework-registry:end -->
 
