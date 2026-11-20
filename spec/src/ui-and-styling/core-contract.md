@@ -29,7 +29,7 @@ Source package versions only; publication and host adoption remain separate.
 {
   "schemaVersion": 1,
   "packages": {
-    "@lapis-notes/ui": "0.2.7"
+    "@lapis-notes/ui": "0.2.8"
   }
 }
 ```
