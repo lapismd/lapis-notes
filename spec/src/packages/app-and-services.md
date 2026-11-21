@@ -1,5 +1,7 @@
 # Packages / App and services
 
+The application profile exposes browser appearance, browser-frame metadata and installed window controls through `@lapis-notes/app-profile/browser-presentation`. The entry works independently of workspace session startup.
+
 The public API's LN-PLUG-138–140 progress reports retain activation compatibility
 and add a discovery phase with folder identities. Position and total describe
 the current batch. Shared App Profile sessions keep their existing callback

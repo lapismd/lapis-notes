@@ -1,5 +1,7 @@
 # Plugin Model / Distribution and registry / Part 1
 
+The shared browser appearance entry does not select plugin distribution. The standalone PWA still owns its verified plugin asset cache and hosted consumers retain the live asset transport.
+
 LN-WEB-090 changes chooser presentation and isolated Storybook fixtures; browser vault and plugin ownership remain with their existing hosts.
 
 Core 0.10.1 supplies shared window chrome without changing plugin ownership. Cloudflare PWA packaging preserves verified plugin asset URLs and the cache-only service-worker route. Production artifacts MUST use the ordinary registry configuration rather than the ephemeral signed acceptance-fixture trust (LN-WEB-084). Stable plugin host entrypoints revalidate under LN-WEB-088. Appearance acceptance (LN-WEB-087) shares the ordinary artifact and disposable browser context used for verified plugin/offline qualification.

@@ -42,12 +42,14 @@ export function isInstalledPwaHost(): boolean {
   );
 }
 
-export function initializeWebHostDocument(): void {
+export function initializePwaHostDocument(
+  runtime: "web-pwa" | "rust-server",
+): void {
   if (typeof document === "undefined" || typeof navigator === "undefined")
     return;
   const root = document.documentElement;
   root.dataset.pwaHost = "true";
-  root.dataset.runtime = "web-pwa";
+  root.dataset.runtime = runtime;
   root.dataset.pwaTitlebarHidden = "false";
   root.dataset.engine = detectEngine();
   root.dataset.os = detectOs(navigator as NavigatorWithUserAgentData);

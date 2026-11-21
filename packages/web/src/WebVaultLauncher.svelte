@@ -25,7 +25,7 @@
   import {
     applyWebHostAppearance as applyAppearance,
     observeWebHostAppearance,
-  } from "./host-appearance";
+  } from "@lapis-notes/app-profile/browser-presentation";
   import {
     isAbortError,
   } from "./vault-transfer";

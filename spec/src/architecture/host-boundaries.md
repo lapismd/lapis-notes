@@ -102,6 +102,8 @@ Memory-backed application hosts advertise the existing conditional text-write ca
 
 **Requirement.** Application hosts MAY register the reusable `@lapis-notes/file-explorer` contribution, but plugin enablement order, configuration and metadata boot, community-plugin policy, and teardown MUST remain host-owned. `@lapis-notes/workspace` MUST remain shell-only.
 
+Standalone Web and Server may share browser appearance through the public application profile. Each host selects its own runtime and installation lifecycle.
+
 ## LN-ARCH-035 — @lapis-notes/web: own browser vault selection, session boot, PWA
 
 <a id="ln-arch-035"></a>
