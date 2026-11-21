@@ -16,7 +16,7 @@
   import { onMount, untrack } from "svelte";
   import { createWebPluginAssetServer } from "./plugin-asset-server";
   import { createWebSessionHost } from "./web-session-host";
-  import { observeWebHostAppearance } from "./host-appearance";
+  import { observeWebHostAppearance } from "@lapis-notes/app-profile/browser-presentation";
 
   let {
     adapter,

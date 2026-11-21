@@ -102,6 +102,15 @@ Rust profiles keep the port absent until their separate cutover gates.
 
 **Requirement.** The browser host MUST apply the workspace's light, dark or system appearance to its document, persist the selected startup mode and follow system changes while system mode is selected. Browser-frame theme metadata MUST follow resolved shell paint in the launcher, running workspace and subsequent startup.
 
+## LN-WEB-094 — Shared browser presentation
+
+<a id="ln-web-094"></a>
+
+**Requirement.** The application profile MUST expose a browser presentation
+entry for the Lapis appearance, browser frame color and installed window
+controls shared by standalone Web and hosted implementations. Each host MUST
+retain its own runtime identity and service-worker lifecycle.
+
 ## LN-WEB-088 — Static asset cache identity
 
 <a id="ln-web-088"></a>

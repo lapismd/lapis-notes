@@ -37,7 +37,7 @@ The shared Web client follows App-owned mobile preferences under LN-WS-105/106. 
 
 LN-WEB-090 adapts the desktop chooser's native paint for browser-local vaults; it does not add hosted-server operations.
 
-The browser graph consumes published Core 0.10.1 for the native-control divider. The app.lapis.md Cloudflare deployment uses the standalone browser/PWA build. It does not deploy the retained hosted server profile, server credentials or API routes; those remain governed by this host chapter and the owning lapis-server specification. LN-WEB-087’s document-appearance bridge is selected only by the web-pwa runtime; LN-WEB-088 governs Cloudflare static caching separately from hosted responses.
+The browser graph consumes published Core 0.10.1 for the native-control divider. The app.lapis.md Cloudflare deployment uses the standalone browser/PWA build. It does not deploy the retained hosted server profile, server credentials or API routes; those remain governed by this host chapter and the owning lapis-server specification. LN-WEB-087’s standalone appearance follows the framework-neutral presentation entry under LN-WEB-094. The hosted consumer selects the same entry independently of its runtime and credentials; LN-WEB-088 governs Cloudflare static caching separately from hosted responses.
 
 Server integration requirements moved to the lapis-server specification:
 <https://lapismd.github.io/lapis-server/>.

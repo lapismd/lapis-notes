@@ -7,8 +7,12 @@ import "@lapismd/design-core/themes/lapis.css";
 import "@lapis-notes/ui/theme.css";
 import "@lapis-notes/ui/codemirror-autocomplete.css";
 import { mount } from "svelte";
-import { observeHostThemeColor } from "./host-theme-color";
-import { applyWebHostAppearance } from "./host-appearance";
+import {
+  applyWebHostAppearance,
+  initializePwaHostDocument,
+  observeHostThemeColor,
+  registerPwaWindowControlsOverlay,
+} from "@lapis-notes/app-profile/browser-presentation";
 import "./web-host.css";
 
 document.documentElement.dataset.lapisBuildCommit =
@@ -17,17 +21,15 @@ document.documentElement.dataset.lapisBuildCommit =
 let disposeWindowControls = () => {};
 let disposePwa = () => {};
 if (!__LAPIS_SERVER_MODE__) {
-  const [documentHost, pwa, controls, worker] = await Promise.all([
-    import("./pwa-host-document"),
+  const [pwa, worker] = await Promise.all([
     import("./pwa"),
-    import("./pwa-window-controls"),
     import("@lapis-notes/api/search-embedding-worker?worker"),
   ]);
-  documentHost.initializeWebHostDocument();
+  initializePwaHostDocument("web-pwa");
   setBrowserSearchEmbeddingWorkerFactory(
     () => new worker.default({ name: "lapis-search-embeddings" }),
   );
-  disposeWindowControls = controls.registerPwaWindowControlsOverlay();
+  disposeWindowControls = registerPwaWindowControlsOverlay();
   disposePwa = pwa.registerWebPwa();
 }
 applyWebHostAppearance(await getBootstrapAppearanceMode());
