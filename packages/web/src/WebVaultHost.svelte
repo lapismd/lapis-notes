@@ -22,6 +22,7 @@
     type WebLauncherStatus,
   } from "./WebVaultLauncher.svelte";
   import WebWorkspaceSession from "./WebWorkspaceSession.svelte";
+  import { ownPageVaultSession } from "./page-owned-vault-session";
   import {
     formatVaultCopyProgressMessage,
     importDirectoryHandleToNewOpfsVault,
@@ -32,6 +33,7 @@
     adapter: VaultAdapter;
     profile: VaultProfile;
     session: VaultSession;
+    releasePageOwnership: () => void;
   };
   type SessionComponent = {
     dispose(persistLayout: boolean): Promise<void>;
@@ -296,20 +298,29 @@
     profile: VaultProfile,
   ): Promise<void> {
     await disposeActiveSession(true);
-    const session = await createVaultSession(adapter, {
+    const createdSession = await createVaultSession(adapter, {
       runtime: "web-pwa",
       profile,
     });
+    const owned = ownPageVaultSession(createdSession);
+    const session = owned.session;
     if (!session.appDatabase || session.appDatabaseState.status === "blocked") {
+      owned.release();
       await session.close();
       throw new Error(
         session.appDatabaseState.message ?? "The Turso database is unavailable",
       );
     }
     try {
-      prepared = { adapter, profile, session };
+      prepared = {
+        adapter,
+        profile,
+        session,
+        releasePageOwnership: owned.release,
+      };
       await tick();
     } catch (error) {
+      owned.release();
       await disposeActiveSession(false);
       throw error;
     }
@@ -318,8 +329,10 @@
   async function disposeActiveSession(persistLayout: boolean): Promise<void> {
     const current = sessionComponent;
     const pending = prepared?.session;
+    const releasePageOwnership = prepared?.releasePageOwnership;
     if (current) await current.dispose(persistLayout);
     else if (pending) await pending.close();
+    releasePageOwnership?.();
     sessionComponent = null;
     prepared = null;
     await tick();
