@@ -1,5 +1,15 @@
 # @lapis-notes/app-profile
 
+## 0.3.0
+
+### Minor Changes
+
+- [#193](https://github.com/lapismd/lapis-notes/pull/193)
+  [`a97e934`](https://github.com/lapismd/lapis-notes/commit/a97e93408ab4ee076c8aeb45c225f6adb1a85c50)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Expose shared Lapis
+  browser appearance and installed window controls for standalone and hosted
+  clients.
+
 ## 0.2.8
 
 ### Patch Changes
