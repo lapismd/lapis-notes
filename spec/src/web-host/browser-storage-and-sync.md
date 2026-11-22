@@ -51,6 +51,12 @@ accessible result labels while preserving profile order and default enablement.
 
 **Requirement.** One tab MUST own each vault database while secondary tabs delegate through typed RPC and expose a `DB Proxy` status marker.
 
+## LN-WEB-095 — Page-exit browser vault release
+
+<a id="ln-web-095"></a>
+
+**Requirement.** A browser page that owns an open vault MUST start one idempotent `VaultSession.close()` operation as soon as a non-persisted `pagehide` begins, before remaining workspace and plugin teardown can delay database release. Graceful session disposal MUST join that same close operation, back-forward-cache preservation MUST retain ownership, and ordinary session retirement MUST remove the page listener. Production offline-reload acceptance MUST prove a replacement page reaches shell readiness from cached assets and vault data.
+
 ## LN-WEB-016 — Browser vault adapter: serialize append operations and append
 
 <a id="ln-web-016"></a>

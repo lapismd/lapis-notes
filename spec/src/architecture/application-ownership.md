@@ -50,6 +50,10 @@ The explicitly owned App also supplies the file-operation admission registry.
 Conditional-host plugin data, runtime choices and file creation join it before
 IO. Hosts drain admitted operations and App Shell transitions before entering
 the global writer guard and releasing views, plugins or the vault session.
+For a browser page that is actually leaving, LN-WEB-095 starts the owned vault
+session's idempotent close at `pagehide` so a replacement document is not
+blocked behind the rest of that teardown. Back-forward-cache preservation does
+not release ownership, and graceful disposal joins the same close operation.
 
 ## LN-ARCH-034 — App-database selection: use an API-owned provider contract. Production hosts
 
