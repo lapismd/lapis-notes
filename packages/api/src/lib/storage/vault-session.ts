@@ -130,7 +130,7 @@ function holdBrowserAppDatabaseOwnership(
     } finally {
       if (released) return;
       released = true;
-      coordinator.close();
+      await coordinator.close();
     }
   };
 
@@ -325,7 +325,7 @@ function createVaultSessionFactory(
         : undefined,
     close: async () => {
       await resolution.appDatabase?.close();
-      resolution.coordinator?.close();
+      await resolution.coordinator?.close();
     },
   });
 

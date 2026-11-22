@@ -65,7 +65,7 @@ complete snapshot; no database provider or authority is introduced.
 
 <a id="ln-db-011"></a>
 
-**Requirement.** Browser coordination MUST use Web Locks for ownership and BroadcastChannel for heartbeats and typed RPC. A surviving proxy MUST promote after the owner closes or becomes stale.
+**Requirement.** Browser coordination MUST use Web Locks for ownership and BroadcastChannel for heartbeats and typed RPC. Owner close MUST settle the Web Lock request before reporting release. A surviving proxy MUST promote after the owner closes or becomes stale.
 
 ## LN-DB-012 — Missing OPFS, isolation, locks, or channels: produce an explicit blocked state with accurate
 
