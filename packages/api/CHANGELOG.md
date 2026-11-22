@@ -1,5 +1,14 @@
 # @lapis-notes/api
 
+## 0.6.13
+
+### Patch Changes
+
+- [#196](https://github.com/lapismd/lapis-notes/pull/196)
+  [`1de080c`](https://github.com/lapismd/lapis-notes/commit/1de080c6e290687059720866210f3c5a096673ea)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Wait for browser database
+  ownership to be released before completing vault teardown.
+
 ## 0.6.12
 
 ### Patch Changes
