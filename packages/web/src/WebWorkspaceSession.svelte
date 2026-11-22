@@ -22,11 +22,13 @@
     adapter,
     runtime = "web-pwa",
     listProfiles = listVaultProfiles,
+    onPreparePwaUpdate,
     ...options
   }: Omit<NotesWorkspaceSessionProps, "runtime" | "listProfiles" | "host"> & {
     adapter: VaultAdapter;
     runtime?: NotesWorkspaceSessionProps["runtime"];
     listProfiles?: NotesWorkspaceSessionProps["listProfiles"];
+    onPreparePwaUpdate?: () => Promise<void>;
   } = $props();
   let component: NotesWorkspaceSessionHandle | undefined = $state();
   let ownedApp: App | undefined = $state();
@@ -35,7 +37,7 @@
       options.session,
       !!options.nativeChat,
       runtime === "web-pwa",
-      () => dispose(true),
+      onPreparePwaUpdate ?? (() => dispose(true)),
     ),
   );
   const pluginAssetServer = untrack(

@@ -358,6 +358,7 @@
         onReady={() => {
           status = "ready";
         }}
+        onPreparePwaUpdate={() => serialize(() => disposeActiveSession(true))}
         onOpenRecent={openRecent}
         onManageVaults={showLauncher}
       />
