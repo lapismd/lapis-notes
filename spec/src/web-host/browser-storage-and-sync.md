@@ -51,6 +51,18 @@ accessible result labels while preserving profile order and default enablement.
 
 **Requirement.** One tab MUST own each vault database while secondary tabs delegate through typed RPC and expose a `DB Proxy` status marker.
 
+## LN-WEB-095 — Page-exit browser vault release
+
+<a id="ln-web-095"></a>
+
+**Requirement.** A browser page that owns an open vault MUST await one idempotent `VaultSession.close()` operation before an interceptable cross-document navigation commits, with non-persisted `pagehide` as the fallback before remaining workspace and plugin teardown can delay database release. Graceful session disposal MUST join that same close operation, back-forward-cache traversal MUST retain ownership, and ordinary session retirement MUST remove both lifecycle listeners. Production offline-reload acceptance MUST prove a replacement page reaches shell readiness from cached assets and vault data.
+
+## LN-WEB-096 — Guarded PWA update retirement
+
+<a id="ln-web-096"></a>
+
+**Requirement.** Installing an available PWA update MUST ask the outer Web vault host to persist and retire its complete active session before the service worker reload begins. Refused retirement MUST keep the current session available and the update retryable. Production update acceptance MUST prove the replacement page reaches shell readiness with the preserved vault data.
+
 ## LN-WEB-016 — Browser vault adapter: serialize append operations and append
 
 <a id="ln-web-016"></a>

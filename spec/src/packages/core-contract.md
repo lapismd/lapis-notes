@@ -81,6 +81,12 @@ R1.3.11 retains Web's existing public App-owned vault-change service. Starting i
 before ready and draining it before host teardown restores internal file-view
 projection; no API export, alternative file writer or scheduler is added.
 
+LN-WEB-095 remains private Web-package lifecycle composition. It wraps the
+existing `VaultSession.close()` operation with one page-owned close flight; it
+does not add a public package export or change the session close contract.
+LN-WEB-096 routes guarded update preparation through that Web-owned lifecycle;
+it likewise adds no public API or package contract.
+
 UI's existing public theme export supplies shared search-highlight defaults.
 Dark-mode contrast is qualified under LN-UI-020 on workspace/sidebar normal,
 hover and active rows, without a consumer override or an additional export.

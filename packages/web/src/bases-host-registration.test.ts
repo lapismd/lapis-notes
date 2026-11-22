@@ -110,6 +110,22 @@ describe("web plugin profile registration", () => {
     expect(host).toContain("detail:");
   });
 
+  it("routes guarded PWA updates through the outer vault owner", () => {
+    const host = readFileSync(
+      path.resolve(process.cwd(), "src/WebVaultHost.svelte"),
+      "utf8",
+    );
+    const session = readFileSync(
+      path.resolve(process.cwd(), "src/WebWorkspaceSession.svelte"),
+      "utf8",
+    );
+
+    expect(host).toContain(
+      "onPreparePwaUpdate={() => serialize(() => disposeActiveSession(true))}",
+    );
+    expect(session).toContain("onPreparePwaUpdate ?? (() => dispose(true))");
+  });
+
   it("offers Import Vault beside Open Folder", () => {
     const launcher = readFileSync(
       path.resolve(process.cwd(), "src/WebVaultLauncher.svelte"),

@@ -101,4 +101,10 @@ calls settle and surfaces every cleanup failure without closing native durable
 work. Concurrent native service drains remain observed while another owner is
 pending, before plugin and session teardown can proceed.
 
+Standalone Web page exit under LN-WEB-095 may begin the browser database close
+before remaining plugin teardown completes. Guarded updates under LN-WEB-096
+first ask the outer owner to drain plugin work and retire the session. The later
+page close joins that same idempotent operation instead of constructing or
+releasing a second plugin lifecycle.
+
 Under LN-PKG-132, the History `^0.5.0` Profile intake retains the same explicit App binding, plugin loading order and teardown authority. Its native synchronization observer schedules no transfers and holds no credentials. See [History 0.5 intake](../../records/2026-11-15-profile-history-050-intake.md).
