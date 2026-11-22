@@ -55,7 +55,7 @@ accessible result labels while preserving profile order and default enablement.
 
 <a id="ln-web-095"></a>
 
-**Requirement.** A browser page that owns an open vault MUST await one idempotent `VaultSession.close()` operation before an interceptable cross-document navigation commits, with non-persisted `pagehide` as the fallback before remaining workspace and plugin teardown can delay database release. Graceful session disposal MUST join that same close operation, back-forward-cache traversal MUST retain ownership, and ordinary session retirement MUST remove both lifecycle listeners. Production offline-reload acceptance MUST prove a replacement page reaches shell readiness from cached assets and vault data.
+**Requirement.** A browser page that owns an open vault MUST await one idempotent `VaultSession.close()`, including its Web Lock lease, before interceptable cross-document navigation commits. Non-persisted `pagehide` MUST start that close before other teardown can delay database release. Graceful disposal MUST join the operation, back-forward-cache traversal MUST retain ownership, and ordinary retirement MUST remove both lifecycle listeners. Production offline-reload acceptance MUST prove a replacement page reaches shell readiness from cached assets and vault data.
 
 ## LN-WEB-096 — Guarded PWA update retirement
 

@@ -447,7 +447,7 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
       this.rpcChannel?.close();
       this.rpcChannel = null;
       if (!this.startsOwned) {
-        this.coordinator.close();
+        await this.coordinator.close();
       }
     }
   }

@@ -569,4 +569,35 @@ describe("BrowserAppDatabaseCoordinator", () => {
       expect.any(Function),
     );
   }, 2_000);
+
+  it("settles the browser lock lease before owner close completes", async () => {
+    let finishRequest: (() => void) | undefined;
+    const request = vi.fn(async (_name, _options, callback) => {
+      await callback({ name: _name });
+      await new Promise<void>((resolve) => {
+        finishRequest = resolve;
+      });
+    });
+
+    vi.stubGlobal("navigator", {
+      locks: {
+        request,
+      },
+    });
+
+    const primary = new BrowserAppDatabaseCoordinator("vault-under-test");
+    expect(await primary.tryAcquireOwnership()).toBe(true);
+
+    let settled = false;
+    const closing = Promise.resolve(primary.close()).then(() => {
+      settled = true;
+    });
+    await Promise.resolve();
+
+    expect(settled).toBe(false);
+    await vi.waitFor(() => expect(finishRequest).toBeDefined());
+    finishRequest?.();
+    await closing;
+    expect(settled).toBe(true);
+  });
 });

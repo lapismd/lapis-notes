@@ -67,6 +67,7 @@ export class BrowserAppDatabaseCoordinator {
   readonly rpcChannelName: string;
 
   private releaseLock: (() => void) | null = null;
+  private lockRequest: Promise<void> | null = null;
   private heartbeatChannel: BroadcastChannel | null = null;
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
   private lastHeartbeatAt = 0;
@@ -105,6 +106,9 @@ export class BrowserAppDatabaseCoordinator {
     if (this.releaseLock) {
       return true;
     }
+    if (this.lockRequest) {
+      await this.lockRequest;
+    }
 
     let resolveReady!: (release: (() => void) | null) => void;
     let rejectReady!: (error: unknown) => void;
@@ -125,7 +129,7 @@ export class BrowserAppDatabaseCoordinator {
       };
     });
 
-    void navigator.locks
+    const lockRequest = navigator.locks
       .request(
         this.lockName,
         { mode: "exclusive", ifAvailable: true },
@@ -145,11 +149,12 @@ export class BrowserAppDatabaseCoordinator {
       .catch((error) => {
         rejectReady(error);
       });
+    this.lockRequest = lockRequest;
 
     try {
       return Boolean(await ready);
     } catch (error) {
-      this.release();
+      await this.release();
       throw error;
     }
   }
@@ -210,7 +215,7 @@ export class BrowserAppDatabaseCoordinator {
     return false;
   }
 
-  release(): void {
+  async release(): Promise<void> {
     if (this.heartbeatTimer) {
       clearInterval(this.heartbeatTimer);
       this.heartbeatTimer = null;
@@ -218,10 +223,17 @@ export class BrowserAppDatabaseCoordinator {
 
     this.releaseLock?.();
     this.releaseLock = null;
+    const lockRequest = this.lockRequest;
+    if (lockRequest) {
+      await lockRequest;
+      if (this.lockRequest === lockRequest) {
+        this.lockRequest = null;
+      }
+    }
   }
 
-  close(): void {
-    this.release();
+  async close(): Promise<void> {
+    await this.release();
     this.heartbeatChannel?.close();
     this.heartbeatChannel = null;
   }
