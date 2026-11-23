@@ -357,3 +357,9 @@ CLI settings expose a controller-owned presentation port through UI's
 `/cli` entry point. Host-specific installation, download and credential authority
 stay in their hosts; the presentation does not import an App implementation or
 require consumers to migrate unrelated App API versions.
+
+Localization remains API-owned. Its peer contract permits patched i18next 26
+alongside existing 25 compatibility; source qualification selects the patched
+major, and security-adopting hosts declare that peer directly. The owner adds
+public compatibility before consumers adopt it, without a consumer override,
+vendored implementation or audit exception.
