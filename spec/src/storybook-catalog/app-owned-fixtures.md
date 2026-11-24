@@ -176,6 +176,11 @@ authorization to merge red required checks. Remaining cases stay enabled.
 
 **Requirement.** CI registry fixtures MUST use a pinned Plugins revision without retired shared AI. The checked-out source's retirement audit MUST pass before dependency installation, compilation or packing. An absent or rejecting audit MUST stop the fixture build before those operations.
 
+The fixture source also selects the owning Plugins tooling fix for patched
+i18next 26. The ordinary advisory audit remains before builds; this source
+refresh adds no CVE ignore or release/signing authority. Source fixture
+qualification and hosted Web acceptance remain separate evidence.
+
 ## LN-CAT-125 — Registry acceptance without retired AI
 
 <a id="ln-cat-125"></a>

@@ -53,3 +53,8 @@ classifier but are not enumerated in ordinary error serialization. This improves
 failure evidence without broadening retry, deadline or publication authority.
 [The diagnostics intake record](../../records/2026-11-18-readiness-diagnostics.md)
 retains the missing-module regression and separate hosted acceptance boundary.
+
+The signed Web fixture consumes an immutable reviewed Plugins source with
+patched localization tooling. Its source audit, complete package/payload
+preparation and test signatures qualify fixture construction; actual hosted
+Web acceptance still runs against that exact fixture source.

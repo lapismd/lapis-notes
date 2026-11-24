@@ -363,3 +363,8 @@ alongside existing 25 compatibility; source qualification selects the patched
 major, and security-adopting hosts declare that peer directly. The owner adds
 public compatibility before consumers adopt it, without a consumer override,
 vendored implementation or audit exception.
+
+Registry fixture dependency defects are fixed in the owning Plugins tooling
+graph before Notes advances its immutable candidate pin. The localization
+refresh preserves native and publication authority while keeping source
+qualification distinct from the host's exact-fixture acceptance.
