@@ -17,6 +17,7 @@ export function createNotesApplication(options: NotesWorkspaceSessionProps) {
     configPath: appStatePath("app.json"),
     session: options.session,
     syncHost: options.host?.syncHost,
+    pluginSecretsHost: options.host?.pluginSecretsHost,
     pluginAssetServer: options.pluginAssetServer,
     pluginDistributionOptions: options.pluginDistributionOptions,
     unavailablePlugins: options.host?.unavailablePlugins ?? {

@@ -1,5 +1,8 @@
 # Packages / Host and plugin integration
 
+API exports the async plugin secrets facade and its host adapter under
+LN-PLUG-144. App Profile forwards the optional host port into the App session.
+
 The prepared partial release is UI `0.2.2` → API `0.6.7` → Workspace `0.4.7`
 for the admitted Core `^0.13.4` intake. API's UI peer floor becomes `^0.2.2`;
 Workspace's API/UI dependencies become `^0.6.7`/`^0.2.2`. The existing three

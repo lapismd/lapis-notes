@@ -1,5 +1,8 @@
 # Markdown Plugin / Integration contracts
 
+Plugin credential access follows LN-PLUG-144. Markdown registrations and
+workspace ownership do not grant native secret scopes.
+
 LN-PLUG-141–143 headless handlers receive no Markdown editor or renderer callbacks. Guarded native frontmatter operations preserve the retained Markdown document and editing-claim boundary.
 
 File-view artwork follows LN-PLUG-122 independently of an instantiated tab's

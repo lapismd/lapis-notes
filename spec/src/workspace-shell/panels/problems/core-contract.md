@@ -1,5 +1,8 @@
 # Problems / Integration contracts
 
+Plugin secret transport errors expose bounded messages under LN-PLUG-144.
+Credential values and scope handles stay out of workspace diagnostics.
+
 LN-PLUG-142 adds an optional App-owned background-job observer before workspace trust construction. Job failures remain in native run history and settings; this service does not replace Problems collections or their editor ownership.
 
 Source package versions only; publication and host adoption remain separate.

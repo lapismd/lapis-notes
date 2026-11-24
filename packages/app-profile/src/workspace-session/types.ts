@@ -14,6 +14,7 @@ type AppOptions = ConstructorParameters<typeof App>[0];
 /** Browser permissions and platform registration remain owned by the host. */
 export interface NotesWorkspaceHost {
   syncHost?: AppOptions["syncHost"];
+  pluginSecretsHost?: AppOptions["pluginSecretsHost"];
   unavailablePlugins?: AppOptions["unavailablePlugins"];
   attach?(app: App, syncHost: SyncHostService): () => void;
   configure?(app: App): Promise<(() => void) | void>;

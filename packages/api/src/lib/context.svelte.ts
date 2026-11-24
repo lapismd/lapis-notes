@@ -165,6 +165,7 @@ export type AppStateProperties = {
   safeMode?: AppSafeModeState;
   createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
   pluginAssetServer?: PluginAssetServer;
+  pluginSecretsHost?: import("./plugin-secrets").PluginSecretsHost;
   pluginDistributionOptions?: AppPluginDistributionOptions;
   /** Host restrictions apply to discovery, installation and external loading. */
   unavailablePlugins?: DefaultPluginDistributionManagerOptions["unavailablePlugins"];
@@ -504,6 +505,7 @@ export class App {
         createCommunityPluginDependencyResolver:
           props.createCommunityPluginDependencyResolver,
         pluginAssetServer: props.pluginAssetServer,
+        pluginSecretsHost: props.pluginSecretsHost,
         unavailablePlugins: props.unavailablePlugins,
         createSyncHostCapabilities: (pluginId, grants) =>
           this.#syncHost.forPlugin(pluginId, grants),

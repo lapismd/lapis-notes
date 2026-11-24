@@ -1,5 +1,6 @@
 import { readPluginEntrySources } from "./plugin-entry-sources";
 import { installManifestDiscovery } from "./plugin-manifest-discovery";
+import { bindPluginSecrets, type PluginSecretsHost } from "./plugin-secrets";
 import type { App } from "./context.svelte";
 import type { DataAdapter } from "./storage/fs";
 import { Platform } from "./platform";
@@ -161,6 +162,7 @@ export interface CommunityPluginExecutionHost {
 }
 
 export interface PluginManagerOptions {
+  pluginSecretsHost?: PluginSecretsHost;
   unavailablePlugins?: PluginHostRestrictions;
   communityPluginHost?: CommunityPluginExecutionHost;
   createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
@@ -796,6 +798,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
   #unavailablePlugins: PluginHostRestrictions;
   #createSyncHostCapabilities?: PluginManagerOptions["createSyncHostCapabilities"];
   #revokeSyncHostCapabilities?: PluginManagerOptions["revokeSyncHostCapabilities"];
+  #pluginSecretsHost?: PluginSecretsHost;
 
   constructor(
     readonly app: App,
@@ -812,6 +815,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     this.#unavailablePlugins = { ...options.unavailablePlugins };
     this.#createSyncHostCapabilities = options.createSyncHostCapabilities;
     this.#revokeSyncHostCapabilities = options.revokeSyncHostCapabilities;
+    this.#pluginSecretsHost = options.pluginSecretsHost;
     const commonJsHost =
       options.communityPluginHost ??
       new RendererCommunityPluginExecutionHost(adapter, dependencyResolver);
@@ -2073,15 +2077,24 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       throw new Error(`Plugin id ${plugin.manifest.id} is already registered`);
     }
 
-    const grantedCapabilities = isExternalPluginSource(options.source)
-      ? this.getGrantedCapabilities(plugin.manifest)
-      : options.source === "system"
-        ? (this.#lapisExtensionIndex.get(plugin.manifest.id)
-            ?.grantedCapabilities ?? [])
-        : (plugin.manifest.requiredCapabilities ?? []).filter(
-            (capability): capability is HostedPluginCapability =>
-              typeof capability === "string",
-          );
+    const grantedCapabilities: HostedPluginCapability[] = (
+      isExternalPluginSource(options.source)
+        ? this.getGrantedCapabilities(plugin.manifest)
+        : options.source === "system"
+          ? (this.#lapisExtensionIndex.get(plugin.manifest.id)
+              ?.grantedCapabilities ?? [])
+          : (plugin.manifest.requiredCapabilities ?? []).filter(
+              (capability): capability is HostedPluginCapability =>
+                typeof capability === "string",
+            )
+    ).filter((capability) => capability !== "plugin:secrets");
+    const pluginId = plugin.manifest.id;
+    const secretsHost = this.#pluginSecretsHost;
+    const allowSecrets = () =>
+      this.app.workspaceTrust.trusted && secretsHost?.allows(pluginId) === true;
+    if (this.secretsRequested(plugin.manifest) && allowSecrets()) {
+      grantedCapabilities.push("plugin:secrets");
+    }
     plugin.configureRuntime({
       source: options.source,
       provenance: options.provenance,
@@ -2117,6 +2130,14 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
               ?.requestedCapabilities ?? [])
           : [],
       grantedCapabilities,
+      openPluginSecrets:
+        secretsHost && grantedCapabilities.includes("plugin:secrets")
+          ? () =>
+              bindPluginSecrets(
+                { allows: allowSecrets, open: (id) => secretsHost.open(id) },
+                pluginId,
+              )
+          : undefined,
       createSyncHostCapabilities: this.#createSyncHostCapabilities
         ? () =>
             this.#createSyncHostCapabilities!(
@@ -2834,7 +2855,10 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
   private getRequestedCapabilities(
     manifest: PluginManifest,
   ): HostedPluginCapability[] {
-    const validCapabilities = new Set(HOSTED_PLUGIN_CAPABILITIES);
+    const validCapabilities = new Set<HostedPluginCapability>([
+      ...HOSTED_PLUGIN_CAPABILITIES,
+      "plugin:secrets",
+    ]);
     return [
       ...new Set([
         ...normalizeStringArray(manifest.requiredCapabilities).filter(
@@ -2847,10 +2871,19 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
   }
 
   private getInvalidRequiredCapabilities(manifest: PluginManifest): string[] {
-    const validCapabilities = new Set(HOSTED_PLUGIN_CAPABILITIES);
+    const validCapabilities = new Set<HostedPluginCapability>([
+      ...HOSTED_PLUGIN_CAPABILITIES,
+      "plugin:secrets",
+    ]);
     return normalizeStringArray(manifest.requiredCapabilities).filter(
       (capability) =>
         !validCapabilities.has(capability as HostedPluginCapability),
+    );
+  }
+
+  private secretsRequested(manifest: PluginManifest): boolean {
+    return normalizeStringArray(manifest.requiredCapabilities).includes(
+      "plugin:secrets",
     );
   }
 
@@ -2863,10 +2896,16 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     if (!this.app.workspaceTrust.trusted) {
       return [];
     }
-    if (isSidecarHost(this.getHostIdForManifest(manifest))) {
-      return [...HOSTED_PLUGIN_CAPABILITIES];
+    const granted = isSidecarHost(this.getHostIdForManifest(manifest))
+      ? [...HOSTED_PLUGIN_CAPABILITIES]
+      : permissionsToCapabilities(manifest.lapis?.permissions);
+    if (
+      this.secretsRequested(manifest) &&
+      this.#pluginSecretsHost?.allows(manifest.id)
+    ) {
+      granted.push("plugin:secrets");
     }
-    return permissionsToCapabilities(manifest.lapis?.permissions);
+    return granted;
   }
 
   private recordCommunityPluginDiagnostics(

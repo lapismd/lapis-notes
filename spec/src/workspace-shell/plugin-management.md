@@ -1,5 +1,8 @@
 # Workspace Shell / Plugin management
 
+Disabling or unloading a plugin retires its active LN-PLUG-144 credential
+facade, including references retained by earlier plugin code.
+
 Background jobs settings under LN-PLUG-143 shares the owning workspace Settings controller. Approval, capability selection, pause, manual runs and handoff use the App-owned port; status refresh is passive observation.
 
 Versioned native operation declarations follow

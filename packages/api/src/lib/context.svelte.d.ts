@@ -80,6 +80,7 @@ export type AppStateProperties = {
     safeMode?: AppSafeModeState;
     createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
     pluginAssetServer?: PluginAssetServer;
+    pluginSecretsHost?: import("./plugin-secrets").PluginSecretsHost;
     pluginDistributionOptions?: AppPluginDistributionOptions;
     /** Host restrictions apply to discovery, installation and external loading. */
     unavailablePlugins?: DefaultPluginDistributionManagerOptions["unavailablePlugins"];
