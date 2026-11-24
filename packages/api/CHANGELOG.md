@@ -1,5 +1,15 @@
 # @lapis-notes/api
 
+## 0.6.15
+
+### Patch Changes
+
+- [#201](https://github.com/lapismd/lapis-notes/pull/201)
+  [`343ca74`](https://github.com/lapismd/lapis-notes/commit/343ca7461506aa49552e8633879051a8e310d656)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Add typed headless plugin
+  job declarations, an App-owned native observation port and shared settings for
+  opt-in schedules, scoped grants, history and runner handoff.
+
 ## 0.6.14
 
 ### Patch Changes
