@@ -1,5 +1,16 @@
 # @lapis-notes/api
 
+## 0.6.14
+
+### Patch Changes
+
+- [#198](https://github.com/lapismd/lapis-notes/pull/198)
+  [`fc90a05`](https://github.com/lapismd/lapis-notes/commit/fc90a059e04e944c2f3b8f11e4283a0c8f9d3c08)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Support the patched
+  i18next 26 peer alongside existing i18next 25 compatibility. Qualify deep
+  translation resource merges, locale selection, interpolation and disposal
+  against the patched major so hosts can adopt it without a dependency override.
+
 ## 0.6.13
 
 ### Patch Changes
