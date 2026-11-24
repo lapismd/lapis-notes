@@ -1,5 +1,7 @@
 # Backlog
 
+- Complete clean-commit release preparation, package publication and both native-host acceptance for LN-PLUG-141–143. Notes source checks and all 243 cold interactions/axe pass; native metadata default cutover remains a separate verified gate.
+
 - Publish and adopt the LN-PLUG-138–140 API patch in Server/Desktop/Web.
   [Source qualification](../records/2026-11-20-plugin-startup-progress.md) passes
   full checks, tests, builds, cold interactions and public archive verification;

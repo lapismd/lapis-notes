@@ -2,6 +2,8 @@
 
 Web and Tauri mobile share the App Profile session component under LN-PKG-132. Browser startup supplies its web runtime and browser vault profile; mobile startup supplies a mobile-managed profile.
 
+LN-PLUG-141–143 exposes background jobs only when a host supplies an admitted native port. Standalone browser Web keeps its existing lifetime and supplies no background scheduler.
+
 LN-CAT-125 exercises the signed fixture browser through active Graph, then
 verified Word Count installation and persisted Settings/navigation. The
 retired first-party AI category is absent from that fixture; independent

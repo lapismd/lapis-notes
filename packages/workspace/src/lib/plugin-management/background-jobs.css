@@ -1,0 +1,72 @@
+[data-ui-part="background-jobs"] .lapis-job {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--ui-lapis-plugin-border);
+}
+.lapis-job__header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.lapis-job h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.lapis-job p {
+  margin: 0.25rem 0;
+  color: var(--ui-lapis-plugin-muted-foreground);
+}
+.lapis-job__actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.lapis-job__fields {
+  display: grid;
+  grid-template-columns: minmax(7rem, 1fr) minmax(8rem, 2fr);
+  gap: 0.5rem;
+  align-items: center;
+  max-width: 32rem;
+}
+.lapis-job__fields select {
+  background: var(--ui-lapis-plugin-surface);
+  color: var(--ui-lapis-plugin-foreground);
+  border: 1px solid var(--ui-lapis-plugin-border);
+  border-radius: var(--ui-lapis-plugin-radius);
+  padding: 0.5rem;
+}
+.lapis-job__permissions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.lapis-job__permissions legend {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+.lapis-job__permissions label {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.lapis-job details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.lapis-job summary {
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+}
+@media (max-width: 480px) {
+  .lapis-job__fields {
+    grid-template-columns: 1fr;
+  }
+}

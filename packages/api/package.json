@@ -108,6 +108,9 @@
       ],
       "native-editing-intents": [
         "dist/native-editing-intents.d.ts"
+      ],
+      "background-jobs": [
+        "dist/background-jobs.d.ts"
       ]
     }
   },
@@ -307,6 +310,11 @@
     "./skill-management": {
       "types": "./dist/skill-management.d.ts",
       "default": "./dist/skill-management.js"
+    },
+    "./background-jobs": {
+      "types": "./dist/background-jobs.d.ts",
+      "import": "./dist/background-jobs.js",
+      "default": "./dist/background-jobs.js"
     }
   },
   "devDependencies": {

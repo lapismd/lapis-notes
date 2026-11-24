@@ -216,5 +216,9 @@
   "stories/api/CliSettingsRegistration.stories.ts": {
     "kind": "component",
     "subject": "@lapismd/design-core/workspace/settings#AppSettingsRoot"
+  },
+  "stories/workspace/BackgroundJobs.stories.ts": {
+    "kind": "component",
+    "subject": "@lapismd/design-core/workspace/settings#WorkspaceSettingsSurface"
   }
 }

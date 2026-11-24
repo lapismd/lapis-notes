@@ -1,4 +1,6 @@
 import { isAgentSkillContribution, type AgentSkillContribution } from "./skill-management";
+import { isBackgroundJobDescriptor } from "./background-jobs-validation";
+import type { BackgroundJobDescriptor } from "./background-jobs";
 import type { Command, Hotkey } from "./command.svelte";
 import type { OperationContribution } from "./operations";
 import type { HostedPluginCapability } from "./plugin-capability-facade";
@@ -151,6 +153,7 @@ export interface LapisStatusBarItemContribution {
 }
 
 export interface LapisExtensionContributions {
+  backgroundJobs?: BackgroundJobDescriptor[];
   agentSkills?: AgentSkillContribution[];
   operations?: OperationContribution[];
   commands?: LapisCommandContribution[];
@@ -368,6 +371,14 @@ export function validateLapisManifest(
   if (lapis.contributes !== undefined && !isRecord(lapis.contributes)) {
     diagnostics.push(`Plugin ${pluginId} has invalid lapis.contributes`);
   }
+  if (isRecord(lapis.contributes) && lapis.contributes.backgroundJobs !== undefined) {
+    const jobs = lapis.contributes.backgroundJobs;
+    if (!Array.isArray(jobs) || jobs.length > 16 || jobs.some((job) => !isBackgroundJobDescriptor(job))) {
+      diagnostics.push(`Plugin ${pluginId} has invalid bounded background job declarations`);
+    } else if (new Set(jobs.map((job) => job.id)).size !== jobs.length) {
+      diagnostics.push(`Plugin ${pluginId} has duplicate background job IDs`);
+    }
+  }
   if (lapis.database !== undefined) {
     if (!isRecord(lapis.database)) {
       diagnostics.push(`Plugin ${pluginId} has invalid lapis.database`);
@@ -549,6 +560,12 @@ export function normalizeManifestCommandId(
 
 const BUILT_IN_CONTRIBUTION_POINT_DESCRIPTORS: readonly LapisContributionPointDescriptor[] =
   [
+    createContributionPointDescriptor<BackgroundJobDescriptor>({
+      kind: "backgroundJobs", manifestInstallable: true,
+      validationMessage: "expected a bounded headless job with a package-relative ESM entry, schedule and explicit permissions",
+      isContribution: isBackgroundJobDescriptor,
+      buildEntry: ({ contribution }) => ({ id: contribution.id, contribution, requiredPermissions: [] }),
+    }),
     createContributionPointDescriptor<AgentSkillContribution>({
       kind: "agentSkills", manifestInstallable: true,
       validationMessage: "expected a skill name and confined package-relative directory",

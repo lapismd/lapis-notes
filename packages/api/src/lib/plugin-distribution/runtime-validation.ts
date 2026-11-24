@@ -3,7 +3,11 @@ import {
   type LapisExtensionManifest,
   validateLapisManifest,
 } from "../lapis-extension";
-import { scanBarePluginDependencySpecifiers } from "../plugin-dependency-scanner";
+import {
+  scanBarePluginDependencySpecifiers,
+  scanPluginDependencySpecifiers,
+} from "../plugin-dependency-scanner";
+import { isBackgroundJobDescriptor } from "../background-jobs-validation";
 import type { PluginManifest } from "../plugin";
 import { canonicalJson } from "./canonical-json";
 import type {
@@ -53,6 +57,30 @@ export function validatePluginReleaseRuntime(
   const signedRuntime = normalizeRuntimeMetadata(
     options.releaseManifest.runtime,
   );
+  const jobs = options.pluginManifest.lapis?.contributes?.backgroundJobs;
+  if (Array.isArray(jobs)) {
+    for (const job of jobs.filter(isBackgroundJobDescriptor)) {
+      const bytes = options.files.get(job.entry);
+      if (!bytes) {
+        diagnostics.push(
+          diagnostic(official, "runtime-entry-file-missing", {
+            message: `Background handler ${job.entry} is missing from the signed bundle.`,
+            details: { path: job.entry },
+          }),
+        );
+      } else if (
+        bytes.length > 1024 * 1024 ||
+        scanPluginDependencySpecifiers(new TextDecoder().decode(bytes)).length
+      ) {
+        diagnostics.push(
+          diagnostic(official, "runtime-entry-format-mismatch", {
+            message: `Background handler ${job.entry} must be a self-contained ESM module within 1 MiB.`,
+            details: { path: job.entry },
+          }),
+        );
+      }
+    }
+  }
 
   if (options.pluginManifest.lapis) {
     const manifestDiagnostics = validateLapisManifest(

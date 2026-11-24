@@ -725,10 +725,12 @@ export class MetadataCache extends EventDispatcher<{
   async dispose(options: { persist?: boolean } = {}): Promise<void> {
     if (this.disposePromise) return this.disposePromise;
     const nativeTasksDetached = this.app.nativeTasks?.detach();
+    const backgroundJobsDetached = this.app.backgroundJobs?.detach();
     const nativeSyncDetached = this.app.nativeSync?.dispose();
     const operationsDetached = this.app.operations?.detach();
     // Observe all started drains before any other synchronous cleanup can fail.
     const nativeDetached = Promise.allSettled([
+      backgroundJobsDetached,
       nativeTasksDetached,
       nativeSyncDetached,
       operationsDetached,

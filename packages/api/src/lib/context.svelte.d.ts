@@ -1,3 +1,4 @@
+import type { NativeBackgroundJobs, BackgroundJobSession } from "./background-jobs";
 import type { IconRegistry } from "./icons/registry";
 import type { NativeTasks, NativeTasksSession } from "./native-tasks";
 import type { OperationHost, OperationSession } from "./operations";
@@ -70,6 +71,7 @@ export type AppStateProperties = {
     nativeHistoryIndex?: NativeHistoryIndex;
     nativeEditingIntents?: NativeEditingIntents;
     nativeTasks?: NativeTasks;
+    nativeBackgroundJobs?: NativeBackgroundJobs;
     /** Optional host-owned Sync service; the selected provider remains explicit. */
     nativeSync?: NativeSyncPort;
     operations?: OperationHost;
@@ -181,6 +183,7 @@ export declare class App {
     readonly session?: VaultSession;
     readonly nativeHistoryIndex?: NativeHistoryIndex;
     readonly nativeTasks?: NativeTasksSession;
+    readonly backgroundJobs?: BackgroundJobSession;
     readonly nativeSync?: NativeSyncService;
     readonly operations?: OperationSession;
     readonly skillManagement: import("./skill-management").SkillManagementHost;

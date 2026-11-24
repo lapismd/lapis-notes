@@ -1,4 +1,5 @@
 import type { NativeTasks } from "../native-tasks";
+import type { NativeBackgroundJobs } from "../background-jobs";
 import {
   EMPTY_APP_DATABASE_CAPABILITIES,
   MemoryAppDatabase,
@@ -54,6 +55,7 @@ export interface VaultSession {
   nativeHistoryIndex?: NativeHistoryIndex;
   nativeEditingIntents?: NativeEditingIntents;
   nativeTasks?: NativeTasks;
+  nativeBackgroundJobs?: NativeBackgroundJobs;
   nativeSync?: NativeSyncPort;
   operations?: import("../operations").OperationHost;
   skillManagement?: import("../skill-management").SkillManagementHost;

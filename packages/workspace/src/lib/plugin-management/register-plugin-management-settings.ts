@@ -7,6 +7,7 @@ import type {
 import CommunityPluginsSettingsPage from "./CommunityPluginsSettingsPage.svelte";
 import CorePluginsSettingsPage from "./CorePluginsSettingsPage.svelte";
 import PluginRegistrySettingsPage from "./PluginRegistrySettingsPage.svelte";
+import BackgroundJobsSettingsPage from "./BackgroundJobsSettingsPage.svelte";
 import {
   clearPluginManagementContext,
   PluginManagementRevealState,
@@ -91,6 +92,17 @@ export function registerPluginManagementSettings(app: App): () => void {
   setPluginManagementContext(settings, { app, reveal });
 
   const disposers = [
+    ...(app.backgroundJobs
+      ? [
+          settings.registerSection({
+            id: "background-jobs",
+            title: "Background jobs",
+            icon: "clock",
+            order: 102,
+            page: BackgroundJobsSettingsPage,
+          }),
+        ]
+      : []),
     registerSearchableSection(settings, {
       id: "plugin-registry",
       title: "Plugin registry",
