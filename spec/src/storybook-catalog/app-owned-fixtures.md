@@ -181,6 +181,9 @@ i18next 26. The ordinary advisory audit remains before builds; this source
 refresh adds no CVE ignore or release/signing authority. Source fixture
 qualification and hosted Web acceptance remain separate evidence.
 
+Fixture qualification also covers the owning parked Sync standalone audit.
+Its private dependency repair does not enable Sync in the signed registry.
+
 ## LN-CAT-125 — Registry acceptance without retired AI
 
 <a id="ln-cat-125"></a>

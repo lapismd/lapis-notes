@@ -368,3 +368,6 @@ Registry fixture dependency defects are fixed in the owning Plugins tooling
 graph before Notes advances its immutable candidate pin. The localization
 refresh preserves native and publication authority while keeping source
 qualification distinct from the host's exact-fixture acceptance.
+
+The separately locked private Sync development graph is repaired in Plugins as
+well; Notes retains its source and audit boundaries when advancing the fixture.

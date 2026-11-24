@@ -58,3 +58,6 @@ The signed Web fixture consumes an immutable reviewed Plugins source with
 patched localization tooling. Its source audit, complete package/payload
 preparation and test signatures qualify fixture construction; actual hosted
 Web acceptance still runs against that exact fixture source.
+
+Fixture source qualification includes the owning private standalone Sync audit;
+that validation graph remains excluded from plugin releases.

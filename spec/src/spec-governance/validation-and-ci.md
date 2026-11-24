@@ -164,3 +164,7 @@ checks; publication still requires its independent dispatch and environment gate
 The immutable Plugins fixture source advances through the reviewed localization
 tooling fix after the old source fails its real audit. Retirement and advisory
 checks remain fatal, followed by package, payload and test-signature verification.
+
+The reviewed Plugins fixture also qualifies its separately audited parked Sync
+development lock. Both source audits stay mandatory; a private dependency
+refresh grants no parked runtime or publication authority.
