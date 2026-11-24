@@ -1,5 +1,7 @@
 # Architecture / Host boundaries
 
+The mobile Tauri host supplies its mobile-managed profile to App Profile and owns its admitted database provider. Its runtime identity is independent of desktop window and plugin capabilities under LN-DB-055.
+
 LN-PLUG-138 keeps discovery and enablement progress in the shared API loader.
 Hosts project reports into their existing startup UI; no Server, Desktop or Web
 adapter owns a duplicate loader or bypasses plugin admission.

@@ -1,5 +1,7 @@
 # Plugin Model / Application services
 
+A Tauri mobile host may inject the shared session native chat factory. Chat remains opt-in on that host under LN-PKG-132.
+
 LN-PKG-199 keeps the active `app-profile/plugin-host-build` export and its types
 while removing App Profile's optional Vite peer. Plugin registration, native Chat
 and workspace lifecycle retain their existing contracts; hosts own build tooling.

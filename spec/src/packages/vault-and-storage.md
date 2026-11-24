@@ -1,5 +1,7 @@
 # Packages / Vault and storage
 
+A mobile-managed VaultProfile identifies an app-private vault without carrying a native filesystem path. Callers of createVaultSession can select the tauri-mobile runtime and provide the admitted database provider for the direct role under LN-DB-055.
+
 Private `lapis-app-core` owns native files under the
 [shared service contract](../architecture/rust-application-services.md).
 Vault/AppDatabase interfaces remain. Root native lanes are independent of browser storage and hosted adoption. Explicit `rust-server` sessions require an injected AppDatabaseProvider and cannot select browser storage. Browser vault resource URLs retain complete bytes, media MIME types and explicit disposal under LN-WEB-091.

@@ -3,6 +3,7 @@ export type RuntimeTarget =
   | "web-pwa"
   | "deno-desktop"
   | "tauri-desktop"
+  | "tauri-mobile"
   | "node-server"
   | "rust-server"
   | "deno-server"

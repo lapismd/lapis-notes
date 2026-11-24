@@ -68,36 +68,43 @@ describe("shared state defaults for every host", () => {
 });
 
 describe("Tauri native database admission", () => {
-  it("passes the Tauri runtime and direct role to its injected provider", async () => {
-    const adapter = new InMemoryDataAdapter();
-    const open = vi.fn(async ({ vaultId }) => {
-      const database = new MemoryAppDatabase(vaultId);
-      await database.open();
-      return database;
-    });
-    const session = await createVaultSession(adapter, {
-      runtime: "tauri-desktop",
-      appDatabaseProvider: { id: "native-test", canOpen: () => true, open },
-    });
-    expect(open).toHaveBeenCalledWith(
-      expect.objectContaining({ runtime: "tauri-desktop", role: "direct" }),
-    );
-    expect(session.runtime).toBe("tauri-desktop");
-    await session.close();
-  });
-  it("rejects an absent provider before any implicit storage fallback", async () => {
-    await expect(
-      createVaultSession(new InMemoryDataAdapter(), {
-        runtime: "tauri-desktop",
-      }),
-    ).rejects.toThrow("tauri-desktop requires an AppDatabaseProvider");
-  });
+  it.each(["tauri-desktop", "tauri-mobile"] as const)(
+    "passes %s and the direct role to its injected provider",
+    async (runtime) => {
+      const adapter = new InMemoryDataAdapter();
+      const open = vi.fn(async ({ vaultId }) => {
+        const database = new MemoryAppDatabase(vaultId);
+        await database.open();
+        return database;
+      });
+      const session = await createVaultSession(adapter, {
+        runtime,
+        appDatabaseProvider: { id: "native-test", canOpen: () => true, open },
+      });
+      expect(open).toHaveBeenCalledWith(
+        expect.objectContaining({ runtime, role: "direct" }),
+      );
+      expect(session.runtime).toBe(runtime);
+      await session.close();
+    },
+  );
+  it.each(["tauri-desktop", "tauri-mobile"] as const)(
+    "requires a provider for %s",
+    async (runtime) => {
+      await expect(
+        createVaultSession(new InMemoryDataAdapter(), {
+          runtime,
+        }),
+      ).rejects.toThrow(`${runtime} requires an AppDatabaseProvider`);
+    },
+  );
 });
 
 describe("native classification without implicit service capabilities", () => {
   it.each([
     ["deno-desktop", true],
     ["tauri-desktop", true],
+    ["tauri-mobile", false],
     ["web-pwa", false],
     ["deno-server", false],
     ["test", false],

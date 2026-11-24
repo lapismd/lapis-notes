@@ -22,14 +22,17 @@ it("bundles user-disableable AI by default for the Rust server without selecting
   expect(factory).not.toHaveBeenCalled();
 });
 
-it("retains the opt-in native AI default for other shared session hosts", () => {
-  const registerStaticPlugins = vi.fn();
-  registerSessionNativeChat(
-    { plugins: { registerStaticPlugins } } as unknown as App,
-    vi.fn(),
-    "web-pwa",
-  );
-  expect(registerStaticPlugins.mock.calls[0][0][0].enabledByDefault).toBe(
-    false,
-  );
-});
+it.each(["tauri-mobile", "web-pwa"] as const)(
+  "retains the opt-in native AI default on %s",
+  (runtime) => {
+    const registerStaticPlugins = vi.fn();
+    registerSessionNativeChat(
+      { plugins: { registerStaticPlugins } } as unknown as App,
+      vi.fn(),
+      runtime,
+    );
+    expect(registerStaticPlugins.mock.calls[0][0][0].enabledByDefault).toBe(
+      false,
+    );
+  },
+);

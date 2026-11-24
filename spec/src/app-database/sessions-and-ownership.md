@@ -1,5 +1,7 @@
 # App Database / Sessions and ownership
 
+The mobile-managed profile identifies the app-private vault for the direct mobile database admission under LN-DB-055.
+
 The public App Profile session accepts an admitted VaultSession under LN-PKG-132.
 It drains App-owned services before closing the session and retains its
 compatibility lease through awaited host cleanup. Failed preflight preserves the
@@ -130,7 +132,7 @@ the Deno-free container build and CI acceptance.
 
 <a id="ln-db-055"></a>
 
-**Requirement.** A `tauri-desktop` session MUST require an explicitly injected AppDatabase provider and open it with the direct role. Missing providers MUST fail before opening browser or memory storage. Explicit test database injection MAY remain supported.
+**Requirement.** A `tauri-desktop` or `tauri-mobile` session MUST require an explicitly injected AppDatabase provider and open it with the direct role. Missing providers MUST fail before opening browser or memory storage. Explicit test database injection MAY remain supported.
 
 ## LN-DB-056 — Direct Turso close ownership
 
