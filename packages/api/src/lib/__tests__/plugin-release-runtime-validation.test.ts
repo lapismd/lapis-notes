@@ -10,6 +10,46 @@ const esmWorkspaceManifest = createEsmWorkspaceRuntimeManifest();
 
 describe("plugin release runtime validation", () => {
   it.each([
+    undefined,
+    'import "node:fs"; export function run() {}',
+    "export function run() {}",
+  ])("validates the signed headless entry %s", (source) => {
+    const manifest = createEsmWorkspaceRuntimeManifest();
+    manifest.lapis!.contributes = {
+      backgroundJobs: [
+        {
+          id: "refresh",
+          title: "Refresh",
+          description: "Refresh saved data",
+          entry: "jobs/refresh.js",
+          schedule: { kind: "interval", seconds: 300 },
+          permissions: {
+            metadataRead: true,
+            frontmatterRead: false,
+            notifications: false,
+            frontmatterFields: [],
+          },
+        },
+      ],
+    };
+    const result = validatePluginReleaseRuntime({
+      releaseManifest: releaseManifestFor(manifest),
+      pluginManifest: manifest,
+      files: filesFor(
+        manifest,
+        source === undefined ? {} : { "jobs/refresh.js": source },
+      ),
+      provenance: "official",
+    });
+    expect(result.errors.map((error) => error.code)).toEqual(
+      source === undefined
+        ? ["runtime-entry-file-missing"]
+        : source.startsWith("import")
+          ? ["runtime-entry-format-mismatch"]
+          : [],
+    );
+  });
+  it.each([
     ["workspace", "@lapis-notes/api/sync-security-host"],
     ["trustedDesktop", "@lapis-notes/api/sync-security-host"],
     ["workspace", "@lapis-notes/api/metadata-store"],

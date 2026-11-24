@@ -5,6 +5,7 @@ export * from "./file-editing-sessions";
 export { bindNativeEditingProblems } from "./native-editing-problems";
 export type { NativeEditingIntents } from "./native-editing-intents";
 export * from "./native-sync";
+export * from "./background-jobs";
 export * from "./events";
 export * from "./components/editor/extensions/autocomplete";
 export * from "./components/editor/extensions/lint";

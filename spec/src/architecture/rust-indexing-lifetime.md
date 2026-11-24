@@ -1,5 +1,7 @@
 # Architecture / Native indexing lifetime
 
+LN-PLUG-141–143 admits bounded headless jobs through a separate Core broker. Metadata queries reuse the selected native indexing owner; the App job observer never publishes metadata or adds a renderer writer.
+
 R3.2.1 moves reconciliation into the admitted vault service under LN-CORE-003,
 LN-CORE-005 and LN-CORE-006. Notes coordinates the existing native database
 writers. Markdown parsing remains in private `lapis-plugin-services`, owned by

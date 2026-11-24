@@ -236,6 +236,19 @@ export const pluginHostModuleRegistry = {
     "specifier": "@lapis-notes/api/app-database",
     "version": "0.6.14"
   },
+  "@lapis-notes/api/background-jobs": {
+    "entry": "@lapis-notes/api/background-jobs",
+    "moduleId": "lapis-notes-api-background-jobs",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/background-jobs",
+    "version": "0.6.14"
+  },
   "@lapis-notes/api/build/vite": {
     "entry": "@lapis-notes/api/build/vite",
     "moduleId": "lapis-notes-api-build-vite",

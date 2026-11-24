@@ -1,5 +1,7 @@
 # Markdown Plugin / Integration contracts
 
+LN-PLUG-141–143 headless handlers receive no Markdown editor or renderer callbacks. Guarded native frontmatter operations preserve the retained Markdown document and editing-claim boundary.
+
 File-view artwork follows LN-PLUG-122 independently of an instantiated tab's
 icon. Markdown retains filename-based Explorer artwork unless its selected
 contribution supplies fileIcon metadata. Icon lookup does not load a document

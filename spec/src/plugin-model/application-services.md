@@ -244,3 +244,15 @@ configuration or vault-persisted values.
 
 CLI presentation is exported by UI, independent of App API version. Each host
 registers it against its explicitly owned workspace settings controller.
+
+## LN-PLUG-141 — Headless job declarations
+
+**Requirement.** Plugins MAY declare bounded `backgroundJobs` descriptors with package-relative self-contained JavaScript entries, schedules and requested permissions. Notes MUST validate declarations and signed bundle entry presence without evaluating the handler. Renderer registration MUST NOT execute headless handlers or grant native authority.
+
+## LN-PLUG-142 — App-owned job observation
+
+**Requirement.** An App MAY receive an admitted native background-jobs port. Observation MUST validate snapshots, retain the highest native revision and drain accepted calls on detach without stopping native work. Startup MUST preserve native trust revocation and Safe Mode. Explicit plugin disable or replacement MUST pause and drain that plugin's work before unloading code.
+
+## LN-PLUG-143 — Explicit job controls
+
+**Requirement.** Hosts with an admitted port MUST expose shared Background jobs settings for explicit capability approval, schedule configuration, pause, manual run, interrupted-run acknowledgment and destination-bound handoff. Local system alerts MUST be optional and shown only when supported. Control errors MUST remain visible without automatic mutation replay.
