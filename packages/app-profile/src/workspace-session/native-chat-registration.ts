@@ -1,3 +1,4 @@
+import type { NotesWorkspaceSessionProps } from "./types";
 import type { App } from "@lapis-notes/api";
 import {
   createNativeChatPlugin,
@@ -7,7 +8,7 @@ import {
 export function registerSessionNativeChat(
   app: App,
   factory: (app: App) => NativeChatHost,
-  runtime: "web-pwa" | "node-server" | "rust-server",
+  runtime: NotesWorkspaceSessionProps["runtime"],
 ): void {
   app.plugins.registerStaticPlugins([
     {

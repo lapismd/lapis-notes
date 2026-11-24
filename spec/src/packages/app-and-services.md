@@ -286,6 +286,8 @@ application policy. Native consumer adoption remains separately outstanding.
 
 **Requirement.** `App` MUST register palette command `app:rebuild-generated-state`. That command MUST await `metadataCache.rebuild()`, then execute `search:rebuild-search-index` when that command is registered, otherwise `appDatabase.rebuildSearchIndex()`.
 
+A Tauri mobile host supplies its app-managed vault session to the shared workspace. The host retains admission and opens its database under LN-DB-055.
+
 ## LN-PKG-132 — Shared application profile and workspace session
 
 <a id="ln-pkg-132"></a>

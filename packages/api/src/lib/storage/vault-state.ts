@@ -14,6 +14,7 @@ export type VaultStorageKind =
   | "opfs"
   | "file-system-access"
   | "desktop-folder"
+  | "mobile-managed"
   | "server-hosted";
 
 export type BootstrapAppearanceMode = "dark" | "light" | "system";

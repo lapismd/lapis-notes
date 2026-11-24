@@ -24,7 +24,7 @@ export interface NotesWorkspaceHost {
 export interface NotesWorkspaceSessionProps {
   profile: VaultProfile;
   session: VaultSession;
-  runtime: "web-pwa" | "node-server" | "rust-server";
+  runtime: "web-pwa" | "node-server" | "rust-server" | "tauri-mobile";
   onReady(app: App): void | Promise<void>;
   onOpenRecent(profile: VaultProfile): Promise<void>;
   onManageVaults(): Promise<void>;

@@ -1,5 +1,7 @@
 # App Database / Sessions and ownership
 
+The mobile-managed profile identifies the app-private vault for the direct mobile database admission under LN-DB-055.
+
 The public App Profile session accepts an admitted VaultSession under LN-PKG-132.
 It drains App-owned services before closing the session and retains its
 compatibility lease through awaited host cleanup. Failed preflight preserves the

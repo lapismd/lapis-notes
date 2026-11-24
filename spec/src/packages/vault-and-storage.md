@@ -1,6 +1,6 @@
 # Packages / Vault and storage
 
-Callers of createVaultSession can select the tauri-mobile runtime and provide the admitted database provider for the direct role under LN-DB-055.
+A mobile-managed VaultProfile identifies an app-private vault without carrying a native filesystem path. Callers of createVaultSession can select the tauri-mobile runtime and provide the admitted database provider for the direct role under LN-DB-055.
 
 Private `lapis-app-core` owns native files under the
 [shared service contract](../architecture/rust-application-services.md).
