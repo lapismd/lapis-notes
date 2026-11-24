@@ -352,3 +352,10 @@ test-signed archive fixtures remain separate acceptance inputs. Local consumer q
 - pnpm-lock.yaml SHA-256: `29cea641f8dd6775c582a38498bbdd300e6bdb5aac371f795e369ea01d18d71c`
 
 <!-- ci-dependency-image:end -->
+
+The API peer contract also supports patched i18next `^26.3.4`, retaining its
+existing `^25.3.0` compatibility range. API development and security acceptance
+select the patched major; adopting hosts explicitly select the patched peer.
+The real localization manager verifies inherited built-in translation keys,
+locale selection, interpolation and resource disposal. Legacy 25 compatibility
+does not claim remediation of GHSA-6jcc-5g8w-32mx.

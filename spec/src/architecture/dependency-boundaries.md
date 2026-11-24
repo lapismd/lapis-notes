@@ -357,3 +357,17 @@ CLI settings expose a controller-owned presentation port through UI's
 `/cli` entry point. Host-specific installation, download and credential authority
 stay in their hosts; the presentation does not import an App implementation or
 require consumers to migrate unrelated App API versions.
+
+Localization remains API-owned. Its peer contract permits patched i18next 26
+alongside existing 25 compatibility; source qualification selects the patched
+major, and security-adopting hosts declare that peer directly. The owner adds
+public compatibility before consumers adopt it, without a consumer override,
+vendored implementation or audit exception.
+
+Registry fixture dependency defects are fixed in the owning Plugins tooling
+graph before Notes advances its immutable candidate pin. The localization
+refresh preserves native and publication authority while keeping source
+qualification distinct from the host's exact-fixture acceptance.
+
+The separately locked private Sync development graph is repaired in Plugins as
+well; Notes retains its source and audit boundaries when advancing the fixture.
