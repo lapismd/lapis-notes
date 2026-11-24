@@ -242,9 +242,9 @@ async function createPreferredAppDatabase(
     if (!provider) await database.open();
     return { appDatabase: database, state: readyState(database, false) };
   }
-  if (runtime === "tauri-desktop") {
+  if (runtime === "tauri-desktop" || runtime === "tauri-mobile") {
     if (!provider)
-      throw new Error("tauri-desktop requires an AppDatabaseProvider");
+      throw new Error(`${runtime} requires an AppDatabaseProvider`);
     const database = await provider.open({ vaultId, runtime, role: "direct" });
     return { appDatabase: database, state: readyState(database, false) };
   }

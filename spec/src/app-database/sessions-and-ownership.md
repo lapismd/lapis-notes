@@ -130,7 +130,7 @@ the Deno-free container build and CI acceptance.
 
 <a id="ln-db-055"></a>
 
-**Requirement.** A `tauri-desktop` session MUST require an explicitly injected AppDatabase provider and open it with the direct role. Missing providers MUST fail before opening browser or memory storage. Explicit test database injection MAY remain supported.
+**Requirement.** A `tauri-desktop` or `tauri-mobile` session MUST require an explicitly injected AppDatabase provider and open it with the direct role. Missing providers MUST fail before opening browser or memory storage. Explicit test database injection MAY remain supported.
 
 ## LN-DB-056 — Direct Turso close ownership
 
