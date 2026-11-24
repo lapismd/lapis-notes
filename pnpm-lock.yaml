@@ -504,7 +504,7 @@ importers:
   packages/app-profile:
     dependencies:
       '@lapis-notes/api':
-        specifier: ^0.6.11
+        specifier: ^0.6.15
         version: link:../api
       '@lapis-notes/file-explorer':
         specifier: ^0.2.8
@@ -522,7 +522,7 @@ importers:
         specifier: ^0.1.12
         version: 0.1.12(@codemirror/language@6.13.1)(@lapis-notes/api@packages+api)(@lezer/common@1.5.5)(@lezer/highlight@1.2.5)(@lezer/lr@1.4.12)(svelte@5.56.10)(tailwindcss@4.3.3)
       '@lapis-notes/workspace':
-        specifier: ^0.4.10
+        specifier: ^0.4.11
         version: link:../workspace
       '@lapismd/agent-ui':
         specifier: ^0.2.8
@@ -841,7 +841,7 @@ importers:
   packages/workspace:
     dependencies:
       '@lapis-notes/api':
-        specifier: ^0.6.11
+        specifier: ^0.6.15
         version: link:../api
       '@lapis-notes/ui':
         specifier: ^0.2.8
