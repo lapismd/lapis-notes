@@ -100,6 +100,7 @@ describe("lapis contribution registry", () => {
   it("exposes built-in contribution point descriptors", () => {
     expect(getLapisContributionPointDescriptors().map((it) => it.kind)).toEqual(
       [
+        "backgroundJobs",
         "agentSkills",
         "operations",
         "ribbonItems",

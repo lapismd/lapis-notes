@@ -1,5 +1,7 @@
 # Workspace Shell / Plugin management
 
+Background jobs settings under LN-PLUG-143 shares the owning workspace Settings controller. Approval, capability selection, pause, manual runs and handoff use the App-owned port; status refresh is passive observation.
+
 Versioned native operation declarations follow
 [LN-PLUG-129](../plugin-model/application-services.md#ln-plug-129).
 The host supplies operation availability and authority; registering manifest

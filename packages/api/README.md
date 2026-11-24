@@ -111,3 +111,63 @@ Shells share one observation per App. Supporting hosts avoid idle claim polling;
 hosts without the optional method retain the existing polling behavior. Disposal
 stops notifications and reconnection. Observing never recovers claims, discards
 buffers or writes files.
+
+## Plugin background jobs
+
+Native Desktop and Server hosts accept opt-in `lapis.contributes.backgroundJobs`
+manifest declarations. Bundle each declared `.js` entry as self-contained ESM
+with a named `run` export; type-only imports disappear during bundling:
+
+```ts
+import type { BackgroundJobHandler } from "@lapis-notes/api/background-jobs";
+
+export const run: BackgroundJobHandler = (context) => {
+  const previous = context.state.load() as { date?: string } | null;
+  if (previous?.date === context.localDate) return;
+  context.notifications.notify({
+    id: `daily-${context.localDate}`,
+    message: "Your daily plugin check is complete.",
+  });
+  context.state.save({ date: context.localDate });
+};
+```
+
+The matching declaration requests only the access the handler uses:
+
+```json
+{
+  "backgroundJobs": [
+    {
+      "id": "daily-check",
+      "title": "Daily check",
+      "description": "Add a daily Lapis notification.",
+      "entry": "jobs/daily-check.js",
+      "schedule": {
+        "kind": "daily",
+        "hour": 9,
+        "minute": 0,
+        "timezone": "UTC"
+      },
+      "permissions": {
+        "metadataRead": false,
+        "frontmatterRead": false,
+        "notifications": true,
+        "frontmatterFields": []
+      }
+    }
+  ]
+}
+```
+
+Users approve capabilities and choose the time, timezone and runner in
+Background jobs settings. Fixed intervals use `{ "kind": "interval", "seconds":
+3600 }`. Run now shares native single-flight admission. Changing installed code
+requires permission review again. Checkpoints stay private to the installation;
+use the explicit handoff receipt to move them to another runner.
+
+Each invocation has bounded memory, execution time and broker calls. The context
+supports synchronous saved-metadata pages, version-guarded note-property changes,
+private checkpoints and persistent Lapis notifications. It provides no DOM,
+network, credentials, process access or module imports. Desktop work requires a
+running Lapis process; Quit drains it. Server work continues after browser detach.
+The Tasks plugin's overdue digest provides a complete bundled example.

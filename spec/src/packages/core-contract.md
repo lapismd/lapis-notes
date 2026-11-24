@@ -216,3 +216,7 @@ Notebook's final registry cohort uses Design Core ^0.9.0 in development hosts an
 Notebook host intake changes generated module admission and dependency ranges only; API runtime interfaces remain unchanged. Its compatibility release MUST remain in the existing API 0.2 peer cohort so unchanged plugins remain admissible. Design Core's new public table contracts use its own minor release.
 
 The public API build/vite entry MUST expose rendererHostModulePlugin for plugin/host build modes, bound to an exact svelteVersion and the generated renderer catalog. This build-only compatibility addition preserves API runtime interfaces and the existing 0.2 plugin peer cohort. CodeMirror Markdown MUST have an explicit public host entry.
+
+The optional public background-jobs API follows LN-PLUG-141 through LN-PLUG-143.
+Both App source and its public handwritten declaration expose the admitted port
+and passive session; built-package contract checks verify this export boundary.

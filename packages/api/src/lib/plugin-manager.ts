@@ -909,6 +909,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     if (!plugin) return undefined;
     const wasEnabled = plugin.enabled;
     const wasPendingReload = this.#pendingReloadPlugins.has(pluginId);
+    await this.app.backgroundJobs?.pausePlugin(pluginId);
     if (!(await this.disablePluginNow(pluginId, false)))
       throw new Error(
         `Plugin ${pluginId} could not finish replacement teardown`,
@@ -1257,6 +1258,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       async (span) => {
         span.setAttribute("plugins.path", this.pluginsPath);
         await this.app.workspaceTrust.ready();
+        await this.app.backgroundJobs?.initialize({ trusted: this.app.workspaceTrust.trusted, safeMode: this.app.safeMode.active });
         this.#loaded = false;
         const communityPluginsEnabled = options.communityPlugins !== "disabled";
         const optionalCorePluginsEnabled =
@@ -2373,6 +2375,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     pluginId: string,
     persist = true,
   ): Promise<boolean> {
+    if (persist) await this.app.backgroundJobs?.pausePlugin(pluginId);
     const plugin = this.plugins.get(pluginId);
     if (!plugin) {
       const indexedExtension = this.#lapisExtensionIndex.get(pluginId);
@@ -3363,6 +3366,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       }
       try {
         switch (entry.kind) {
+          case "backgroundJobs":
           case "agentSkills":
             // Data is read on explicit installation, without activating code.
             break;
@@ -3464,6 +3468,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       }
       try {
         switch (entry.kind) {
+          case "backgroundJobs":
           case "agentSkills":
             // Data is read on explicit installation, without activating code.
             break;

@@ -88,6 +88,7 @@ export function createNotesSessionLifecycle(options: {
           if (persist) await persistLayout();
           disposed = true;
           await attempt(() => app.nativeTasks?.detach());
+          await attempt(() => app.backgroundJobs?.detach());
           await attempt(() => prepareNativeChatLeave(app, "detach"));
           options.fence();
           await attempt(() => app.workspace.disposeWorkspaceHost());

@@ -41,6 +41,7 @@ export class WorkspaceTrustService extends EventDispatcher<WorkspaceTrustEvents>
   constructor(
     adapter: DataAdapter,
     store: KeyValueStore = getDefaultVaultStateStore(),
+    private readonly applyNativeTrust?: (trusted: boolean) => Promise<void>,
   ) {
     super();
     this.identity = getAdapterVaultId(adapter);
@@ -106,6 +107,7 @@ export class WorkspaceTrustService extends EventDispatcher<WorkspaceTrustEvents>
   }
 
   private async updateState(trusted: boolean): Promise<WorkspaceTrustState> {
+    await this.applyNativeTrust?.(trusted);
     const next: WorkspaceTrustState = {
       trusted,
       identity: this.identity,

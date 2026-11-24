@@ -1,5 +1,10 @@
 # Storybook Catalog / App-owned fixtures
 
+The Background Jobs settings fixture under LN-PLUG-143 mounts the production
+WorkspaceSettingsSurface with a real App and admitted simulated transport.
+Its approval/schedule/pause and control-failure stories retain accessibility
+checks and visual-pending status.
+
 The Notes Session integration family mounts the production App Profile session
 under LN-PKG-132, covering ready document opening, optional native Repository
 registration and explicit startup Retry. Its fixture owns admitted memory

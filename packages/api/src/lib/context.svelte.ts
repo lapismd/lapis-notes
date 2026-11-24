@@ -32,6 +32,7 @@ import {
   type UserEvent,
 } from "./command.svelte";
 import { NativeTasksSession, type NativeTasks } from "./native-tasks";
+import { BackgroundJobSession, type NativeBackgroundJobs } from "./background-jobs";
 import { OperationSession, type OperationHost } from "./operations";
 import { MetadataCache } from "./cache.svelte";
 import type {
@@ -155,6 +156,7 @@ export type AppStateProperties = {
   nativeHistoryIndex?: NativeHistoryIndex;
   nativeEditingIntents?: NativeEditingIntents;
   nativeTasks?: NativeTasks;
+  nativeBackgroundJobs?: NativeBackgroundJobs;
   /** Optional host-owned Sync service; the selected provider remains explicit. */
   nativeSync?: NativeSyncPort;
   operations?: OperationHost;
@@ -312,6 +314,7 @@ export class App {
   readonly session?: VaultSession;
   readonly nativeHistoryIndex?: NativeHistoryIndex;
   readonly nativeTasks?: NativeTasksSession;
+  readonly backgroundJobs?: BackgroundJobSession;
   readonly nativeSync?: NativeSyncService;
   readonly operations?: OperationSession;
   readonly skillManagement: SkillManagementHost;
@@ -468,7 +471,11 @@ export class App {
       },
     );
     hostSyncServices.set(this, this.#syncHost);
-    this.workspaceTrust = new WorkspaceTrustService(adapter);
+    const nativeJobs = props.session?.nativeBackgroundJobs ?? props.nativeBackgroundJobs;
+    this.backgroundJobs = nativeJobs ? new BackgroundJobSession(nativeJobs) : undefined;
+    this.workspaceTrust = new WorkspaceTrustService(adapter, undefined, async (trusted) => {
+      await this.backgroundJobs?.setTrust(trusted);
+    });
     this.metadataCache = new MetadataCache(this);
     const nativeTasks = props.session?.nativeTasks ?? props.nativeTasks;
     const operations = props.session?.operations ?? props.operations;

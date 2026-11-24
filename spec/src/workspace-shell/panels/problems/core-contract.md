@@ -1,5 +1,7 @@
 # Problems / Integration contracts
 
+LN-PLUG-142 adds an optional App-owned background-job observer before workspace trust construction. Job failures remain in native run history and settings; this service does not replace Problems collections or their editor ownership.
+
 Source package versions only; publication and host adoption remain separate.
 
 <!-- notes-release-versions:start -->
