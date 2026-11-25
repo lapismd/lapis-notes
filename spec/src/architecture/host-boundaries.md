@@ -1,5 +1,9 @@
 # Architecture / Host boundaries
 
+LN-PLUG-144 gives the App an optional host credential port. The plugin
+manager exposes only the admitted plugin's session and the host retains
+custody and approval policy.
+
 The mobile Tauri host supplies its mobile-managed profile to App Profile and owns its admitted database provider. Its runtime identity is independent of desktop window and plugin capabilities under LN-DB-055.
 
 LN-PLUG-138 keeps discovery and enablement progress in the shared API loader.

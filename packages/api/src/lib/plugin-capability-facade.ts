@@ -2,6 +2,7 @@ export type HostedPluginCapability =
   | "vault:read"
   | "vault:write"
   | "plugin:data"
+  | "plugin:secrets"
   | "commands"
   | "notices"
   | "settings"

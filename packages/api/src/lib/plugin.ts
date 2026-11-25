@@ -36,6 +36,7 @@ import type {
   ConfigurationOptionSourceRegistration,
 } from "./configuration-option-source-registry";
 import type { HostedPluginCapability } from "./plugin-capability-facade";
+import type { PluginSecrets, PluginSecretsLease } from "./plugin-secrets";
 import type { SyncHostCapabilities } from "./sync-host";
 import type {
   MarkdownDirectiveRenderer,
@@ -271,6 +272,7 @@ export interface PluginRuntimeOptions {
   grantedCapabilities?: HostedPluginCapability[];
   createSyncHostCapabilities?: () => SyncHostCapabilities;
   revokeSyncHostCapabilities?: () => void | Promise<void>;
+  openPluginSecrets?: () => PluginSecretsLease;
 }
 
 function formatPluginError(error: unknown): string {
@@ -304,6 +306,9 @@ export abstract class Plugin extends Component {
   #syncHostCapabilities: SyncHostCapabilities | null = null;
   #createSyncHostCapabilities: (() => SyncHostCapabilities) | null = null;
   #revokeSyncHostCapabilities: (() => void | Promise<void>) | null = null;
+  #openPluginSecrets?: () => PluginSecretsLease;
+  #pluginSecrets?: PluginSecretsLease;
+  #acceptsSecrets = false;
 
   constructor(
     readonly app: App,
@@ -362,6 +367,9 @@ export abstract class Plugin extends Component {
     if (options.revokeSyncHostCapabilities !== undefined) {
       this.#revokeSyncHostCapabilities = options.revokeSyncHostCapabilities;
     }
+    if (options.openPluginSecrets !== undefined) {
+      this.#openPluginSecrets = options.openPluginSecrets;
+    }
   }
 
   /**
@@ -377,6 +385,7 @@ export abstract class Plugin extends Component {
     if (this.enabled) return;
 
     this.#runtimeState = "enabling";
+    this.#acceptsSecrets = true;
     this.#failureMessage = null;
 
     try {
@@ -393,6 +402,12 @@ export abstract class Plugin extends Component {
       this.#runtimeState = "enabled";
       this.emit("enable");
     } catch (error) {
+      this.#runtimeState = "failed";
+      try {
+        await this.closePluginSecrets();
+      } catch {
+        // Keep the original activation error after revoking the renderer lease.
+      }
       if (this.app.session?.backgroundIndexing && this.loaded) {
         try {
           await this.unloadAsync();
@@ -403,7 +418,6 @@ export abstract class Plugin extends Component {
           );
         }
       }
-      this.#runtimeState = "failed";
       this.#failureMessage = formatPluginError(error);
       this.#lastFailureMessage = this.#failureMessage;
       this.#failureCount += 1;
@@ -470,6 +484,39 @@ export abstract class Plugin extends Component {
       throw new Error(`Plugin ${this.id} has no host capability runtime`);
     }
     return (this.#syncHostCapabilities ??= this.#createSyncHostCapabilities());
+  }
+
+  /** Persistent storage for this plugin after the host admits `plugin:secrets`. */
+  get secrets(): PluginSecrets {
+    if (
+      !this.#openPluginSecrets ||
+      !this.#acceptsSecrets ||
+      (this.state !== "enabling" && this.state !== "enabled")
+    ) {
+      throw new Error("Plugin secret storage is unavailable");
+    }
+    return (this.#pluginSecrets ??= this.#openPluginSecrets()).secrets;
+  }
+
+  private closePluginSecrets(): void | Promise<void> {
+    this.#acceptsSecrets = false;
+    const lease = this.#pluginSecrets;
+    this.#pluginSecrets = undefined;
+    return lease?.close();
+  }
+
+  override unload(): void {
+    void Promise.resolve(this.closePluginSecrets()).catch(() => undefined);
+    super.unload();
+  }
+
+  protected override async unloadAsync(): Promise<void> {
+    const results = await Promise.allSettled([
+      Promise.resolve(this.closePluginSecrets()),
+      super.unloadAsync(),
+    ]);
+    for (const result of results)
+      if (result.status === "rejected") throw result.reason;
   }
 
   private getDataPath(): string | null {
@@ -555,8 +602,10 @@ export abstract class Plugin extends Component {
   }
 
   async disable(): Promise<void> {
+    this.#runtimeState = "disabling";
     if (!this.loaded) {
       try {
+        await this.closePluginSecrets();
         await this.app.metadataCache?.disableNativeContributions?.(this.id);
         await this.#revokeSyncHostCapabilities?.();
       } finally {
@@ -566,8 +615,6 @@ export abstract class Plugin extends Component {
       this.#failureMessage = null;
       return;
     }
-
-    this.#runtimeState = "disabling";
 
     try {
       await this.app.metadataCache?.disableNativeContributions?.(this.id);

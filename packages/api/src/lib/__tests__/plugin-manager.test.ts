@@ -725,6 +725,48 @@ function getPluginStyle(pluginId: string): HTMLStyleElement | undefined {
 }
 
 describe("PluginManager", () => {
+  it("admits approved plugin secrets only during that plugin's activation", async () => {
+    const close = vi.fn();
+    const open = vi.fn(async () => ({
+      close,
+      secrets: { get: vi.fn(async () => null), set: vi.fn(), delete: vi.fn() },
+    }));
+    const { app } = createTestApp({
+      pluginSecretsHost: { allows: (id) => id === "approved", open },
+    });
+    function plugin(id: string, requested = true) {
+      return class CredentialPlugin extends Plugin {
+        constructor(app: App) {
+          super(app, {
+            id,
+            name: id,
+            version: "1.0.0",
+            minAppVersion: "0.0.0",
+            requiredCapabilities: requested ? ["plugin:secrets"] : [],
+          });
+        }
+        onload() {}
+      };
+    }
+    app.plugins.registerCorePlugins([
+      plugin("approved"),
+      plugin("unapproved"),
+      plugin("undeclared", false),
+    ]);
+    const approved = app.plugins.plugins.get("approved")!;
+    expect(() => approved.secrets).toThrow("unavailable");
+    await app.plugins.loadPlugins();
+    for (const id of ["unapproved", "undeclared"]) {
+      expect(() => app.plugins.plugins.get(id)!.secrets).toThrow("unavailable");
+    }
+    const retained = approved.secrets;
+    await expect(retained.get("token")).resolves.toBeNull();
+    expect(open).toHaveBeenCalledExactlyOnceWith("approved");
+    await expect(app.plugins.disablePlugin("approved")).resolves.toBe(true);
+    await expect(retained.get("token")).rejects.toThrow("closed");
+    expect(close).toHaveBeenCalledTimes(1);
+  });
+
   it.each([
     {
       status: "unsupported",

@@ -19,6 +19,14 @@ export type {
 } from "./native-background-indexing";
 export * from "./plugin";
 export * from "./plugin-capability-facade";
+export {
+  createNativePluginSecretsHost,
+  type PluginCredentialCommand,
+  type PluginCredentialReply,
+  type PluginSecrets,
+  type PluginSecretsHost,
+  type PluginSecretsLease,
+} from "./plugin-secrets";
 export * from "./sync-host";
 export * from "./sync-host-security";
 export * from "./browser-sync-security";

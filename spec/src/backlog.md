@@ -16,6 +16,9 @@ original acceptance boundary. Historical receipts do not schedule current work.
 
 ## Outstanding topics
 
+- Qualify and adopt the LN-PLUG-144 credential capability in Server and
+  Desktop through the released API and App Profile exports.
+
 - Complete hosted qualification of the source89f3ede9 readiness diagnostic
   intake under LN-PKG-196; preserve exact installation classification and
   unchanged publication/recovery authority. Local source evidence lives in

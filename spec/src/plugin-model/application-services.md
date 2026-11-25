@@ -77,6 +77,21 @@ controller or changing host authority.
 
 **Requirement.** Plugin manifests MAY declare versioned native operation contributions. Notes MUST expose generated schemas and an App-owned admitted operations port through its public API. Declarations MUST NOT grant native authority or register renderer callbacks as hosted handlers. Detaching an App MUST drain its observation without cancelling accepted native operations.
 
+## LN-PLUG-144 — Scoped durable plugin secrets
+
+<a id="ln-plug-144"></a>
+
+**Requirement.** An enabled, trusted plugin approved for `plugin:secrets` MAY read, write and delete names through its async API. The host MUST bind installation or profile, owner, plugin, and active session, and MUST revoke access on disablement, unload or detach. Missing values MUST be distinguishable from locked or unavailable custody. Native system credentials MUST be inaccessible through this capability.
+
+Hosts own persistence and policy. The existing synchronous `App.secretStorage`
+continues to provide ephemeral compatibility behavior.
+
+Plugins declare `plugin:secrets` in `requiredCapabilities` and invoke their
+`secrets` facade while active. Names use lowercase ASCII letters, digits and
+hyphens, start with a letter or digit, and contain at most 128 characters.
+Values are stored as UTF-8 strings of at most 32 KiB. The host can refuse access
+or revoke the current scope independently of the plugin's declaration.
+
 Under LN-WS-106, the mobile shell invokes Search through its registered `search:open-search` plugin command. It does not import Search internals. Disabling Search makes that action unavailable, and shell disposal removes only commands registered by that shell.
 
 The shared application profile selects released Markdown `^0.3.3`; it keeps

@@ -3,6 +3,7 @@
 <!-- prettier-ignore -->
 | ID | Chapter | Status | Evidence |
 | --- | --- | --- | --- |
+| LN-PLUG-144 | [plugin-model](../plugin-model/application-services.md#ln-plug-144) | In progress | Plugin Manager and facade regressions cover approval, named access and revocation. Desktop and Server qualify persistence and transport in their owning repositories. |
 | LN-PLUG-129 | [plugin-model](../plugin-model/application-services.md#ln-plug-129) | In progress | [Source qualification](../../records/2026-11-14-plugin-operations.md): 1,788 API tests, root check/test/build, 276 cold interaction/axe scenarios and specification checks pass. Native host adoption and package publication remain separate. |
 | LN-PLUG-127 | [plugin-model](../plugin-model/lifecycle-and-views.md#ln-plug-127) | In progress | [Discovery source](../../records/2026-11-13-deferred-plugin-discovery.md): ribbon regression fails before and passes after; 99 affected, 2,131 package and 276 cold interaction/axe cases pass, plus check/build/spec. Public package and host adoption remain pending. |
 | LN-PLUG-128 | [plugin-model](../plugin-model/lifecycle-and-views.md#ln-plug-128) | In progress | [Discovery source](../../records/2026-11-13-deferred-plugin-discovery.md): menu regression fails before and passes after; changed/retired target and disposal coverage, full source and 276 cold interaction/axe cases pass. Public package and host adoption remain pending. |
