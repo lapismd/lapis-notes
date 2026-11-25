@@ -90,8 +90,8 @@ User-file watch and targeted app-configuration isolation is under source and con
 {
   "schemaVersion": 1,
   "packages": {
-    "@lapis-notes/api": "0.6.15",
-    "@lapis-notes/app-profile": "0.3.1",
+    "@lapis-notes/api": "0.6.16",
+    "@lapis-notes/app-profile": "0.3.2",
     "@lapis-notes/file-explorer": "0.2.8",
     "@lapis-notes/language-service": "0.1.6",
     "@lapis-notes/ui": "0.2.8",
