@@ -49,7 +49,7 @@ Source package versions only; publication and host adoption remain separate.
 {
   "schemaVersion": 1,
   "packages": {
-    "@lapis-notes/app-profile": "0.3.1"
+    "@lapis-notes/app-profile": "0.3.2"
   }
 }
 ```

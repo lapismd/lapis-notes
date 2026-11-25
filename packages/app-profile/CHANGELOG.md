@@ -1,5 +1,26 @@
 # @lapis-notes/app-profile
 
+## 0.3.2
+
+### Patch Changes
+
+- [#200](https://github.com/lapismd/lapis-notes/pull/200)
+  [`70a658d`](https://github.com/lapismd/lapis-notes/commit/70a658d1ad547c58c415ea4ef6be02af2c520121)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Allow a Tauri mobile host
+  to open a vault session with its own direct database provider and present the
+  shared workspace for an app-managed vault.
+
+- [#204](https://github.com/lapismd/lapis-notes/pull/204)
+  [`9d34e7f`](https://github.com/lapismd/lapis-notes/commit/9d34e7f94721ffae62fbcf6f7996c6e9efea69b5)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Allow trusted plugins to
+  request a host-backed `plugin:secrets` capability. The workspace profile
+  passes the host's credential service into the plugin lifecycle. A plugin uses
+  `this.secrets.get`, `set`, and `delete` within its own approved scope.
+- Updated dependencies
+  [[`70a658d`](https://github.com/lapismd/lapis-notes/commit/70a658d1ad547c58c415ea4ef6be02af2c520121),
+  [`9d34e7f`](https://github.com/lapismd/lapis-notes/commit/9d34e7f94721ffae62fbcf6f7996c6e9efea69b5)]:
+  - @lapis-notes/api@0.6.16
+
 ## 0.3.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@lapis-notes/app-profile",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "type": "module",
   "exports": {
     ".": {
@@ -47,7 +47,7 @@
     "prepack": "pnpm build && publint"
   },
   "dependencies": {
-    "@lapis-notes/api": "^0.6.15",
+    "@lapis-notes/api": "^0.6.16",
     "@lapis-notes/file-explorer": "^0.2.8",
     "@lapis-notes/history": "^0.5.1",
     "@lapis-notes/markdown": "^0.3.3",

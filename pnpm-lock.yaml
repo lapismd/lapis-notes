@@ -504,7 +504,7 @@ importers:
   packages/app-profile:
     dependencies:
       '@lapis-notes/api':
-        specifier: ^0.6.15
+        specifier: ^0.6.16
         version: link:../api
       '@lapis-notes/file-explorer':
         specifier: ^0.2.8
