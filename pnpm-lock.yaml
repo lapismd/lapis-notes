@@ -841,7 +841,7 @@ importers:
   packages/workspace:
     dependencies:
       '@lapis-notes/api':
-        specifier: ^0.6.15
+        specifier: ^0.6.17
         version: link:../api
       '@lapis-notes/ui':
         specifier: ^0.2.8

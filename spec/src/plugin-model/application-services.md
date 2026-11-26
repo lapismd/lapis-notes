@@ -41,7 +41,7 @@ Source package versions only; publication and host adoption remain separate.
   "packages": {
     "@lapis-notes/app-profile": "0.3.2",
     "@lapis-notes/file-explorer": "0.2.8",
-    "@lapis-notes/workspace": "0.4.11"
+    "@lapis-notes/workspace": "0.4.12"
   }
 }
 ```
