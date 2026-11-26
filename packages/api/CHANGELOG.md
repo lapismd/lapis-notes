@@ -1,5 +1,16 @@
 # @lapis-notes/api
 
+## 0.6.17
+
+### Patch Changes
+
+- [#205](https://github.com/lapismd/lapis-notes/pull/205)
+  [`45f65fc`](https://github.com/lapismd/lapis-notes/commit/45f65fc321aa21353a93a91b01b384d0910c660b)
+  Thanks [@stevejuma](https://github.com/stevejuma)! - Add explicit origin,
+  private-network and credential-binding controls for native plugin jobs. Keep
+  stored credentials opaque and provide write-only replacement and removal with
+  native configured status.
+
 ## 0.6.16
 
 ### Patch Changes
