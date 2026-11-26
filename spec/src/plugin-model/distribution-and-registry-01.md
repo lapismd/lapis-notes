@@ -11,6 +11,10 @@ visible before checking their content. DOM discovery alone does not establish
 visibility during the existing opening animation; dismissal retains the pointer
 and focus-restoration checks.
 
+Carousel fixture setup scrolls instantly while loading lazy images and proves
+the track is at its start before exercising the real Next control. Setup
+animations cannot overwrite the user interaction being asserted (LN-PLUG-096).
+
 Web installed-plugin acceptance runs through the Web package's pinned Playwright
 SDK CLI. Selecting that runner changes no plugin registration, installation,
 signature policy or product assertion.

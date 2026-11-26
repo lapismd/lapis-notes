@@ -20,6 +20,9 @@ export type {
   JobStatus as BackgroundJobStatus,
   JobTransfer as BackgroundJobTransfer,
   Schedule as BackgroundJobSchedule,
+  JobNetworkGrant as BackgroundJobNetworkGrant,
+  JobCredentialBinding as BackgroundJobCredentialBinding,
+  JobCredentialStatus as BackgroundJobCredentialStatus,
 } from "./native-background-jobs-protocol";
 
 /** An admitted native vault transport. A renderer observes and controls jobs. */
@@ -57,6 +60,16 @@ export interface BackgroundJobContext {
   };
   readonly notifications: {
     notify(notification: { id: string; title?: string; message: string }): void;
+  };
+  /** Native bounded requests, when supported. Binding IDs never expose stored values. */
+  readonly network?: {
+    request(request: {
+      url: string;
+      method?: string;
+      headers?: Record<string, string>;
+      body?: string;
+      credential?: string;
+    }): { status: number; body: string; headers: Record<string, string> };
   };
 }
 export type BackgroundJobHandler = (

@@ -1,5 +1,10 @@
 # Packages / App and services
 
+Optional job network grants and write-only credential controls follow
+[LN-PLUG-145/146](../plugin-model/application-services.md#ln-plug-145). Generated
+native contracts preserve v1 declarations when the extension is absent; the
+App remains an observer and native custody survives its detach.
+
 The application profile exposes browser appearance, browser-frame metadata and installed window controls through `@lapis-notes/app-profile/browser-presentation`. The entry works independently of workspace session startup.
 
 The public API's LN-PLUG-138–140 progress reports retain activation compatibility

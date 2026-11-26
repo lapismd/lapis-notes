@@ -63,14 +63,23 @@ export const StaticRegistryV2MediaAndReleaseNotes: Story = {
     });
     expect(screenshots).toHaveLength(3);
     for (const button of screenshots) {
-      button.scrollIntoView({ block: "nearest", inline: "nearest" });
+      button.scrollIntoView({
+        behavior: "instant",
+        block: "nearest",
+        inline: "nearest",
+      });
       await waitFor(() =>
         expect(button.querySelector("img")?.naturalWidth).toBe(2400),
       );
       const image = button.querySelector("img")!;
       expect(image.getBoundingClientRect().height).toBeGreaterThan(70);
     }
-    screenshots[0].scrollIntoView({ block: "nearest", inline: "start" });
+    screenshots[0].scrollIntoView({
+      behavior: "instant",
+      block: "nearest",
+      inline: "start",
+    });
+    await waitFor(() => expect(track.scrollLeft).toBeLessThanOrEqual(1));
     await waitFor(() =>
       expect(
         detail.getByRole("button", { name: "Previous screenshots" }),

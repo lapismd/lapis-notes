@@ -1,4 +1,4 @@
-# Architecture / Rust application services
+# Architecture / Rust application services — [Job network and opaque custody](../plugin-model/application-services.md#ln-plug-145)
 
 These chapters own shared public App/API behavior. The lapis-server repository
 owns `lapis-app-core`, `lapis-app-protocol`, hosted delivery and their acceptance;

@@ -273,3 +273,11 @@ registers it against its explicitly owned workspace settings controller.
 ## LN-PLUG-143 — Explicit job controls
 
 **Requirement.** Hosts with an admitted port MUST expose shared Background jobs settings for explicit capability approval, schedule configuration, pause, manual run, interrupted-run acknowledgment and destination-bound handoff. Local system alerts MUST be optional and shown only when supported. Control errors MUST remain visible without automatic mutation replay.
+
+## LN-PLUG-145 — Explicit job network approval
+
+**Requirement.** Job declarations MAY request bounded exact-origin and method grants. Notes MUST validate those declarations and native snapshots without granting renderer network authority. Shared controls MUST make origin, private-network and credential-binding approval explicit. New network grants MUST start unapproved; guests MUST use the native broker, and standalone Web MUST NOT add a background network fallback.
+
+## LN-PLUG-146 — Write-only job credentials
+
+**Requirement.** Shared job controls MUST accept write-only credential replacement/removal and display native configured or unavailable status. Stored values MUST NOT enter snapshots, handoffs or plugin configuration. Controls MUST clear submitted values and retain visible errors without retry. Native hosts MUST retain installation, vault, plugin and job custody across client detach.

@@ -334,3 +334,12 @@ can fail SPEC-FIRST-VCS despite unchanged base-tree bytes. Preserve the original
 failed attempt and qualify a fresh synchronize event against current main.
 A future source fix should resolve/fetch immutable event SHAs with regression
 coverage; no required gate is waived. See the [retirement hosted receipt](../../records/2026-11-17-retired-ai-fixture-hosted.md).
+
+## Background-job network and custody adoption
+
+LN-PLUG-141–143 v1 host/publication gates are closed in the
+[closure receipt](../../records/2026-11-26-background-network-controls.md).
+LN-PLUG-145/146 still require complete source qualification, package publication,
+released-range adoption and synthetic bank acceptance in both actual hosts.
+Keep Beancount provider/ledger policy in its native owning service and system
+notification acceptance in Desktop.
