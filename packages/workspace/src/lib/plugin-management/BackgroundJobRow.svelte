@@ -3,10 +3,12 @@
     BackgroundJobCommand,
     BackgroundJobConfiguration,
     BackgroundJobStatus,
+    BackgroundJobNetworkGrant,
   } from "@lapis-notes/api";
   import * as Button from "@lapismd/design-core/shadcn/button";
   import * as Input from "@lapismd/design-core/shadcn/input";
   import { untrack } from "svelte";
+  import BackgroundJobNetwork from "./BackgroundJobNetwork.svelte";
 
   let {
     job,
@@ -24,8 +26,13 @@
   const initial = untrack(
     () => job.configuration?.schedule ?? job.descriptor.schedule,
   );
+  const approvedConfiguration = untrack(() =>
+    job.configuration?.fingerprint === job.fingerprint
+      ? job.configuration
+      : undefined,
+  );
   const initialPermissions = untrack(
-    () => job.configuration?.permissions ?? job.descriptor.permissions,
+    () => approvedConfiguration?.permissions ?? job.descriptor.permissions,
   );
   let kind = $state(initial.kind);
   let seconds = $state(initial.kind === "interval" ? initial.seconds : 3600);
@@ -46,13 +53,28 @@
   let notifications = $state(initialPermissions.notifications);
   let fields = $state([...initialPermissions.frontmatterFields]);
   let nativeNotifications = $state(
-    untrack(() => job.configuration?.nativeNotifications ?? false),
+    approvedConfiguration?.nativeNotifications ?? false,
   );
   let destination = $state("");
   let destinationVault = $state("");
   let validationError = $state("");
+  let network = $state<BackgroundJobNetworkGrant[]>(
+    untrack(() =>
+      (approvedConfiguration?.permissions.network ?? []).map((grant) => ({
+        ...grant,
+        methods: [...grant.methods],
+        credentials: [...grant.credentials],
+      })),
+    ),
+  );
   const key = $derived(`${job.pluginId}-${job.descriptor.id}`);
   const lastRun = $derived(job.runs.at(-1));
+  const changedCode = $derived(
+    Boolean(
+      job.configuration && job.configuration.fingerprint !== job.fingerprint,
+    ),
+  );
+  const unavailable = $derived(Boolean(job.unavailableReason) && !changedCode);
 
   async function configure(enabled: boolean): Promise<void> {
     validationError = "";
@@ -89,6 +111,7 @@
         frontmatterRead,
         notifications,
         frontmatterFields: fields,
+        ...(network.length ? { network } : {}),
       },
     };
     await command({
@@ -117,7 +140,7 @@
       <p>{job.pluginId} · {job.phase}</p>
     </div>
     <div class="lapis-job__actions">
-      {#if job.configuration?.enabled}
+      {#if job.configuration?.enabled && !changedCode}
         <Button.Root
           variant="outline"
           disabled={busy}
@@ -132,8 +155,9 @@
         <Button.Root
           disabled={busy ||
             blocked ||
+            job.phase === "running" ||
             job.phase === "transferred" ||
-            Boolean(job.unavailableReason)}
+            unavailable}
           onclick={() => configure(true)}>Approve and enable</Button.Root
         >
       {/if}
@@ -142,8 +166,9 @@
         disabled={busy ||
           blocked ||
           !job.configuration?.enabled ||
+          changedCode ||
           job.phase === "running" ||
-          Boolean(job.unavailableReason)}
+          unavailable}
         onclick={() =>
           command({
             kind: "runNow",
@@ -212,13 +237,21 @@
       >
     {/if}
   </fieldset>
+  <BackgroundJobNetwork
+    {job}
+    bind:approved={network}
+    {busy}
+    {blocked}
+    {command}
+  />
   <Button.Root
     variant="outline"
     disabled={busy ||
       blocked ||
       job.phase === "running" ||
       job.phase === "transferred" ||
-      Boolean(job.unavailableReason)}
+      changedCode ||
+      unavailable}
     onclick={() => configure(job.configuration?.enabled ?? false)}
     >Save changes</Button.Root
   >
@@ -233,8 +266,8 @@
     {#if lastRun.error}<p role="status">{lastRun.error}</p>{/if}
     {#if lastRun.phase === "interrupted"}
       <p>
-        Inspect the affected notes and saved state before acknowledging this
-        run. Acknowledgment keeps the job paused.
+        Inspect affected notes, external operations and saved state before
+        acknowledging this run. Acknowledgment keeps the job paused.
       </p>
       <Button.Root
         variant="outline"

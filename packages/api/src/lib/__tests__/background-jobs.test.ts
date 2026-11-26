@@ -181,4 +181,63 @@ describe("native background job observation", () => {
       }),
     ).toBe(false);
   });
+
+  it("validates explicit network origins and opaque bindings while preserving v1 declarations", () => {
+    const descriptor = structuredClone(snapshot.jobs[0].descriptor);
+    descriptor.permissions.network = [
+      {
+        origin: "https://bank.example",
+        methods: ["GET"],
+        allowPrivateNetwork: false,
+        credentials: [
+          { id: "bank", header: "authorization", prefix: "Bearer " },
+        ],
+      },
+    ];
+    expect(isBackgroundJobDescriptor(descriptor)).toBe(true);
+    for (const origin of [
+      "https://bank.example/",
+      "https://bank.example/path",
+      "https://user:secret@bank.example",
+      "http://bank.example",
+      "file:///tmp/a",
+    ]) {
+      expect(
+        isBackgroundJobDescriptor({
+          ...descriptor,
+          permissions: {
+            ...descriptor.permissions,
+            network: [{ ...descriptor.permissions.network[0], origin }],
+          },
+        }),
+      ).toBe(false);
+    }
+    expect(isBackgroundJobDescriptor(snapshot.jobs[0].descriptor)).toBe(true);
+  });
+
+  it("observes configured credential status without accepting stored values in snapshots", async () => {
+    const value = structuredClone(snapshot);
+    value.jobs[0].credentials = [
+      { id: "bank", configured: true, unavailableReason: null },
+    ];
+    const jobs = new BackgroundJobSession({ call: async () => value });
+    await expect(jobs.call({ kind: "list" })).resolves.toEqual(value);
+    const leaked = structuredClone(value) as unknown as {
+      jobs: Array<{ credentials: unknown[] }>;
+    };
+    leaked.jobs[0].credentials = [
+      {
+        id: "bank",
+        configured: true,
+        value: "must-not-be-returned",
+        unavailableReason: null,
+      },
+    ];
+    const invalid = new BackgroundJobSession({
+      call: async () => leaked as BackgroundJobSnapshot,
+    });
+    await expect(invalid.call({ kind: "list" })).rejects.toThrow(
+      /Invalid native/,
+    );
+  });
 });

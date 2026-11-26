@@ -1,5 +1,9 @@
 import { z } from "zod/v3";
 import type { JobDescriptor } from "./native-background-jobs-protocol";
+import {
+  jobCredentialStatusSchema,
+  jobNetworkSchema,
+} from "./background-job-network-validation";
 
 const boundedText = z.string().max(1024);
 const identity = z.string().uuid();
@@ -36,6 +40,7 @@ const permissions = z
     frontmatterRead: z.boolean(),
     notifications: z.boolean(),
     frontmatterFields: z.array(z.string().min(1).max(128)).max(32),
+    network: jobNetworkSchema.optional(),
   })
   .strict();
 export const backgroundJobDescriptorSchema = z
@@ -122,6 +127,7 @@ export const jobSnapshotSchema = z
             runs: z.array(run).max(16),
             nextRunAt: timestamp.nullable(),
             unavailableReason: boundedText.nullable(),
+            credentials: z.array(jobCredentialStatusSchema).max(64).optional(),
           })
           .strict(),
       )

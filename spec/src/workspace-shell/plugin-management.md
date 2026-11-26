@@ -5,6 +5,11 @@ facade, including references retained by earlier plugin code.
 
 Background jobs settings under LN-PLUG-143 shares the owning workspace Settings controller. Approval, capability selection, pause, manual runs and handoff use the App-owned port; status refresh is passive observation.
 
+LN-PLUG-145/146 keep network origin, private-network and credential-binding
+approval explicit. New grants start unapproved; write-only key replacement and
+removal display native configured/locked status and clear submitted text. These
+controls retain the same App observer and never own network requests or custody.
+
 Versioned native operation declarations follow
 [LN-PLUG-129](../plugin-model/application-services.md#ln-plug-129).
 The host supplies operation availability and authority; registering manifest
